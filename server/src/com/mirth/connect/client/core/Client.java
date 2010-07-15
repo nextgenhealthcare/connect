@@ -86,6 +86,10 @@ public class Client {
         if (serverConnection != null)
             serverConnection.shutdownTimeoutThread();
     }
+    
+    public ServerConnection getServerConnection() {
+        return serverConnection;
+    }
 
     /**
      * Logs a user in to the Mirth server using the specified name and password.
