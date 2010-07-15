@@ -117,8 +117,7 @@ public class Client {
     }
 
     /**
-     * Returns <code>true</code> if the user is logged in, <code>false</code>
-     * otherwise.
+     * Returns the server id.
      * 
      * @return
      * @throws ClientException
@@ -126,6 +125,18 @@ public class Client {
     public String getServerId() throws ClientException {
         logger.debug("retrieving server's id");
         NameValuePair[] params = { new NameValuePair("op", "getServerId") };
+        return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+    }
+    
+    /**
+     * Returns the time zone of the server.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public String getServerTimezone() throws ClientException {
+        logger.debug("retrieving server's timezone");
+        NameValuePair[] params = { new NameValuePair("op", "getServerTimezone") };
         return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 

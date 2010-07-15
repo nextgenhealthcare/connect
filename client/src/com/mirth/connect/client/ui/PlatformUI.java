@@ -21,6 +21,7 @@ public class PlatformUI {
     public static ImageIcon BACKGROUND_IMAGE;
     public static String SERVER_NAME;
     public static String SERVER_ID;
+    public static String SERVER_TIMEZONE;
     public static String USER_NAME;
     public static String CLIENT_VERSION;
     public static String SERVER_VERSION;

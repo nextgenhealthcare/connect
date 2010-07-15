@@ -14,12 +14,15 @@ import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.SortedMap;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import javax.crypto.KeyGenerator;
@@ -156,6 +159,26 @@ public class DefaultConfigurationController extends ConfigurationController {
      */
     public String getServerId() {
         return serverId;
+    }
+    
+    /*
+     * Return the server timezone in the following format: PDT (UTC -7)
+     */
+    public String getServerTimezone(Locale locale) {
+        TimeZone timeZone = TimeZone.getDefault();
+        boolean daylight = timeZone.inDaylightTime(new Date());
+        
+        // Get the short timezone display name with respect to DST
+        String timeZoneDisplay = timeZone.getDisplayName(daylight, TimeZone.SHORT, locale); 
+        
+        // Get the offset in hours (divide by number of milliseconds in an hour)
+        int offset = timeZone.getOffset(System.currentTimeMillis()) / (3600000);
+        
+        // Get the offset display in either UTC -x or UTC +x
+        String offsetDisplay = (offset < 0) ? String.valueOf(offset) : "+" + offset;
+        timeZoneDisplay += " (UTC " + offsetDisplay + ")";
+        
+        return timeZoneDisplay;
     }
 
     // ast: Get the list of all avaiable encodings for this JVM

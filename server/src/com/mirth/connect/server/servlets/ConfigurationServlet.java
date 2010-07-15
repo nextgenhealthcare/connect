@@ -70,6 +70,9 @@ public class ConfigurationServlet extends MirthServlet {
                 } else if (operation.equals("getServerId")) {
                     response.setContentType("application/xml");
                     out.println(configurationController.getServerId());
+                } else if (operation.equals("getServerTimezone")) {
+                    response.setContentType("application/xml");
+                    out.println(configurationController.getServerTimezone(request.getLocale()));
                 } else if (operation.equals("getGlobalScripts")) {
                     response.setContentType("application/xml");
                     out.println(serializer.toXML(scriptController.getGlobalScripts()));

@@ -10,6 +10,7 @@
 package com.mirth.connect.server.controllers;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 
 import javax.crypto.SecretKey;
@@ -38,6 +39,8 @@ public abstract class ConfigurationController extends Controller {
     public abstract String getDatabaseType();
 
     public abstract String getServerId();
+
+    public abstract String getServerTimezone(Locale locale);
 
     public abstract List<String> getAvaiableCharsetEncodings() throws ControllerException;
 

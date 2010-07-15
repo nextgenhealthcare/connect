@@ -39,6 +39,14 @@ public class StatusBar extends javax.swing.JPanel {
     public String getText() {
         return workingText.getText();
     }
+    
+    public void setServerText(String serverText) {
+        left.setText(serverText);
+    }
+    
+    public String getServerText() {
+        return left.getText();
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
