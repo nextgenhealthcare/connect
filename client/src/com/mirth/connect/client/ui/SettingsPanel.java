@@ -80,6 +80,7 @@ public class SettingsPanel extends javax.swing.JPanel {
         buttonGroup4 = new javax.swing.ButtonGroup();
         buttonGroup5 = new javax.swing.ButtonGroup();
         buttonGroup6 = new javax.swing.ButtonGroup();
+        formatXmlButtonGroup = new javax.swing.ButtonGroup();
         backupPanel = new javax.swing.JPanel();
         backupButton = new javax.swing.JButton();
         restoreButton = new javax.swing.JButton();
@@ -126,6 +127,9 @@ public class SettingsPanel extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         asteriskLabel = new javax.swing.JLabel();
         asteriskLabel1 = new javax.swing.JLabel();
+        formatXmlYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        formatXmlNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        formatXmlLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -508,7 +512,6 @@ public class SettingsPanel extends javax.swing.JPanel {
         rowHighlightYes.setBackground(new java.awt.Color(255, 255, 255));
         rowHighlightYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(rowHighlightYes);
-        rowHighlightYes.setSelected(true);
         rowHighlightYes.setText("Yes");
         rowHighlightYes.setToolTipText("Toggles alternate row highlighting on table rows.");
         rowHighlightYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -530,6 +533,23 @@ public class SettingsPanel extends javax.swing.JPanel {
         asteriskLabel1.setForeground(new java.awt.Color(255, 0, 0));
         asteriskLabel1.setText("*");
 
+        formatXmlYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        formatXmlYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        formatXmlButtonGroup.add(formatXmlYesRadio);
+        formatXmlYesRadio.setSelected(true);
+        formatXmlYesRadio.setText("Yes");
+        formatXmlYesRadio.setToolTipText("Pretty print messages in the message browser that are XML.");
+        formatXmlYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        formatXmlNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        formatXmlNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        formatXmlButtonGroup.add(formatXmlNoRadio);
+        formatXmlNoRadio.setText("No");
+        formatXmlNoRadio.setToolTipText("Pretty print messages in the message browser that are XML.");
+        formatXmlNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        formatXmlLabel.setText("Format XML in message browser:");
+
         javax.swing.GroupLayout clientSettingsLayout = new javax.swing.GroupLayout(clientSettings);
         clientSettings.setLayout(clientSettingsLayout);
         clientSettingsLayout.setHorizontalGroup(
@@ -539,9 +559,14 @@ public class SettingsPanel extends javax.swing.JPanel {
                 .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel6)
                     .addComponent(jLabel7)
-                    .addComponent(jLabel3))
+                    .addComponent(jLabel3)
+                    .addComponent(formatXmlLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(clientSettingsLayout.createSequentialGroup()
+                        .addComponent(formatXmlYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(formatXmlNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(clientSettingsLayout.createSequentialGroup()
                         .addComponent(messageBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -569,6 +594,11 @@ public class SettingsPanel extends javax.swing.JPanel {
                     .addComponent(rowHighlightNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(formatXmlYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(formatXmlNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(formatXmlLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(messageBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3)
@@ -749,6 +779,13 @@ private void secureConnectionSSLActionPerformed(java.awt.event.ActionEvent evt) 
         } else {
             rowHighlightNo.setSelected(true);
         }
+
+        if (userPreferences.getBoolean("messageBrowserFormatXml", true)) {
+            formatXmlYesRadio.setSelected(true);
+        } else {
+            formatXmlNoRadio.setSelected(true);
+        }
+
         try {
             serverProperties = parent.mirthClient.getServerProperties();
 
@@ -868,6 +905,7 @@ private void secureConnectionSSLActionPerformed(java.awt.event.ActionEvent evt) 
             userPreferences.putInt("intervalTime", interval);
             userPreferences.putInt("messageBrowserPageSize", messageBrowserPageSize);
             userPreferences.putBoolean("highlightRows", rowHighlightYes.isSelected());
+            userPreferences.putBoolean("messageBrowserFormatXml", formatXmlYesRadio.isSelected());
 
             if (clearGlobalMapNo.isSelected()) {
                 serverProperties.put("server.resetglobalvariables", UIConstants.NO_OPTION);
@@ -937,6 +975,10 @@ private void secureConnectionSSLActionPerformed(java.awt.event.ActionEvent evt) 
     private com.mirth.connect.client.ui.components.MirthRadioButton clearGlobalMapYes;
     private javax.swing.JPanel clientSettings;
     private com.mirth.connect.client.ui.components.MirthTextField defaultFrom;
+    private javax.swing.ButtonGroup formatXmlButtonGroup;
+    private javax.swing.JLabel formatXmlLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton formatXmlNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton formatXmlYesRadio;
     private com.mirth.connect.client.ui.components.MirthTextField intervalTime;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;

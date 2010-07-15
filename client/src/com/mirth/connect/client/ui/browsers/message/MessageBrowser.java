@@ -35,6 +35,7 @@ import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -302,6 +303,13 @@ public class MessageBrowser extends javax.swing.JPanel {
         // Set the default page size
         pageSize = Preferences.userNodeForPackage(Mirth.class).getInt("messageBrowserPageSize", 20);
         pageSizeField.setText(pageSize + "");
+        
+        boolean formatXmlSelected = Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserFormatXml", true);
+        formatXmlRawCheckBox.setSelected(formatXmlSelected);
+        formatXmlTransformedCheckBox.setSelected(formatXmlSelected);
+        formatXmlEncodedCheckBox.setSelected(formatXmlSelected);
+        
+        disableFormatXmlCheckBox();
 
         // use the start filters and make the table.
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, false);
@@ -926,6 +934,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             messageTable.clearSelection();
             clearDescription();
         }
+        disableFormatXmlCheckBox();
     }
 
     /**
@@ -1047,19 +1056,27 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         if (message != null) {
             if (protocol != null) {
+                if (protocol.equals(MessageObject.Protocol.XML) || protocol.equals(Protocol.HL7V3)) {
+                    getFormatXmlCheckBox(textPane).setEnabled(true);
+                } else {
+                    getFormatXmlCheckBox(textPane).setEnabled(false);
+                }
+                
                 if (protocol.equals(MessageObject.Protocol.HL7V2) || protocol.equals(MessageObject.Protocol.NCPDP) || protocol.equals(MessageObject.Protocol.DICOM)) {
                     newDoc.setTokenMarker(new HL7TokenMarker());
                 } else if (protocol.equals(MessageObject.Protocol.XML) || protocol.equals(Protocol.HL7V3)) {
                     newDoc.setTokenMarker(new XMLTokenMarker());
-                    DocumentSerializer serializer = new DocumentSerializer();
 
-                    try {
-                        Document doc = serializer.fromXML(message);
-                        message = serializer.toXML(doc);
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
+                    if (getFormatXmlCheckBox(textPane).isSelected()) {
+                        DocumentSerializer serializer = new DocumentSerializer(true);
+
+                        try {
+                            Document doc = serializer.fromXML(message);
+                            message = serializer.toXML(doc);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
                     }
-
                 } else if (protocol.equals(MessageObject.Protocol.X12)) {
                     newDoc.setTokenMarker(new X12TokenMarker());
                 } else if (protocol.equals(MessageObject.Protocol.EDI)) {
@@ -1096,6 +1113,54 @@ public class MessageBrowser extends javax.swing.JPanel {
     public MessageObjectFilter getCurrentFilter() {
         return messageObjectFilter;
     }
+
+    private void formatXmlCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {
+        JCheckBox formatXmlCheckBox = (JCheckBox) evt.getSource();
+        boolean selected = formatXmlCheckBox.isSelected();
+        
+        if (!formatXmlCheckBox.equals(formatXmlRawCheckBox)) {
+            formatXmlRawCheckBox.setSelected(selected);
+        }
+        if (!formatXmlCheckBox.equals(formatXmlTransformedCheckBox)) {
+            formatXmlTransformedCheckBox.setSelected(selected);
+        }
+        if (!formatXmlCheckBox.equals(formatXmlEncodedCheckBox)) {
+            formatXmlEncodedCheckBox.setSelected(selected);
+        }
+        
+        int row = getSelectedMessageIndex();
+
+        if (row >= 0) {
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+            MessageObject currentMessage = messageObjectList.get(row);
+
+            setCorrectDocument(RawMessageTextPane, currentMessage.getRawData(), currentMessage.getRawDataProtocol());
+            setCorrectDocument(TransformedMessageTextPane, currentMessage.getTransformedData(), currentMessage.getTransformedDataProtocol());
+            setCorrectDocument(EncodedMessageTextPane, currentMessage.getEncodedData(), currentMessage.getEncodedDataProtocol());
+            
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
+    }
+    
+    private JCheckBox getFormatXmlCheckBox(MirthSyntaxTextArea textPane) {
+        if (textPane.equals(RawMessageTextPane)) {
+            return formatXmlRawCheckBox;
+        } else if (textPane.equals(TransformedMessageTextPane)) {
+            return formatXmlTransformedCheckBox;
+        } else if (textPane.equals(EncodedMessageTextPane)) {
+            return formatXmlEncodedCheckBox;
+        } else {
+            return null;
+        }
+    }
+    
+    private void disableFormatXmlCheckBox() {
+        formatXmlRawCheckBox.setEnabled(false);
+        formatXmlTransformedCheckBox.setEnabled(false);
+        formatXmlEncodedCheckBox.setEnabled(false);
+    }
+
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -1124,10 +1189,13 @@ public class MessageBrowser extends javax.swing.JPanel {
         descriptionTabbedPane = new javax.swing.JTabbedPane();
         RawMessagePanel = new javax.swing.JPanel();
         RawMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        formatXmlRawCheckBox = new javax.swing.JCheckBox();
         TransformedMessagePanel = new javax.swing.JPanel();
         TransformedMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        formatXmlTransformedCheckBox = new javax.swing.JCheckBox();
         EncodedMessagePanel = new javax.swing.JPanel();
         EncodedMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        formatXmlEncodedCheckBox = new javax.swing.JCheckBox();
         mappingsPane = new javax.swing.JScrollPane();
         mappingsTable = null;
         ErrorsPanel = new javax.swing.JPanel();
@@ -1319,20 +1387,33 @@ public class MessageBrowser extends javax.swing.JPanel {
         RawMessageTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         RawMessageTextPane.setEditable(false);
 
+        formatXmlRawCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        formatXmlRawCheckBox.setText("Format XML Messages");
+        formatXmlRawCheckBox.setToolTipText("Pretty print messages that are XML.");
+        formatXmlRawCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                formatXmlRawCheckBoxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout RawMessagePanelLayout = new javax.swing.GroupLayout(RawMessagePanel);
         RawMessagePanel.setLayout(RawMessagePanelLayout);
         RawMessagePanelLayout.setHorizontalGroup(
             RawMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(RawMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(RawMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 717, Short.MAX_VALUE)
+                .addGroup(RawMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(formatXmlRawCheckBox)
+                    .addComponent(RawMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 717, Short.MAX_VALUE))
                 .addContainerGap())
         );
         RawMessagePanelLayout.setVerticalGroup(
             RawMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(RawMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(RawMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
+                .addComponent(RawMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(formatXmlRawCheckBox)
                 .addContainerGap())
         );
 
@@ -1344,20 +1425,33 @@ public class MessageBrowser extends javax.swing.JPanel {
         TransformedMessageTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         TransformedMessageTextPane.setEditable(false);
 
+        formatXmlTransformedCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        formatXmlTransformedCheckBox.setText("Format XML Messages");
+        formatXmlTransformedCheckBox.setToolTipText("Pretty print messages that are XML.");
+        formatXmlTransformedCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                formatXmlTransformedCheckBoxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout TransformedMessagePanelLayout = new javax.swing.GroupLayout(TransformedMessagePanel);
         TransformedMessagePanel.setLayout(TransformedMessagePanelLayout);
         TransformedMessagePanelLayout.setHorizontalGroup(
             TransformedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(TransformedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(TransformedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 717, Short.MAX_VALUE)
+                .addGroup(TransformedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(formatXmlTransformedCheckBox)
+                    .addComponent(TransformedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 717, Short.MAX_VALUE))
                 .addContainerGap())
         );
         TransformedMessagePanelLayout.setVerticalGroup(
             TransformedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(TransformedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(TransformedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
+                .addComponent(TransformedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(formatXmlTransformedCheckBox)
                 .addContainerGap())
         );
 
@@ -1369,20 +1463,33 @@ public class MessageBrowser extends javax.swing.JPanel {
         EncodedMessageTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         EncodedMessageTextPane.setEditable(false);
 
+        formatXmlEncodedCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        formatXmlEncodedCheckBox.setText("Format XML Messages");
+        formatXmlEncodedCheckBox.setToolTipText("Pretty print messages that are XML.");
+        formatXmlEncodedCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                formatXmlEncodedCheckBoxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout EncodedMessagePanelLayout = new javax.swing.GroupLayout(EncodedMessagePanel);
         EncodedMessagePanel.setLayout(EncodedMessagePanelLayout);
         EncodedMessagePanelLayout.setHorizontalGroup(
             EncodedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(EncodedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(EncodedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 717, Short.MAX_VALUE)
+                .addGroup(EncodedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(formatXmlEncodedCheckBox)
+                    .addComponent(EncodedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 717, Short.MAX_VALUE))
                 .addContainerGap())
         );
         EncodedMessagePanelLayout.setVerticalGroup(
             EncodedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(EncodedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(EncodedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
+                .addComponent(EncodedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(formatXmlEncodedCheckBox)
                 .addContainerGap())
         );
 
@@ -1547,6 +1654,18 @@ public class MessageBrowser extends javax.swing.JPanel {
         advSearchFilterPopup.setVisible(true);
 
     }//GEN-LAST:event_advSearchButtonActionPerformed
+
+    private void formatXmlRawCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatXmlRawCheckBoxActionPerformed
+        formatXmlCheckBoxActionPerformed(evt);
+    }//GEN-LAST:event_formatXmlRawCheckBoxActionPerformed
+
+    private void formatXmlTransformedCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatXmlTransformedCheckBoxActionPerformed
+        formatXmlCheckBoxActionPerformed(evt);
+    }//GEN-LAST:event_formatXmlTransformedCheckBoxActionPerformed
+
+    private void formatXmlEncodedCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatXmlEncodedCheckBoxActionPerformed
+        formatXmlCheckBoxActionPerformed(evt);
+    }//GEN-LAST:event_formatXmlEncodedCheckBoxActionPerformed
 
     private void nextPageButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_nextPageButtonActionPerformed
         parent.setWorking("Loading next page...", true);
@@ -1755,6 +1874,9 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JTabbedPane descriptionTabbedPane;
     private javax.swing.JButton filterButton;
     private javax.swing.JPanel filterPanel;
+    private javax.swing.JCheckBox formatXmlEncodedCheckBox;
+    private javax.swing.JCheckBox formatXmlRawCheckBox;
+    private javax.swing.JCheckBox formatXmlTransformedCheckBox;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;

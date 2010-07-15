@@ -28,13 +28,23 @@ import org.xml.sax.InputSource;
 public class DocumentSerializer implements IXMLSerializer<Document> {
     private Logger logger = Logger.getLogger(this.getClass());
     private String[] cDataElements = null;
+    private boolean omitXmlDeclaration = false;
 
     public DocumentSerializer() {
-        
+        this(null, false);
+    }
+    
+    public DocumentSerializer(boolean omitXmlDeclaration) {
+        this(null, omitXmlDeclaration);
     }
     
     public DocumentSerializer(String[] cDataElements) {
+        this(cDataElements, false);
+    }
+    
+    public DocumentSerializer(String[] cDataElements, boolean omitXmlDeclaration) {
         this.cDataElements = cDataElements;
+        this.omitXmlDeclaration = omitXmlDeclaration;
     }
 
     public String toXML(Document source) {
@@ -51,7 +61,13 @@ public class DocumentSerializer implements IXMLSerializer<Document> {
                 logger.warn("Could not set Document Serializer attribute: indent-number", ex);
             }
             Transformer transformer = factory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+            
+            if (omitXmlDeclaration) {
+                transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            } else {
+                transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+            }
+            
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 
