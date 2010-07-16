@@ -20,6 +20,7 @@ public class MirthLauncher {
 
     public static void main(String[] args) {
         String launcherFile = DEFAULT_LAUNCHER_FILE;
+        
         if (args.length > 0) {
             launcherFile = args[0];
         }

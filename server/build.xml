@@ -1,7 +1,7 @@
 <project name="mirth" basedir="." default="help">
-	
+
 	<property name="keystore_property_file" value="keystore.properties" />
-	
+
 	<target name="help">
 		<echo>Mirth Connect Build Help</echo>
 	</target>
@@ -565,17 +565,10 @@
 	</target>
 
 	<target name="create-client-lib" depends="init">
-		
 		<property file="${keystore_property_file}" />
-		
+
 		<!-- sign jars for webstart -->
-		<signjar alias="${key.alias}" 
-			keystore="${key.keystore}" 
-			storepass="${key.storepass}" 
-			keypass="${key.keypass}"
-			storetype="${key.storetype}"
-			tsaurl="https://timestamp.geotrust.com/tsa"
-		>
+		<signjar alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
 			<fileset dir="${client.lib}">
 				<include name="**/*.jar" />
 			</fileset>
@@ -671,17 +664,12 @@
 			<include name="com/mirth/connect/connectors/*.class" />
 			<include name="org/**" />
 
-			<exclude name="com/mirth/connect/server/launcher/**" />
-			<exclude name="com/mirth/connect/server/mbeans/**" />
-		</jar>
-
-		<!-- create the mirth-launcher jar -->
-		<jar destfile="${setup}/${mirth-launcher.jar}" basedir="${classes}">
-			<include name="com/mirth/connect/server/launcher/**" />
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.MirthLauncher" />
 				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar conf/" />
 			</manifest>
+
+			<exclude name="com/mirth/connect/server/mbeans/**" />
 		</jar>
 
 		<!-- create the ant task jar -->
@@ -709,7 +697,7 @@
 			</classpath>
 			<arg value="conf/derby/derby-database.sql" />
 		</java>
-		
+
 
 		<!-- copy the newly created database over -->
 		<copy todir="${setup}/mirthdb">
@@ -762,7 +750,7 @@
 			<fileset dir="${cli}/dist/" includes="*.zip" />
 		</copy>
 	</target>
-	
+
 	<target name="create-derby-db" depends="compile">
 		<!-- re-create the embedded database -->
 		<delete dir="mirthdb" />
@@ -780,16 +768,15 @@
 			<arg value="conf/derby/derby-database.sql" />
 		</java>
 	</target>
-	
-	
+
 	<target name="dev-launcher" depends="init" description="This runs Mirth using the setup launcher">
 		<java classname="com.mirth.connect.server.launcher.MirthLauncher" fork="true" dir="${setup}" failonerror="true">
 			<classpath>
-				<pathelement location="${setup}/mirth-launcher.jar" />
+				<pathelement location="${setup}/mirth-server.jar" />
 			</classpath>
 		</java>
 	</target>
-	
+
 	<target name="dev-run" depends="init" description="This runs the mirth server using the Eclipse environment">
 		<java classname="com.mirth.connect.server.Mirth" fork="true" dir="${basedir}" failonerror="true">
 			<classpath>
@@ -803,5 +790,4 @@
 			</classpath>
 		</java>
 	</target>
-	
 </project>

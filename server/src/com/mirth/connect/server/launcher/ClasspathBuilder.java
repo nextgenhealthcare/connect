@@ -66,7 +66,7 @@ public class ClasspathBuilder {
 			for (int i = 0; i < classpathElement.getElementsByTagName("lib").getLength(); i++) {
 				String base = classpathElement.getAttribute("base");
 				Element pathElement = (Element) classpathElement.getElementsByTagName("lib").item(i);
-				File path = new File(base + "/" + pathElement.getAttribute("path"));
+				File path = new File(base + File.separator + pathElement.getAttribute("path"));
 				
 				if (path.exists()) {
 					if (path.isDirectory()) {
@@ -105,8 +105,10 @@ public class ClasspathBuilder {
 					for (int i = 0; i < libraries.getLength(); i++) {
 						Element element = (Element)libraries.item(i);
 						String type = element.getElementsByTagName("type").item(0).getTextContent();
+						
 						if (type.equalsIgnoreCase("server") || type.equalsIgnoreCase("shared")) {
 							File file = new File(directory.getAbsolutePath() + File.separator + element.getAttribute("path"));
+							
 							if (file.exists()) {
 								urls.add(file.toURI().toURL());
 							} else {
