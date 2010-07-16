@@ -10,11 +10,9 @@
 package com.mirth.connect.cli;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -37,6 +35,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import com.mirth.connect.client.core.Client;
@@ -47,11 +47,11 @@ import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.model.ChannelStatus.State;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.SystemEvent;
 import com.mirth.connect.model.User;
-import com.mirth.connect.model.ChannelStatus.State;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.SystemEventFilter;
 import com.mirth.connect.model.util.ImportConverter;
@@ -391,7 +391,7 @@ public class CommandLineInterface {
     }
 
     private void addToken(List<Token> tokens, StringBuilder currentText) {
-        if (currentText == null || currentText.length() == 0) {
+        if (StringUtils.isEmpty(currentText.toString())) {
             // empty or commented line
             return;
         }
@@ -539,7 +539,6 @@ public class CommandLineInterface {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             List<ChannelStatus> channelStatus = client.getChannelStatusList();
@@ -555,7 +554,6 @@ public class CommandLineInterface {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 channelStatus = client.getChannelStatusList();
@@ -583,7 +581,7 @@ public class CommandLineInterface {
             File fXml = new File(path);
             out.println("Exporting Configuration");
             String configurationXML = serializer.toXML(configuration);
-            writeFile(fXml, configurationXML, false);
+            FileUtils.writeStringToFile(fXml, configurationXML);
         } catch (IOException e) {
             error("unable to write file " + path + ": " + e, e);
         }
@@ -597,7 +595,7 @@ public class CommandLineInterface {
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
         try {
-            client.setServerConfiguration((ServerConfiguration) serializer.fromXML(readFile(fXml)));
+            client.setServerConfiguration((ServerConfiguration) serializer.fromXML(FileUtils.readFileToString(fXml)));
         } catch (IOException e) {
             error("cannot read " + path, e);
             return;
@@ -624,7 +622,7 @@ public class CommandLineInterface {
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
         try {
-            String alertsXml = readFile(fXml);
+            String alertsXml = FileUtils.readFileToString(fXml);
             try {
                 alertsXml = ImportConverter.convertAlerts(alertsXml);
             } catch (Exception e) {
@@ -649,7 +647,7 @@ public class CommandLineInterface {
             File fXml = new File(path);
             out.println("Exporting alerts");
             String alertsXML = serializer.toXML(alerts);
-            writeFile(fXml, alertsXML, false);
+            FileUtils.writeStringToFile(fXml, alertsXML);
         } catch (IOException e) {
             error("unable to write file " + path + ": " + e, e);
         }
@@ -669,7 +667,7 @@ public class CommandLineInterface {
         try {
             String scriptsXml = serializer.toXML(client.getGlobalScripts());
             out.println("Exporting scripts");
-            writeFile(fXml, scriptsXml, false);
+            FileUtils.writeStringToFile(fXml, scriptsXml);
         } catch (IOException e) {
             error("unable to write file " + path + ": " + e, e);
         }
@@ -701,7 +699,7 @@ public class CommandLineInterface {
             File fXml = new File(path);
             out.println("Exporting code templates");
             String codeTemplatesXml = serializer.toXML(codeTemplates);
-            writeFile(fXml, codeTemplatesXml, false);
+            FileUtils.writeStringToFile(fXml, codeTemplatesXml);
         } catch (IOException e) {
             error("unable to write file " + path + ": " + e, e);
         }
@@ -719,7 +717,7 @@ public class CommandLineInterface {
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         try {
-            String codeTemplatesXml = readFile(fXml);
+            String codeTemplatesXml = FileUtils.readFileToString(fXml);
             try {
                 codeTemplatesXml = ImportConverter.convertCodeTemplates(codeTemplatesXml);
             } catch (Exception e) {
@@ -760,7 +758,7 @@ public class CommandLineInterface {
                     File fXml = new File(path + channel.getName() + ".xml");
                     out.println("Exporting " + channel.getName());
                     String channelXML = serializer.toXML(channel);
-                    writeFile(fXml, channelXML, false);
+                    FileUtils.writeStringToFile(fXml, channelXML);
                 } catch (IOException e) {
                     error("unable to write file " + path + ": " + e, e);
                 }
@@ -776,7 +774,7 @@ public class CommandLineInterface {
                     out.println("Exporting " + channel.getName());
                     String channelXML = serializer.toXML(channel);
                     try {
-                        writeFile(fXml, channelXML, false);
+                        FileUtils.writeStringToFile(fXml, channelXML);
                     } catch (IOException e) {
                         error("unable to write file " + path + ": " + e, e);
                     }
@@ -788,8 +786,6 @@ public class CommandLineInterface {
     }
 
     private void commandAllChannelStats(Token[] arguments) throws ClientException {
-        // out.println("Mirth Channel Statistics Dump: "
-        // + (new Date()).toString() + "\n");
         out.println("Received\tFiltered\tQueued\t\tSent\t\tErrored\t\tAlerted\t\tName");
 
         List<Channel> channels = client.getChannel(null);
@@ -941,12 +937,10 @@ public class CommandLineInterface {
      * formatted correctly
      */
     public boolean checkChannelName(String name, String id) throws ClientException {
-        if (name.equals("")) {
+        if (StringUtils.isEmpty(name)) {
             out.println("Channel name cannot be empty.");
             return false;
-        }
-
-        if (name.length() > 40) {
+        } else if (name.length() > 40) {
             out.println("Channel name cannot be longer than 40 characters.");
             return false;
         }
@@ -1035,32 +1029,28 @@ public class CommandLineInterface {
         dumpFilename = replaceValues(dumpFilename);
 
         StringBuilder builder = new StringBuilder();
-        builder.append("Mirth Event Log Dump: " + (new Date()).toString() + "\n");
+        builder.append("Mirth Connect Event Log Dump: " + (new Date()).toString() + "\n");
         builder.append("Id, Event, Date, Description, Level\n");
 
         File dumpFile = new File(dumpFilename);
         SystemEventListHandler eventListHandler = client.getSystemEventListHandler(new SystemEventFilter(), 20, false);
+        
         try {
             List<SystemEvent> events = eventListHandler.getFirstPage();
 
-            // create the new empty file.
-            writeFile(dumpFile, "", false);
-
-            while (events.size() != 0) {
+            while (!events.isEmpty()) {
                 for (SystemEvent event : events) {
                     builder.append(event.getId() + ", " + event.getEvent() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel() + "\n");
                 }
 
-                writeFile(dumpFile, builder.toString(), true);
-                builder.delete(0, builder.length());
-
                 events = eventListHandler.getNextPage();
             }
-
-        } catch (ListHandlerException e1) {
-            e1.printStackTrace();
-        } catch (IOException e) {
-            error("Could not write file: " + dumpFile.getAbsolutePath(), e);
+            
+            FileUtils.writeStringToFile(dumpFile, builder.toString());
+        } catch (ListHandlerException lhe) {
+            lhe.printStackTrace();
+        } catch (IOException ioe) {
+            error("Could not write file: " + dumpFile.getAbsolutePath(), ioe);
         }
 
         out.println("Events written to " + dumpFilename);
@@ -1084,27 +1074,11 @@ public class CommandLineInterface {
         File dumpFile = new File(dumpFilename);
 
         try {
-            writeFile(dumpFile, builder.toString(), false);
+            FileUtils.writeStringToFile(dumpFile, builder.toString());
             out.println("Stats written to " + dumpFilename);
         } catch (IOException e) {
             error("Could not write file: " + dumpFile.getAbsolutePath(), e);
         }
-    }
-
-    public static String readFile(File file) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        StringBuilder contents = new StringBuilder();
-        String line = null;
-
-        try {
-            while ((line = reader.readLine()) != null) {
-                contents.append(line + "\n");
-            }
-        } finally {
-            reader.close();
-        }
-
-        return contents.toString();
     }
 
     private void doImportScript(File scriptFile) throws ClientException {
@@ -1112,7 +1086,7 @@ public class CommandLineInterface {
         String scriptsXml = new String();
 
         try {
-            scriptsXml = readFile(scriptFile);
+            scriptsXml = FileUtils.readFileToString(scriptFile);
         } catch (Exception e) {
             error("invalid script file.", e);
             return;
@@ -1176,17 +1150,6 @@ public class CommandLineInterface {
     private String replaceValues(String source) {
         source = source.replaceAll("\\$\\{date\\}", getTimeStamp());
         return source;
-    }
-
-    private void writeFile(File file, String data, boolean append) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file, append));
-
-        try {
-            writer.write(data);
-            writer.flush();
-        } finally {
-            writer.close();
-        }
     }
 
     private String getTimeStamp() {
