@@ -328,13 +328,13 @@ public class CommandLineInterface {
             e.printStackTrace(err);
         }
     }
-    
+
     private boolean hasInvalidNumberOfArguments(Token[] arguments, int expected) {
         if ((arguments.length - 1) < expected) {
             error("invalid number of arguments.", null);
             return true;
         }
-        
+
         return false;
     }
 
@@ -617,12 +617,12 @@ public class CommandLineInterface {
         File fXml = new File(path);
         doImportChannel(fXml, force);
     }
-    
+
     private void commandImportAlerts(Token[] arguments) throws ClientException {
         String path = arguments[1].getText();
         File fXml = new File(path);
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        
+
         try {
             String alertsXml = readFile(fXml);
             try {
@@ -630,7 +630,7 @@ public class CommandLineInterface {
             } catch (Exception e) {
                 error("error migrating alerts", e);
             }
-            
+
             client.updateAlerts((List<Alert>) serializer.fromXML(alertsXml));
         } catch (IOException e) {
             error("cannot read " + path, e);
@@ -639,7 +639,7 @@ public class CommandLineInterface {
 
         out.println("Alerts Import Complete");
     }
-    
+
     private void commandExportAlerts(Token[] arguments) throws ClientException {
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         String path = arguments[1].getText();
@@ -661,11 +661,11 @@ public class CommandLineInterface {
         if (hasInvalidNumberOfArguments(arguments, 1)) {
             return;
         }
-        
+
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         String path = arguments[1].getText();
         File fXml = new File(path);
-        
+
         try {
             String scriptsXml = serializer.toXML(client.getGlobalScripts());
             out.println("Exporting scripts");
@@ -770,7 +770,7 @@ public class CommandLineInterface {
         } else {
             File fXml = new File(path);
             StringToken skey = Token.stringToken(key.getText());
-            
+
             for (Channel channel : channels) {
                 if (skey.equalsIgnoreCase(channel.getName()) != skey.equalsIgnoreCase(channel.getId())) {
                     out.println("Exporting " + channel.getName());
@@ -909,18 +909,18 @@ public class CommandLineInterface {
             }
         }
     }
-    
+
     private void commandChannelDeploy(Token[] arguments) throws ClientException {
         client.deployChannels(getMatchingChannels(arguments[2]));
     }
 
     private void commandChannelUndeploy(Token[] arguments) throws ClientException {
         List<String> channelIds = new ArrayList<String>();
-        
+
         for (Channel channel : getMatchingChannels(arguments[2])) {
             channelIds.add(channel.getId());
         }
-        
+
         client.undeployChannels(channelIds);
     }
 
@@ -953,9 +953,9 @@ public class CommandLineInterface {
 
         Pattern alphaNumericPattern = Pattern.compile("^[a-zA-Z_0-9\\-\\s]*$");
         Matcher matcher = alphaNumericPattern.matcher(name);
-        
+
         if (!matcher.find()) {
-        	out.println("Channel name cannot have special characters besides hyphen, underscore, and space.");
+            out.println("Channel name cannot have special characters besides hyphen, underscore, and space.");
             return false;
         }
 
@@ -970,7 +970,7 @@ public class CommandLineInterface {
 
     private List<Channel> getMatchingChannels(Token key) throws ClientException {
         List<Channel> result = new ArrayList<Channel>();
-        
+
         for (Channel channel : client.getChannel(null)) {
             if (matchesChannel(key, channel.getName(), channel.getId())) {
                 result.add(channel);
@@ -979,8 +979,8 @@ public class CommandLineInterface {
             // What if the key matches *two* channels, e.g. it's the ID of one
             // and
             // the name of another? Unlikely but possible...
-            //if (result.size() > 0  && key != Token.WILDCARD)
-            //    break;
+            // if (result.size() > 0 && key != Token.WILDCARD)
+            // break;
         }
         return result;
     }
@@ -993,15 +993,15 @@ public class CommandLineInterface {
     // object), and we would only need one getMatching...() method.
     private List<ChannelStatus> getMatchingChannelStatuses(Token key) throws ClientException {
         List<ChannelStatus> result = new ArrayList<ChannelStatus>();
-        
+
         for (ChannelStatus status : client.getChannelStatusList()) {
             if (matchesChannel(key, status.getName(), status.getChannelId())) {
                 result.add(status);
             }
 
             // Again, what if the key matches two channels?
-            //if (key != Token.WILDCARD)
-            //    break;
+            // if (key != Token.WILDCARD)
+            // break;
 
         }
         return result;
@@ -1117,7 +1117,7 @@ public class CommandLineInterface {
             error("invalid script file.", e);
             return;
         }
-        
+
         Map<String, String> scriptsMap = (Map<String, String>) serializer.fromXML(scriptsXml);
         client.setGlobalScripts(scriptsMap);
     }
