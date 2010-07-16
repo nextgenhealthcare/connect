@@ -1,0 +1,6 @@
+<launcher>
+	<classpath base=".">
+		<lib path="cli-lib/" />
+		<lib path="extensions/connectors" />
+	</classpath>
+</launcher>
