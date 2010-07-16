@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -46,7 +45,6 @@ public class ExtensionUtil {
 	public static Map<String, ? extends MetaData> loadExtensionMetaData(final ExtensionType extensionType) throws ControllerException {
 		Map<String, MetaData> extensionMap = new HashMap<String, MetaData>();
 		List<File> extensionFiles = loadExtensionFiles(extensionType);
-		
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { MetaData.class, PluginMetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
 
 		try {
@@ -180,19 +178,12 @@ public class ExtensionUtil {
 				String source = ExtensionController.ExtensionType.SOURCE.getFileNames()[0];
 				
 				if (entryName.endsWith(plugin) || entryName.endsWith(destination) || entryName.endsWith(source)) {
-					InputStream in = zipFile.getInputStream(entry);
-					StringBuilder sb = new StringBuilder();
-					
-					byte[] b = new byte[4096];
-					for (int n; (n = in.read(b)) != -1;) {
-						sb.append(new String(b, 0, n));
-					}
-					
 					ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { MetaData.class, PluginMetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
-					MetaData extensionMetaData = (MetaData) serializer.fromXML(sb.toString());
+					MetaData extensionMetaData = (MetaData) serializer.fromXML(IOUtils.toString(zipFile.getInputStream(entry)));
 					
 					String[] mirthVersions = extensionMetaData.getMirthVersion().split(",");
 					boolean compatible = false;
+					
 					for (int i = 0; i < mirthVersions.length; i++) {
 						if (mirthVersions[i].trim().equals(mirthVersion)) {
 							compatible = true;
