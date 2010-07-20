@@ -547,11 +547,11 @@ public class MuleEngineController implements EngineController {
         beanProperties.put("scriptId", scriptId);
         beanProperties.put("connectorName", connector.getName());
 
-        if (MapUtils.isEmpty(transformer.getInboundProperties())) {
+        if (MapUtils.isNotEmpty(transformer.getInboundProperties())) {
             beanProperties.put("inboundProperties", transformer.getInboundProperties());
         }
 
-        if (MapUtils.isEmpty(transformer.getOutboundProperties())) {
+        if (MapUtils.isNotEmpty(transformer.getOutboundProperties())) {
             beanProperties.put("outboundProperties", transformer.getOutboundProperties());
         }
 
