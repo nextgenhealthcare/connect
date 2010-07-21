@@ -212,9 +212,23 @@ public class DefaultChannelController extends ChannelController {
         }
         
         try {
+            Channel channelFilter = new Channel();
+            channelFilter.setId(channel.getId());
+            if (getChannel(channelFilter).isEmpty()) {
+
+                // If we are adding, then make sure the name isnt being used
+                channelFilter = new Channel();
+                channelFilter.setName(channel.getName());
+
+                if (!getChannel(channelFilter).isEmpty()) {
+                    logger.error("There is already a channel with the name " + channel.getName());
+                    throw new ControllerException("A channel with that name already exists");
+                }
+            }
+            
             updateChannelInCache(channel);
 
-            Channel channelFilter = new Channel();
+            channelFilter = new Channel();
             channelFilter.setId(channel.getId());
 
             if (getChannel(channelFilter).isEmpty()) {
