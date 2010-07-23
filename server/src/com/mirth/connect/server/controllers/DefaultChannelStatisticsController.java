@@ -93,7 +93,11 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
         ChannelStatistics channelStatistics = new ChannelStatistics();
         channelStatistics.setServerId(configurationController.getServerId());
         channelStatistics.setChannelId(channelId);
-        cache.put(channelId, channelStatistics);
+        
+        // synchronized updateAllStatistics because it iterates through the cache map
+        synchronized (cache) {
+            cache.put(channelId, channelStatistics);
+        }
     }
 
     public boolean checkIfStatisticsExist(String channelId) {
@@ -193,15 +197,18 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
 
     public void updateAllStatistics() {
         if (statsChanged) {
-            for (ChannelStatistics stats : cache.values()) {
-                updateStatistics(stats.getChannelId());
+            
+            // synchronized with createStatistics because it adds to the hash map
+            synchronized (cache) {
+                for (ChannelStatistics stats : cache.values()) {
+                    updateStatistics(stats.getChannelId());
+                }
             }
-
             statsChanged = false;
         }
     }
 
-    public void clearStatistics(String channelId, boolean received, boolean filtered, boolean queued, boolean sent, boolean errored, boolean alerted) throws ControllerException {
+    public synchronized void clearStatistics(String channelId, boolean received, boolean filtered, boolean queued, boolean sent, boolean errored, boolean alerted) throws ControllerException {
         if (received)
             cache.get(channelId).setReceived(0);
         if (filtered)
