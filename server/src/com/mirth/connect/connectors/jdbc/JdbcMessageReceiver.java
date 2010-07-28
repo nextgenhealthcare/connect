@@ -205,7 +205,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
                 Scriptable scope = new ImporterTopLevel(context);
 
                 // load variables in JavaScript scope
-                JavaScriptScopeUtil.buildScope(scope, connector.getName(), scriptLogger);
+                JavaScriptScopeUtil.buildScope(scope, connector.getChannelId(), scriptLogger);
                 // each time we poll, we want to clear the map.
                 // we need to document this
                 jdbcMap = new HashMap();
