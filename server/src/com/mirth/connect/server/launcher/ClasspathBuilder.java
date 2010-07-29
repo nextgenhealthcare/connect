@@ -66,7 +66,7 @@ public class ClasspathBuilder {
 			for (int i = 0; i < classpathElement.getElementsByTagName("lib").getLength(); i++) {
 				String base = classpathElement.getAttribute("base");
 				Element pathElement = (Element) classpathElement.getElementsByTagName("lib").item(i);
-				File path = new File(base + File.separator + pathElement.getAttribute("path"));
+				File path = new File(base + "/" + pathElement.getAttribute("path"));
 				
 				if (path.exists()) {
 					if (path.isDirectory()) {
