@@ -236,7 +236,7 @@ public class MuleEngineController implements EngineController {
 
     public void undeployChannels(List<String> channelIds) throws ControllerException {
         List<String> registeredChannelIds = new ArrayList<String>();
-        
+
         // Only allow undeployment of channels that are currently deployed.
         for (String channelId : channelIds) {
             try {
@@ -249,7 +249,7 @@ public class MuleEngineController implements EngineController {
                 logger.error("Error checking if channel is registered before undeploy.", e);
             }
         }
-        
+
         if (registeredChannelIds.isEmpty()) {
             return;
         }
@@ -335,6 +335,8 @@ public class MuleEngineController implements EngineController {
         endpointNames.add(getConnectorNameForRouter(getConnectorReferenceForInboundRouter(channel)));
 
         // Register all of the endpoint services for the given connectors
+        // A channel with a channel reader will not register the
+        // _source_connectorService or EndpointService with jmx.
         jmxAgent.registerEndpointServices(endpointNames);
 
         return registrationSuccessful;
@@ -350,24 +352,25 @@ public class MuleEngineController implements EngineController {
 
         /*
          * XXX: Set create connector to true so that channel readers will not
-         * use an existing connector (one from a different channel). Not sure if
-         * this is still needed, but if this is set to 0 then the behavior of
-         * mbeans being created is sometimes different during a redeploy from
-         * the initial startup.
+         * use an existing connector (one from a different channel). Not
+         * entirely sure why this is required, but if this is set to 0 then a VM
+         * EndpointService mbean is created, and when undeploying channels a
+         * null pointer is sometimes thrown when calling
+         * unregisterComponent(descriptor). The error occurs in
+         * AbstractConnector.unregisterListener because receivers is null.
          */
         vmEndpoint.setCreateConnector(1);
 
         MuleEndpoint endpoint = new MuleEndpoint();
         String connectorReference = getConnectorReferenceForInboundRouter(channel);
 
-        // Check if the channel is snychronous
+        // Check if the channel is synchronous
         if ((channel.getProperties().get("synchronous")) != null && ((String) channel.getProperties().get("synchronous")).equalsIgnoreCase("true")) {
             endpoint.setSynchronous(true);
         }
 
         // STEP 1. append the default transformers required by the transport
-        // (ex.
-        // ByteArrayToString)
+        // (ex. ByteArrayToString)
         ConnectorMetaData transport = transports.get(channel.getSourceConnector().getTransportName());
         LinkedList<UMOTransformer> transformerList = null;
 
@@ -401,25 +404,26 @@ public class MuleEngineController implements EngineController {
         selectiveConsumerRouter.setFilter(new ValidMessageFilter());
         inboundRouter.addRouter(selectiveConsumerRouter);
 
-        // If a channel reader is being used, add the channel id
-        // to the endpointUri so the endpoint can be deployed
-        String endpointUri = getEndpointUri(channel.getSourceConnector());
+        // NOTE: If the user selected the Channel Reader connector, then we
+        // don't to add it since a VM connector for every channel already
+        // exists.
+        if (!channel.getSourceConnector().getTransportName().equals("Channel Reader")) {
+            // If a channel reader is being used, add the channel id
+            // to the endpointUri so the endpoint can be deployed
+            String endpointUri = getEndpointUri(channel.getSourceConnector());
+            endpoint.setEndpointURI(new MuleEndpointURI(endpointUri, channel.getId()));
 
-        if (endpointUri.equals("vm://")) {
-            endpointUri += channel.getId();
+            /*
+             * MUST BE LAST STEP: Add the source connector last so that if an
+             * exception occurs (like creating the URI) it wont register the JMX
+             * service
+             */
+            UMOConnector connector = registerConnector(channel.getSourceConnector(), getConnectorNameForRouter(connectorReference), channel.getId());
+            endpoint.setConnector(connector);
+
+            inboundRouter.addEndpoint(endpoint);
         }
 
-        endpoint.setEndpointURI(new MuleEndpointURI(endpointUri, channel.getId()));
-
-        /*
-         * MUST BE LAST STEP: Add the source connector last so that if an
-         * exception occurs (like creating the URI) it wont register the JMX
-         * service
-         */
-        UMOConnector connector = registerConnector(channel.getSourceConnector(), getConnectorNameForRouter(connectorReference), channel.getId());
-        endpoint.setConnector(connector);
-
-        inboundRouter.addEndpoint(endpoint);
         descriptor.setInboundRouter(inboundRouter);
     }
 
@@ -675,7 +679,9 @@ public class MuleEngineController implements EngineController {
 
             // turn the array of class names into an array of actual Objects
             for (int i = 0; i < transformerClassArray.length; i++) {
-                transformerArray[i] = (UMOTransformer) muleManager.getTransformers().get(transformerClassArray[i]);
+                UMOTransformer umoTransformer = (UMOTransformer) Class.forName(defaultTransformers.get(transformerClassArray[i])).newInstance();
+                umoTransformer.setName(transformerClassArray[i]);
+                transformerArray[i] = umoTransformer;
             }
 
             // chain the transformers (except for the last one)
@@ -730,6 +736,7 @@ public class MuleEngineController implements EngineController {
             logger.debug("unregistering endpoint: " + endpoint.getName());
 
             muleManager.unregisterEndpoint(endpoint.getName());
+            muleManager.unregisterConnector(endpoint.getConnector().getName());
 
             /*
              * Each method has a try/catch since we don't want it to abort the
@@ -819,12 +826,6 @@ public class MuleEngineController implements EngineController {
         MuleManager.getConfiguration().setRecoverableMode(true);
         MuleManager.getConfiguration().setClientMode(false);
         MuleManager.getConfiguration().setWorkingDirectory(ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir());
-
-        for (String transformerName : defaultTransformers.keySet()) {
-            UMOTransformer umoTransformer = (UMOTransformer) Class.forName(defaultTransformers.get(transformerName)).newInstance();
-            umoTransformer.setName(transformerName);
-            muleManager.registerTransformer(umoTransformer);
-        }
 
         // add interceptor stack
         InterceptorStack stack = new InterceptorStack();
