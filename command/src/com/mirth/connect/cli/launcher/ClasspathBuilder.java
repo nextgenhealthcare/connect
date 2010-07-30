@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.cli;
+package com.mirth.connect.cli.launcher;
 
 import java.io.File;
 import java.io.FileFilter;

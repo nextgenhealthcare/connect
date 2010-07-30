@@ -37,16 +37,26 @@
 		<copy todir="${build}/cli-lib">
 			<fileset dir="${lib}" />
 		</copy>
-		
+
 		<jar destfile="${build}/${cli.jar}" basedir="${classes}">
+			<include name="com/mirth/connect/cli/**" />
+			<exclude name="com/mirth/connect/cli/launcher/**" />
+		</jar>
+
+		<jar destfile="${build}/${cli-launcher.jar}" basedir="${classes}">
+			<include name="com/mirth/connect/cli/launcher/**" />
+
 			<manifest>
-				<attribute name="Main-Class" value="com.mirth.connect.cli.CommandLineLauncher" />
-				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar conf/" />
+				<attribute name="Main-Class" value="com.mirth.connect.cli.launcher.CommandLineLauncher" />
+				<attribute name="Class-Path" value="cli-lib/log4j-1.2.15.jar conf/" />
 			</manifest>
 		</jar>
+
+		<copy todir="${build}">
+			<fileset file="mirth-cli-launcher.xml" />
+		</copy>
 	</target>
-	
-	
+
 	<target name="dist" depends="build">
 		<mkdir dir="${dist}" />
 		<zip destfile="${dist}/mirthconnect-cli-${version}.zip" basedir="${build}" includes="**/*" />
