@@ -664,12 +664,18 @@
 			<include name="com/mirth/connect/connectors/*.class" />
 			<include name="org/**" />
 
+			<exclude name="com/mirth/connect/server/launcher/**" />
+			<exclude name="com/mirth/connect/server/mbeans/**" />
+		</jar>
+
+		<!-- create the mirth-launcher jar -->
+		<jar destfile="${setup}/${mirth-launcher.jar}" basedir="${classes}">
+			<include name="com/mirth/connect/server/launcher/**" />
+			
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.MirthLauncher" />
 				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar conf/" />
 			</manifest>
-
-			<exclude name="com/mirth/connect/server/mbeans/**" />
 		</jar>
 
 		<!-- create the ant task jar -->
@@ -772,7 +778,7 @@
 	<target name="dev-launcher" depends="init" description="This runs Mirth using the setup launcher">
 		<java classname="com.mirth.connect.server.launcher.MirthLauncher" fork="true" dir="${setup}" failonerror="true">
 			<classpath>
-				<pathelement location="${setup}/mirth-server.jar" />
+				<pathelement location="${setup}/mirth-launcher.jar" />
 			</classpath>
 		</java>
 	</target>

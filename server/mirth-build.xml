@@ -60,7 +60,13 @@
 		<ant antfile="${cli}/build.xml" dir="${cli}" target="dist">
 			<property name="version" value="${version}" />
 		</ant>
-		<copy file="${cli}/build/mirth-cli.jar" todir="${server}/" />
+		<copy todir="${server}/">
+			<fileset dir="${cli}/build">
+				<include name="mirth-cli.jar" />
+				<include name="mirth-cli-launcher.jar" />
+				<include name="mirth-cli-launcher.xml" />
+			</fileset>
+		</copy>
 		<copy todir="${server}/cli-lib">
 			<fileset dir="${cli}/lib">
 				<exclude name="mirth-client.jar" />
@@ -105,6 +111,4 @@
 	</target>
 
 	<!-- custom extensions start here -->
-
-	
 </project>
