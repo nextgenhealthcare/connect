@@ -649,6 +649,8 @@
 			<fileset file="${basedir}/mirth-client-core.jar" />
 			<fileset file="${basedir}/mirth-manager.jar" />
 			<fileset file="${basedir}/mirth-cli.jar" />
+			<fileset file="${basedir}/mirth-cli-launcher.jar" />
+			<fileset file="${basedir}/mirth-cli-launcher.xml" />
 			<fileset file="${basedir}/mirth-launcher.xml" />
 			<fileset file="${basedir}/mirth-client.jnlp" />
 			<fileset file="${basedir}/keystore" />
