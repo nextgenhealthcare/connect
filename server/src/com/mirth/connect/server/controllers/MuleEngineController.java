@@ -186,6 +186,7 @@ public class MuleEngineController implements EngineController {
 
             undeployChannels(registeredChannelIds);
 
+            // Execute global deploy script before channel deploy script
             scriptController.executeGlobalDeployScript();
 
             // update the manager with the new classes
@@ -194,11 +195,13 @@ public class MuleEngineController implements EngineController {
             for (Channel channel : channels) {
                 if (channel.isEnabled()) {
                     try {
+                        // Clear global channel map (if necessary) and execute
+                        // channel deploy script before registering the channel
+                        clearGlobalChannelMap(channel);
+                        scriptController.executeChannelDeployScript(channel.getId());
+
                         if (!registerChannel(channel)) {
                             failedChannelIds.add(channel.getId());
-                        } else {
-                            clearGlobalChannelMap(channel);
-                            scriptController.executeChannelDeployScript(channel.getId());
                         }
                     } catch (Exception e) {
                         logger.error("Error registering channel.", e);
@@ -256,12 +259,19 @@ public class MuleEngineController implements EngineController {
 
         try {
             channelController.loadCache();
+
+            // Execute channel shutdown scripts
+            for (String registeredChannelId : registeredChannelIds) {
+                scriptController.executeChannelShutdownScript(registeredChannelId);
+            }
+
+            // Execute global shutdown script
             scriptController.executeGlobalShutdownScript();
 
+            // Remove the channels from the cache and unregister them
             for (String registeredChannelId : registeredChannelIds) {
                 channelController.getChannelCache().remove(channelController.getChannelCache().get(registeredChannelId));
                 unregisterChannel(registeredChannelId);
-                scriptController.executeChannelShutdownScript(registeredChannelId);
             }
         } catch (Exception e) {
             logger.error("Error undeploying channels.", e);
