@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -125,7 +126,7 @@ public class TemplateValueReplacer {
     public String replaceURLValues(String url, MessageObject messageObject) {
         String host = new String();
 
-        if ((url != null) && (url.length() > 0)) {
+        if (StringUtils.isNotEmpty(url)) {
             try {
                 host = URLDecoder.decode(url, "utf-8");
             } catch (UnsupportedEncodingException e) {
@@ -169,7 +170,7 @@ public class TemplateValueReplacer {
         // we might have the originalfilename in the context
         if (context.get("originalFilename") != null) {
             originalFilename = (String) context.get("originalFilename");
-        } else if (originalFilename == null || originalFilename.length() == 0) {
+        } else if (StringUtils.isEmpty(originalFilename)) {
             originalFilename = System.currentTimeMillis() + ".dat";
         }
 
@@ -177,7 +178,7 @@ public class TemplateValueReplacer {
         context.put("date", new DateTool());
         context.put("DATE", Utility.getTimeStamp("dd-MM-yy_HH-mm-ss.SS"));
         context.put("COUNT", String.valueOf(getCount()));
-        context.put("UUID", (new UUID()).getUUID());
+        context.put("UUID", new UUID().getUUID());
         context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
         context.put("ORIGINALNAME", originalFilename);
         context.put("XmlUtil", XmlUtil.getInstance());
