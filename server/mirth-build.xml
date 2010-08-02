@@ -80,7 +80,7 @@
 		</ant>
 	</target>
 
-	<target name="dist" depends="build">
+	<target name="dist" depends="build-manager, build-cli">
 		<ant antfile="${server}/build.xml" dir="${server}" target="create-dist">
 			<property name="version" value="${version}" />
 		</ant>
