@@ -11,6 +11,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.QueueEnabledMessageDispatcher;
@@ -116,7 +117,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
 
                 if (connector.isDispatcherIncludeHeadersInResponse()) {
                     HttpMessageConverter converter = new HttpMessageConverter();
-                    String content = converter.convertInputStreamToString(httpMethod.getResponseBodyAsStream(), connector.getDispatcherCharset());
+                    String content = IOUtils.toString(httpMethod.getResponseBodyAsStream(), converter.getDefaultHttpCharset(connector.getDispatcherCharset()));
                     response = converter.httpResponseToXml(httpMethod.getResponseHeaders(), content);
                 } else {
                     response = httpMethod.getResponseBodyAsString();

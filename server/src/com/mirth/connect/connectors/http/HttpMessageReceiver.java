@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.mortbay.http.HttpContext;
@@ -101,7 +102,7 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
          * Jetty
          */
         message.setParameters(request.getParameters());
-        message.setContent(converter.convertInputStreamToString(request.getInputStream(), request.getCharacterEncoding()));
+        message.setContent(IOUtils.toString(request.getInputStream(), converter.getDefaultHttpCharset(request.getCharacterEncoding())));
         message.setIncludeHeaders(connector.isReceiverIncludeHeaders());
         message.setContentType(request.getContentType());
         message.setRemoteAddress(request.getRemoteAddr());

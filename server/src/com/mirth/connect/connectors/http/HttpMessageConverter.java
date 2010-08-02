@@ -1,10 +1,5 @@
 package com.mirth.connect.connectors.http;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +36,7 @@ public class HttpMessageConverter {
                 for (Entry<String, Object> entry : request.getParameters().entrySet()) {
                     if (entry.getValue() instanceof List<?>) {
                         String name = entry.getKey().substring(0, entry.getKey().indexOf("[]"));
-                        
+
                         for (String value : (List<String>) entry.getValue()) {
                             addElement(parameteresElement, name, value);
                         }
@@ -107,24 +102,12 @@ public class HttpMessageConverter {
         return null;
     }
 
-    public String convertInputStreamToString(InputStream is, String charset) throws IOException {
+    public String getDefaultHttpCharset(String charset) {
         if (charset == null) {
-            charset = "ISO-8859-1"; // default charset for HTTP
+            return "ISO-8859-1"; // default charset for HTTP
+        } else {
+            return charset;
         }
-
-        Reader reader = new InputStreamReader(is, charset);
-        StringWriter writer = new StringWriter();
-        char[] buffer = new char[1024];
-
-        try {
-            for (int n; (n = reader.read(buffer)) != -1;) {
-                writer.write(buffer, 0, n);
-            }
-        } finally {
-            is.close();
-        }
-
-        return writer.toString();
     }
 
     public Map<String, String> convertFieldEnumerationToMap(HttpRequest request) {
