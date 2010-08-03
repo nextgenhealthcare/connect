@@ -206,7 +206,14 @@ public class DefaultChannelController extends ChannelController {
         String sourceVersion = extensionController.getConnectorMetaDataByTransportName(channel.getSourceConnector().getTransportName()).getPluginVersion();
         channel.getSourceConnector().setVersion(sourceVersion);
         
+        ArrayList<String> destConnectorNames = new ArrayList<String>(channel.getDestinationConnectors().size());
+        
         for (Connector connector : channel.getDestinationConnectors()) {
+            if(destConnectorNames.contains(connector.getName())) {
+                throw new ControllerException("Destination connectors must have unique names");
+            }
+            destConnectorNames.add(connector.getName());
+            
             String destinationVersion = extensionController.getConnectorMetaDataByTransportName(connector.getTransportName()).getPluginVersion();
             connector.setVersion(destinationVersion);
         }
