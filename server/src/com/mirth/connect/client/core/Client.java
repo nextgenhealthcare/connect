@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.log4j.Logger;
@@ -497,9 +498,7 @@ public class Client {
      * @throws ClientException
      */
     public String getGuid() throws ClientException {
-        logger.debug("retrieving next guid");
-        NameValuePair[] params = { new NameValuePair("op", "getGuid") };
-        return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+        return UUID.randomUUID().toString();
     }
 
     /**
