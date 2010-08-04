@@ -414,25 +414,30 @@ public class MuleEngineController implements EngineController {
         selectiveConsumerRouter.setFilter(new ValidMessageFilter());
         inboundRouter.addRouter(selectiveConsumerRouter);
 
-        // NOTE: If the user selected the Channel Reader connector, then we
-        // don't to add it since a VM connector for every channel already
-        // exists.
-        if (!channel.getSourceConnector().getTransportName().equals("Channel Reader")) {
-            // If a channel reader is being used, add the channel id
-            // to the endpointUri so the endpoint can be deployed
-            String endpointUri = getEndpointUri(channel.getSourceConnector());
-            endpoint.setEndpointURI(new MuleEndpointURI(endpointUri, channel.getId()));
+        String endpointUri = getEndpointUri(channel.getSourceConnector());
 
-            /*
-             * MUST BE LAST STEP: Add the source connector last so that if an
-             * exception occurs (like creating the URI) it wont register the JMX
-             * service
-             */
-            UMOConnector connector = registerConnector(channel.getSourceConnector(), getConnectorNameForRouter(connectorReference), channel.getId());
-            endpoint.setConnector(connector);
-
-            inboundRouter.addEndpoint(endpoint);
+        /*
+         * NOTE: Even though every channel already has a VM Connector, we still
+         * need to add a Channel Reader connector because of its possible
+         * additional properties like "respond from". If a channel reader is
+         * being used, add the channel id to the endpointUri so the endpoint can
+         * be deployed
+         */
+        if (endpointUri.equals("vm://")) {
+            endpointUri += channel.getId();
         }
+
+        endpoint.setEndpointURI(new MuleEndpointURI(endpointUri, channel.getId()));
+
+        /*
+         * MUST BE LAST STEP: Add the source connector last so that if an
+         * exception occurs (like creating the URI) it wont register the JMX
+         * service
+         */
+        UMOConnector connector = registerConnector(channel.getSourceConnector(), getConnectorNameForRouter(connectorReference), channel.getId());
+        endpoint.setConnector(connector);
+
+        inboundRouter.addEndpoint(endpoint);
 
         descriptor.setInboundRouter(inboundRouter);
     }
