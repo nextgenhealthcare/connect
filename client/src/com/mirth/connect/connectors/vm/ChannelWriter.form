@@ -34,16 +34,16 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="channelResponseLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="URL" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="channelNames" min="-2" pref="250" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="channelResponseYes" min="-2" max="-2" attributes="0"/>
+                      <Component id="channelResponseYesButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="channelResponseNo" min="-2" max="-2" attributes="0"/>
+                      <Component id="channelResponseNoButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="template" pref="271" max="32767" attributes="0"/>
               </Group>
@@ -60,9 +60,9 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="channelResponseYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="channelResponseNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="channelResponseLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="channelResponseYesButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="channelResponseNoButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
@@ -92,13 +92,16 @@
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the channel to which messages accepted by this destination&apos;s filter should be written,&lt;br&gt; or none to not write the message at all.&lt;/html&gt;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="channelNamesActionPerformed"/>
+      </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel1">
+    <Component class="javax.swing.JLabel" name="channelResponseLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Wait for Channel Response:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="channelResponseYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="channelResponseYesButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -118,7 +121,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="channelResponseNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="channelResponseNoButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>

@@ -128,7 +128,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
                 // send to reply channel
 
                 if ((connector.getDispatcherReplyChannelId() != null) && !connector.getDispatcherReplyChannelId().equals("sink")) {
-                    new VMRouter().routeMessageByChannelId(connector.getDispatcherReplyChannelId(), response, true, false);
+                    new VMRouter().routeMessageByChannelId(connector.getDispatcherReplyChannelId(), response, true);
                 }
             } else {
                 // throw a new exception with the returned HTTP status

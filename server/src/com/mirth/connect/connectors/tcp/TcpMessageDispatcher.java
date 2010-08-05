@@ -337,7 +337,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
             if (connector.getReplyChannelId() != null & !connector.getReplyChannelId().equals("") && !connector.getReplyChannelId().equals("sink")) {
                 // reply back to channel
                 VMRouter router = new VMRouter();
-                router.routeMessageByChannelId(connector.getReplyChannelId(), ackString, true, true);
+                router.routeMessageByChannelId(connector.getReplyChannelId(), ackString, true);
             }
             messageObjectController.setSuccess(messageObject, ackString, null);
         } catch (UnsupportedEncodingException e) {

@@ -27,28 +27,31 @@ import org.mule.util.queue.QueueSession;
 
 import com.mirth.connect.connectors.vm.VMConnector;
 import com.mirth.connect.connectors.vm.VMMessageReceiver;
+import com.mirth.connect.connectors.vm.VMResponse;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class VMRouter {
     private static transient Log logger = LogFactory.getLog(VMRouter.class);
 
-    public void routeMessage(String channelName, String message) {
-        routeMessage(channelName, message, true);
+    public VMResponse routeMessage(String channelName, String message) {
+        return routeMessage(channelName, message, true);
     }
 
-    public void routeMessage(String channelName, String message, boolean useQueue) {
+    public VMResponse routeMessage(String channelName, String message, boolean useQueue) {
         String channelId = ControllerFactory.getFactory().createChannelController().getChannelId(channelName);
-        routeMessageByChannelId(channelId, message, useQueue, true);
+        return routeMessageByChannelId(channelId, message, useQueue);
     }
 
-    public void routeMessage(String channelName, String message, boolean useQueue, boolean synchronised) {
+    @Deprecated
+    public VMResponse routeMessage(String channelName, String message, boolean useQueue, boolean synchronised) {
         String channelId = ControllerFactory.getFactory().createChannelController().getChannelId(channelName);
-        routeMessageByChannelId(channelId, message, useQueue, synchronised);
+        return routeMessageByChannelId(channelId, message, useQueue);
     }
 
-    public void routeMessageByChannelId(String channelId, Object message, boolean useQueue, boolean synchronised) {
+    public VMResponse routeMessageByChannelId(String channelId, Object message, boolean useQueue) {
         UMOMessage umoMessage = null;
+        VMResponse vmResponse = null;
 
         if (message instanceof MessageObject) {
             MessageObject messageObject = (MessageObject) message;
@@ -63,17 +66,25 @@ public class VMRouter {
         }
 
         VMMessageReceiver receiver = VMRegistry.getInstance().get(channelId);
-        UMOEvent event = new MuleEvent(umoMessage, receiver.getEndpoint(), new MuleSession(), false);
+        UMOEvent event = new MuleEvent(umoMessage, receiver.getEndpoint(), new MuleSession(), !useQueue);
 
         try {
-            doDispatch(event, receiver, useQueue, synchronised);
+            vmResponse = doDispatch(event, receiver, useQueue);
         } catch (Exception e) {
             logger.error("Unable to route: " + e.getMessage());
         }
+
+        return vmResponse;
     }
 
-    private void doDispatch(UMOEvent event, VMMessageReceiver receiver, boolean useQueue, boolean synchronised) throws Exception {
+    @Deprecated
+    public VMResponse routeMessageByChannelId(String channelId, Object message, boolean useQueue, boolean synchronised) {
+        return routeMessageByChannelId(channelId, message, useQueue);
+    }
+
+    private VMResponse doDispatch(UMOEvent event, VMMessageReceiver receiver, boolean useQueue) throws Exception {
         UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
+        VMResponse vmResponse = null;
 
         if (endpointUri == null) {
             throw new DispatchException(new Message(Messages.X_IS_NULL, "Endpoint"), event.getMessage(), event.getEndpoint());
@@ -86,14 +97,16 @@ public class VMRouter {
         } else {
             if (receiver == null) {
                 logger.warn("No receiver for endpointUri: " + event.getEndpoint().getEndpointURI());
-                return;
+                return null;
             }
 
-            receiver.routeMessage(event.getMessage(), synchronised);
+            vmResponse = receiver.dispatchMessage(event);
         }
 
         if (logger.isDebugEnabled()) {
             logger.debug("dispatched Event on endpointUri: " + endpointUri);
         }
+
+        return vmResponse;
     }
 }

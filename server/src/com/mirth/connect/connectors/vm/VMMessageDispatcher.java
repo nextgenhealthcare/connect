@@ -168,7 +168,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher {
 
         String template = "";
         UMOEvent event = null;
-        Object response = null;
+        VMResponse vmResponse = null;
 
         // If the destination is the sink, it's not necessary to replace the
         // template values
@@ -179,9 +179,6 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher {
             } else {
                 template = messageObject.getEncodedData();
             }
-            // this could be done with the one-liner below, however we need to
-            // ensure something
-            response = null;
 
             event = new MuleEvent(new MuleMessage(template), endpoint, new MuleSession(), connector.isSynchronised());
         } else {
@@ -204,10 +201,18 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher {
         // This is the same behavior that happens when using
         // VMRouter.routeMessage("name", "message", true, false).
         if (connector.isSynchronised() || channelWriterNone) {
-            if (receiver != null)
-                response = receiver.dispatchMessage(event);
-            else
+            
+            // If channel writer is none, wait for response will error and
+            // should not be allowed. The client should not allow it either.
+            if (channelWriterNone && event.isSynchronous()) {
+                event.setSynchronous(false);
+            }
+            
+            if (receiver != null) {
+                vmResponse = receiver.dispatchMessage(event);
+            } else {
                 throw new NoReceiverForEndpointException(new Message(Messages.NO_RECEIVER_X_FOR_ENDPOINT_X, connector.getName(), endpoint.getEndpointURI()));
+            }
         } else {
             String queueName = endpoint.getEndpointURI().getAddress();
             QueueSession session = MuleManager.getInstance().getQueueManager().getQueueSession();
@@ -236,9 +241,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher {
             }
         }
 
-        if ((response != null) && (response instanceof VMResponse)) {
-            VMResponse vmResponse = (VMResponse) response;
-            
+        if (vmResponse != null) {
             if (vmResponse.getException() != null) {
                 alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_412, "Error routing message", vmResponse.getException());
                 messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", vmResponse.getException(), null);

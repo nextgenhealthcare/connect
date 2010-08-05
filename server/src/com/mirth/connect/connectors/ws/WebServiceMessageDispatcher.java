@@ -148,7 +148,7 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
 
         // send to reply channel
         if (connector.getDispatcherReplyChannelId() != null && !connector.getDispatcherReplyChannelId().equals("sink")) {
-            new VMRouter().routeMessageByChannelId(connector.getDispatcherReplyChannelId(), response, true, false);
+            new VMRouter().routeMessageByChannelId(connector.getDispatcherReplyChannelId(), response, true);
         }
     }
 

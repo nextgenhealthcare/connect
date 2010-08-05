@@ -622,7 +622,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
                                     }
 
                                     message.getContext().put("destinations", destinations);
-                                    router.routeMessageByChannelId(message.getChannelId(), message, true, true);
+                                    router.routeMessageByChannelId(message.getChannelId(), message, true);
                                 }
                             } catch (Exception e) {
                                 throw new ControllerException("could not reprocess message", e);
@@ -648,7 +648,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
     public void processMessage(MessageObject message) throws ControllerException {
         try {
             VMRouter router = new VMRouter();
-            router.routeMessageByChannelId(message.getChannelId(), message, true, true);
+            router.routeMessageByChannelId(message.getChannelId(), message, true);
         } catch (Exception e) {
             throw new ControllerException("could not reprocess message", e);
         }
