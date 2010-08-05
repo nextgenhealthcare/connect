@@ -575,7 +575,7 @@
 				</fileset>
 			</signjar>
 			<signjar alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
-				<fileset dir="${extensions}" includes="**/*.jar" excludes="**/*-server.jar" />
+				<fileset dir="${extensions}" includes="**/*.jar" />
 			</signjar>
 		</parallel>
 	</target>
