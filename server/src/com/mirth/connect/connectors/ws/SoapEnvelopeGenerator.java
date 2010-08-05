@@ -20,6 +20,7 @@ import javax.wsdl.Definition;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.schema.SchemaImport;
+import javax.wsdl.extensions.schema.SchemaReference;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -55,14 +56,16 @@ public class SoapEnvelopeGenerator {
             Schema schemaExtensibilityElement = (Schema) extensibilityElement;
             Element schemaElement = null;
 
-            /*
-             * If the schema is imported, then we'll resolve the import.
-             * Otherwise, the schema is inline and we'll use the Element.
-             */
             if (!schemaExtensibilityElement.getImports().isEmpty()) {
+                // handle the case where the scema is "imported"
                 SchemaImport schemaImport = ((Vector<SchemaImport>) schemaExtensibilityElement.getImports().values().iterator().next()).get(0);
                 schemaElement = schemaImport.getReferencedSchema().getElement();
+            } else if (!schemaExtensibilityElement.getIncludes().isEmpty()) {
+                // handle the case where the schema is "included"
+                SchemaReference schemaReference = (SchemaReference) schemaExtensibilityElement.getIncludes().iterator().next();
+                schemaElement = schemaReference.getReferencedSchema().getElement();
             } else {
+                // handle the case where the schema is inline
                 schemaElement = schemaExtensibilityElement.getElement();
             }
 
