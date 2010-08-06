@@ -75,11 +75,11 @@
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-tool-dcmsnd-2.0.22.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-api-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-log4j12-1.5.0.jar"/>
-	<classpathentry kind="lib" path="lib/database/postgresql-8.3-603.jdbc3.jar"/>
 	<classpathentry kind="lib" path="lib/database/jtds-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.0.8-bin.jar"/>
 	<classpathentry kind="lib" path="lib/database/ojdbc14.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/database/postgresql-8.4-701.jdbc4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
