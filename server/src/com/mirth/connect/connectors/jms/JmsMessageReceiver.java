@@ -121,18 +121,9 @@ public class JmsMessageReceiver extends AbstractMessageReceiver implements Messa
     public void doStop() throws UMOException {
         try {
             consumer.setMessageListener(null);
+            closeConsumer();
         } catch (JMSException e) {
             throw new LifecycleException(e, this);
-        }
-    }
-
-    @Override
-    protected void doDispose() {
-        try {
-            monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
-            connector.doDispose();
-        } catch (Exception e) {
-            logger.error("Failed to dispose jms connection");
         }
     }
 
