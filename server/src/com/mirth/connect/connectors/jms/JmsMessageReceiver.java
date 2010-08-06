@@ -126,6 +126,16 @@ public class JmsMessageReceiver extends AbstractMessageReceiver implements Messa
         }
     }
 
+    @Override
+    protected void doDispose() {
+        try {
+            monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
+            connector.doDispose();
+        } catch (Exception e) {
+            logger.error("Failed to dispose jms connection");
+        }
+    }
+
     protected void closeConsumer() {
         JmsUtils.closeQuietly(consumer);
         consumer = null;
