@@ -18,6 +18,7 @@ public class VariableFilenameParser implements FilenameParser {
 	public static final String PROPERTY_ORIGINAL_FILENAME = "originalFilename";
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private MessageObject messageObject;
+	private String channelId;
 
 	public MessageObject getMessageObject() {
 		return messageObject;
@@ -26,10 +27,14 @@ public class VariableFilenameParser implements FilenameParser {
 	public void setMessageObject(MessageObject messageObject) {
 		this.messageObject = messageObject;
 	}
+	
+	public void setChannelId(String channelId) {
+	    this.channelId = channelId;
+	}
 
 	public String getFilename(UMOMessageAdapter adaptor, String pattern) {
 		String originalFilename = (String) adaptor.getProperty(PROPERTY_ORIGINAL_FILENAME);
-		return replacer.replaceValues(pattern, messageObject, originalFilename);
+		return replacer.replaceValues(pattern, messageObject, channelId, originalFilename);
 	}
 
 }

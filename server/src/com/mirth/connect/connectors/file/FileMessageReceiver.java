@@ -25,6 +25,7 @@ import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.PollingMessageReceiver;
 import org.mule.providers.TemplateValueReplacer;
+import org.mule.providers.VariableFilenameParser;
 import org.mule.umo.MessagingException;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
@@ -71,10 +72,12 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
     public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, String errorDir, Long frequency) throws InitialisationException {
         super(connector, component, endpoint, frequency);
         fileConnector = (FileConnector) connector;
+        
+        // Replace variables in the readDir now, all others will be done every message
         this.readDir = replacer.replaceValues(readDir, fileConnector.getChannelId());
-        this.moveDir = replacer.replaceValues(moveDir, fileConnector.getChannelId());
-        this.moveToPattern = replacer.replaceValues(moveToPattern, fileConnector.getChannelId());
-        this.errorDir = replacer.replaceValues(errorDir, fileConnector.getChannelId());
+        this.moveDir = moveDir;
+        this.moveToPattern = moveToPattern;
+        this.errorDir = errorDir;
 
         if (fileConnector.getPollingType().equals(FileConnector.POLLING_TYPE_TIME)) {
             setTime(fileConnector.getPollingTime());
@@ -185,11 +188,14 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
         if (moveDir != null) {
             destinationName = file.getName();
 
+            VariableFilenameParser filenameParser = (VariableFilenameParser) fileConnector.getFilenameParser();
+            filenameParser.setChannelId(fileConnector.getChannelId());
+            
             if (moveToPattern != null) {
-                destinationName = fileConnector.getFilenameParser().getFilename(adapter, moveToPattern);
+                destinationName = filenameParser.getFilename(adapter, moveToPattern);
             }
 
-            destinationDir = moveDir;
+            destinationDir = filenameParser.getFilename(adapter, moveDir);
         }
 
         boolean resultOfFileMoveOperation = false;
@@ -233,7 +239,11 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 
                     if (errorDir != null) {
                         logger.error("Moving file to error directory: " + errorDir);
-                        destinationDir = errorDir;
+                        
+                        VariableFilenameParser filenameParser = (VariableFilenameParser) fileConnector.getFilenameParser();
+                        filenameParser.setChannelId(fileConnector.getChannelId());
+                        
+                        destinationDir = filenameParser.getFilename(adapter, errorDir);
                         destinationName = file.getName();
                     }
                 } catch (Throwable t) {

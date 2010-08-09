@@ -75,13 +75,13 @@ public class TemplateValueReplacer {
     }
 
     public String replaceValues(String template, MessageObject messageObject) {
-        return replaceValues(template, messageObject, new String());
+        return replaceValues(template, messageObject, null, null);
     }
 
-    public String replaceValues(String template, MessageObject messageObject, String originalFilename) {
+    public String replaceValues(String template, MessageObject messageObject, String channelId, String originalFilename) {
         if (hasReplaceableValues(template)) {
             VelocityContext context = new VelocityContext();
-            loadContextFromMessageObject(context, messageObject, originalFilename);
+            loadContextFromMessageObject(context, messageObject, channelId, originalFilename);
             return evaluate(context, template);
         } else {
             return template;
@@ -152,7 +152,7 @@ public class TemplateValueReplacer {
         }
     }
 
-    private void loadContextFromMessageObject(VelocityContext context, MessageObject messageObject, String originalFilename) {
+    private void loadContextFromMessageObject(VelocityContext context, MessageObject messageObject, String channelId, String originalFilename) {
         // message variables
         if (messageObject != null) {
             context.put("message", messageObject);
@@ -160,8 +160,14 @@ public class TemplateValueReplacer {
             context.put("MESSAGEATTACH", DICOMUtil.reAttachMessage(messageObject));
             loadContextFromMap(context, messageObject.getConnectorMap());
             loadContextFromMap(context, messageObject.getChannelMap());
+
+            // if the messageObject was passed in, use its channelId
+            channelId = messageObject.getChannelId();
+        }
+
+        if (channelId != null) {
             // load global channel map variables
-            loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(messageObject.getChannelId()).getVariables());
+            loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(channelId).getVariables());
         }
 
         // load global map variables
