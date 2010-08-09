@@ -253,11 +253,7 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
                 connection.start();
             }
         } catch (Exception e) {
-            logger.error("Unable to create Jms connection", e);
-            // We can't throw exception here, as it destroys the Mirth deploy
-            // process
-            // TODO: look into this issue
-            // throw new ConnectException(e, this);
+             throw new ConnectException(e, this);
         }
     }
 
