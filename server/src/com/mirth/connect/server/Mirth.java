@@ -41,6 +41,7 @@ import com.mirth.connect.server.controllers.MessageObjectController;
 import com.mirth.connect.server.controllers.MigrationController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.UserController;
+import com.mirth.connect.server.servlets.MirthErrorPageHandler;
 import com.mirth.connect.util.PropertyLoader;
 
 /**
@@ -297,6 +298,10 @@ public class Mirth extends Thread {
             secureServletContext.setContextPath(contextPath + "/");
             secureServletContext.addHandler(secureServlets);
             servletContainer.addContext(secureServletContext);
+            
+            // Use our special error handler so that we dont have ugly URL encoding
+            secureServletContext.setAttribute(HttpContext.__ErrorHandler, new MirthErrorPageHandler());
+            
 
             // Map a servlet onto the container
             secureServlets.addServlet("Alerts", "/alerts", "com.mirth.connect.server.servlets.AlertServlet");
