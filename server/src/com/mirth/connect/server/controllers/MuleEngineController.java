@@ -210,12 +210,7 @@ public class MuleEngineController implements EngineController {
                 }
             }
 
-            /*
-             * XXX: Unregister the failed channels if the engine is started.
-             * Otherwise, the list of failed channel ids is returned to the
-             * Mirth#startEngine method so that the channels can be unregistered
-             * once the engine has started.
-             */
+            // Unregister the channels that failed registering.
             for (String channelId : failedChannelIds) {
                 try {
                     unregisterChannel(channelId);

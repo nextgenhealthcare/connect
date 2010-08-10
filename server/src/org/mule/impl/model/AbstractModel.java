@@ -269,10 +269,10 @@ public abstract class AbstractModel implements UMOModel {
 			endpoint = (UMOEndpoint) it.next();
 			try {
 				endpoint.getConnector().unregisterListener(component, endpoint);
-			} catch (UMOException e) {
-				throw e;
 			} catch (Exception e) {
-				throw new ModelException(new Message(Messages.FAILED_TO_UNREGISTER_X_ON_ENDPOINT_X, component.getDescriptor().getName(), endpoint.getEndpointURI()), e);
+			    // rather than throwing the UMOException or ModelException,
+			    // log an error so listeners continue to be cleaned up.
+			    logger.error("Error unregistering listener. This may occur when cleaning up a failed deploy.", new ModelException(new Message(Messages.FAILED_TO_UNREGISTER_X_ON_ENDPOINT_X, component.getDescriptor().getName(), endpoint.getEndpointURI()), e));
 			}
 		}
 	}
@@ -442,10 +442,10 @@ public abstract class AbstractModel implements UMOModel {
 				UMOEndpoint endpoint = (UMOEndpoint) it.next();
 				try {
 					endpoint.getConnector().stopDispatchers(component, endpoint);
-				} catch (UMOException e) {
-					throw e;
 				} catch (Exception e) {
-					throw new ModelException(new Message(Messages.FAILED_TO_UNREGISTER_X_ON_ENDPOINT_X, component.getDescriptor().getName(), endpoint.getEndpointURI()), e);
+				 // rather than throwing the UMOException or ModelException,
+	                // log an error so dispatchers continue to be cleaned up.
+				    logger.error("Error stopping dispatcher. This may occur when cleaning up a failed deploy.", new ModelException(new Message(Messages.FAILED_TO_UNREGISTER_X_ON_ENDPOINT_X, component.getDescriptor().getName(), endpoint.getEndpointURI()), e));
 				}
 			}
 		}
