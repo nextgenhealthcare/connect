@@ -1306,13 +1306,13 @@ private void getButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 private void putButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_putButtonActionPerformed
     setContentEnabled(true);
     checkMultipartEnabled();
-    setQueryParametersEnabled(false);
+    setQueryParametersEnabled(true);
 }//GEN-LAST:event_putButtonActionPerformed
 
 private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
     setContentEnabled(false);
     checkMultipartEnabled();
-    setQueryParametersEnabled(false);
+    setQueryParametersEnabled(true);
 }//GEN-LAST:event_deleteButtonActionPerformed
 
 private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
