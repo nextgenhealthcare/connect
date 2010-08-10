@@ -32,18 +32,7 @@ public class HttpMethodFactory {
         // create the method and set the content
         
         if ("GET".equalsIgnoreCase(method)) {
-            GetMethod getMethod = new GetMethod(address);
-            NameValuePair[] queryParams = new NameValuePair[parameters.size()];
-            int index = 0;
-            
-            for (Entry<String, String> parameterEntry : parameters.entrySet()) {
-                queryParams[index] = new NameValuePair(parameterEntry.getKey(), parameterEntry.getValue());
-                index++;
-                logger.debug("setting query parameter: [" + parameterEntry.getKey() + ", " + parameterEntry.getValue() + "]");
-            }
-            
-            getMethod.setQueryString(queryParams);
-            httpMethod = getMethod;
+            httpMethod = new GetMethod(address);
         } else if ("POST".equalsIgnoreCase(method)) {
             PostMethod postMethod = new PostMethod(address);
 
@@ -65,6 +54,19 @@ public class HttpMethodFactory {
         } else if ("DELETE".equalsIgnoreCase(method)) {
             httpMethod = new DeleteMethod(address);
         }
+        
+        // set the query parameters (for all methods)
+        
+        NameValuePair[] queryParams = new NameValuePair[parameters.size()];
+        int index = 0;
+        
+        for (Entry<String, String> parameterEntry : parameters.entrySet()) {
+            queryParams[index] = new NameValuePair(parameterEntry.getKey(), parameterEntry.getValue());
+            index++;
+            logger.debug("setting query parameter: [" + parameterEntry.getKey() + ", " + parameterEntry.getValue() + "]");
+        }
+        
+        httpMethod.setQueryString(queryParams);
         
         // set the headers
         
