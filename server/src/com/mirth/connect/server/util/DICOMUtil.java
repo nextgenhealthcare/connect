@@ -29,6 +29,7 @@ import javax.imageio.ImageWriter;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
+import org.bouncycastle.util.Arrays;
 
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.MessageObject;
@@ -76,9 +77,9 @@ public class DICOMUtil {
             images.add(base64.decode(attach.getData()));
         }
         byte[] headerData;
-        if (message.getEncodedDataProtocol().equals(MessageObject.Protocol.DICOM)) {
+        if (message.getEncodedDataProtocol().equals(MessageObject.Protocol.DICOM) && message.getEncodedData()!=null) {
             headerData = base64.decode(message.getEncodedData().getBytes());
-        } else if (message.getRawDataProtocol().equals(MessageObject.Protocol.DICOM)) {
+        } else if (message.getRawDataProtocol().equals(MessageObject.Protocol.DICOM) && message.getRawData()!=null) {
             headerData = base64.decode(message.getRawData().getBytes());
         } else {
             return "";
@@ -102,10 +103,10 @@ public class DICOMUtil {
     private static String returnOtherImageFormat(MessageObject message, String format, boolean autoThreshold) {
         String encodedData = getDICOMRawData(message);
         Base64 base64 = new Base64();
-
+        
         // use new method for jpegs
         if (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg"))
-            return new String(base64.encode(dicomToJpg(1, message, autoThreshold)));
+            return new String(Base64.encodeBase64(dicomToJpg(1, message, autoThreshold)));
         try {
             byte[] rawImage = base64.decode(encodedData.getBytes());
             ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
@@ -133,8 +134,8 @@ public class DICOMUtil {
 
     public static byte[] dicomToJpg(int sliceIndex, MessageObject message, boolean autoThreshold) {
         String encodedData = getDICOMRawData(message);
-        Base64 base64 = new Base64();
-        ByteArrayInputStream bis = new ByteArrayInputStream(base64.decode(encodedData.getBytes()));
+        
+        ByteArrayInputStream bis = new ByteArrayInputStream(Base64.decodeBase64(encodedData));
         DICOM dcm = new DICOM(bis);
         dcm.run("dcm");
         if (autoThreshold) {
