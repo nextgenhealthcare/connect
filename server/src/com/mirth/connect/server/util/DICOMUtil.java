@@ -29,7 +29,6 @@ import javax.imageio.ImageWriter;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
-import org.bouncycastle.util.Arrays;
 
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.MessageObject;
