@@ -120,9 +120,9 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="filterByLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="filterTableTextField" pref="324" max="32767" attributes="0"/>
+                      <Component id="filterTableTextField" pref="308" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="filterButton" min="-2" pref="67" max="-2" attributes="0"/>
+                      <Component id="filterButton" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -147,10 +147,13 @@
               </Properties>
             </Component>
             <Component class="javax.swing.JTextField" name="filterTableTextField">
+              <Properties>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter an optional table name filter before querying the &lt;br/&gt;&#xa;database to limit the number of tables returned.&lt;br/&gt;&#xa;Example: rad*,table*test&lt;/html&gt;"/>
+              </Properties>
             </Component>
             <Component class="javax.swing.JButton" name="filterButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Filter"/>
+                <Property name="text" type="java.lang.String" value="Get Tables"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="filterButtonActionPerformed"/>

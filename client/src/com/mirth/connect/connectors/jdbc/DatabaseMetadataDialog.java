@@ -411,7 +411,9 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
 
         filterByLabel.setText("Filter by:");
 
-        filterButton.setText("Filter");
+        filterTableTextField.setToolTipText("<html>Enter an optional table name filter before querying the <br/>\ndatabase to limit the number of tables returned.<br/>\nExample: rad*,table*test</html>");
+
+        filterButton.setText("Get Tables");
         filterButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 filterButtonActionPerformed(evt);
@@ -425,9 +427,9 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
             .addGroup(tableFilterNamePanelLayout.createSequentialGroup()
                 .addComponent(filterByLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(filterTableTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE)
+                .addComponent(filterTableTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 308, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(filterButton))
         );
         tableFilterNamePanelLayout.setVerticalGroup(
             tableFilterNamePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
