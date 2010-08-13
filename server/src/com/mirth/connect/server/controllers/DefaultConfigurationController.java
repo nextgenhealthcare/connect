@@ -290,7 +290,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     public String getBuildDate() {
-        return mirthConfig.getString("mirth.date");
+        return versionConfig.getString("mirth.date");
     }
 
     public int getStatus() {
