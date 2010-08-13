@@ -92,8 +92,15 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     private void initialize() {
         try {
-            mirthConfig = new PropertiesConfiguration("mirth.properties");
-            versionConfig = new PropertiesConfiguration("version.properties");
+            // Disable delimiter parsing so getString() returns the whole
+            // property, even if there are commas
+            mirthConfig = new PropertiesConfiguration();
+            mirthConfig.setDelimiterParsingDisabled(true);
+            mirthConfig.load("mirth.properties");
+
+            versionConfig = new PropertiesConfiguration();
+            versionConfig.setDelimiterParsingDisabled(true);
+            versionConfig.load("version.properties");
 
             if (mirthConfig.getString(PROPERTY_TEMP_DIR) != null) {
                 File tempDataDirFile = new File(mirthConfig.getString(PROPERTY_TEMP_DIR));
@@ -160,24 +167,24 @@ public class DefaultConfigurationController extends ConfigurationController {
     public String getServerId() {
         return serverId;
     }
-    
+
     /*
      * Return the server timezone in the following format: PDT (UTC -7)
      */
     public String getServerTimezone(Locale locale) {
         TimeZone timeZone = TimeZone.getDefault();
         boolean daylight = timeZone.inDaylightTime(new Date());
-        
+
         // Get the short timezone display name with respect to DST
-        String timeZoneDisplay = timeZone.getDisplayName(daylight, TimeZone.SHORT, locale); 
-        
+        String timeZoneDisplay = timeZone.getDisplayName(daylight, TimeZone.SHORT, locale);
+
         // Get the offset in hours (divide by number of milliseconds in an hour)
         int offset = timeZone.getOffset(System.currentTimeMillis()) / (3600000);
-        
+
         // Get the offset display in either UTC -x or UTC +x
         String offsetDisplay = (offset < 0) ? String.valueOf(offset) : "+" + offset;
         timeZoneDisplay += " (UTC " + offsetDisplay + ")";
-        
+
         return timeZoneDisplay;
     }
 
