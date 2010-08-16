@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.plaf.InsetsUIResource;
 import javax.swing.text.DefaultEditorKit;
@@ -156,6 +157,9 @@ public class Mirth {
                     e.printStackTrace();
                 }
 
+                // keep the tooltips from disappearing
+                ToolTipManager.sharedInstance().setDismissDelay(3600000);
+                
                 // TabbedPane defaults
                 // UIManager.put("TabbedPane.selected", new Color(0xffffff));
                 // UIManager.put("TabbedPane.background",new Color(225,225,225));
