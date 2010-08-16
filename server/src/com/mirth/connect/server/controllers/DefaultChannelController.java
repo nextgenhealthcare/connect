@@ -52,21 +52,11 @@ public class DefaultChannelController extends ChannelController {
 
     public void loadCache() {
         try {
-            channelCache.clear();
-            channelIdLookup.clear();
-            channelNameLookup.clear();
-
             for (Channel channel : getChannel(null)) {
                 updateChannelInCache(channel);
             }
-
-            for (Channel channel : channelCache.values()) {
-                if (!statisticsController.checkIfStatisticsExist(channel.getId())) {
-                    statisticsController.createStatistics(channel.getId());
-                }
-            }
         } catch (Exception e) {
-            logger.warn(e);
+            logger.error(e);
         }
     }
 
@@ -232,12 +222,11 @@ public class DefaultChannelController extends ChannelController {
                     throw new ControllerException("A channel with that name already exists");
                 }
             }
-            
-            updateChannelInCache(channel);
 
             channelFilter = new Channel();
             channelFilter.setId(channel.getId());
 
+            // Put the new channel in the database
             if (getChannel(channelFilter).isEmpty()) {
                 logger.debug("adding channel");
                 SqlConfig.getSqlMapClient().insert("Channel.insertChannel", channel);
@@ -245,6 +234,15 @@ public class DefaultChannelController extends ChannelController {
                 logger.debug("updating channel");
                 SqlConfig.getSqlMapClient().update("Channel.updateChannel", channel);
             }
+            
+            // Create statistics for this channel if they don't already exist
+            if (!statisticsController.checkIfStatisticsExist(channel.getId())) {
+                statisticsController.createStatistics(channel.getId());
+            }
+            
+            // Update the channel in the channelCache
+            updateChannelInCache(channel);
+            
             return true;
         } catch (SQLException e) {
             throw new ControllerException(e);

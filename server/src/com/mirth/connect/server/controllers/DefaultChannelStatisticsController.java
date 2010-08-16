@@ -94,7 +94,7 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
         channelStatistics.setServerId(configurationController.getServerId());
         channelStatistics.setChannelId(channelId);
         
-        // synchronized updateAllStatistics because it iterates through the cache map
+        // synchronized with updateAllStatistics because it iterates through the cache map
         synchronized (cache) {
             cache.put(channelId, channelStatistics);
         }
