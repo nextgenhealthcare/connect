@@ -811,6 +811,14 @@ public class ImportConverter {
                     propertyChanges.put("dispatcherMultipart", value);
                 }
             }
+            
+            // If we have a post/put message and blank content, then disable
+            String requestMethod = propertyChanges.get("dispatcherMethod") == null ? propertyDefaults.get("dispatcherMethod") : propertyChanges.get("dispatcherMethod");
+            String requestContent = propertyChanges.get("dispatcherContent") == null ? propertyDefaults.get("dispatcherContent") : propertyChanges.get("dispatcherContent");
+            
+            if( requestContent.length() == 0 && ( requestMethod.equalsIgnoreCase("POST") || requestMethod.equalsIgnoreCase("PUT") ) ) {
+                document.getElementsByTagName("enabled").item(0).setTextContent("false");
+            }
 
             updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
         }
