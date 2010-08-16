@@ -778,7 +778,17 @@ public class ImportConverter {
                 }
 
                 if (attribute.equals("requestVariables")) {
-                    propertyChanges.put("dispatcherParameters", value);
+                    // get the properties object for the variables
+                    Properties tempProps = (Properties) serializer.fromXML(value);
+                    
+                    // set the content of 2.0 to be $payload of 1.8.2
+                    propertyChanges.put("dispatcherContent", tempProps.getProperty("$payload","") );
+                    
+                    // remove $payload as we dont need it
+                    tempProps.remove("$payload");
+                    
+                    // set the params
+                    propertyChanges.put("dispatcherParameters", serializer.toXML(tempProps));
                 }
 
                 if (attribute.equals("replyChannelId")) {
