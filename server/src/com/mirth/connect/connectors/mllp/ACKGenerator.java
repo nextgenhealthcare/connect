@@ -48,72 +48,90 @@ public class ACKGenerator {
         String receivingApplication = ""; // MSH.5.1
         String receivingFacility = ""; // MSH.6.1
         String originalEvent = ""; // MSH.9.2 (MSH.9/MSGH.2)
-        String originalid = ""; // MSH.10.1
-        String procid = ""; // MSH.11.1
-        String procidmode = ""; // // MSH.11.2
+        String originalId = ""; // MSH.10.1
+        String procId = ""; // MSH.11.1
+        String procIdMode = ""; // // MSH.11.2
         String version = ""; // MSH.12.1
 
-        // If XML is being sent over MLLP, use the strict parser
-        // to convert the message to ER7, then generate the ack.
+        /*
+         * If XML is being sent over MLLP, use the HL7v2 XML Quick Parser to
+         * pull out the fields, otherwise use patterns to parse the ER7.
+         */
         if (protocol.equals(Protocol.XML)) {
             ackIsXML = true;
-            message = SerializerFactory.getHL7Serializer(true, false, false).fromXML(message);
-        }
 
-        fieldDelim = message.charAt(3); // Usually |
-        componentDelim = message.charAt(4); // Usually ^
-        if (message.charAt(5) != fieldDelim) {
-            repetitionSeparator = message.charAt(5); // Usually ~
-            if (message.charAt(6) != fieldDelim) {
-                escapeCharacter = message.charAt(6); // Usually \
-                if (message.charAt(7) != fieldDelim) {
-                    subcomponentDelim = message.charAt(7); // Usually &
+            message = SerializerFactory.getHL7Serializer(true, false, false).fromXML(message);
+            // Use the HL7v2XMLQuickParser to pull out the ack fields
+            HL7v2XMLQuickParser.HL7v2HeaderElements mshElements = HL7v2XMLQuickParser.getInstance().processXMLString(message);
+
+            // Set the ack fields that were retrieved.
+            sendingApplication = mshElements.getSendingApplication();
+            sendingFacility = mshElements.getSendingFacility();
+            receivingApplication = mshElements.getReceivingApplication();
+            receivingFacility = mshElements.getReceivingFacility();
+            originalEvent = mshElements.getOriginalEvent();
+            originalId = mshElements.getOriginalId();
+            procId = mshElements.getProcId();
+            procIdMode = mshElements.getProcIdMode();
+            version = mshElements.getVersion();
+
+        } else {
+
+            fieldDelim = message.charAt(3); // Usually |
+            componentDelim = message.charAt(4); // Usually ^
+            if (message.charAt(5) != fieldDelim) {
+                repetitionSeparator = message.charAt(5); // Usually ~
+                if (message.charAt(6) != fieldDelim) {
+                    escapeCharacter = message.charAt(6); // Usually \
+                    if (message.charAt(7) != fieldDelim) {
+                        subcomponentDelim = message.charAt(7); // Usually &
+                    }
                 }
             }
-        }
 
-        // Handle single line messages without any segment delimiters
-        int firstSegmentDelim = message.indexOf(String.valueOf(segmentDelim));
-        String mshString;
-        if (firstSegmentDelim != -1) {
-            mshString = message.substring(0, firstSegmentDelim);
-        } else {
-            mshString = message;
-        }
+            // Handle single line messages without any segment delimiters
+            int firstSegmentDelim = message.indexOf(String.valueOf(segmentDelim));
+            String mshString;
+            if (firstSegmentDelim != -1) {
+                mshString = message.substring(0, firstSegmentDelim);
+            } else {
+                mshString = message;
+            }
 
-        Pattern fieldPattern = Pattern.compile(Pattern.quote(String.valueOf(fieldDelim)));
-        Pattern componentPattern = Pattern.compile(Pattern.quote(String.valueOf(componentDelim)));
+            Pattern fieldPattern = Pattern.compile(Pattern.quote(String.valueOf(fieldDelim)));
+            Pattern componentPattern = Pattern.compile(Pattern.quote(String.valueOf(componentDelim)));
 
-        String[] mshFields = fieldPattern.split(mshString);
-        int mshFieldsLength = mshFields.length;
+            String[] mshFields = fieldPattern.split(mshString);
+            int mshFieldsLength = mshFields.length;
 
-        if (mshFieldsLength > 2) {
-            sendingApplication = componentPattern.split(mshFields[2])[0]; // MSH.3.1
-            if (mshFieldsLength > 3) {
-                sendingFacility = componentPattern.split(mshFields[3])[0]; // MSH.4.1
-                if (mshFieldsLength > 4) {
-                    receivingApplication = componentPattern.split(mshFields[4])[0]; // MSH.5.1
-                    if (mshFieldsLength > 5) {
-                        receivingFacility = componentPattern.split(mshFields[5])[0]; // MSH.6.1
-                        if (mshFieldsLength > 8) { // MSH.9.2
-                            String[] msgDT = componentPattern.split(mshFields[8]);
+            if (mshFieldsLength > 2) {
+                sendingApplication = componentPattern.split(mshFields[2])[0]; // MSH.3.1
+                if (mshFieldsLength > 3) {
+                    sendingFacility = componentPattern.split(mshFields[3])[0]; // MSH.4.1
+                    if (mshFieldsLength > 4) {
+                        receivingApplication = componentPattern.split(mshFields[4])[0]; // MSH.5.1
+                        if (mshFieldsLength > 5) {
+                            receivingFacility = componentPattern.split(mshFields[5])[0]; // MSH.6.1
+                            if (mshFieldsLength > 8) { // MSH.9.2
+                                String[] msgDT = componentPattern.split(mshFields[8]);
 
-                            if (msgDT.length > 1) {
-                                originalEvent = msgDT[1];
-                            }
+                                if (msgDT.length > 1) {
+                                    originalEvent = msgDT[1];
+                                }
 
-                            if (mshFieldsLength > 9) {
-                                originalid = componentPattern.split(mshFields[9])[0]; // MSH.10.1
-                                if (mshFieldsLength > 10) {
-                                    String[] msh11 = componentPattern.split(mshFields[10]); // MSH.11
-                                    procid = msh11[0]; // MSH.11.1
+                                if (mshFieldsLength > 9) {
+                                    originalId = componentPattern.split(mshFields[9])[0]; // MSH.10.1
+                                    if (mshFieldsLength > 10) {
+                                        String[] msh11 = componentPattern.split(mshFields[10]); // MSH.11
+                                        procId = msh11[0]; // MSH.11.1
 
-                                    if (msh11.length > 1) {
-                                        procidmode = msh11[1]; // MSH.11.2
-                                    }
+                                        if (msh11.length > 1) {
+                                            procIdMode = msh11[1]; // MSH.11.2
+                                        }
 
-                                    if (mshFieldsLength > 11) {
-                                        version = componentPattern.split(mshFields[11])[0]; // MSH.12.1
+                                        if (mshFieldsLength > 11) {
+                                            version = componentPattern.split(mshFields[11])[0]; // MSH.12.1
+                                        }
                                     }
                                 }
                             }
@@ -138,11 +156,11 @@ public class ACKGenerator {
         if (version.length() == 0) {
             version = "2.4";
         }
-        if (procid.length() == 0) {
-            procid = "P";
+        if (procId.length() == 0) {
+            procId = "P";
         }
-        if (originalid.length() == 0) {
-            originalid = "1";
+        if (originalId.length() == 0) {
+            originalId = "1";
         }
         if (receivingApplication.length() == 0) {
             receivingApplication = "MIRTH";
@@ -174,11 +192,11 @@ public class ACKGenerator {
         ackBuilder.append(fieldDelim);
         ackBuilder.append(timestamp);
         ackBuilder.append(fieldDelim);
-        ackBuilder.append(procid);
+        ackBuilder.append(procId);
 
-        if (procidmode != null && procidmode.length() > 0) {
+        if (procIdMode != null && procIdMode.length() > 0) {
             ackBuilder.append(componentDelim);
-            ackBuilder.append(procidmode);
+            ackBuilder.append(procIdMode);
         }
 
         ackBuilder.append(fieldDelim);
@@ -188,7 +206,7 @@ public class ACKGenerator {
         ackBuilder.append(fieldDelim);
         ackBuilder.append(acknowledgementCode);
         ackBuilder.append(fieldDelim);
-        ackBuilder.append(originalid);
+        ackBuilder.append(originalId);
         ackBuilder.append(textMessage);
         ackBuilder.append(errorMessage);
         ackBuilder.append(segmentDelim); // MIRTH-494
