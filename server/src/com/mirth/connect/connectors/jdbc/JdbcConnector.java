@@ -347,7 +347,9 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
             script.append("if (resultMap.containsKey(string)) { return resultMap.get(string) }\n else ");
         }
 
-        script.append("if (globalChannelMap.containsKey(string)) { return globalChannelMap.get(string); }\n");
+        script.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string); }\n");
+        script.append("else if (channelMap.containsKey(string)) { return channelMap.get(string); }\n");
+        script.append("else if (globalChannelMap.containsKey(string)) { return globalChannelMap.get(string); }\n");
         script.append("else if (globalMap.containsKey(string)) { return globalMap.get(string); }\n");
         script.append("else { return ''; } }");
         // end function
@@ -359,6 +361,18 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
         script.append("function $gc(key, value) {");
         script.append("if (arguments.length == 1) { return globalChannelMap.get(key); }");
         script.append("else if (arguments.length == 2) { globalChannelMap.put(key, value); } }");
+        
+        script.append("function $c(key, value) {");
+        script.append("if (arguments.length == 1) { return channelMap.get(key); }");
+        script.append("else if (arguments.length == 2) { channelMap.put(key, value); } }");
+        
+        script.append("function $co(key, value) {");
+        script.append("if (arguments.length == 1) { return connectorMap.get(key); }");
+        script.append("else if (arguments.length == 2) { connectorMap.put(key, value); } }");
+        
+        script.append("function $r(key, value) {");
+        script.append("if (arguments.length == 1) {return responseMap.get(key); }");
+        script.append("else if (arguments.length == 2) { responseMap.put(key, value); } }");
         
         try {
             for (CodeTemplate template : ControllerFactory.getFactory().createCodeTemplateController().getCodeTemplate(null)) {
