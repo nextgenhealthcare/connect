@@ -28,11 +28,15 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSContentType;
@@ -49,19 +53,35 @@ public class SoapEnvelopeGenerator {
     private boolean useComments = true;
     private XSOMParser parser = new XSOMParser();
 
+    private class DefaultErrorHandler implements ErrorHandler {
+        private Logger logger = Logger.getLogger(this.getClass());
+
+        public void error(SAXParseException exception) throws SAXException {
+            logger.error(exception);
+        }
+
+        public void fatalError(SAXParseException exception) throws SAXException {
+            logger.fatal(exception);
+        }
+
+        public void warning(SAXParseException exception) throws SAXException {
+            logger.warn(exception);
+        }
+    }
+
     public SoapEnvelopeGenerator(Definition definition) throws Exception {
         ExtensibilityElement extensibilityElement = findExtensibilityElementByName(definition.getTypes().getExtensibilityElements(), "schema");
-
+        
         if ((extensibilityElement != null) && (extensibilityElement instanceof Schema)) {
             Schema schemaExtensibilityElement = (Schema) extensibilityElement;
             Element schemaElement = null;
 
             if (!schemaExtensibilityElement.getImports().isEmpty()) {
-                // handle the case where the scema is "imported"
+                // handle the case where the scema is imported
                 SchemaImport schemaImport = ((Vector<SchemaImport>) schemaExtensibilityElement.getImports().values().iterator().next()).get(0);
                 schemaElement = schemaImport.getReferencedSchema().getElement();
             } else if (!schemaExtensibilityElement.getIncludes().isEmpty()) {
-                // handle the case where the schema is "included"
+                // handle the case where the schema is included
                 SchemaReference schemaReference = (SchemaReference) schemaExtensibilityElement.getIncludes().iterator().next();
                 schemaElement = schemaReference.getReferencedSchema().getElement();
             } else {
@@ -69,7 +89,9 @@ public class SoapEnvelopeGenerator {
                 schemaElement = schemaExtensibilityElement.getElement();
             }
 
-            parser.parse(new InputSource(new StringReader(domToString(schemaElement))));
+            parser.setErrorHandler(new DefaultErrorHandler());
+            InputSource source = new InputSource(new StringReader(domToString(schemaElement)));
+            parser.parse(source);
             schema = parser.getResult().getSchema(1);
         }
     }
