@@ -60,7 +60,6 @@ public class ACKGenerator {
         if (protocol.equals(Protocol.XML)) {
             ackIsXML = true;
 
-            message = SerializerFactory.getHL7Serializer(true, false, false).fromXML(message);
             // Use the HL7v2XMLQuickParser to pull out the ack fields
             HL7v2XMLQuickParser.HL7v2HeaderElements mshElements = HL7v2XMLQuickParser.getInstance().processXMLString(message);
 
