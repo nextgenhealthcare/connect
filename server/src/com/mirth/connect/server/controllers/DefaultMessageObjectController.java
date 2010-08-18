@@ -28,8 +28,8 @@ import org.mule.umo.UMOEvent;
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.Response;
 import com.mirth.connect.model.MessageObject.Status;
+import com.mirth.connect.model.Response;
 import com.mirth.connect.model.converters.ObjectCloner;
 import com.mirth.connect.model.filters.MessageObjectFilter;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
@@ -141,44 +141,38 @@ public class DefaultMessageObjectController extends MessageObjectController {
             statisticsController.incrementQueuedCount(messageObject.getChannelId());
         }
 
-        String channelId = messageObject.getChannelId();
-        Map<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
+        Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(messageObject.getChannelId());
 
-        // Check the cache for the channel
-        if (channelCache != null && channelCache.containsKey(channelId)) {
-            Channel channel = channelCache.get(channelId);
-
-            if (channel.getProperties().containsKey("store_messages")) {
-                // If replacing messages that were stored on special conditions
-                // ("store errored only" or "do not store filtered messages"),
-                // then try to remove the old message if the new one succeeded.
-                if (checkIfMessageExists) {
-                    if (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) {
-                        try {
-                            removeMessage(messageObject);
-                        } catch (ControllerException e) {
-                            logger.error("Could not remove old message: id=" + messageObject.getId(), e);
-                        }
-                    }
-
-                    if (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
-                        try {
-                            removeMessage(messageObject);
-                        } catch (ControllerException e) {
-                            logger.error("Could not remove old message: id=" + messageObject.getId(), e);
-                        }
+        if (channel != null && channel.getProperties().containsKey("store_messages")) {
+            // If replacing messages that were stored on special conditions
+            // ("store errored only" or "do not store filtered messages"),
+            // then try to remove the old message if the new one succeeded.
+            if (checkIfMessageExists) {
+                if (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) {
+                    try {
+                        removeMessage(messageObject);
+                    } catch (ControllerException e) {
+                        logger.error("Could not remove old message: id=" + messageObject.getId(), e);
                     }
                 }
 
-                if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
-                    logger.debug("message is not stored");
-                    return;
-                } else if (channel.getProperties().getProperty("encryptData").equals("true")) {
+                if (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
                     try {
-                        encryptMessageData(messageObject);
-                    } catch (EncryptionException e) {
-                        logger.error("message logging halted. could not encrypt message. id=" + messageObject.getId(), e);
+                        removeMessage(messageObject);
+                    } catch (ControllerException e) {
+                        logger.error("Could not remove old message: id=" + messageObject.getId(), e);
                     }
+                }
+            }
+
+            if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
+                logger.debug("message is not stored");
+                return;
+            } else if (channel.getProperties().getProperty("encryptData").equals("true")) {
+                try {
+                    encryptMessageData(messageObject);
+                } catch (EncryptionException e) {
+                    logger.error("message logging halted. could not encrypt message. id=" + messageObject.getId(), e);
                 }
             }
         }
@@ -203,7 +197,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         } else if (newStatus.equals(MessageObject.Status.QUEUED)) {
             statisticsController.incrementQueuedCount(channelId);
         }
-        Channel channel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId);
+        Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
         if (channel == null) {
             logger.warn("Cannot update message " + messageId + " status as the channel " + channelId + " doesn't exists ");
             return;
@@ -516,7 +510,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         }
 
         if ((queueName == null) || (queueName.length() == 0)) {
-            String connectorId = ControllerFactory.getFactory().createChannelController().getConnectorId(message.getChannelId(), message.getConnectorName());
+            String connectorId = ControllerFactory.getFactory().createChannelController().getDeployedConnectorId(message.getChannelId(), message.getConnectorName());
             queueName = QueueUtil.getInstance().getQueueName(message.getChannelId(), connectorId);
         }
 
@@ -565,7 +559,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
             parameterMap.put("channelId", channelId);
             SqlConfig.getSqlMapClient().delete("Message.deleteMessage", parameterMap);
             SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
-            
+
             Channel filterChannel = new Channel();
             filterChannel.setId(channelId);
             Channel channel = ControllerFactory.getFactory().createChannelController().getChannel(filterChannel).get(0);
@@ -934,20 +928,15 @@ public class DefaultMessageObjectController extends MessageObjectController {
     public void setAttachmentMessageId(MessageObject messageObject, Attachment attachment) {
         attachment.setMessageId(messageObject.getId());
         // MIRTH-602 --- The following block of code sets the attachment message
-        // ID to be the source message id
-        // in case we are not storing messages. This will cause all message
-        // attachments to be removed in JavaScriptPostProcessor.
-        // Otherwise we will have dangling attachments in the DB .
+        // ID to be the source message id in case we are not storing messages.
+        // This will cause all message attachments to be removed in
+        // JavaScriptPostProcessor. Otherwise we will have dangling attachments
+        // in the DB .
         if (messageObject.getCorrelationId() != null && !messageObject.getCorrelationId().equals("")) {
-            // Check the cache for the channel
-            String channelId = messageObject.getChannelId();
-            Map<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
-            if (channelCache != null && channelCache.containsKey(channelId)) {
-                Channel channel = channelCache.get(channelId);
-                if (channel.getProperties().containsKey("store_messages")) {
-                    if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
-                        attachment.setMessageId(messageObject.getCorrelationId());
-                    }
+            Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(messageObject.getChannelId());
+            if (channel != null && channel.getProperties().containsKey("store_messages")) {
+                if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
+                    attachment.setMessageId(messageObject.getCorrelationId());
                 }
             }
         }

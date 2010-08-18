@@ -27,12 +27,17 @@ import com.mirth.connect.util.QueueUtil;
 
 public class DefaultChannelController extends ChannelController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private static Map<String, Channel> channelCache = new HashMap<String, Channel>();
-    private static Map<String, String> channelIdLookup = new HashMap<String, String>();
-    private static Map<String, String> channelNameLookup = new HashMap<String, String>();
     private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
     private ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+
+    // channel cache
+    private static Map<String, Channel> channelCacheById = new HashMap<String, Channel>();
+    private static Map<String, Channel> channelCacheByName = new HashMap<String, Channel>();
+
+    // deployed channel cache
+    private static Map<String, Channel> deployedChannelCacheById = new HashMap<String, Channel>();
+    private static Map<String, Channel> deployedChannelCacheByName = new HashMap<String, Channel>();
 
     private static DefaultChannelController instance = null;
 
@@ -48,57 +53,6 @@ public class DefaultChannelController extends ChannelController {
 
             return instance;
         }
-    }
-
-    public void loadCache() {
-        try {
-            for (Channel channel : getChannel(null)) {
-                updateChannelInCache(channel);
-            }
-        } catch (Exception e) {
-            logger.error(e);
-        }
-    }
-
-    public String getChannelId(String channelName) {
-        return channelIdLookup.get(channelName);
-    }
-    
-    public String getChannelName(String channelId) {
-    	return channelNameLookup.get(channelId);
-    }
-
-    public String getDestinationName(String id) {
-        // String format: channelid_destination_index
-        String destinationName = id;
-        // if we can't parse the name, just use the id
-        String channelId = id.substring(0, id.indexOf('_'));
-        String strIndex = id.substring(id.indexOf("destination_") + 12, id.indexOf("_connector"));
-        int index = Integer.parseInt(strIndex) - 1;
-        Channel channel = channelCache.get(channelId);
-
-        if (channel != null) {
-            if (index < channel.getDestinationConnectors().size())
-                destinationName = channel.getDestinationConnectors().get(index).getName();
-        }
-
-        return destinationName;
-    }
-
-    public String getConnectorId(String channelId, String connectorName) throws Exception {
-        Channel filterChannel = new Channel();
-        filterChannel.setId(channelId);
-        int index = 1;
-
-        for (Connector connector : getChannel(filterChannel).get(0).getDestinationConnectors()) {
-            if (connector.getName().equals(connectorName)) {
-                return String.valueOf(index);
-            } else {
-                index++;
-            }
-        }
-
-        throw new Exception("Connector name not found");
     }
 
     public List<Channel> getChannel(Channel channel) throws ControllerException {
@@ -124,7 +78,6 @@ public class DefaultChannelController extends ChannelController {
              * numbers aren't equal, then add the channel to the updated list.
              * Otherwise, if the channel is not found, add it to the deleted
              * list.
-             * 
              */
             for (String cachedChannelId : cachedChannels.keySet()) {
                 boolean channelExistsOnServer = false;
@@ -162,7 +115,6 @@ public class DefaultChannelController extends ChannelController {
              * Iterate through the server channel list, check if every id exists
              * in the cached channel list. If it doesn't, add it to the summary
              * list as added.
-             * 
              */
             for (Entry<String, Integer> entry : serverChannels.entrySet()) {
                 String id = entry.getKey();
@@ -192,22 +144,22 @@ public class DefaultChannelController extends ChannelController {
 
         ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
         channel.setVersion(configurationController.getServerVersion());
-        
+
         String sourceVersion = extensionController.getConnectorMetaDataByTransportName(channel.getSourceConnector().getTransportName()).getPluginVersion();
         channel.getSourceConnector().setVersion(sourceVersion);
-        
+
         ArrayList<String> destConnectorNames = new ArrayList<String>(channel.getDestinationConnectors().size());
-        
+
         for (Connector connector : channel.getDestinationConnectors()) {
-            if(destConnectorNames.contains(connector.getName())) {
+            if (destConnectorNames.contains(connector.getName())) {
                 throw new ControllerException("Destination connectors must have unique names");
             }
             destConnectorNames.add(connector.getName());
-            
+
             String destinationVersion = extensionController.getConnectorMetaDataByTransportName(connector.getTransportName()).getPluginVersion();
             connector.setVersion(destinationVersion);
         }
-        
+
         try {
             Channel channelFilter = new Channel();
             channelFilter.setId(channel.getId());
@@ -234,15 +186,15 @@ public class DefaultChannelController extends ChannelController {
                 logger.debug("updating channel");
                 SqlConfig.getSqlMapClient().update("Channel.updateChannel", channel);
             }
-            
+
             // Create statistics for this channel if they don't already exist
             if (!statisticsController.checkIfStatisticsExist(channel.getId())) {
                 statisticsController.createStatistics(channel.getId());
             }
-            
+
             // Update the channel in the channelCache
-            updateChannelInCache(channel);
-            
+            putChannelInCache(channel);
+
             return true;
         } catch (SQLException e) {
             throw new ControllerException(e);
@@ -262,7 +214,7 @@ public class DefaultChannelController extends ChannelController {
             logger.warn("Cannot remove deployed channel.");
             return;
         }
-        
+
         try {
             if (channel != null) {
                 QueueUtil.getInstance().removeAllQueuesForChannel(channel);
@@ -273,35 +225,102 @@ public class DefaultChannelController extends ChannelController {
             }
 
             SqlConfig.getSqlMapClient().delete("Channel.deleteChannel", channel);
-            
+
             if (DatabaseUtil.statementExists("Channel.vacuumChannelTable")) {
                 SqlConfig.getSqlMapClient().update("Channel.vacuumChannelTable");
             }
-            
+
         } catch (Exception e) {
             throw new ControllerException(e);
         }
     }
 
-    public Map<String, Channel> getChannelCache() {
-        return channelCache;
+    // ---------- CHANNEL CACHE ----------
+
+    public void loadCache() {
+        try {
+            for (Channel channel : getChannel(null)) {
+                putChannelInCache(channel);
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
     }
 
-    private void removeChannelFromCache(String channelId) {
-        channelCache.remove(channelId);
-        channelIdLookup.remove(channelNameLookup.get(channelId));
-        channelNameLookup.remove(channelId);
+    public Channel getCachedChannelById(String channelId) {
+        return channelCacheById.get(channelId);
+    }
+
+    public Channel getCachedChannelByName(String channelName) {
+        return channelCacheByName.get(channelName);
     }
 
     private void clearChannelCache() {
-        channelCache.clear();
-        channelIdLookup.clear();
-        channelNameLookup.clear();
+        channelCacheById.clear();
+        channelCacheByName.clear();
     }
 
-    private void updateChannelInCache(Channel channel) {
-        channelCache.put(channel.getId(), channel);
-        channelIdLookup.put(channel.getName(), channel.getId());
-        channelNameLookup.put(channel.getId(), channel.getName());
+    private void putChannelInCache(Channel channel) {
+        channelCacheById.put(channel.getId(), channel);
+        channelCacheByName.put(channel.getName(), channel);
+    }
+
+    private void removeChannelFromCache(String channelId) {
+        String channelName = getCachedChannelById(channelId).getName();
+        channelCacheById.remove(channelId);
+        channelCacheByName.remove(channelName);
+    }
+
+    // ---------- DEPLOYED CHANNEL CACHE ----------
+
+    public void putDeployedChannelInCache(Channel channel) {
+        deployedChannelCacheById.put(channel.getId(), channel);
+        deployedChannelCacheByName.put(channel.getName(), channel);
+    }
+
+    public void removeDeployedChannelFromCache(String channelId) {
+        String channelName = getDeployedChannelById(channelId).getName();
+        deployedChannelCacheById.remove(channelId);
+        deployedChannelCacheByName.remove(channelName);
+    }
+
+    public Channel getDeployedChannelById(String channelId) {
+        return deployedChannelCacheById.get(channelId);
+    }
+
+    public Channel getDeployedChannelByName(String channelName) {
+        return deployedChannelCacheByName.get(channelName);
+    }
+
+    public String getDeployedDestinationName(String id) {
+        // String format: channelid_destination_index
+        String destinationName = id;
+        // if we can't parse the name, just use the id
+        String channelId = id.substring(0, id.indexOf('_'));
+        String strIndex = id.substring(id.indexOf("destination_") + 12, id.indexOf("_connector"));
+        int index = Integer.parseInt(strIndex) - 1;
+        Channel channel = getDeployedChannelById(channelId);
+
+        if (channel != null) {
+            if (index < channel.getDestinationConnectors().size())
+                destinationName = channel.getDestinationConnectors().get(index).getName();
+        }
+
+        return destinationName;
+    }
+
+    public String getDeployedConnectorId(String channelId, String connectorName) throws Exception {
+        Channel channel = getDeployedChannelById(channelId);
+        int index = 1;
+
+        for (Connector connector : channel.getDestinationConnectors()) {
+            if (connector.getName().equals(connectorName)) {
+                return String.valueOf(index);
+            } else {
+                index++;
+            }
+        }
+
+        throw new Exception("Connector name not found");
     }
 }

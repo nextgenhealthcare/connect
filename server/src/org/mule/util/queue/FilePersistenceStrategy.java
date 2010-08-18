@@ -129,7 +129,7 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
             Object obj = ois.readObject();
             return obj;
          } catch (Exception e) {
-         	logger.error("Error reading broken queue file, it should be manually removed: " + file.getAbsolutePath(), e);
+         	logger.error("Error reading broken queue file. If it exists, it should be manually removed: " + file.getAbsolutePath(), e);
          	throw (IOException) new IOException("Error loading persistent object").initCause(e);
          } finally {
             if (ois != null) {

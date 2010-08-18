@@ -172,7 +172,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher {
 
         // If the destination is the sink, it's not necessary to replace the
         // template values
-        if (!endpoint.getEndpointURI().getAddress().equals(VMConnector.SINK_CONNECTOR_ADDRESS)) {
+        if (!endpoint.getEndpointURI().toString().equals(VMConnector.SINK_CONNECTOR_ADDRESS)) {
             template = connector.getTemplate();
             if (template != null) {
                 template = replacer.replaceValues(template, messageObject);
@@ -182,43 +182,32 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher {
 
             event = new MuleEvent(new MuleMessage(template), endpoint, new MuleSession(), connector.isSynchronised());
         } else {
+            // Channel Writer: None
             messageObjectController.setSuccess(messageObject, "Message sinked successfully", null);
             return;
         }
 
-        // Check to see if the channel that is being written to exists.
-        String channelId = event.getEndpoint().getEndpointURI().getAddress();
-        Channel channel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId);
-        boolean channelWriterNone = false;
-        if (channel == null) {
-            channelWriterNone = true;
-        }
-
-        // Use inline routing if "Wait for Channel Response" is set to true or
-        // the destination channel doesn't exist.
         // If "Wait for Channel Response" is set to false, the message is
         // written to the destination channel's queue.
         // This is the same behavior that happens when using
-        // VMRouter.routeMessage("name", "message", true, false).
-        if (connector.isSynchronised() || channelWriterNone) {
-            
-            // If channel writer is none, wait for response will error and
-            // should not be allowed. The client should not allow it either.
-            if (channelWriterNone && event.isSynchronous()) {
-                event.setSynchronous(false);
-            }
-            
+        // VMRouter.routeMessage("name", "message", true).
+        if (connector.isSynchronised()) {
             if (receiver != null) {
                 vmResponse = receiver.dispatchMessage(event);
             } else {
+                logger.error("Could not find receiver for channel: " + event.getEndpoint().getEndpointURI().getAddress());
                 throw new NoReceiverForEndpointException(new Message(Messages.NO_RECEIVER_X_FOR_ENDPOINT_X, connector.getName(), endpoint.getEndpointURI()));
             }
         } else {
             String queueName = endpoint.getEndpointURI().getAddress();
             QueueSession session = MuleManager.getInstance().getQueueManager().getQueueSession();
-            Queue queue = session.getQueue(queueName);
+            
+            // Get the queue, force persist in case the destination has never
+            // been deployed and the queue doesn't exist yet.
+            Queue queue = session.getQueue(queueName, true);
+
             // Add some properties about the source to the new message
-            Channel sourceChannel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(messageObject.getChannelId());
+            Channel sourceChannel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(messageObject.getChannelId());
             if (sourceChannel != null) {
                 event.setProperty(VMConnector.SOURCE_CHANNEL_ID, sourceChannel.getId());
                 event.setProperty(VMConnector.SOURCE_MESSAGE_ID, messageObject.getId());

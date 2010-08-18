@@ -28,6 +28,7 @@ import org.mule.util.queue.QueueSession;
 import com.mirth.connect.connectors.vm.VMConnector;
 import com.mirth.connect.connectors.vm.VMMessageReceiver;
 import com.mirth.connect.connectors.vm.VMResponse;
+import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
@@ -39,14 +40,19 @@ public class VMRouter {
     }
 
     public VMResponse routeMessage(String channelName, String message, boolean useQueue) {
-        String channelId = ControllerFactory.getFactory().createChannelController().getChannelId(channelName);
-        return routeMessageByChannelId(channelId, message, useQueue);
+        Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelByName(channelName);
+
+        if (channel == null) {
+            logger.error("Could not find channel to route to for name: " + channelName);
+            return null;
+        } else {
+            return routeMessageByChannelId(channel.getId(), message, useQueue);
+        }
     }
 
     @Deprecated
     public VMResponse routeMessage(String channelName, String message, boolean useQueue, boolean synchronised) {
-        String channelId = ControllerFactory.getFactory().createChannelController().getChannelId(channelName);
-        return routeMessageByChannelId(channelId, message, useQueue);
+        return routeMessage(channelName, message, useQueue);
     }
 
     public VMResponse routeMessageByChannelId(String channelId, Object message, boolean useQueue) {
@@ -66,6 +72,12 @@ public class VMRouter {
         }
 
         VMMessageReceiver receiver = VMRegistry.getInstance().get(channelId);
+        
+        if (receiver == null) {
+            logger.error("Unable to route message. No receiver found for channel id: " + channelId);
+            return null;
+        }
+
         UMOEvent event = new MuleEvent(umoMessage, receiver.getEndpoint(), new MuleSession(), !useQueue);
 
         try {

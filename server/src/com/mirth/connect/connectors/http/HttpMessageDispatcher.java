@@ -172,7 +172,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
             submitHttpRequest(message.getEndpointUri().toString(), message.getMessageObject());
         } catch (Exception e) {
             if (e.getClass() == ConnectException.class) {
-                logger.warn("Can't connect to the queued endpoint: " + channelController.getChannelName(connector.getChannelId()) + " - " + channelController.getDestinationName(connector.getName()) + " \r\n'" + e.getMessage());
+                logger.warn("Can't connect to the queued endpoint: " + channelController.getDeployedChannelById(connector.getChannelId()).getName() + " - " + channelController.getDeployedDestinationName(connector.getName()) + " \r\n'" + e.getMessage());
                 messageObjectController.setError(message.getMessageObject(), Constants.ERROR_404, "Connection refused", e, null);
                 throw e;
             }

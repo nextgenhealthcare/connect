@@ -201,6 +201,8 @@ public class MuleEngineController implements EngineController {
 
                         if (!registerChannel(channel)) {
                             failedChannelIds.add(channel.getId());
+                        } else {
+                            channelController.putDeployedChannelInCache(channel);
                         }
                     } catch (Exception e) {
                         logger.error("Error registering channel.", e);
@@ -262,7 +264,7 @@ public class MuleEngineController implements EngineController {
 
             // Remove the channels from the cache and unregister them
             for (String registeredChannelId : registeredChannelIds) {
-                channelController.getChannelCache().remove(channelController.getChannelCache().get(registeredChannelId));
+                channelController.removeDeployedChannelFromCache(registeredChannelId);
                 unregisterChannel(registeredChannelId);
             }
         } catch (Exception e) {

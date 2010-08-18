@@ -32,15 +32,21 @@ public abstract class ChannelController extends Controller {
     
     public abstract void loadCache();
     
-    public abstract Map<String, Channel> getChannelCache();
-
-    // utility methods
-
-    public abstract String getChannelId(String channelName);
+    public abstract Channel getCachedChannelById(String channelId);
     
-    public abstract String getChannelName(String channelId);
+    public abstract Channel getCachedChannelByName(String channelName);
 
-    public abstract String getDestinationName(String id);
+    // deployed channel cache
+    
+    public abstract void putDeployedChannelInCache(Channel channel);
+    
+    public abstract void removeDeployedChannelFromCache(String channelId);
+    
+    public abstract Channel getDeployedChannelById(String channelId);
+    
+    public abstract Channel getDeployedChannelByName(String channelName);
 
-    public abstract String getConnectorId(String channelId, String connectorName) throws Exception;
+    public abstract String getDeployedDestinationName(String connectorId);
+
+    public abstract String getDeployedConnectorId(String channelId, String connectorName) throws Exception;
 }

@@ -540,7 +540,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
             }
 
             // Get the inbound protocol of this connector from the channel cache
-            Protocol inboundProtocol = channelController.getChannelCache().get(connector.getChannelId()).getSourceConnector().getTransformer().getInboundProtocol();
+            Protocol inboundProtocol = channelController.getDeployedChannelById(connector.getChannelId()).getSourceConnector().getTransformer().getInboundProtocol();
 
             // Check if we want to send ACKs at all.
             if (connector.getSendACK()) {

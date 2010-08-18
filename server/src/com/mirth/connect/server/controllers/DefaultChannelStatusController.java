@@ -12,7 +12,6 @@ package com.mirth.connect.server.controllers;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.management.ObjectName;
@@ -187,13 +186,10 @@ public class DefaultChannelStatusController extends ChannelStatusController {
                 ChannelStatus channelStatus = new ChannelStatus();
                 channelStatus.setChannelId(channelId);
 
-                // check if the channel is running but has been removed from the
-                // channel list
-                Map<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
+                Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
 
-                if ((channelCache != null) && channelCache.containsKey(channelId)) {
-                    Channel cachedChannel = channelCache.get(channelId);
-                    channelStatus.setName(cachedChannel.getName());
+                if ((channel != null)) {
+                    channelStatus.setName(channel.getName());
                 } else {
                     channelStatus.setName("Channel has been deleted.");
                 }

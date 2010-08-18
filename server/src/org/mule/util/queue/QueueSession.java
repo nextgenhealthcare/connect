@@ -20,6 +20,8 @@ public interface QueueSession
 
     Queue getQueue(String name);
     
+    Queue getQueue(String name, boolean forcePersist);
+    
     Queue resyncQueue(String name);
     
     void begin() throws ResourceManagerException;

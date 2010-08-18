@@ -86,7 +86,7 @@ public class InboundMessageRouter extends AbstractRouterCollection implements UM
                 if (eventsToRoute[0].getEndpoint().getConnector() instanceof VMConnector) {
                 	eventsToRoute[0] = new MuleEvent(eventsToRoute[0].getMessage(), eventsToRoute[0]);
                 	String channelId = eventsToRoute[0].getEndpoint().getName();
-                	Channel channel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId);
+                	Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
                 	
                 	if (channel != null) {
                 		boolean synchronizedChannel = Boolean.valueOf((String)channel.getProperties().get("synchronous"));

@@ -19,35 +19,31 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.JavaScriptUtil;
 
 public class JavaScriptPostprocessor {
-	private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = Logger.getLogger(this.getClass());
 
-	public void doPostProcess(MessageObject messageObject) {
-		JavaScriptUtil.getInstance().executeScript(messageObject.getChannelId() + "_Postprocessor", "postprocessor", messageObject);
-		JavaScriptUtil.getInstance().executeScript("Postprocessor", "postprocessor", messageObject);
-		String channelId = messageObject.getChannelId();
-		
-		Map<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
-		
-		// Check the cache for the channel
-		if (channelCache != null && channelCache.containsKey(channelId)) {
-			Channel channel = channelCache.get(channelId);
-			if (channel.getProperties().containsKey("store_messages")) {
-				if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
-				    // message is not stored, remove attachment if there is one
-                    if (messageObject.isAttachment()) {
-                        ControllerFactory.getFactory().createMessageObjectController().deleteAttachments(messageObject);
-                    }
-				}
-			}
-		}
-	}
+    public void doPostProcess(MessageObject messageObject) {
+        JavaScriptUtil.getInstance().executeScript(messageObject.getChannelId() + "_Postprocessor", "postprocessor", messageObject);
+        JavaScriptUtil.getInstance().executeScript("Postprocessor", "postprocessor", messageObject);
+        String channelId = messageObject.getChannelId();
 
-	public void doPostProcess(Object object) throws IllegalArgumentException {
-		if (object instanceof MessageObject) {
-			doPostProcess((MessageObject) object);
-		} else {
-			logger.error("Could not postprocess, object is not of type MessageObject. Cannot wait for response on Channel Writer: None.");
-			throw new IllegalArgumentException("Object is not of type MessageObject");
-		}
-	}
+        Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
+
+        if (channel != null && channel.getProperties().containsKey("store_messages")) {
+            if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
+                // message is not stored, remove attachment if there is one
+                if (messageObject.isAttachment()) {
+                    ControllerFactory.getFactory().createMessageObjectController().deleteAttachments(messageObject);
+                }
+            }
+        }
+    }
+
+    public void doPostProcess(Object object) throws IllegalArgumentException {
+        if (object instanceof MessageObject) {
+            doPostProcess((MessageObject) object);
+        } else {
+            logger.error("Could not postprocess, object is not of type MessageObject. Cannot wait for response on Channel Writer: None.");
+            throw new IllegalArgumentException("Object is not of type MessageObject");
+        }
+    }
 }

@@ -164,7 +164,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
                             if (socket != null) {
                                 doDispose(socket);
                             }
-                            logger.warn("Can't connect to the endpoint: " + channelController.getChannelName(connector.getChannelId()) + " - " + channelController.getDestinationName(connector.getName()) + " \r\nWaiting " + new Float(connector.getReconnectMillisecs() / 1000) + " seconds before reconnecting... \r\n(" + exs + ")");
+                            logger.warn("Can't connect to the endpoint: " + channelController.getDeployedChannelById(connector.getChannelId()).getName() + " - " + channelController.getDeployedDestinationName(connector.getName()) + " \r\nWaiting " + new Float(connector.getReconnectMillisecs() / 1000) + " seconds before reconnecting... \r\n(" + exs + ")");
                             try {
                                 Thread.sleep(connector.getReconnectMillisecs());
                             } catch (Throwable t) {
@@ -175,7 +175,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
                             }
                         } else {
                             exceptionMessage = "Unable to connect to destination";
-                            logger.error("Can't connect to the endpoint: " + channelController.getChannelName(connector.getChannelId()) + " - " + channelController.getDestinationName(connector.getName()) + " \r\nPayload not sent");
+                            logger.error("Can't connect to the endpoint: " + channelController.getDeployedChannelById(connector.getChannelId()).getName() + " - " + channelController.getDeployedDestinationName(connector.getName()) + " \r\nPayload not sent");
                             exceptionWriting = exs;
                         }
                     }
@@ -256,7 +256,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
                 }
             }
         } catch (IOException e) {
-            logger.warn("Can't connect to the queued endpoint: " + channelController.getChannelName(connector.getChannelId()) + " - " + channelController.getDestinationName(connector.getName()) + " \r\n'" + e.getMessage() + "' attempting to reconnect.");
+            logger.warn("Can't connect to the queued endpoint: " + channelController.getDeployedChannelById(connector.getChannelId()).getName() + " - " + channelController.getDeployedDestinationName(connector.getName()) + " \r\n'" + e.getMessage() + "' attempting to reconnect.");
             try {
                 if (socket != null) {
                     monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, socket);
@@ -273,7 +273,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
             } catch (InterruptedException ie) {
                 throw ie;
             } catch (Exception ers) {
-                logger.warn("Can't connect to the queued endpoint: " + channelController.getChannelName(connector.getChannelId()) + " - " + channelController.getDestinationName(connector.getName()) + " \r\n'" + e.getMessage() + "' ceasing reconnecting.");
+                logger.warn("Can't connect to the queued endpoint: " + channelController.getDeployedChannelById(connector.getChannelId()).getName() + " - " + channelController.getDeployedDestinationName(connector.getName()) + " \r\n'" + e.getMessage() + "' ceasing reconnecting.");
                 sendException = ers;
             }
         } catch (Exception e) {

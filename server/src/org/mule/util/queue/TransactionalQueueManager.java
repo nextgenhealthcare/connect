@@ -55,16 +55,29 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 	}
 
 	protected synchronized QueueInfo getQueue(String name) {
-		QueueInfo q = (QueueInfo) queues.get(name);
-		if (q == null) {
-			q = new QueueInfo();
-			q.name = name;
-			q.list = new LinkedList();
-			q.config = defaultQueueConfiguration;
-			queues.put(name, q);
-		}
-		return q;
+		return getQueue(name, false);
 	}
+	
+	protected synchronized QueueInfo getQueue(String name, boolean forcePersist) {
+        QueueInfo q = (QueueInfo) queues.get(name);
+        if (q == null) {
+            q = new QueueInfo();
+            q.name = name;
+            q.list = new LinkedList();
+            
+            // Allow a channel writer to force a persistent queue in case the channel
+            // it is writing to has not been deployed yet.
+            if (forcePersist) {
+                logger.warn("Creating persistent queue because it did not exist yet: " + name);
+                q.config = new QueueConfiguration(true);
+            } else {
+                q.config = defaultQueueConfiguration;
+            }
+            
+            queues.put(name, q);
+        }
+        return q;
+    }
 
 	public synchronized List<String> getAllQueueNames() {
 		List<String> names = new ArrayList<String>();
@@ -437,9 +450,13 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 		 */
 
 		public Queue getQueue(String name) {
-			QueueInfo queueInfo = TransactionalQueueManager.this.getQueue(name);
-			return new QueueImpl(queueInfo);
+			return getQueue(name, false);
 		}
+		
+		public Queue getQueue(String name, boolean forcePersist) {
+            QueueInfo queueInfo = TransactionalQueueManager.this.getQueue(name, forcePersist);
+            return new QueueImpl(queueInfo);
+        }
 
 		public Queue resyncQueue(String name) {
 			try {

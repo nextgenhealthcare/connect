@@ -15,7 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -249,15 +248,10 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin {
             String channelId = tokenizer.nextToken();
             int destinationIndex;
             LinkedList<String[]> channelLog = null;
+            
+            Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
 
-            // HashMap(ChannelID, Channel)
-            Map<String, Channel> channelsFromCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
-
-            // redundant check as the channelId MUST exist in the channelCache.
-            // but just for a safety measure...
-            if (channelsFromCache.containsKey(channelId)) {
-                Channel channel = channelsFromCache.get(channelId);
-
+            if (channel != null) {
                 // grab the channel's log from the HashMap, if not exist, create
                 // one.
                 if (connectorInfoLogs.containsKey(channel.getName())) {
@@ -314,12 +308,12 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin {
                             information = HttpSenderProperties.getInformation(connector.getProperties());
                         } else if (connector.getTransportName().equals(ChannelWriterProperties.name)) {
                             // Destination - Channel Writer.
-                            String targetChannelName = ControllerFactory.getFactory().createChannelController().getChannelName(ChannelWriterProperties.getInformation(connector.getProperties()));
+                            Channel targetChannel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(ChannelWriterProperties.getInformation(connector.getProperties()));
 
-                            if (targetChannelName == null) {
+                            if (targetChannel == null) {
                                 information = "Target Channel: None";
                             } else {
-                                information = "Target Channel: " + targetChannelName;
+                                information = "Target Channel: " + targetChannel.getName();
                             }
                         } else if (connector.getTransportName().equals(EmailSenderProperties.name)) {
                             // Destination - Email Sender.

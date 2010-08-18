@@ -21,6 +21,7 @@ import org.apache.velocity.tools.generic.DateTool;
 import org.mule.providers.TemplateValueReplacer;
 
 import com.mirth.connect.model.Alert;
+import com.mirth.connect.model.Channel;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SMTPConnection;
@@ -182,7 +183,16 @@ public class DefaultAlertController extends AlertController {
         final String toAddresses = generateEmailList(emails);
 
         Map<String, Object> context = new HashMap<String, Object>();
-        context.put("channelName", ControllerFactory.getFactory().createChannelController().getChannelName(channelId));
+        
+        String channelName = "";
+        if (channelId != null) {
+            Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
+            if (channel != null) {
+                channelName = channel.getName();
+            }
+        }
+        
+        context.put("channelName", channelName);
         context.put("error", fullError);
         context.put("errorMessage", errorMessage);
         context.put("systemTime", String.valueOf(System.currentTimeMillis()));

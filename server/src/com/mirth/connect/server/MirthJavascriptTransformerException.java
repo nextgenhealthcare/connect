@@ -27,7 +27,7 @@ public class MirthJavascriptTransformerException extends Exception {
 		StringBuilder sBuilder = new StringBuilder();
 		sBuilder.append(lineSeperator);
 		if (channelId != null) {
-			Channel channel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId);
+			Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
 			if (channel != null) {
 				sBuilder.append("CHANNEL:\t").append(channel.getName());
 				sBuilder.append(lineSeperator);
