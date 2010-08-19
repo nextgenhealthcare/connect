@@ -71,7 +71,7 @@ public class SoapEnvelopeGenerator {
 
     public SoapEnvelopeGenerator(Definition definition) throws Exception {
         ExtensibilityElement extensibilityElement = findExtensibilityElementByName(definition.getTypes().getExtensibilityElements(), "schema");
-        
+
         if ((extensibilityElement != null) && (extensibilityElement instanceof Schema)) {
             Schema schemaExtensibilityElement = (Schema) extensibilityElement;
             Element schemaElement = null;
@@ -198,8 +198,12 @@ public class SoapEnvelopeGenerator {
                         XSComplexType complexType = schema.getComplexType(elementDecl.getType().getName());
                         parentElement.appendChild(requestElement);
 
-                        // recursively generate nested simple types
-                        generateRequestElement(document, requestElement, complexType.getContentType());
+                        // recursively generate nested simple types if not abstract
+                        if (!complexType.isAbstract()) {
+                            generateRequestElement(document, requestElement, complexType.getContentType());
+                        } else {
+                            parentElement.appendChild(requestElement);
+                        }
                     } else {
                         String requestElementContent = null;
 
