@@ -9,9 +9,7 @@
 
 package com.mirth.connect.client.core;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -27,6 +25,7 @@ import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.util.IdleConnectionTimeoutThread;
+import org.apache.commons.io.IOUtils;
 
 import com.mirth.connect.client.core.ssl.EasySSLProtocolSocketFactory;
 
@@ -91,17 +90,7 @@ public final class ServerConnection {
 				throw new ClientException("method failed: " + post.getStatusLine());
 			}
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(post.getResponseBodyAsStream(), post.getResponseCharSet()));
-
-			StringBuffer result = new StringBuffer();
-			String input = new String();
-			
-			while ((input = reader.readLine()) != null) {
-				result.append(input);
-				result.append('\n');
-			}
-			
-			return result.toString().trim();
+			return IOUtils.toString(post.getResponseBodyAsStream(), post.getResponseCharSet()).trim();
 		} catch (Exception e) {
 			throw new ClientException(e);
 		} finally {
@@ -117,13 +106,15 @@ public final class ServerConnection {
 			post = new PostMethod(address + servletName);
 			post.addResponseFooter(new Header("Content-Encoding", "gzip"));
 			post.addResponseFooter(new Header("Accept-Encoding", "gzip,deflate"));
-			//Create multipart segment
+			
+			// create multipart segment
 			Part[] parts = new Part[params.length + 1];
+			
 			for (int i = 0; i < params.length; i++){
 				parts[i] = new StringPart(params[i].getName(), params[i].getValue());
 			}
-			parts[params.length] = new FilePart(file.getName(), file);
 			
+			parts[params.length] = new FilePart(file.getName(), file);
 			post.setRequestEntity(new MultipartRequestEntity(parts, post.getParams()));
 			
 			int statusCode = client.executeMethod(post);
@@ -136,17 +127,7 @@ public final class ServerConnection {
 				throw new ClientException("method failed: " + post.getStatusLine());
 			}
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(post.getResponseBodyAsStream(), post.getResponseCharSet()));
-
-			StringBuffer result = new StringBuffer();
-			String input = new String();
-			
-			while ((input = reader.readLine()) != null) {
-				result.append(input);
-				result.append('\n');
-			}
-			
-			return result.toString().trim();
+			return IOUtils.toString(post.getResponseBodyAsStream(), post.getResponseCharSet()).trim();
 		} catch (Exception e) {
 			throw new ClientException(e);
 		} finally {
