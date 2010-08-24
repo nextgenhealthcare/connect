@@ -106,6 +106,14 @@ public class ER7Reader extends SAXParser {
             subcomponentSeparator = new String(new char[] { message.charAt(7) });
         }
 
+        // replace the special case of ^~& with ^~\& (MIRTH-1544)
+        if ("^~&|".equals(message.substring(4, 8))) {
+            escapeCharacter = "\\";
+            subcomponentSeparator = "&";
+            repetitionSeparator = "~";
+            componentSeparator = "^";
+        }
+
         // tokenize the segments first
         StringTokenizer segmentTokenizer = new StringTokenizer(message, segmentTerminator);
         String documentHead = handleSegments("", contentHandler, fieldSeparator, componentSeparator, subcomponentSeparator, repetitionSeparator, escapeCharacter, segmentTokenizer);
