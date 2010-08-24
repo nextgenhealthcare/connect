@@ -57,10 +57,10 @@
 	<!-- CLI -->
 	<target name="build-cli" depends="build-client">
 		<copy file="${server}/mirth-client-core.jar" todir="${cli}/lib" />
-		<ant antfile="${cli}/build.xml" dir="${cli}" target="dist">
+		<ant antfile="${cli}/build.xml" dir="${cli}" target="build">
 			<property name="version" value="${version}" />
 		</ant>
-		<copy todir="${server}/">
+		<copy todir="${server}">
 			<fileset dir="${cli}/build">
 				<include name="mirth-cli.jar" />
 				<include name="mirth-cli-launcher.jar" />
