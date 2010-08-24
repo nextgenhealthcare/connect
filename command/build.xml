@@ -56,9 +56,4 @@
 			<fileset file="mirth-cli-launcher.xml" />
 		</copy>
 	</target>
-
-	<target name="dist" depends="build">
-		<mkdir dir="${dist}" />
-		<zip destfile="${dist}/mirthconnect-cli-${version}.zip" basedir="${build}" includes="**/*" />
-	</target>
 </project>
