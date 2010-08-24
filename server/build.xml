@@ -756,11 +756,6 @@
 
 	<target name="create-dist" depends="create-extension-zips">
 		<mkdir dir="${dist}" />
-
-		<!-- copy the CLI dist -->
-		<copy todir="${dist}">
-			<fileset dir="${cli}/dist/" includes="*.zip" />
-		</copy>
 	</target>
 
 	<target name="create-derby-db" depends="compile">
