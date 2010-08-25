@@ -103,7 +103,7 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
          */
         message.setParameters(request.getParameters());
         message.setContent(IOUtils.toString(request.getInputStream(), converter.getDefaultHttpCharset(request.getCharacterEncoding())));
-        message.setIncludeHeaders(connector.isReceiverIncludeHeaders());
+        message.setIncludeHeaders(!connector.isReceiverBodyOnly());
         message.setContentType(request.getContentType());
         message.setRemoteAddress(request.getRemoteAddr());
         message.setQueryString(request.getQuery());

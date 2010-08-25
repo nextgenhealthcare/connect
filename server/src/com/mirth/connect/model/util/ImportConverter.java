@@ -715,7 +715,7 @@ public class ImportConverter {
             propertyDefaults.put("host", "0.0.0.0");
             propertyDefaults.put("port", "80");
             propertyDefaults.put("receiverResponse", "None");
-            propertyDefaults.put("receiverIncludeHeaders", "0");
+            propertyDefaults.put("receiverBodyOnly", "1");
             propertyDefaults.put("HTTP_RESPONSE_CONTENT_TYPE", "text/plain");
 
             // rename properties
@@ -730,7 +730,10 @@ public class ImportConverter {
                 }
 
                 if (attribute.equals("appendPayload")) {
-                    propertyChanges.put("receiverIncludeHeaders", value);
+                    // The old property value needs to be flipped
+                    // If appendPayload was 1, set bodyOnly to 0
+                    // If appendPayload was 0 or null, set bodyOnly to 1
+                    propertyChanges.put("receiverBodyOnly", ("1".equals(value) ? "0" : "1"));
                 }
             }
 

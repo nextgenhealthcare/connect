@@ -24,7 +24,7 @@ public class HttpConnector extends QueueEnabledConnector {
     private boolean dispatcherMultipart;
     private String dispatcherReplyChannelId;
     private String receiverResponseContentType;
-    private boolean receiverIncludeHeaders;
+    private boolean receiverBodyOnly;
     private boolean dispatcherIncludeHeadersInResponse;
     private String receiverResponse;
     private String receiverCharset;
@@ -144,12 +144,12 @@ public class HttpConnector extends QueueEnabledConnector {
         this.dispatcherMultipart = dispatcherMultipart;
     }
 
-    public boolean isReceiverIncludeHeaders() {
-        return receiverIncludeHeaders;
+    public boolean isReceiverBodyOnly() {
+        return receiverBodyOnly;
     }
 
-    public void setReceiverIncludeHeaders(boolean receiverIncludeHeaders) {
-        this.receiverIncludeHeaders = receiverIncludeHeaders;
+    public void setReceiverBodyOnly(boolean receiverBodyOnly) {
+        this.receiverBodyOnly = receiverBodyOnly;
     }
 
     public boolean isDispatcherIncludeHeadersInResponse() {

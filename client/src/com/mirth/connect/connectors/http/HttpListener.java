@@ -46,10 +46,10 @@ public class HttpListener extends ConnectorClass {
         properties.put(HttpListenerProperties.HTTP_HOST, listenerAddressField.getText());
         properties.put(HttpListenerProperties.HTTP_PORT, listenerPortField.getText());
 
-        if (includeHeadersYesRadio.isSelected()) {
-            properties.put(HttpListenerProperties.HTTP_INCLUDE_HEADERS, UIConstants.YES_OPTION);
+        if (messageContentBodyOnlyRadio.isSelected()) {
+            properties.put(HttpListenerProperties.HTTP_BODY_ONLY, UIConstants.YES_OPTION);
         } else {
-            properties.put(HttpListenerProperties.HTTP_INCLUDE_HEADERS, UIConstants.NO_OPTION);
+            properties.put(HttpListenerProperties.HTTP_BODY_ONLY, UIConstants.NO_OPTION);
         }
 
         properties.put(HttpListenerProperties.HTTP_RESPONSE, (String) responseFromTransformer.getSelectedItem());
@@ -68,10 +68,10 @@ public class HttpListener extends ConnectorClass {
 
         listenerPortField.setText((String) props.get(HttpListenerProperties.HTTP_PORT));
 
-        if (((String) props.get(HttpListenerProperties.HTTP_INCLUDE_HEADERS)).equals(UIConstants.YES_OPTION)) {
-            includeHeadersYesRadio.setSelected(true);
+        if (((String) props.get(HttpListenerProperties.HTTP_BODY_ONLY)).equals(UIConstants.YES_OPTION)) {
+            messageContentBodyOnlyRadio.setSelected(true);
         } else {
-            includeHeadersNoRadio.setSelected(true);
+            messageContentHeadersQueryAndBodyRadio.setSelected(true);
         }
 
         updateResponseDropDown();
@@ -158,9 +158,9 @@ public class HttpListener extends ConnectorClass {
         includeHeadersGroup = new javax.swing.ButtonGroup();
         responseFromLabel = new javax.swing.JLabel();
         responseFromTransformer = new com.mirth.connect.client.ui.components.MirthComboBox();
-        includeHeadersYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        includeHeadersNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        includeHeadersLabel = new javax.swing.JLabel();
+        messageContentBodyOnlyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        messageContentHeadersQueryAndBodyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        messageContentLabel = new javax.swing.JLabel();
         listenerAddressLabel = new javax.swing.JLabel();
         listenerAllRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         listenerSpecificRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -185,21 +185,21 @@ public class HttpListener extends ConnectorClass {
             }
         });
 
-        includeHeadersYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        includeHeadersYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        includeHeadersGroup.add(includeHeadersYesRadio);
-        includeHeadersYesRadio.setText("Yes");
-        includeHeadersYesRadio.setToolTipText("<html>If Yes is selected, the \"Content\" part of the HTTP request will be interpreted as a separate XML node in the incoming data.<br>If the payload variable is not appended Mirth will automatically convert the HTTP \"Content\" data to the appropriate XML representation.</html>");
-        includeHeadersYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        messageContentBodyOnlyRadio.setBackground(new java.awt.Color(255, 255, 255));
+        messageContentBodyOnlyRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        includeHeadersGroup.add(messageContentBodyOnlyRadio);
+        messageContentBodyOnlyRadio.setText("Body Only");
+        messageContentBodyOnlyRadio.setToolTipText("<html>If selected, the message content will only include the body as a string.</html>");
+        messageContentBodyOnlyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        includeHeadersNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        includeHeadersNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        includeHeadersGroup.add(includeHeadersNoRadio);
-        includeHeadersNoRadio.setText("No");
-        includeHeadersNoRadio.setToolTipText("<html>If Yes is selected, the \"Content\" part of the HTTP request will be interpreted as a separate XML node in the incoming data.<br>If the payload variable is not appended Mirth will automatically convert the HTTP \"Content\" data to the appropriate XML representation.</html>");
-        includeHeadersNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        messageContentHeadersQueryAndBodyRadio.setBackground(new java.awt.Color(255, 255, 255));
+        messageContentHeadersQueryAndBodyRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        includeHeadersGroup.add(messageContentHeadersQueryAndBodyRadio);
+        messageContentHeadersQueryAndBodyRadio.setText("Headers, Query, and Body");
+        messageContentHeadersQueryAndBodyRadio.setToolTipText("<html>If selected, the message content will include the request headers, query parameters, and body as XML.</html>");
+        messageContentHeadersQueryAndBodyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        includeHeadersLabel.setText("Include Headers:");
+        messageContentLabel.setText("Message Content:");
 
         listenerAddressLabel.setText("Listener Address:");
 
@@ -249,17 +249,13 @@ public class HttpListener extends ConnectorClass {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(listenerAddressLabel)
                     .addComponent(listenerPortLabel)
-                    .addComponent(includeHeadersLabel)
+                    .addComponent(messageContentLabel)
                     .addComponent(responseFromLabel)
                     .addComponent(responseContentTypeLabel)
                     .addComponent(charsetEncodingLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(includeHeadersYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(includeHeadersNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(listenerAllRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -268,7 +264,11 @@ public class HttpListener extends ConnectorClass {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(responseFromTransformer, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(responseContentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(responseContentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(messageContentBodyOnlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(messageContentHeadersQueryAndBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(21, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -285,9 +285,9 @@ public class HttpListener extends ConnectorClass {
                     .addComponent(listenerPortLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(includeHeadersYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(includeHeadersNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(includeHeadersLabel))
+                    .addComponent(messageContentLabel)
+                    .addComponent(messageContentHeadersQueryAndBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(messageContentBodyOnlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(responseFromTransformer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -413,15 +413,15 @@ public class HttpListener extends ConnectorClass {
     private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private javax.swing.JLabel charsetEncodingLabel;
     private javax.swing.ButtonGroup includeHeadersGroup;
-    private javax.swing.JLabel includeHeadersLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton includeHeadersNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton includeHeadersYesRadio;
     private com.mirth.connect.client.ui.components.MirthTextField listenerAddressField;
     private javax.swing.JLabel listenerAddressLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton listenerAllRadio;
     private com.mirth.connect.client.ui.components.MirthTextField listenerPortField;
     private javax.swing.JLabel listenerPortLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton listenerSpecificRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton messageContentBodyOnlyRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton messageContentHeadersQueryAndBodyRadio;
+    private javax.swing.JLabel messageContentLabel;
     private com.mirth.connect.client.ui.components.MirthTextField responseContentTypeField;
     private javax.swing.JLabel responseContentTypeLabel;
     private javax.swing.JLabel responseFromLabel;

@@ -35,7 +35,7 @@
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="listenerAddressLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="listenerPortLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="includeHeadersLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="messageContentLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="responseFromLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="responseContentTypeLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="charsetEncodingLabel" min="-2" max="-2" attributes="0"/>
@@ -43,11 +43,6 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="includeHeadersYesRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="includeHeadersNoRadio" min="-2" max="-2" attributes="0"/>
-                  </Group>
                   <Component id="listenerPortField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="listenerAllRadio" min="-2" max="-2" attributes="0"/>
@@ -58,6 +53,11 @@
                   </Group>
                   <Component id="responseFromTransformer" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
                   <Component id="responseContentTypeField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Component id="messageContentBodyOnlyRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="messageContentHeadersQueryAndBodyRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace pref="21" max="32767" attributes="0"/>
           </Group>
@@ -79,9 +79,9 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="includeHeadersYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="includeHeadersNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="includeHeadersLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="messageContentLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="messageContentHeadersQueryAndBodyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="messageContentBodyOnlyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -125,7 +125,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="responseFromTransformerActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="includeHeadersYesRadio">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="messageContentBodyOnlyRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -138,14 +138,14 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="includeHeadersGroup"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Yes is selected, the &quot;Content&quot; part of the HTTP request will be interpreted as a separate XML node in the incoming data.&lt;br&gt;If the payload variable is not appended Mirth will automatically convert the HTTP &quot;Content&quot; data to the appropriate XML representation.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Body Only"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If selected, the message content will only include the body as a string.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="includeHeadersNoRadio">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="messageContentHeadersQueryAndBodyRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -158,16 +158,16 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="includeHeadersGroup"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Yes is selected, the &quot;Content&quot; part of the HTTP request will be interpreted as a separate XML node in the incoming data.&lt;br&gt;If the payload variable is not appended Mirth will automatically convert the HTTP &quot;Content&quot; data to the appropriate XML representation.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Headers, Query, and Body"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If selected, the message content will include the request headers, query parameters, and body as XML.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="includeHeadersLabel">
+    <Component class="javax.swing.JLabel" name="messageContentLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Include Headers:"/>
+        <Property name="text" type="java.lang.String" value="Message Content:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="listenerAddressLabel">
