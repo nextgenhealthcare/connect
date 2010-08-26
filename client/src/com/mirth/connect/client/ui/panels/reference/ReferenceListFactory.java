@@ -28,7 +28,7 @@ public class ReferenceListFactory {
 
     public enum ListType {
 
-        ALL("All"), CONVERSION("Conversion Functions"), LOGGING_AND_ALERTS("Logging and Alerts"), DATABASE("Database Functions"), UTILITY("Utility Functions"), DATE("Date Functions"), MESSAGE("Message Functions"), MAP("Map Functions");
+        ALL("All"), CONVERSION("Conversion Functions"), LOGGING_AND_ALERTS("Logging and Alerts"), DATABASE("Database Functions"), UTILITY("Utility Functions"), DATE("Date Functions"), MESSAGE("Message Functions"), MAP("Map Functions"), CHANNEL("Channel Functions");
         private String value;
 
         ListType(String value) {
@@ -73,6 +73,7 @@ public class ReferenceListFactory {
         references.put(ListType.DATABASE.getValue(), setupDatabaseItems());
         references.put(ListType.LOGGING_AND_ALERTS.getValue(), setupLoggingAndAlertsItems());
         references.put(ListType.MESSAGE.getValue(), setupMessageItems());
+        references.put(ListType.CHANNEL.getValue(), setupChannelItems());
         references.put(ListType.MAP.getValue(), setupMapItems());
         references.put(ListType.UTILITY.getValue(), setupUtilityItems());
         references.put(ListType.DATE.getValue(), setupDateItems());
@@ -246,6 +247,16 @@ public class ReferenceListFactory {
         variablelistItems.add(new CodeTemplate("Create Segment (in message, index)", "Create a new segment in specified message (msg or tmp) at segment index i", "createSegment('segmentName', msg, i)", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Create Segment After Segment", "Create a new segment and insert it after the target segment", "createSegmentAfter('insertSegmentName', afterThisSegment)", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Delete Segment", "Delete a segment from the message", "delete msg['segment']", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        
+        return variablelistItems;
+    }
+    
+    private ArrayList<CodeTemplate> setupChannelItems() {
+        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+
+        variablelistItems.add(new CodeTemplate("Channel ID", "The message channel id", "channelId", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Channel Name", "The message channel name", "var channelName = Packages.com.mirth.connect.server.controllers.ChannelController.getInstance().getDeployedChannelById(channelId).getName();", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        
         return variablelistItems;
     }
 
