@@ -16,17 +16,15 @@ import java.util.ListIterator;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
-import com.mirth.connect.server.util.FileUtil;
 
 public class JavaScriptBuilder {
 	private Logger logger = Logger.getLogger(this.getClass());
 
-	public String getScript(Channel channel, Filter filter, Transformer transformer) throws BuilderException {
+	public String generateTransformerScript(Filter filter, Transformer transformer) throws BuilderException {
 		StringBuilder builder = new StringBuilder();
 
 		if (filter.getRules().isEmpty() && transformer.getSteps().isEmpty()) {

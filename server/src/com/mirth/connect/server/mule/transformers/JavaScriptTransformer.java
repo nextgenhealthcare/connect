@@ -446,7 +446,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
                 try {
                     String script = CompiledScriptCache.getInstance().getSourceScript(scriptId);
                     int linenumber = ((RhinoException) t).lineNumber();
-                    String errorReport = JavaScriptUtil.getSourceCode(script, linenumber, 0);
+                    String errorReport = JavaScriptUtil.getInstance().getSourceCode(script, linenumber, 0);
                     t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase.toUpperCase(), errorReport);
                 } catch (Exception ee) {
                     t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase.toUpperCase(), null);
@@ -470,7 +470,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
         StringBuilder newScript = new StringBuilder();
 
-        // script used to check for exitence of segment
+        // script used to check for existence of segment
         newScript.append("function validate(mapping, defaultValue, replacement) {");
         newScript.append("var result = mapping;");
         newScript.append("if ((result == undefined) || (result.toString().length == 0)) { ");
@@ -530,9 +530,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         newScript.append("while (msgObj.parent() != undefined) { msgObj = msgObj.parent(); }");
         newScript.append("msgObj.insertChildAfter(segment[0], new XML('<' + name + '></' + name + '>'));");
         newScript.append("}");
-
-        // TODO: Look into optimizing. Potentially moving p.c.wr.m.s.c.MOC to an
-        // outside var
 
         // Helper function to get attachments
         newScript.append("function getAttachments() {");

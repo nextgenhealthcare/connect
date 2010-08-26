@@ -218,8 +218,8 @@ public class MessageObject implements Serializable, Cloneable {
 		return channelMap;
 	}
 
-	public void setChannelMap(Map contextMap) {
-		this.channelMap = contextMap;
+	public void setChannelMap(Map channelMap) {
+		this.channelMap = channelMap;
 	}
 
     public String getServerId() {

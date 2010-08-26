@@ -40,6 +40,7 @@ import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.MessageObjectController;
 import com.mirth.connect.server.controllers.MigrationController;
 import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.servlets.MirthErrorPageHandler;
 import com.mirth.connect.util.PropertyLoader;
@@ -66,6 +67,7 @@ public class Mirth extends Thread {
     private MigrationController migrationController = ControllerFactory.getFactory().createMigrationController();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 
     public static void main(String[] args) {
         Mirth mirth = new Mirth();
@@ -152,6 +154,7 @@ public class Mirth extends Thread {
         userController.resetUserStatus();
         monitoringController.initPlugins();
         extensionController.startPlugins();
+        scriptController.compileGlobalScripts();
 
         // disable the velocity logging
         Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");

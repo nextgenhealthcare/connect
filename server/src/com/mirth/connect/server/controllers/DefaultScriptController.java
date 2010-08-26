@@ -24,6 +24,7 @@ import com.mirth.connect.server.util.SqlConfig;
 
 public class DefaultScriptController extends ScriptController {
     private static final String CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\nreturn;";
+    private static final String CHANNEL_PREPROCESSOR_DEFAULT_SCRIPT = "// Modify the message variable below to pre process data\nreturn message;";
     private static final String GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT = "// Modify the message variable below to pre process data\n// This script applies across all channels\nreturn message;";
     private static final String GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\n// This script applies across all channels\nreturn;";
     private static final String GLOBAL_DEPLOY_DEFAULT_SCRIPT = "// This script executes once when all channels start up from a redeploy\n// You only have access to the globalMap here to persist data\nreturn;";
@@ -126,67 +127,82 @@ public class DefaultScriptController extends ScriptController {
 
     // Non-database actions
 
-    public void compileScripts(List<Channel> channels) throws Exception {
-        for (Entry<String, String> entry : getGlobalScripts().entrySet()) {
+    public void compileChannelScript(Channel channel) throws Exception {
+        if (channel.isEnabled()) {
+            javaScriptUtil.compileAndAddScript(channel.getId() + "_Deploy", channel.getDeployScript(), null, false, true, false);
+            javaScriptUtil.compileAndAddScript(channel.getId() + "_Shutdown", channel.getShutdownScript(), null, false, true, false);
+
+            // only compile and run pre processor if it's not the default
+            if (!javaScriptUtil.compileAndAddScript(channel.getId() + "_Preprocessor", channel.getPreprocessingScript(), CHANNEL_PREPROCESSOR_DEFAULT_SCRIPT, false, true, true)) {
+                logger.debug("removing " + channel.getId() + "_Preprocessor");
+                javaScriptUtil.removeScriptFromCache(channel.getId() + "_Preprocessor");
+            }
+
+            // only compile and run post processor if it's not the default
+            if (!javaScriptUtil.compileAndAddScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT, true, true, false)) {
+                logger.debug("removing " + channel.getId() + "_Postprocessor");
+                javaScriptUtil.removeScriptFromCache(channel.getId() + "_Postprocessor");
+            }
+        } else {
+            javaScriptUtil.removeScriptFromCache(channel.getId() + "_Deploy");
+            javaScriptUtil.removeScriptFromCache(channel.getId() + "_Shutdown");
+            javaScriptUtil.removeScriptFromCache(channel.getId() + "_Postprocessor");
+        }
+    }
+
+    public void compileGlobalScripts() {
+        Map<String, String> globalScripts = null;
+
+        try {
+            globalScripts = getGlobalScripts();
+        } catch (ControllerException e) {
+            logger.error("Error getting global scripts.", e);
+            return;
+        }
+
+        for (Entry<String, String> entry : globalScripts.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
 
-            if (key.equals(PREPROCESSOR_SCRIPT_KEY)) {
-                if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT, false, false)) {
-                    logger.debug("removing global preprocessor");
-                    javaScriptUtil.removeScriptFromCache(PREPROCESSOR_SCRIPT_KEY);
+            try {
+                if (key.equals(PREPROCESSOR_SCRIPT_KEY)) {
+                    if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT, false, true, true)) {
+                        logger.debug("removing global preprocessor");
+                        javaScriptUtil.removeScriptFromCache(PREPROCESSOR_SCRIPT_KEY);
+                    }
+                } else if (key.equals(POSTPROCESSOR_SCRIPT_KEY)) {
+                    if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT, true, true, false)) {
+                        logger.debug("removing global postprocessor");
+                        javaScriptUtil.removeScriptFromCache(POSTPROCESSOR_SCRIPT_KEY);
+                    }
+                } else {
+                    // add the DEPLOY and SHUTDOWN scripts,
+                    // which do not have defaults
+                    if (!javaScriptUtil.compileAndAddScript(key, value, "", false, false, false)) {
+                        logger.debug("remvoing " + key);
+                        javaScriptUtil.removeScriptFromCache(key);
+                    }
                 }
-            } else if (key.equals(POSTPROCESSOR_SCRIPT_KEY)) {
-                if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT, false, false)) {
-                    logger.debug("removing global postprocessor");
-                    javaScriptUtil.removeScriptFromCache(POSTPROCESSOR_SCRIPT_KEY);
-                }
-            } else {
-                // add the DEPLOY and SHUTDOWN scripts,
-                // which do not have defaults
-                if (!javaScriptUtil.compileAndAddScript(key, value, "", false, false)) {
-                    logger.debug("remvoing " + key);
-                    javaScriptUtil.removeScriptFromCache(key);
-                }
-            }
-        }
-
-        for (Channel channel : channels) {
-            if (channel.isEnabled()) {
-                javaScriptUtil.compileAndAddScript(channel.getId() + "_Deploy", channel.getDeployScript(), null, false, true);
-                javaScriptUtil.compileAndAddScript(channel.getId() + "_Shutdown", channel.getShutdownScript(), null, false, true);
-
-                // only compile and run post processor if its not the default
-                if (!javaScriptUtil.compileAndAddScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT, true, true)) {
-                    logger.debug("removing " + channel.getId() + "_Postprocessor");
-                    javaScriptUtil.removeScriptFromCache(channel.getId() + "_Postprocessor");
-                }
-            } else {
-                javaScriptUtil.removeScriptFromCache(channel.getId() + "_Deploy");
-                javaScriptUtil.removeScriptFromCache(channel.getId() + "_Shutdown");
-                javaScriptUtil.removeScriptFromCache(channel.getId() + "_Postprocessor");
+            } catch (Exception e) {
+                logger.error("Error compiling global script: " + key, e);
             }
         }
     }
 
     public void executeGlobalDeployScript() {
-        executeGlobalScript(DEPLOY_SCRIPT_KEY);
+        javaScriptUtil.executeGlobalDeployrOrShutdownScript(DEPLOY_SCRIPT_KEY);
     }
 
     public void executeChannelDeployScript(String channelId) {
-        javaScriptUtil.executeScript(channelId + "_" + DEPLOY_SCRIPT_KEY, DEPLOY_SCRIPT_KEY, channelId);
+        javaScriptUtil.executeChannelDeployOrShutdownScript(channelId + "_" + DEPLOY_SCRIPT_KEY, DEPLOY_SCRIPT_KEY, channelId);
     }
 
     public void executeGlobalShutdownScript() {
-        executeGlobalScript(SHUTDOWN_SCRIPT_KEY);
+        javaScriptUtil.executeGlobalDeployrOrShutdownScript(SHUTDOWN_SCRIPT_KEY);
     }
 
     public void executeChannelShutdownScript(String channelId) {
-        javaScriptUtil.executeScript(channelId + "_" + SHUTDOWN_SCRIPT_KEY, SHUTDOWN_SCRIPT_KEY, channelId);
-    }
-
-    public void executeGlobalScript(String scriptType) {
-        javaScriptUtil.executeScript(scriptType, scriptType, "");
+        javaScriptUtil.executeChannelDeployOrShutdownScript(channelId + "_" + SHUTDOWN_SCRIPT_KEY, SHUTDOWN_SCRIPT_KEY, channelId);
     }
 
     public Map<String, String> getGlobalScripts() throws ControllerException {
@@ -225,5 +241,7 @@ public class DefaultScriptController extends ScriptController {
         for (Entry<String, String> entry : scripts.entrySet()) {
             putScript(GLOBAL_SCRIPT_KEY, entry.getKey().toString(), scripts.get(entry.getKey()));
         }
+
+        compileGlobalScripts();
     }
 }

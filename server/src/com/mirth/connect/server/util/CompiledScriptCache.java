@@ -9,47 +9,47 @@
 
 package com.mirth.connect.server.util;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Script;
 
 public class CompiledScriptCache {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private Map<String, Script> compiledScripts = new HashMap<String, Script>();
-	private Map<String, String> sourceScripts = new HashMap<String, String>();
+    private Logger logger = Logger.getLogger(this.getClass());
+    private Map<String, Script> compiledScripts = new ConcurrentHashMap<String, Script>();
+    private Map<String, String> sourceScripts = new ConcurrentHashMap<String, String>();
 
-	// singleton pattern
-	private static CompiledScriptCache instance = null;
+    // singleton pattern
+    private static CompiledScriptCache instance = null;
 
-	private CompiledScriptCache() {
-		
-	}
+    private CompiledScriptCache() {
 
-	public static CompiledScriptCache getInstance() {
-		synchronized (CompiledScriptCache.class) {
-			if (instance == null)
-				instance = new CompiledScriptCache();
+    }
 
-			return instance;
-		}
-	}
+    public static CompiledScriptCache getInstance() {
+        synchronized (CompiledScriptCache.class) {
+            if (instance == null)
+                instance = new CompiledScriptCache();
 
-	public Script getCompiledScript(String id) {
-		return compiledScripts.get(id);
-	}
+            return instance;
+        }
+    }
 
-	public String getSourceScript(String id) {
-		return sourceScripts.get(id);
-	}
-	
-	public void putCompiledScript(String id, Script compiledScript, String sourceScript) {
-		logger.debug("adding script to cache");
-		compiledScripts.put(id, compiledScript);
-		sourceScripts.put(id, sourceScript);
-	}
-    
+    public Script getCompiledScript(String id) {
+        return compiledScripts.get(id);
+    }
+
+    public String getSourceScript(String id) {
+        return sourceScripts.get(id);
+    }
+
+    public void putCompiledScript(String id, Script compiledScript, String sourceScript) {
+        logger.debug("adding script to cache");
+        compiledScripts.put(id, compiledScript);
+        sourceScripts.put(id, sourceScript);
+    }
+
     public void removeCompiledScript(String id) {
         logger.debug("removing script from cache");
         compiledScripts.remove(id);

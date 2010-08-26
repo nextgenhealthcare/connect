@@ -56,9 +56,9 @@ public abstract class ScriptController extends Controller {
 
     public abstract void setGlobalScripts(Map<String, String> scripts) throws ControllerException;
 
-    public abstract void executeGlobalScript(String scriptType);
-
-    public abstract void compileScripts(List<Channel> channels) throws Exception;
+    public abstract void compileChannelScript(Channel channel) throws Exception;
+    
+    public abstract void compileGlobalScripts();
 
     // deploy
     

@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -18,6 +19,7 @@ import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mule.umo.UMOEventContext;
 
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
@@ -37,6 +39,10 @@ public class JavaScriptUtil {
 
     // singleton pattern
     private static JavaScriptUtil instance = null;
+    
+    private JavaScriptUtil() {
+        
+    }
 
     public static JavaScriptUtil getInstance() {
         synchronized (JavaScriptUtil.class) {
@@ -48,7 +54,7 @@ public class JavaScriptUtil {
     }
 
     private Context enterContext() {
-		Context context = Context.enter();
+        Context context = Context.enter();
 
         if (sealedSharedScope == null) {
             String importScript = getJavascriptImportScript();
@@ -83,70 +89,175 @@ public class JavaScriptUtil {
         return scope;
     }
 
-    public void executeScript(String scriptId, String scriptType, MessageObject messageObject) {
+    /**
+     * Executes the global and channel preprocessor scripts in order, building
+     * up the necessary scope for the global preprocessor and adding the result
+     * back to it for the channel preprocessor.
+     * 
+     */
+    public String executePreprocessorScripts(String message, UMOEventContext muleContext, String channelId) {
+        String result = message;
+
+        Scriptable scope = getScope();
+        Logger scriptLogger = Logger.getLogger(ScriptController.PREPROCESSOR_SCRIPT_KEY.toLowerCase());
+
+        JavaScriptScopeUtil.buildScopeForPreprocessor(scope, message, channelId, muleContext, scriptLogger);
+
         try {
-            executeScript(scriptId, scriptType, null, messageObject);
+            // Execute the global preprocessor and check the result
+            Object globalResult = executeScript(ScriptController.PREPROCESSOR_SCRIPT_KEY, scope);
+
+            if (globalResult != null) {
+                String processedMessage = (String) Context.jsToJava(globalResult, java.lang.String.class);
+
+                if (processedMessage != null) {
+                    result = processedMessage;
+
+                    // Put the new message in the scope before the channel
+                    // preprocessor is executed
+                    scope.put("message", scope, result);
+                }
+            }
         } catch (Exception e) {
-            logger.error("Error executing " + scriptType + " script.", e);
+            logScriptError(ScriptController.PREPROCESSOR_SCRIPT_KEY, null, e);
+        }
+
+        try {
+            // Execute the channel preprocessor using the result of the global
+            // preprocessor (if any)
+            Object channelResult = executeScript(channelId + "_" + ScriptController.PREPROCESSOR_SCRIPT_KEY, scope);
+
+            if (channelResult != null) {
+                String processedMessage = (String) Context.jsToJava(channelResult, java.lang.String.class);
+
+                if (processedMessage != null) {
+                    result = processedMessage;
+                }
+            }
+        } catch (Exception e) {
+            logScriptError(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId, e);
+        }
+
+        return result;
+    }
+
+    /**
+     * Executes the channel postprocessor, followed by the global postprocessor.
+     * 
+     * @param messageObject
+     */
+    public void executePostprocessorScripts(MessageObject messageObject) {
+        Scriptable scope = getScope();
+        Logger scriptLogger = Logger.getLogger(ScriptController.POSTPROCESSOR_SCRIPT_KEY.toLowerCase());
+        JavaScriptScopeUtil.buildScope(scope, messageObject, scriptLogger);
+
+        try {
+            executeScript(messageObject.getChannelId() + "_" + ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope);
+        } catch (Exception e) {
+            logScriptError(ScriptController.POSTPROCESSOR_SCRIPT_KEY, messageObject.getChannelId(), e);
+        }
+
+        try {
+            executeScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope);
+        } catch (Exception e) {
+            logScriptError(ScriptController.POSTPROCESSOR_SCRIPT_KEY, null, e);
         }
     }
 
-    public void executeScript(String scriptId, String scriptType, String channelId) {
+    /**
+     * Executes channel level deploy or shutdown scripts.
+     * 
+     * @param scriptId
+     * @param scriptType
+     * @param channelId
+     */
+    public void executeChannelDeployOrShutdownScript(String scriptId, String scriptType, String channelId) {
         try {
-            executeScript(scriptId, scriptType, channelId, null);
+            Scriptable scope = getScope();
+            Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
+            JavaScriptScopeUtil.buildScope(scope, channelId, scriptLogger);
+
+            executeScript(scriptId, scope);
         } catch (Exception e) {
-            EventController systemLogger = ControllerFactory.getFactory().createEventController();
-            SystemEvent event = new SystemEvent("Exception occured in " + scriptType + " script");
-            event.setLevel(SystemEvent.Level.NORMAL);
-            event.setDescription(ExceptionUtils.getStackTrace(e));
-            systemLogger.logSystemEvent(event);
-            logger.error("Error executing " + scriptType + " script from channel: " + channelId, e);
+            logScriptError(scriptId, channelId, e);
         }
     }
 
-    private void executeScript(String scriptId, String scriptType, String channelId, MessageObject messageObject) throws Exception {
+    /**
+     * Executes global level deploy or shutdown scripts.
+     * 
+     * @param scriptId
+     */
+    public void executeGlobalDeployrOrShutdownScript(String scriptId) {
+        try {
+            Scriptable scope = getScope();
+            Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
+            JavaScriptScopeUtil.buildScope(scope, scriptLogger);
+
+            executeScript(scriptId, scope);
+        } catch (Exception e) {
+            logScriptError(scriptId, null, e);
+        }
+    }
+
+    /**
+     * Logs out a script error with the script type and the script level
+     * (channelId or global).
+     * 
+     * @param scriptType
+     * @param channelId
+     * @param e
+     */
+    private void logScriptError(String scriptType, String channelId, Exception e) {
+        EventController systemLogger = ControllerFactory.getFactory().createEventController();
+
+        String error = "Error executing " + scriptType + " script from channel: ";
+
+        if (StringUtils.isNotEmpty(channelId)) {
+            error += channelId;
+        } else {
+            error += "Global";
+        }
+
+        SystemEvent event = new SystemEvent(error);
+        event.setLevel(SystemEvent.Level.NORMAL);
+        event.setDescription(ExceptionUtils.getStackTrace(e));
+        systemLogger.logSystemEvent(event);
+        logger.error(error, e);
+    }
+
+    /**
+     * Executes the script with the given scriptId and scope.
+     * 
+     * @param scriptId
+     * @param scope
+     * @return
+     * @throws Exception
+     */
+    private Object executeScript(String scriptId, Scriptable scope) throws Exception {
         Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
-        Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
 
         if (compiledScript == null) {
-            return;
+            return null;
         }
 
         try {
-            Context context = enterContext();
-            Scriptable scope = getScope();
-
-            if (messageObject != null) {
-                JavaScriptScopeUtil.buildScope(scope, messageObject, scriptLogger);
-            } else if ((channelId != null) && (channelId.length() > 0)) {
-                JavaScriptScopeUtil.buildScope(scope, channelId, scriptLogger);
-            } else {
-                JavaScriptScopeUtil.buildScope(scope, scriptLogger);
-            }
-
-            logger.debug("executing " + scriptType + " script. id=" + scriptId + ", channelId=" + channelId);
-            compiledScript.exec(context, scope);
+            logger.debug("executing script: id=" + scriptId);
+            return compiledScript.exec(Context.enter(), scope);
         } catch (Exception e) {
             if (e instanceof RhinoException) {
-                String connectorName = null;
-                
-                if (messageObject != null) {
-                    connectorName = messageObject.getConnectorName();
-                }
-                
-                ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
-                String script = scriptController.getScript(channelId, scriptId);
-                String sourceCode = JavaScriptUtil.getSourceCode(script, ((RhinoException) e).lineNumber(), 0);
-                e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 1, scriptType, sourceCode);
+                String script = compiledScriptCache.getSourceScript(scriptId);
+                String sourceCode = JavaScriptUtil.getInstance().getSourceCode(script, ((RhinoException) e).lineNumber(), 0);
+                e = new MirthJavascriptTransformerException((RhinoException) e, null, null, 1, null, sourceCode);
             }
-            
+
             throw e;
         } finally {
             Context.exit();
         }
     }
 
-    public boolean compileAndAddScript(String scriptId, String script, String defaultScript, boolean includeChannelMap, boolean includeGlobalChannelMap) throws Exception {
+    public boolean compileAndAddScript(String scriptId, String script, String defaultScript, boolean includeChannelMap, boolean includeGlobalChannelMap, boolean includeMuleContext) throws Exception {
         // Note: If the defaultScript is NULL, this means that the script should
         // always be inserted without being compared.
 
@@ -155,14 +266,14 @@ public class JavaScriptUtil {
 
         try {
             logger.debug("compiling script " + scriptId);
-            String generatedScript = generateScript(script, includeChannelMap, includeGlobalChannelMap);
+            String generatedScript = generateScript(script, includeChannelMap, includeGlobalChannelMap, includeMuleContext);
             Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
             String decompiledScript = context.decompileScript(compiledScript, 0);
 
             String decompiledDefaultScript = null;
 
             if (defaultScript != null) {
-                Script compiledDefaultScript = context.compileString(generateScript(defaultScript, includeChannelMap, includeGlobalChannelMap), scriptId, 1, null);
+                Script compiledDefaultScript = context.compileString(generateScript(defaultScript, includeChannelMap, includeGlobalChannelMap, includeMuleContext), scriptId, 1, null);
                 decompiledDefaultScript = context.decompileScript(compiledDefaultScript, 0);
             }
 
@@ -185,22 +296,22 @@ public class JavaScriptUtil {
         return scriptInserted;
     }
 
-    public String generateScript(String script, boolean includeChannelMap, boolean includeGlobalChannelMap) {
+    public String generateScript(String script, boolean includeChannelMap, boolean includeGlobalChannelMap, boolean includeMuleContext) {
         StringBuilder builtScript = new StringBuilder();
         builtScript.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
         builtScript.append("function $(string) { ");
-        
+
         if (includeChannelMap) {
             builtScript.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
         }
-        
+
         if (includeGlobalChannelMap) {
             builtScript.append("if (globalChannelMap.containsKey(string)) { return globalChannelMap.get(string);} else ");
         }
-        
+
         builtScript.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
         builtScript.append("{ return ''; }}");
-        
+
         if (includeChannelMap) {
             builtScript.append("function $c(key, value){");
             builtScript.append("if (arguments.length == 1){return channelMap.get(key); }");
@@ -224,12 +335,25 @@ public class JavaScriptUtil {
             builtScript.append("return attachment; }\n");
         }
         
+        if (includeMuleContext) {
+            /*
+             * If the message object is not available (i.e. in the
+             * preprocessor), then add a different version of the addAttachment
+             * function that adds the attachment to the mule context for
+             * insertion in JavaScriptTransformer#transform.
+             */
+            builtScript.append("function addAttachment(data, type) {");
+            builtScript.append("var attachment = Packages.com.mirth.connect.server.controllers.MessageObjectController.getInstance().createAttachment(data, type);");
+            builtScript.append("muleContext.getProperties().get('attachments').add(attachment); \n");
+            builtScript.append("return attachment; }\n");
+        }
+
         if (includeGlobalChannelMap) {
             builtScript.append("function $gc(key, value){");
             builtScript.append("if (arguments.length == 1){return globalChannelMap.get(key); }");
             builtScript.append("else if (arguments.length == 2){globalChannelMap.put(key, value); }}");
         }
-        
+
         builtScript.append("function $g(key, value){");
         builtScript.append("if (arguments.length == 1){return globalMap.get(key); }");
         builtScript.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
@@ -258,24 +382,31 @@ public class JavaScriptUtil {
             compiledScriptCache.removeCompiledScript(scriptId);
         }
     }
-    
-    // utility to get source code from script. Used to generate error report.
-    public static String getSourceCode(String script, int errorLineNumber, int offset){
+
+    /**
+     * Utility to get source code from script. Used to generate error report.
+     * 
+     * @param script
+     * @param errorLineNumber
+     * @param offset
+     * @return
+     */
+    public String getSourceCode(String script, int errorLineNumber, int offset) {
         String[] lines = script.split("\n");
         int startingLineNumber = errorLineNumber - offset;
-        
-        if (startingLineNumber < SOURCE_CODE_LINE_WRAPPER){
+
+        if (startingLineNumber < SOURCE_CODE_LINE_WRAPPER) {
             startingLineNumber = SOURCE_CODE_LINE_WRAPPER;
         }
-        
+
         int currentLineNumber = startingLineNumber - SOURCE_CODE_LINE_WRAPPER;
         StringBuilder source = new StringBuilder();
-        
-        while ((currentLineNumber < (startingLineNumber + SOURCE_CODE_LINE_WRAPPER)) && (currentLineNumber < lines.length)){
-        	source.append(System.getProperty("line.separator") + currentLineNumber + ": " + lines[currentLineNumber - 1]);
+
+        while ((currentLineNumber < (startingLineNumber + SOURCE_CODE_LINE_WRAPPER)) && (currentLineNumber < lines.length)) {
+            source.append(System.getProperty("line.separator") + currentLineNumber + ": " + lines[currentLineNumber - 1]);
             currentLineNumber++;
         }
-        
+
         return source.toString();
     }
 

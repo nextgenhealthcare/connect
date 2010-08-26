@@ -9,8 +9,6 @@
 
 package com.mirth.connect.server.mule.transformers;
 
-import java.util.Map;
-
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Channel;
@@ -22,8 +20,7 @@ public class JavaScriptPostprocessor {
     private Logger logger = Logger.getLogger(this.getClass());
 
     public void doPostProcess(MessageObject messageObject) {
-        JavaScriptUtil.getInstance().executeScript(messageObject.getChannelId() + "_Postprocessor", "postprocessor", messageObject);
-        JavaScriptUtil.getInstance().executeScript("Postprocessor", "postprocessor", messageObject);
+        JavaScriptUtil.getInstance().executePostprocessorScripts(messageObject);
         String channelId = messageObject.getChannelId();
 
         Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);

@@ -455,10 +455,9 @@ public class Client {
     }
 
     /**
-     * Removes the code template with the specified id.
+     * Removes the specified code template.
      * 
-     * @param code
-     *            templateId
+     * @param codeTemplate
      * @throws ClientException
      */
     public synchronized void removeCodeTemplate(CodeTemplate codeTemplate) throws ClientException {

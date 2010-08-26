@@ -173,7 +173,6 @@ public class MuleEngineController implements EngineController {
 
         try {
             extensionController.triggerDeploy();
-            scriptController.compileScripts(channels);
 
             List<String> registeredChannelIds = new ArrayList<String>();
 
@@ -194,6 +193,7 @@ public class MuleEngineController implements EngineController {
             for (Channel channel : channels) {
                 if (channel.isEnabled()) {
                     try {
+                        scriptController.compileChannelScript(channel);
                         // Clear global channel map (if necessary) and execute
                         // channel deploy script before registering the channel
                         clearGlobalChannelMap(channel);
@@ -556,7 +556,7 @@ public class MuleEngineController implements EngineController {
 
         // put the script in the scripts table
         String scriptId = UUIDGenerator.getUUID();
-        scriptController.putScript(channel.getId(), scriptId, scriptBuilder.getScript(channel, connector.getFilter(), transformer));
+        scriptController.putScript(channel.getId(), scriptId, scriptBuilder.generateTransformerScript(connector.getFilter(), transformer));
         beanProperties.put("scriptId", scriptId);
         beanProperties.put("connectorName", connector.getName());
 
@@ -643,10 +643,7 @@ public class MuleEngineController implements EngineController {
     private UMOTransformer registerPreprocessor(Channel channel, String name) throws Exception {
         UMOTransformer umoTransformer = (UMOTransformer) Class.forName("com.mirth.connect.server.mule.transformers.JavaScriptPreprocessor").newInstance();
         umoTransformer.setName(name);
-        String preprocessingScriptId = UUIDGenerator.getUUID();
-        scriptController.putScript(channel.getId(), preprocessingScriptId, channel.getPreprocessingScript());
         PropertyUtils.setSimpleProperty(umoTransformer, "channelId", channel.getId());
-        PropertyUtils.setSimpleProperty(umoTransformer, "preprocessingScriptId", preprocessingScriptId);
 
         // add the transformer to the manager
         muleManager.registerTransformer(umoTransformer);

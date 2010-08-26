@@ -65,7 +65,7 @@ public class DelimitedAdaptor extends Adaptor implements BatchAdaptor {
 			batchScript.append(ControllerFactory.getFactory().createScriptController().getScript(channelId, batchScriptId));
 			batchScript.append("\n}\n");
 			batchScript.append("return doBatchScript();\n");
-			JavaScriptUtil.getInstance().compileAndAddScript(batchScriptId, batchScript.toString(), null, false, true);
+			JavaScriptUtil.getInstance().compileAndAddScript(batchScriptId, batchScript.toString(), null, false, true, false);
 		} catch (Exception e) {
 			logger.error(e);
 		}
