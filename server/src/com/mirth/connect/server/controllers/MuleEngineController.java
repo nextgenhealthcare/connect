@@ -415,10 +415,14 @@ public class MuleEngineController implements EngineController {
          * need to add a Channel Reader connector because of its possible
          * additional properties like "respond from". If a channel reader is
          * being used, add the channel id to the endpointUri so the endpoint can
-         * be deployed
+         * be deployed.
+         * 
+         * Set the endpoint name to the channelId so
+         * InboundMessageRouter#route(UMOEvent event) gets the right channel id.
          */
         if (endpointUri.equals("vm://")) {
             endpointUri += channel.getId();
+            endpoint.setName(channel.getId());
         }
 
         endpoint.setEndpointURI(new MuleEndpointURI(endpointUri, channel.getId()));
