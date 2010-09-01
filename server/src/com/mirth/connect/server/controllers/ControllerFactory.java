@@ -22,15 +22,12 @@ public abstract class ControllerFactory {
                 Properties mirthProperties = PropertyLoader.loadProperties("mirth");
                 String factoryClassName = mirthProperties.getProperty("controllerfactory");
 
-                if (factoryClassName != null) {
-                    try {
-                        factory = (ControllerFactory) Class.forName(factoryClassName).newInstance();
-                    } catch (Exception e) {
-                        // couldn't find a factory
-                    }
+                try {
+                    factory = (ControllerFactory) Class.forName(factoryClassName).newInstance();
+                } catch (Exception e) {
+                    // couldn't find or create a factory
+                    factory = new DefaultControllerFactory();
                 }
-
-                factory = new DefaultControllerFactory();
             }
 
             return factory;
