@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ChannelStatisticsController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -32,10 +33,10 @@ public class ChannelStatisticsServlet extends MirthServlet {
 				String operation = request.getParameter("op");
 				String channelId = request.getParameter("id");
 
-				if (operation.equals("getStatistics")) {
+				if (operation.equals(Operations.CHANNEL_STATS_GET)) {
 					response.setContentType("application/xml");
 					out.println(serializer.toXML(statisticsController.getStatistics(channelId)));
-				} else if (operation.equals("clearStatistics")) {
+				} else if (operation.equals(Operations.CHANNEL_STATS_CLEAR)) {
                     boolean deleteReceived = Boolean.valueOf(request.getParameter("deleteReceived"));
                     boolean deleteFiltered = Boolean.valueOf(request.getParameter("deleteFiltered"));
                     boolean deleteQueued = Boolean.valueOf(request.getParameter("deleteQueued"));

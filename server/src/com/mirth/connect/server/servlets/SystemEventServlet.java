@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.SystemEventFilter;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -42,29 +43,29 @@ public class SystemEventServlet extends MirthServlet {
 					uid = request.getSession().getId();
 				}
 
-				if (operation.equals("createSystemEventsTempTable")) {
+				if (operation.equals(Operations.SYSTEM_EVENT_CREATE_TEMP_TABLE)) {
 					String filter = request.getParameter("filter");
 					response.setContentType("text/plain");
 					out.println(systemLogger.createSystemEventsTempTable((SystemEventFilter) serializer.fromXML(filter), uid, useNewTempTable));
-				} else if (operation.equals("removeFilterTables")) {
+				} else if (operation.equals(Operations.SYSTEM_EVENT_REMOVE_FILTER_TABLES)) {
 					systemLogger.removeFilterTable(uid);
-				} else if (operation.equals("getSystemEventsByPage")) {
+				} else if (operation.equals(Operations.SYSTEM_EVENT_GET_BY_PAGE)) {
 					String page = request.getParameter("page");
 					String pageSize = request.getParameter("pageSize");
 					String maxMessages = request.getParameter("maxSystemEvents");
 					response.setContentType("application/xml");
 					out.print(serializer.toXML(systemLogger.getSystemEventsByPage(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), uid)));
-				} else if (operation.equals("getSystemEventsByPageLimit")) {
+				} else if (operation.equals(Operations.SYSTEM_EVENT_GET_BY_PAGE_LIMIT)) {
 					String page = request.getParameter("page");
 					String pageSize = request.getParameter("pageSize");
 					String maxSystemEvents = request.getParameter("maxSystemEvents");
 					String filter = request.getParameter("filter");
 					response.setContentType("application/xml");
 					out.print(serializer.toXML(systemLogger.getSystemEventsByPageLimit(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxSystemEvents), uid, (SystemEventFilter) serializer.fromXML(filter))));
-				} else if (operation.equals("removeSystemEvents")) {
+				} else if (operation.equals(Operations.SYSTEM_EVENT_REMOVE)) {
 					String filter = request.getParameter("filter");
 					systemLogger.removeSystemEvents((SystemEventFilter) serializer.fromXML(filter));
-				} else if (operation.equals("clearSystemEvents")) {
+				} else if (operation.equals(Operations.SYSTEM_EVENT_CLEAR)) {
 					systemLogger.clearSystemEvents();
 				}
 			} catch (Exception e) {

@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -31,12 +32,12 @@ public class EngineServlet extends MirthServlet {
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 String operation = request.getParameter("op");
 
-                if (operation.equals("redeployAllChannels")) {
+                if (operation.equals(Operations.CHANNEL_REDEPLOY)) {
                     engineController.redeployAllChannels();
-                } else if (operation.equals("deployChannels")) {
+                } else if (operation.equals(Operations.CHANNEL_DEPLOY)) {
                     List<Channel> channels = (List<Channel>) serializer.fromXML(request.getParameter("channels"));
                     engineController.deployChannels(channels);
-                } else if (operation.equals("undeployChannels")) {
+                } else if (operation.equals(Operations.CHANNEL_UNDEPLOY)) {
                     List<String> channelIds = (List<String>) serializer.fromXML(request.getParameter("channelIds"));
                     engineController.undeployChannels(channelIds);
                 }

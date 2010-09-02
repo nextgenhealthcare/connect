@@ -25,6 +25,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
+import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.ExtensionLibrary;
 import com.mirth.connect.model.MetaData;
@@ -74,45 +75,45 @@ public class ExtensionServlet extends MirthServlet {
 				} else {
 					operation = request.getParameter("op");
 				}
-				if (operation.equals("getPluginProperties")) {
+				if (operation.equals(Operations.PLUGIN_PROPERTIES_GET)) {
 					response.setContentType("application/xml");
 					String name = request.getParameter("name");
 					out.println(serializer.toXML(extensionController.getPluginProperties(name)));
-				} else if (operation.equals("setPluginProperties")) {
+				} else if (operation.equals(Operations.PLUGIN_PROPERTIES_SET)) {
 					String name = request.getParameter("name");
 					Properties properties = (Properties) serializer.fromXML(request.getParameter("properties"));
 					extensionController.setPluginProperties(name, properties);
 					extensionController.updatePlugin(name, properties);
-				} else if (operation.equals("getPluginMetaData")) {
+				} else if (operation.equals(Operations.PLUGIN_METADATA_GET)) {
 					out.println(serializer.toXML(extensionController.getPluginMetaData(), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class }));
-				} else if (operation.equals("setPluginMetaData")) {
+				} else if (operation.equals(Operations.PLUGIN_METADATA_SET)) {
 					Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class });
 					extensionController.savePluginMetaData(metaData);
-				} else if (operation.equals("getConnectorMetaData")) {
+				} else if (operation.equals(Operations.CONNECTOR_METADATA_GET)) {
 					response.setContentType("application/xml");
 					out.println(serializer.toXML(extensionController.getConnectorMetaData(), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class }));
-				} else if (operation.equals("setConnectorMetaData")) {
+				} else if (operation.equals(Operations.CONNECTOR_METADATA_SET)) {
 					Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
 					extensionController.saveConnectorMetaData(metaData);
-				} else if (operation.equals("isExtensionEnabled")) {
+				} else if (operation.equals(Operations.EXTENSION_IS_ENABLED)) {
 					String extensionName = request.getParameter("name");
 					out.println(extensionController.isExtensionEnabled(extensionName));
-				} else if (operation.equals("invoke")) {
+				} else if (operation.equals(Operations.PLUGIN_SERVICE_INVOKE)) {
 					String name = request.getParameter("name");
 					String method = request.getParameter("method");
 					Object object = serializer.fromXML(request.getParameter("object"));
 					String sessionId = request.getSession().getId();
 					out.println(serializer.toXML(extensionController.invoke(name, method, object, sessionId)));
-				} else if (operation.equals("invokeConnectorService")) {
+				} else if (operation.equals(Operations.CONNECTOR_SERVICE_INVOKE)) {
 					String name = request.getParameter("name");
 					String method = request.getParameter("method");
 					Object object = serializer.fromXML(request.getParameter("object"));
 					String sessionId = request.getSession().getId();
 					out.println(serializer.toXML(extensionController.invokeConnectorService(name, method, object, sessionId)));
-				} else if (operation.equals("uninstallExtension")) {
+				} else if (operation.equals(Operations.EXTENSION_UNINSTALL)) {
 					String packageName = request.getParameter("packageName");
 					extensionController.uninstallExtension(packageName);
-				} else if (operation.equals("installExtension")) {
+				} else if (operation.equals(Operations.EXTENSION_INSTALL)) {
 					// This is a multi-part method, so we need our parameters
 					// from the new map
 					extensionController.installExtension(multiPartFile);

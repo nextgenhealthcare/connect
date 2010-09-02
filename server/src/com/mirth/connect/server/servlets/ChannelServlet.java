@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ChannelController;
@@ -33,20 +34,20 @@ public class ChannelServlet extends MirthServlet {
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
 
-				if (operation.equals("getChannel")) {
+				if (operation.equals(Operations.CHANNEL_GET)) {
 					response.setContentType("application/xml");
 					Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
 					out.println(serializer.toXML(channelController.getChannel(channel)));
-				} else if (operation.equals("updateChannel")) {
+				} else if (operation.equals(Operations.CHANNEL_UPDATE)) {
 					response.setContentType("text/plain");
 					Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
 					boolean override = Boolean.valueOf(request.getParameter("override")).booleanValue();
 					// NOTE: This needs to be print rather than println to avoid the newline
 					out.print(channelController.updateChannel(channel, override));
-				} else if (operation.equals("removeChannel")) {
+				} else if (operation.equals(Operations.CHANNEL_REMOVE)) {
 					Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
 					channelController.removeChannel(channel);
-				} else if (operation.equals("getChannelSummary")) {
+				} else if (operation.equals(Operations.CHANNEL_GET_SUMMARY)) {
 					response.setContentType("application/xml");
 					Map<String, Integer> cachedChannels = (Map<String, Integer>) serializer.fromXML(request.getParameter("cachedChannels"));
 					out.println(serializer.toXML(channelController.getChannelSummary(cachedChannels)));

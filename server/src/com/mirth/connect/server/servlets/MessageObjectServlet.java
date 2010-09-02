@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -45,66 +46,66 @@ public class MessageObjectServlet extends MirthServlet {
                     uid = request.getSession().getId();
                 }
 
-                if (operation.equals("createMessagesTempTable")) {
+                if (operation.equals(Operations.MESSAGE_CREATE_TEMP_TABLE)) {
                     String filter = request.getParameter("filter");
                     response.setContentType("text/plain");
                     out.println(messageObjectController.createMessagesTempTable((MessageObjectFilter) serializer.fromXML(filter), uid, useNewTempTable));
-                } else if (operation.equals("removeFilterTables")) {
+                } else if (operation.equals(Operations.MESSAGE_FILTER_TABLES_REMOVE)) {
                     messageObjectController.removeFilterTable(uid);
-                } else if (operation.equals("getMessagesByPage")) {
+                } else if (operation.equals(Operations.MESSAGE_GET_BY_PAGE)) {
                     String page = request.getParameter("page");
                     String pageSize = request.getParameter("pageSize");
                     String maxMessages = request.getParameter("maxMessages");
                     response.setContentType("application/xml");
                     out.print(serializer.toXML(messageObjectController.getMessagesByPage(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), uid, true)));
-                } else if (operation.equals("getMessagesByPageLimit")) {
+                } else if (operation.equals(Operations.MESSAGE_GET_BY_PAGE_LIMIT)) {
                     String page = request.getParameter("page");
                     String pageSize = request.getParameter("pageSize");
                     String maxMessages = request.getParameter("maxMessages");
                     String filter = request.getParameter("filter");
                     response.setContentType("application/xml");
                     out.print(serializer.toXML(messageObjectController.getMessagesByPageLimit(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), uid, (MessageObjectFilter) serializer.fromXML(filter))));
-                } else if (operation.equals("removeMessages")) {
+                } else if (operation.equals(Operations.MESSAGE_REMOVE)) {
                     String filter = request.getParameter("filter");
                     messageObjectController.removeMessages((MessageObjectFilter) serializer.fromXML(filter));
-                } else if (operation.equals("clearMessages")) {
+                } else if (operation.equals(Operations.MESSAGE_CLEAR)) {
                     String channelId = request.getParameter("data");
                     messageObjectController.clearMessages(channelId);
-                } else if (operation.equals("reprocessMessages")) {
+                } else if (operation.equals(Operations.MESSAGE_REPROCESS)) {
                     MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
                     boolean replace = Boolean.valueOf(request.getParameter("replace"));
                     List<String> destinations = (List<String>) serializer.fromXML(request.getParameter("destinations"));
                     messageObjectController.reprocessMessages(filter, replace, destinations);
-                } else if (operation.equals("processMessage")) {
+                } else if (operation.equals(Operations.MESSAGE_PROCESS)) {
                     String message = request.getParameter("message");
                     messageObjectController.processMessage((MessageObject) serializer.fromXML(message));
-                } else if (operation.equals("importMessage")) {
+                } else if (operation.equals(Operations.MESSAGE_IMPORT)) {
                     String message = request.getParameter("message");
                     messageObjectController.importMessage((MessageObject) serializer.fromXML(message));
-                } else if (operation.equals("getAttachment")) {
+                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET)) {
                     response.setContentType("application/xml");
                     Attachment attachment = messageObjectController.getAttachment(request.getParameter("attachmentId"));
                     out.println(serializer.toXML(attachment));
-                } else if (operation.equals("getAttachmentsByMessageId")) {
+                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID)) {
                     response.setContentType("application/xml");
                     List<Attachment> list = messageObjectController.getAttachmentsByMessageId(request.getParameter("messageId"));
                     out.println(serializer.toXML(list));
-                } else if (operation.equals("getAttachmentIdsByMessageId")) {
+                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID)) {
                     response.setContentType("application/xml");
                     List<Attachment> list = messageObjectController.getAttachmentIdsByMessageId(request.getParameter("messageId"));
                     out.println(serializer.toXML(list));
-                } else if (operation.equals("insertAttachment")) {
+                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_INSERT)) {
                     String attachment = request.getParameter("attachment");
                     messageObjectController.insertAttachment((Attachment) serializer.fromXML(attachment));
-                } else if (operation.equals("getDICOMMessage")) {
+                } else if (operation.equals(Operations.MESSAGE_DICOM_MESSAGE_GET)) {
                     // response.setContentType("application/xml");
                     String message = request.getParameter("message");
                     String dicomMessage = DICOMUtil.getDICOMRawData((MessageObject) serializer.fromXML(message));
                     out.println(dicomMessage);
-                } else if (operation.equals("deleteAttachments")) {
+                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_DELETE)) {
                     String message = request.getParameter("message");
                     messageObjectController.deleteAttachments((MessageObject) serializer.fromXML(message));
-                } else if (operation.equals("deleteUnusedAttachments")) {
+                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_DELETE_UNUSED)) {
                     messageObjectController.deleteUnusedAttachments();
                 }
             } catch (Exception e) {

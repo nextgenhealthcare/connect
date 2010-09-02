@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ChannelStatusController;
 import com.mirth.connect.server.controllers.ControllerException;
@@ -32,15 +33,15 @@ public class ChannelStatusServlet extends MirthServlet {
                 PrintWriter out = response.getWriter();
                 String operation = request.getParameter("op");
 
-                if (operation.equals("startChannel")) {
+                if (operation.equals(Operations.CHANNEL_START)) {
                     channelStatusController.startChannel(request.getParameter("id"));
-                } else if (operation.equals("stopChannel")) {
+                } else if (operation.equals(Operations.CHANNEL_STOP)) {
                     channelStatusController.stopChannel(request.getParameter("id"));
-                } else if (operation.equals("pauseChannel")) {
+                } else if (operation.equals(Operations.CHANNEL_PAUSE)) {
                     channelStatusController.pauseChannel(request.getParameter("id"));
-                } else if (operation.equals("resumeChannel")) {
+                } else if (operation.equals(Operations.CHANNEL_RESUME)) {
                     channelStatusController.resumeChannel(request.getParameter("id"));
-                } else if (operation.equals("getChannelStatusList")) {
+                } else if (operation.equals(Operations.CHANNEL_GET_STATUS)) {
                     response.setContentType("application/xml");
                     out.print(serializer.toXML(channelStatusController.getChannelStatusList()));
                 }

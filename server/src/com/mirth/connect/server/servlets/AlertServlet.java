@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.AlertController;
@@ -33,14 +34,14 @@ public class AlertServlet extends MirthServlet {
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
 
-				if (operation.equals("getAlert")) {
+				if (operation.equals(Operations.ALERT_GET)) {
 					response.setContentType("application/xml");
 					Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
 					out.println(serializer.toXML(alertController.getAlert(alert)));
-				} else if (operation.equals("updateAlerts")) {
+				} else if (operation.equals(Operations.ALERT_UPDATE)) {
 					List<Alert> alerts = (List<Alert>) serializer.fromXML(request.getParameter("alerts"));
 					alertController.updateAlerts(alerts);
-				} else if (operation.equals("removeAlert")) {
+				} else if (operation.equals(Operations.ALERT_REMOVE)) {
 					Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
 					alertController.removeAlert(alert);
 				}

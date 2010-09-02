@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.CodeTemplateController;
@@ -33,14 +34,14 @@ public class CodeTemplateServlet extends MirthServlet {
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
 
-				if (operation.equals("getCodeTemplate")) {
+				if (operation.equals(Operations.CODE_TEMPLATE_GET)) {
 					response.setContentType("application/xml");
 					CodeTemplate codeTemplate = (CodeTemplate) serializer.fromXML(request.getParameter("codeTemplate"));
 					out.println(serializer.toXML(codeTemplateController.getCodeTemplate(codeTemplate)));
-				} else if (operation.equals("updateCodeTemplates")) {
+				} else if (operation.equals(Operations.CODE_TEMPLATE_UPDATE)) {
 					List<CodeTemplate> codeTemplates = (List<CodeTemplate>) serializer.fromXML(request.getParameter("codeTemplates"));
 					codeTemplateController.updateCodeTemplates(codeTemplates);
-				} else if (operation.equals("removeCodeTemplate")) {
+				} else if (operation.equals(Operations.CODE_TEMPLATE_REMOVE)) {
 					CodeTemplate codeTemplate = (CodeTemplate) serializer.fromXML(request.getParameter("codeTemplate"));
 					codeTemplateController.removeCodeTemplate(codeTemplate);
 				}

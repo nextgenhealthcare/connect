@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.SystemEvent;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -37,46 +38,46 @@ public class UserServlet extends MirthServlet {
 		String operation = request.getParameter("op");
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
-		if (operation.equals("login")) {
+		if (operation.equals(Operations.USER_LOGIN)) {
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
 			String version = request.getParameter("version");
 			response.setContentType("text/plain");
 			out.print(login(request, response, userController, systemLogger, username, password, version));
-		} else if (operation.equals("isLoggedIn")) {
+		} else if (operation.equals(Operations.USER_IS_LOGGED_IN)) {
 			response.setContentType("text/plain");
 			out.print(isUserLoggedIn(request));
 		} else if (!isUserLoggedIn(request)) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
-				if (operation.equals("getUser")) {
+				if (operation.equals(Operations.USER_GET)) {
 					response.setContentType("application/xml");
 					User user = (User) serializer.fromXML(request.getParameter("user"));
 					out.println(serializer.toXML(userController.getUser(user)));
-				} else if (operation.equals("updateUser")) {
+				} else if (operation.equals(Operations.USER_UPDATE)) {
 					User user = (User) serializer.fromXML(request.getParameter("user"));
 					String password = request.getParameter("password");
 					userController.updateUser(user, password);
-				} else if (operation.equals("removeUser")) {
+				} else if (operation.equals(Operations.USER_REMOVE)) {
 					User user = (User) serializer.fromXML(request.getParameter("user"));
 					userController.removeUser(user, (Integer) request.getSession().getAttribute(SESSION_USER));
-				} else if (operation.equals("authorizeUser")) {
+				} else if (operation.equals(Operations.USER_AUTHORIZE)) {
 					response.setContentType("text/plain");
 					User user = (User) serializer.fromXML(request.getParameter("user"));
 					String password = request.getParameter("password");
 					out.print(userController.authorizeUser(user, password));
-				} else if (operation.equals("logout")) {
+				} else if (operation.equals(Operations.USER_LOGOUT)) {
 					logout(request, userController, systemLogger);
-				} else if (operation.equals("isUserLoggedIn")) {
+				} else if (operation.equals(Operations.USER_IS_USER_LOGGED_IN)) {
 					response.setContentType("text/plain");
 					User user = (User) serializer.fromXML(request.getParameter("user"));
 					out.print(userController.isUserLoggedIn(user));
-				} else if (operation.equals("getUserPreferences")) {
+				} else if (operation.equals(Operations.USER_PREFERENCES_GET)) {
                     response.setContentType("text/plain");
                     User user = (User) serializer.fromXML(request.getParameter("user"));
                     out.println(serializer.toXML(userController.getUserPreferences(user)));
-                } else if (operation.equals("setUserPreference")) {
+                } else if (operation.equals(Operations.USER_PREFERENCES_SET)) {
                     User user = (User) serializer.fromXML(request.getParameter("user"));
                     String name = request.getParameter("name");
                     String value = request.getParameter("value");
