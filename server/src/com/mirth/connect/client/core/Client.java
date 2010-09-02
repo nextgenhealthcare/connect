@@ -822,12 +822,6 @@ public class Client {
         return (List<Attachment>) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET, params));
     }
 
-    public void insertAttachment(Attachment attachment) throws ClientException {
-        logger.debug("inserting Attachment: " + attachment);
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_INSERT), new NameValuePair("attachment", serializer.toXML(attachment)) };
-        serverConnection.executePostMethod(MESSAGE_SERVLET, params);
-    }
-
     public String getDICOMMessage(MessageObject message) throws ClientException {
         logger.debug("Getting DICOM message for message: " + message);
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_DICOM_MESSAGE_GET), new NameValuePair("message", serializer.toXML(message)) };

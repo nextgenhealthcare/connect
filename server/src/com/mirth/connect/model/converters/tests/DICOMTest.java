@@ -54,7 +54,7 @@ public class DICOMTest {
         try {
             client.login("admin", "admin", "1.5.0");  
             a.setData(getBytesFromFile(new File("C:\\abdominal.dcm")));
-            client.insertAttachment(a);
+//            client.insertAttachment(a);
         
             Attachment a1 = client.getAttachment("TEST1");
             List<Attachment> a3 = client.getAttachmentsByMessageId("TEST2");

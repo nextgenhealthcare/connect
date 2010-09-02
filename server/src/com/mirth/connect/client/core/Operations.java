@@ -74,10 +74,7 @@ public class Operations {
     public static final String MESSAGE_ATTACHMENT_GET = "getAttachment";
     public static final String MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID = "getAttachmentsByMessageId";
     public static final String MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID = "getAttachmentIdsByMessageId";
-    public static final String MESSAGE_ATTACHMENT_INSERT = "insertAttachment";
     public static final String MESSAGE_DICOM_MESSAGE_GET = "getDICOMMessage";
-    public static final String MESSAGE_ATTACHMENT_DELETE = "deleteAttachments";
-    public static final String MESSAGE_ATTACHMENT_DELETE_UNUSED = "deleteUnusedAttachments";
     public static final String MESSAGE_CREATE_TEMP_TABLE = "createMessagesTempTable";
     public static final String MESSAGE_FILTER_TABLES_REMOVE = "removeFilterTables";
     
