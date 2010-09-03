@@ -94,19 +94,10 @@ public class MessageObjectServlet extends MirthServlet {
                     response.setContentType("application/xml");
                     List<Attachment> list = messageObjectController.getAttachmentIdsByMessageId(request.getParameter("messageId"));
                     out.println(serializer.toXML(list));
-                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_INSERT)) {
-                    String attachment = request.getParameter("attachment");
-                    messageObjectController.insertAttachment((Attachment) serializer.fromXML(attachment));
                 } else if (operation.equals(Operations.MESSAGE_DICOM_MESSAGE_GET)) {
-                    // response.setContentType("application/xml");
                     String message = request.getParameter("message");
                     String dicomMessage = DICOMUtil.getDICOMRawData((MessageObject) serializer.fromXML(message));
                     out.println(dicomMessage);
-                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_DELETE)) {
-                    String message = request.getParameter("message");
-                    messageObjectController.deleteAttachments((MessageObject) serializer.fromXML(message));
-                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_DELETE_UNUSED)) {
-                    messageObjectController.deleteUnusedAttachments();
                 }
             } catch (Exception e) {
                 throw new ServletException(e);
