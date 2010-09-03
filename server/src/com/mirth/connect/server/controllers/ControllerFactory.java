@@ -33,6 +33,8 @@ public abstract class ControllerFactory {
             return factory;
         }
     }
+    
+    public abstract AuthorizationController createAuthorizationController();
 
     public abstract AlertController createAlertController();
 

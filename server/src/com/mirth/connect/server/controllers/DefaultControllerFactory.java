@@ -10,6 +10,10 @@
 package com.mirth.connect.server.controllers;
 
 public class DefaultControllerFactory extends ControllerFactory {
+    public AuthorizationController createAuthorizationController() {
+        return DefaultAuthorizationController.create();
+    }
+    
     public AlertController createAlertController() {
         return DefaultAlertController.create();
     }
