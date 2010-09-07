@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="build"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
-	<classpathentry kind="lib" path="lib/wrapper.jar"/>
 	<classpathentry kind="lib" path="lib/mule/activeio-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/mule/antlr-runtime.jar"/>
 	<classpathentry kind="lib" path="lib/mule/dom4j-1.4.jar"/>
