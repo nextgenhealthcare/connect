@@ -52,7 +52,7 @@ public class FileWriterService implements ConnectorService {
                         address = new URI("http://" + params.get(FileWriterProperties.FILE_HOST));
                     }
                 } else {
-                    address = new URI(scheme + "://" + params.get(FileWriterProperties.FILE_HOST));
+                    address = new URI(scheme, "//" + params.get(FileWriterProperties.FILE_HOST), null);
                 }
 
                 fileHost = address.toString();
