@@ -252,10 +252,11 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin {
             Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
 
             if (channel != null) {
+                channelName = channel.getName();
                 // grab the channel's log from the HashMap, if not exist, create
                 // one.
-                if (connectorInfoLogs.containsKey(channel.getName())) {
-                    channelLog = connectorInfoLogs.get(channel.getName());
+                if (connectorInfoLogs.containsKey(channelName)) {
+                    channelLog = connectorInfoLogs.get(channelName);
                 } else {
                     channelLog = new LinkedList<String[]>();
                 }
