@@ -1245,21 +1245,17 @@ public class Frame extends JXFrame {
 
     /**
      * Sends the channel passed in to the server, updating it or adding it.
+     * @throws ClientException 
      */
-    public boolean updateChannel(Channel curr, boolean override) {
-        try {
-            if (!mirthClient.updateChannel(curr, override)) {
-                if (alertOption(this, "This channel has been modified since you first opened it, or you have imported\nan older version of the channel.  Would you like to overwrite it?")) {
-                    mirthClient.updateChannel(curr, true);
-                } else {
-                    return false;
-                }
+    public boolean updateChannel(Channel curr, boolean override) throws ClientException {
+        if (!mirthClient.updateChannel(curr, override)) {
+            if (alertOption(this, "This channel has been modified since you first opened it, or you have imported\nan older version of the channel.  Would you like to overwrite it?")) {
+                mirthClient.updateChannel(curr, true);
+            } else {
+                return false;
             }
-            retrieveChannels();
-        } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
-            return false;
         }
+        retrieveChannels();
 
         return true;
     }
@@ -2476,7 +2472,11 @@ public class Frame extends JXFrame {
                 public Void doInBackground() {
 
                     channel.setEnabled(true);
-                    updateChannel(channel, false);
+                    try {
+                        updateChannel(channel, false);
+                    } catch (ClientException e) {
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    }
                     return null;
                 }
 
@@ -2505,7 +2505,11 @@ public class Frame extends JXFrame {
 
                 public Void doInBackground() {
                     channel.setEnabled(false);
-                    updateChannel(channel, false);
+                    try {
+                        updateChannel(channel, false);
+                    } catch (ClientException e) {
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    }
                     return null;
                 }
 
