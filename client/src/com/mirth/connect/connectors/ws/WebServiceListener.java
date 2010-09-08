@@ -268,7 +268,7 @@ public class WebServiceListener extends ConnectorClass {
                 if (checkUnique && (s.length() == 0 || checkUnique(s))) {
                     super.cancelCellEditing();
                 } else {
-                    parent.enableSave();
+                    parent.setSaveEnabled(true);
                 }
 
                 deleteButton.setEnabled(true);
@@ -368,7 +368,7 @@ public class WebServiceListener extends ConnectorClass {
     }
 
     public void updateResponseDropDown() {
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         String selectedItem = (String) respondFromComboBox.getSelectedItem();
 
@@ -450,7 +450,7 @@ public class WebServiceListener extends ConnectorClass {
             responseFromLabel.setEnabled(true);
         }
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
     }
 
     /**
@@ -747,7 +747,7 @@ public class WebServiceListener extends ConnectorClass {
         credentialsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
 
         credentialsPane.getViewport().setViewPosition(new Point(0, credentialsTable.getRowHeight() * credentialsTable.getModel().getRowCount()));
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }//GEN-LAST:event_newButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
@@ -761,7 +761,7 @@ public class WebServiceListener extends ConnectorClass {
 
         ((DefaultTableModel) credentialsTable.getModel()).removeRow(selectedModelIndex);
 
-        parent.enableSave();
+        parent.setSaveEnabled(true);
 
         if (credentialsTable.getModel().getRowCount() == 0) {
             credentialsTable.clearSelection();
@@ -770,7 +770,7 @@ public class WebServiceListener extends ConnectorClass {
             credentialsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
         }
 
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }//GEN-LAST:event_deleteButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;

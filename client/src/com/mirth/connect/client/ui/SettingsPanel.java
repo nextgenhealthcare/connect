@@ -636,7 +636,7 @@ public class SettingsPanel extends javax.swing.JPanel {
 
     private void restoreButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_restoreButtonActionPerformed
     {//GEN-HEADEREND:event_restoreButtonActionPerformed
-        if (parent.settingsTasks.getContentPane().getComponent(1).isVisible()) {
+        if (parent.isSaveEnabled()) {
             if (!parent.alertOkCancel(this, "Your new settings will first be saved.  Continue?")) {
                 return;
             }
@@ -674,7 +674,7 @@ public class SettingsPanel extends javax.swing.JPanel {
 
     private void backupButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_backupButtonActionPerformed
     {//GEN-HEADEREND:event_backupButtonActionPerformed
-        if (parent.settingsTasks.getContentPane().getComponent(1).isVisible()) {
+        if (parent.isSaveEnabled()) {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the settings first?");
 
             if (option == JOptionPane.YES_OPTION) {
@@ -954,7 +954,8 @@ private void secureConnectionSSLActionPerformed(java.awt.event.ActionEvent evt) 
             } catch (ClientException e) {
                 parent.alertException(this, e.getStackTrace(), e.getMessage());
             }
-            parent.settingsTasks.getContentPane().getComponent(1).setVisible(false);
+            
+            parent.setSaveEnabled(false);
         }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables

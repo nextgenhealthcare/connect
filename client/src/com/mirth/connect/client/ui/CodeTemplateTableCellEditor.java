@@ -97,7 +97,7 @@ public class CodeTemplateTableCellEditor extends AbstractCellEditor implements T
             }
         }
 
-        parent.enableSave();
+        parent.setSaveEnabled(true);
         // set the name to the new name.
         for (int i = 0; i < codeTemplates.size(); i++) {
             if (codeTemplates.get(i).getName().equalsIgnoreCase((String) originalValue)) {

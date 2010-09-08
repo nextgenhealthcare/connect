@@ -281,7 +281,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
             return false;
         }
 
-        boolean changed = parent.codeTemplateTasks.getContentPane().getComponent(1).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         CodeTemplate current = parent.codeTemplates.get(index);
 
@@ -298,7 +298,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
         split.setRightComponent(bottomPane);
         split.setDividerLocation(dividerLocation);
 
-        parent.codeTemplateTasks.getContentPane().getComponent(1).setVisible(changed);
+        parent.setSaveEnabled(enabled);
 
         return true;
     }
@@ -310,7 +310,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
 
         int index = lastModelRow;
 
-        boolean changed = parent.codeTemplateTasks.getContentPane().getComponent(1).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         CodeTemplate current = parent.codeTemplates.get(index);
 
@@ -331,7 +331,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
         current.setTooltip(description.getText());
         current.setCode(template.getText());
 
-        parent.codeTemplateTasks.getContentPane().getComponent(1).setVisible(changed);
+        parent.setSaveEnabled(enabled);
 
         return true;
     }
@@ -408,7 +408,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
         templateTable.setRowSelectionInterval(newViewIndex, newViewIndex);
 
         templatePane.getViewport().setViewPosition(new Point(0, templateTable.getRowHeight() * templateTable.getModel().getRowCount()));
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 
     public void deleteCodeTemplate() {
@@ -433,7 +433,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
         parent.codeTemplates.remove(selectedModelIndex);
         model.removeRow(selectedModelIndex);
 
-        parent.enableSave();
+        parent.setSaveEnabled(true);
 
         isDeleting = false;
 

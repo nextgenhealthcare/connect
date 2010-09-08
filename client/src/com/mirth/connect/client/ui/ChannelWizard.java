@@ -318,7 +318,7 @@ public class ChannelWizard extends javax.swing.JDialog {
             public void done() {
                 if (channel != null) {
                     parent.editChannel(channel);
-                    parent.enableSave();
+                    parent.setSaveEnabled(true);
                 }
                 parent.setWorking("", false);
             }

@@ -62,7 +62,7 @@ public class MirthTimePicker extends JSpinner {
             }
 
             public void keyPressed(KeyEvent e) {
-                parent.enableSave();
+                parent.setSaveEnabled(true);
             }
 
             public void keyReleased(KeyEvent e) {
@@ -77,7 +77,7 @@ public class MirthTimePicker extends JSpinner {
         this.addChangeListener(new ChangeListener() {
 
             public void stateChanged(ChangeEvent event) {
-                parent.enableSave();
+                parent.setSaveEnabled(true);
             }
         });
     }
@@ -86,7 +86,7 @@ public class MirthTimePicker extends JSpinner {
 
         try {
             this.setValue(formatter.stringToValue(date));
-            parent.disableSave();
+            parent.setSaveEnabled(false);
         } catch (ParseException e) {
         }
     }

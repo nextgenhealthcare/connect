@@ -389,7 +389,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
 
     private void propertiesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_propertiesActionPerformed
     {//GEN-HEADEREND:event_propertiesActionPerformed
-        PlatformUI.MIRTH_FRAME.enableSave();
+        PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
         currentMessage = "";
         if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI))) {
             new BoundPropertiesSheetDialog(dataProperties, new EDIProperties());
@@ -411,7 +411,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
 
     private void dataTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeActionPerformed
     {//GEN-HEADEREND:event_dataTypeActionPerformed
-        PlatformUI.MIRTH_FRAME.enableSave();
+        PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
         currentMessage = "";
         
         // Only conditionally enable the properties if the data type is enabled.

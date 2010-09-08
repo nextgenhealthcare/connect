@@ -158,7 +158,7 @@ public class HttpSender extends ConnectorClass {
     public void setProperties(Properties props) {
         resetInvalidProperties();
 
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         urlField.setText((String) props.get(HttpSenderProperties.HTTP_URL));
 
@@ -265,7 +265,7 @@ public class HttpSender extends ConnectorClass {
 
         channelNames.setSelectedItem(selectedChannelName);
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
     }
 
     public Properties getDefaults() {
@@ -344,7 +344,7 @@ public class HttpSender extends ConnectorClass {
                 if (checkProperties && (s.length() == 0 || checkUniqueProperty(s))) {
                     super.cancelCellEditing();
                 } else {
-                    parent.enableSave();
+                    parent.setSaveEnabled(true);
                 }
 
                 queryParametersDeleteButton.setEnabled(true);
@@ -471,7 +471,7 @@ public class HttpSender extends ConnectorClass {
                 if (checkProperties && (s.length() == 0 || checkUniqueProperty(s))) {
                     super.cancelCellEditing();
                 } else {
-                    parent.enableSave();
+                    parent.setSaveEnabled(true);
                 }
 
                 headersDeleteButton.setEnabled(true);
@@ -1264,7 +1264,7 @@ public class HttpSender extends ConnectorClass {
                 }
             }
 
-            parent.enableSave();
+            parent.setSaveEnabled(true);
         }
     }//GEN-LAST:event_headersDeleteButtonActionPerformed
 
@@ -1272,7 +1272,7 @@ public class HttpSender extends ConnectorClass {
     {//GEN-HEADEREND:event_headersNewButtonActionPerformed
         ((DefaultTableModel) headersTable.getModel()).addRow(new Object[]{getNewPropertyName(headersTable), ""});
         headersTable.setRowSelectionInterval(headersTable.getRowCount() - 1, headersTable.getRowCount() - 1);
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }//GEN-LAST:event_headersNewButtonActionPerformed
 
 private void usePersistentQueuesNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usePersistentQueuesNoRadioActionPerformed
@@ -1362,14 +1362,14 @@ private void queryParametersDeleteButtonActionPerformed(java.awt.event.ActionEve
             }
         }
 
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 }//GEN-LAST:event_queryParametersDeleteButtonActionPerformed
 
 private void queryParametersNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queryParametersNewButtonActionPerformed
     ((DefaultTableModel) queryParametersTable.getModel()).addRow(new Object[]{getNewPropertyName(queryParametersTable), ""});
     queryParametersTable.setRowSelectionInterval(queryParametersTable.getRowCount() - 1, queryParametersTable.getRowCount() - 1);
-    parent.enableSave();
+    parent.setSaveEnabled(true);
 }//GEN-LAST:event_queryParametersNewButtonActionPerformed
 
 private void authenticationYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationYesRadioActionPerformed

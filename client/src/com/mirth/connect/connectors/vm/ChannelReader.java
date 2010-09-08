@@ -83,7 +83,7 @@ public class ChannelReader extends ConnectorClass {
     }
 
     public void updateResponseDropDown() {
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         String selectedItem = (String) responseFromTransformer.getSelectedItem();
 
@@ -165,7 +165,7 @@ public class ChannelReader extends ConnectorClass {
             responseFromLabel.setEnabled(true);
         }
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
     }
 
     /**

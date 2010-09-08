@@ -64,7 +64,7 @@ public class GlobalScriptsPanel extends javax.swing.JPanel {
 
     public void importAllScripts(Map<String, String> scripts) {
         scriptPanel.setScripts(scripts);
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 
     public Map<String, String> exportAllScripts() {

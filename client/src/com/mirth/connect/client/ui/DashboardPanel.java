@@ -373,7 +373,7 @@ public class DashboardPanel extends javax.swing.JPanel {
                     statusTable.setRowSelectionInterval(row, row);
                 }
             }
-            parent.statusPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+            parent.dashboardPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
 
@@ -386,19 +386,19 @@ public class DashboardPanel extends javax.swing.JPanel {
         int column = statusTable.getColumnModelIndex(STATUS_COLUMN_NAME);
 
         if (rows.length > 0) {
-            parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 1, -1, true); // show all
-            parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 7, false); // hide start, pause, and stop
+            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, -1, true); // show all
+            parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 7, false); // hide start, pause, and stop
 
             for (int i = 0; i < rows.length; i++) {
                 if (((CellData) statusTable.getModel().getValueAt(rows[i], column)).getText().equals("Started")) {
-                    parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 6, 6, true);
-                    parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, true);
+                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 6, 6, true);
+                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 7, 7, true);
                 } else if (((CellData) statusTable.getModel().getValueAt(rows[i], column)).getText().equals("Paused")) {
-                    parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, true);
-                    parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, true);
+                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 5, true);
+                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 7, 7, true);
                 } else {
-                    parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, true);
-                    parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, false);
+                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 5, 5, true);
+                    parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 7, 7, false);
                 }
             }
 
@@ -426,7 +426,7 @@ public class DashboardPanel extends javax.swing.JPanel {
 
     public void deselectRows() {
         statusTable.clearSelection();
-        parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 1, -1, false);
+        parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 1, -1, false);
         updateCurrentPluginPanel();
     }
 

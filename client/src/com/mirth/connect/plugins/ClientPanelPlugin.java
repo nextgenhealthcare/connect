@@ -38,7 +38,10 @@ public abstract class ClientPanelPlugin extends ClientPlugin {
 
     public ClientPanelPlugin(String name, boolean refresh, boolean save) {
         this.name = name;
-
+        getTaskPane().setTitle(name + " Tasks");
+        getTaskPane().setName(name);
+        getTaskPane().setFocusable(false);
+        
         if (refresh) {
             addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")));
             refreshIndex = reservedTasksCount;
@@ -50,9 +53,6 @@ public abstract class ClientPanelPlugin extends ClientPlugin {
             saveIndex = reservedTasksCount;
             reservedTasksCount++;
         }
-
-        getTaskPane().setTitle(name + " Tasks");
-        getTaskPane().setFocusable(false);
     }
 
     public void setComponent(JComponent component) {
@@ -113,7 +113,9 @@ public abstract class ClientPanelPlugin extends ClientPlugin {
         boundAction.putValue(Action.SHORT_DESCRIPTION, toolTip);
         boundAction.registerCallback(this, callbackMethod);
 
-        getTaskPane().add(boundAction);
+        Component component = getTaskPane().add(boundAction);
+        parent.getComponentTaskMap().put(component, getTaskPane().getName() + "#" + callbackMethod);
+        
         getPopupMenu().add(boundAction);
     }
 
@@ -172,11 +174,11 @@ public abstract class ClientPanelPlugin extends ClientPlugin {
     }
 
     public void enableSave() {
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 
     public void disableSave() {
-        parent.disableSave();
+        parent.setSaveEnabled(false);
     }
 
     public int getRefreshIndex() {

@@ -168,7 +168,7 @@ public class LLPListener extends ConnectorClass {
         endOfMessageCharacterField.setText((String) props.get(LLPListenerProperties.LLP_END_OF_MESSAGE_CHARACTER));
         recordSeparatorField.setText((String) props.get(LLPListenerProperties.LLP_RECORD_SEPARATOR));
         segmentEnd.setText((String) props.get(LLPListenerProperties.LLP_SEGMENT_END));
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         if (((String) props.get(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION)) {
             sendACKTransformerActionPerformed(null);
@@ -230,7 +230,7 @@ public class LLPListener extends ConnectorClass {
             useStrictLLPNo.setSelected(true);
         }
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
     }
 
     public Properties getDefaults() {
@@ -998,7 +998,7 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
     }// GEN-LAST:event_responseFromTransformerActionPerformed
 
     public void updateResponseDropDown() {
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         String selectedItem = (String) responseFromTransformer.getSelectedItem();
 
@@ -1086,7 +1086,7 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
             sendACKNoActionPerformed(null);
         }
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
     }
 
     private void sendACKTransformerActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_sendACKTransformerActionPerformed

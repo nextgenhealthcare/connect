@@ -90,7 +90,7 @@ public class DestinationTableCellEditor extends AbstractCellEditor implements Ta
             }
         }
 
-        parent.enableSave();
+        parent.setSaveEnabled(true);
         // set the name to the new name.
         for (int i = 0; i < destinationConnectors.size(); i++) {
             if (destinationConnectors.get(i).getName().equalsIgnoreCase((String) originalValue)) {

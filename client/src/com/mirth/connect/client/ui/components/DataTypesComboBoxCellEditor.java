@@ -69,7 +69,7 @@ public class DataTypesComboBoxCellEditor extends MirthComboBoxCellEditor {
             }
         }
         
-        PlatformUI.MIRTH_FRAME.enableSave();
+        PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
     }
     
     private MessageObject.Protocol getProtocol(String dataType) {

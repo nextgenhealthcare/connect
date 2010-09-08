@@ -85,7 +85,7 @@ public class TCPListener extends ConnectorClass {
         receiveTimeoutField.setText((String) props.get(TCPListenerProperties.TCP_RECEIVE_TIMEOUT));
         bufferSizeField.setText((String) props.get(TCPListenerProperties.TCP_BUFFER_SIZE));
 
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         updateResponseDropDown();
 
@@ -114,7 +114,7 @@ public class TCPListener extends ConnectorClass {
         ackAddressField.setText((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_IP));
         ackPortField.setText((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_PORT));
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
     }
 
     public Properties getDefaults() {
@@ -414,7 +414,7 @@ public class TCPListener extends ConnectorClass {
     }//GEN-LAST:event_dataTypeASCIIActionPerformed
 
     public void updateResponseDropDown() {
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         String selectedItem = (String) responseFromTransformer.getSelectedItem();
 
@@ -496,7 +496,7 @@ public class TCPListener extends ConnectorClass {
             responseFromLabel.setEnabled(true);
         }
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
     }
 
     private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionNoActionPerformed

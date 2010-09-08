@@ -111,7 +111,7 @@ public class JMSReader extends ConnectorClass {
     public void setProperties(Properties props) {
         resetInvalidProperties();
 
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         specDropDown.setSelectedItem(props.get(JMSReaderProperties.JMS_SPECIFICATION));
 
@@ -160,7 +160,7 @@ public class JMSReader extends ConnectorClass {
             ackMode.setSelectedItem(DUPLICATES_OK);
         }
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
     }
 
     public Properties getDefaults() {
@@ -239,7 +239,7 @@ public class JMSReader extends ConnectorClass {
                 if (checkProperties && (s.length() == 0 || checkUniqueProperty(s))) {
                     super.cancelCellEditing();
                 } else {
-                    parent.enableSave();
+                    parent.setSaveEnabled(true);
                 }
 
                 deleteButton.setEnabled(true);
@@ -746,7 +746,7 @@ public class JMSReader extends ConnectorClass {
                 }
             }
 
-            parent.enableSave();
+            parent.setSaveEnabled(true);
         }
     }// GEN-LAST:event_deleteButtonActionPerformed
 
@@ -754,7 +754,7 @@ public class JMSReader extends ConnectorClass {
     {// GEN-HEADEREND:event_newButtonActionPerformed
         ((DefaultTableModel) propertiesTable.getModel()).addRow(new Object[]{getNewPropertyName(), ""});
         propertiesTable.setRowSelectionInterval(propertiesTable.getRowCount() - 1, propertiesTable.getRowCount() - 1);
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }// GEN-LAST:event_newButtonActionPerformed
 
     private void durableYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_durableYesActionPerformed

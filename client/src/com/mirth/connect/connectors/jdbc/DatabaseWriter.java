@@ -94,7 +94,7 @@ public class DatabaseWriter extends ConnectorClass {
     public void setProperties(Properties props) {
         resetInvalidProperties();
 
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         for (int i = 0; i < drivers.size(); i++) {
             DriverInfo driver = drivers.get(i);
@@ -103,7 +103,7 @@ public class DatabaseWriter extends ConnectorClass {
             }
         }
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
         databaseURLField.setText((String) props.get(DatabaseWriterProperties.DATABASE_URL));
         databaseUsernameField.setText((String) props.get(DatabaseWriterProperties.DATABASE_USERNAME));
         databasePasswordField.setText((String) props.get(DatabaseWriterProperties.DATABASE_PASSWORD));
@@ -400,7 +400,7 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
 
     databaseURLField.setText(template);
     databaseURLField.grabFocus();
-    parent.enableSave();
+    parent.setSaveEnabled(true);
 
 }//GEN-LAST:event_insertURLTemplateButtonActionPerformed
 
@@ -438,7 +438,7 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
             databaseSQLTextPane.setSelectedText("\n" + connectionString.toString());
         }
 
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 
     private String generateConnectionString() {
@@ -465,7 +465,7 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
         databaseSQLTextPane.setText(generateConnectionString() + "\n\n" + databaseSQLTextPane.getText());
         databaseSQLTextPane.requestFocus();
         databaseSQLTextPane.setCaretPosition(databaseSQLTextPane.getText().indexOf("\n\n") + 1);
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }// GEN-LAST:event_generateConnectionActionPerformed
 
     private void useJavaScriptYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useJavaScriptYesActionPerformed

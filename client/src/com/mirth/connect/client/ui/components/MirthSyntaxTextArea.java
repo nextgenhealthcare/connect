@@ -191,15 +191,15 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         this.getDocument().addDocumentListener(new DocumentListener() {
 
             public void changedUpdate(DocumentEvent e) {
-                parent.enableSave();
+                parent.setSaveEnabled(true);
             }
 
             public void removeUpdate(DocumentEvent e) {
-                parent.enableSave();
+                parent.setSaveEnabled(true);
             }
 
             public void insertUpdate(DocumentEvent e) {
-                parent.enableSave();
+                parent.setSaveEnabled(true);
             }
         });
     }
@@ -213,9 +213,9 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         super.setText(t);
 
         if (visible) {
-            parent.enableSave();
+            parent.setSaveEnabled(true);
         } else {
-            parent.disableSave();
+            parent.setSaveEnabled(false);
         }
     }
 

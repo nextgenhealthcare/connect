@@ -33,6 +33,6 @@ public class MirthRadioButton extends javax.swing.JRadioButton {
     }
 
     public void radioButtonChanged(java.awt.event.ActionEvent evt) {
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 }

@@ -104,7 +104,7 @@ public class JMSWriter extends ConnectorClass {
     public void setProperties(Properties props) {
         resetInvalidProperties();
 
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         specDropDown.setSelectedItem(props.get(JMSWriterProperties.JMS_SPECIFICATION));
 
@@ -145,7 +145,7 @@ public class JMSWriter extends ConnectorClass {
 
         templateTextArea.setText((String) props.get(JMSWriterProperties.JMS_TEMPLATE));
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
     }
 
     public Properties getDefaults() {
@@ -224,7 +224,7 @@ public class JMSWriter extends ConnectorClass {
                 if (checkProperties && (s.length() == 0 || checkUniqueProperty(s))) {
                     super.cancelCellEditing();
                 } else {
-                    parent.enableSave();
+                    parent.setSaveEnabled(true);
                 }
 
                 deleteButton.setEnabled(true);
@@ -678,7 +678,7 @@ public class JMSWriter extends ConnectorClass {
                 }
             }
 
-            parent.enableSave();
+            parent.setSaveEnabled(true);
         }
     }// GEN-LAST:event_deleteButtonActionPerformed
 
@@ -686,7 +686,7 @@ public class JMSWriter extends ConnectorClass {
     {// GEN-HEADEREND:event_newButtonActionPerformed
         ((DefaultTableModel) propertiesTable.getModel()).addRow(new Object[]{getNewPropertyName(), ""});
         propertiesTable.setRowSelectionInterval(propertiesTable.getRowCount() - 1, propertiesTable.getRowCount() - 1);
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }// GEN-LAST:event_newButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthComboBox ackMode;

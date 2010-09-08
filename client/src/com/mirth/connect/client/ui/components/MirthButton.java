@@ -33,6 +33,6 @@ public class MirthButton extends javax.swing.JButton {
     }
 
     public void buttonPressed(java.awt.event.ActionEvent evt) {
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 }

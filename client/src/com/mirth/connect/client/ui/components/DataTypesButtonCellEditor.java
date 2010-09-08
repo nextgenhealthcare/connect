@@ -59,7 +59,7 @@ public class DataTypesButtonCellEditor extends MirthButtonCellEditor {
             loadPropertiesEditor(dataType, currentChannel.getDestinationConnectors().get(selectedRow).getTransformer().getOutboundProperties());
         }
         
-        PlatformUI.MIRTH_FRAME.enableSave();
+        PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
     }
     
     private void loadPropertiesEditor(String dataType, Properties dataProperties) {

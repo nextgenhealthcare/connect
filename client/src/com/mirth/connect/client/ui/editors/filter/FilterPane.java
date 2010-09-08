@@ -1101,7 +1101,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             parent.setFocus(parent.channelEditTasks);
             parent.setPanelName("Edit Channel - " + parent.channelEditPanel.currentChannel.getName());
             if (modified) {
-                parent.enableSave();
+                parent.setSaveEnabled(true);
             }
 
             parent.channelEditPanel.updateComponentShown();

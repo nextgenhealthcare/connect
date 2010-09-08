@@ -1080,7 +1080,7 @@ public class TransformerPane extends MirthEditorPane implements
         }
 
         updateStepNumbers();
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 
     public List<Step> buildStepList(List<Step> list, int endingRow) {
@@ -1198,7 +1198,7 @@ public class TransformerPane extends MirthEditorPane implements
                 parent.setFocus(parent.channelEditTasks);
                 parent.setPanelName("Edit Channel - " + parent.channelEditPanel.currentChannel.getName());
                 if (modified) {
-                    parent.enableSave();
+                    parent.setSaveEnabled(true);
                 }
                 parent.channelEditPanel.updateComponentShown();
                 modified = false;

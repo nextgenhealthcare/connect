@@ -210,7 +210,7 @@ public class WebServiceSender extends ConnectorClass {
         }
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
 
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         channelNames.setSelectedItem(selectedChannelName);
 
@@ -230,7 +230,7 @@ public class WebServiceSender extends ConnectorClass {
 
         operationComboBox.setSelectedItem(props.getProperty(WebServiceSenderProperties.WEBSERVICE_OPERATION));
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
 
         ArrayList<ArrayList<String>> attachments = new ArrayList<ArrayList<String>>();
         ArrayList<String> attachmentNames = new ArrayList<String>();
@@ -488,7 +488,7 @@ public class WebServiceSender extends ConnectorClass {
                 if (checkUnique && (s.length() == 0 || checkUnique(s))) {
                     super.cancelCellEditing();
                 } else {
-                    parent.enableSave();
+                    parent.setSaveEnabled(true);
                 }
 
                 deleteButton.setEnabled(true);
@@ -1046,7 +1046,7 @@ private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     attachmentsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
 
     attachmentsPane.getViewport().setViewPosition(new Point(0, attachmentsTable.getRowHeight() * attachmentsTable.getModel().getRowCount()));
-    parent.enableSave();
+    parent.setSaveEnabled(true);
 }//GEN-LAST:event_newButtonActionPerformed
 
 private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
@@ -1060,7 +1060,7 @@ private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 
     ((DefaultTableModel) attachmentsTable.getModel()).removeRow(selectedModelIndex);
 
-    parent.enableSave();
+    parent.setSaveEnabled(true);
 
     if (attachmentsTable.getModel().getRowCount() == 0) {
         attachmentsTable.clearSelection();
@@ -1069,7 +1069,7 @@ private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         attachmentsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
     }
 
-    parent.enableSave();
+    parent.setSaveEnabled(true);
 }//GEN-LAST:event_deleteButtonActionPerformed
 
 private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getOperationsButtonActionPerformed
@@ -1112,7 +1112,7 @@ private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) 
                 portField.setText(portName);
             }
 
-            parent.enableSave();
+            parent.setSaveEnabled(true);
 
             parent.setWorking("", false);
         }
@@ -1146,7 +1146,7 @@ private void generateEnvelopeActionPerformed(java.awt.event.ActionEvent evt) {//
         public void done() {
             if (generatedEnvelope != null) {
                 soapEnvelope.setText(generatedEnvelope);
-                parent.enableSave();
+                parent.setSaveEnabled(true);
             }
 
             parent.setWorking("", false);

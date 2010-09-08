@@ -465,9 +465,9 @@ public class ChannelSetup extends javax.swing.JPanel {
             destinationConnectors = currentChannel.getDestinationConnectors();
             for (int i = 0; i < destinationConnectors.size(); i++) {
                 if (destinationConnectors.get(i).getName().equalsIgnoreCase(destinationName)) {
-                    boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+                    boolean enabled = parent.isSaveEnabled();
                     destinationSourceDropdown.setSelectedItem(destinationConnectors.get(i).getTransportName());
-                    parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+                    parent.setSaveEnabled(enabled);
 
                     return true;
                 }
@@ -531,7 +531,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         loadingChannel = false;
         channelView.setSelectedIndex(0);
         summaryNameField.requestFocus();
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 
     private void setLastModified() {
@@ -654,7 +654,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
         }
 
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         sourceSourceDropdown.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
 
@@ -664,7 +664,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             initialState.setSelectedItem("Stopped");
         }
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
     }
 
     /**
@@ -888,7 +888,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     public void addNewDestination() {
         makeDestinationTable(true);
         destinationTablePane.getViewport().setViewPosition(new Point(0, destinationTable.getRowHeight() * destinationTable.getRowCount()));
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 
     public void cloneDestination() {
@@ -913,7 +913,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         destination.setName(getNewDestinationName(destinationConnectors.size() + 1));
         destinationConnectors.add(destination);
         makeDestinationTable(false);
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 
     public void enableDestination() {
@@ -921,7 +921,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         Connector destination = destinationConnectors.get(destinationTable.getSelectedModelIndex());
         destination.setEnabled(true);
         makeDestinationTable(false);
-        parent.enableSave();
+        parent.setSaveEnabled(true);
 
         // If validation has failed, then highlight any errors on this form.
         if (channelValidationFailed) {
@@ -947,7 +947,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         Connector destination = destinationConnectors.get(destinationTable.getSelectedModelIndex());
         destination.setEnabled(false);
         makeDestinationTable(false);
-        parent.enableSave();
+        parent.setSaveEnabled(true);
 
         // If validation has failed then errors might be highlighted.
         // Remove highlights on this form.
@@ -981,7 +981,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         destinationConnectors.remove(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME))));
 
         makeDestinationTable(false);
-        parent.enableSave();
+        parent.setSaveEnabled(true);
         isDeleting = false;
     }
 
@@ -1034,7 +1034,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         makeDestinationTable(false);
         setDestinationVariableList();
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 
     /**
@@ -1049,7 +1049,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         makeDestinationTable(false);
         setDestinationVariableList();
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 
     /**
@@ -2120,7 +2120,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         loadingChannel = false;
 
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;

@@ -33,6 +33,6 @@ public class MirthCheckBox extends javax.swing.JCheckBox {
     }
 
     public void checkBoxChanged(java.awt.event.ActionEvent evt) {
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 }

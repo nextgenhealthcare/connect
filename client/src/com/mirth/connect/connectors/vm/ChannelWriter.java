@@ -72,7 +72,7 @@ public class ChannelWriter extends ConnectorClass {
 
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
 
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         channelNames.setSelectedItem(selectedChannelName);
 
@@ -84,7 +84,7 @@ public class ChannelWriter extends ConnectorClass {
 
         template.setText((String) props.get(ChannelWriterProperties.CHANNEL_TEMPLATE));
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
     }
 
     public Properties getDefaults() {

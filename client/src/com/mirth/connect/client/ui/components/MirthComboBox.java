@@ -53,6 +53,6 @@ public class MirthComboBox extends javax.swing.JComboBox {
     }
 
     public void comboBoxChanged(java.awt.event.ActionEvent evt) {
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 }

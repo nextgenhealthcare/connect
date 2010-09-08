@@ -216,12 +216,11 @@ public class DICOMSender extends ConnectorClass {
             uidnegrspNo.setSelected(true);
         }
 
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         updateResponseDropDown();
 
-
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        parent.setSaveEnabled(enabled);
     }
 
     @Override
@@ -1105,8 +1104,7 @@ public class DICOMSender extends ConnectorClass {
 
     @Override
     public void updateResponseDropDown() {
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
-
+        boolean enabled = parent.isSaveEnabled();
 
         Channel channel = parent.channelEditPanel.currentChannel;
 
@@ -1165,7 +1163,8 @@ public class DICOMSender extends ConnectorClass {
                 }
             }
         }
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+
+        parent.setSaveEnabled(enabled);
     }
 
     private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionNoActionPerformed

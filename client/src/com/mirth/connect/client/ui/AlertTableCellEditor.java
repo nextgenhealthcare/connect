@@ -92,7 +92,7 @@ public class AlertTableCellEditor extends AbstractCellEditor implements TableCel
             }
         }
 
-        parent.enableSave();
+        parent.setSaveEnabled(true);
         // set the name to the new name.
         for (int i = 0; i < alerts.size(); i++) {
             if (alerts.get(i).getName().equalsIgnoreCase((String) originalValue)) {

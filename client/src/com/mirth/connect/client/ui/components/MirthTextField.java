@@ -122,11 +122,11 @@ public class MirthTextField extends javax.swing.JTextField implements MirthTextI
             }
 
             public void removeUpdate(DocumentEvent e) {
-                parent.enableSave();
+                parent.setSaveEnabled(true);
             }
 
             public void insertUpdate(DocumentEvent e) {
-                parent.enableSave();
+                parent.setSaveEnabled(true);
             }
         });
     }
@@ -138,7 +138,7 @@ public class MirthTextField extends javax.swing.JTextField implements MirthTextI
     @Override
     public void setText(String t) {
         super.setText(t);
-        parent.disableSave();
+        parent.setSaveEnabled(false);
     }
     
     /**

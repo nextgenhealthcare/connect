@@ -115,11 +115,11 @@ public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInt
             }
 
             public void removeUpdate(DocumentEvent e) {
-                parent.enableSave();
+                parent.setSaveEnabled(true);
             }
 
             public void insertUpdate(DocumentEvent e) {
-                parent.enableSave();
+                parent.setSaveEnabled(true);
             }
         });
     }
@@ -130,6 +130,6 @@ public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInt
      */
     public void setText(String t) {
         super.setText(t);
-        parent.disableSave();
+        parent.setSaveEnabled(false);
     }
 }

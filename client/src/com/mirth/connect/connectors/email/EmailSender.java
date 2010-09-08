@@ -292,7 +292,7 @@ public class EmailSender extends ConnectorClass {
                 if (checkAttachments && (s.length() == 0 || checkUniqueAttachment(s))) {
                     super.cancelCellEditing();
                 } else {
-                    parent.enableSave();
+                    parent.setSaveEnabled(true);
                 }
 
                 deleteButton.setEnabled(true);
@@ -748,7 +748,7 @@ public class EmailSender extends ConnectorClass {
 private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
     ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[]{getNewAttachmentName(attachmentsTable), ""});
     attachmentsTable.setRowSelectionInterval(attachmentsTable.getRowCount() - 1, attachmentsTable.getRowCount() - 1);
-    parent.enableSave();
+    parent.setSaveEnabled(true);
 }//GEN-LAST:event_newButtonActionPerformed
 
 private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
@@ -765,7 +765,7 @@ private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
             }
         }
 
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 }//GEN-LAST:event_deleteButtonActionPerformed
 

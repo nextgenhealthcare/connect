@@ -263,7 +263,7 @@ public class AlertPanel extends javax.swing.JPanel {
 
             public void valueChanged(ListSelectionEvent e) {
                 if (applyToChannelsTable.convertColumnIndexToModel(applyToChannelsTable.getSelectedColumn()) == 1) {
-                    parent.enableSave();
+                    parent.setSaveEnabled(true);
                 }
             }
         });
@@ -387,7 +387,7 @@ public class AlertPanel extends javax.swing.JPanel {
             return false;
         }
 
-        boolean changed = parent.alertTasks.getContentPane().getComponent(1).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         Alert current = parent.alerts.get(index);
         updateApplyToChannelsTable(current);
@@ -400,7 +400,7 @@ public class AlertPanel extends javax.swing.JPanel {
         split.setRightComponent(bottomPane);
         split.setDividerLocation(dividerLocation);
 
-        parent.alertTasks.getContentPane().getComponent(1).setVisible(changed);
+        parent.setSaveEnabled(enabled);
 
         return true;
     }
@@ -412,7 +412,7 @@ public class AlertPanel extends javax.swing.JPanel {
 
         int index = lastAlertRow;
 
-        boolean changed = parent.alertTasks.getContentPane().getComponent(1).isVisible();
+        boolean enabled = parent.isSaveEnabled();
 
         Alert current = parent.alerts.get(index);
         current.setChannels(getChannels());
@@ -424,8 +424,8 @@ public class AlertPanel extends javax.swing.JPanel {
         current.setEmails(getEmails());
         current.setSubject(emailSubjectField.getText());
         current.setTemplate(template.getText());
-
-        parent.alertTasks.getContentPane().getComponent(1).setVisible(changed);
+        
+        parent.setSaveEnabled(enabled);
 
         return true;
     }
@@ -505,7 +505,7 @@ public class AlertPanel extends javax.swing.JPanel {
         alertTable.setRowSelectionInterval(newViewIndex, newViewIndex);
 
         alertPane.getViewport().setViewPosition(new Point(0, alertTable.getRowHeight() * alertTable.getModel().getRowCount()));
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 
     public void enableAlert() {
@@ -516,7 +516,7 @@ public class AlertPanel extends javax.swing.JPanel {
         alertTable.getModel().setValueAt(enabled, alertTable.getSelectedModelIndex(), alertTable.getColumnModelIndex(ALERT_STATUS_COLUMN_NAME));
 
         checkVisibleAlertTasks();
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 
     public void disableAlert() {
@@ -527,7 +527,7 @@ public class AlertPanel extends javax.swing.JPanel {
         alertTable.getModel().setValueAt(disabled, alertTable.getSelectedModelIndex(), alertTable.getColumnModelIndex(ALERT_STATUS_COLUMN_NAME));
 
         checkVisibleAlertTasks();
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }
 
     public void deleteAlert() {
@@ -552,7 +552,7 @@ public class AlertPanel extends javax.swing.JPanel {
         parent.alerts.remove(selectedModelIndex);
         model.removeRow(selectedModelIndex);
 
-        parent.enableSave();
+        parent.setSaveEnabled(true);
 
         isDeletingAlert = false;
 
@@ -604,7 +604,7 @@ public class AlertPanel extends javax.swing.JPanel {
 
             public boolean stopCellEditing() {
                 String s = (String) getCellEditorValue();
-                parent.enableSave();
+                parent.setSaveEnabled(true);
                 removeButton.setEnabled(true);
                 return super.stopCellEditing();
             }
@@ -979,7 +979,7 @@ public class AlertPanel extends javax.swing.JPanel {
                 emailsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
             }
 
-            parent.enableSave();
+            parent.setSaveEnabled(true);
         }
     }// GEN-LAST:event_removeButtonActionPerformed
 
@@ -988,7 +988,7 @@ public class AlertPanel extends javax.swing.JPanel {
         stopEmailEditing();
         ((DefaultTableModel) emailsTable.getModel()).addRow(new Object[]{""});
         emailsTable.setRowSelectionInterval(emailsTable.getRowCount() - 1, emailsTable.getRowCount() - 1);
-        parent.enableSave();
+        parent.setSaveEnabled(true);
     }// GEN-LAST:event_addButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
