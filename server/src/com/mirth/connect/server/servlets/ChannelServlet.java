@@ -11,6 +11,8 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -19,45 +21,69 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class ChannelServlet extends MirthServlet {
-	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!isUserLoggedIn(request)) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN);
-		} else if (!isUserAuthorized(request)) {
-		    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-		} else {
-			try {
-				ChannelController channelController = ControllerFactory.getFactory().createChannelController();
-				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-				PrintWriter out = response.getWriter();
-				String operation = request.getParameter("op");
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (!isUserLoggedIn(request)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        } else {
+            try {
+                ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                PrintWriter out = response.getWriter();
+                String operation = request.getParameter("op");
 
-				if (operation.equals(Operations.CHANNEL_GET)) {
-					response.setContentType("application/xml");
-					Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
-					out.println(serializer.toXML(channelController.getChannel(channel)));
-				} else if (operation.equals(Operations.CHANNEL_UPDATE)) {
-					response.setContentType("text/plain");
-					Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
-					boolean override = Boolean.valueOf(request.getParameter("override")).booleanValue();
-					// NOTE: This needs to be print rather than println to avoid the newline
-					out.print(channelController.updateChannel(channel, override));
-				} else if (operation.equals(Operations.CHANNEL_REMOVE)) {
-					Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
-					channelController.removeChannel(channel);
-				} else if (operation.equals(Operations.CHANNEL_GET_SUMMARY)) {
-					response.setContentType("application/xml");
-					Map<String, Integer> cachedChannels = (Map<String, Integer>) serializer.fromXML(request.getParameter("cachedChannels"));
-					out.println(serializer.toXML(channelController.getChannelSummary(cachedChannels)));
-				}
-			} catch (Exception e) {
-				throw new ServletException(e);
-			}
-		}
-	}
+                if (operation.equals(Operations.CHANNEL_GET)) {
+                    response.setContentType("application/xml");
+                    List<Channel> channels = null;
+                    
+                    if (!isUserAuthorized(request)) {
+                        channels = new ArrayList<Channel>();
+                    } else {
+                        Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
+                        channels = channelController.getChannel(channel);
+                    }
+                    
+                    out.println(serializer.toXML(channels));
+                } else if (operation.equals(Operations.CHANNEL_UPDATE)) {
+                    if (!isUserAuthorized(request)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        response.setContentType("text/plain");
+                        Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
+                        boolean override = Boolean.valueOf(request.getParameter("override")).booleanValue();
+                        // NOTE: This needs to be print rather than println to
+                        // avoid the newline
+                        out.print(channelController.updateChannel(channel, override));
+                    }
+                } else if (operation.equals(Operations.CHANNEL_REMOVE)) {
+                    if (!isUserAuthorized(request)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
+                        channelController.removeChannel(channel);
+                    }
+                } else if (operation.equals(Operations.CHANNEL_GET_SUMMARY)) {
+                    response.setContentType("application/xml");
+                    List<ChannelSummary> channels = null;
+                    
+                    if (!isUserAuthorized(request)) {
+                        channels = new ArrayList<ChannelSummary>();
+                    } else {
+                        Map<String, Integer> cachedChannels = (Map<String, Integer>) serializer.fromXML(request.getParameter("cachedChannels"));
+                        channels = channelController.getChannelSummary(cachedChannels);
+                    }
+                    
+                    out.println(serializer.toXML(channels));
+                }
+            } catch (Exception e) {
+                throw new ServletException(e);
+            }
+        }
+    }
 
 }

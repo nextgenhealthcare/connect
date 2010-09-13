@@ -11,12 +11,15 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.mirth.connect.client.core.Operations;
+import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ChannelStatusController;
 import com.mirth.connect.server.controllers.ControllerException;
@@ -26,8 +29,6 @@ public class ChannelStatusServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else if (!isUserAuthorized(request)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             try {
                 ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
@@ -36,16 +37,40 @@ public class ChannelStatusServlet extends MirthServlet {
                 String operation = request.getParameter("op");
 
                 if (operation.equals(Operations.CHANNEL_START)) {
-                    channelStatusController.startChannel(request.getParameter("id"));
+                    if (!isUserAuthorized(request)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        channelStatusController.startChannel(request.getParameter("id"));
+                    }
                 } else if (operation.equals(Operations.CHANNEL_STOP)) {
-                    channelStatusController.stopChannel(request.getParameter("id"));
+                    if (!isUserAuthorized(request)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        channelStatusController.stopChannel(request.getParameter("id"));
+                    }
                 } else if (operation.equals(Operations.CHANNEL_PAUSE)) {
-                    channelStatusController.pauseChannel(request.getParameter("id"));
+                    if (!isUserAuthorized(request)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        channelStatusController.pauseChannel(request.getParameter("id"));
+                    }
                 } else if (operation.equals(Operations.CHANNEL_RESUME)) {
-                    channelStatusController.resumeChannel(request.getParameter("id"));
+                    if (!isUserAuthorized(request)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        channelStatusController.resumeChannel(request.getParameter("id"));
+                    }
                 } else if (operation.equals(Operations.CHANNEL_GET_STATUS)) {
                     response.setContentType("application/xml");
-                    out.print(serializer.toXML(channelStatusController.getChannelStatusList()));
+                    List<ChannelStatus> channels = null;
+                    
+                    if (!isUserAuthorized(request)) {
+                        channels = new ArrayList<ChannelStatus>();
+                    } else {
+                        channels = channelStatusController.getChannelStatusList();
+                    }
+                    
+                    out.print(serializer.toXML(channels));
                 }
             } catch (ControllerException e) {
                 throw new ServletException(e);
