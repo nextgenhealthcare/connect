@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry combineaccessrules="false" kind="src" path="/Server"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Server"/>
 	<classpathentry kind="lib" path="lib/databinding-0.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/l2fprod-common-sheet.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
