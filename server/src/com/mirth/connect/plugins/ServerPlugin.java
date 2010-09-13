@@ -24,5 +24,11 @@ public interface ServerPlugin {
 
     public Object invoke(String method, Object object, String sessionId) throws Exception;
 
+    /**
+     * Returns the default properties for this plugin, or an empty Properties if
+     * there are none.
+     * 
+     * @return
+     */
     public Properties getDefaultProperties();
 }

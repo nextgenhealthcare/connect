@@ -88,6 +88,8 @@ public final class ServerConnection {
                 throw new VersionMismatchException(post.getStatusLine().toString());
             } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
                 throw new InvalidLoginException(post.getStatusLine().toString());
+            } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+                throw new UnauthorizedException(post.getStatusLine().toString());
             } else if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
                 throw new ClientException("method failed: " + post.getStatusLine());
             }
@@ -126,6 +128,8 @@ public final class ServerConnection {
                 throw new VersionMismatchException(post.getStatusLine().toString());
             } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
                 throw new InvalidLoginException(post.getStatusLine().toString());
+            } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+                throw new UnauthorizedException(post.getStatusLine().toString());
             } else if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
                 throw new ClientException("method failed: " + post.getStatusLine());
             }

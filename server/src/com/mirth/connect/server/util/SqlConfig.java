@@ -55,13 +55,17 @@ public class SqlConfig {
                     Map<String, PluginMetaData> plugins = ControllerFactory.getFactory().createExtensionController().getPluginMetaData();
                     String database = PropertyLoader.getProperty(PropertyLoader.loadProperties("mirth"), "database");
                     BufferedReader br = new BufferedReader(Resources.getResourceAsReader(database + File.separator + database + "-SqlMapConfig.xml"));
-                    Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(br));
+
+                    // Parse the SqlMapConfig (ignoring the DTD)
+                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+                    Document document = factory.newDocumentBuilder().parse(new InputSource(br));
                     Element sqlMapConfigElement = document.getDocumentElement();
 
                     if (plugins != null) {
                         for (String pluginName : plugins.keySet()) {
                             PluginMetaData pmd = plugins.get(pluginName);
-    
+
                             if (pmd.getSqlMapConfigs() != null) {
                                 if (pmd.getSqlMapConfigs().get(database) != null) {
                                     String sqlMapConfigPath = ExtensionController.getExtensionsPath() + pmd.getPath() + File.separator + pmd.getSqlMapConfigs().get(database);

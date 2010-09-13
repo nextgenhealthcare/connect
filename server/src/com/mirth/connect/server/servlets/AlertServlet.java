@@ -24,30 +24,32 @@ import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class AlertServlet extends MirthServlet {
-	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!isUserLoggedIn(request)) {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-		} else {
-			try {
-				AlertController alertController = ControllerFactory.getFactory().createAlertController();
-				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-				PrintWriter out = response.getWriter();
-				String operation = request.getParameter("op");
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (!isUserLoggedIn(request)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        } else if (!isUserAuthorized(request)) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        } else {
+            try {
+                AlertController alertController = ControllerFactory.getFactory().createAlertController();
+                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                PrintWriter out = response.getWriter();
+                String operation = request.getParameter("op");
 
-				if (operation.equals(Operations.ALERT_GET)) {
-					response.setContentType("application/xml");
-					Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
-					out.println(serializer.toXML(alertController.getAlert(alert)));
-				} else if (operation.equals(Operations.ALERT_UPDATE)) {
-					List<Alert> alerts = (List<Alert>) serializer.fromXML(request.getParameter("alerts"));
-					alertController.updateAlerts(alerts);
-				} else if (operation.equals(Operations.ALERT_REMOVE)) {
-					Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
-					alertController.removeAlert(alert);
-				}
-			} catch (Exception e) {
-				throw new ServletException(e);
-			}
-		}
-	}
+                if (operation.equals(Operations.ALERT_GET)) {
+                    response.setContentType("application/xml");
+                    Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
+                    out.println(serializer.toXML(alertController.getAlert(alert)));
+                } else if (operation.equals(Operations.ALERT_UPDATE)) {
+                    List<Alert> alerts = (List<Alert>) serializer.fromXML(request.getParameter("alerts"));
+                    alertController.updateAlerts(alerts);
+                } else if (operation.equals(Operations.ALERT_REMOVE)) {
+                    Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
+                    alertController.removeAlert(alert);
+                }
+            } catch (Exception e) {
+                throw new ServletException(e);
+            }
+        }
+    }
 }

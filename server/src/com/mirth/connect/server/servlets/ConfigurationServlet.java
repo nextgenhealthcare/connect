@@ -35,6 +35,8 @@ public class ConfigurationServlet extends MirthServlet {
                 response.setContentType("text/plain");
                 out.println(ControllerFactory.getFactory().createConfigurationController().getStatus());
             } else if (!isUserLoggedIn(request)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            } else if (!isUserAuthorized(request)) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             } else {
                 ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();

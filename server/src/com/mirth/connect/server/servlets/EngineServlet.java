@@ -25,6 +25,8 @@ import com.mirth.connect.server.controllers.EngineController;
 public class EngineServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        } else if (!isUserAuthorized(request)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             try {

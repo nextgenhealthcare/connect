@@ -28,52 +28,54 @@ import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.UserController;
 
 public class UserServlet extends MirthServlet {
-	public static final String SESSION_USER = "user";
-	public static final String SESSION_AUTHORIZED = "authorized";
+    public static final String SESSION_USER = "user";
+    public static final String SESSION_AUTHORIZED = "authorized";
 
-	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		UserController userController = ControllerFactory.getFactory().createUserController();
-		EventController systemLogger = ControllerFactory.getFactory().createEventController();
-		PrintWriter out = response.getWriter();
-		String operation = request.getParameter("op");
-		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        UserController userController = ControllerFactory.getFactory().createUserController();
+        EventController systemLogger = ControllerFactory.getFactory().createEventController();
+        PrintWriter out = response.getWriter();
+        String operation = request.getParameter("op");
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
-		if (operation.equals(Operations.USER_LOGIN)) {
-			String username = request.getParameter("username");
-			String password = request.getParameter("password");
-			String version = request.getParameter("version");
-			response.setContentType("text/plain");
-			out.print(login(request, response, userController, systemLogger, username, password, version));
-		} else if (operation.equals(Operations.USER_IS_LOGGED_IN)) {
-			response.setContentType("text/plain");
-			out.print(isUserLoggedIn(request));
-		} else if (!isUserLoggedIn(request)) {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-		} else {
-			try {
-				if (operation.equals(Operations.USER_GET)) {
-					response.setContentType("application/xml");
-					User user = (User) serializer.fromXML(request.getParameter("user"));
-					out.println(serializer.toXML(userController.getUser(user)));
-				} else if (operation.equals(Operations.USER_UPDATE)) {
-					User user = (User) serializer.fromXML(request.getParameter("user"));
-					String password = request.getParameter("password");
-					userController.updateUser(user, password);
-				} else if (operation.equals(Operations.USER_REMOVE)) {
-					User user = (User) serializer.fromXML(request.getParameter("user"));
-					userController.removeUser(user, (Integer) request.getSession().getAttribute(SESSION_USER));
-				} else if (operation.equals(Operations.USER_AUTHORIZE)) {
-					response.setContentType("text/plain");
-					User user = (User) serializer.fromXML(request.getParameter("user"));
-					String password = request.getParameter("password");
-					out.print(userController.authorizeUser(user, password));
-				} else if (operation.equals(Operations.USER_LOGOUT)) {
-					logout(request, userController, systemLogger);
-				} else if (operation.equals(Operations.USER_IS_USER_LOGGED_IN)) {
-					response.setContentType("text/plain");
-					User user = (User) serializer.fromXML(request.getParameter("user"));
-					out.print(userController.isUserLoggedIn(user));
-				} else if (operation.equals(Operations.USER_PREFERENCES_GET)) {
+        if (operation.equals(Operations.USER_LOGIN)) {
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
+            String version = request.getParameter("version");
+            response.setContentType("text/plain");
+            out.print(login(request, response, userController, systemLogger, username, password, version));
+        } else if (operation.equals(Operations.USER_IS_LOGGED_IN)) {
+            response.setContentType("text/plain");
+            out.print(isUserLoggedIn(request));
+        } else if (!isUserLoggedIn(request)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        } else if (!isUserAuthorized(request)) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        } else {
+            try {
+                if (operation.equals(Operations.USER_GET)) {
+                    response.setContentType("application/xml");
+                    User user = (User) serializer.fromXML(request.getParameter("user"));
+                    out.println(serializer.toXML(userController.getUser(user)));
+                } else if (operation.equals(Operations.USER_UPDATE)) {
+                    User user = (User) serializer.fromXML(request.getParameter("user"));
+                    String password = request.getParameter("password");
+                    userController.updateUser(user, password);
+                } else if (operation.equals(Operations.USER_REMOVE)) {
+                    User user = (User) serializer.fromXML(request.getParameter("user"));
+                    userController.removeUser(user, (Integer) request.getSession().getAttribute(SESSION_USER));
+                } else if (operation.equals(Operations.USER_AUTHORIZE)) {
+                    response.setContentType("text/plain");
+                    User user = (User) serializer.fromXML(request.getParameter("user"));
+                    String password = request.getParameter("password");
+                    out.print(userController.authorizeUser(user, password));
+                } else if (operation.equals(Operations.USER_LOGOUT)) {
+                    logout(request, userController, systemLogger);
+                } else if (operation.equals(Operations.USER_IS_USER_LOGGED_IN)) {
+                    response.setContentType("text/plain");
+                    User user = (User) serializer.fromXML(request.getParameter("user"));
+                    out.print(userController.isUserLoggedIn(user));
+                } else if (operation.equals(Operations.USER_PREFERENCES_GET)) {
                     response.setContentType("text/plain");
                     User user = (User) serializer.fromXML(request.getParameter("user"));
                     out.println(serializer.toXML(userController.getUserPreferences(user)));
@@ -82,90 +84,91 @@ public class UserServlet extends MirthServlet {
                     String name = request.getParameter("name");
                     String value = request.getParameter("value");
                     userController.setUserPreference(user, name, value);
-                } 
-			} catch (Exception e) {
-				throw new ServletException(e);
-			}
-		}
-	}
+                }
+            } catch (Exception e) {
+                throw new ServletException(e);
+            }
+        }
+    }
 
-	private boolean login(HttpServletRequest request, HttpServletResponse response, UserController userController, EventController systemLogger, String username, String password, String version) throws ServletException {
-		try {
-			ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-			
-			// if the version of the client in is not the same as the server and the version is not 0.0.0 (bypass)
-			if (!version.equals(configurationController.getServerVersion()) && !version.equals("0.0.0")) {
-				response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
-				return false;
-			}
-			
-			HttpSession session = request.getSession();
-			
-			User user = new User();
-			user.setUsername(username);
-			
-			if (userController.authorizeUser(user, password)) {
-				User validUser =  userController.getUser(user).get(0);
-				
-				// set the sessions attributes
-				session.setAttribute(SESSION_USER, validUser.getId());
-				session.setAttribute(SESSION_AUTHORIZED, true);
-				
-				// this prevents the session from timing out
-				session.setMaxInactiveInterval(-1);
+    private boolean login(HttpServletRequest request, HttpServletResponse response, UserController userController, EventController systemLogger, String username, String password, String version) throws ServletException {
+        try {
+            ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
-				// set the user status to logged in in the database
-				userController.loginUser(validUser);
+            // if the version of the client in is not the same as the server and
+            // the version is not 0.0.0 (bypass)
+            if (!version.equals(configurationController.getServerVersion()) && !version.equals("0.0.0")) {
+                response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
+                return false;
+            }
 
-				// log the event
-				SystemEvent event = new SystemEvent("User logged in.");
-				event.getAttributes().put("Session ID", session.getId());
-				event.getAttributes().put("User ID", validUser.getId());
-				event.getAttributes().put("User Name", validUser.getUsername());
-				systemLogger.logSystemEvent(event);
-				
-				return true;
-			}
+            HttpSession session = request.getSession();
 
-			// failed to login
-			response.sendError(HttpServletResponse.SC_FORBIDDEN);
-			return false;
-		} catch (Exception e) {
-			throw new ServletException(e);
-		}
-	}
+            User user = new User();
+            user.setUsername(username);
 
-	private void logout(HttpServletRequest request, UserController userController, EventController systemLogger) throws ServletException {
-		HttpSession session = request.getSession();
+            if (userController.authorizeUser(user, password)) {
+                User validUser = userController.getUser(user).get(0);
 
-		// save the session id before removing them from the session
-		Integer userId = (Integer) session.getAttribute(SESSION_USER);
-		String sessionId = session.getId();
-		
-		// remove the sessions attributes
-		session.removeAttribute(SESSION_USER);
-		session.removeAttribute(SESSION_AUTHORIZED);
-		
-		// invalidate the current sessions
-		session.invalidate();
+                // set the sessions attributes
+                session.setAttribute(SESSION_USER, validUser.getId());
+                session.setAttribute(SESSION_AUTHORIZED, true);
 
-		// set the user status to logged out in the database
-		User user = new User();
-		user.setId(userId);
+                // this prevents the session from timing out
+                session.setMaxInactiveInterval(-1);
 
-		try {
-			userController.logoutUser(user);	
-		} catch (ControllerException ce) {
-			throw new ServletException(ce);
-		}
-		
-		// delete any temp tables created for this session
-		ControllerFactory.getFactory().createMessageObjectController().removeFilterTable(sessionId);
-		systemLogger.removeFilterTable(sessionId);
-		
-		// log the event
-		SystemEvent event = new SystemEvent("User logged out.");
-		event.getAttributes().put("Session ID", session.getId());
-		systemLogger.logSystemEvent(event);
-	}
+                // set the user status to logged in in the database
+                userController.loginUser(validUser);
+
+                // log the event
+                SystemEvent event = new SystemEvent("User logged in.");
+                event.getAttributes().put("Session ID", session.getId());
+                event.getAttributes().put("User ID", validUser.getId());
+                event.getAttributes().put("User Name", validUser.getUsername());
+                systemLogger.logSystemEvent(event);
+
+                return true;
+            }
+
+            // failed to login
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return false;
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
+
+    private void logout(HttpServletRequest request, UserController userController, EventController systemLogger) throws ServletException {
+        HttpSession session = request.getSession();
+
+        // save the session id before removing them from the session
+        Integer userId = (Integer) session.getAttribute(SESSION_USER);
+        String sessionId = session.getId();
+
+        // remove the sessions attributes
+        session.removeAttribute(SESSION_USER);
+        session.removeAttribute(SESSION_AUTHORIZED);
+
+        // invalidate the current sessions
+        session.invalidate();
+
+        // set the user status to logged out in the database
+        User user = new User();
+        user.setId(userId);
+
+        try {
+            userController.logoutUser(user);
+        } catch (ControllerException ce) {
+            throw new ServletException(ce);
+        }
+
+        // delete any temp tables created for this session
+        ControllerFactory.getFactory().createMessageObjectController().removeFilterTable(sessionId);
+        systemLogger.removeFilterTable(sessionId);
+
+        // log the event
+        SystemEvent event = new SystemEvent("User logged out.");
+        event.getAttributes().put("Session ID", session.getId());
+        systemLogger.logSystemEvent(event);
+    }
 }

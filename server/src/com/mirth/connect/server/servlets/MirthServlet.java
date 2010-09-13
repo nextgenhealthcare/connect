@@ -9,13 +9,31 @@
 
 package com.mirth.connect.server.servlets;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.mirth.connect.server.controllers.AuthorizationController;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+
 public abstract class MirthServlet extends HttpServlet {
-	public boolean isUserLoggedIn(HttpServletRequest request) {
-		HttpSession session = request.getSession();
-		return (session.getAttribute(UserServlet.SESSION_AUTHORIZED) != null) && (session.getAttribute(UserServlet.SESSION_AUTHORIZED).equals(true));
-	}
+    private AuthorizationController authorizationController = ControllerFactory.getFactory().createAuthorizationController();
+
+    public boolean isUserLoggedIn(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        return (session.getAttribute(UserServlet.SESSION_AUTHORIZED) != null) && (session.getAttribute(UserServlet.SESSION_AUTHORIZED).equals(true));
+    }
+
+    public boolean isUserAuthorized(HttpServletRequest request) throws ServletException {
+        HttpSession session = request.getSession();
+
+        try {
+            return authorizationController.isUserAuthorized(session.getAttribute(UserServlet.SESSION_USER).toString(), request.getParameter("op"));    
+        } catch (ControllerException e) {
+            throw new ServletException(e);
+        }
+        
+    }
 }

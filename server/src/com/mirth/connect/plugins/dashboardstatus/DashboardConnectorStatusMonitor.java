@@ -412,7 +412,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin {
     }
 
     public Properties getDefaultProperties() {
-        return null;
+        return new Properties();
     }
 
     public synchronized Object invoke(String method, Object object, String sessionId) {

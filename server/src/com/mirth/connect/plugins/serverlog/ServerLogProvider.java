@@ -146,6 +146,6 @@ public class ServerLogProvider implements ServerPlugin
     }
 
     public Properties getDefaultProperties() {
-        return null;
+        return new Properties();
     }
 }

@@ -91,26 +91,14 @@ public class DefaultExtensionController extends ExtensionController {
                         if (extensionPoint.getMode() == ExtensionPoint.Mode.SERVER && extensionPoint.getType() == ExtensionPoint.Type.SERVER_PLUGIN && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
                             ServerPlugin serverPlugin = (ServerPlugin) Class.forName(extensionPoint.getClassName()).newInstance();
                             String pluginId = extensionPoint.getName();
-                            Properties properties = null;
+                            
+                            // Get the current properties for this plugin
+                            Properties properties = getPluginProperties(pluginId);
 
-                            try {
-                                properties = getPluginProperties(pluginId);
-                                
-                                if (properties == null) {
-                                    properties = serverPlugin.getDefaultProperties();
-                                    
-                                    if (properties != null) {
-                                        setPluginProperties(pluginId, properties);
-                                    }
-                                }
-                            } catch (Exception e) {
+                            // If there aren't any stored, store the default properties for the plugin
+                            if (properties.isEmpty()) {
                                 properties = serverPlugin.getDefaultProperties();
-                                
-                                if (properties == null) {
-                                    properties = new Properties();
-                                }
-                                
-                                setPluginProperties(pluginId, properties);
+                                setPluginProperties(pluginId, properties);                 
                             }
                             
                             serverPlugin.init(properties);

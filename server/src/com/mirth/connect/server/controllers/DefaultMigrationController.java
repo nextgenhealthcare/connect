@@ -12,30 +12,25 @@ package com.mirth.connect.server.controllers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Scanner;
 import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.PluginMetaData;
@@ -150,7 +145,7 @@ public class DefaultMigrationController extends MigrationController {
             logger.error("Could not initialize migration controller.", e);
         }
     }
-    
+
     public void migrateChannels() {
         try {
             for (Channel channel : channelController.getChannel(null)) {
@@ -171,56 +166,34 @@ public class DefaultMigrationController extends MigrationController {
         try {
             for (PluginMetaData plugin : extensionController.getPluginMetaData().values()) {
                 Properties pluginProperties = extensionController.getPluginProperties(plugin.getName());
+                int baseSchemaVersion = -1;
 
-                if (pluginProperties != null) {
-                    int baseSchemaVersion = Integer.parseInt(pluginProperties.getProperty("schema", "-1"));
+                if (pluginProperties.containsKey("schema")) {
+                    baseSchemaVersion = Integer.parseInt(pluginProperties.getProperty("schema", "-1"));
+                }
+                
+                if (plugin.getSqlScript() != null) {
+                    File pluginSqlScriptFile = new File(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript());
+                    Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pluginSqlScriptFile);
+                    TreeMap<Integer, String> scripts = getDeltaScriptsForVersion(baseSchemaVersion, document);
+                    List<String> scriptList = DatabaseUtil.joinSqlStatements(scripts.values());
 
-                    if (plugin.getSqlScript() != null) {
-                        File pluginSqlScriptFile = new File(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript());
-                        String contents = FileUtils.readFileToString(pluginSqlScriptFile);
-                        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(contents)));
-                        TreeMap<Integer, String> scripts = getDiffsForVersion(baseSchemaVersion, document);
-                        List<String> scriptList = new LinkedList<String>();
+                    // if there were no scripts, don't update the schema
+                    // version
+                    if (!scriptList.isEmpty()) {
+                        DatabaseUtil.executeScript(scriptList, false);
+                        int maxSchemaVersion = -1;
 
-                        for (String script : scripts.values()) {
-                            script = script.trim();
-                            StringBuilder sb = new StringBuilder();
-                            boolean blankLine = false;
-                            Scanner scanner = new Scanner(script);
+                        for (Entry<Integer, String> entry : scripts.entrySet()) {
+                            int key = entry.getKey().intValue();
 
-                            while (scanner.hasNextLine()) {
-                                String temp = scanner.nextLine();
-
-                                if (temp.trim().length() > 0)
-                                    sb.append(temp + " ");
-                                else
-                                    blankLine = true;
-
-                                if (blankLine || !scanner.hasNextLine()) {
-                                    scriptList.add(sb.toString().trim());
-                                    blankLine = false;
-                                    sb.delete(0, sb.length());
-                                }
+                            if (key > maxSchemaVersion) {
+                                maxSchemaVersion = key;
                             }
                         }
 
-                        // if there were no scripts, don't update the schema
-                        // version
-                        if (!scriptList.isEmpty()) {
-                            DatabaseUtil.executeScript(scriptList, false);
-                            int maxSchemaVersion = -1;
-
-                            for (Entry<Integer, String> entry : scripts.entrySet()) {
-                                int key = entry.getKey().intValue();
-
-                                if (key > maxSchemaVersion) {
-                                    maxSchemaVersion = key;
-                                }
-                            }
-
-                            pluginProperties.setProperty("schema", String.valueOf(maxSchemaVersion));
-                            extensionController.setPluginProperties(plugin.getName(), pluginProperties);
-                        }
+                        pluginProperties.setProperty("schema", String.valueOf(maxSchemaVersion));
+                        extensionController.setPluginProperties(plugin.getName(), pluginProperties);
                     }
                 }
             }
@@ -229,33 +202,32 @@ public class DefaultMigrationController extends MigrationController {
         }
     }
 
-    private TreeMap<Integer, String> getDiffsForVersion(int version, Document document) throws Exception {
-        TreeMap<Integer, String> scripts = new TreeMap<Integer, String>();
+    private TreeMap<Integer, String> getDeltaScriptsForVersion(int currentVersion, Document document) throws Exception {
+        TreeMap<Integer, String> deltaScripts = new TreeMap<Integer, String>();
         NodeList diffNodes = document.getElementsByTagName("diff");
         String databaseType = configurationController.getDatabaseType();
 
         for (int i = 0; i < diffNodes.getLength(); i++) {
-            Node attribute = diffNodes.item(i).getAttributes().getNamedItem("version");
-            if (attribute != null) {
-                String versionString = attribute.getTextContent();
-
-                int scriptVersion = Integer.parseInt(versionString);
-                if (scriptVersion > version) {
-
+            Node versionAttribute = diffNodes.item(i).getAttributes().getNamedItem("version");
+            
+            if (versionAttribute != null) {
+                int scriptVersion = Integer.parseInt(versionAttribute.getTextContent());
+                
+                if (scriptVersion > currentVersion) {
                     NodeList scriptNodes = ((Element) diffNodes.item(i)).getElementsByTagName("script");
 
                     if (scriptNodes.getLength() == 0) {
-                        throw new Exception("Missing script element for version = " + scriptVersion);
+                        throw new Exception("Missing script element for version: " + scriptVersion);
                     }
 
                     for (int j = 0; j < scriptNodes.getLength(); j++) {
                         Node scriptNode = scriptNodes.item(j);
                         Node scriptNodeAttribute = scriptNode.getAttributes().getNamedItem("type");
-
                         String[] dbTypes = scriptNodeAttribute.getTextContent().split(",");
+                        
                         for (int k = 0; k < dbTypes.length; k++) {
                             if (dbTypes[k].equals("all") || dbTypes[k].equals(databaseType)) {
-                                scripts.put(new Integer(scriptVersion), scriptNode.getTextContent());
+                                deltaScripts.put(new Integer(scriptVersion), scriptNode.getTextContent());
                             }
                         }
                     }
@@ -263,7 +235,7 @@ public class DefaultMigrationController extends MigrationController {
             }
         }
 
-        return scripts;
+        return deltaScripts;
     }
 
     private void createSchema(Connection conn) throws Exception {

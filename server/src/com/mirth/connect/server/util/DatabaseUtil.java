@@ -14,6 +14,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
@@ -26,95 +28,95 @@ import com.ibatis.sqlmap.engine.impl.SqlMapClientImpl;
 import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
 
 public class DatabaseUtil {
-	private static Logger logger = Logger.getLogger(DatabaseUtil.class);
+    private static Logger logger = Logger.getLogger(DatabaseUtil.class);
 
-	public static void executeScript(File script, boolean ignoreErrors) throws Exception {
-		SqlMapClient sqlMap = SqlConfig.getSqlMapClient();
+    public static void executeScript(File script, boolean ignoreErrors) throws Exception {
+        SqlMapClient sqlMap = SqlConfig.getSqlMapClient();
 
-		Connection conn = null;
-		ResultSet resultSet = null;
-		Statement statement = null;
+        Connection conn = null;
+        ResultSet resultSet = null;
+        Statement statement = null;
 
-		try {
-			conn = sqlMap.getDataSource().getConnection();
-			statement = conn.createStatement();
+        try {
+            conn = sqlMap.getDataSource().getConnection();
+            statement = conn.createStatement();
 
-			Scanner s = new Scanner(script);
-			while (s.hasNextLine()) {
-				StringBuilder sb = new StringBuilder();
-				boolean blankLine = false;
+            Scanner s = new Scanner(script);
+            while (s.hasNextLine()) {
+                StringBuilder sb = new StringBuilder();
+                boolean blankLine = false;
 
-				while (s.hasNextLine() && !blankLine) {
-					String temp = s.nextLine();
+                while (s.hasNextLine() && !blankLine) {
+                    String temp = s.nextLine();
 
-					if (temp.trim().length() > 0)
-						sb.append(temp + " ");
-					else
-						blankLine = true;
-				}
+                    if (temp.trim().length() > 0)
+                        sb.append(temp + " ");
+                    else
+                        blankLine = true;
+                }
 
-				String statementString = sb.toString().trim();
-				if (statementString.length() > 0) {
-					try {
-						statement.execute(statementString);
-						conn.commit();
-					} catch (SQLException se) {
-						if (!ignoreErrors) {
-							throw se;
-						} else {
-							logger.error("Error was encountered and ignored while executing statement: " + statementString, se);
-							conn.rollback();
-						}
-					}
-				}
-			}
+                String statementString = sb.toString().trim();
+                if (statementString.length() > 0) {
+                    try {
+                        statement.execute(statementString);
+                        conn.commit();
+                    } catch (SQLException se) {
+                        if (!ignoreErrors) {
+                            throw se;
+                        } else {
+                            logger.error("Error was encountered and ignored while executing statement: " + statementString, se);
+                            conn.rollback();
+                        }
+                    }
+                }
+            }
 
-		} catch (Exception e) {
-			throw new Exception(e);
-		} finally {
-		    DbUtils.closeQuietly(statement);
-		    DbUtils.closeQuietly(resultSet);
-		    DbUtils.closeQuietly(conn);
-		}
-	}
+        } catch (Exception e) {
+            throw new Exception(e);
+        } finally {
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(resultSet);
+            DbUtils.closeQuietly(conn);
+        }
+    }
 
-	public static void executeScript(List<String> script, boolean ignoreErrors) throws Exception {
-		SqlMapClient sqlMap = SqlConfig.getSqlMapClient();
+    public static void executeScript(List<String> script, boolean ignoreErrors) throws Exception {
+        SqlMapClient sqlMap = SqlConfig.getSqlMapClient();
 
-		Connection conn = null;
-		ResultSet resultSet = null;
-		Statement statement = null;
+        Connection conn = null;
+        ResultSet resultSet = null;
+        Statement statement = null;
 
-		try {
-			conn = sqlMap.getDataSource().getConnection();
-			statement = conn.createStatement();
+        try {
+            conn = sqlMap.getDataSource().getConnection();
+            statement = conn.createStatement();
 
-			for (String statementString : script) {
-				statementString = statementString.trim();
-				if (statementString.length() > 0) {
-					try {
-						statement.execute(statementString);
-						conn.commit();
-					} catch (SQLException se) {
-						if (!ignoreErrors) {
-							throw se;
-						} else {
-							logger.error("Error was encountered and ignored while executing statement: " + statementString, se);
-							conn.rollback();
-						}
-					}
-				}
-			}
+            for (String statementString : script) {
+                statementString = statementString.trim();
+                if (statementString.length() > 0) {
+                    try {
+                        statement.execute(statementString);
+                        conn.commit();
+                    } catch (SQLException se) {
+                        if (!ignoreErrors) {
+                            throw se;
+                        } else {
+                            logger.error("Error was encountered and ignored while executing statement: " + statementString, se);
+                            conn.rollback();
+                        }
+                    }
+                }
+            }
 
-		} catch (Exception e) {
-			throw new Exception(e);
-		} finally {
-		    DbUtils.closeQuietly(statement);
-		    DbUtils.closeQuietly(resultSet);
-		    DbUtils.closeQuietly(conn);
-		}
-	}
-	
+        } catch (Exception e) {
+            throw new Exception(e);
+        } finally {
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(resultSet);
+            DbUtils.closeQuietly(conn);
+        }
+    }
+
     public static boolean statementExists(String statement) {
         try {
             SqlMapExecutorDelegate delegate = ((SqlMapClientImpl) SqlConfig.getSqlMapClient()).getDelegate();
@@ -126,5 +128,33 @@ public class DatabaseUtil {
 
         return true;
     }
-	
+
+    public static List<String> joinSqlStatements(Collection<String> scripts) {
+        List<String> scriptList = new ArrayList<String>();
+
+        for (String script : scripts) {
+            script = script.trim();
+            StringBuilder sb = new StringBuilder();
+            boolean blankLine = false;
+            Scanner scanner = new Scanner(script);
+
+            while (scanner.hasNextLine()) {
+                String temp = scanner.nextLine();
+
+                if (temp.trim().length() > 0) {
+                    sb.append(temp + " ");
+                } else {
+                    blankLine = true;
+                }
+
+                if (blankLine || !scanner.hasNextLine()) {
+                    scriptList.add(sb.toString().trim());
+                    blankLine = false;
+                    sb.delete(0, sb.length());
+                }
+            }
+        }
+
+        return scriptList;
+    }
 }

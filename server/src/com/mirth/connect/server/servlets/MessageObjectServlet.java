@@ -29,6 +29,8 @@ import com.mirth.connect.server.util.DICOMUtil;
 public class MessageObjectServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        } else if (!isUserAuthorized(request)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             try {

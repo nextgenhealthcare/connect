@@ -453,20 +453,19 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     public Properties getPropertiesForGroup(String category) {
         logger.debug("retrieving properties: category=" + category);
+        Properties properties = new Properties();
 
         try {
             Map<String, String> result = SqlConfig.getSqlMapClient().queryForMap("Configuration.selectPropertiesForCategory", category, "name", "value");
 
             if (!result.isEmpty()) {
-                Properties properties = new Properties();
                 properties.putAll(result);
-                return properties;
             }
         } catch (Exception e) {
             logger.error("Could not retrieve properties: category=" + category, e);
         }
 
-        return null;
+        return properties;
     }
 
     public String getProperty(String category, String name) {
