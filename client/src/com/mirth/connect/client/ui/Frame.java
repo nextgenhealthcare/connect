@@ -67,6 +67,7 @@ import org.syntax.jedit.JEditTextArea;
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.IgnoredComponent;
+import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.core.UpdateClient;
 import com.mirth.connect.client.ui.browsers.event.EventBrowser;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
@@ -1027,7 +1028,7 @@ public class Frame extends JXFrame {
                 return;
             }
 
-            if (message.indexOf("Unauthorized") != -1 || message.indexOf("reset") != -1) {
+            if (message.indexOf("Forbidden") != -1 || message.indexOf("reset") != -1) {
                 connectionError = true;
                 if (currentContentPage == dashboardPanel) {
                     su.interruptThread();
@@ -1056,6 +1057,10 @@ public class Frame extends JXFrame {
             }
         }
 
+        if (message.indexOf("Unauthorized") != -1) {
+            message = "You are not authorized to peform this action.\n\n" + message;
+        }
+        
         String stackTrace = message + "\n";
         for (int i = 0; i < strace.length; i++) {
             stackTrace += strace[i].toString() + "\n";
@@ -3855,7 +3860,13 @@ public class Frame extends JXFrame {
         try {
             codeTemplates = mirthClient.getCodeTemplate(null);
         } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
+            // If the user is unauthorized and it's the first time (startup, when
+            // codeTemplates is null), then initialize the code templates.
+            if (e.getCause() instanceof UnauthorizedException && codeTemplates == null) {
+                codeTemplates = new ArrayList<CodeTemplate>();
+            } else {
+                alertException(this, e.getStackTrace(), e.getMessage());
+            }
         }
     }
 
