@@ -142,19 +142,6 @@ public class Client {
     }
 
     /**
-     * Returns <code>true</code> if the user is logged in, <code>false</code>
-     * otherwise.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public boolean isLoggedIn() throws ClientException {
-        logger.debug("checking if logged in");
-        NameValuePair[] params = { new NameValuePair("op", Operations.USER_IS_LOGGED_IN) };
-        return Boolean.valueOf(serverConnection.executePostMethod(USER_SERVLET, params));
-    }
-
-    /**
      * Returns a ServerConfiguration object which contains all of the channels,
      * users, alerts and properties stored on the Mirth server.
      * 

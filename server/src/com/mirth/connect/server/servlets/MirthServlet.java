@@ -36,4 +36,8 @@ public abstract class MirthServlet extends HttpServlet {
         }
         
     }
+    
+    protected int getCurrentUserId(HttpServletRequest request) {
+        return Integer.parseInt(request.getSession().getAttribute(UserServlet.SESSION_USER).toString());
+    }
 }

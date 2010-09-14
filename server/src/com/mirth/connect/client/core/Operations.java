@@ -93,7 +93,6 @@ public class Operations {
     public static final String USER_AUTHORIZE = "authorizeUser";
     public static final String USER_LOGIN = "login";
     public static final String USER_LOGOUT = "logout";
-    public static final String USER_IS_LOGGED_IN = "isLoggedIn";
     public static final String USER_IS_USER_LOGGED_IN = "isUserLoggedIn";
     public static final String USER_PREFERENCES_GET = "getUserPreferences";
     public static final String USER_PREFERENCES_SET = "setUserPreference";
