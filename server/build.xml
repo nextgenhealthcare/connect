@@ -92,7 +92,7 @@
 	</target>
 
 	<target name="create-client-core" depends="compile">
-		<jar destfile="${client-core.jar}" basedir="${classes}">
+		<jar destfile="${lib}/${client-core.jar}" basedir="${classes}">
 			<include name="com/mirth/connect/client/core/**" />
 			<include name="com/mirth/connect/model/**" />
 			<include name="com/mirth/connect/util/**" />
@@ -650,11 +650,7 @@
 
 		<!-- copy misc files -->
 		<copy todir="${setup}">
-			<fileset file="${basedir}/mirth-client-core.jar" />
 			<fileset file="${basedir}/mirth-manager.jar" />
-			<fileset file="${basedir}/mirth-cli.jar" />
-			<fileset file="${basedir}/mirth-cli-launcher.jar" />
-			<fileset file="${basedir}/mirth-cli-launcher.xml" />
 			<fileset file="${basedir}/mirth-launcher.xml" />
 			<fileset file="${basedir}/mirth-client.jnlp" />
 			<fileset file="${basedir}/keystore" />

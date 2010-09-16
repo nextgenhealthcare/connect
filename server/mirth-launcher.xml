@@ -1,7 +1,7 @@
 <launcher>
 	<classpath base=".">
 		<lib path="mirth-server.jar" />
-		<lib path="mirth-client-core.jar" />
+		<lib path="lib/mirth-client-core.jar" />
 		<lib path="lib" />
 		<lib path="lib/commons" />
 		<lib path="lib/database" />

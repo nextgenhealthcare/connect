@@ -19,7 +19,7 @@
 
 	<!-- Client -->
 	<target name="build-client" depends="build-server-extensions">
-		<copy file="${server}/mirth-client-core.jar" todir="${client}/lib" />
+		<copy file="${server}/lib/mirth-client-core.jar" todir="${client}/lib" />
 		<copy file="${server}/lib/mirth-vocab-1.0.jar" todir="${client}/lib" />
 
 		<!-- run the client build -->
@@ -44,7 +44,7 @@
 
 	<!-- Manager -->
 	<target name="build-manager" depends="build-client">
-		<copy file="${server}/mirth-client-core.jar" todir="${manager}/lib" />
+		<copy file="${server}/lib/mirth-client-core.jar" todir="${manager}/lib" />
 		<ant antfile="${manager}/ant-build.xml" dir="${manager}" target="create-manager" />
 		<copy file="${manager}/dist/mirth-manager.jar" todir="${server}/" />
 		<copy todir="${server}/manager-lib">
@@ -56,7 +56,7 @@
 
 	<!-- CLI -->
 	<target name="build-cli" depends="build-client">
-		<copy file="${server}/mirth-client-core.jar" todir="${cli}/lib" />
+		<copy file="${server}/lib/mirth-client-core.jar" todir="${cli}/lib" />
 		<ant antfile="${cli}/build.xml" dir="${cli}" target="build">
 			<property name="version" value="${version}" />
 		</ant>
