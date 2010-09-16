@@ -46,7 +46,7 @@
 	<target name="build-manager" depends="build-client">
 		<copy file="${server}/lib/mirth-client-core.jar" todir="${manager}/lib" />
 		<ant antfile="${manager}/ant-build.xml" dir="${manager}" target="create-manager" />
-		<copy file="${manager}/dist/mirth-manager.jar" todir="${server}/" />
+		<copy file="${manager}/dist/mirth-manager.jar" todir="${server}/setup" />
 		<copy todir="${server}/manager-lib">
 			<fileset dir="${manager}/lib">
 				<exclude name="mirth-client.jar" />

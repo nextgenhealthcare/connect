@@ -650,7 +650,6 @@
 
 		<!-- copy misc files -->
 		<copy todir="${setup}">
-			<fileset file="${basedir}/mirth-manager.jar" />
 			<fileset file="${basedir}/mirth-launcher.xml" />
 			<fileset file="${basedir}/mirth-client.jnlp" />
 			<fileset file="${basedir}/keystore" />
