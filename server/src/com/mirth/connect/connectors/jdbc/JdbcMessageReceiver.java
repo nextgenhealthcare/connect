@@ -21,6 +21,7 @@ import javax.sql.rowset.CachedRowSet;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapListHandler;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
@@ -42,6 +43,7 @@ import org.mule.umo.provider.UMOMessageAdapter;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.server.Constants;
 import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
@@ -189,8 +191,8 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
                 }
             }
         } catch (Exception e) {
+            logger.error("Error in channel: " + ChannelController.getInstance().getDeployedChannelById(connector.getChannelId()).getName(), ExceptionUtils.getRootCause(e));
             alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_406, null, e);
-            throw e;
         } finally {
             monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
