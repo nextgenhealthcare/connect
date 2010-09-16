@@ -60,7 +60,7 @@
 		<ant antfile="${cli}/build.xml" dir="${cli}" target="build">
 			<property name="version" value="${version}" />
 		</ant>
-		<copy todir="${server}">
+		<copy todir="${server}/setup">
 			<fileset dir="${cli}/build">
 				<include name="mirth-cli.jar" />
 				<include name="mirth-cli-launcher.jar" />
@@ -70,6 +70,11 @@
 		<copy todir="${server}/cli-lib">
 			<fileset dir="${cli}/lib">
 				<exclude name="mirth-client.jar" />
+			</fileset>
+		</copy>
+		<copy todir="${server}/setup/conf">
+			<fileset dir="${cli}/conf">
+				<include name="mirth-cli-config.properties" />
 			</fileset>
 		</copy>
 	</target>
