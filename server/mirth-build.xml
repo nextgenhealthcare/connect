@@ -44,7 +44,7 @@
 
 	<!-- Manager -->
 	<target name="build-manager" depends="build-client">
-		<copy file="${server}/lib/mirth-client-core.jar" todir="${manager}/lib" />
+		<copy file="${server}/setup/lib/mirth-client-core.jar" todir="${manager}/lib" />
 		<ant antfile="${manager}/ant-build.xml" dir="${manager}" target="create-manager" />
 		<copy file="${manager}/dist/mirth-manager.jar" todir="${server}/setup" />
 		<copy todir="${server}/manager-lib">
@@ -56,7 +56,7 @@
 
 	<!-- CLI -->
 	<target name="build-cli" depends="build-client">
-		<copy file="${server}/lib/mirth-client-core.jar" todir="${cli}/lib" />
+		<copy file="${server}/setup/lib/mirth-client-core.jar" todir="${cli}/lib" />
 		<ant antfile="${cli}/build.xml" dir="${cli}" target="build">
 			<property name="version" value="${version}" />
 		</ant>
