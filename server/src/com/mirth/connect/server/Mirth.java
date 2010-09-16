@@ -16,8 +16,10 @@ import java.net.ServerSocket;
 import java.nio.charset.Charset;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -69,6 +71,8 @@ public class Mirth extends Thread {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 
+    private static List<Thread> shutdownHooks = new ArrayList<Thread>();
+
     public static void main(String[] args) {
         Mirth mirth = new Mirth();
         mirth.run();
@@ -81,6 +85,13 @@ public class Mirth extends Thread {
                 // ignore output
             }
         };
+    }
+
+    public static void addShutdownHook(Thread hook) {
+        if (shutdownHooks.contains(hook)) {
+            return;
+        }
+        shutdownHooks.add(hook);
     }
 
     public void run() {
@@ -171,7 +182,8 @@ public class Mirth extends Thread {
         stopEngine();
         stopWebServer();
         extensionController.stopPlugins();
-        // Stats updater thread will update the stats one more time before stopping
+        // Stats updater thread will update the stats one more time before
+        // stopping
         channelStatisticsController.stopUpdaterThread();
         stopDatabase();
         running = false;
@@ -301,10 +313,10 @@ public class Mirth extends Thread {
             secureServletContext.setContextPath(contextPath + "/");
             secureServletContext.addHandler(secureServlets);
             servletContainer.addContext(secureServletContext);
-            
-            // Use our special error handler so that we dont have ugly URL encoding
+
+            // Use our special error handler so that we dont have ugly URL
+            // encoding
             secureServletContext.setAttribute(HttpContext.__ErrorHandler, new MirthErrorPageHandler());
-            
 
             // Map a servlet onto the container
             secureServlets.addServlet("Alerts", "/alerts", "com.mirth.connect.server.servlets.AlertServlet");
@@ -367,6 +379,11 @@ public class Mirth extends Thread {
     private class ShutdownHook extends Thread {
         public void run() {
             shutdown();
+
+            for (Thread thread : shutdownHooks) {
+                thread.start();
+            }
+
         }
     }
 
@@ -381,7 +398,7 @@ public class Mirth extends Thread {
 
         logger.info("Mirth Connect " + version + " (" + buildDate + ") server successfully started: " + (new Date()).toString());
         logger.info("This product was developed by Mirth Corporation (http://www.mirthcorp.com) and its contributors (c)2005-" + Calendar.getInstance().get(Calendar.YEAR) + ".");
-        logger.info("Running " + System.getProperty("java.vm.name") + " " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ") with charset " + Charset.defaultCharset() + ".");        
+        logger.info("Running " + System.getProperty("java.vm.name") + " " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ") with charset " + Charset.defaultCharset() + ".");
     }
 
     /**

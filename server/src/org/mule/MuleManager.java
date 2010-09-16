@@ -71,6 +71,8 @@ import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueuePersistenceStrategy;
 import org.mule.util.queue.TransactionalQueueManager;
 
+import com.mirth.connect.server.Mirth;
+
 import javax.transaction.TransactionManager;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -227,7 +229,8 @@ public class MuleManager implements UMOManager
         }
         containerContext = new MultiContainerContext();
         securityManager = new MuleSecurityManager();
-        Runtime.getRuntime().addShutdownHook(new ShutdownThread());
+        // Runtime.getRuntime().addShutdownHook(new ShutdownThread());
+        Mirth.addShutdownHook(new ShutdownThread());
     }
 
     /**
