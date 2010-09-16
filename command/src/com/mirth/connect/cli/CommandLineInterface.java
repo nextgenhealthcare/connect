@@ -382,10 +382,7 @@ public class CommandLineInterface {
                 throw new IllegalStateException("impossible state in tokenizer: inQuotes=" + inQuotes + ", char=" + ch);
             }
         }
-
-        if (currentToken != null) {
-            addToken(tokens, currentToken);
-        }
+        addToken(tokens, currentToken);
 
         // out.println("token list: " + tokens);
         Token[] arguments = new Token[tokens.size()];
@@ -394,7 +391,7 @@ public class CommandLineInterface {
     }
 
     private void addToken(List<Token> tokens, StringBuilder currentText) {
-        if (StringUtils.isEmpty(currentText.toString())) {
+        if (currentText == null || StringUtils.isEmpty(currentText.toString())) {
             // empty or commented line
             return;
         }
