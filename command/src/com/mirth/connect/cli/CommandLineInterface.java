@@ -82,7 +82,7 @@ public class CommandLineInterface {
         Option passwordOption = OptionBuilder.withArgName("password").hasArg().withDescription("user password").create("p");
         Option scriptOption = OptionBuilder.withArgName("script").hasArg().withDescription("script file").create("s");
         Option versionOption = OptionBuilder.withArgName("version").hasArg().withDescription("version").create("v");
-        Option configOption = OptionBuilder.withArgName("config file").hasArg().withDescription("path to default configuration [default: config.properties]").create("c");
+        Option configOption = OptionBuilder.withArgName("config file").hasArg().withDescription("path to default configuration [default: mirth-cli-config.properties]").create("c");
         Option helpOption = new Option("h", "help");
         Option debugOption = new Option("d", "debug");
 
@@ -109,7 +109,7 @@ public class CommandLineInterface {
 
             Properties configDefaults = new Properties();
             try {
-                configDefaults.load(new FileInputStream(line.getOptionValue("c", "conf" + File.separator + "config.properties")));
+                configDefaults.load(new FileInputStream(line.getOptionValue("c", "conf" + File.separator + "mirth-cli-config.properties")));
             } catch (IOException e) {
                 // Only error out if they tried to load the config
                 if (line.hasOption("c")) {
