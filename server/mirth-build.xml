@@ -19,7 +19,7 @@
 
 	<!-- Client -->
 	<target name="build-client" depends="build-server-extensions">
-		<copy file="${server}/lib/mirth-client-core.jar" todir="${client}/lib" />
+		<copy file="${server}/setup/lib/mirth-client-core.jar" todir="${client}/lib" />
 		<copy file="${server}/lib/mirth-vocab-1.0.jar" todir="${client}/lib" />
 
 		<!-- run the client build -->

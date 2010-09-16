@@ -92,7 +92,7 @@
 	</target>
 
 	<target name="create-client-core" depends="compile">
-		<jar destfile="${lib}/${client-core.jar}" basedir="${classes}">
+		<jar destfile="${setup.lib}/${client-core.jar}" basedir="${classes}">
 			<include name="com/mirth/connect/client/core/**" />
 			<include name="com/mirth/connect/model/**" />
 			<include name="com/mirth/connect/util/**" />
