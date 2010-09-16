@@ -1,6 +1,7 @@
 <launcher>
 	<classpath base=".">
 		<lib path="mirth-cli.jar" />
+		<lib path="cli-lib/mirth-client-core.jar" />
 		<lib path="cli-lib" />
 		<lib path="extensions/connectors" />
 	</classpath>
