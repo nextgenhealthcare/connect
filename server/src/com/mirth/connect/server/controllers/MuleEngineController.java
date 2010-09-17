@@ -154,7 +154,7 @@ public class MuleEngineController implements EngineController {
         if (muleManager != null) {
             try {
                 if (muleManager.isStarted()) {
-                    logger.error("stopping mule engine");
+                    logger.debug("stopping mule engine");
                     muleManager.stop();
                 }
             } catch (Exception e) {
