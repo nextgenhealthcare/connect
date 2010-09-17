@@ -639,11 +639,6 @@
 			</manifest>
 		</jar>
 
-		<!-- create the ant task jar -->
-		<jar destfile="${setup}/${mirth-ant.jar}" basedir="${classes}">
-			<include name="com/mirth/connect/ant/**" />
-		</jar>
-
 		<!-- remove svn folders -->
 		<delete>
 			<fileset dir="${setup}" includes="**/.svn" />
@@ -674,10 +669,10 @@
 		<copy todir="${setup.licenses}">
 			<fileset dir="${licenses}" />
 		</copy>
-		
-		<property file="${keystore_property_file}" />
 
 		<!-- sign jars for webstart -->
+		<property file="${keystore_property_file}" />
+
 		<parallel>
 			<signjar alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
 				<fileset dir="${setup.client.lib}">
