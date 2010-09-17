@@ -50,15 +50,6 @@
 		<delete dir="${logs}" />
 		<mkdir dir="${logs}" />
 
-		<delete dir="${client.lib}" />
-		<mkdir dir="${client.lib}" />
-
-		<delete dir="${manager.lib}" />
-		<mkdir dir="${manager.lib}" />
-
-		<delete dir="${cli.lib}" />
-		<mkdir dir="${cli.lib}" />
-
 		<delete dir="${classes}" />
 		<delete dir="${setup}" />
 		<delete dir="${dist}" />
@@ -564,23 +555,7 @@
 		</replace>
 	</target>
 
-	<target name="create-client-lib" depends="init">
-		<property file="${keystore_property_file}" />
-
-		<!-- sign jars for webstart -->
-		<parallel>
-			<signjar alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
-				<fileset dir="${client.lib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</signjar>
-			<signjar alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
-				<fileset dir="${extensions}" includes="**/*.jar" />
-			</signjar>
-		</parallel>
-	</target>
-
-	<target name="create-setup" depends="create-client-lib">
+	<target name="create-setup" depends="init">
 		<!-- create the setup directory -->
 		<mkdir dir="${setup}" />
 		<mkdir dir="${setup.conf}" />
@@ -597,21 +572,6 @@
 		<!-- copy lib -->
 		<copy todir="${setup.lib}">
 			<fileset dir="${lib}" />
-		</copy>
-
-		<!-- copy client-lib -->
-		<copy todir="${setup.client.lib}">
-			<fileset dir="${client.lib}" />
-		</copy>
-
-		<!-- copy manager-lib -->
-		<copy todir="${setup.manager.lib}">
-			<fileset dir="${manager.lib}" />
-		</copy>
-
-		<!-- copy cli-lib -->
-		<copy todir="${setup.cli.lib}">
-			<fileset dir="${cli.lib}" />
 		</copy>
 
 		<!-- copy conf files -->
@@ -690,7 +650,6 @@
 		</delete>
 
 		<!-- re-create the embedded database -->
-		<!--<antcall target="create-derby-db" />-->
 		<delete dir="mirthdb" />
 		<java classname="com.mirth.connect.server.tools.ScriptRunner" fork="true" dir="${basedir}" failonerror="true">
 			<classpath>
@@ -715,6 +674,23 @@
 		<copy todir="${setup.licenses}">
 			<fileset dir="${licenses}" />
 		</copy>
+		
+		<property file="${keystore_property_file}" />
+
+		<!-- sign jars for webstart -->
+		<parallel>
+			<signjar alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
+				<fileset dir="${setup.client.lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</signjar>
+			<signjar alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
+				<fileset dir="${setup.extensions}" includes="**/*.jar" />
+			</signjar>
+		</parallel>
+		
+		<!-- delete the compiled classes folder -->
+		<delete dir="${classes}" />
 	</target>
 
 	<target name="create-extension-zips" depends="create-setup">

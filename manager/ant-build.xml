@@ -31,9 +31,8 @@
 		</copy>
 	</target>
 
-	<target name="create-manager" depends="compile">
+	<target name="build" depends="compile">
 		<mkdir dir="${dist}" />
-		<mkdir dir="${dist.source}" />
 
 		<jar destfile="${dist}/${manager.jar}" basedir="${classes}">
 			<manifest>
@@ -43,19 +42,6 @@
 			</manifest>
 		</jar>
 
-		<!-- copy source files -->
-		<copy todir="${dist.source}">
-			<fileset dir="${src}">
-				<exclude name="**/*.form" />
-			</fileset>
-		</copy>
-
-		<!-- remove svn folders -->
-		<delete>
-			<fileset dir="${dist.source}" includes="**/.svn" />
-		</delete>
-
-		<zip basedir="${dist.source}" destfile="${dist}/mirth-manager-src.zip" />
-		<delete dir="${dist.source}" />
+		<delete dir="${classes}" />
 	</target>
 </project>

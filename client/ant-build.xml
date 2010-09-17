@@ -69,7 +69,7 @@
 		</copy>
 	</target>
 
-	<target name="create-client" depends="compile">
+	<target name="build" depends="compile">
 		<mkdir dir="${dist}" />
 
 		<jar destfile="${dist}/${client.jar}">
@@ -222,5 +222,7 @@
 		<jar destfile="${plugins.xsltstep}/xsltstep-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/xsltstep/**" />
 		</jar>
+		
+		<delete dir="${classes}" />
 	</target>
 </project>

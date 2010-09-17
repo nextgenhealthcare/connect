@@ -1,6 +1,7 @@
 <project name="mirth" basedir="." default="build">
 	<target name="init">
 		<property file="mirth-build.properties" />
+		<property name="server.setup" value="${server}/setup" />
 	</target>
 
 	<!-- Server extensions -->
@@ -9,7 +10,7 @@
 			<property name="version" value="${version}" />
 		</ant>
 
-		<!-- copy the extensions to the client -->
+		<!-- copy the shared extension jars to the client lib -->
 		<copy todir="${client}/lib" flatten="true">
 			<fileset dir="${server}/build/extensions/">
 				<include name="**/*-shared.jar" />
@@ -19,22 +20,18 @@
 
 	<!-- Client -->
 	<target name="build-client" depends="build-server-extensions">
-		<copy file="${server}/setup/lib/mirth-client-core.jar" todir="${client}/lib" />
+		<copy file="${server.setup}/lib/mirth-client-core.jar" todir="${client}/lib" />
 		<copy file="${server}/lib/mirth-vocab-1.0.jar" todir="${client}/lib" />
 
-		<!-- run the client build -->
-		<ant antfile="${client}/ant-build.xml" dir="${client}" target="create-client" />
+		<ant antfile="${client}/ant-build.xml" dir="${client}" target="build" />
 
-		<!-- copy the generated libraries to the server client lib -->
-		<copy file="${client}/dist/mirth-client.jar" todir="${server}/client-lib/" />
+		<copy file="${client}/dist/mirth-client.jar" todir="${server.setup}/client-lib/" />
 
-		<!-- copy the generated client extensions -->
 		<copy todir="${server}/build/extensions/">
 			<fileset dir="${client}/dist/extensions/" />
 		</copy>
 
-		<!-- copy the contents of the client/lib folder to client-lib in the server -->
-		<copy todir="${server}/client-lib">
+		<copy todir="${server.setup}/client-lib">
 			<fileset dir="${client}/lib">
 				<exclude name="*-shared.jar" />
 				<exclude name="extensions" />
@@ -44,10 +41,13 @@
 
 	<!-- Manager -->
 	<target name="build-manager" depends="build-client">
-		<copy file="${server}/setup/lib/mirth-client-core.jar" todir="${manager}/lib" />
-		<ant antfile="${manager}/ant-build.xml" dir="${manager}" target="create-manager" />
-		<copy file="${manager}/dist/mirth-manager.jar" todir="${server}/setup" />
-		<copy todir="${server}/manager-lib">
+		<copy file="${server.setup}/lib/mirth-client-core.jar" todir="${manager}/lib" />
+		
+		<ant antfile="${manager}/ant-build.xml" dir="${manager}" target="build" />
+		
+		<copy file="${manager}/dist/mirth-manager.jar" todir="${server.setup}" />
+		
+		<copy todir="${server.setup}/manager-lib">
 			<fileset dir="${manager}/lib">
 				<exclude name="mirth-client.jar" />
 			</fileset>
@@ -56,23 +56,27 @@
 
 	<!-- CLI -->
 	<target name="build-cli" depends="build-client">
-		<copy file="${server}/setup/lib/mirth-client-core.jar" todir="${cli}/lib" />
+		<copy file="${server.setup}/lib/mirth-client-core.jar" todir="${cli}/lib" />
+		
 		<ant antfile="${cli}/build.xml" dir="${cli}" target="build">
 			<property name="version" value="${version}" />
 		</ant>
-		<copy todir="${server}/setup">
+		
+		<copy todir="${server.setup}">
 			<fileset dir="${cli}/build">
 				<include name="mirth-cli.jar" />
 				<include name="mirth-cli-launcher.jar" />
 				<include name="mirth-cli-launcher.xml" />
 			</fileset>
 		</copy>
-		<copy todir="${server}/cli-lib">
+		
+		<copy todir="${server.setup}/cli-lib">
 			<fileset dir="${cli}/lib">
 				<exclude name="mirth-client.jar" />
 			</fileset>
 		</copy>
-		<copy todir="${server}/setup/conf">
+		
+		<copy todir="${server.setup}/conf">
 			<fileset dir="${cli}/conf">
 				<include name="mirth-cli-config.properties" />
 			</fileset>

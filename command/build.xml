@@ -55,5 +55,7 @@
 		<copy todir="${build}">
 			<fileset file="mirth-cli-launcher.xml" />
 		</copy>
+		
+		<delete dir="${classes}" />
 	</target>
 </project>
