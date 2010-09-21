@@ -430,22 +430,36 @@ public class MuleEngineController implements EngineController {
         /*
          * MUST BE LAST STEP: Add the source connector last so that if an
          * exception occurs (like creating the URI) it wont register the JMX
-         * service
+         * service.
+         * 
+         * If there are any exceptions registering the connector, still add the
+         * endpoint and inbound router so that the channel can be properly
+         * unregistered.
          */
-        UMOConnector connector = registerConnector(channel.getSourceConnector(), getConnectorNameForRouter(connectorReference), channel.getId());
-        endpoint.setConnector(connector);
+        Exception exceptionRegisteringConnector = null;
+        try {
+            endpoint.setConnector(registerConnector(channel.getSourceConnector(), getConnectorNameForRouter(connectorReference), channel.getId()));
+        } catch (Exception e) {
+            exceptionRegisteringConnector = e;
+        }
 
         inboundRouter.addEndpoint(endpoint);
 
         descriptor.setInboundRouter(inboundRouter);
+
+        if (exceptionRegisteringConnector != null) {
+            throw exceptionRegisteringConnector;
+        }
     }
 
     private void configureOutboundRouter(UMODescriptor descriptor, Channel channel) throws Exception {
         logger.debug("configuring outbound router for channel: " + channel.getId() + " (" + channel.getName() + ")");
         FilteringMulticastingRouter fmr = new FilteringMulticastingRouter();
         boolean enableTransactions = false;
+        Exception exceptionRegisteringConnector = null;
 
-        for (ListIterator<Connector> iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext();) {
+        // If there was an exception registering a connector, break the loop.
+        for (ListIterator<Connector> iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext() && (exceptionRegisteringConnector == null);) {
             Connector connector = iterator.next();
 
             if (connector.isEnabled()) {
@@ -465,7 +479,12 @@ public class MuleEngineController implements EngineController {
 
                 // add the destination connector
                 String connectorName = getConnectorNameForRouter(connectorReference);
-                endpoint.setConnector(registerConnector(connector, connectorName, channel.getId()));
+
+                try {
+                    endpoint.setConnector(registerConnector(connector, connectorName, channel.getId()));
+                } catch (Exception e) {
+                    exceptionRegisteringConnector = e;
+                }
 
                 // 1. append the JavaScriptTransformer that does the
                 // mappings
@@ -508,6 +527,17 @@ public class MuleEngineController implements EngineController {
         OutboundMessageRouter outboundRouter = new OutboundMessageRouter();
         outboundRouter.addRouter(fmr);
         descriptor.setOutboundRouter(outboundRouter);
+
+        /*
+         * Throw an exception after the FilteringMulticastingRouter is created
+         * and added to the outbound router, even though the connector
+         * registration is aborted. This is so casting to a
+         * FilteringMulticastingRouter doesn't fail when unregistering the
+         * failed channel and stopping its dispatchers.
+         */
+        if (exceptionRegisteringConnector != null) {
+            throw exceptionRegisteringConnector;
+        }
     }
 
     /**
