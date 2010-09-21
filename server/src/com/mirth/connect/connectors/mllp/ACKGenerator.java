@@ -184,10 +184,30 @@ public class ACKGenerator {
         ackBuilder.append(fieldDelim);
         ackBuilder.append(fieldDelim);
         ackBuilder.append("ACK");
-        ackBuilder.append(componentDelim);
-        ackBuilder.append(originalEvent);
-        ackBuilder.append(componentDelim);
-        ackBuilder.append("ACK");
+
+        // HL7 2.4+ only
+        String[] versionArray = version.split("\\.");
+        if (versionArray.length > 1) {
+            int majorVersion = 2;
+            int minorVersion = 4;
+            
+            try {
+                majorVersion = Integer.parseInt(versionArray[0]);
+                minorVersion = Integer.parseInt(versionArray[1]);
+            } catch (NumberFormatException e) {
+                // Ignore error getting version and default to 2.4+ changes
+            }
+            
+            if (majorVersion == 2 && minorVersion > 3) {
+                ackBuilder.append(componentDelim);
+                ackBuilder.append(originalEvent);
+                ackBuilder.append(componentDelim);
+                ackBuilder.append("ACK");
+            }
+
+        }
+        // End HL7 2.4+ only
+
         ackBuilder.append(fieldDelim);
         ackBuilder.append(timestamp);
         ackBuilder.append(fieldDelim);
@@ -209,7 +229,7 @@ public class ACKGenerator {
         ackBuilder.append(textMessage);
         ackBuilder.append(errorMessage);
         ackBuilder.append(segmentDelim); // MIRTH-494
-        // MSH|^~\\&|{sendapp}|{sendfac}|{recapp}|{recfac}|{timestamp}||ACK|{timestamp}|P|{version}\rMSA|{code}|{originalid}{textmessage}\r
+        // MSH|^~\\&|{sendapp}|{sendfac}|{recapp}|{recfac}|{timestamp}||ACK[^{originalEvent}^ACK]|{timestamp}|P|{version}\rMSA|{code}|{originalid}{textmessage}\r
 
         if (ackIsXML) {
             // return an HL7v2 ack in xml using hapi
