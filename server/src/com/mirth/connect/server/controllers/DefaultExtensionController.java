@@ -45,7 +45,7 @@ import com.mirth.connect.util.ExtensionUtil;
 
 public class DefaultExtensionController extends ExtensionController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private Map<String, PluginMetaData> plugins;
+    private Map<String, PluginMetaData> plugins = null;
     private Map<String, ServerPlugin> loadedPlugins = null;
     private Map<String, ConnectorMetaData> connectors = null;
     private List<String> clientLibraries = null;
@@ -144,7 +144,7 @@ public class DefaultExtensionController extends ExtensionController {
             plugin.stop();
     }
 
-    public Object invoke(String name, String method, Object object, String sessionId) throws Exception {
+    public Object invokePluginService(String name, String method, Object object, String sessionId) throws Exception {
         return loadedPlugins.get(name).invoke(method, object, sessionId);
     }
 

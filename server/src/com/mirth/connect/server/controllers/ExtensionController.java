@@ -104,9 +104,9 @@ public abstract class ExtensionController extends Controller {
 
     public abstract void triggerDeploy();
 
-    public abstract Object invoke(String name, String method, Object object, String sessionId) throws Exception;
+    public abstract Object invokePluginService(String name, String method, Object object, String sessionId) throws Exception;
 
-    public abstract Object invokeConnectorService(String name, String method, Object object, String sessionsId) throws Exception;
+    public abstract Object invokeConnectorService(String name, String method, Object object, String sessionId) throws Exception;
 
     public abstract Map<String, ConnectorMetaData> getConnectorMetaData() throws ControllerException;
 
@@ -124,7 +124,7 @@ public abstract class ExtensionController extends Controller {
     
     public abstract ConnectorMetaData getConnectorMetaDataByTransportName(String transportName);
     
-    // installation and uinstallation
+    // installation and unistallation
     
     public abstract void installExtension(FileItem fileItem) throws ControllerException;
 

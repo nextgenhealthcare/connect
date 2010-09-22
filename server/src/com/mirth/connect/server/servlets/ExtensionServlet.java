@@ -105,7 +105,7 @@ public class ExtensionServlet extends MirthServlet {
                     String method = request.getParameter("method");
                     Object object = serializer.fromXML(request.getParameter("object"));
                     String sessionId = request.getSession().getId();
-                    out.println(serializer.toXML(extensionController.invoke(name, method, object, sessionId)));
+                    out.println(serializer.toXML(extensionController.invokePluginService(name, method, object, sessionId)));
                 } else if (operation.equals(Operations.CONNECTOR_SERVICE_INVOKE)) {
                     String name = request.getParameter("name");
                     String method = request.getParameter("method");
