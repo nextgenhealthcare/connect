@@ -27,6 +27,7 @@ import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.UserController;
+import com.mirth.connect.server.util.UserSessionCache;
 
 public class UserServlet extends MirthServlet {
     public static final String SESSION_USER = "user";
@@ -86,6 +87,7 @@ public class UserServlet extends MirthServlet {
                 } else if (operation.equals(Operations.USER_REMOVE)) {
                     if (isUserAuthorized(request)) {
                         User user = (User) serializer.fromXML(request.getParameter("user"));
+                        UserSessionCache.getInstance().invalidateAllSessionsForUser(user);
                         userController.removeUser(user, (Integer) request.getSession().getAttribute(SESSION_USER));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -152,7 +154,10 @@ public class UserServlet extends MirthServlet {
 
                 // set the user status to logged in in the database
                 userController.loginUser(validUser);
-
+                
+                // add the user's session to to session map
+                UserSessionCache.getInstance().registerSessionForUser(session, validUser);
+                
                 // log the event
                 SystemEvent event = new SystemEvent("User logged in.");
                 event.getAttributes().put("Session ID", session.getId());
@@ -194,7 +199,7 @@ public class UserServlet extends MirthServlet {
         } catch (ControllerException ce) {
             throw new ServletException(ce);
         }
-
+        
         // delete any temp tables created for this session
         ControllerFactory.getFactory().createMessageObjectController().removeFilterTable(sessionId);
         systemLogger.removeFilterTable(sessionId);
