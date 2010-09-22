@@ -2561,11 +2561,6 @@ public class Frame extends JXFrame {
 
                 try {
                     if (userToDelete != UIConstants.ERROR_CONSTANT) {
-                        if (mirthClient.isUserLoggedIn(users.get(userToDelete))) {
-                            alertWarning(PlatformUI.MIRTH_FRAME, "You cannot delete a user that is currently logged in.");
-                            return null;
-                        }
-
                         mirthClient.removeUser(users.get(userToDelete));
                         users = mirthClient.getUser(null);
                     }
