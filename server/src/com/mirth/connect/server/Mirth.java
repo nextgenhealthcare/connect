@@ -52,6 +52,9 @@ import com.mirth.connect.util.PropertyLoader;
  * 
  */
 public class Mirth extends Thread {
+    private static final String EXTENSIONS_LIBS = "/extensions/";
+    private static final String CLIENT_LIBS = "/client-lib/";
+    
     private Logger logger = Logger.getLogger(this.getClass());
     private boolean running = false;
     private Properties mirthProperties = null;
@@ -149,6 +152,7 @@ public class Mirth extends Thread {
      * 
      */
     public void startup() {
+        configurationController.generateKeyPair();
         startWebServer();
         extensionController.loadExtensions();
         migrationController.migrate();
@@ -245,11 +249,11 @@ public class Mirth extends Thread {
             sslListener.setHost(PropertyLoader.getProperty(mirthProperties, "https.host", "0.0.0.0"));
             sslListener.setCipherSuites(new String[] { "SSL_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_RC4_128_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA" });
             sslListener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "https.port")).intValue());
-            sslListener.setKeystore(ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + PropertyLoader.getProperty(mirthProperties, "https.keystore"));
-            sslListener.setPassword(PropertyLoader.getProperty(mirthProperties, "https.password"));
-            sslListener.setKeyPassword(PropertyLoader.getProperty(mirthProperties, "https.keypassword"));
-            sslListener.setAlgorithm(PropertyLoader.getProperty(mirthProperties, "https.algorithm"));
-            sslListener.setKeystoreType(PropertyLoader.getProperty(mirthProperties, "https.keystoretype"));
+            sslListener.setKeystore(configurationController.getBaseDir() + File.separator + PropertyLoader.getProperty(mirthProperties, "keystore.path"));
+            sslListener.setPassword(PropertyLoader.getProperty(mirthProperties, "keystore.storepass"));
+            sslListener.setKeyPassword(PropertyLoader.getProperty(mirthProperties, "keystore.keypass"));
+            sslListener.setAlgorithm(PropertyLoader.getProperty(mirthProperties, "keystore.algorithm"));
+            sslListener.setKeystoreType(PropertyLoader.getProperty(mirthProperties, "keystore.storetype"));
             servletContainer.addListener(sslListener);
 
             // add HTTP listener
@@ -268,7 +272,7 @@ public class Mirth extends Thread {
 
             // Create the lib context
             HttpContext libContext = new HttpContext();
-            libContext.setContextPath(contextPath + "/client-lib/");
+            libContext.setContextPath(contextPath + CLIENT_LIBS);
             httpServer.addContext(libContext);
 
             // Serve static content from the lib context
@@ -280,7 +284,7 @@ public class Mirth extends Thread {
 
             // Create the extensions context
             HttpContext extensionsContext = new HttpContext();
-            extensionsContext.setContextPath(contextPath + "/extensions/");
+            extensionsContext.setContextPath(contextPath + EXTENSIONS_LIBS);
             httpServer.addContext(extensionsContext);
 
             // Serve static content from the extensions context

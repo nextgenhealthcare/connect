@@ -10,7 +10,16 @@
 package com.mirth.connect.server.controllers;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.Security;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -21,18 +30,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.UUID;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.security.auth.x500.X500Principal;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.x509.X509V1CertificateGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -48,6 +62,7 @@ import com.mirth.connect.server.util.JMXConnection;
 import com.mirth.connect.server.util.JMXConnectionFactory;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.Encrypter;
+import com.mirth.connect.util.PropertyLoader;
 import com.mirth.connect.util.PropertyVerifier;
 
 /**
@@ -516,6 +531,63 @@ public class DefaultConfigurationController extends ConfigurationController {
             SqlConfig.getSqlMapClient().delete("Configuration.deleteProperty", parameterMap);
         } catch (Exception e) {
             logger.error("Could not delete property: category=" + category + ", name=" + name, e);
+        }
+    }
+
+    public void generateKeyPair() {
+        try {
+            // load keystore properties
+            Properties properties = PropertyLoader.loadProperties("mirth");
+            String alias = properties.getProperty("keystore.alias");
+            File keyStoreFile = new File(properties.getProperty("keystore.path"));
+            String keyStoreType = properties.getProperty("keystore.storetype");
+            char[] keyStorePassword = properties.getProperty("keystore.storepass").toCharArray();
+            char[] keyPassword = properties.getProperty("keystore.keypass").toCharArray();
+
+            // load the keystore if it exists, otherwise create a new one
+            KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+
+            if (keyStoreFile.exists()) {
+                keyStore.load(new FileInputStream(getBaseDir() + File.separator + keyStoreFile), keyStorePassword);    
+            } else {
+                keyStore.load(null, keyStorePassword);
+            }
+
+            if (keyStore.getCertificate(alias) == null) {
+                // add the BC provider that is used for generating keys and certificates
+                Security.addProvider(new BouncyCastleProvider());
+
+                // initialize the certificate attributes
+                Date startDate = new Date();
+                Date expiryDate = DateUtils.addYears(startDate, 50);
+                BigInteger serialNumber = new BigInteger(50, new Random());
+                KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
+                keyPairGenerator.initialize(1024);
+                KeyPair keyPair = keyPairGenerator.generateKeyPair();
+                
+                // set the certificate attributes
+                X509V1CertificateGenerator certificateGenerator = new X509V1CertificateGenerator();
+                X500Principal dnName = new X500Principal("CN=Mirth Connect");
+                certificateGenerator.setSerialNumber(serialNumber);
+                certificateGenerator.setIssuerDN(dnName);
+                certificateGenerator.setNotBefore(startDate);
+                certificateGenerator.setNotAfter(expiryDate);
+                certificateGenerator.setSubjectDN(dnName); // note: same as issuer
+                certificateGenerator.setPublicKey(keyPair.getPublic());
+                certificateGenerator.setSignatureAlgorithm("SHA1withDSA");
+
+                // generate the new certificate
+                X509Certificate certificate = certificateGenerator.generate(keyPair.getPrivate(), "BC");
+                logger.debug("generated new certificate with serial number: " + certificate.getSerialNumber());
+
+                // add the generated certificate and save the keystore
+                keyStore.setKeyEntry(alias, keyPair.getPrivate(), keyPassword, new Certificate[] { certificate });
+                keyStore.store(new FileOutputStream(keyStoreFile), keyStorePassword);
+            } else {
+                logger.debug("found certificate in keystore");
+            }
+        } catch (Exception e) {
+            logger.error("Could not generate certificate.", e);
         }
     }
 }

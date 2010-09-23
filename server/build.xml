@@ -612,7 +612,7 @@
 		<copy todir="${setup}">
 			<fileset file="${basedir}/mirth-launcher.xml" />
 			<fileset file="${basedir}/mirth-client.jnlp" />
-			<fileset file="${basedir}/keystore" />
+			<fileset file="${basedir}/truststore.jks" />
 		</copy>
 
 		<!-- create the server jar -->
