@@ -99,8 +99,10 @@ public class ServerLogClient extends DashboardPanelPlugin {
     public void start() {
     }
 
-    // used for stopping processes in the plugin when the program is exited
-    public void stop() {
+    // Called when establishing a new session for the user.
+    public void reset() {
+        clearLog();
+        
         // invoke method to remove everything involving this client's sessionId.
         try {
             // FYI, method below returns a boolean value.
@@ -111,5 +113,10 @@ public class ServerLogClient extends DashboardPanelPlugin {
         } catch (ClientException e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
+    }
+    
+    // used for stopping processes in the plugin when the program is exited
+    public void stop() {
+        reset();
     }
 }

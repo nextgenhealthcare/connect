@@ -86,4 +86,7 @@ public abstract class DashboardPanelPlugin extends ClientPlugin {
 
     // used for stopping processes in the plugin when the program is exited
     public abstract void stop();
+
+    // Called when establishing a new session for the user
+    public abstract void reset();
 }

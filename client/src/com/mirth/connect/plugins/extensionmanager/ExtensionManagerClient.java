@@ -261,6 +261,9 @@ public class ExtensionManagerClient extends ClientPanelPlugin {
 
     public void stop() {
     }
+    
+    public void reset() {
+    }
 
     public void display() {
         doRefresh();

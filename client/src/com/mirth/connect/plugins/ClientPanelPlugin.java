@@ -214,6 +214,9 @@ public abstract class ClientPanelPlugin extends ClientPlugin {
 
     // used for stopping processes in the plugin when the program is exited
     public abstract void stop();
+    
+    // Called when establishing a new session for the user
+    public abstract void reset();
 
     // used for setting actions to be called when the plugin tab is loaded
     public abstract void display();

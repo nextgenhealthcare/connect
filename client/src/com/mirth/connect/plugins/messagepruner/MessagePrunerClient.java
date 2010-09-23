@@ -99,6 +99,9 @@ public class MessagePrunerClient extends ClientPanelPlugin {
 
     public void stop() {
     }
+    
+    public void reset() {
+    }
 
     public void display() {
         doRefresh();

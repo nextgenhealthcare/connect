@@ -1312,6 +1312,7 @@ public class Frame extends JXFrame {
         setWorking("Switching User...", true);
 
         try {
+            pluginPanel.resetPlugins();
             mirthClient.logout();
             mirthClient.login(newUsername, newPassword, PlatformUI.CLIENT_VERSION);
             PlatformUI.USER_NAME = newUsername;

@@ -136,6 +136,17 @@ public class PluginPanel extends javax.swing.JPanel {
             plugin.stop();
         }
     }
+    
+    public void resetPlugins() {
+        for (ClientPanelPlugin plugin : loadedPlugins.values()) {
+            plugin.reset();
+        }
+
+        loadedDashboardPanelPlugins = parent.getDashboardPanelPlugins();
+        for (DashboardPanelPlugin plugin : loadedDashboardPanelPlugins.values()) {
+            plugin.reset();
+        }
+    }
 
     public void loadDefaultPanel() {
         if (tabs.getTabCount() > 0) {
