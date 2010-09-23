@@ -23,11 +23,11 @@ public abstract class MessageObjectController extends Controller {
     public static MessageObjectController getInstance() {
         return ControllerFactory.getFactory().createMessageObjectController();
     }
-    
+
     public abstract void removeAllFilterTables();
 
     public abstract void updateMessage(MessageObject incomingMessageObject, boolean checkIfMessageExists);
-    
+
     public abstract void updateMessageStatus(String channelId, String messageId, MessageObject.Status newStatus);
 
     public abstract void importMessage(MessageObject messageObject);
@@ -39,9 +39,9 @@ public abstract class MessageObjectController extends Controller {
     public abstract List<MessageObject> getMessagesByPage(int page, int pageSize, int maxMessages, String uid, boolean descending) throws ControllerException;
 
     public abstract int removeMessages(MessageObjectFilter filter) throws ControllerException;
-    
+
     public abstract int pruneMessages(MessageObjectFilter filter, int limit) throws ControllerException;
-    
+
     public abstract void removeFilterTable(String uid);
 
     public abstract void clearMessages(String channelId) throws ControllerException;
@@ -61,7 +61,7 @@ public abstract class MessageObjectController extends Controller {
     public abstract void setError(MessageObject messageObject, String errorType, String errorMessage, Throwable e, Object payload);
 
     public abstract void setSuccess(MessageObject messageObject, String responseMessage, Object payload);
-    
+
     public abstract void setTransformed(MessageObject messageObject, Object payload);
 
     public abstract void setQueued(MessageObject messageObject, String responseMessage, Object payload);
@@ -73,6 +73,8 @@ public abstract class MessageObjectController extends Controller {
     // attachments
 
     public abstract Attachment getAttachment(String attachmentId) throws ControllerException;
+
+    public abstract List<Attachment> getAttachmentsByMessage(MessageObject messageObject) throws ControllerException;
 
     public abstract List<Attachment> getAttachmentsByMessageId(String messageId) throws ControllerException;
 

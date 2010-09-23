@@ -533,7 +533,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
         // Helper function to get attachments
         newScript.append("function getAttachments() {");
-        newScript.append("return Packages.com.mirth.connect.server.controllers.ControllerFactory.getFactory().createMessageObjectController().getAttachmentsByMessageId(messageObject.getId());");
+        newScript.append("return Packages.com.mirth.connect.server.controllers.ControllerFactory.getFactory().createMessageObjectController().getAttachmentsByMessage(messageObject);");
         newScript.append("}");
 
         // Helper function to set attachment

@@ -325,7 +325,7 @@ public class JavaScriptUtil {
 
             // Helper function to access attachments (returns List<Attachment>)
             builtScript.append("function getAttachments() {");
-            builtScript.append("return Packages.com.mirth.connect.server.controllers.MessageObjectController.getInstance().getAttachmentsByMessageId(messageObject.getId());");
+            builtScript.append("return Packages.com.mirth.connect.server.controllers.MessageObjectController.getInstance().getAttachmentsByMessage(messageObject);");
             builtScript.append("}");
 
             // Helper function to set attachment

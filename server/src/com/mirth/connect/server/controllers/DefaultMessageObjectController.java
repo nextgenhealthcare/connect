@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Map;
 import javax.activation.UnsupportedDataTypeException;
 
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mule.umo.UMOEvent;
 
@@ -858,6 +860,29 @@ public class DefaultMessageObjectController extends MessageObjectController {
         } catch (Exception e) {
             throw new ControllerException(e);
         }
+    }
+
+    /**
+     * Returns messages that match either the message id or message correlation
+     * id.
+     * 
+     * @param message
+     * @return
+     * @throws ControllerException
+     */
+    public List<Attachment> getAttachmentsByMessage(MessageObject messageObject) throws ControllerException {
+        List<Attachment> attachments = new ArrayList<Attachment>();
+        try {
+            if (StringUtils.isNotEmpty(messageObject.getCorrelationId())) {
+                attachments.addAll(SqlConfig.getSqlMapClient().queryForList("Message.getAttachmentsByMessageId", messageObject.getCorrelationId()));
+            }
+            
+            attachments.addAll(SqlConfig.getSqlMapClient().queryForList("Message.getAttachmentsByMessageId", messageObject.getId()));
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+
+        return attachments;
     }
 
     public List<Attachment> getAttachmentsByMessageId(String messageId) throws ControllerException {
