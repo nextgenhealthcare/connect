@@ -196,7 +196,6 @@ public class XmlUtil {
     }
     
     // This replaces all &#xNN; characters with their equivalent 0xNN single character
-    // Currently, this is used to parse NCPDP files
     public static String decodeEntities(String str) {
         for(int i=0;i<=256;i++) {
             str = str.replaceAll("\\&\\#x"+Integer.toHexString(i)+";", String.valueOf((char)i));
