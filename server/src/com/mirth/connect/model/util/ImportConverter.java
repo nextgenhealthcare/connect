@@ -56,8 +56,8 @@ public class ImportConverter {
     private static ObjectXMLSerializer serializer = new ObjectXMLSerializer();
     
     private static Pattern matchVersion = Pattern.compile("<version>([\\.0-9]+?)<\\/version>");
-    private static Pattern matchInboundTemplate = Pattern.compile("<inboundTemplate>(.+?)<\\/inboundTemplate>", Pattern.DOTALL);
-    private static Pattern matchOutboundTemplate = Pattern.compile("<outboundTemplate>(.+?)<\\/outboundTemplate>", Pattern.DOTALL);
+    private static Pattern matchInboundTemplate = Pattern.compile("<inboundTemplate>(.*?)<\\/inboundTemplate>", Pattern.DOTALL);
+    private static Pattern matchOutboundTemplate = Pattern.compile("<outboundTemplate>(.*?)<\\/outboundTemplate>", Pattern.DOTALL);
 
     private enum Direction {
         INBOUND, OUTBOUND
