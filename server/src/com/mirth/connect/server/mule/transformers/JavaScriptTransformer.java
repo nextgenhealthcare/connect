@@ -337,19 +337,20 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
             throw new TransformerException(this, e);
         }
         // ---- End MO checks -----
-        MessageObject finalMessageObject = null;
-
-        // do not evaluate scripts if there are none
-        if (emptyFilterAndTransformer) {
-            messageObject.setStatus(MessageObject.Status.TRANSFORMED);
-            finalMessageObject = messageObject;
-        } else {
-            finalMessageObject = evaluateScript(messageObject);
-        }
-
-        boolean messageAccepted = finalMessageObject.getStatus().equals(MessageObject.Status.TRANSFORMED);
 
         try {
+            MessageObject finalMessageObject = null;
+
+            // do not evaluate scripts if there are none
+            if (emptyFilterAndTransformer) {
+                messageObject.setStatus(MessageObject.Status.TRANSFORMED);
+                finalMessageObject = messageObject;
+            } else {
+                finalMessageObject = evaluateScript(messageObject);
+            }
+
+            boolean messageAccepted = finalMessageObject.getStatus().equals(MessageObject.Status.TRANSFORMED);
+
             if (messageAccepted) {
                 if (this.getMode().equals(Mode.SOURCE.toString())) {
                     // only update on the source - it doesn't matter on each
