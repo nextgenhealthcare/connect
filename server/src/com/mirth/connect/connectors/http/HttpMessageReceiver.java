@@ -1,7 +1,6 @@
 package com.mirth.connect.connectors.http;
 
 import java.io.IOException;
-import java.net.InetAddress;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
@@ -13,7 +12,6 @@ import org.mortbay.http.HttpHandler;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.HttpServer;
-import org.mortbay.http.SocketListener;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
@@ -42,7 +40,7 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
     private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 
-    private HttpServer server;
+    private HttpServer server = null;
 
     private HttpHandler requestHandler = new AbstractHttpHandler() {
         public void handle(String pathInContext, String pathParams, HttpRequest httpRequest, HttpResponse httpResponse) throws HttpException, IOException {
@@ -77,14 +75,14 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
 
     @Override
     public void doConnect() throws Exception {
-        logger.debug("starting HTTP server with address: " + endpoint.getEndpointURI().getUri());
         server = new HttpServer();
-        SocketListener listener = new SocketListener();
-        listener.setInetAddress(InetAddress.getByName(endpoint.getEndpointURI().getUri().getHost()));
-        listener.setPort(endpoint.getEndpointURI().getUri().getPort());
-        server.addListener(listener);
+        connector.getConfiguration().configureReceiver(server, endpoint);
+        
+        // add the request handler
         HttpContext context = server.addContext("/");
         context.addHandler(requestHandler);
+        
+        logger.debug("starting HTTP server with address: " + endpoint.getEndpointURI().getUri());
         server.start();
         monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }

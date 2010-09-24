@@ -6,8 +6,11 @@ import org.mule.providers.QueueEnabledConnector;
 import org.mule.umo.lifecycle.InitialisationException;
 
 import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class HttpConnector extends QueueEnabledConnector {
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private String channelId;
 
     // Connector specific properties
@@ -29,6 +32,8 @@ public class HttpConnector extends QueueEnabledConnector {
     private String receiverResponse;
     private String receiverCharset;
     private int dispatcherSocketTimeout;
+    
+    private HttpConfiguration configuration = null;
 
     @Override
     public void doInitialise() throws InitialisationException {
@@ -38,6 +43,22 @@ public class HttpConnector extends QueueEnabledConnector {
             setConnectorErrorCode(Constants.ERROR_404);
             setDispatcher(new HttpMessageDispatcher(this));
         }
+
+        // load the default configuration
+        String configurationClass = configurationController.getProperty(getProtocol(), "configurationClass");
+
+        try {
+            configuration = (HttpConfiguration) Class.forName(configurationClass).newInstance();
+        } catch (Exception e) {
+            logger.trace("could not find custom configuration class, using default");
+            configuration = new DefaultHttpConfiguration();
+        }
+
+        configuration.configureConnector(this);
+    }
+    
+    public HttpConfiguration getConfiguration() {
+        return configuration;
     }
 
     public String getChannelId() {
