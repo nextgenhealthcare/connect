@@ -194,6 +194,16 @@ public class XmlUtil {
         if (value < 0x100)
             encoderXml[value] = entity;
     }
+    
+    // This replaces all &#xNN; characters with their equivalent 0xNN single character
+    // Currently, this is used to parse NCPDP files
+    public static String decodeEntities(String str) {
+        for(int i=0;i<=256;i++) {
+            str = str.replaceAll("\\&\\#x"+Integer.toHexString(i)+";", String.valueOf((char)i));
+        }
+        return str;
+    }
+    
 
     private void addEntities() {
         addEntity("&nbsp", 160);

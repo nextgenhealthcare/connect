@@ -18,6 +18,8 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.mirth.connect.model.MessageObject.Protocol;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamConverter;
+import com.thoughtworks.xstream.converters.basic.Base64StringConverter;
 
 /**
  * A Transformer represents a script which is executed on each message passing
@@ -27,96 +29,90 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("transformer")
 public class Transformer implements Serializable {
-	private List<Step> steps;
-	private String inboundTemplate;
-	private String outboundTemplate;
-	private Protocol inboundProtocol;
-	private Protocol outboundProtocol;
-	private Properties inboundProperties;
-	private Properties outboundProperties;
-	
-	public Transformer() {
-		this.steps = new ArrayList<Step>();
-	}
+    private List<Step> steps;
 
-	public Protocol getInboundProtocol() {
-		return this.inboundProtocol;
-	}
+    @XStreamConverter(Base64StringConverter.class)
+    private String inboundTemplate;
 
-	public void setInboundProtocol(Protocol inboundProtocol) {
-		this.inboundProtocol = inboundProtocol;
-	}
+    @XStreamConverter(Base64StringConverter.class)
+    private String outboundTemplate;
 
-	public String getInboundTemplate() {
-		return inboundTemplate;
-	}
+    private Protocol inboundProtocol;
+    private Protocol outboundProtocol;
+    private Properties inboundProperties;
+    private Properties outboundProperties;
 
-	public void setInboundTemplate(String inboundTemplate) {
-		this.inboundTemplate = inboundTemplate;
-	}
+    public Transformer() {
+        this.steps = new ArrayList<Step>();
+    }
 
-	public Protocol getOutboundProtocol() {
-		return outboundProtocol;
-	}
+    public Protocol getInboundProtocol() {
+        return this.inboundProtocol;
+    }
 
-	public void setOutboundProtocol(Protocol outboundProtocol) {
-		this.outboundProtocol = outboundProtocol;
-	}
+    public void setInboundProtocol(Protocol inboundProtocol) {
+        this.inboundProtocol = inboundProtocol;
+    }
 
-	public String getOutboundTemplate() {
-		return outboundTemplate;
-	}
+    public String getInboundTemplate() {
+        return inboundTemplate;
+    }
 
-	public void setOutboundTemplate(String outboundTemplate) {
-		this.outboundTemplate = outboundTemplate;
-	}
+    public void setInboundTemplate(String inboundTemplate) {
+        this.inboundTemplate = inboundTemplate;
+    }
 
-	public List<Step> getSteps() {
-		return this.steps;
-	}
+    public Protocol getOutboundProtocol() {
+        return outboundProtocol;
+    }
 
-	public void setSteps(List<Step> steps) {
-		this.steps = steps;
-	}
+    public void setOutboundProtocol(Protocol outboundProtocol) {
+        this.outboundProtocol = outboundProtocol;
+    }
 
-	public boolean equals(Object that) {
-		if (this == that) {
-			return true;
-		}
+    public String getOutboundTemplate() {
+        return outboundTemplate;
+    }
 
-		if (!(that instanceof Transformer)) {
-			return false;
-		}
+    public void setOutboundTemplate(String outboundTemplate) {
+        this.outboundTemplate = outboundTemplate;
+    }
 
-		Transformer transformer = (Transformer) that;
+    public List<Step> getSteps() {
+        return this.steps;
+    }
 
-		return
-			ObjectUtils.equals(this.getSteps(), transformer.getSteps()) &&
-			ObjectUtils.equals(this.getInboundTemplate(), transformer.getInboundTemplate()) &&
-			ObjectUtils.equals(this.getOutboundTemplate(), transformer.getOutboundTemplate()) &&
-			ObjectUtils.equals(this.getInboundProtocol(), transformer.getInboundProtocol()) &&
-			ObjectUtils.equals(this.getOutboundProtocol(), transformer.getOutboundProtocol()) &&
-			ObjectUtils.equals(this.getInboundProperties(), transformer.getInboundProperties()) &&
-			ObjectUtils.equals(this.getOutboundProperties(), transformer.getOutboundProperties());
-	}
+    public void setSteps(List<Step> steps) {
+        this.steps = steps;
+    }
 
-	public Properties getInboundProperties()
-	{
-		return inboundProperties;
-	}
+    public boolean equals(Object that) {
+        if (this == that) {
+            return true;
+        }
 
-	public void setInboundProperties(Properties inboundProperties)
-	{
-		this.inboundProperties = inboundProperties;
-	}
+        if (!(that instanceof Transformer)) {
+            return false;
+        }
 
-	public Properties getOutboundProperties()
-	{
-		return outboundProperties;
-	}
+        Transformer transformer = (Transformer) that;
 
-	public void setOutboundProperties(Properties outboundProperties)
-	{
-		this.outboundProperties = outboundProperties;
-	}
+        return ObjectUtils.equals(this.getSteps(), transformer.getSteps()) && ObjectUtils.equals(this.getInboundTemplate(), transformer.getInboundTemplate()) && ObjectUtils.equals(this.getOutboundTemplate(), transformer.getOutboundTemplate()) && ObjectUtils.equals(this.getInboundProtocol(), transformer.getInboundProtocol()) && ObjectUtils.equals(this.getOutboundProtocol(), transformer.getOutboundProtocol()) && ObjectUtils.equals(this.getInboundProperties(), transformer.getInboundProperties()) && ObjectUtils.equals(this.getOutboundProperties(), transformer.getOutboundProperties());
+    }
+
+    public Properties getInboundProperties() {
+        return inboundProperties;
+    }
+
+    public void setInboundProperties(Properties inboundProperties) {
+        this.inboundProperties = inboundProperties;
+    }
+
+    public Properties getOutboundProperties() {
+        return outboundProperties;
+    }
+
+    public void setOutboundProperties(Properties outboundProperties) {
+        this.outboundProperties = outboundProperties;
+    }
 }

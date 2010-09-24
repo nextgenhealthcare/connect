@@ -9,6 +9,8 @@
 
 package com.mirth.connect.model.converters;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -27,17 +29,20 @@ public class ObjectXMLSerializer implements IXMLSerializer<Object> {
         xstream = new XStream(new XppDriver());
         xstream.registerConverter(new StringConverter(stringCache));
         xstream.setMode(XStream.NO_REFERENCES);
+        processAnnotations();
     }
 
     public ObjectXMLSerializer(Class<?>[] aliases) {
         xstream = new XStream(new XppDriver());
         xstream.registerConverter(new StringConverter(stringCache));
+        processAnnotations();
         xstream.processAnnotations(aliases);
         xstream.setMode(XStream.NO_REFERENCES);
     }
 
     public ObjectXMLSerializer(Class<?>[] aliases, Converter[] converters) {
         xstream = new XStream(new XppDriver());
+        processAnnotations();
         xstream.processAnnotations(aliases);
         xstream.setMode(XStream.NO_REFERENCES);
 
@@ -52,20 +57,28 @@ public class ObjectXMLSerializer implements IXMLSerializer<Object> {
 
     public String toXML(Object source, Class<?>[] aliases) {
         xstream.processAnnotations(aliases);
+        processAnnotations();
         String retval = xstream.toXML(source);
-        xstream.processAnnotations(new Class<?>[] {});
         return retval;
     }
 
     public Object fromXML(String source) {
         return xstream.fromXML(source);
     }
-
+    
+    public <E> List<E> fromXMLAsList(E objType, String source) {
+        return (List<E>) fromXML(source);
+    }
+    
     public Object fromXML(String source, Class<?>[] aliases) {
         xstream.processAnnotations(aliases);
+        processAnnotations();
         Object retval = xstream.fromXML(source);
-        xstream.processAnnotations(new Class<?>[] {});
         return retval;
+    }
+    
+    private void processAnnotations() {
+        xstream.processAnnotations(com.mirth.connect.model.Transformer.class);
     }
 
     public Map<String, String> getMetadata() {
