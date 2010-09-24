@@ -241,7 +241,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
-    public String generateGuid() throws ControllerException {
+    public String generateGuid() {
         return UUID.randomUUID().toString();
     }
 
