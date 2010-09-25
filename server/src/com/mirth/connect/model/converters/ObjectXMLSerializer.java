@@ -9,7 +9,6 @@
 
 package com.mirth.connect.model.converters;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -65,18 +64,18 @@ public class ObjectXMLSerializer implements IXMLSerializer<Object> {
     public Object fromXML(String source) {
         return xstream.fromXML(source);
     }
-    
+
     public <E> List<E> fromXMLAsList(E objType, String source) {
         return (List<E>) fromXML(source);
     }
-    
+
     public Object fromXML(String source, Class<?>[] aliases) {
         xstream.processAnnotations(aliases);
         processAnnotations();
         Object retval = xstream.fromXML(source);
         return retval;
     }
-    
+
     private void processAnnotations() {
         xstream.processAnnotations(com.mirth.connect.model.Transformer.class);
     }

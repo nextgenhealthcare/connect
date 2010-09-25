@@ -200,6 +200,14 @@ public class XmlUtil {
         for(int i=0;i<=256;i++) {
             str = str.replaceAll("\\&\\#x"+Integer.toHexString(i)+";", String.valueOf((char)i));
         }
+        
+        str = str.replaceAll("&#xd;", "\r");
+        str = str.replaceAll("&#lt;", "<");
+        str = str.replaceAll("&#gt;", ">");
+        str = str.replaceAll("&quot;", "\"");
+        str = str.replaceAll("&apos;", "'");
+        str = str.replaceAll("&amp;", "&");
+        
         return str;
     }
     

@@ -69,7 +69,14 @@ public class Base64StringConverter implements Converter {
             result[i] = b.byteValue();
             i++;
         }
-        return new String(result);
+        String ret = new String(result);
+        ret = ret.replaceAll("&#xd;", "\r");
+        ret = ret.replaceAll("&#lt;", "<");
+        ret = ret.replaceAll("&#gt;", ">");
+        ret = ret.replaceAll("&quot;", "\"");
+        ret = ret.replaceAll("&apos;", "'");
+        ret = ret.replaceAll("&amp;", "&");
+        return ret;
     }
 
 }
