@@ -194,23 +194,23 @@ public class XmlUtil {
         if (value < 0x100)
             encoderXml[value] = entity;
     }
-    
-    // This replaces all &#xNN; characters with their equivalent 0xNN single character
+
+    // This replaces all &#xNN; characters with their equivalent 0xNN single
+    // character
     public static String decodeEntities(String str) {
-        for(int i=0;i<=256;i++) {
-            str = str.replaceAll("\\&\\#x"+Integer.toHexString(i)+";", String.valueOf((char)i));
+        for (int i = 0; i <= 256; i++) {
+            str = str.replaceAll("\\&\\#x" + Integer.toHexString(i) + ";", String.valueOf((char) i));
         }
-        
+
         str = str.replaceAll("&#xd;", "\r");
         str = str.replaceAll("&#lt;", "<");
         str = str.replaceAll("&#gt;", ">");
         str = str.replaceAll("&quot;", "\"");
         str = str.replaceAll("&apos;", "'");
         str = str.replaceAll("&amp;", "&");
-        
+
         return str;
     }
-    
 
     private void addEntities() {
         addEntity("&nbsp", 160);

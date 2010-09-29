@@ -34,7 +34,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -54,7 +53,7 @@ import com.thoughtworks.xstream.core.util.Base64Encoder;
 
 public class ImportConverter {
     private static ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-    
+
     private static Pattern matchVersion = Pattern.compile("<version>([\\.0-9]+?)<\\/version>");
     private static Pattern matchInboundTemplate = Pattern.compile("<inboundTemplate>(.*?)<\\/inboundTemplate>", Pattern.DOTALL);
     private static Pattern matchOutboundTemplate = Pattern.compile("<outboundTemplate>(.*?)<\\/outboundTemplate>", Pattern.DOTALL);
@@ -203,7 +202,7 @@ public class ImportConverter {
 
         // base64 encode the templates
         channel = convertUnencodedTransformerTemplates(channel);
-        
+
         String contents = removeInvalidHexChar(channel);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
@@ -214,98 +213,98 @@ public class ImportConverter {
 
         return convertChannel(document);
     }
-    
+
     public static String convertUnencodedTransformerTemplates(String xmlData) {
-        
+
         Matcher myMatcher = matchVersion.matcher(xmlData);
-        if(myMatcher.find()) {
+        if (myMatcher.find()) {
             String versionData = myMatcher.group(1);
-            
-            if (compareVersion("2.0.0", versionData)<0) {
+
+            if (compareVersion("2.0.0", versionData) < 0) {
                 return xmlData;
             }
-        }
-        else {
+        } else {
             // This means we couldn't find the version number...? Abort?
             return xmlData;
         }
-        
+
         Base64Encoder base64 = new Base64Encoder();
-        
+
         // Inbound template
         StringBuffer tempStringBuffer = new StringBuffer();
         myMatcher = matchInboundTemplate.matcher(xmlData);
         while (myMatcher.find()) {
             String templateData = myMatcher.group(1);
             templateData = XmlUtil.decodeEntities(templateData);
-            myMatcher.appendReplacement(tempStringBuffer, "<inboundTemplate>"+base64.encode(templateData.getBytes()).replaceAll("\n", "")+"</inboundTemplate>");
+            myMatcher.appendReplacement(tempStringBuffer, "<inboundTemplate>" + base64.encode(templateData.getBytes()).replaceAll("\n", "") + "</inboundTemplate>");
         }
         myMatcher.appendTail(tempStringBuffer);
         xmlData = tempStringBuffer.toString();
-        
+
         // Outbound
         tempStringBuffer = new StringBuffer();
         myMatcher = matchOutboundTemplate.matcher(xmlData);
         while (myMatcher.find()) {
             String templateData = myMatcher.group(1);
             templateData = XmlUtil.decodeEntities(templateData);
-            myMatcher.appendReplacement(tempStringBuffer, "<outboundTemplate>"+base64.encode(templateData.getBytes()).replaceAll("\n", "")+"</outboundTemplate>");
+            myMatcher.appendReplacement(tempStringBuffer, "<outboundTemplate>" + base64.encode(templateData.getBytes()).replaceAll("\n", "") + "</outboundTemplate>");
         }
         myMatcher.appendTail(tempStringBuffer);
         xmlData = tempStringBuffer.toString();
-        
+
         return xmlData;
     }
-    
+
     /**
      * Compares two versions to each other
-     * @param v1 first version
-     * @param v2 second version
-     * @return -1 if the first version is lower than the second, 0 if they are equal, and 1 if the second is lower.
+     * 
+     * @param v1
+     *            first version
+     * @param v2
+     *            second version
+     * @return -1 if the first version is lower than the second, 0 if they are
+     *         equal, and 1 if the second is lower.
      */
     public static int compareVersion(String v1, String v2) {
         String[] v1Parts = v1.split("\\.");
-        int majorV1 = v1Parts.length>=1 ? Integer.parseInt(v1Parts[0]) : 0;
-        int minorV1 = v1Parts.length>=2 ? Integer.parseInt(v1Parts[1]) : 0;
-        int patchV1 = v1Parts.length>=3 ? Integer.parseInt(v1Parts[2]) : 0;
-        int revV1 = v1Parts.length>=4 ? Integer.parseInt(v1Parts[3]) : 0;
-        
+        int majorV1 = v1Parts.length >= 1 ? Integer.parseInt(v1Parts[0]) : 0;
+        int minorV1 = v1Parts.length >= 2 ? Integer.parseInt(v1Parts[1]) : 0;
+        int patchV1 = v1Parts.length >= 3 ? Integer.parseInt(v1Parts[2]) : 0;
+        int revV1 = v1Parts.length >= 4 ? Integer.parseInt(v1Parts[3]) : 0;
+
         String[] v2Parts = v2.split("\\.");
-        int majorV2 = v2Parts.length>=1 ? Integer.parseInt(v2Parts[0]) : 0;
-        int minorV2 = v2Parts.length>=2 ? Integer.parseInt(v2Parts[1]) : 0;
-        int patchV2 = v2Parts.length>=3 ? Integer.parseInt(v2Parts[2]) : 0;
-        int revV2 = v2Parts.length>=4 ? Integer.parseInt(v2Parts[3]) : 0;
-        
-        if( majorV1 == majorV2 ) {
-            
+        int majorV2 = v2Parts.length >= 1 ? Integer.parseInt(v2Parts[0]) : 0;
+        int minorV2 = v2Parts.length >= 2 ? Integer.parseInt(v2Parts[1]) : 0;
+        int patchV2 = v2Parts.length >= 3 ? Integer.parseInt(v2Parts[2]) : 0;
+        int revV2 = v2Parts.length >= 4 ? Integer.parseInt(v2Parts[3]) : 0;
+
+        if (majorV1 == majorV2) {
+
             if (minorV1 < minorV2) {
                 return -1;
             } else if (minorV1 > minorV2) {
                 return 1;
             }
-            
+
             if (patchV1 < patchV2) {
                 return -1;
             } else if (patchV1 > patchV2) {
                 return 1;
             }
-            
+
             if (revV1 < revV2) {
                 return -1;
             } else if (revV1 > revV2) {
                 return 1;
             }
-            
+
             return 0;
-        }
-        else if (majorV1 < majorV2) {
+        } else if (majorV1 < majorV2) {
             return -1;
-        }
-        else {
+        } else {
             return 1;
         }
     }
-            
 
     /*
      * Upgrade pre-1.4 channels to work with 1.4+
@@ -887,13 +886,13 @@ public class ImportConverter {
                 if (attribute.equals("requestVariables")) {
                     // get the properties object for the variables
                     Properties tempProps = (Properties) serializer.fromXML(value);
-                    
+
                     // set the content of 2.0 to be $payload of 1.8.2
-                    propertyChanges.put("dispatcherContent", tempProps.getProperty("$payload","") );
-                    
+                    propertyChanges.put("dispatcherContent", tempProps.getProperty("$payload", ""));
+
                     // remove $payload as we dont need it
                     tempProps.remove("$payload");
-                    
+
                     // set the params
                     propertyChanges.put("dispatcherParameters", serializer.toXML(tempProps));
                 }
@@ -918,12 +917,12 @@ public class ImportConverter {
                     propertyChanges.put("dispatcherMultipart", value);
                 }
             }
-            
+
             // If we have a post/put message and blank content, then disable
             String requestMethod = propertyChanges.get("dispatcherMethod") == null ? propertyDefaults.get("dispatcherMethod") : propertyChanges.get("dispatcherMethod");
             String requestContent = propertyChanges.get("dispatcherContent") == null ? propertyDefaults.get("dispatcherContent") : propertyChanges.get("dispatcherContent");
-            
-            if( requestContent.length() == 0 && ( requestMethod.equalsIgnoreCase("POST") || requestMethod.equalsIgnoreCase("PUT") ) ) {
+
+            if (requestContent.length() == 0 && (requestMethod.equalsIgnoreCase("POST") || requestMethod.equalsIgnoreCase("PUT"))) {
                 document.getElementsByTagName("enabled").item(0).setTextContent("false");
             }
 
