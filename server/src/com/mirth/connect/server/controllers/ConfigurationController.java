@@ -211,6 +211,8 @@ public abstract class ConfigurationController extends Controller {
     // properties
 
     public abstract Properties getPropertiesForGroup(String group);
+    
+    public abstract void removePropertiesForGroup(String group);
 
     public abstract String getProperty(String group, String name);
 

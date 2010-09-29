@@ -59,6 +59,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<delete id="deleteProperty" parameterClass="java.util.Map">
 		DELETE FROM CONFIGURATION
-		WHERE CATEGORY = #category# AND NAME = #name#
+		WHERE CATEGORY = #category#
+		<dynamic prepend="AND">
+			<isNotNull property="name">NAME = #name#</isNotNull>
+		</dynamic>
 	</delete>
 </sqlMap>

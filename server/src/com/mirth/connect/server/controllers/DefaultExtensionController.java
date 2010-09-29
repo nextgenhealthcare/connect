@@ -51,6 +51,8 @@ public class DefaultExtensionController extends ExtensionController {
     private List<String> clientLibraries = null;
     private Map<String, ConnectorMetaData> protocols = null;
 
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    
     // singleton pattern
     private static DefaultExtensionController instance = null;
     
@@ -208,7 +210,7 @@ public class DefaultExtensionController extends ExtensionController {
 		                    List<String> uninstallScripts = getUninstallScripts();
 		                    uninstallScripts.addAll(scriptList);
 		                    setUninstallScripts(uninstallScripts);
-		                    ControllerFactory.getFactory().createConfigurationController().removeProperty(plugin.getName(), "schema");
+		                    configurationController.removeProperty(plugin.getName(), "schema");
 	                    }
                     }
 				}
@@ -240,8 +242,10 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     public void setPluginProperties(String pluginName, Properties properties) throws ControllerException {
+        configurationController.removePropertiesForGroup(pluginName);
+        
         for (Object name : properties.keySet()) {
-            ControllerFactory.getFactory().createConfigurationController().saveProperty(pluginName, (String) name, (String) properties.get(name));
+            configurationController.saveProperty(pluginName, (String) name, (String) properties.get(name));
         }
     }
 

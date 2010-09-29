@@ -483,6 +483,18 @@ public class DefaultConfigurationController extends ConfigurationController {
         return properties;
     }
 
+    public void removePropertiesForGroup(String category) {
+        logger.debug("deleting all properties: category=" + category);
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
+            parameterMap.put("category", category);
+            SqlConfig.getSqlMapClient().delete("Configuration.deleteProperty", parameterMap);
+        } catch (Exception e) {
+            logger.error("Could not delete properties: category=" + category);
+        }
+    }
+
     public String getProperty(String category, String name) {
         logger.debug("retrieving property: category=" + category + ", name=" + name);
 
