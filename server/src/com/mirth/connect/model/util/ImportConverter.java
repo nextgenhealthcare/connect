@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -48,15 +46,9 @@ import com.mirth.connect.model.MessageObject.Protocol;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.util.XmlUtil;
-import com.thoughtworks.xstream.core.util.Base64Encoder;
 
 public class ImportConverter {
     private static ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-
-    private static Pattern matchVersion = Pattern.compile("<version>([\\.0-9]+?)<\\/version>");
-    private static Pattern matchInboundTemplate = Pattern.compile("<inboundTemplate>(.*?)<\\/inboundTemplate>", Pattern.DOTALL);
-    private static Pattern matchOutboundTemplate = Pattern.compile("<outboundTemplate>(.*?)<\\/outboundTemplate>", Pattern.DOTALL);
 
     private enum Direction {
         INBOUND, OUTBOUND
@@ -200,9 +192,6 @@ public class ImportConverter {
     public static String convertChannelString(String channel) throws Exception {
         channel = convertPackageNames(channel);
 
-        // base64 encode the templates
-        channel = convertUnencodedTransformerTemplates(channel);
-
         String contents = removeInvalidHexChar(channel);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
@@ -212,98 +201,6 @@ public class ImportConverter {
         document = builder.parse(new InputSource(new StringReader(contents)));
 
         return convertChannel(document);
-    }
-
-    public static String convertUnencodedTransformerTemplates(String xmlData) {
-
-        Matcher myMatcher = matchVersion.matcher(xmlData);
-        if (myMatcher.find()) {
-            String versionData = myMatcher.group(1);
-
-            if (compareVersion("2.0.0", versionData) < 0) {
-                return xmlData;
-            }
-        } else {
-            // This means we couldn't find the version number...? Abort?
-            return xmlData;
-        }
-
-        Base64Encoder base64 = new Base64Encoder();
-
-        // Inbound template
-        StringBuffer tempStringBuffer = new StringBuffer();
-        myMatcher = matchInboundTemplate.matcher(xmlData);
-        while (myMatcher.find()) {
-            String templateData = myMatcher.group(1);
-            templateData = XmlUtil.decodeEntities(templateData);
-            myMatcher.appendReplacement(tempStringBuffer, "<inboundTemplate>" + base64.encode(templateData.getBytes()).replaceAll("\n", "") + "</inboundTemplate>");
-        }
-        myMatcher.appendTail(tempStringBuffer);
-        xmlData = tempStringBuffer.toString();
-
-        // Outbound
-        tempStringBuffer = new StringBuffer();
-        myMatcher = matchOutboundTemplate.matcher(xmlData);
-        while (myMatcher.find()) {
-            String templateData = myMatcher.group(1);
-            templateData = XmlUtil.decodeEntities(templateData);
-            myMatcher.appendReplacement(tempStringBuffer, "<outboundTemplate>" + base64.encode(templateData.getBytes()).replaceAll("\n", "") + "</outboundTemplate>");
-        }
-        myMatcher.appendTail(tempStringBuffer);
-        xmlData = tempStringBuffer.toString();
-
-        return xmlData;
-    }
-
-    /**
-     * Compares two versions to each other
-     * 
-     * @param v1
-     *            first version
-     * @param v2
-     *            second version
-     * @return -1 if the first version is lower than the second, 0 if they are
-     *         equal, and 1 if the second is lower.
-     */
-    public static int compareVersion(String v1, String v2) {
-        String[] v1Parts = v1.split("\\.");
-        int majorV1 = v1Parts.length >= 1 ? Integer.parseInt(v1Parts[0]) : 0;
-        int minorV1 = v1Parts.length >= 2 ? Integer.parseInt(v1Parts[1]) : 0;
-        int patchV1 = v1Parts.length >= 3 ? Integer.parseInt(v1Parts[2]) : 0;
-        int revV1 = v1Parts.length >= 4 ? Integer.parseInt(v1Parts[3]) : 0;
-
-        String[] v2Parts = v2.split("\\.");
-        int majorV2 = v2Parts.length >= 1 ? Integer.parseInt(v2Parts[0]) : 0;
-        int minorV2 = v2Parts.length >= 2 ? Integer.parseInt(v2Parts[1]) : 0;
-        int patchV2 = v2Parts.length >= 3 ? Integer.parseInt(v2Parts[2]) : 0;
-        int revV2 = v2Parts.length >= 4 ? Integer.parseInt(v2Parts[3]) : 0;
-
-        if (majorV1 == majorV2) {
-
-            if (minorV1 < minorV2) {
-                return -1;
-            } else if (minorV1 > minorV2) {
-                return 1;
-            }
-
-            if (patchV1 < patchV2) {
-                return -1;
-            } else if (patchV1 > patchV2) {
-                return 1;
-            }
-
-            if (revV1 < revV2) {
-                return -1;
-            } else if (revV1 > revV2) {
-                return 1;
-            }
-
-            return 0;
-        } else if (majorV1 < majorV2) {
-            return -1;
-        } else {
-            return 1;
-        }
     }
 
     /*
