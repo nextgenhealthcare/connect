@@ -309,6 +309,23 @@ public class DefaultChannelController extends ChannelController {
         return destinationName;
     }
 
+    public String getCachedDestinationName(String id) {
+        // String format: channelid_destination_index
+        String destinationName = id;
+        // if we can't parse the name, just use the id
+        String channelId = id.substring(0, id.indexOf('_'));
+        String strIndex = id.substring(id.indexOf("destination_") + 12, id.indexOf("_connector"));
+        int index = Integer.parseInt(strIndex) - 1;
+        Channel channel = getCachedChannelById(channelId);
+
+        if (channel != null) {
+            if (index < channel.getDestinationConnectors().size())
+                destinationName = channel.getDestinationConnectors().get(index).getName();
+        }
+
+        return destinationName;
+    }
+
     public String getDeployedConnectorId(String channelId, String connectorName) throws Exception {
         Channel channel = getDeployedChannelById(channelId);
         int index = 1;
