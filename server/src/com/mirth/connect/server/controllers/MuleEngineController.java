@@ -11,6 +11,7 @@ package com.mirth.connect.server.controllers;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -71,8 +72,6 @@ import com.mirth.connect.server.util.GlobalVariableStore;
 import com.mirth.connect.server.util.UUIDGenerator;
 import com.mirth.connect.server.util.VMRegistry;
 import com.mirth.connect.util.PropertyLoader;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class MuleEngineController implements EngineController {
     private Logger logger = Logger.getLogger(this.getClass());
