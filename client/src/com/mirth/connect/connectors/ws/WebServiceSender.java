@@ -402,7 +402,11 @@ public class WebServiceSender extends ConnectorClass {
         try {
             returnObject = parent.mirthClient.invokeConnectorService(name, method, params);
         } catch (ClientException e) {
-            parent.alertError(parent, "Error calling " + method + " with parameter: " + params.toString());
+            if (method.equals("generateEnvelope")) {
+                parent.alertError(parent, "There was an error generating the envelope. Mirth Connect \ncurrently does not support all WSDL types. Please use another \ntool, such as soapUI (soapui.org), to generate the envelope.");
+            } else {
+                parent.alertError(parent, "Error calling " + method + " with parameter: " + params.toString());
+            }
         }
 
         return returnObject;
