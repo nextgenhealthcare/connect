@@ -38,8 +38,6 @@ public class ExtensionServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else if (!isUserAuthorized(request)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             try {
                 ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
@@ -82,30 +80,46 @@ public class ExtensionServlet extends MirthServlet {
                     String name = request.getParameter("name");
                     out.println(serializer.toXML(extensionController.getPluginProperties(name)));
                 } else if (operation.equals(Operations.PLUGIN_PROPERTIES_SET)) {
-                    String name = request.getParameter("name");
-                    Properties properties = (Properties) serializer.fromXML(request.getParameter("properties"));
-                    extensionController.setPluginProperties(name, properties);
-                    extensionController.updatePlugin(name, properties);
+                    if (isUserAuthorized(request)) {
+                        String name = request.getParameter("name");
+                        Properties properties = (Properties) serializer.fromXML(request.getParameter("properties"));
+                        extensionController.setPluginProperties(name, properties);
+                        extensionController.updatePlugin(name, properties);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
                 } else if (operation.equals(Operations.PLUGIN_METADATA_GET)) {
                     out.println(serializer.toXML(extensionController.getPluginMetaData(), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class }));
                 } else if (operation.equals(Operations.PLUGIN_METADATA_SET)) {
-                    Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class });
-                    extensionController.savePluginMetaData(metaData);
+                    if (isUserAuthorized(request)) {
+                        Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class });
+                        extensionController.savePluginMetaData(metaData);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
                 } else if (operation.equals(Operations.CONNECTOR_METADATA_GET)) {
                     response.setContentType("application/xml");
                     out.println(serializer.toXML(extensionController.getConnectorMetaData(), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class }));
                 } else if (operation.equals(Operations.CONNECTOR_METADATA_SET)) {
-                    Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
-                    extensionController.saveConnectorMetaData(metaData);
+                    if (isUserAuthorized(request)) {
+                        Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
+                        extensionController.saveConnectorMetaData(metaData);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
                 } else if (operation.equals(Operations.EXTENSION_IS_ENABLED)) {
                     String extensionName = request.getParameter("name");
                     out.println(extensionController.isExtensionEnabled(extensionName));
                 } else if (operation.equals(Operations.PLUGIN_SERVICE_INVOKE)) {
-                    String name = request.getParameter("name");
+                    String pluginName = request.getParameter("name");
                     String method = request.getParameter("method");
                     Object object = serializer.fromXML(request.getParameter("object"));
                     String sessionId = request.getSession().getId();
-                    out.println(serializer.toXML(extensionController.invokePluginService(name, method, object, sessionId)));
+
+                    if (isUserAuthorizedForExtension(request, pluginName, method)) {
+                        out.println(serializer.toXML(extensionController.invokePluginService(pluginName, method, object, sessionId)));
+                    }
+                    
                 } else if (operation.equals(Operations.CONNECTOR_SERVICE_INVOKE)) {
                     String name = request.getParameter("name");
                     String method = request.getParameter("method");
@@ -113,12 +127,21 @@ public class ExtensionServlet extends MirthServlet {
                     String sessionId = request.getSession().getId();
                     out.println(serializer.toXML(extensionController.invokeConnectorService(name, method, object, sessionId)));
                 } else if (operation.equals(Operations.EXTENSION_UNINSTALL)) {
-                    String packageName = request.getParameter("packageName");
-                    extensionController.uninstallExtension(packageName);
+                    if (isUserAuthorized(request)) {
+                        String packageName = request.getParameter("packageName");
+                        extensionController.uninstallExtension(packageName);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
                 } else if (operation.equals(Operations.EXTENSION_INSTALL)) {
-                    // This is a multi-part method, so we need our parameters
-                    // from the new map
-                    extensionController.installExtension(multiPartFile);
+                    if (isUserAuthorized(request)) {
+                        // This is a multi-part method, so we need our
+                        // parameters
+                        // from the new map
+                        extensionController.installExtension(multiPartFile);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
                 }
             } catch (Exception e) {
                 throw new ServletException(e);

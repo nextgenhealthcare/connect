@@ -22,4 +22,8 @@ public class DefaultAuthorizationController implements AuthorizationController {
     public boolean isUserAuthorized(String userId, String operation) {
         return true;
     }
+    
+    public boolean isUserAuthorizedForExtension(String userId, String extensionName, String method) {
+        return true;
+    }
 }
