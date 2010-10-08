@@ -37,7 +37,7 @@ public class ManagerTray {
     }
 
     public void setupTray() {
-        menu = new PopupMenu("Mirth Server Manager");
+        menu = new PopupMenu("Mirth Connect Server Manager");
 
         viewItem = new MenuItem("Show Manager");
 //        viewItem.setIcon(new ImageIcon(this.getClass().getResource("images/start.png")));
@@ -103,7 +103,7 @@ public class ManagerTray {
         menu.add(quitItem);
 
         ImageIcon icon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico_gray.png"));
-        mirthTrayIcon = new TrayIcon(icon.getImage(), "Mirth Server Manager", menu);
+        mirthTrayIcon = new TrayIcon(icon.getImage(), "Mirth Connect Server Manager", menu);
         mirthTrayIcon.setImageAutoSize(true);
 
         // Action listener for left click.
