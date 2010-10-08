@@ -564,7 +564,7 @@ public class LLPSender extends ConnectorClass {
         queueOnAckTimeoutNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         queueOnAckTimeoutGroup.add(queueOnAckTimeoutNoRadio);
         queueOnAckTimeoutNoRadio.setText("No");
-        queueOnAckTimeoutNoRadio.setToolTipText("<html>This setting configures the behavior of Mirth's ACK processing.<br>When this setting is on, only successful ACK codes will allow a message to be marked as processed.<br>When this setting is turned off, Mirth will not attempt to parse the ACK response.</html>");
+        queueOnAckTimeoutNoRadio.setToolTipText("<html>This setting configures the behavior of Mirth's ACK processing when queuing is enabled.<br>When this setting is on and there is a timeout waiting for an ACK, the message is queued.<br>When this setting is off and there is a timeout waiting for an ACK, the message is set to errored.</html>");
         queueOnAckTimeoutNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         queuePollIntervalField.setToolTipText("<html>The amount of time that should elapse between polls of an empty queue to check for queued messages.</html>");

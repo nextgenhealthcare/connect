@@ -664,7 +664,7 @@
           <ComponentRef name="queueOnAckTimeoutGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;This setting configures the behavior of Mirth&apos;s ACK processing.&lt;br&gt;When this setting is on, only successful ACK codes will allow a message to be marked as processed.&lt;br&gt;When this setting is turned off, Mirth will not attempt to parse the ACK response.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;This setting configures the behavior of Mirth&apos;s ACK processing when queuing is enabled.&lt;br&gt;When this setting is on and there is a timeout waiting for an ACK, the message is queued.&lt;br&gt;When this setting is off and there is a timeout waiting for an ACK, the message is set to errored.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
