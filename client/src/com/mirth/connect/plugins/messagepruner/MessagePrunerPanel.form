@@ -395,7 +395,7 @@
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="pruningBlockSizeField">
           <Properties>
-            <Property name="toolTipText" type="java.lang.String" value="The number of messages to be pruned in each delete block. Increase this size for high performance systems with large message volumes."/>
+            <Property name="toolTipText" type="java.lang.String" value="The number of messages to be pruned in each delete block. Increase this size for high performance systems with large message volumes, or set it to 0 to delete all messages in a single query."/>
           </Properties>
         </Component>
       </SubComponents>

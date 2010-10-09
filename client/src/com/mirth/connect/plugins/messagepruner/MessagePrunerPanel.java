@@ -296,7 +296,7 @@ public class MessagePrunerPanel extends javax.swing.JPanel {
 
         pruningBlockSizeLabel.setText("Pruning Block Size:");
 
-        pruningBlockSizeField.setToolTipText("The number of messages to be pruned in each delete block. Increase this size for high performance systems with large message volumes.");
+        pruningBlockSizeField.setToolTipText("The number of messages to be pruned in each delete block. Increase this size for high performance systems with large message volumes, or set it to 0 to delete all messages in a single query.");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
