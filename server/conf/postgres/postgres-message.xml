@@ -309,7 +309,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		(
 			SELECT ID FROM MESSAGE
 			<include refid="messageFilterCriteria" />
-			LIMIT $limit$
+			<dynamic>
+				<isNotNull property="limit">
+					LIMIT $limit$
+				</isNotNull>
+			</dynamic>
 		)
 	</delete>
 </sqlMap>

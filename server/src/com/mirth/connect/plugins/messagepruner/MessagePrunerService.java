@@ -22,6 +22,7 @@ import java.util.Properties;
 
 import javax.swing.text.DateFormatter;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobDetail;
@@ -47,6 +48,7 @@ public class MessagePrunerService implements ServerPlugin, Job {
 	private SchedulerFactory schedFact = null;
 	private JobDetail jobDetail = null;
 	private static LinkedList<String[]> log;
+	private static final int DEFAULT_PRUNING_BLOCK_SIZE = 0;
 	private static final int LOG_SIZE = 250;
 	private static boolean allowBatchPruning;
 	private static int pruningBlockSize;
@@ -61,10 +63,10 @@ public class MessagePrunerService implements ServerPlugin, Job {
 				allowBatchPruning = false;
 			}
 			
-			if (properties.getProperty("pruningBlockSize") != null && !properties.getProperty("pruningBlockSize").equals("")) {
+			if (StringUtils.isNotEmpty(properties.getProperty("pruningBlockSize"))) {
 				pruningBlockSize = Integer.parseInt(properties.getProperty("pruningBlockSize"));
 			} else {
-				pruningBlockSize = 1000;
+				pruningBlockSize = DEFAULT_PRUNING_BLOCK_SIZE;
 			}
 
 			schedFact = new StdSchedulerFactory();
@@ -138,10 +140,10 @@ public class MessagePrunerService implements ServerPlugin, Job {
 				allowBatchPruning = false;
 			}
 			
-			if (properties.getProperty("pruningBlockSize") != null && !properties.getProperty("pruningBlockSize").equals("")) {
+			if (StringUtils.isNotEmpty(properties.getProperty("pruningBlockSize"))) {
 				pruningBlockSize = Integer.parseInt(properties.getProperty("pruningBlockSize"));
 			} else {
-				pruningBlockSize = 1000;
+				pruningBlockSize = DEFAULT_PRUNING_BLOCK_SIZE;
 			}
 			
 			sched.deleteJob("prunerJob", Scheduler.DEFAULT_GROUP);
@@ -186,7 +188,7 @@ public class MessagePrunerService implements ServerPlugin, Job {
 		properties.put("interval", "daily");
 		properties.put("time", "12:00 AM");
 		properties.put("allowBatchPruning", "1");
-		properties.put("pruningBlockSize", "1000");
+		properties.put("pruningBlockSize", String.valueOf(DEFAULT_PRUNING_BLOCK_SIZE));
 		return properties;
 	}
 

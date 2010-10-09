@@ -298,5 +298,10 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
     <delete id="pruneMessages" parameterClass="java.util.Map">
 		DELETE FROM MESSAGE	<include refid="messageFilterCriteria" />
+		<dynamic>
+			<isNotNull property="limit">
+				LIMIT $limit$
+			</isNotNull>
+		</dynamic>
 	</delete>
 </sqlMap>

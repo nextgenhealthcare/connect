@@ -423,9 +423,13 @@ public class DefaultMessageObjectController extends MessageObjectController {
         try {
             int totalRowCount = 0;
             int rowCount = 0;
+            
             do {
                 Map<String, Object> parameterMap = getFilterMap(filter, null);
-                parameterMap.put("limit", limit);
+                
+                if (limit > 0) {
+                    parameterMap.put("limit", limit);    
+                }
 
                 // Retry blocks of pruning if they fail in case of deadlocks
                 int retryCount = 0;
