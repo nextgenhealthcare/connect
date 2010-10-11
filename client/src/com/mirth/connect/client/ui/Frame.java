@@ -1276,7 +1276,7 @@ public class Frame extends JXFrame {
             public Void doInBackground() {
                 try {
                     mirthClient.updateUser(curr, password);
-                    users = mirthClient.getUser(null);
+                    retrieveUsers();
                 } catch (ClientException e) {
                     alertException(parentComponent, e.getStackTrace(), e.getMessage());
                 }
@@ -1297,7 +1297,7 @@ public class Frame extends JXFrame {
 
         try {
             mirthClient.updateUser(curr, newPassword);
-            users = mirthClient.getUser(null);
+            retrieveUsers();
         } catch (ClientException e) {
             alertException(parentComponent, e.getStackTrace(), e.getMessage());
         } finally {
@@ -1328,7 +1328,7 @@ public class Frame extends JXFrame {
         User currentUser = null;
 
         try {
-            users = mirthClient.getUser(null);
+            retrieveUsers();
             for (User user : users) {
                 if (user.getUsername().equals(PlatformUI.USER_NAME)) {
                     currentUser = user;
@@ -2563,7 +2563,7 @@ public class Frame extends JXFrame {
                 try {
                     if (userToDelete != UIConstants.ERROR_CONSTANT) {
                         mirthClient.removeUser(users.get(userToDelete));
-                        users = mirthClient.getUser(null);
+                        retrieveUsers();
                     }
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
@@ -2609,7 +2609,7 @@ public class Frame extends JXFrame {
         }
 
         try {
-            users = mirthClient.getUser(null);
+            retrieveUsers();
             userPanel.updateUserTable();
 
             if (user != null) {
@@ -4117,5 +4117,9 @@ public class Frame extends JXFrame {
 
     public PasswordRequirements getPasswordRequirements() throws ClientException {
         return mirthClient.getPasswordRequirements();
+    }
+
+    public void retrieveUsers() throws ClientException {
+        users = mirthClient.getUser(null);
     }
 }
