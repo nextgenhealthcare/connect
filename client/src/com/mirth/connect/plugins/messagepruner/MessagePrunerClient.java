@@ -79,7 +79,7 @@ public class MessagePrunerClient extends ClientPanelPlugin {
             }
 
             public void done() {
-                disableSave();
+                setSaveEnabled(false);
                 setWorking("", false);
             }
         };

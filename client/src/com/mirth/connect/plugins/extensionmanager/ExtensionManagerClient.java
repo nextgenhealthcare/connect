@@ -98,7 +98,7 @@ public class ExtensionManagerClient extends ClientPanelPlugin {
             }
 
             public void done() {
-                disableSave();
+                setSaveEnabled(false);
                 setWorking("", false);
             }
         };
@@ -108,12 +108,12 @@ public class ExtensionManagerClient extends ClientPanelPlugin {
 
     public void doEnable() {
         ((ExtensionManagerPanel) getComponent()).enableExtension();
-        enableSave();
+        setSaveEnabled(true);
     }
 
     public void doDisable() {
         ((ExtensionManagerPanel) getComponent()).disableExtension();
-        enableSave();
+        setSaveEnabled(true);
     }
 
     public void doUninstall() {

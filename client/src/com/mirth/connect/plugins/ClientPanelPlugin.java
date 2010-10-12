@@ -173,12 +173,12 @@ public abstract class ClientPanelPlugin extends ClientPlugin {
         setVisibleTasks(refreshIndex, refreshIndex, false);
     }
 
-    public void enableSave() {
-        parent.setSaveEnabled(true);
+    public void setSaveEnabled(boolean enabled) {
+        parent.setSaveEnabled(enabled);
     }
-
-    public void disableSave() {
-        parent.setSaveEnabled(false);
+    
+    public boolean isSaveEnabled() {
+        return parent.isSaveEnabled();
     }
 
     public int getRefreshIndex() {
