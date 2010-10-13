@@ -66,23 +66,23 @@ public class MailUtils {
             secure = true;
         }
 
-        Properties props = System.getProperties();
-        props.put("mail." + protocol + ".host", url.getHost());
+        Properties props = new Properties();
+        props.setProperty("mail." + protocol + ".host", url.getHost());
         int port = url.getPort();
         if (port == -1) {
             port = Integer.parseInt(connector.getPort());
         }
-        props.put("mail." + protocol + ".port", String.valueOf(port));
+        props.setProperty("mail." + protocol + ".port", String.valueOf(port));
 
         if (secure) {
-            System.setProperty("mail." + protocol + ".socketFactory.port", String.valueOf(port));
+            props.setProperty("mail." + protocol + ".socketFactory.port", String.valueOf(port));
         } else if (secureType.equals("tls")) {
-            System.setProperty("mail." + protocol + ".starttls.enable", "true");
+            props.setProperty("mail." + protocol + ".starttls.enable", "true");
         }
 
         Session session;
         if (connector.isUseAuthentication()) {
-            props.put("mail." + protocol + ".auth", "true");
+            props.setProperty("mail." + protocol + ".auth", "true");
             Authenticator auth = connector.getAuthenticator();
             if (auth == null) {
                 auth = new DefaultAuthenticator(url.getUsername(), url.getPassword());
@@ -90,7 +90,7 @@ public class MailUtils {
             }
             session = Session.getInstance(props, auth);
         } else {
-            session = Session.getDefaultInstance(props, null);
+            session = Session.getInstance(props);
         }
         return session;
     }

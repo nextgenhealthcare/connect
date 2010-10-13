@@ -71,35 +71,35 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
         if (connector.isUseServerSettings()) {
             try {
                 Properties properties = ControllerFactory.getFactory().createConfigurationController().getServerProperties();
-                host = PropertyLoader.getProperty(properties, "smtp.host");
-                port = Integer.parseInt(PropertyLoader.getProperty(properties, "smtp.port"));
-                username = PropertyLoader.getProperty(properties, "smtp.username");
-                password = PropertyLoader.getProperty(properties, "smtp.password");
-                auth = PropertyLoader.getProperty(properties, "smtp.auth").equals("1");
-                secureType = PropertyLoader.getProperty(properties, "smtp.secure").toLowerCase();
+                connector.setHostname(PropertyLoader.getProperty(properties, "smtp.host"));
+                connector.setSmtpPort(PropertyLoader.getProperty(properties, "smtp.port"));
+                connector.setUsername(PropertyLoader.getProperty(properties, "smtp.username"));
+                connector.setPassword(PropertyLoader.getProperty(properties, "smtp.password"));
+                connector.setUseAuthentication(PropertyLoader.getProperty(properties, "smtp.auth").equals("1"));
+                connector.setEmailSecure(PropertyLoader.getProperty(properties, "smtp.secure").toLowerCase());
             } catch (ControllerException e) {
                 logger.error("Unable to load server properties.", e);
             }
-        } else {
-            if (connector.getUsername() != null) {
-                username = replacer.replaceValues(connector.getUsername(), connector.getChannelId());
-            }
+        }
 
-            if (connector.getPassword() != null) {
-                password = replacer.replaceValues(connector.getPassword(), connector.getChannelId());
-            }
+        if (connector.getUsername() != null) {
+            username = replacer.replaceValues(connector.getUsername(), connector.getChannelId());
+        }
 
-            if (connector.getHostname() != null) {
-                host = replacer.replaceValues(connector.getHostname(), connector.getChannelId());
-            }
+        if (connector.getPassword() != null) {
+            password = replacer.replaceValues(connector.getPassword(), connector.getChannelId());
+        }
 
-            if (connector.getSmtpPort() != null) {
-                port = Integer.parseInt(replacer.replaceValues(connector.getSmtpPort(), connector.getChannelId()));
-            }
+        if (connector.getHostname() != null) {
+            host = replacer.replaceValues(connector.getHostname(), connector.getChannelId());
+        }
 
-            if (connector.getEmailSecure() != null) {
-                secureType = connector.getEmailSecure();
-            }
+        if (connector.getSmtpPort() != null) {
+            port = Integer.parseInt(replacer.replaceValues(connector.getSmtpPort(), connector.getChannelId()));
+        }
+
+        if (connector.getEmailSecure() != null) {
+            secureType = connector.getEmailSecure();
         }
 
         // NOTE: This is a hack. The first parameter should be the protocol
