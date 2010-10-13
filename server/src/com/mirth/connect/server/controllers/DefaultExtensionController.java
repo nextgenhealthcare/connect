@@ -52,10 +52,10 @@ public class DefaultExtensionController extends ExtensionController {
     private Map<String, ConnectorMetaData> protocols = null;
 
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-    
+
     // singleton pattern
     private static DefaultExtensionController instance = null;
-    
+
     public static ExtensionController create() {
         synchronized (DefaultExtensionController.class) {
             if (instance == null) {
@@ -80,7 +80,7 @@ public class DefaultExtensionController extends ExtensionController {
             return;
         }
     }
-    
+
     // Extension point for ExtensionPoint.Type.SERVER_PLUGIN
     @ExtensionPointDefinition(mode = ExtensionPoint.Mode.SERVER, type = ExtensionPoint.Type.SERVER_PLUGIN)
     public void initPlugins() {
@@ -93,16 +93,17 @@ public class DefaultExtensionController extends ExtensionController {
                         if (extensionPoint.getMode() == ExtensionPoint.Mode.SERVER && extensionPoint.getType() == ExtensionPoint.Type.SERVER_PLUGIN && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
                             ServerPlugin serverPlugin = (ServerPlugin) Class.forName(extensionPoint.getClassName()).newInstance();
                             String pluginId = extensionPoint.getName();
-                            
+
                             // Get the current properties for this plugin
                             Properties properties = getPluginProperties(pluginId);
 
-                            // If there aren't any stored, store the default properties for the plugin
+                            // If there aren't any stored, store the default
+                            // properties for the plugin
                             if (properties.isEmpty()) {
                                 properties = serverPlugin.getDefaultProperties();
-                                setPluginProperties(pluginId, properties);                 
+                                setPluginProperties(pluginId, properties);
                             }
-                            
+
                             serverPlugin.init(properties);
                             loadedPlugins.put(pluginId, serverPlugin);
                         }
@@ -164,64 +165,66 @@ public class DefaultExtensionController extends ExtensionController {
     public void installExtension(FileItem fileItem) throws ControllerException {
         ExtensionUtil.installExtension(fileItem);
     }
-    
-    public void uninstallExtension(String packageName) throws ControllerException {
-    	File uninstallFile = new File(getExtensionsPath() + EXTENSIONS_UNINSTALL_FILE);
 
-    	try {
-			FileWriter fileWriter = new FileWriter(uninstallFile, true);
-			fileWriter.write(packageName + System.getProperty("line.separator"));
-			fileWriter.close();
-			
-			for (PluginMetaData plugin : plugins.values()) {
-				if (plugin.getPath().equals(packageName) && plugin.getSqlScript() != null) {
-				    File pluginSqlScriptFile = new File(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript());
-					String contents = FileUtils.readFileToString(pluginSqlScriptFile);
+    public void uninstallExtension(String packageName) throws ControllerException {
+        File uninstallFile = new File(getExtensionsPath() + EXTENSIONS_UNINSTALL_FILE);
+
+        try {
+            FileWriter fileWriter = new FileWriter(uninstallFile, true);
+            fileWriter.write(packageName + System.getProperty("line.separator"));
+            fileWriter.close();
+
+            for (PluginMetaData plugin : plugins.values()) {
+                if (plugin.getPath().equals(packageName) && plugin.getSqlScript() != null) {
+                    File pluginSqlScriptFile = new File(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript());
+                    String contents = FileUtils.readFileToString(pluginSqlScriptFile);
                     Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(contents)));
-                    
+
                     String script = getUninstallScript(document);
 
                     if (script != null) {
-	                    List<String> scriptList = new LinkedList<String>();
-	
-	                    script = script.trim();
-	                    StringBuilder sb = new StringBuilder();
-	                    boolean blankLine = false;
-	                    Scanner s = new Scanner(script);
-	
-	                    while (s.hasNextLine()) {
-	                        String temp = s.nextLine();
-	
-	                        if (temp.trim().length() > 0)
-	                            sb.append(temp + " ");
-	                        else
-	                            blankLine = true;
-	
-	                        if (blankLine || !s.hasNextLine()) {
-	                            scriptList.add(sb.toString().trim());
-	                            blankLine = false;
-	                            sb.delete(0, sb.length());
-	                        }
-	                    }
-	                    
-	                    // If there was an uninstall script, then save the script to
-	                    // run later and remove the schema.plugin from extensions.properties
-	                    if (scriptList.size() > 0) {
-		                    List<String> uninstallScripts = getUninstallScripts();
-		                    uninstallScripts.addAll(scriptList);
-		                    setUninstallScripts(uninstallScripts);
-		                    configurationController.removeProperty(plugin.getName(), "schema");
-	                    }
+                        List<String> scriptList = new LinkedList<String>();
+
+                        script = script.trim();
+                        StringBuilder sb = new StringBuilder();
+                        boolean blankLine = false;
+                        Scanner s = new Scanner(script);
+
+                        while (s.hasNextLine()) {
+                            String temp = s.nextLine();
+
+                            if (temp.trim().length() > 0)
+                                sb.append(temp + " ");
+                            else
+                                blankLine = true;
+
+                            if (blankLine || !s.hasNextLine()) {
+                                scriptList.add(sb.toString().trim());
+                                blankLine = false;
+                                sb.delete(0, sb.length());
+                            }
+                        }
+
+                        // If there was an uninstall script, then save the
+                        // script to
+                        // run later and remove the schema.plugin from
+                        // extensions.properties
+                        if (scriptList.size() > 0) {
+                            List<String> uninstallScripts = getUninstallScripts();
+                            uninstallScripts.addAll(scriptList);
+                            setUninstallScripts(uninstallScripts);
+                            configurationController.removeProperty(plugin.getName(), "schema");
+                        }
                     }
-				}
-			}
-		} catch (Exception e) {
-			throw new ControllerException(e);
-		}
+                }
+            }
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
     }
-    
+
     private String getUninstallScript(Document document) {
-    	String script = null;
+        String script = null;
         Element uninstallElement = (Element) document.getElementsByTagName("uninstall").item(0);
         String databaseType = ControllerFactory.getFactory().createConfigurationController().getDatabaseType();
         NodeList scriptNodes = uninstallElement.getElementsByTagName("script");
@@ -237,13 +240,13 @@ public class DefaultExtensionController extends ExtensionController {
                 }
             }
         }
-        
+
         return script;
     }
 
     public void setPluginProperties(String pluginName, Properties properties) throws ControllerException {
         configurationController.removePropertiesForGroup(pluginName);
-        
+
         for (Object name : properties.keySet()) {
             configurationController.saveProperty(pluginName, (String) name, (String) properties.get(name));
         }
@@ -252,7 +255,7 @@ public class DefaultExtensionController extends ExtensionController {
     public Properties getPluginProperties(String pluginName) throws ControllerException {
         return ControllerFactory.getFactory().createConfigurationController().getPropertiesForGroup(pluginName);
     }
-    
+
     public Map<String, ConnectorMetaData> getConnectorMetaData() throws ControllerException {
         logger.debug("retrieving connector metadata");
         return connectors;
@@ -265,10 +268,10 @@ public class DefaultExtensionController extends ExtensionController {
 
         for (ConnectorMetaData connectorMetaData : this.connectors.values()) {
             String protocol = connectorMetaData.getProtocol();
-            
+
             if (protocol.indexOf(':') > -1) {
                 String[] protocolStrings = protocol.split(":");
-                
+
                 for (int i = 0; i < protocolStrings.length; i++) {
                     protocols.put(protocolStrings[i], connectorMetaData);
                 }
@@ -323,7 +326,7 @@ public class DefaultExtensionController extends ExtensionController {
     public ConnectorMetaData getConnectorMetaDataByProtocol(String protocol) {
         return protocols.get(protocol);
     }
-    
+
     public ConnectorMetaData getConnectorMetaDataByTransportName(String transportName) {
         return connectors.get(transportName);
     }
@@ -331,49 +334,49 @@ public class DefaultExtensionController extends ExtensionController {
     public Map<String, ServerPlugin> getLoadedPlugins() {
         return loadedPlugins;
     }
-    
+
     public void uninstallExtensions() {
-    	try {
-    		DatabaseUtil.executeScript(getUninstallScripts(), true);
-    	} catch (Exception e) {
-    		logger.error("Error uninstalling extensions.", e);
-    	}
-    	
-    	deleteUninstallScripts();
+        try {
+            DatabaseUtil.executeScript(getUninstallScripts(), true);
+        } catch (Exception e) {
+            logger.error("Error uninstalling extensions.", e);
+        }
+
+        deleteUninstallScripts();
     }
-    
+
     public void setUninstallScripts(List<String> uninstallScripts) throws ControllerException {
-    	File uninstallScriptsFile = new File(getExtensionsPath() + EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
-    	ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-    	
-    	try {
-    	    FileUtils.writeStringToFile(uninstallScriptsFile, serializer.toXML(uninstallScripts));
-		} catch (IOException e) {
-			throw new ControllerException(e);
-		}
+        File uninstallScriptsFile = new File(getExtensionsPath() + EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+
+        try {
+            FileUtils.writeStringToFile(uninstallScriptsFile, serializer.toXML(uninstallScripts));
+        } catch (IOException e) {
+            throw new ControllerException(e);
+        }
     }
-    
+
     public List<String> getUninstallScripts() throws ControllerException {
-    	List<String> uninstallScripts = new LinkedList<String>();
-    	File uninstallScriptsFile = new File(getExtensionsPath() + EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
-    	
-    	if (uninstallScriptsFile.exists()) {
-    		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        	try {
-				uninstallScripts = (List<String>) serializer.fromXML(FileUtils.readFileToString(uninstallScriptsFile));
-			} catch (IOException e) {
-				throw new ControllerException(e);
-			}
-    	}
-    	
-    	return uninstallScripts;
+        List<String> uninstallScripts = new LinkedList<String>();
+        File uninstallScriptsFile = new File(getExtensionsPath() + EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
+
+        if (uninstallScriptsFile.exists()) {
+            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+            try {
+                uninstallScripts = (List<String>) serializer.fromXML(FileUtils.readFileToString(uninstallScriptsFile));
+            } catch (IOException e) {
+                throw new ControllerException(e);
+            }
+        }
+
+        return uninstallScripts;
     }
-    
+
     public void deleteUninstallScripts() {
-    	File uninstallScriptsFile = new File(getExtensionsPath() + EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
-    	
-    	if (uninstallScriptsFile.exists()) {
-    		uninstallScriptsFile.delete();
-    	}
+        File uninstallScriptsFile = new File(getExtensionsPath() + EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
+
+        if (uninstallScriptsFile.exists()) {
+            uninstallScriptsFile.delete();
+        }
     }
 }
