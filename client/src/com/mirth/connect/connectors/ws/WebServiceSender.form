@@ -36,33 +36,28 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="useMtomLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="invocationTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="URL1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+          <Group type="102" attributes="0">
+              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="authenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="invocationTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="portLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="serviceLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="useMtomLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="queuePollIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="URL1" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="wsdlUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="queuePollIntervalLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="soapActionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="queuePollIntervalField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="authenticationYesRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="authenticationNoRadio" min="-2" max="-2" attributes="0"/>
-                  </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="wsdlUrlField" pref="291" max="32767" attributes="2"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -70,6 +65,13 @@
                   </Group>
                   <Component id="serviceField" alignment="0" pref="402" max="32767" attributes="2"/>
                   <Component id="portField" alignment="0" pref="402" max="32767" attributes="2"/>
+                  <Component id="soapActionField" alignment="0" pref="402" max="32767" attributes="2"/>
+                  <Component id="queuePollIntervalField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="authenticationYesRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="authenticationNoRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
@@ -92,7 +94,7 @@
                       <EmptySpace min="-2" pref="64" max="-2" attributes="0"/>
                   </Group>
                   <Component id="soapEnvelope" pref="402" max="32767" attributes="2"/>
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="invocationTwoWayRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="invocationOneWayRadio" min="-2" max="-2" attributes="0"/>
@@ -133,7 +135,12 @@
                   <Component id="portLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="portField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="soapActionField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="soapActionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="authenticationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -161,12 +168,12 @@
                   <Component id="usePersistentQueuesNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="rotateMessagesCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="queuePollIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="queuePollIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="reconnectIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="reconnectIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -601,6 +608,16 @@
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="queuePollIntervalField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The amount of time that should elapse between polls of an empty queue to check for queued messages.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="soapActionField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The SOAPAction HTTP request header field can be used to indicate the intent of the SOAP HTTP request.&lt;br&gt;This field is optional for most web services.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="soapActionLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="SOAP Action:"/>
       </Properties>
     </Component>
   </SubComponents>

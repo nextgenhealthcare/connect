@@ -105,6 +105,7 @@ public class WebServiceSender extends ConnectorClass {
         properties.put(WebServiceSenderProperties.WEBSERVICE_WSDL_URL, wsdlUrlField.getText());
         properties.put(WebServiceSenderProperties.WEBSERVICE_SERVICE, serviceField.getText());
         properties.put(WebServiceSenderProperties.WEBSERVICE_PORT, portField.getText());
+        properties.put(WebServiceSenderProperties.WEBSERVICE_SOAP_ACTION, soapActionField.getText());
 
         if (invocationOneWayRadio.isSelected()) {
             properties.put(WebServiceSenderProperties.WEBSERVICE_ONE_WAY, UIConstants.YES_OPTION);
@@ -160,6 +161,7 @@ public class WebServiceSender extends ConnectorClass {
         wsdlUrlField.setText((String) props.get(WebServiceSenderProperties.WEBSERVICE_WSDL_URL));
         serviceField.setText((String) props.get(WebServiceSenderProperties.WEBSERVICE_SERVICE));
         portField.setText((String) props.get(WebServiceSenderProperties.WEBSERVICE_PORT));
+        soapActionField.setText((String) props.get(WebServiceSenderProperties.WEBSERVICE_SOAP_ACTION));
 
         soapEnvelope.setText((String) props.getProperty(WebServiceSenderProperties.WEBSERVICE_ENVELOPE));
 
@@ -683,6 +685,8 @@ public class WebServiceSender extends ConnectorClass {
         useMtomNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         queuePollIntervalLabel = new javax.swing.JLabel();
         queuePollIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
+        soapActionField = new com.mirth.connect.client.ui.components.MirthTextField();
+        soapActionLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -881,41 +885,47 @@ public class WebServiceSender extends ConnectorClass {
 
         queuePollIntervalField.setToolTipText("<html>The amount of time that should elapse between polls of an empty queue to check for queued messages.</html>");
 
+        soapActionField.setToolTipText("<html>The SOAPAction HTTP request header field can be used to indicate the intent of the SOAP HTTP request.<br>This field is optional for most web services.</html>");
+
+        soapActionLabel.setText("SOAP Action:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(useMtomLabel)
-                    .addComponent(attachmentsLabel)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel1)
-                    .addComponent(invocationTypeLabel)
-                    .addComponent(reconnectIntervalLabel)
-                    .addComponent(jLabel36)
-                    .addComponent(URL1)
-                    .addComponent(passwordLabel)
-                    .addComponent(usernameLabel)
-                    .addComponent(authenticationLabel)
-                    .addComponent(portLabel)
-                    .addComponent(serviceLabel)
-                    .addComponent(wsdlUrlLabel)
-                    .addComponent(queuePollIntervalLabel))
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(authenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(invocationTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(portLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(serviceLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(useMtomLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(reconnectIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(queuePollIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(URL1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(wsdlUrlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel36, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(attachmentsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(soapActionLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(queuePollIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(wsdlUrlField, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(getOperationsButton))
                     .addComponent(serviceField, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
                     .addComponent(portField, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
+                    .addComponent(soapActionField, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
+                    .addComponent(queuePollIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
@@ -965,7 +975,11 @@ public class WebServiceSender extends ConnectorClass {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(portLabel)
                     .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(5, 5, 5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(soapActionField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(soapActionLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(authenticationLabel)
                     .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1235,6 +1249,8 @@ private void useMtomNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private com.mirth.connect.client.ui.components.MirthCheckBox rotateMessagesCheckBox;
     private com.mirth.connect.client.ui.components.MirthTextField serviceField;
     private javax.swing.JLabel serviceLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField soapActionField;
+    private javax.swing.JLabel soapActionLabel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea soapEnvelope;
     private javax.swing.ButtonGroup useMtomButtonGroup;
     private javax.swing.JLabel useMtomLabel;
