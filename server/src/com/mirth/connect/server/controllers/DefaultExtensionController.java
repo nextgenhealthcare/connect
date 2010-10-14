@@ -94,17 +94,26 @@ public class DefaultExtensionController extends ExtensionController {
                             ServerPlugin serverPlugin = (ServerPlugin) Class.forName(extensionPoint.getClassName()).newInstance();
                             String pluginId = extensionPoint.getName();
 
-                            // Get the current properties for this plugin
-                            Properties properties = getPluginProperties(pluginId);
+                            // load any properties that may currently be in the
+                            // database
+                            Properties currentProperties = getPluginProperties(pluginId);
+                            // get the default properties for the plugin
+                            Properties defaultProperties = serverPlugin.getDefaultProperties();
 
-                            // If there aren't any stored, store the default
-                            // properties for the plugin
-                            if (properties.isEmpty()) {
-                                properties = serverPlugin.getDefaultProperties();
-                                setPluginProperties(pluginId, properties);
+                            // if there are any properties that not currently
+                            // set, set them to the the default
+                            for (Object key : defaultProperties.keySet()) {
+                                if (!currentProperties.containsKey(key)) {
+                                    currentProperties.put(key, defaultProperties.get(key));
+                                }
                             }
 
-                            serverPlugin.init(properties);
+                            // save the properties to the database
+                            setPluginProperties(pluginId, currentProperties);
+
+                            // initialize the plugin with those properties and
+                            // add it to the list of loaded plugins
+                            serverPlugin.init(currentProperties);
                             loadedPlugins.put(pluginId, serverPlugin);
                         }
                     }
