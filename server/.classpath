@@ -78,8 +78,8 @@
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.0.8-bin.jar"/>
 	<classpathentry kind="lib" path="lib/database/ojdbc14.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/database/postgresql-8.4-701.jdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/database/sqlitejdbc-v056.jar"/>
+	<classpathentry kind="lib" path="lib/database/postgresql-9.0-801.jdbc4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
