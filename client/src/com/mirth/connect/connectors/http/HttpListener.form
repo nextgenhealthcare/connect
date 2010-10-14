@@ -144,6 +144,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="messageContentBodyOnlyRadioActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="messageContentHeadersQueryAndBodyRadio">
       <Properties>
@@ -164,6 +167,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="messageContentHeadersQueryAndBodyRadioActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="messageContentLabel">
       <Properties>

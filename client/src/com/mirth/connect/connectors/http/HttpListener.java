@@ -191,6 +191,11 @@ public class HttpListener extends ConnectorClass {
         messageContentBodyOnlyRadio.setText("Body Only");
         messageContentBodyOnlyRadio.setToolTipText("<html>If selected, the message content will only include the body as a string.</html>");
         messageContentBodyOnlyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        messageContentBodyOnlyRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                messageContentBodyOnlyRadioActionPerformed(evt);
+            }
+        });
 
         messageContentHeadersQueryAndBodyRadio.setBackground(new java.awt.Color(255, 255, 255));
         messageContentHeadersQueryAndBodyRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -198,6 +203,11 @@ public class HttpListener extends ConnectorClass {
         messageContentHeadersQueryAndBodyRadio.setText("Headers, Query, and Body");
         messageContentHeadersQueryAndBodyRadio.setToolTipText("<html>If selected, the message content will include the request headers, query parameters, and body as XML.</html>");
         messageContentHeadersQueryAndBodyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        messageContentHeadersQueryAndBodyRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                messageContentHeadersQueryAndBodyRadioActionPerformed(evt);
+            }
+        });
 
         messageContentLabel.setText("Message Content:");
 
@@ -323,6 +333,14 @@ public class HttpListener extends ConnectorClass {
             responseContentTypeField.setEnabled(true);
         }
     }//GEN-LAST:event_responseFromTransformerActionPerformed
+
+    private void messageContentHeadersQueryAndBodyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageContentHeadersQueryAndBodyRadioActionPerformed
+        parent.channelEditPanel.checkAndSetXmlDataType();
+    }//GEN-LAST:event_messageContentHeadersQueryAndBodyRadioActionPerformed
+
+    private void messageContentBodyOnlyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageContentBodyOnlyRadioActionPerformed
+        parent.channelEditPanel.checkAndSetXmlDataType();
+    }//GEN-LAST:event_messageContentBodyOnlyRadioActionPerformed
 
     public void updateResponseDropDown() {
         boolean enabled = parent.isSaveEnabled();

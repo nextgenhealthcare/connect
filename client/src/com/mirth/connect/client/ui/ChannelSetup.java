@@ -24,9 +24,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
@@ -47,16 +47,16 @@ import com.mirth.connect.client.ui.util.PropertiesUtil;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.connectors.ConnectorClass;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.MessageObject.Protocol;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
-import com.mirth.connect.model.CodeTemplate.ContextType;
-import com.mirth.connect.model.Connector.Mode;
-import com.mirth.connect.model.MessageObject.Protocol;
 import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
 import com.mirth.connect.model.converters.ObjectCloner;
 import com.mirth.connect.model.converters.ObjectClonerException;
@@ -69,6 +69,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private static final String SOURCE_DEFAULT = "LLP Listener";
     private static final String DATABASE_READER = "Database Reader";
     private static final String HTTP_LISTENER = "HTTP Listener";
+    private static final String HTTP_BODY_ONLY = "receiverBodyOnly";
     private final String STATUS_COLUMN_NAME = "Status";
     private final String DESTINATION_COLUMN_NAME = "Destination";
     private final String CONNECTOR_TYPE_COLUMN_NAME = "Connector Type";
@@ -2052,11 +2053,16 @@ public class ChannelSetup extends javax.swing.JPanel {
      * and false if it does not.
      */
     public boolean requiresXmlDataType() {
-        if (((String) sourceSourceDropdown.getSelectedItem()).equals(DATABASE_READER) || ((String) sourceSourceDropdown.getSelectedItem()).equals(HTTP_LISTENER)) {
+        if (((String) sourceSourceDropdown.getSelectedItem()).equals(DATABASE_READER)) {
             return true;
-        } else {
-            return false;
+        } else if (((String) sourceSourceDropdown.getSelectedItem()).equals(HTTP_LISTENER)) {
+            String bodyOnly = sourceConnectorClass.getProperties().getProperty(HTTP_BODY_ONLY);
+            if (bodyOnly != null && bodyOnly.equals(UIConstants.NO_OPTION)) {
+                return true;
+            } 
         }
+        
+        return false;
     }
     
     /**
