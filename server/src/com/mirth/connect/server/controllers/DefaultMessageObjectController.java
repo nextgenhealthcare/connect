@@ -423,12 +423,12 @@ public class DefaultMessageObjectController extends MessageObjectController {
         try {
             int totalRowCount = 0;
             int rowCount = 0;
-            
+
             do {
                 Map<String, Object> parameterMap = getFilterMap(filter, null);
-                
+
                 if (limit > 0) {
-                    parameterMap.put("limit", limit);    
+                    parameterMap.put("limit", limit);
                 }
 
                 // Retry blocks of pruning if they fail in case of deadlocks
@@ -449,7 +449,12 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
                 totalRowCount += rowCount;
                 Thread.sleep(100);
-            } while (rowCount > 0);
+
+                /*
+                 * Only run again if the limit was used (limit > 0) and the
+                 * number of rows removed was >= limit.
+                 */
+            } while (rowCount >= limit && limit > 0);
 
             // Retry attachment pruning if it fails in case of deadlocks
             int retryCount = 0;
@@ -880,7 +885,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
             if (StringUtils.isNotEmpty(messageObject.getCorrelationId())) {
                 attachments.addAll(SqlConfig.getSqlMapClient().queryForList("Message.getAttachmentsByMessageId", messageObject.getCorrelationId()));
             }
-            
+
             attachments.addAll(SqlConfig.getSqlMapClient().queryForList("Message.getAttachmentsByMessageId", messageObject.getId()));
         } catch (Exception e) {
             throw new ControllerException(e);
