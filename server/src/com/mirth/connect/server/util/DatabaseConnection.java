@@ -231,7 +231,7 @@ public class DatabaseConnection {
         try {
             statement = connection.createStatement();
             logger.debug("executing update:\n" + expression);
-            statement.executeUpdate(expression);
+            statement.executeUpdate(expression, Statement.RETURN_GENERATED_KEYS);
             CachedRowSetImpl crs = new CachedRowSetImpl();
             crs.populate(statement.getGeneratedKeys());
             return crs;
@@ -246,7 +246,7 @@ public class DatabaseConnection {
         PreparedStatement statement = null;
 
         try {
-            statement = connection.prepareStatement(expression);
+            statement = connection.prepareStatement(expression, Statement.RETURN_GENERATED_KEYS);
             logger.debug("executing prepared statement:\n" + expression);
 
             ListIterator<Object> iterator = parameters.listIterator();
