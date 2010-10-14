@@ -44,6 +44,7 @@ public class WebServiceConnector extends QueueEnabledConnector {
     private List<String> dispatcherAttachmentNames;
     private List<String> dispatcherAttachmentContents;
     private List<String> dispatcherAttachmentTypes;
+    private String dispatcherSoapAction;
 
     // Dispatch object used for pooling the soap connection
     private Dispatch<SOAPMessage> dispatch = null;
@@ -208,6 +209,14 @@ public class WebServiceConnector extends QueueEnabledConnector {
 
     public void setDispatcherAttachmentTypes(List<String> dispatcherAttachmentTypes) {
         this.dispatcherAttachmentTypes = dispatcherAttachmentTypes;
+    }
+    
+    public String getDispatcherSoapAction() {
+        return dispatcherSoapAction;
+    }
+
+    public void setDispatcherSoapAction(String dispatcherSoapAction) {
+        this.dispatcherSoapAction = dispatcherSoapAction;
     }
 
     public String getProtocol() {

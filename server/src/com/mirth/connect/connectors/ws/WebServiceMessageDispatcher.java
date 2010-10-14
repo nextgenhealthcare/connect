@@ -14,6 +14,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.ConnectException;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.soap.AttachmentPart;
@@ -28,8 +29,10 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.soap.SOAPBinding;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.QueueEnabledMessageDispatcher;
@@ -100,6 +103,11 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
             dispatch.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, connector.getDispatcherUsername());
             dispatch.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, connector.getDispatcherPassword());
             logger.debug("Using authentication: username=" + connector.getDispatcherUsername() + ", password length=" + connector.getDispatcherPassword().length());
+        }
+
+        // See: http://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383528
+        if (StringUtils.isNotEmpty(connector.getDispatcherSoapAction())) {
+            dispatch.getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, Collections.singletonMap("SOAPAction", Collections.singletonList(connector.getDispatcherSoapAction())));    
         }
 
         // build the message

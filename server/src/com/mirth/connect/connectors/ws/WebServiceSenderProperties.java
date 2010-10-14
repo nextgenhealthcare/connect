@@ -36,7 +36,8 @@ public class WebServiceSenderProperties extends QueuedSenderProperties {
     public static final String WEBSERVICE_ATTACHMENT_NAMES = "dispatcherAttachmentNames";
     public static final String WEBSERVICE_ATTACHMENT_CONTENTS = "dispatcherAttachmentContents";
     public static final String WEBSERVICE_ATTACHMENT_TYPES = "dispatcherAttachmentTypes";
-
+    public static final String WEBSERVICE_SOAP_ACTION = "dispatcherSoapAction";
+    
     public static final String WEBSERVICE_DEFAULT_DROPDOWN = "Press Get Operations";
 
     public Properties getDefaults() {
@@ -65,6 +66,8 @@ public class WebServiceSenderProperties extends QueuedSenderProperties {
         properties.put(WEBSERVICE_ATTACHMENT_NAMES, serializer.toXML(new ArrayList<String>()));
         properties.put(WEBSERVICE_ATTACHMENT_CONTENTS, serializer.toXML(new ArrayList<String>()));
         properties.put(WEBSERVICE_ATTACHMENT_TYPES, serializer.toXML(new ArrayList<String>()));
+        
+        properties.put(WEBSERVICE_SOAP_ACTION, "");
         return properties;
     }
 }
