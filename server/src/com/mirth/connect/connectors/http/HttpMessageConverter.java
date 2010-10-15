@@ -70,10 +70,14 @@ public class HttpMessageConverter {
         return null;
     }
 
-    public String httpResponseToXml(Header[] headers, String content) {
+    public String httpResponseToXml(String status, Header[] headers, String content) {
         try {
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             Element requestElement = document.createElement("HttpResponse");
+            
+            Element statusElement = document.createElement("Status");
+            statusElement.setTextContent(status);
+            requestElement.appendChild(statusElement);
 
             Element headerElement = document.createElement("Header");
 
