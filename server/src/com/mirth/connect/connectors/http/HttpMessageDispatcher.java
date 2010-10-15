@@ -71,7 +71,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
         } catch (Exception e) {
             alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_404, "Error connecting to HTTP server.", e);
             messageObjectController.setError(mo, Constants.ERROR_404, "Error connecting to HTTP server.", e, null);
-            connector.handleException(new Exception(e));
+            connector.handleException(e);
         } finally {
             monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
@@ -111,14 +111,13 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
             int statusCode = client.executeMethod(httpMethod);
             logger.debug("received status code: " + statusCode);
 
-            // TODO: Should this be updated to handle all 2xx responses?
-            if (statusCode == HttpStatus.SC_OK) {
+            if (statusCode < HttpStatus.SC_BAD_REQUEST) {
                 String response = null;
 
                 if (connector.isDispatcherIncludeHeadersInResponse()) {
                     HttpMessageConverter converter = new HttpMessageConverter();
                     String content = IOUtils.toString(httpMethod.getResponseBodyAsStream(), converter.getDefaultHttpCharset(connector.getDispatcherCharset()));
-                    response = converter.httpResponseToXml(httpMethod.getStatusText(), httpMethod.getResponseHeaders(), content);
+                    response = converter.httpResponseToXml(httpMethod.getStatusLine().toString(), httpMethod.getResponseHeaders(), content);
                 } else {
                     response = httpMethod.getResponseBodyAsString();
                 }
@@ -132,7 +131,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
                 }
             } else {
                 // throw a new exception with the returned HTTP status
-                throw new Exception(httpMethod.getStatusLine().getReasonPhrase());
+                throw new Exception(httpMethod.getStatusLine().toString());
             }
         } catch (Exception e) {
             throw e;
