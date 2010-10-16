@@ -14,7 +14,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.ConnectException;
-import java.util.Collections;
 import java.util.List;
 
 import javax.xml.soap.AttachmentPart;
@@ -29,7 +28,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
-import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.commons.lang.StringUtils;
@@ -107,7 +105,7 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
 
         // See: http://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383528
         if (StringUtils.isNotEmpty(connector.getDispatcherSoapAction())) {
-            dispatch.getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, Collections.singletonMap("SOAPAction", Collections.singletonList(connector.getDispatcherSoapAction())));    
+            dispatch.getRequestContext().put(BindingProvider.SOAPACTION_URI_PROPERTY, connector.getDispatcherSoapAction());
         }
 
         // build the message
