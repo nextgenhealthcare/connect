@@ -25,272 +25,269 @@ import org.apache.webdav.lib.WebdavResource;
 
 import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
-public class WebDavConnection implements FileSystemConnection
-{
-	public class WebDavFileInfo implements FileInfo {
+public class WebDavConnection implements FileSystemConnection {
+    public class WebDavFileInfo implements FileInfo {
+        private String thePath;
+        private WebdavFile theFile;
 
-		String thePath;
-		WebdavFile theFile;
+        public WebDavFileInfo(String path, WebdavFile theFile) {
+            this.thePath = path;
+            this.theFile = theFile;
+        }
 
-		public WebDavFileInfo(String path, WebdavFile theFile) {
-			this.thePath = path;
-			this.theFile = theFile;
-		}
+        public long getLastModified() {
+            return theFile.lastModified();
+        }
 
-		public long getLastModified() {
-			return theFile.lastModified();
-		}
+        public String getName() {
+            return theFile.getName();
+        }
 
-		public String getName() {
-			return theFile.getName();
-		}
+        /** Gets the absolute pathname of the file */
+        public String getAbsolutePath() {
+            return theFile.getAbsolutePath();
+        }
 
-		/** Gets the absolute pathname of the file */
-		public String getAbsolutePath() {
-			return theFile.getAbsolutePath();
-		}
+        /** Gets the absolute pathname of the directory holding the file */
+        public String getParent() {
+            return this.thePath;
+        }
 
-		/** Gets the absolute pathname of the directory holding the file */
-		public String getParent() {
-			return this.thePath;
-		}
+        public long getSize() {
+            return theFile.length();
+        }
 
-		public long getSize() {
-			return theFile.length();
-		}
+        public boolean isDirectory() {
+            return theFile.isDirectory();
+        }
 
-		public boolean isDirectory() {
-			return theFile.isDirectory();
-		}
+        public boolean isFile() {
+            return theFile.isFile();
+        }
 
-		public boolean isFile() {
-			return theFile.isFile();
-		}
+        public boolean isReadable() {
+            return theFile.canRead();
+        }
+    }
 
-		public boolean isReadable() {
-			return theFile.canRead();
-		}
-	}
+    private static transient Log logger = LogFactory.getLog(WebDavConnection.class);
 
-	private static transient Log logger = LogFactory.getLog(WebDavConnection.class);
+    /** The WebDAV client instance */
+    private WebdavResource client = null;
+    private boolean secure = false;
+    private String username = null;
+    private String password = null;
 
-	/** The WebDAV client instance */
-	private WebdavResource client = null;
-	private boolean secure = false;
-	private String username = null;
-	private String password = null;
+    public WebDavConnection(String host, boolean secure, String username, String password) throws Exception {
+        this.secure = secure;
+        this.username = username;
+        this.password = password;
 
-	public WebDavConnection(String host, boolean secure, String username, String password) throws Exception {
-		this.secure = secure;
-		this.username = username;
-		this.password = password;
+        HttpURL hrl = null;
 
-		HttpURL hrl = null; 
-		    
-		if (secure) {
-			hrl = new HttpsURL("https://" + host);
-		} else {
-			hrl = new HttpURL("http://" + host);
-		}
+        if (secure) {
+            hrl = new HttpsURL("https://" + host);
+        } else {
+            hrl = new HttpURL("http://" + host);
+        }
 
         if (!username.equals("null")) {
             hrl.setUserinfo(username, password);
         }
 
         client = new WebdavResource(hrl);
-	}
+    }
 
-
-	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex) throws Exception {
+    public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex) throws Exception {
         FilenameFilter filenameFilter;
-        
+
         if (isRegex) {
-            filenameFilter = new RegexFilenameFilter(filenamePattern);    
+            filenameFilter = new RegexFilenameFilter(filenamePattern);
         } else {
             filenameFilter = new WildcardFileFilter(filenamePattern);
         }
-		
-		client.setPath(fromDir);
-		if (!client.isCollection()) {
-			throw new Exception ("Path is currently a file: '" + client.getHost() + client.getPath() + "'");
-		}
 
-		String files[] = client.list();
-		if (files == null || files.length == 0) {
-			return new ArrayList<FileInfo>();
-		}
+        client.setPath(fromDir);
+        if (!client.isCollection()) {
+            throw new Exception("Path is currently a file: '" + client.getHost() + client.getPath() + "'");
+        }
 
-		List<FileInfo> v = new ArrayList<FileInfo>(files.length);		
-		for (int i=0; i < files.length; i++) {
+        String files[] = client.list();
+        if (files == null || files.length == 0) {
+            return new ArrayList<FileInfo>();
+        }
 
-			WebdavFile file = null;
-			String filePath = ("/" + fromDir + "/" + files[i]).replaceAll("//", "/");
+        List<FileInfo> v = new ArrayList<FileInfo>(files.length);
+        for (int i = 0; i < files.length; i++) {
 
-			if (secure) {
+            WebdavFile file = null;
+            String filePath = ("/" + fromDir + "/" + files[i]).replaceAll("//", "/");
 
-				HttpsURL hrl = new HttpsURL("https://" + client.getHost() + filePath);
-				if (!username.equals("null")) {
-					hrl.setUserinfo(username, password);
-				}
-				file = new WebdavFile(hrl);
+            if (secure) {
 
-			} else {
+                HttpsURL hrl = new HttpsURL("https://" + client.getHost() + filePath);
+                if (!username.equals("null")) {
+                    hrl.setUserinfo(username, password);
+                }
+                file = new WebdavFile(hrl);
 
-				HttpURL hrl = new HttpURL("http://" + client.getHost() + filePath);
-				if (!username.equals("null")) {
-					hrl.setUserinfo(username, password);
-				}
-				file = new WebdavFile(hrl);
+            } else {
 
-			}
+                HttpURL hrl = new HttpURL("http://" + client.getHost() + filePath);
+                if (!username.equals("null")) {
+                    hrl.setUserinfo(username, password);
+                }
+                file = new WebdavFile(hrl);
 
-			if (file.isFile()) {
-				if (filenameFilter.accept(null, file.getName())) {
-					v.add(new WebDavFileInfo(fromDir, file));
-				}
-			}
-		}
+            }
+
+            if (file.isFile()) {
+                if (filenameFilter.accept(null, file.getName())) {
+                    v.add(new WebDavFileInfo(fromDir, file));
+                }
+            }
+        }
         return v;
-	}
+    }
 
-	public InputStream readFile(String file, String fromDir) throws Exception {
+    public InputStream readFile(String file, String fromDir) throws Exception {
 
-		String fullPath = ("/" + fromDir + "/" + file).replaceAll("//", "/");
-		
-		client.setPath(fullPath);
-		if (client.isCollection()) {
-			logger.error("Invalid filepath: " + fullPath);
-			throw new Exception("Invalid Path");
-		}
+        String fullPath = ("/" + fromDir + "/" + file).replaceAll("//", "/");
 
-		return client.getMethodData();
-	}
+        client.setPath(fullPath);
+        if (client.isCollection()) {
+            logger.error("Invalid filepath: " + fullPath);
+            throw new Exception("Invalid Path");
+        }
 
-	public void closeReadFile() throws Exception {
-		// irrelevant
-	}
+        return client.getMethodData();
+    }
 
-	public boolean canAppend() {
-		return false;
-	}
+    public void closeReadFile() throws Exception {
+        // irrelevant
+    }
 
-	public void writeFile(String file, String toDir, boolean append, byte[] message) throws Exception {
+    public boolean canAppend() {
+        return false;
+    }
 
-		String fullPath = ("/" + toDir + "/" + file).replaceAll("//", "/");
+    public void writeFile(String file, String toDir, boolean append, byte[] message) throws Exception {
 
-		// first check if the toDir exists.
-		client.setPath(toDir);
+        String fullPath = ("/" + toDir + "/" + file).replaceAll("//", "/");
 
-		if (!client.exists()) {
+        // first check if the toDir exists.
+        client.setPath(toDir);
 
-			// create the directory.
-			client.mkcolMethod(toDir);
-			logger.info("Destination directory does not exist. Creating directory: '" + toDir + "'");
+        if (!client.exists()) {
 
-			if (!client.putMethod(fullPath, message)) {
-				logger.error("Unable to write file: '" + fullPath);
-			}
+            // create the directory.
+            client.mkcolMethod(toDir);
+            logger.info("Destination directory does not exist. Creating directory: '" + toDir + "'");
 
-		} else {
-			
-			// make sure it's a directory, not a file.
-			if (!client.isCollection()) {
-				throw new Exception ("The destination directory path is invalid: '" + client.getPath() + "'");
-			} else {
-				// valid directory.  now write the file.
-				if (!client.putMethod(fullPath, message)) {
-					logger.error("Unable to write file: '" + fullPath);
-				}
-			}
-		}
-	}
+            if (!client.putMethod(fullPath, message)) {
+                logger.error("Unable to write file: '" + fullPath);
+            }
 
-	public void delete(String file, String fromDir, boolean mayNotExist) throws Exception {
+        } else {
 
-		String fullPath = ("/" + fromDir + "/" + file).replaceAll("//", "/");
+            // make sure it's a directory, not a file.
+            if (!client.isCollection()) {
+                throw new Exception("The destination directory path is invalid: '" + client.getPath() + "'");
+            } else {
+                // valid directory. now write the file.
+                if (!client.putMethod(fullPath, message)) {
+                    logger.error("Unable to write file: '" + fullPath);
+                }
+            }
+        }
+    }
 
-		if (!client.deleteMethod(fullPath)) {
-			if (!mayNotExist) {
-				logger.error("Unable to delete file: '" + fullPath + "'");
-			}
-		}
-	}
+    public void delete(String file, String fromDir, boolean mayNotExist) throws Exception {
 
-	public void move(String fromName, String fromDir, String toName, String toDir) throws Exception {
-		
-		String sourcePath = ("/" + fromDir + "/" + fromName).replaceAll("//", "/");
-		String targetPath = ("/" + toDir + "/" + toName).replaceAll("//", "/");
+        String fullPath = ("/" + fromDir + "/" + file).replaceAll("//", "/");
 
-		// first check if the toDir exists.
-		client.setPath(toDir);
+        if (!client.deleteMethod(fullPath)) {
+            if (!mayNotExist) {
+                logger.error("Unable to delete file: '" + fullPath + "'");
+            }
+        }
+    }
 
-		if (!client.exists()) {
+    public void move(String fromName, String fromDir, String toName, String toDir) throws Exception {
 
-			// create the directory. and then move.
-			client.mkcolMethod(toDir);
-			logger.info("Move-To directory does not exist. Creating directory: '" + toDir + "'");
-			
-			if (!client.moveMethod(sourcePath, targetPath)) {
-				logger.error("Unable to move file: '" + sourcePath + "' to '" + targetPath + "'");
-			}
+        String sourcePath = ("/" + fromDir + "/" + fromName).replaceAll("//", "/");
+        String targetPath = ("/" + toDir + "/" + toName).replaceAll("//", "/");
 
-		} else {
+        // first check if the toDir exists.
+        client.setPath(toDir);
 
-			// make sure it's a directory, not a file.
-			if (!client.isCollection()) {
-				throw new Exception ("The move-to directory path is invalid: '" + client.getPath() + "'");
-			} else {
-				// valid directory.  now move the file.
-				if (!client.moveMethod(sourcePath, targetPath)) {
-					logger.error("Unable to move file: '" + sourcePath + "' to '" + targetPath + "'");
-				}
-			}
-		}
-	}
+        if (!client.exists()) {
 
-	public boolean isConnected() {
-		return client != null && client.exists();
-	}
+            // create the directory. and then move.
+            client.mkcolMethod(toDir);
+            logger.info("Move-To directory does not exist. Creating directory: '" + toDir + "'");
 
-	public void activate() {
-		// irrelevant
-	}
+            if (!client.moveMethod(sourcePath, targetPath)) {
+                logger.error("Unable to move file: '" + sourcePath + "' to '" + targetPath + "'");
+            }
 
-	public void passivate() {
-		// irrelevant
-	}
+        } else {
 
-	public void destroy() {
-		try{
-			if (client != null) {
-				client.close();
-			}
-		} catch (IOException e){
-			logger.debug(e);
-		}
-	}
+            // make sure it's a directory, not a file.
+            if (!client.isCollection()) {
+                throw new Exception("The move-to directory path is invalid: '" + client.getPath() + "'");
+            } else {
+                // valid directory. now move the file.
+                if (!client.moveMethod(sourcePath, targetPath)) {
+                    logger.error("Unable to move file: '" + sourcePath + "' to '" + targetPath + "'");
+                }
+            }
+        }
+    }
 
-	public boolean isValid() {
-		return client != null && client.exists();
-	}
+    public boolean isConnected() {
+        return client != null && client.exists();
+    }
 
-	public boolean canRead(String readDir) {
-		try {
-			client.setPath(readDir);
-			return client.exists() && client.isCollection();
-		} catch (IOException e) {
-			logger.debug(e);
-			return false;
-		}
-	}
+    public void activate() {
+        // irrelevant
+    }
 
-	public boolean canWrite(String writeDir) {
-		try {
-			client.setPath(writeDir);
-			return client.exists() && client.isCollection() && !client.isLocked();
-		} catch (IOException e) {
-			logger.debug(e);
-			return false;
-		}
-	}
+    public void passivate() {
+        // irrelevant
+    }
+
+    public void destroy() {
+        try {
+            if (client != null) {
+                client.close();
+            }
+        } catch (IOException e) {
+            logger.debug(e);
+        }
+    }
+
+    public boolean isValid() {
+        return client != null && client.exists();
+    }
+
+    public boolean canRead(String readDir) {
+        try {
+            client.setPath(readDir);
+            return client.exists() && client.isCollection();
+        } catch (IOException e) {
+            logger.debug(e);
+            return false;
+        }
+    }
+
+    public boolean canWrite(String writeDir) {
+        try {
+            client.setPath(writeDir);
+            return client.exists() && client.isCollection() && !client.isLocked();
+        } catch (IOException e) {
+            logger.debug(e);
+            return false;
+        }
+    }
 }
