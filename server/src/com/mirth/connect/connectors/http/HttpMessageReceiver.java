@@ -49,13 +49,23 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
 
             try {
                 httpResponse.setContentType(connector.getReceiverResponseContentType());
-                String response = processData(httpRequest);
+                Response response = processData(httpRequest);
 
                 if (response != null) {
-                    httpResponse.getOutputStream().write(response.getBytes(connector.getReceiverCharset()));
-                }
+                    httpResponse.getOutputStream().write(response.getMessage().getBytes(connector.getReceiverCharset()));
 
-                httpResponse.setStatus(HttpStatus.SC_OK);
+                    /*
+                     * If the destination sends a failure response, the listener
+                     * should return a 500 error, otherwise 200.
+                     */
+                    if (response.getStatus().equals(Response.Status.FAILURE)) {
+                        httpResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                    } else {
+                        httpResponse.setStatus(HttpStatus.SC_OK);
+                    }
+                } else {
+                    httpResponse.setStatus(HttpStatus.SC_OK);
+                }
             } catch (Exception e) {
                 httpResponse.setContentType("text/plain");
                 httpResponse.getOutputStream().write(ExceptionUtils.getFullStackTrace(e).getBytes());
@@ -77,17 +87,17 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
     public void doConnect() throws Exception {
         server = new HttpServer();
         connector.getConfiguration().configureReceiver(server, endpoint);
-        
+
         // add the request handler
         HttpContext context = server.addContext("/");
         context.addHandler(requestHandler);
-        
+
         logger.debug("starting HTTP server with address: " + endpoint.getEndpointURI().getUri());
         server.start();
         monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
 
-    private String processData(HttpRequest request) throws Exception {
+    private Response processData(HttpRequest request) throws Exception {
         monitoringController.updateStatus(connector, connectorType, Event.BUSY);
         HttpMessageConverter converter = new HttpMessageConverter();
 
@@ -117,9 +127,7 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
                 postProcessor.doPostProcess(messageObjectResponse);
 
                 if (!connector.getReceiverResponse().equalsIgnoreCase("None")) {
-                    return ((Response) messageObjectResponse.getResponseMap().get(connector.getReceiverResponse())).getMessage();
-                } else {
-                    return null;
+                    return (Response) messageObjectResponse.getResponseMap().get(connector.getReceiverResponse());
                 }
             }
         }
