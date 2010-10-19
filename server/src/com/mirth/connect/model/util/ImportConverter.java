@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -1555,8 +1555,8 @@ public class ImportConverter {
         } else if ((version1 == null) && (version2 != null)) {
             return -1;
         } else {
-            String[] numbers1 = normalizeVersion(version1, 3).split("\\.");
-            String[] numbers2 = normalizeVersion(version2, 3).split("\\.");
+            String[] numbers1 = normalizeVersion(version1, 4).split("\\.");
+            String[] numbers2 = normalizeVersion(version2, 4).split("\\.");
 
             for (int i = 0; i < numbers1.length; i++) {
                 if (Integer.valueOf(numbers1[i]) < Integer.valueOf(numbers2[i])) {
@@ -1579,7 +1579,7 @@ public class ImportConverter {
 
         StringBuilder builder = new StringBuilder();
 
-        for (Iterator<String> iterator = numbers.iterator(); iterator.hasNext();) {
+        for (ListIterator<String> iterator = numbers.listIterator(); iterator.hasNext() && iterator.nextIndex() < length;) {
             String number = iterator.next();
 
             if (iterator.hasNext()) {

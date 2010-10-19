@@ -29,6 +29,7 @@ public class ImportConverterTest extends TestCase {
         assertEquals("1.8", ImportConverter.normalizeVersion("1.8", 2));
         assertEquals("1.8.0", ImportConverter.normalizeVersion("1.8", 3));
         assertEquals("1.8.0.0", ImportConverter.normalizeVersion("1.8", 4));
+        assertEquals("1.8.0", ImportConverter.normalizeVersion("1.8.0.0", 3));
     }
 
 }
