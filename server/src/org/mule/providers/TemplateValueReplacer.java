@@ -187,6 +187,6 @@ public class TemplateValueReplacer {
         context.put("UUID", new UUID().getUUID());
         context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
         context.put("ORIGINALNAME", originalFilename);
-        context.put("XmlUtil", XmlUtil.getInstance());
+        context.put("XmlUtil", XmlUtil.class);
     }
 }

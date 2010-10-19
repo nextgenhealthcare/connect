@@ -27,7 +27,6 @@ public class XMLPrettyPrinter implements ContentHandler {
 	private Writer out;
 	private int depth = 0; // depth in hierarchy
 	private boolean encodeEntities;
-	private XmlUtil encoder = XmlUtil.getInstance();
 
 	// I could allow the user to set a lot more details about
 	// how the XML is indented; e.g. how many spaces, tabs or spaces,
@@ -83,7 +82,7 @@ public class XMLPrettyPrinter implements ContentHandler {
 		try {
 			// indent();
 			if (encodeEntities){
-				out.write(encoder.encode(text, start, length));
+				out.write(XmlUtil.encode(text, start, length));
 			}else{
 				out.write(text, start, length);
 			}

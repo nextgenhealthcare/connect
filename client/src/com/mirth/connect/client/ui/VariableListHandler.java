@@ -9,14 +9,17 @@
 
 package com.mirth.connect.client.ui;
 
-import com.mirth.connect.client.ui.panels.reference.ReferenceTable;
-import org.jdesktop.swingx.JXList;
-
-import javax.swing.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.JComponent;
+import javax.swing.TransferHandler;
+
+import org.jdesktop.swingx.JXList;
+
+import com.mirth.connect.client.ui.panels.reference.ReferenceTable;
 
 public class VariableListHandler extends TransferHandler {
 
@@ -63,8 +66,8 @@ public class VariableListHandler extends TransferHandler {
         staticJsReferences.put("DICOM Message Raw Data", "var rawData = DICOMUtil.getDICOMRawData(messageObject);");
         staticJsReferences.put("Message with Attachments", "var rawData = AttachmentUtil.reAttachMessage(messageObject)");
         staticJsReferences.put("Formatted Date", "var dateString = DateUtil.getCurrentDate('yyyy-M-d H.m.s');");
-        staticJsReferences.put("XML Entity Encoder", "var encodedMessage = XmlUtil.getInstance().encode('message');");
-        staticJsReferences.put("XML Pretty Printer", "var prettyPrintedMessage = XmlUtil.getInstance().prettyPrint('message');");
+        staticJsReferences.put("XML Entity Encoder", "var encodedMessage = XmlUtil.encode('message');");
+        staticJsReferences.put("XML Pretty Printer", "var prettyPrintedMessage = XmlUtil.prettyPrint('message');");
     }
 
     protected Transferable createTransferable(JComponent c) {

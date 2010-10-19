@@ -29,28 +29,19 @@ import org.apache.log4j.Logger;
 
 public class XmlUtil {
 
-    private static XmlUtil instance = null;
     private static Transformer normalizerTransformer = null;
     private static Transformer serializerTransformer = null;
 
-    private final Hashtable<String, String> decoder = new Hashtable<String, String>(300);
-    private final Hashtable<String, String> decoderXml = new Hashtable<String, String>(10);
-    private final String[] encoder = new String[0x100];
-    private final String[] encoderXml = new String[0x100];
+    private static final Hashtable<String, String> decoder = new Hashtable<String, String>(300);
+    private static final Hashtable<String, String> decoderXml = new Hashtable<String, String>(10);
+    private static final String[] encoder = new String[0x100];
+    private static final String[] encoderXml = new String[0x100];
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private static Logger logger = Logger.getLogger(XmlUtil.class);
 
-    private final String prettyPrintingXslt = "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\"><xsl:output indent=\"no\" method=\"xml\" omit-xml-declaration=\"yes\"/><xsl:strip-space elements=\"*\"/><xsl:template match=\"/\"><xsl:copy-of select=\".\"/></xsl:template></xsl:stylesheet>";
+    private static final String prettyPrintingXslt = "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\"><xsl:output indent=\"no\" method=\"xml\" omit-xml-declaration=\"yes\"/><xsl:strip-space elements=\"*\"/><xsl:template match=\"/\"><xsl:copy-of select=\".\"/></xsl:template></xsl:stylesheet>";
 
-    public static XmlUtil getInstance() {
-        if (instance == null) {
-            instance = new XmlUtil();
-        }
-
-        return instance;
-    }
-
-    private XmlUtil() {
+    static {
         addEntities();
 
         try {
@@ -84,7 +75,7 @@ public class XmlUtil {
         }
     }
 
-    public String prettyPrint(String input) {
+    public static String prettyPrint(String input) {
         if ((normalizerTransformer != null) && (serializerTransformer != null)) {
             try {
                 Source source = new StreamSource(new StringReader(input));
@@ -112,7 +103,7 @@ public class XmlUtil {
         return input;
     }
 
-    public String decode(String entity) {
+    public static String decode(String entity) {
         if (entity.charAt(entity.length() - 1) == ';') // remove trailing
             // semicolon
             entity = entity.substring(0, entity.length() - 1);
@@ -135,7 +126,7 @@ public class XmlUtil {
         }
     }
 
-    public String encode(char s) {
+    public static String encode(char s) {
         StringBuffer buffer = new StringBuffer(4);
         char c = s;
         int j = c;
@@ -152,7 +143,7 @@ public class XmlUtil {
         return buffer.toString();
     }
 
-    public String encode(String s) {
+    public static String encode(String s) {
         int length = s.length();
         StringBuffer buffer = new StringBuffer(length * 2);
         for (int i = 0; i < length; i++) {
@@ -163,7 +154,7 @@ public class XmlUtil {
         return buffer.toString();
     }
 
-    public String encode(char[] text, int start, int length) {
+    public static String encode(char[] text, int start, int length) {
         StringBuffer buffer = new StringBuffer(length * 2);
         for (int i = start; i < length + start; i++) {
             char c = text[i];
@@ -183,19 +174,19 @@ public class XmlUtil {
         return buffer.toString();
     }
 
-    private void addEntity(String entity, int value) {
+    private static void addEntity(String entity, int value) {
         decoder.put(entity, (new Character((char) value)).toString());
         if (value < 0x100)
             encoder[value] = entity;
     }
 
-    private void addXmlEntity(String entity, int value) {
+    private static void addXmlEntity(String entity, int value) {
         decoderXml.put(entity, (new Character((char) value)).toString());
         if (value < 0x100)
             encoderXml[value] = entity;
     }
 
-    private void addEntities() {
+    private static void addEntities() {
         addEntity("&nbsp", 160);
         addEntity("&iexcl", 161);
         addEntity("&cent", 162);

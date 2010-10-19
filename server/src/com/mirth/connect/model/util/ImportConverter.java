@@ -17,11 +17,15 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -49,6 +53,8 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class ImportConverter {
     private static ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+
+    private static Pattern matchVersion = Pattern.compile("<version>([\\.0-9]+?)<\\/version>");
 
     private enum Direction {
         INBOUND, OUTBOUND
@@ -128,6 +134,7 @@ public class ImportConverter {
 
     public static String convertGlobalScripts(String globalScriptsXml) {
         globalScriptsXml = convertPackageNames(globalScriptsXml);
+        globalScriptsXml = runStringConversions(globalScriptsXml);
 
         return globalScriptsXml;
     }
@@ -144,6 +151,7 @@ public class ImportConverter {
 
     public static String convertCodeTemplates(String codeTemplatesXML) throws Exception {
         codeTemplatesXML = convertPackageNames(codeTemplatesXML);
+        codeTemplatesXML = runStringConversions(codeTemplatesXML);
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
@@ -191,6 +199,7 @@ public class ImportConverter {
 
     public static String convertChannelString(String channel) throws Exception {
         channel = convertPackageNames(channel);
+        channel = runStringConversions(channel);
 
         String contents = removeInvalidHexChar(channel);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -203,10 +212,38 @@ public class ImportConverter {
         return convertChannel(document);
     }
 
+    /**
+     * Run string conversions based on the version number. These conversions can
+     * apply to anything that contains a version element.
+     * 
+     * @param xmlData
+     * @return updated xmlData
+     */
+    private static String runStringConversions(String xmlData) {
+
+        Matcher myMatcher = matchVersion.matcher(xmlData);
+
+        /*
+         * Set the initial version to 1.8.2 so that anything passed in without a
+         * version will run all conversions.
+         */
+        String versionData = "1.8.2";
+
+        if (myMatcher.find()) {
+            versionData = myMatcher.group(1);
+        }
+
+        if (compareVersions(versionData, "2.0.0") < 0) {
+            // Run any string replacements for 2.0.0 here.
+        }
+
+        return xmlData;
+    }
+
     /*
      * Upgrade pre-1.4 channels to work with 1.4+
      */
-    public static String convertChannel(Document document) throws Exception {
+    private static String convertChannel(Document document) throws Exception {
         String channelXML = "";
         Element channelRoot = document.getDocumentElement();
 
@@ -829,6 +866,7 @@ public class ImportConverter {
 
     public static String convertFilter(String filterXml) throws Exception {
         filterXml = convertPackageNames(filterXml);
+        filterXml = runStringConversions(filterXml);
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
@@ -863,6 +901,7 @@ public class ImportConverter {
      */
     public static String convertConnector(String connectorXml) throws Exception {
         connectorXml = convertPackageNames(connectorXml);
+        connectorXml = runStringConversions(connectorXml);
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
@@ -888,6 +927,7 @@ public class ImportConverter {
 
     public static String convertTransformer(String transformerXml, Protocol incoming, Protocol outgoing) throws Exception {
         transformerXml = convertPackageNames(transformerXml);
+        transformerXml = runStringConversions(transformerXml);
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
@@ -1497,5 +1537,58 @@ public class ImportConverter {
                 child.setTextContent(Boolean.toString(value));
             }
         }
+    }
+
+    /**
+     * Compares two versions strings (ex. 1.6.1.2335).
+     * 
+     * @param version1
+     * @param version2
+     * @return -1 if version1 < version2, 1 if version1 > version2, 0 if
+     *         version1 = version2
+     */
+    public static int compareVersions(String version1, String version2) {
+        if ((version1 == null) && (version2 == null)) {
+            return 0;
+        } else if ((version1 != null) && (version2 == null)) {
+            return 1;
+        } else if ((version1 == null) && (version2 != null)) {
+            return -1;
+        } else {
+            String[] numbers1 = normalizeVersion(version1, 3).split("\\.");
+            String[] numbers2 = normalizeVersion(version2, 3).split("\\.");
+
+            for (int i = 0; i < numbers1.length; i++) {
+                if (Integer.valueOf(numbers1[i]) < Integer.valueOf(numbers2[i])) {
+                    return -1;
+                } else if (Integer.valueOf(numbers1[i]) > Integer.valueOf(numbers2[i])) {
+                    return 1;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    public static String normalizeVersion(String version, int length) {
+        List<String> numbers = new ArrayList<String>(Arrays.asList(version.split("\\.")));
+
+        while (numbers.size() < length) {
+            numbers.add("0");
+        }
+
+        StringBuilder builder = new StringBuilder();
+
+        for (Iterator<String> iterator = numbers.iterator(); iterator.hasNext();) {
+            String number = iterator.next();
+
+            if (iterator.hasNext()) {
+                builder.append(number + ".");
+            } else {
+                builder.append(number);
+            }
+        }
+
+        return builder.toString();
     }
 }
