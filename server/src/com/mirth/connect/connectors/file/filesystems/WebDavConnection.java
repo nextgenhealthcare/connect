@@ -83,19 +83,19 @@ public class WebDavConnection implements FileSystemConnection {
         this.username = username;
         this.password = password;
 
-        HttpURL hrl = null;
+        HttpURL url = null;
 
         if (secure) {
-            hrl = new HttpsURL("https://" + host);
+            url = new HttpsURL("https://" + host);
         } else {
-            hrl = new HttpURL("http://" + host);
+            url = new HttpURL("http://" + host);
         }
 
         if (!username.equals("null")) {
-            hrl.setUserinfo(username, password);
+            url.setUserinfo(username, password);
         }
 
-        client = new WebdavResource(hrl);
+        client = new WebdavResource(url);
     }
 
     public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex) throws Exception {
@@ -108,20 +108,22 @@ public class WebDavConnection implements FileSystemConnection {
         }
 
         client.setPath(fromDir);
-        if (!client.isCollection()) {
-            throw new Exception("Path is currently a file: '" + client.getHost() + client.getPath() + "'");
-        }
 
-        String files[] = client.list();
-        if (files == null || files.length == 0) {
+        if (!client.isCollection()) {
+            throw new Exception("Resource is not a collection: '" + client.getHost() + client.getPath() + "'");
+        }
+        
+        WebdavResource[] resources = client.listWebdavResources();
+        
+        if (resources == null || resources.length == 0) {
             return new ArrayList<FileInfo>();
         }
 
-        List<FileInfo> v = new ArrayList<FileInfo>(files.length);
-        for (int i = 0; i < files.length; i++) {
+        List<FileInfo> fileInfoList = new ArrayList<FileInfo>(resources.length);
+        for (int i = 0; i < resources.length; i++) {
 
             WebdavFile file = null;
-            String filePath = ("/" + fromDir + "/" + files[i]).replaceAll("//", "/");
+            String filePath = ("/" + fromDir + "/" + resources[i].getPath()).replaceAll("//", "/");
 
             if (secure) {
 
@@ -143,11 +145,11 @@ public class WebDavConnection implements FileSystemConnection {
 
             if (file.isFile()) {
                 if (filenameFilter.accept(null, file.getName())) {
-                    v.add(new WebDavFileInfo(fromDir, file));
+                    fileInfoList.add(new WebDavFileInfo(fromDir, file));
                 }
             }
         }
-        return v;
+        return fileInfoList;
     }
 
     public InputStream readFile(String file, String fromDir) throws Exception {
