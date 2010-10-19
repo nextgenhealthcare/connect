@@ -25,13 +25,21 @@ public class Base64StringConverter implements Converter {
     }
 
     public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
+        writer.addAttribute("encoding", "base64");
         writer.setValue(base64.encode(((String) source).getBytes()));
     }
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+
+        String encoding = reader.getAttribute("encoding");
         String data = reader.getValue();
+
         try {
-            return new String(base64.decode(data));
+            if ("base64".equalsIgnoreCase(encoding)) {
+                return new String(base64.decode(data));
+            } else {
+                return data;
+            }
         } catch (Exception e) {
             return data;
         }
