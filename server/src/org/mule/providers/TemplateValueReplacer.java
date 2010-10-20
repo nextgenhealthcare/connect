@@ -29,6 +29,7 @@ import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.server.util.DICOMUtil;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
 import com.mirth.connect.server.util.GlobalVariableStore;
+import com.mirth.connect.util.Entities;
 import com.mirth.connect.util.XmlUtil;
 
 public class TemplateValueReplacer {
@@ -187,6 +188,7 @@ public class TemplateValueReplacer {
         context.put("UUID", new UUID().getUUID());
         context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
         context.put("ORIGINALNAME", originalFilename);
+        context.put("encoder", Entities.getInstance());  // TODO: Remove in 2.1
         context.put("XmlUtil", XmlUtil.class);
     }
 }

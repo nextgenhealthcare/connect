@@ -27,7 +27,7 @@ public class Entities {
     @Deprecated
     // TODO: Remove in 2.1
     public static Entities getInstance() {
-        logger.error("The Entities class is deprecated and will soon be removed. Please use XmlUtil.");
+        logger.error("The Entities class is deprecated and will soon be removed. Please use XmlUtil. If you are calling ${encoder.encode()} from a template please use ${XmlUtil.encode()}.");
 
         if (instance == null)
             instance = new Entities();

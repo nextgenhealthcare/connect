@@ -67,7 +67,7 @@ public abstract class ChannelController extends Controller {
     @Deprecated
     // TODO: Remove in 2.1
     public String getChannelId(String channelName) {
-        logger.error("The getChannelId(channelName) method is deprecated and will soon be removed. Please use getDeployedChannelByName(channelName).getName()");
+        logger.error("The getChannelId(channelName) method is deprecated and will soon be removed. Please use getDeployedChannelByName(channelName).getId()");
         return getDeployedChannelByName(channelName).getId();
     }
 }
