@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -211,7 +213,11 @@ public class ExtensionUtil {
                     continue;
                 }
 
-                IOUtils.copy(zipFile.getInputStream(entry), new BufferedOutputStream(new FileOutputStream(new File(location + entry.getName()))));
+                InputStream inputStream = zipFile.getInputStream(entry);
+                OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(new File(location + entry.getName())));
+                IOUtils.copy(inputStream, outputStream);
+                IOUtils.closeQuietly(inputStream);
+                IOUtils.closeQuietly(outputStream);
             }
         } catch (Exception e) {
             throw new ControllerException(e);
