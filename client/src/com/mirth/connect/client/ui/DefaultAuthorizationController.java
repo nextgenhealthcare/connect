@@ -12,7 +12,7 @@ package com.mirth.connect.client.ui;
 public class DefaultAuthorizationController implements AuthorizationController {
 
     @Override
-    public boolean checkTask(String task) {
+    public boolean checkTask(String taskGroup, String taskName) {
         return true;
     }
     

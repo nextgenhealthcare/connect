@@ -1170,8 +1170,8 @@ public class Frame extends JXFrame {
             boolean componentVisible = visible;
             String componentTask = getComponentTaskMap().get(pane.getContentPane().getComponent(i));
             if (componentTask != null) {
-                componentTask = componentTask.split("#")[1];
-                if (!AuthorizationControllerFactory.getAuthorizationController().checkTask(componentTask)) {
+                String[] componentTaskArray = componentTask.split("#");
+                if (!AuthorizationControllerFactory.getAuthorizationController().checkTask(componentTaskArray[0], componentTaskArray[1])) {
                     componentVisible = false;
                 }
             }

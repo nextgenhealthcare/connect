@@ -10,5 +10,5 @@
 package com.mirth.connect.client.ui;
 
 public interface AuthorizationController {
-    public boolean checkTask(String task);
+    public boolean checkTask(String taskGroup, String taskName);
 }
