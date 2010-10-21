@@ -1167,18 +1167,19 @@ public class Frame extends JXFrame {
         for (int i = startIndex; (endIndex == -1 ? true : i <= endIndex) && (i < pane.getContentPane().getComponentCount()); i++) {
             // If the component being set visible is in the security list, don't allow it.
             
+            boolean componentVisible = visible;
             String componentTask = getComponentTaskMap().get(pane.getContentPane().getComponent(i));
             if (componentTask != null) {
                 componentTask = componentTask.split("#")[1];
                 if (!AuthorizationControllerFactory.getAuthorizationController().checkTask(componentTask)) {
-                    visible = false;
+                    componentVisible = false;
                 }
             }
             
-            pane.getContentPane().getComponent(i).setVisible(visible);
+            pane.getContentPane().getComponent(i).setVisible(componentVisible);
             
             if (menu != null) {
-                menu.getComponent(i).setVisible(visible);
+                menu.getComponent(i).setVisible(componentVisible);
             }
         }
     }
