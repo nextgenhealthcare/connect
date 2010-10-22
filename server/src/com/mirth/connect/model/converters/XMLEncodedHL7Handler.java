@@ -67,18 +67,20 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
 
         /*
          * If the element that we've found is the same as the last, then we have
-         * a reptition, so we append to repetition separator.
+         * a repetition, so we append to repetition separator and remove the last
+         * separator that was added
          */
-        if (previousLocalName == null) {
-            previousLocalName = localName;
-        } else {
-            if (localName.equals(previousLocalName)) {
-                output.append(repetitionSeparator);
-                return;
-            }
+        if (localName.equals(previousLocalName)) {
+            output.deleteCharAt(output.length() - 1);
+            output.append(repetitionSeparator);
+            return;
         }
 
         int currentDelimeterCount = StringUtils.countMatches(localName, ID_DELIMETER);
+
+        if (currentDelimeterCount == 1) {
+            previousLocalName = localName;
+        }
 
         /*
          * If we have an element with no periods, then we know its the name of
@@ -154,7 +156,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
     @Override
     public void characters(char ch[], int start, int length) throws SAXException {
         String str = new String(ch, start, length);
-        
+
         /*
          * Write the substring to the output buffer, unless it is the field
          * separators (to avoid MSH.1. being written out).
