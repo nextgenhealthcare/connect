@@ -108,11 +108,6 @@ public class WebDavConnection implements FileSystemConnection {
         }
 
         client.setPath(fromDir);
-
-        if (!client.isCollection()) {
-            throw new Exception("Resource is not a collection: '" + client.getHost() + client.getPath() + "'");
-        }
-        
         WebdavResource[] resources = client.listWebdavResources();
         
         if (resources == null || resources.length == 0) {
