@@ -249,7 +249,7 @@ public class Mirth extends Thread {
             sslListener.setHost(PropertyLoader.getProperty(mirthProperties, "https.host", "0.0.0.0"));
             sslListener.setCipherSuites(new String[] { "SSL_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_RC4_128_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA" });
             sslListener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "https.port")).intValue());
-            sslListener.setKeystore(configurationController.getBaseDir() + File.separator + PropertyLoader.getProperty(mirthProperties, "keystore.path"));
+            sslListener.setKeystore(configurationController.getApplicationDataDir() + File.separator + PropertyLoader.getProperty(mirthProperties, "keystore.name"));
             sslListener.setPassword(PropertyLoader.getProperty(mirthProperties, "keystore.storepass"));
             sslListener.setKeyPassword(PropertyLoader.getProperty(mirthProperties, "keystore.keypass"));
             sslListener.setAlgorithm(PropertyLoader.getProperty(mirthProperties, "keystore.algorithm"));

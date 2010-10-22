@@ -551,7 +551,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             // load keystore properties
             Properties properties = PropertyLoader.loadProperties("mirth");
             String alias = properties.getProperty("keystore.alias");
-            File keyStoreFile = new File(properties.getProperty("keystore.path"));
+            File keyStoreFile = new File(getApplicationDataDir() + File.separator + properties.getProperty("keystore.name"));
             String keyStoreType = properties.getProperty("keystore.storetype");
             char[] keyStorePassword = properties.getProperty("keystore.storepass").toCharArray();
             char[] keyPassword = properties.getProperty("keystore.keypass").toCharArray();
@@ -560,7 +560,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             KeyStore keyStore = KeyStore.getInstance(keyStoreType);
 
             if (keyStoreFile.exists()) {
-                keyStore.load(new FileInputStream(getBaseDir() + File.separator + keyStoreFile), keyStorePassword);    
+                keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);    
             } else {
                 keyStore.load(null, keyStorePassword);
             }
