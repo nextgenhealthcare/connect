@@ -244,10 +244,8 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 
             if (usageStatsCheckBox.isSelected()) {
                 serverProperties.put("stats.enabled", UIConstants.YES_OPTION);
-                serverProperties.put("update.enabled", UIConstants.YES_OPTION);
             } else {
                 serverProperties.put("stats.enabled", UIConstants.NO_OPTION);
-                serverProperties.put("update.enabled", UIConstants.NO_OPTION);
             }
 
             serverProperties.put("firstlogin", UIConstants.NO_OPTION);
