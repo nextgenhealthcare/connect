@@ -69,6 +69,7 @@ public class DefaultMigrationController extends MigrationController {
         }
     }
 
+    // TODO: Rewrite with fewer returns
     public void migrate() {
         // check for one of the tables to see if we should run the create script
 
@@ -99,6 +100,7 @@ public class DefaultMigrationController extends MigrationController {
             // schema installed
             if (!resultFound) {
                 createSchema(conn);
+                migrateServerProperties();
                 return;
             }
         } catch (Exception e) {
@@ -141,6 +143,8 @@ public class DefaultMigrationController extends MigrationController {
                 else
                     SqlConfig.getSqlMapClient().update("Configuration.updateSchemaVersion", newSchemaVersion);
             }
+
+            migrateServerProperties();
         } catch (Exception e) {
             logger.error("Could not initialize migration controller.", e);
         }
@@ -171,7 +175,7 @@ public class DefaultMigrationController extends MigrationController {
                 if (pluginProperties.containsKey("schema")) {
                     baseSchemaVersion = Integer.parseInt(pluginProperties.getProperty("schema", "-1"));
                 }
-                
+
                 if (plugin.getSqlScript() != null) {
                     File pluginSqlScriptFile = new File(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript());
                     Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pluginSqlScriptFile);
@@ -209,10 +213,10 @@ public class DefaultMigrationController extends MigrationController {
 
         for (int i = 0; i < diffNodes.getLength(); i++) {
             Node versionAttribute = diffNodes.item(i).getAttributes().getNamedItem("version");
-            
+
             if (versionAttribute != null) {
                 int scriptVersion = Integer.parseInt(versionAttribute.getTextContent());
-                
+
                 if (scriptVersion > currentVersion) {
                     NodeList scriptNodes = ((Element) diffNodes.item(i)).getElementsByTagName("script");
 
@@ -224,7 +228,7 @@ public class DefaultMigrationController extends MigrationController {
                         Node scriptNode = scriptNodes.item(j);
                         Node scriptNodeAttribute = scriptNode.getAttributes().getNamedItem("type");
                         String[] dbTypes = scriptNodeAttribute.getTextContent().split(",");
-                        
+
                         for (int k = 0; k < dbTypes.length; k++) {
                             if (dbTypes[k].equals("all") || dbTypes[k].equals(databaseType)) {
                                 deltaScripts.put(new Integer(scriptVersion), scriptNode.getTextContent());
@@ -265,12 +269,6 @@ public class DefaultMigrationController extends MigrationController {
 
         // This migration is for 2.0.0
         if ((oldVersion == 6) && (newVersion == 7)) {
-            /*
-             * Since we moved the server properties from a file to the database,
-             * we need to copy over the previous properties into the database.
-             */
-            migrateServerProperties();
-
             // Update the code template scopes and package names
             CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
             try {
@@ -332,22 +330,30 @@ public class DefaultMigrationController extends MigrationController {
         }
     }
 
+    /*
+     * Since we moved the server properties from a file to the database, we need
+     * to copy over the previous properties into the database if a file exists
+     */
     private void migrateServerProperties() {
         try {
-            Properties newProperties = configurationController.getServerProperties();
-            Properties oldProperties = new Properties();
             File propertiesFile = new File(configurationController.getBaseDir() + File.separator + "server.properties");
-            oldProperties.load(new FileInputStream(propertiesFile));
-            newProperties.putAll(oldProperties);
-            configurationController.setServerProperties(newProperties);
 
-            if (!propertiesFile.delete()) {
-                logger.warn("Could not delete previous server.properties file.");
+            if (propertiesFile.exists()) {
+                Properties newProperties = configurationController.getServerProperties();
+                Properties oldProperties = new Properties();
+
+                oldProperties.load(new FileInputStream(propertiesFile));
+                newProperties.putAll(oldProperties);
+                configurationController.setServerProperties(newProperties);
+
+                if (!propertiesFile.delete()) {
+                    logger.error("Could not delete existing server.properties file. Please delete it manually.");
+                }
             }
         } catch (ControllerException ce) {
-            logger.warn("Could not load current server properties from database.", ce);
+            logger.error("Error loading current server properties from database.", ce);
         } catch (IOException ioe) {
-            logger.warn("Could not locate previous server.properties file to migrate.", ioe);
+            logger.error("Error loading existing server.properties file.", ioe);
         }
     }
 }
