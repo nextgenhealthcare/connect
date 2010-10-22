@@ -127,14 +127,13 @@ public class DefaultMigrationController extends MigrationController {
 
             }
 
-            if (result == null)
+            if (result == null) {
                 oldSchemaVersion = 0;
-            else
+            } else {
                 oldSchemaVersion = ((Integer) result).intValue();
+            }
 
-            if (oldSchemaVersion == newSchemaVersion)
-                return;
-            else {
+            if (oldSchemaVersion != newSchemaVersion) {
                 migrate(oldSchemaVersion, newSchemaVersion);
                 migrateContents(oldSchemaVersion, newSchemaVersion);
 
