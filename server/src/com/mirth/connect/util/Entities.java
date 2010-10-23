@@ -27,8 +27,16 @@ public class Entities {
     @Deprecated
     // TODO: Remove in 2.1
     public static Entities getInstance() {
-        logger.error("The Entities class is deprecated and will soon be removed. Please use XmlUtil. If you are calling ${encoder.encode()} from a template please use ${XmlUtil.encode()}.");
+        return getInstance(true);
+    }
 
+    @Deprecated
+    // TODO: Remove in 2.1
+    public static Entities getInstance(boolean logError) {
+        if (logError) {
+            logger.error("The Entities class is deprecated and will soon be removed. Please use XmlUtil. If you are calling ${encoder.encode()} from a template please use ${XmlUtil.encode()}.");
+        }
+        
         if (instance == null)
             instance = new Entities();
         return instance;
@@ -40,6 +48,8 @@ public class Entities {
     final String[] encoderXML = new String[0x100];
 
     public String decode(String entity) {
+        logger.error("The Entities class is deprecated and will soon be removed. Please use XmlUtil. If you are calling ${encoder.decode()} from a template please use ${XmlUtil.decode()}.");
+        
         if (entity.charAt(entity.length() - 1) == ';') // remove trailing
             // semicolon
             entity = entity.substring(0, entity.length() - 1);
@@ -62,6 +72,8 @@ public class Entities {
     }
 
     public String encode(char s) {
+        logger.error("The Entities class is deprecated and will soon be removed. Please use XmlUtil. If you are calling ${encoder.encode()} from a template please use ${XmlUtil.encode()}.");
+        
         StringBuffer buffer = new StringBuffer(4);
         char c = s;
         int j = (int) c;
@@ -79,6 +91,8 @@ public class Entities {
     }
 
     public String encode(String s) {
+        logger.error("The Entities class is deprecated and will soon be removed. Please use XmlUtil. If you are calling ${encoder.encode()} from a template please use ${XmlUtil.encode()}.");
+        
         int length = s.length();
         StringBuffer buffer = new StringBuffer(length * 2);
         for (int i = 0; i < length; i++) {
@@ -90,6 +104,8 @@ public class Entities {
     }
 
     public String encode(char[] text, int start, int length) {
+        logger.error("The Entities class is deprecated and will soon be removed. Please use XmlUtil. If you are calling ${encoder.encode()} from a template please use ${XmlUtil.encode()}.");
+        
         StringBuffer buffer = new StringBuffer(length * 2);
         for (int i = start; i < length + start; i++) {
             char c = text[i];
