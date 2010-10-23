@@ -28,7 +28,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
     private boolean inElement = false;
 
     private int previousDelimeterCount = -1;
-    private String previousLocalName;
+    private String previousFieldName;
 
     private StringBuilder output = new StringBuilder();
 
@@ -54,8 +54,8 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         inElement = true;
 
         /*
-         * Skip the root element, MSH.1, and MSH.2 since those have any data
-         * that we care about.
+         * Skip the root element, MSH.1, and MSH.2 since those don't have any
+         * data that we care about.
          */
         if (localName.equals(ER7Reader.MESSAGE_ROOT_ID)) {
             return;
@@ -67,10 +67,10 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
 
         /*
          * If the element that we've found is the same as the last, then we have
-         * a repetition, so we append to repetition separator and remove the last
-         * separator that was added
+         * a repetition, so we remove the last separator that was added and
+         * append to repetition separator.
          */
-        if (localName.equals(previousLocalName)) {
+        if (localName.equals(previousFieldName)) {
             output.deleteCharAt(output.length() - 1);
             output.append(repetitionSeparator);
             return;
@@ -79,7 +79,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         int currentDelimeterCount = StringUtils.countMatches(localName, ID_DELIMETER);
 
         if (currentDelimeterCount == 1) {
-            previousLocalName = localName;
+            previousFieldName = localName;
         }
 
         /*
@@ -90,6 +90,13 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         if (currentDelimeterCount == 0) {
             output.append(localName);
             output.append(fieldSeparator);
+
+            /*
+             * Also set previousFieldName to null so that multiple segments in a
+             * row with only one field don't trigger a repetition character.
+             * (i.e. NTE|1<CR>NTE|2)
+             */
+            previousFieldName = null;
         }
     }
 
