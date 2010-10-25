@@ -700,6 +700,9 @@ public class ImportConverter {
             propertyDefaults.put("dispatcherAttachmentContents", serializer.toXML(new ArrayList<String>()));
             propertyDefaults.put("dispatcherAttachmentTypes", serializer.toXML(new ArrayList<String>()));
 
+            // Add new queue property
+            propertyDefaults.put("queuePollInterval", "200");
+
             for (int i = 0; i < properties.getLength(); i++) {
                 // get the current attribute and current value
                 attribute = properties.item(i).getAttributes().item(0).getTextContent();
@@ -822,6 +825,10 @@ public class ImportConverter {
             propertyDefaults.put("dispatcherContent", "");
             propertyDefaults.put("dispatcherContentType", "text/plain");
             propertyDefaults.put("dispatcherCharset", "UTF-8");
+            propertyDefaults.put("dispatcherSocketTimeout", "30000");
+
+            // Add new queue property
+            propertyDefaults.put("queuePollInterval", "200");
 
             for (int i = 0; i < properties.getLength(); i++) {
                 // get the current attribute and current value
