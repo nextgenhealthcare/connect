@@ -220,24 +220,36 @@ public class ImportConverter {
      * @return updated xmlData
      */
     private static String runStringConversions(String xmlData) {
-
-        Matcher myMatcher = matchVersion.matcher(xmlData);
-
         /*
-         * Set the initial version to 1.8.2 so that anything passed in without a
+         * Set the default version to 1.8.2 so that anything passed in without a
          * version will run all conversions.
          */
-        String versionData = "1.8.2";
-
-        if (myMatcher.find()) {
-            versionData = myMatcher.group(1);
-        }
+        String versionData = getComponentVersion(xmlData, "1.8.2");
 
         if (compareVersions(versionData, "2.0.0") < 0) {
             // Run any string replacements for 2.0.0 here.
         }
 
         return xmlData;
+    }
+
+    /**
+     * Gets the value of the first version node in the xml being passed in. If
+     * there isn't a version node, the defaultVersion passed in is returned.
+     * 
+     * @param xmlData
+     * @param defaultVersion
+     * @return
+     */
+    private static String getComponentVersion(String xmlData, String defaultVersion) {
+        Matcher matcher = matchVersion.matcher(xmlData);
+
+        // Anything passed in without a version will return the default.
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            return defaultVersion;
+        }
     }
 
     /*
@@ -744,7 +756,7 @@ public class ImportConverter {
         Map<String, String> propertyChanges = new HashMap<String, String>();
 
         // logic to deal with SOAP listener settings
-        if (transportNameText.equals("HTTP Listener")) {
+        if (transportNameText.equals("HTTP Listener") || transportNameText.equals("HTTPS Listener")) {
             NodeList properties = connectorRoot.getElementsByTagName("property");
 
             // set defaults
@@ -776,11 +788,15 @@ public class ImportConverter {
 
             // set changes
             propertyChanges.put("host", "0.0.0.0");
+            propertyChanges.put("DataType", "HTTP Listener");
+
+            // set new name of transport node
+            transportNode.setTextContent("HTTP Listener");
 
             // update properties
             updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
 
-        } else if (transportNameText.equals("HTTP Sender")) {
+        } else if (transportNameText.equals("HTTP Sender") || transportNameText.equals("HTTPS Sender")) {
             // get properties
             NodeList properties = connectorRoot.getElementsByTagName("property");
 
@@ -860,6 +876,11 @@ public class ImportConverter {
                 document.getElementsByTagName("enabled").item(0).setTextContent("false");
             }
 
+            propertyChanges.put("DataType", "HTTP Sender");
+
+            // set new name of transport node
+            transportNode.setTextContent("HTTP Sender");
+
             updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
         }
     }
@@ -917,6 +938,19 @@ public class ImportConverter {
         // SOAP connectors only existed before 2.0, so convert it for 2.0
         if (transportNameText.equals("SOAP Sender") || transportNameText.equals("SOAP Listener")) {
             convertSoapConnectorFor2_0(document, connectorRoot);
+        }
+
+        // Convert HTTP and HTTPS connectors
+        if (transportNameText.equals("HTTP Sender") || transportNameText.equals("HTTP Listener") || transportNameText.equals("HTTPS Sender") || transportNameText.equals("HTTPS Listener")) {
+            /*
+             * Set the default version to 1.8.2 so that anything passed in
+             * without a version will run all conversions.
+             */
+            String versionData = getComponentVersion(connectorXml, "1.8.2");
+
+            if (compareVersions(versionData, "2.0.0") < 0) {
+                convertHttpConnectorFor2_0(document, connectorRoot);
+            }
         }
 
         DocumentSerializer docSerializer = new DocumentSerializer();
