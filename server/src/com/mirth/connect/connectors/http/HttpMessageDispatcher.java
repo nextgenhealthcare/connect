@@ -120,27 +120,26 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
             int statusCode = client.executeMethod(httpMethod);
             logger.debug("received status code: " + statusCode);
 
+            String response = null;
+
+            if (connector.isDispatcherIncludeHeadersInResponse()) {
+                HttpMessageConverter converter = new HttpMessageConverter();
+                String content = IOUtils.toString(httpMethod.getResponseBodyAsStream(), converter.getDefaultHttpCharset(connector.getDispatcherCharset()));
+                response = converter.httpResponseToXml(httpMethod.getStatusLine().toString(), httpMethod.getResponseHeaders(), content);
+            } else {
+                response = httpMethod.getResponseBodyAsString();
+            }
+
             if (statusCode < HttpStatus.SC_BAD_REQUEST) {
-                String response = null;
-
-                if (connector.isDispatcherIncludeHeadersInResponse()) {
-                    HttpMessageConverter converter = new HttpMessageConverter();
-                    String content = IOUtils.toString(httpMethod.getResponseBodyAsStream(), converter.getDefaultHttpCharset(connector.getDispatcherCharset()));
-                    response = converter.httpResponseToXml(httpMethod.getStatusLine().toString(), httpMethod.getResponseHeaders(), content);
-                } else {
-                    response = httpMethod.getResponseBodyAsString();
-                }
-
                 messageObjectController.setSuccess(mo, response, null);
 
                 // send to reply channel
-
                 if ((connector.getDispatcherReplyChannelId() != null) && !connector.getDispatcherReplyChannelId().equals("sink")) {
                     new VMRouter().routeMessageByChannelId(connector.getDispatcherReplyChannelId(), response, true);
                 }
             } else {
-                // throw a new exception with the returned HTTP status
-                throw new Exception(httpMethod.getStatusLine().toString());
+                alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_404, "Received error response from HTTP server.", null);
+                messageObjectController.setError(mo, Constants.ERROR_404, response, null, null);
             }
         } catch (Exception e) {
             throw e;
