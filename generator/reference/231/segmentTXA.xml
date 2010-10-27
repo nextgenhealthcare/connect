@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>TXA</name>
+    <description>Document Notification</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>TXA.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>TXA.2</name>
+            <description>Document Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.3</name>
+            <description>Document Content Presentation</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.4</name>
+            <description>Activity Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.5</name>
+            <description>Primary Activity Provider Code/Name</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.6</name>
+            <description>Origination Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.7</name>
+            <description>Transcription Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.8</name>
+            <description>Edit Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.9</name>
+            <description>Originator Code/Name</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.10</name>
+            <description>Assigned Document Authenticator</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.11</name>
+            <description>Transcriptionist Code/Name</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>TXA.12</name>
+            <description>Unique Document Number</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.13</name>
+            <description>Parent Document Number</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.14</name>
+            <description>Placer Order Number</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.15</name>
+            <description>Filler Order Number</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.16</name>
+            <description>Unique Document File Name</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>TXA.17</name>
+            <description>Document Completion Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.18</name>
+            <description>Document Confidentiality Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.19</name>
+            <description>Document Availability Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.20</name>
+            <description>Document Storage Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.21</name>
+            <description>Document Change Reason</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.22</name>
+            <description>Authentication Person, Time Stamp</description>
+            <datatype>PPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TXA.23</name>
+            <description>Distributed Copies (code and Name of Recipients)</description>
+            <datatype>XCN</datatype>
+        </field>
+    </elements>
+</segment>

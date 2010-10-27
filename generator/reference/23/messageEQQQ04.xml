@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>EQQQ04</name>
+    <description>Embedded Query Language Query</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EQL</segment>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

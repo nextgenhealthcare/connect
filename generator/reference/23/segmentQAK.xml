@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>QAK</name>
+    <description>Query Acknowledgement</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QAK.1</name>
+            <description>Query Tag</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QAK.2</name>
+            <description>Query Response Status</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

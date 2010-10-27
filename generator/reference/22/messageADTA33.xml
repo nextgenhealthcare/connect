@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ADTA33</name>
+    <description>Cancel Patient Departing</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EVN</segment>
+        <segment>PID</segment>
+        <segment>PV1</segment>
+        <segment minOccurs="0">PV2</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">OBX</segment>
+    </segments>
+</message>

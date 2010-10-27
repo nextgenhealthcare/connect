@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>EIP</name>
+    <description>Parent Order</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>EIP.1</name>
+            <description>Parent's Placer Order Number</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>EIP.2</name>
+            <description>Parent's Filler Order Number</description>
+            <datatype>EI</datatype>
+        </field>
+    </elements>
+</segment>

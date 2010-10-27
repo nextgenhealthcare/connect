@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>PMUB06</name>
+    <description>Terminate Practicing Person</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>EVN</segment>
+        <segment>STF</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PRA</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">ORG</segment>
+    </segments>
+</message>

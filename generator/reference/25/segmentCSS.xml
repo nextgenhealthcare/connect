@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CSS</name>
+    <description>Clinical Study Data Schedule Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>CSS.1</name>
+            <description>Study Scheduled Time Point</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CSS.2</name>
+            <description>Study Scheduled Patient Time Point</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>CSS.3</name>
+            <description>Study Quality Control Codes</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

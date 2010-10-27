@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PCR</name>
+    <description>Peer Reference Information Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCR.1</name>
+            <description>Reference</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCR.2</name>
+            <description>External ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCR.3</name>
+            <description>Position</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCR.4</name>
+            <description>Description</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCR.5</name>
+            <description>Is Board Certified</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCR.6</name>
+            <description>Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCR.7</name>
+            <description>Phone</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCR.8</name>
+            <description>Specialty</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCR.9</name>
+            <description>Revised By</description>
+            <datatype>PPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCR.10</name>
+            <description>Comment</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCR.11</name>
+            <description>Standing</description>
+            <datatype>IS</datatype>
+        </field>
+    </elements>
+</segment>

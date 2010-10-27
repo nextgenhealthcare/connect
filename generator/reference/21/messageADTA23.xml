@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ADTA23</name>
+    <description>Delete a Patient Record</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EVN</segment>
+        <segment>PID</segment>
+        <segment>PV1</segment>
+    </segments>
+</message>

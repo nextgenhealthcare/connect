@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>PMUB07</name>
+    <description>Grant Certificate/Permission</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>EVN</segment>
+        <segment>STF</segment>
+        <segment minOccurs="0">PRA</segment>
+        <group maxOccurs="unbounded" minOccurs="0">
+            <segment>CER</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">ROL</segment>
+        </group>
+    </segments>
+</message>

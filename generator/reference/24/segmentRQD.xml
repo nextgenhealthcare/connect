@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>RQD</name>
+    <description>Requisition Detail</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RQD.1</name>
+            <description>Requisition Line Number</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RQD.2</name>
+            <description>Item Code - Internal</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RQD.3</name>
+            <description>Item Code - External</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RQD.4</name>
+            <description>Hospital Item Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RQD.5</name>
+            <description>Requisition Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RQD.6</name>
+            <description>Requisition Unit of Measure</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RQD.7</name>
+            <description>Dept. Cost Center</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RQD.8</name>
+            <description>Item Natural Account Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RQD.9</name>
+            <description>Deliver to ID</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RQD.10</name>
+            <description>Date Needed</description>
+            <datatype>DT</datatype>
+        </field>
+    </elements>
+</segment>

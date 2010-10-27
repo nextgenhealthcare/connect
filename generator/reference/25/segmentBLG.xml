@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>BLG</name>
+    <description>Billing</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BLG.1</name>
+            <description>When to Charge</description>
+            <datatype>CCD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BLG.2</name>
+            <description>Charge Type</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BLG.3</name>
+            <description>Account ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BLG.4</name>
+            <description>Charge Type Reason</description>
+            <datatype>CWE</datatype>
+        </field>
+    </elements>
+</segment>
