@@ -16,14 +16,8 @@ public class CommandLineLauncher {
     private static final String DEFAULT_LAUNCHER_FILE = "mirth-cli-launcher.xml";
 
     public static void main(String[] args) {
-        String launcherFile = DEFAULT_LAUNCHER_FILE;
-        
-        if (args.length > 0) {
-            launcherFile = args[0];
-        }
-
         try {
-            ClasspathBuilder cpBuilder = new ClasspathBuilder(launcherFile);
+            ClasspathBuilder cpBuilder = new ClasspathBuilder(DEFAULT_LAUNCHER_FILE);
             URLClassLoader classLoader = new URLClassLoader(cpBuilder.getClasspath());
             Class<?> cliClass = classLoader.loadClass("com.mirth.connect.cli.CommandLineInterface");
             Constructor<?>[] constructors = cliClass.getDeclaredConstructors();
@@ -31,7 +25,6 @@ public class CommandLineLauncher {
             for (int i = 0; i < constructors.length; i++) {
                 Class<?> parameters[] = constructors[i].getParameterTypes();
 
-                // load plugin if the number of parameters is 1.
                 if (parameters.length == 1) {
                     constructors[i].newInstance(new Object[] { args });
                     i = constructors.length;
