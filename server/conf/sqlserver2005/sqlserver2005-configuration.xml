@@ -7,7 +7,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 <sqlMap namespace="Configuration">
 	<resultMap id="get-properties-for-category-result" class="java.util.HashMap" >
 		<result property="name" column="NAME" javaType="java.lang.String" />
-		<result property="value" column="VALUE" javaType="java.lang.String" />
+		<result property="value" column="VALUE" javaType="java.lang.String" nullValue="" />
 	</resultMap>
 
 	<select id="getKey" resultClass="java.lang.String">
