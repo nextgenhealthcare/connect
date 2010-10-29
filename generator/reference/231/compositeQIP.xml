@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>QIP</name>
+    <description>Query Input Parameter List</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QIP.1</name>
+            <description>Field Name</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QIP.2</name>
+            <description>Value</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

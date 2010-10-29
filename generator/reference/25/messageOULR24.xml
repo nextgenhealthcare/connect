@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>OULR24</name>
+    <description>Unsolicited Order Oriented Observation Message</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment minOccurs="0">NTE</segment>
+        <group minOccurs="0">
+            <segment>PID</segment>
+            <segment minOccurs="0">PD1</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+        </group>
+        <group minOccurs="0">
+            <segment>PV1</segment>
+            <segment minOccurs="0">PV2</segment>
+        </group>
+        <group maxOccurs="unbounded">
+            <segment>OBR</segment>
+            <segment minOccurs="0">ORC</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>TQ1</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">TQ2</segment>
+            </group>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>SPM</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">OBX</segment>
+                <group maxOccurs="unbounded" minOccurs="0">
+                    <segment>SAC</segment>
+                    <segment minOccurs="0">INV</segment>
+                </group>
+            </group>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>OBX</segment>
+                <segment minOccurs="0">TCD</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">SID</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <segment minOccurs="0" maxOccurs="unbounded">CTI</segment>
+        </group>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>QBPQ25</name>
+    <description>Personnel Information by Segment Query</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>QPD</segment>
+        <segment>RCP</segment>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

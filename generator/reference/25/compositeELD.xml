@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>ELD</name>
+    <description>Error Location and Description</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ELD.1</name>
+            <description>Segment ID</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ELD.2</name>
+            <description>Segment Sequence</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ELD.3</name>
+            <description>Field Position</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ELD.4</name>
+            <description>Code Identifying Error</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

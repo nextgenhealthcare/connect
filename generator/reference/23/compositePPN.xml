@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PPN</name>
+    <description>Performing Person Time Stamp</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.1</name>
+            <description>ID Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.2</name>
+            <description>Family Name</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.3</name>
+            <description>Given Name</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.4</name>
+            <description>Middle Initial or Name</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.5</name>
+            <description>Suffix</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.6</name>
+            <description>Prefix</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.7</name>
+            <description>Degree</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.8</name>
+            <description>Source Table</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.9</name>
+            <description>Assigning Authority</description>
+            <datatype>HD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.10</name>
+            <description>Name Type Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.11</name>
+            <description>Identifier Check Digit</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.12</name>
+            <description>Code Identifying Check Digit Scheme Employed</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.13</name>
+            <description>Identifier Type Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.14</name>
+            <description>Assigning Facility</description>
+            <datatype>HD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PPN.15</name>
+            <description>Datetime Action Performed</description>
+            <datatype>TS</datatype>
+        </field>
+    </elements>
+</segment>
