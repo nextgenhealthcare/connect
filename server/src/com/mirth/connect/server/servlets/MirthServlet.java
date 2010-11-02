@@ -30,7 +30,7 @@ public abstract class MirthServlet extends HttpServlet {
         HttpSession session = request.getSession();
 
         try {
-            return authorizationController.isUserAuthorized(session.getAttribute(UserServlet.SESSION_USER).toString(), request.getParameter("op"));    
+            return authorizationController.isUserAuthorized((Integer) session.getAttribute(UserServlet.SESSION_USER), request.getParameter("op"));    
         } catch (ControllerException e) {
             throw new ServletException(e);
         }
@@ -41,7 +41,7 @@ public abstract class MirthServlet extends HttpServlet {
         HttpSession session = request.getSession();
 
         try {
-            return authorizationController.isUserAuthorizedForExtension(session.getAttribute(UserServlet.SESSION_USER).toString(), extensionName, method);    
+            return authorizationController.isUserAuthorizedForExtension((Integer) session.getAttribute(UserServlet.SESSION_USER), extensionName, method);    
         } catch (ControllerException e) {
             throw new ServletException(e);
         }
