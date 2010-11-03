@@ -26,6 +26,5 @@ public class PlatformUI {
     public static String CLIENT_VERSION;
     public static String SERVER_VERSION;
     public static String BUILD_DATE;
-    public static String AUTHORIZATION_CONTROLLER = "DefaultAuthorizationController";
     public static String HELP_LOCATION = "http://www.mirthcorp.com/community/wiki/display/mirthuserguide";
 }

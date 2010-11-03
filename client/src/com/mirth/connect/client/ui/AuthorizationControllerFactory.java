@@ -9,18 +9,21 @@
 
 package com.mirth.connect.client.ui;
 
+import java.util.Properties;
+
 public class AuthorizationControllerFactory {
     private static AuthorizationController authorizationController = null;
-    
+
     public static AuthorizationController getAuthorizationController() {
         if (authorizationController == null) {
             try {
-                authorizationController = (AuthorizationController) Class.forName(PlatformUI.AUTHORIZATION_CONTROLLER).newInstance();
+                Properties serverProperties = PlatformUI.MIRTH_FRAME.mirthClient.getServerProperties();
+                authorizationController = (AuthorizationController) Class.forName(serverProperties.getProperty("clientAuthorizationController")).newInstance();
             } catch (Exception e) {
                 authorizationController = new DefaultAuthorizationController();
             }
         }
-        
+
         return authorizationController;
     }
 }
