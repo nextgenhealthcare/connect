@@ -9,9 +9,27 @@
 
 package com.mirth.connect.server.controllers;
 
+import org.apache.log4j.Logger;
+
+
 public class DefaultControllerFactory extends ControllerFactory {
+    private Logger logger = Logger.getLogger(this.getClass());
+    private AuthorizationController authorizationController = null;
+    
     public AuthorizationController createAuthorizationController() {
-        return DefaultAuthorizationController.create();
+        if (authorizationController == null) {
+            try {
+                String serverAuthorizationController = createConfigurationController().getServerProperties().getProperty("serverAuthorizationController");
+                authorizationController =  (AuthorizationController) Class.forName(serverAuthorizationController).newInstance();
+                logger.debug("using authorization controller: " + serverAuthorizationController);
+            } catch (Exception e) {
+                // could not instantiate controller
+                authorizationController = DefaultAuthorizationController.create();
+                logger.debug("using default authorization controller");
+            }
+        }
+        
+        return authorizationController;
     }
     
     public AlertController createAlertController() {

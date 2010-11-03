@@ -9,31 +9,19 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.util.Properties;
-
-import com.mirth.connect.util.PropertyLoader;
-
 public abstract class ControllerFactory {
     private static ControllerFactory factory;
 
     public static ControllerFactory getFactory() {
         synchronized (ControllerFactory.class) {
             if (factory == null) {
-                Properties mirthProperties = PropertyLoader.loadProperties("mirth");
-                String factoryClassName = mirthProperties.getProperty("controllerfactory");
-
-                try {
-                    factory = (ControllerFactory) Class.forName(factoryClassName).newInstance();
-                } catch (Exception e) {
-                    // couldn't find or create a factory
-                    factory = new DefaultControllerFactory();
-                }
+                factory = new DefaultControllerFactory();
             }
 
             return factory;
         }
     }
-    
+
     public abstract AuthorizationController createAuthorizationController();
 
     public abstract AlertController createAlertController();
@@ -47,7 +35,7 @@ public abstract class ControllerFactory {
     public abstract CodeTemplateController createCodeTemplateController();
 
     public abstract ConfigurationController createConfigurationController();
-    
+
     public abstract EngineController createEngineController();
 
     public abstract ExtensionController createExtensionController();
