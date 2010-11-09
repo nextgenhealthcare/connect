@@ -12,6 +12,7 @@ package com.mirth.connect.server;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.nio.charset.Charset;
 import java.sql.DriverManager;
@@ -54,7 +55,7 @@ import com.mirth.connect.util.PropertyLoader;
 public class Mirth extends Thread {
     private static final String EXTENSIONS_LIBS = "/extensions/";
     private static final String CLIENT_LIBS = "/client-lib/";
-    
+
     private Logger logger = Logger.getLogger(this.getClass());
     private boolean running = false;
     private Properties mirthProperties = null;
@@ -98,6 +99,8 @@ public class Mirth extends Thread {
     }
 
     public void run() {
+        initializeLogging();
+
         if (initResources()) {
             logger.debug("starting mirth server...");
 
@@ -437,5 +440,10 @@ public class Mirth extends Thread {
         }
 
         return true;
+    }
+
+    private void initializeLogging() {
+        // Route all System.err messages to log4j error
+        System.setErr(new PrintStream(new LogOutputStream()));
     }
 }
