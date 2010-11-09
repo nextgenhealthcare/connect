@@ -135,7 +135,6 @@ public class DefaultMigrationController extends MigrationController {
 
             if (oldSchemaVersion != newSchemaVersion) {
                 migrate(oldSchemaVersion, newSchemaVersion);
-                migrateContents(oldSchemaVersion, newSchemaVersion);
 
                 if (result == null)
                     SqlConfig.getSqlMapClient().update("Configuration.setInitialSchemaVersion", newSchemaVersion);
@@ -246,15 +245,23 @@ public class DefaultMigrationController extends MigrationController {
         DatabaseUtil.executeScript(creationScript, true);
     }
 
-    private void migrate(int oldVersion, int newVersion) throws Exception {
+    private void migrate(int oldSchemaVersion, int newSchemaVersion) throws Exception {
         File deltaFolder = new File(ClassPathResource.getResourceURI(DELTA_FOLDER));
         String deltaPath = deltaFolder.getPath() + File.separator;
         String databaseType = configurationController.getDatabaseType();
 
-        while (oldVersion < newVersion) {
-            // gets the correct migration script based on dbtype and versions
-            File migrationFile = new File(deltaPath + databaseType + "-" + oldVersion + "-" + ++oldVersion + ".sql");
+        while (oldSchemaVersion < newSchemaVersion) {
+            int nextSchemaVersion = oldSchemaVersion + 1;
+
+            // gets and executes the correct migration script based on dbtype
+            // and versions
+            File migrationFile = new File(deltaPath + databaseType + "-" + oldSchemaVersion + "-" + nextSchemaVersion + ".sql");
             DatabaseUtil.executeScript(migrationFile, true);
+
+            // executes any necessary database content migration
+            migrateContents(oldSchemaVersion, nextSchemaVersion);
+
+            oldSchemaVersion++;
         }
     }
 
