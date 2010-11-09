@@ -29,9 +29,9 @@ import com.mirth.connect.plugins.DashboardPanelPlugin;
 public class PluginPanel extends javax.swing.JPanel {
 
     public static final String EXTENSION_MANAGER = "Extension Manager";
-    Frame parent;
-    Map<String, ClientPanelPlugin> loadedPlugins;
-    Map<String, DashboardPanelPlugin> loadedDashboardPanelPlugins;
+    private Frame parent;
+    private Map<String, ClientPanelPlugin> loadedPlugins;
+    private Map<String, DashboardPanelPlugin> loadedDashboardPanelPlugins;
     private int oldTabIndex = -1;
     private boolean cancelTabChange = false;
     private ClientPanelPlugin currentPanelPlugin = null;
@@ -177,6 +177,14 @@ public class PluginPanel extends javax.swing.JPanel {
 
     public ClientPanelPlugin getCurrentPanelPlugin() {
         return currentPanelPlugin;
+    }
+    
+    public Map<String, ClientPanelPlugin> getLoadedPlugins() {
+        return loadedPlugins;
+    }
+    
+    public Map<String, DashboardPanelPlugin> getLoadedDashboardPanelPlugins() {
+        return loadedDashboardPanelPlugins;
     }
 
     public void setBlankPanel() {
