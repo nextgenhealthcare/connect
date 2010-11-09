@@ -9,6 +9,9 @@
 
 package com.mirth.connect.server.util;
 
+import java.util.Properties;
+
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -30,12 +33,14 @@ import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.util.PropertyLoader;
 
 public class JavaScriptUtil {
     private Logger logger = Logger.getLogger(this.getClass());
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private static ScriptableObject sealedSharedScope;
     private static final int SOURCE_CODE_LINE_WRAPPER = 5;
+    private int rhinoOptimizationLevel = -1;
 
     // singleton pattern
     private static JavaScriptUtil instance = null;
@@ -46,17 +51,35 @@ public class JavaScriptUtil {
 
     public static JavaScriptUtil getInstance() {
         synchronized (JavaScriptUtil.class) {
-            if (instance == null)
+            if (instance == null) {
                 instance = new JavaScriptUtil();
+                instance.initialize();
+            }
 
             return instance;
         }
     }
 
+    private void initialize() {
+        /*
+         * Checks mirth.properties for the rhino.optimizationlevel property. Setting
+         * it to -1 runs it in interpretive mode. See MIRTH-1627 for more
+         * information.
+         */
+
+        Properties properties = PropertyLoader.loadProperties("mirth");
+        
+        if (MapUtils.isNotEmpty(properties) && properties.containsKey("rhino.optimizationlevel")) {
+            rhinoOptimizationLevel = Integer.valueOf(properties.getProperty("rhino.optimizationlevel")).intValue();
+            logger.debug("set Rhino context optimization level: " + rhinoOptimizationLevel);
+        } else {
+            logger.debug("using defualt Rhino context optimization level (-1)");
+        }
+    }
+
     public Context getContext() {
         Context context = Context.enter();
-        // MIRTH-1627 - Run in interpreted mode
-        context.setOptimizationLevel(-1);
+        context.setOptimizationLevel(rhinoOptimizationLevel);
 
         if (sealedSharedScope == null) {
             String importScript = getJavascriptImportScript();
