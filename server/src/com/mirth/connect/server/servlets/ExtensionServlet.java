@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.ConnectorMetaData;
@@ -35,6 +36,8 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
 
 public class ExtensionServlet extends MirthServlet {
+    private Logger logger = Logger.getLogger(this.getClass());
+    
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -143,7 +146,8 @@ public class ExtensionServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
+                logger.error(e);
                 throw new ServletException(e);
             }
         }

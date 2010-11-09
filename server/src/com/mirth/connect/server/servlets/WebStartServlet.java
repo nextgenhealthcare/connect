@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -31,6 +32,7 @@ import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.util.PropertyLoader;
 
 public class WebStartServlet extends HttpServlet {
+    private Logger logger = Logger.getLogger(this.getClass());
     
 	/*
      * Override last modified time to always be modified so it updates changes to JNLP.
@@ -118,7 +120,8 @@ public class WebStartServlet extends HttpServlet {
 			}
 
 			out.println(docSerializer.toXML(document));
-		} catch (Exception e) {
+		} catch (Throwable e) {
+		    logger.error(e);
 			throw new ServletException(e);
 		}
 	}

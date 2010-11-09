@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.SystemEvent;
 import com.mirth.connect.model.User;
@@ -30,6 +32,8 @@ import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.util.UserSessionCache;
 
 public class UserServlet extends MirthServlet {
+    private Logger logger = Logger.getLogger(this.getClass());
+    
     public static final String SESSION_USER = "user";
     public static final String SESSION_AUTHORIZED = "authorized";
 
@@ -120,7 +124,8 @@ public class UserServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
+                logger.error(e);
                 throw new ServletException(e);
             }
         }

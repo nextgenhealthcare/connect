@@ -17,6 +17,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.MessageObject;
@@ -27,6 +29,8 @@ import com.mirth.connect.server.controllers.MessageObjectController;
 import com.mirth.connect.server.util.DICOMUtil;
 
 public class MessageObjectServlet extends MirthServlet {
+    private Logger logger = Logger.getLogger(this.getClass());
+    
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -101,7 +105,8 @@ public class MessageObjectServlet extends MirthServlet {
                     String dicomMessage = DICOMUtil.getDICOMRawData((MessageObject) serializer.fromXML(message));
                     out.println(dicomMessage);
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
+                logger.error(e);
                 throw new ServletException(e);
             }
         }

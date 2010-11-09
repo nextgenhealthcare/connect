@@ -18,6 +18,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -26,6 +28,8 @@ import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class ChannelStatusServlet extends MirthServlet {
+    private Logger logger = Logger.getLogger(this.getClass());
+    
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -72,7 +76,8 @@ public class ChannelStatusServlet extends MirthServlet {
                     
                     out.print(serializer.toXML(channels));
                 }
-            } catch (ControllerException e) {
+            } catch (Throwable e) {
+                logger.error(e);
                 throw new ServletException(e);
             }
         }

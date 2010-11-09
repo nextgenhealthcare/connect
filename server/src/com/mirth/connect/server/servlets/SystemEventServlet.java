@@ -16,6 +16,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.SystemEventFilter;
@@ -23,6 +25,8 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 
 public class SystemEventServlet extends MirthServlet {
+    private Logger logger = Logger.getLogger(this.getClass());
+    
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -69,7 +73,8 @@ public class SystemEventServlet extends MirthServlet {
                 } else if (operation.equals(Operations.SYSTEM_EVENT_CLEAR)) {
                     systemLogger.clearSystemEvents();
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
+                logger.error(e);
                 throw new ServletException(e);
             }
         }

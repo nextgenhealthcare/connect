@@ -18,6 +18,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -26,6 +28,8 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
 
 public class ConfigurationServlet extends MirthServlet {
+    private Logger logger = Logger.getLogger(this.getClass());
+    
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             PrintWriter out = response.getWriter();
@@ -87,7 +91,8 @@ public class ConfigurationServlet extends MirthServlet {
                     out.println(serializer.toXML(configurationController.getPasswordRequirements()));
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            logger.error(e);
             throw new ServletException(e);
         }
     }
