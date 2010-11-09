@@ -39,9 +39,9 @@ public class JavaScriptUtil {
 
     // singleton pattern
     private static JavaScriptUtil instance = null;
-    
+
     private JavaScriptUtil() {
-        
+
     }
 
     public static JavaScriptUtil getInstance() {
@@ -53,8 +53,10 @@ public class JavaScriptUtil {
         }
     }
 
-    private Context enterContext() {
+    public Context getContext() {
         Context context = Context.enter();
+        // MIRTH-1627 - Run in interpreted mode
+        context.setOptimizationLevel(-1);
 
         if (sealedSharedScope == null) {
             String importScript = getJavascriptImportScript();
@@ -68,8 +70,12 @@ public class JavaScriptUtil {
         return context;
     }
 
-    private String getJavascriptImportScript() {
+    public String getJavascriptImportScript() {
         StringBuilder script = new StringBuilder();
+
+        // add #trim() function to JS String
+        script.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
+
         script.append("importPackage(Packages.com.mirth.connect.server.util);\n");
         script.append("importPackage(Packages.com.mirth.connect.model.converters);\n");
         script.append("regex = new RegExp('');\n");
@@ -77,13 +83,22 @@ public class JavaScriptUtil {
         script.append("xmllist = new XMLList();\n");
         script.append("namespace = new Namespace();\n");
         script.append("qname = new QName();\n");
-        script.append("XML.ignoreWhitespace = false;\n");
-        script.append("XML.prettyPrinting = false;\n");
+
+        /*
+         * Ignore whitespace so blank lines are removed when deleting elements.
+         * This also involves changing XmlProcessor.java in Rhino to account for
+         * Rhino issue 369394 and MIRTH-1405
+         */
+        script.append("XML.ignoreWhitespace=true;");
+        // Setting prettyPrinting to true causes HL7 to break when converting
+        // back from HL7.
+        script.append("XML.prettyPrinting=false;");
+
         return script.toString();
     }
 
-    private Scriptable getScope() {
-        Scriptable scope = enterContext().newObject(sealedSharedScope);
+    public Scriptable getScope() {
+        Scriptable scope = getContext().newObject(sealedSharedScope);
         scope.setPrototype(sealedSharedScope);
         scope.setParentScope(null);
         return scope;
@@ -261,7 +276,7 @@ public class JavaScriptUtil {
         // Note: If the defaultScript is NULL, this means that the script should
         // always be inserted without being compared.
 
-        Context context = enterContext();
+        Context context = getContext();
         boolean scriptInserted = false;
 
         try {
@@ -334,7 +349,7 @@ public class JavaScriptUtil {
             builtScript.append("Packages.com.mirth.connect.server.controllers.MessageObjectController.getInstance().insertAttachment(attachment); \n");
             builtScript.append("return attachment; }\n");
         }
-        
+
         if (includeMuleContext) {
             /*
              * If the message object is not available (i.e. in the

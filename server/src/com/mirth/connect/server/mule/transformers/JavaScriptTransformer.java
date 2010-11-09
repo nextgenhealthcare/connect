@@ -14,7 +14,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
@@ -26,9 +25,9 @@ import org.mule.umo.transformer.TransformerException;
 
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.Connector.Mode;
+import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.MessageObject.Protocol;
 import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
 import com.mirth.connect.model.converters.IXMLSerializer;
@@ -47,7 +46,6 @@ import com.mirth.connect.server.mule.adaptors.AdaptorFactory;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.JavaScriptUtil;
-import com.mirth.connect.server.util.UUIDGenerator;
 import com.mirth.connect.util.StringUtil;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
@@ -71,7 +69,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
     private String templateId;
     private String mode;
     private String template;
-    private static ScriptableObject sealedSharedScope;
     private boolean emptyFilterAndTransformer;
 
     public String getChannelId() {
@@ -154,58 +151,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         this.templateId = templateId;
     }
 
-    public static Context getContext() {
-        Context context = Context.enter();
-
-        if (sealedSharedScope == null) {
-            String importScript = getJavascriptImportScript();
-            sealedSharedScope = new ImporterTopLevel(context);
-            JavaScriptScopeUtil.buildScope(sealedSharedScope);
-            Script script = context.compileString(importScript, UUIDGenerator.getUUID(), 1, null);
-            script.exec(context, sealedSharedScope);
-            sealedSharedScope.sealObject();
-        }
-
-        return context;
-    }
-
-    public static String getJavascriptImportScript() {
-        StringBuilder script = new StringBuilder();
-
-        // add #trim() function to JS String
-        script.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
-
-        script.append("importPackage(Packages.com.mirth.connect.server.util);\n");
-        script.append("importPackage(Packages.com.mirth.connect.model.converters);\n");
-        script.append("regex = new RegExp('');\n");
-        script.append("xml = new XML('');\n");
-        script.append("xmllist = new XMLList();\n");
-        script.append("namespace = new Namespace();\n");
-        script.append("qname = new QName();\n");
-
-        /*
-         * Ignore whitespace so blank lines are removed when deleting elements.
-         * This also involves changing XmlProcessor.java in Rhino to account for
-         * Rhino issue 369394 and MIRTH-1405
-         */
-        script.append("XML.ignoreWhitespace=true;");
-        // Setting prettyPrinting to true causes HL7 to break when converting
-        // back from HL7.
-        script.append("XML.prettyPrinting=false;");
-
-        return script.toString();
-    }
-
-    public Scriptable getScope() {
-        Scriptable scope = getContext().newObject(sealedSharedScope);
-        scope.setPrototype(sealedSharedScope);
-        scope.setParentScope(null);
-        return scope;
-    }
-
     @Override
     public void initialise() throws InitialisationException {
-        Context context = getContext();
+        Context context = JavaScriptUtil.getInstance().getContext();
 
         try {
             // Load the template (if there is one)
@@ -375,8 +323,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         String phase = new String();
 
         try {
-            Context context = getContext();
-            Scriptable scope = getScope();
+            Context context = JavaScriptUtil.getInstance().getContext();
+            Scriptable scope = JavaScriptUtil.getInstance().getScope();
 
             // load variables in JavaScript scope
             JavaScriptScopeUtil.addMessageObject(scope, messageObject);
