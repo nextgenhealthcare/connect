@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.Operations;
@@ -124,9 +125,9 @@ public class UserServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 }
-            } catch (Throwable e) {
-                logger.error(e);
-                throw new ServletException(e);
+            } catch (Throwable t) {
+                logger.error(ExceptionUtils.getStackTrace(t));
+                throw new ServletException(t);
             }
         }
     }

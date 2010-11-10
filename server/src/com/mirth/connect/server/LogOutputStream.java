@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
  */
 public class LogOutputStream extends OutputStream {
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = Logger.getLogger("Server Error");
 
     /** Initial buffer size. */
     private static final int INTIAL_SIZE = 132;

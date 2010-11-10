@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.Operations;
@@ -146,9 +147,9 @@ public class ExtensionServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 }
-            } catch (Throwable e) {
-                logger.error(e);
-                throw new ServletException(e);
+            } catch (Throwable t) {
+                logger.error(ExceptionUtils.getStackTrace(t));
+                throw new ServletException(t);
             }
         }
     }

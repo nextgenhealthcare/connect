@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.Operations;
@@ -105,9 +106,9 @@ public class MessageObjectServlet extends MirthServlet {
                     String dicomMessage = DICOMUtil.getDICOMRawData((MessageObject) serializer.fromXML(message));
                     out.println(dicomMessage);
                 }
-            } catch (Throwable e) {
-                logger.error(e);
-                throw new ServletException(e);
+            } catch (Throwable t) {
+                logger.error(ExceptionUtils.getStackTrace(t));
+                throw new ServletException(t);
             }
         }
     }

@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.Operations;
@@ -47,9 +48,9 @@ public class EngineServlet extends MirthServlet {
                     List<String> channelIds = (List<String>) serializer.fromXML(request.getParameter("channelIds"));
                     engineController.undeployChannels(channelIds);
                 }
-            } catch (Throwable e) {
-                logger.error(e);
-                throw new ServletException(e);
+            } catch (Throwable t) {
+                logger.error(ExceptionUtils.getStackTrace(t));
+                throw new ServletException(t);
             }
         }
     }
