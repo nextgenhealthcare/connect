@@ -150,7 +150,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
         usageStatsCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         usageStatsCheckBox.setSelected(true);
-        usageStatsCheckBox.setText("Check for updates and provide usage statistics");
+        usageStatsCheckBox.setText("Submit usage statistics");
 
         usageStatsMoreInfoLabel.setText("<html><font color=blue><u>More Info</u></font></html>");
         usageStatsMoreInfoLabel.addMouseListener(new java.awt.event.MouseAdapter() {

@@ -190,7 +190,7 @@
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="selected" type="boolean" value="true"/>
-            <Property name="text" type="java.lang.String" value="Check for updates and provide usage statistics"/>
+            <Property name="text" type="java.lang.String" value="Submit usage statistics"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="usageStatsMoreInfoLabel">
