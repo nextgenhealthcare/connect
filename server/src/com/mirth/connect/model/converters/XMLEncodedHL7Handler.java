@@ -156,25 +156,31 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         logger.trace("ending element: " + localName);
         inElement = false;
 
+        String[] localNameArray = StringUtils.split(localName, ID_DELIMETER);
+
         /*
          * Once we see the closing of MSH.1 or MSH.2 tags, we know that the
          * separator characters have been added to the output buffer, so we can
          * grab them and set the local variables.
          */
-        if (localName.equals(ER7Reader.MESSAGE_ROOT_ID)) {
+        if ((localNameArray.length == 1) && (localNameArray[0].equals(ER7Reader.MESSAGE_ROOT_ID))) {
             return;
-        } else if (localName.equals("MSH.1") || localName.equals("BHS.1") || localName.equals("FHS.1")) {
-            fieldSeparator = String.valueOf(output.charAt(output.length() - 1));
-            return;
-        } else if (localName.equals("MSH.2") || localName.equals("BHS.2") || localName.equals("FHS.2")) {
-            CharSequence separators = output.subSequence(output.length() - 4, output.length());
-            componentSeparator = String.valueOf(separators.charAt(0));
-            repetitionSeparator = String.valueOf(separators.charAt(1));
-            escapeCharacter = String.valueOf(separators.charAt(2));
-            subcomponentSeparator = String.valueOf(separators.charAt(3));
+        } else if (localNameArray.length == 2) {
+            if ((localNameArray[0].length() == 3) && (localNameArray[0].charAt(1) == 'S') && (localNameArray[0].charAt(2) == 'H') && ((localNameArray[0].charAt(0) == 'M') || (localNameArray[0].charAt(0) == 'B') || (localNameArray[0].charAt(0) == 'F'))) {
+                if ((localNameArray[1].length() == 1) && (localNameArray[1].charAt(0) == '1')) {
+                    fieldSeparator = String.valueOf(output.charAt(output.length() - 1));
+                    return;
+                } else if ((localNameArray[1].length() == 1) && (localNameArray[1].charAt(0) == '2')) {
+                    CharSequence separators = output.subSequence(output.length() - 4, output.length());
+                    componentSeparator = String.valueOf(separators.charAt(0));
+                    repetitionSeparator = String.valueOf(separators.charAt(1));
+                    escapeCharacter = String.valueOf(separators.charAt(2));
+                    subcomponentSeparator = String.valueOf(separators.charAt(3));
+                }
+            }
         }
 
-        int currentDelimeterCount = StringUtils.countMatches(localName, ID_DELIMETER);
+        int currentDelimeterCount = localNameArray.length - 1;
 
         /*
          * We don't want to have tailing separators, so once we get to the last
