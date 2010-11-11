@@ -731,9 +731,14 @@ public class MessageBrowser extends javax.swing.JPanel {
                     currentPage = handler.getCurrentPage();
                 }
 
-            } catch (ListHandlerException e) {
+            } catch (Throwable t) {  // catch Throwable in case the client runs out of memory
                 messageObjectList = null;
-                parent.alertException(this, e.getStackTrace(), e.getMessage());
+                
+                if (t.getMessage().contains("Java heap space")) {
+                    parent.alertError(parent, "There was an out of memory error when trying to retrieve messages.\nIncrease your heap size or decrease your page size and search again.");
+                } else {
+                    parent.alertException(this, t.getStackTrace(), t.getMessage());
+                }
             }
         }
     }
