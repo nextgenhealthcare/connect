@@ -470,7 +470,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         newScript.append("function createSegment(name, msgObj, index) {");
         newScript.append("if (arguments.length == 1) { return new XML('<' + name + '></' + name + '>'); };");
         newScript.append("if (arguments.length == 2) { index = 0; };");
-        newScript.append("msgObj[name][index] = new XML('<' + name + '></' + name + '>');  return msgObj[name][index];");
+        newScript.append("msgObj[name][index] = new XML('<' + name + '></' + name + '>');");
+        newScript.append("return msgObj[name][index];");
         newScript.append("}");
 
         // Helper function to create segments after specefied field
@@ -478,6 +479,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         newScript.append("var msgObj = segment;");
         newScript.append("while (msgObj.parent() != undefined) { msgObj = msgObj.parent(); }");
         newScript.append("msgObj.insertChildAfter(segment[0], new XML('<' + name + '></' + name + '>'));");
+        newScript.append("return msgObj.child(segment[0].childIndex() + 1);");
         newScript.append("}");
 
         // Helper function to get attachments
