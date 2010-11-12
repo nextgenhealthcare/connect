@@ -10,6 +10,7 @@
 package com.mirth.connect.connectors.http;
 
 import java.net.ConnectException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,7 +76,14 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
                 connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), mo);
                 return;
             } else {
-                submitHttpRequest(event.getEndpoint().getEndpointURI().toString(), mo);
+                /*
+                 * We need to URL decode the endpoint since a MuleEndpointURI
+                 * escapes special characters by default. This will allow map
+                 * replacements.
+                 * 
+                 * See: MIRTH-1645
+                 */
+                submitHttpRequest(URLDecoder.decode(event.getEndpoint().getEndpointURI().toString(), "utf-8"), mo);
             }
         } catch (Exception e) {
             alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_404, "Error connecting to HTTP server.", e);
