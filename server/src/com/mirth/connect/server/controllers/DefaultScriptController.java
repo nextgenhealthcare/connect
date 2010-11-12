@@ -190,7 +190,7 @@ public class DefaultScriptController extends ScriptController {
     }
 
     public void executeGlobalDeployScript() {
-        javaScriptUtil.executeGlobalDeployrOrShutdownScript(DEPLOY_SCRIPT_KEY);
+        javaScriptUtil.executeGlobalDeployOrShutdownScript(DEPLOY_SCRIPT_KEY);
     }
 
     public void executeChannelDeployScript(String channelId) {
@@ -198,7 +198,7 @@ public class DefaultScriptController extends ScriptController {
     }
 
     public void executeGlobalShutdownScript() {
-        javaScriptUtil.executeGlobalDeployrOrShutdownScript(SHUTDOWN_SCRIPT_KEY);
+        javaScriptUtil.executeGlobalDeployOrShutdownScript(SHUTDOWN_SCRIPT_KEY);
     }
 
     public void executeChannelShutdownScript(String channelId) {

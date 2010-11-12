@@ -62,13 +62,13 @@ public class JavaScriptUtil {
 
     private void initialize() {
         /*
-         * Checks mirth.properties for the rhino.optimizationlevel property. Setting
-         * it to -1 runs it in interpretive mode. See MIRTH-1627 for more
-         * information.
+         * Checks mirth.properties for the rhino.optimizationlevel property.
+         * Setting it to -1 runs it in interpretive mode. See MIRTH-1627 for
+         * more information.
          */
 
         Properties properties = PropertyLoader.loadProperties("mirth");
-        
+
         if (MapUtils.isNotEmpty(properties) && properties.containsKey("rhino.optimizationlevel")) {
             rhinoOptimizationLevel = Integer.valueOf(properties.getProperty("rhino.optimizationlevel")).intValue();
             logger.debug("set Rhino context optimization level: " + rhinoOptimizationLevel);
@@ -226,7 +226,7 @@ public class JavaScriptUtil {
      * 
      * @param scriptId
      */
-    public void executeGlobalDeployrOrShutdownScript(String scriptId) {
+    public void executeGlobalDeployOrShutdownScript(String scriptId) {
         try {
             Scriptable scope = getScope();
             Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
@@ -286,7 +286,7 @@ public class JavaScriptUtil {
             if (e instanceof RhinoException) {
                 String script = compiledScriptCache.getSourceScript(scriptId);
                 String sourceCode = JavaScriptUtil.getInstance().getSourceCode(script, ((RhinoException) e).lineNumber(), 0);
-                e = new MirthJavascriptTransformerException((RhinoException) e, null, null, 1, null, sourceCode);
+                e = new MirthJavascriptTransformerException((RhinoException) e, null, null, 0, null, sourceCode);
             }
 
             throw e;
@@ -301,10 +301,11 @@ public class JavaScriptUtil {
 
         Context context = getContext();
         boolean scriptInserted = false;
+        String generatedScript = null;
 
         try {
             logger.debug("compiling script " + scriptId);
-            String generatedScript = generateScript(script, includeChannelMap, includeGlobalChannelMap, includeMuleContext);
+            generatedScript = generateScript(script, includeChannelMap, includeGlobalChannelMap, includeMuleContext);
             Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
             String decompiledScript = context.decompileScript(compiledScript, 0);
 
@@ -322,7 +323,8 @@ public class JavaScriptUtil {
             }
         } catch (EvaluatorException e) {
             if (e instanceof RhinoException) {
-                MirthJavascriptTransformerException mjte = new MirthJavascriptTransformerException((RhinoException) e, null, null, 1, scriptId, null);
+                String sourceCode = JavaScriptUtil.getInstance().getSourceCode(generatedScript, ((RhinoException) e).lineNumber(), 0);
+                MirthJavascriptTransformerException mjte = new MirthJavascriptTransformerException((RhinoException) e, null, null, 0, scriptId, sourceCode);
                 throw new Exception(mjte);
             } else {
                 throw new Exception(e);
@@ -433,8 +435,12 @@ public class JavaScriptUtil {
         String[] lines = script.split("\n");
         int startingLineNumber = errorLineNumber - offset;
 
-        if (startingLineNumber < SOURCE_CODE_LINE_WRAPPER) {
-            startingLineNumber = SOURCE_CODE_LINE_WRAPPER;
+        /*
+         * If the starting line number is 5 or less, set it to 6 so that it
+         * displays lines 1-11 (0-10 in the array)
+         */
+        if (startingLineNumber <= SOURCE_CODE_LINE_WRAPPER) {
+            startingLineNumber = SOURCE_CODE_LINE_WRAPPER + 1;
         }
 
         int currentLineNumber = startingLineNumber - SOURCE_CODE_LINE_WRAPPER;
