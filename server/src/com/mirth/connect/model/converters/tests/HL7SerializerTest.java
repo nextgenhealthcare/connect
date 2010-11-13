@@ -18,41 +18,69 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ER7Serializer;
 
 public class HL7SerializerTest {
-    public static final String ER7_TEST_FILE = "er7test.hl7";
-    public static final String XML_TEST_FILE = "xmlTest.xml";
-    private String expectedEr7Message;
-    private String expectedXmlMessage;
-    private Properties properties = null;
-    
+    private Properties defaultProperties;
+
     @Before
     public void setUp() throws Exception {
-        expectedEr7Message = FileUtils.readFileToString(new File(ER7_TEST_FILE));
-        expectedXmlMessage = FileUtils.readFileToString(new File(XML_TEST_FILE));
+        defaultProperties = new Properties();
+        defaultProperties.put("useStrictParser", "false");
+        defaultProperties.put("handleRepetitions", "false");
+        defaultProperties.put("handleSubcomponents", "false");
+        defaultProperties.put("convertLFtoCR", "false");
+    }
 
-        properties = new Properties();
+    @Test
+    public void testDefaultToXml() throws Exception {
+        String input = FileUtils.readFileToString(new File("tests/test-hl7-input.txt"));
+        String output = FileUtils.readFileToString(new File("tests/test-hl7-output.xml"));
+        ER7Serializer serializer = new ER7Serializer(defaultProperties);
+        Assert.assertEquals(output, TestUtil.prettyPrintXml(serializer.toXML(input)));
+    }
+
+    @Test
+    public void testDefaultFromXml() throws Exception {
+        String input = FileUtils.readFileToString(new File("tests/test-hl7-output.xml"));
+        String output = FileUtils.readFileToString(new File("tests/test-hl7-input.txt"));
+        ER7Serializer serializer = new ER7Serializer(defaultProperties);
+        Assert.assertEquals(output, TestUtil.convertCRToCRLF(serializer.fromXML(input)));
+    }
+
+    @Test
+    public void testIssue1636() throws Exception {
+        String input = FileUtils.readFileToString(new File("tests/test-1636-input.xml"));
+        String output = FileUtils.readFileToString(new File("tests/test-1636-output.txt"));
+        ER7Serializer serializer = new ER7Serializer(defaultProperties);
+        Assert.assertEquals(output, TestUtil.convertCRToCRLF(serializer.fromXML(input)));
+    }
+
+    @Test
+    public void testToXmlWithSubcomponents() throws Exception {
+        Properties properties = new Properties();
         properties.put("useStrictParser", "false");
         properties.put("handleRepetitions", "false");
         properties.put("handleSubcomponents", "true");
         properties.put("convertLFtoCR", "false");
+
+        String input = FileUtils.readFileToString(new File("tests/test-hl7-subcomponents-input.txt"));
+        String output = FileUtils.readFileToString(new File("tests/test-hl7-subcomponents-output.xml"));
+        ER7Serializer serializer = new ER7Serializer(properties);
+        Assert.assertEquals(output, TestUtil.prettyPrintXml(serializer.toXML(input)));
     }
 
     @Test
-    public void testToXml() throws Exception {
+    public void testToXmlWithRepetitions() throws Exception {
+        Properties properties = new Properties();
+        properties.put("useStrictParser", "false");
+        properties.put("handleRepetitions", "true");
+        properties.put("handleSubcomponents", "false");
+        properties.put("convertLFtoCR", "false");
+
+        String input = FileUtils.readFileToString(new File("tests/test-hl7-repetitions-input.txt"));
+        String output = FileUtils.readFileToString(new File("tests/test-hl7-repetitions-output.xml"));
         ER7Serializer serializer = new ER7Serializer(properties);
-        String result = serializer.toXML(expectedEr7Message);
-        DocumentSerializer docSerializer = new DocumentSerializer();
-        String actualXmlMessage = docSerializer.toXML(docSerializer.fromXML(result));
-        Assert.assertEquals(expectedXmlMessage, actualXmlMessage);
-    }
-    
-    @Test
-    public void testFromXml() throws Exception {
-        ER7Serializer serializer = new ER7Serializer(properties);
-        String actualEr7Message = serializer.fromXML(expectedXmlMessage);
-        Assert.assertEquals(expectedEr7Message, actualEr7Message);
+        Assert.assertEquals(output, TestUtil.prettyPrintXml(serializer.toXML(input)));
     }
 }
