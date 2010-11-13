@@ -60,6 +60,12 @@ public class PropertyVerifier
         }
     }
     
+    /** A method to add default connector properties to a connector. */
+    public static void checkConnectorProperties(Connector connector, Map<String, ConnectorMetaData> connectorData)
+    {
+        PropertyVerifier.checkPropertyValidity(connector, connectorData);
+    }
+    
     /**
      * Gets the default properties for a connector, and fixes invalid/missing properties
      */

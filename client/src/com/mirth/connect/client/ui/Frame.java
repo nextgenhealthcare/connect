@@ -3135,6 +3135,7 @@ public class Frame extends JXFrame {
                 String connectorXML = ImportConverter.convertConnector(FileUtils.readFileToString(connectorFile, UIConstants.CHARSET));
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 Connector connector = (Connector) serializer.fromXML(connectorXML);
+                PropertyVerifier.checkConnectorProperties(connector, channelEditPanel.transports);
                 channelEditPanel.importConnector(connector);
             } catch (Exception e) {
                 alertException(this, e.getStackTrace(), e.getMessage());
