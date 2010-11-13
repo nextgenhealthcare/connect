@@ -402,10 +402,17 @@ public class DefaultConfigurationController extends ConfigurationController {
         ChannelController channelController = ControllerFactory.getFactory().createChannelController();
         AlertController alertController = ControllerFactory.getFactory().createAlertController();
         CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
+        EngineController engineController = ControllerFactory.getFactory().createEngineController();
+        ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
 
+        
         setServerProperties(serverConfiguration.getProperties());
 
         if (serverConfiguration.getChannels() != null) {
+            // Undeploy all channels before updating or removing them
+            engineController.undeployChannels(channelStatusController.getDeployedIds());
+            
+            // Remove channels that don't exist in the new configuration
             for (Channel channel : channelController.getChannel(null)) {
                 boolean found = false;
 
@@ -420,6 +427,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 }
             }
 
+            // Update all channels from the server configuration
             for (Channel channel : serverConfiguration.getChannels()) {
                 PropertyVerifier.checkChannelProperties(channel);
                 PropertyVerifier.checkConnectorProperties(channel, ControllerFactory.getFactory().createExtensionController().getConnectorMetaData());
@@ -440,6 +448,9 @@ public class DefaultConfigurationController extends ConfigurationController {
         if (serverConfiguration.getGlobalScripts() != null) {
             scriptController.setGlobalScripts(serverConfiguration.getGlobalScripts());
         }
+        
+        // Redeploy all channels
+        engineController.redeployAllChannels();
     }
 
     public boolean isEngineStarting() {
