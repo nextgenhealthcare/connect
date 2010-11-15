@@ -2,7 +2,7 @@
 	<name>Database Writer</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.0.0</mirthVersion>
+	<mirthVersion>2.0.1</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to write to any JDBC-compatabile database with Insert, Update or JavaScript statements.</description>
 	<clientClassName>com.mirth.connect.connectors.jdbc.DatabaseWriter</clientClassName>

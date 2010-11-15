@@ -2,7 +2,7 @@
 	<name>XSLT Transformer Step</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.0.0</mirthVersion>
+	<mirthVersion>2.0.1</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides a XSLT support step-type for Mirth transformers</description>
 	<enabled>true</enabled>

@@ -2,7 +2,7 @@
 	<name>TCP Listener</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.0.0</mirthVersion>
+	<mirthVersion>2.0.1</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to listen for incoming messages over a standard TCP connection.</description>
 	<clientClassName>com.mirth.connect.connectors.tcp.TCPListener</clientClassName>
