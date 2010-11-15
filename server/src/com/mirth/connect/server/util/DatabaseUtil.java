@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
@@ -42,6 +43,7 @@ public class DatabaseUtil {
             statement = conn.createStatement();
 
             Scanner s = new Scanner(script);
+
             while (s.hasNextLine()) {
                 StringBuilder sb = new StringBuilder();
                 boolean blankLine = false;
@@ -55,7 +57,10 @@ public class DatabaseUtil {
                         blankLine = true;
                 }
 
-                String statementString = sb.toString().trim();
+                // Trim ending semicolons so Oracle doesn't throw
+                // "java.sql.SQLException: ORA-00911: invalid character"
+                String statementString = StringUtils.removeEnd(sb.toString().trim(), ";");
+
                 if (statementString.length() > 0) {
                     try {
                         statement.execute(statementString);

@@ -29,6 +29,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.SortedMap;
@@ -40,6 +41,7 @@ import javax.crypto.SecretKey;
 import javax.security.auth.x500.X500Principal;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
@@ -485,7 +487,10 @@ public class DefaultConfigurationController extends ConfigurationController {
             Map<String, String> result = SqlConfig.getSqlMapClient().queryForMap("Configuration.selectPropertiesForCategory", category, "name", "value");
 
             if (!result.isEmpty()) {
-                properties.putAll(result);
+                // Use safeAddToMap because Oracle returns NULL for ""
+                for (Entry<String, String> entry : result.entrySet()) {
+                    MapUtils.safeAddToMap(properties, entry.getKey(), entry.getValue());
+                }
             }
         } catch (Exception e) {
             logger.error("Could not retrieve properties: category=" + category, e);
