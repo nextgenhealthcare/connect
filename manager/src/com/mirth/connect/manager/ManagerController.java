@@ -254,9 +254,9 @@ public class ManagerController {
         Properties serverProperties = getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES, true);
         String port = serverProperties.getProperty(ManagerConstants.SERVER_WEBSTART_PORT);
         try {
-        	String cmd = ManagerConstants.CMD_WEBSTART_PREFIX + port + ManagerConstants.CMD_WEBSTART_SUFFIX + "?time=" + new Date().getTime();
-        	
-            if (CmdUtil.execCmd(new String[]{cmd}, false) != 0) {
+            String cmd = ManagerConstants.CMD_WEBSTART_PREFIX + port + ManagerConstants.CMD_WEBSTART_SUFFIX + "?time=" + new Date().getTime();
+
+            if (CmdUtil.execCmd(new String[] { cmd }, false) != 0) {
                 PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Administator could not be launched.");
             }
         } catch (Exception e) {
@@ -309,14 +309,30 @@ public class ManagerController {
 
     public void openLogFile(String path) {
         File file = new File(path);
+
         try {
             Desktop.getDesktop().open(file);
         } catch (Exception e) {
-            try {
-                Runtime.getRuntime().exec("notepad \"" + path + "\"");
-            } catch (IOException ex) {
-                alertErrorDialog("Could not open file: " + path);
-                ex.printStackTrace();
+            boolean editorOpened = false;
+
+            String[] apps = new String[] { "notepad", "kate", "gedit", "gvim", "open -t" };
+
+            for (int i = 0; (i < apps.length) && !editorOpened; i++) {
+                try {
+                    String output = CmdUtil.execCmdWithErrorOutput(new String[] { apps[i] + " \"" + path + "\"" });
+                    
+                    if (output.length() == 0) {
+                        editorOpened = true;
+                    }
+                } catch (Exception ex) {
+                    // ignore exceptions
+                }
+
+            }
+
+            if (!editorOpened) {
+                e.printStackTrace();
+                alertErrorDialog("Could not open file: " + path + "\nPlease make sure a text editor is associated with the log's file extension.");
             }
         }
     }
