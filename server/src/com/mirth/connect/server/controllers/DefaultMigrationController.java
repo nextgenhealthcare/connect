@@ -298,7 +298,14 @@ public class DefaultMigrationController extends MigrationController {
 
             try {
                 conn = SqlConfig.getSqlMapClient().getDataSource().getConnection();
-                conn.setAutoCommit(true);
+                
+                /*
+                 * MIRTH-1667: Derby fails if autoCommit is set to true and
+                 * there are a large number of results. The following error
+                 * occurs: "ERROR 40XD0: Container has been closed"
+                 */
+                conn.setAutoCommit(false);
+                
                 statement = conn.createStatement();
                 results = statement.executeQuery("SELECT ID, SOURCE_CONNECTOR, DESTINATION_CONNECTORS FROM CHANNEL");
 
@@ -325,6 +332,9 @@ public class DefaultMigrationController extends MigrationController {
                         DbUtils.closeQuietly(preparedStatement);
                     }
                 }
+
+                // Since autoCommit was set to false, commit the updates
+                conn.commit();
 
             } catch (Exception e) {
                 logger.error("Error migrating connectors.", e);
