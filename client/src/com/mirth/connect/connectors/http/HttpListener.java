@@ -155,6 +155,7 @@ public class HttpListener extends ConnectorClass {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        listenerAddressButtonGroup = new javax.swing.ButtonGroup();
         includeHeadersGroup = new javax.swing.ButtonGroup();
         responseFromLabel = new javax.swing.JLabel();
         responseFromTransformer = new com.mirth.connect.client.ui.components.MirthComboBox();
@@ -215,6 +216,7 @@ public class HttpListener extends ConnectorClass {
 
         listenerAllRadio.setBackground(new java.awt.Color(255, 255, 255));
         listenerAllRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        listenerAddressButtonGroup.add(listenerAllRadio);
         listenerAllRadio.setText("Listen on all interfaces");
         listenerAllRadio.setToolTipText("<html>If checked, the connector will listen on all interfaces, using address 0.0.0.0.</html>");
         listenerAllRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -226,6 +228,7 @@ public class HttpListener extends ConnectorClass {
 
         listenerSpecificRadio.setBackground(new java.awt.Color(255, 255, 255));
         listenerSpecificRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        listenerAddressButtonGroup.add(listenerSpecificRadio);
         listenerSpecificRadio.setText("Specific interface:");
         listenerSpecificRadio.setToolTipText("<html>If checked, the connector will listen on the specific interface address defined.</html>");
         listenerSpecificRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -431,6 +434,7 @@ public class HttpListener extends ConnectorClass {
     private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private javax.swing.JLabel charsetEncodingLabel;
     private javax.swing.ButtonGroup includeHeadersGroup;
+    private javax.swing.ButtonGroup listenerAddressButtonGroup;
     private com.mirth.connect.client.ui.components.MirthTextField listenerAddressField;
     private javax.swing.JLabel listenerAddressLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton listenerAllRadio;

@@ -2,6 +2,8 @@
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
+    <Component class="javax.swing.ButtonGroup" name="listenerAddressButtonGroup">
+    </Component>
     <Component class="javax.swing.ButtonGroup" name="includeHeadersGroup">
     </Component>
   </NonVisualComponents>
@@ -191,6 +193,9 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="listenerAddressButtonGroup"/>
+        </Property>
         <Property name="text" type="java.lang.String" value="Listen on all interfaces"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will listen on all interfaces, using address 0.0.0.0.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
@@ -210,6 +215,9 @@
           <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="listenerAddressButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Specific interface:"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will listen on the specific interface address defined.&lt;/html&gt;"/>
