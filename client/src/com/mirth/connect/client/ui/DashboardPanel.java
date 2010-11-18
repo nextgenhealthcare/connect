@@ -249,6 +249,13 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
 
+        statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setComparator(new NumberCellComparator());
+        statusTable.getColumnExt(SENT_COLUMN_NAME).setComparator(new NumberCellComparator());
+        statusTable.getColumnExt(ERROR_COLUMN_NAME).setComparator(new NumberCellComparator());
+        statusTable.getColumnExt(FILTERED_COLUMN_NAME).setComparator(new NumberCellComparator());
+        statusTable.getColumnExt(QUEUED_COLUMN_NAME).setComparator(new NumberCellComparator());
+        statusTable.getColumnExt(ALERTED_COLUMN_NAME).setComparator(new NumberCellComparator());
+        
         for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStatus.values()) {
             String columnName = plugin.getColumnHeader();
             statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());

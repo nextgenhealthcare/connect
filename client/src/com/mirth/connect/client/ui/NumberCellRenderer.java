@@ -41,5 +41,4 @@ public class NumberCellRenderer extends DefaultTableCellRenderer {
         setText(DisplayUtil.formatNumber((Integer) value));
         return this;
     }
-
 }
