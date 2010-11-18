@@ -1995,7 +1995,7 @@ public class Frame extends JXFrame {
     }
 
     public void doDeleteChannel() {
-        if (!alertOption(this, "Are you sure you want to delete this channel?\nIf this channel is deployed it will first be undeployed.")) {
+        if (!alertOption(this, "Are you sure you want to delete the selected channel(s)?\nAny selected deployed channel(s) will first be undeployed.")) {
             return;
         }
 
@@ -3301,7 +3301,7 @@ public class Frame extends JXFrame {
     }
 
     public void doRemoveAllMessages() {
-        if (alertOption(this, "Are you sure you would like to remove all messages in this channel?")) {
+        if (alertOption(this, "Are you sure you would like to remove all messages in the selected channel(s)?")) {
             final boolean clearStats = alertOption(PlatformUI.MIRTH_FRAME, "Would you also like to clear all statistics?");
 
             List<ChannelStatus> selectedChannelStatuses = dashboardPanel.getSelectedStatuses();
