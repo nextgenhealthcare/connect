@@ -55,6 +55,7 @@ import org.w3c.dom.Element;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.PasswordRequirements;
+import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.PasswordRequirementsChecker;
@@ -397,6 +398,22 @@ public class DefaultConfigurationController extends ConfigurationController {
         serverConfiguration.setCodeTempaltes(codeTemplateController.getCodeTemplate(null));
         serverConfiguration.setProperties(getServerProperties());
         serverConfiguration.setGlobalScripts(scriptController.getGlobalScripts());
+
+        // Put the properties for every plugin with properties in a map.
+        Map<String, Properties> pluginProperties = new HashMap<String, Properties>();
+        ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+
+        for (PluginMetaData pluginMetaData : extensionController.getPluginMetaData().values()) {
+            String pluginName = pluginMetaData.getName();
+            Properties properties = extensionController.getPluginProperties(pluginName);
+
+            if (MapUtils.isNotEmpty(properties)) {
+                pluginProperties.put(pluginName, properties);
+            }
+        }
+
+        serverConfiguration.setPluginProperties(pluginProperties);
+
         return serverConfiguration;
     }
 
@@ -407,13 +424,12 @@ public class DefaultConfigurationController extends ConfigurationController {
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
         ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
 
-        
         setServerProperties(serverConfiguration.getProperties());
 
         if (serverConfiguration.getChannels() != null) {
             // Undeploy all channels before updating or removing them
             engineController.undeployChannels(channelStatusController.getDeployedIds());
-            
+
             // Remove channels that don't exist in the new configuration
             for (Channel channel : channelController.getChannel(null)) {
                 boolean found = false;
@@ -450,7 +466,17 @@ public class DefaultConfigurationController extends ConfigurationController {
         if (serverConfiguration.getGlobalScripts() != null) {
             scriptController.setGlobalScripts(serverConfiguration.getGlobalScripts());
         }
-        
+
+        // Set the properties for all plugins in the server configuration,
+        // whether or not the plugin is actually installed on this server.
+        if (serverConfiguration.getPluginProperties() != null) {
+            ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+
+            for (Entry<String, Properties> pluginEntry : serverConfiguration.getPluginProperties().entrySet()) {
+                extensionController.setPluginProperties(pluginEntry.getKey(), pluginEntry.getValue());
+            }
+        }
+
         // Redeploy all channels
         engineController.redeployAllChannels();
     }
@@ -576,13 +602,14 @@ public class DefaultConfigurationController extends ConfigurationController {
             KeyStore keyStore = KeyStore.getInstance(keyStoreType);
 
             if (keyStoreFile.exists()) {
-                keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);    
+                keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
             } else {
                 keyStore.load(null, keyStorePassword);
             }
 
             if (keyStore.getCertificate(alias) == null) {
-                // add the BC provider that is used for generating keys and certificates
+                // add the BC provider that is used for generating keys and
+                // certificates
                 Security.addProvider(new BouncyCastleProvider());
 
                 // initialize the certificate attributes
@@ -592,7 +619,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
                 keyPairGenerator.initialize(1024);
                 KeyPair keyPair = keyPairGenerator.generateKeyPair();
-                
+
                 // set the certificate attributes
                 X509V1CertificateGenerator certificateGenerator = new X509V1CertificateGenerator();
                 X500Principal dnName = new X500Principal("CN=Mirth Connect");
@@ -600,7 +627,8 @@ public class DefaultConfigurationController extends ConfigurationController {
                 certificateGenerator.setIssuerDN(dnName);
                 certificateGenerator.setNotBefore(startDate);
                 certificateGenerator.setNotAfter(expiryDate);
-                certificateGenerator.setSubjectDN(dnName); // note: same as issuer
+                certificateGenerator.setSubjectDN(dnName); // note: same as
+                                                           // issuer
                 certificateGenerator.setPublicKey(keyPair.getPublic());
                 certificateGenerator.setSignatureAlgorithm("SHA1withDSA");
 

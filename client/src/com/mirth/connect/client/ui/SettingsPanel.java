@@ -656,7 +656,7 @@ public class SettingsPanel extends javax.swing.JPanel {
             try {
                 ServerConfiguration configuration = ImportConverter.convertServerConfiguration(backupXML);
 
-                if (parent.alertOption(this, "Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels, alerts, and server properties.")) {
+                if (parent.alertOption(this, "Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels,\nalerts, server properties, and plugin properties.")) {
                     try {
                         parent.mirthClient.setServerConfiguration(configuration);
                         parent.clearChannelCache();

@@ -18,67 +18,76 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverConfiguration")
 public class ServerConfiguration implements Serializable {
-	private String date;
-	private List<Channel> channels = null;
-	private List<User> users = null;
-	private List<Alert> alerts = null;
-	private List<CodeTemplate> codeTemplates = null;
-	private Properties properties = null;
-	private Map<String, String> globalScripts = null;
-	
-	public List<Alert> getAlerts() {
-		return this.alerts;
-	}
+    private String date;
+    private List<Channel> channels = null;
+    private List<User> users = null;
+    private List<Alert> alerts = null;
+    private List<CodeTemplate> codeTemplates = null;
+    private Properties properties = null;
+    private Map<String, String> globalScripts = null;
+    private Map<String, Properties> pluginProperties = null;
 
-	public void setAlerts(List<Alert> alerts) {
-		this.alerts = alerts;
-	}
+    public List<Alert> getAlerts() {
+        return this.alerts;
+    }
 
-	public List<Channel> getChannels() {
-		return this.channels;
-	}
+    public void setAlerts(List<Alert> alerts) {
+        this.alerts = alerts;
+    }
 
-	public void setChannels(List<Channel> channels) {
-		this.channels = channels;
-	}
+    public List<Channel> getChannels() {
+        return this.channels;
+    }
 
-	public Properties getProperties() {
-		return this.properties;
-	}
+    public void setChannels(List<Channel> channels) {
+        this.channels = channels;
+    }
 
-	public void setProperties(Properties properties) {
-		this.properties = properties;
-	}
+    public Properties getProperties() {
+        return this.properties;
+    }
 
-	public List<User> getUsers() {
-		return this.users;
-	}
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
 
-	public void setUsers(List<User> users) {
-		this.users = users;
-	}
+    public List<User> getUsers() {
+        return this.users;
+    }
 
-	public String getDate() {
-		return date;
-	}
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
 
-	public void setDate(String date) {
-		this.date = date;
-	}
+    public String getDate() {
+        return date;
+    }
 
-	public List<CodeTemplate> getCodeTemplates() {
-		return this.codeTemplates;
-	}
+    public void setDate(String date) {
+        this.date = date;
+    }
 
-	public void setCodeTempaltes(List<CodeTemplate> codeTemplates) {
-		this.codeTemplates = codeTemplates;
-	}
-	
-	public Map<String, String> getGlobalScripts() {
-		return globalScripts;
-	}
+    public List<CodeTemplate> getCodeTemplates() {
+        return this.codeTemplates;
+    }
 
-	public void setGlobalScripts(Map<String, String> globalScripts) {
-		this.globalScripts = globalScripts;
-	}
+    public void setCodeTempaltes(List<CodeTemplate> codeTemplates) {
+        this.codeTemplates = codeTemplates;
+    }
+
+    public Map<String, String> getGlobalScripts() {
+        return globalScripts;
+    }
+
+    public void setGlobalScripts(Map<String, String> globalScripts) {
+        this.globalScripts = globalScripts;
+    }
+
+    public Map<String, Properties> getPluginProperties() {
+        return pluginProperties;
+    }
+
+    public void setPluginProperties(Map<String, Properties> pluginProperties) {
+        this.pluginProperties = pluginProperties;
+    }
 }
