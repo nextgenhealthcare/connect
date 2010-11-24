@@ -104,7 +104,7 @@ public class SftpConnection implements FileSystemConnection {
 
 			UserInfo userInfo = new SftpUserInfo(password);
 			session.setUserInfo(userInfo);
-			session.connect();
+			session.connect(timeout);
 
 			Channel channel = session.openChannel("sftp");
 			channel.connect();
