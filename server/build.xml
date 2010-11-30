@@ -71,6 +71,9 @@
 			<entry key="mirth.date" type="date" value="today" pattern="MMMM d, yyyy" />
 		</propertyfile>
 
+		<!-- copy jnlp file for webstart -->
+		<copy todir="${classes}" file="mirth-client.jnlp" />
+
 		<!-- copy xml file for ant task -->
 		<copy todir="${classes}/com/mirth/connect/ant">
 			<fileset file="${src}/com/mirth/connect/ant/antlib.xml" />
@@ -603,7 +606,6 @@
 		<!-- copy misc files -->
 		<copy todir="${setup}">
 			<fileset file="${basedir}/mirth-launcher.xml" />
-			<fileset file="${basedir}/mirth-client.jnlp" />
 			<fileset file="${basedir}/truststore.jks" />
 		</copy>
 
@@ -618,6 +620,7 @@
 			<include name="org/**" />
 			
 			<include name="version.properties"/>
+			<include name="mirth-client.jnlp"/>
 
 			<exclude name="com/mirth/connect/server/launcher/**" />
 			<exclude name="com/mirth/connect/server/mbeans/**" />

@@ -9,9 +9,10 @@
 
 package com.mirth.connect.server.servlets;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.util.List;
 import java.util.Properties;
 
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -28,8 +30,6 @@ import org.w3c.dom.Element;
 
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.ExtensionController;
-import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.util.PropertyLoader;
 
 public class WebStartServlet extends HttpServlet {
@@ -38,29 +38,30 @@ public class WebStartServlet extends HttpServlet {
 	/*
      * Override last modified time to always be modified so it updates changes to JNLP.
 	 */
+    @Override
 	protected long getLastModified(HttpServletRequest arg0)	{
 	    return System.currentTimeMillis();
 	}
     
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
-            ExtensionController pluginController = ControllerFactory.getFactory().createExtensionController();
-            
 			DocumentSerializer docSerializer = new DocumentSerializer();
 			PrintWriter out = response.getWriter();
 			
 			response.setContentType("application/x-java-jnlp-file");
             response.setHeader("Pragma", "no-cache");
 
-			// Cannot get the real path if it is not in the classpath.
-            // If it is null, try it with just the filename.
-            String jnlpPath = "mirth-client.jnlp";
-            URI jnlpURI = ClassPathResource.getResourceURI(jnlpPath);
-            if (jnlpURI != null) {
-            	jnlpPath = ClassPathResource.getResourceURI(jnlpPath).toString();
+            // try to load the jnlp file from the jar
+            InputStream is = getClass().getResourceAsStream("/mirth-client.jnlp");
+            
+            if (is == null) {
+                // if it's not in the jar, it should be in the base dir
+                is = new FileInputStream("mirth-client.jnlp");
             }
-
-			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(jnlpPath);
+            
+			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+            IOUtils.closeQuietly(is);
+            
 			Element jnlpElement = document.getDocumentElement();
 
 			// Change the title to include the version of Mirth
@@ -110,7 +111,7 @@ public class WebStartServlet extends HttpServlet {
 			// add the connector client jars to the classpath
 			Element resourcesElement = (Element) jnlpElement.getElementsByTagName("resources").item(0);
 			
-            List<String> clientLibraries = pluginController.getClientLibraries();
+            List<String> clientLibraries = ControllerFactory.getFactory().createExtensionController().getClientLibraries();
             
 			for (String lib : clientLibraries) {
 				Element jarElement = document.createElement("jar");
