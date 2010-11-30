@@ -13,11 +13,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -34,6 +37,17 @@ import com.mirth.connect.util.PropertyLoader;
 
 public class SqlConfig {
     private static SqlMapClient sqlMapClient = null;
+    private static Map<String, String> databaseDriverMap = null;
+
+    static {
+        databaseDriverMap = new HashMap<String, String>();
+        databaseDriverMap.put("derby", "org.apache.derby.jdbc.EmbeddedDriver");
+        databaseDriverMap.put("mysql", "com.mysql.jdbc.Driver");
+        databaseDriverMap.put("oracle", "oracle.jdbc.OracleDriver");
+        databaseDriverMap.put("postgres", "org.postgresql.Driver");
+        databaseDriverMap.put("sqlserver", "net.sourceforge.jtds.jdbc.Driver");
+        databaseDriverMap.put("sqlserver2005", "net.sourceforge.jtds.jdbc.Driver");
+    }
 
     private SqlConfig() {
 
@@ -52,9 +66,10 @@ public class SqlConfig {
                 try {
                     LogFactory.selectLog4JLogging();
                     System.setProperty("derby.stream.error.method", "com.mirth.connect.server.Mirth.getNullOutputStream");
-                    Map<String, PluginMetaData> plugins = ControllerFactory.getFactory().createExtensionController().getPluginMetaData();
-                    String database = PropertyLoader.getProperty(PropertyLoader.loadProperties("mirth"), "database");
-                    BufferedReader br = new BufferedReader(Resources.getResourceAsReader(database + File.separator + database + "-SqlMapConfig.xml"));
+
+                    Properties props = PropertyLoader.loadProperties("mirth");
+                    String database = props.getProperty("database");
+                    BufferedReader br = new BufferedReader(Resources.getResourceAsReader("SqlMapConfig.xml"));
 
                     // Parse the SqlMapConfig (ignoring the DTD)
                     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -62,7 +77,10 @@ public class SqlConfig {
                     Document document = factory.newDocumentBuilder().parse(new InputSource(br));
                     Element sqlMapConfigElement = document.getDocumentElement();
 
-                    if (plugins != null) {
+                    Map<String, PluginMetaData> plugins = ControllerFactory.getFactory().createExtensionController().getPluginMetaData();
+
+                    // add custom mappings from plugins
+                    if (MapUtils.isNotEmpty(plugins)) {
                         for (String pluginName : plugins.keySet()) {
                             PluginMetaData pmd = plugins.get(pluginName);
 
@@ -81,14 +99,13 @@ public class SqlConfig {
 
                     DocumentSerializer docSerializer = new DocumentSerializer();
                     Reader reader = new StringReader(docSerializer.toXML(document));
-
-                    if (database.equalsIgnoreCase("derby")) {
-                        Properties props = PropertyLoader.loadProperties(database + File.separator + database + "-SqlMapConfig");
-                        props.setProperty("mirthHomeDir", ControllerFactory.getFactory().createConfigurationController().getBaseDir());
-                        sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader, props);
-                    } else {
-                        sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader);
+                    
+                    if (!props.containsKey("database.driver") || StringUtils.isBlank(props.getProperty("database.driver"))) {
+                        props.setProperty("database.driver", MapUtils.getString(databaseDriverMap, database));    
                     }
+                    
+                    props.setProperty("dir.base", ControllerFactory.getFactory().createConfigurationController().getBaseDir());
+                    sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader, props);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

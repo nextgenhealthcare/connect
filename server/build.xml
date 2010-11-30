@@ -60,12 +60,12 @@
 		<!-- compile the source -->
 		<mkdir dir="${classes}" />
 
-		<javac srcdir="${src}" destdir="${classes}" debug="${javac.debug}" verbose="${javac.verbose}" deprecation="${javac.deprecation}" target="${javac.target}" source="${javac.source}" includeAntRuntime="false">
+		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="classpath" />
 		</javac>
 
 		<!-- create version.properties file -->
-		<propertyfile file="${conf}/version.properties">
+		<propertyfile file="${classes}/version.properties">
 			<entry key="mirth.version" value="${version}" />
 			<entry key="schema.version" value="${schemaVersion}" />
 			<entry key="mirth.date" type="date" value="today" pattern="MMMM d, yyyy" />
@@ -576,9 +576,7 @@
 
 		<!-- copy conf files -->
 		<copy todir="${setup.conf}">
-			<fileset dir="${conf}">
-				<exclude name="mule-config.xml" />
-			</fileset>
+			<fileset dir="${conf}" />
 		</copy>
 
 		<!-- copy public html files -->
@@ -602,12 +600,6 @@
 			<fileset dir="${docs}" />
 		</copy>
 
-		<!-- create version.properties file -->
-		<propertyfile file="${setup.conf}/version.properties">
-			<entry key="mirth.version" value="${version}" />
-			<entry key="mirth.date" type="date" value="today" pattern="MMMM d, yyyy" />
-		</propertyfile>
-
 		<!-- copy misc files -->
 		<copy todir="${setup}">
 			<fileset file="${basedir}/mirth-launcher.xml" />
@@ -624,10 +616,15 @@
 			<include name="com/mirth/connect/plugins/*.class" />
 			<include name="com/mirth/connect/connectors/*.class" />
 			<include name="org/**" />
+			
+			<include name="version.properties"/>
 
 			<exclude name="com/mirth/connect/server/launcher/**" />
 			<exclude name="com/mirth/connect/server/mbeans/**" />
 		</jar>
+
+		<!-- create the dbconf jar -->
+		<jar destfile="${setup.lib}/${dbconf.jar}" basedir="${dbconf}"/>
 
 		<!-- create the mirth-launcher jar -->
 		<jar destfile="${setup}/${mirth-launcher.jar}" basedir="${classes}">
@@ -654,9 +651,10 @@
 					<include name="log4j-1.2.15.jar" />
 					<include name="derby-10.5.3.0.jar" />
 					<include name="derbytools-10.5.3.0.jar" />
+					<include name="commons/commons-io-1.4.jar" />
 				</fileset>
 			</classpath>
-			<arg value="conf/derby/derby-database.sql" />
+			<arg value="dbconf/derby/derby-database.sql" />
 		</java>
 
 
@@ -736,9 +734,10 @@
 					<include name="log4j-1.2.15.jar" />
 					<include name="derby-10.5.3.0.jar" />
 					<include name="derbytools-10.5.3.0.jar" />
+					<include name="commons/commons-io-1.4.jar" />
 				</fileset>
 			</classpath>
-			<arg value="conf/derby/derby-database.sql" />
+			<arg value="dbconf/derby/derby-database.sql" />
 		</java>
 	</target>
 

@@ -9,14 +9,15 @@
 
 package com.mirth.connect.server.tools;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.derby.tools.ij;
 import org.apache.log4j.Logger;
 
@@ -37,8 +38,8 @@ public class ScriptRunner {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
             Connection connection = DriverManager.getConnection("jdbc:derby:mirthdb;create=true");
-            DataInputStream in = new DataInputStream(new FileInputStream(new File(scriptFile)));
-            DataOutputStream out = new DataOutputStream(new FileOutputStream("scriptrunner.log"));
+            InputStream in = new FileInputStream(new File(scriptFile));
+            OutputStream out = new NullOutputStream();
             ij.runScript(connection, in, "UTF-8", out, "UTF-8");
         } catch (Exception e) {
             logger.error("error executing script", e);
@@ -53,7 +54,7 @@ public class ScriptRunner {
      */
     public static void runScript(File scriptFile) {
         try {
-            DatabaseUtil.executeScript(scriptFile, false);
+            DatabaseUtil.executeScript(FileUtils.readFileToString(scriptFile), false);
         } catch (Exception e) {
             e.printStackTrace();
         }

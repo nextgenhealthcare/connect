@@ -118,7 +118,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             versionConfig = new PropertiesConfiguration();
             versionConfig.setDelimiterParsingDisabled(true);
-            versionConfig.load("version.properties");
+            versionConfig.load(getClass().getResourceAsStream("/version.properties"));
 
             if (mirthConfig.getString(PROPERTY_TEMP_DIR) != null) {
                 File tempDataDirFile = new File(mirthConfig.getString(PROPERTY_TEMP_DIR));

@@ -9,7 +9,6 @@
 
 package com.mirth.connect.server.util;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,7 +30,7 @@ import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
 public class DatabaseUtil {
     private static Logger logger = Logger.getLogger(DatabaseUtil.class);
 
-    public static void executeScript(File script, boolean ignoreErrors) throws Exception {
+    public static void executeScript(String script, boolean ignoreErrors) throws Exception {
         SqlMapClient sqlMap = SqlConfig.getSqlMapClient();
 
         Connection conn = null;
