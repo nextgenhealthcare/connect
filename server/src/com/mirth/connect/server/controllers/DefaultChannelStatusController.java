@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.SystemEvent;
 import com.mirth.connect.server.util.JMXConnection;
 import com.mirth.connect.server.util.JMXConnectionFactory;
@@ -185,16 +186,22 @@ public class DefaultChannelStatusController extends ChannelStatusController {
             for (String channelId : getDeployedIds()) {
                 ChannelStatus channelStatus = new ChannelStatus();
                 channelStatus.setChannelId(channelId);
+                
+                ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+                
+                Channel channel = channelController.getDeployedChannelById(channelId);
 
-                Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
-
-                if ((channel != null)) {
+                if (channel != null) {
                     channelStatus.setName(channel.getName());
                 } else {
                     channelStatus.setName("Channel has been deleted.");
                 }
+                
+                DeployedChannelInfo deployedChannelInfo = channelController.getDeployedChannelInfoById(channelId);
 
                 channelStatus.setState(getState(channelId));
+                channelStatus.setDeployedDate(deployedChannelInfo.getDeployedDate());
+                channelStatus.setDeployedRevisionDelta(channelController.getCachedChannelById(channelId).getRevision() - deployedChannelInfo.getDeployedRevision());
                 channelStatusList.add(channelStatus);
             }
 

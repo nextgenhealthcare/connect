@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
+import com.mirth.connect.model.DeployedChannelInfo;
 
 public abstract class ChannelController extends Controller {
 
@@ -52,6 +53,8 @@ public abstract class ChannelController extends Controller {
     public abstract Channel getDeployedChannelById(String channelId);
 
     public abstract Channel getDeployedChannelByName(String channelName);
+
+    public abstract DeployedChannelInfo getDeployedChannelInfoById(String channelId);
 
     public abstract String getDeployedDestinationName(String connectorId);
 

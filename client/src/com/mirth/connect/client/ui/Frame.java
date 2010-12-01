@@ -181,7 +181,7 @@ public class Frame extends JXFrame {
     private boolean refreshingStatuses = false;
     private Map<String, Integer> safeErrorFailCountMap = new HashMap<String, Integer>();
     private Map<Component, String> componentTaskMap = new HashMap<Component, String>();
-
+    
     public Frame() {
         rightContainer = new JXTitledPanel();
         channels = new HashMap<String, Channel>();
@@ -2059,7 +2059,7 @@ public class Frame extends JXFrame {
 
     public void doRefreshChannels() {
         setWorking("Loading channels...", true);
-
+        
         final List<String> selectedChannelIds = new ArrayList<String>();
 
         for (Channel channel : channelPanel.getSelectedChannels()) {
@@ -2069,6 +2069,12 @@ public class Frame extends JXFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
+                try {
+                    status = mirthClient.getChannelStatusList();
+                } catch (ClientException e) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
+
                 retrieveChannels();
                 return null;
             }
@@ -2209,7 +2215,7 @@ public class Frame extends JXFrame {
                             plugin.tableUpdate(status);
                         }
 
-                        tableData = new Object[status.size()][8 + loadedColumnPluginsAfterStats.size() + loadedColumnPluginsBeforeStatus.size()];
+                        tableData = new Object[status.size()][10 + loadedColumnPluginsAfterStats.size() + loadedColumnPluginsBeforeStatus.size()];
                         for (int i = 0; i < status.size(); i++) {
                             ChannelStatus tempStatus = status.get(i);
                             int statusColumn = 0;
@@ -2222,7 +2228,10 @@ public class Frame extends JXFrame {
                                 }
                                 statusColumn = j;
                                 j += 2;
-                                tableData[i][j] = tempStats.getReceived();
+                                
+                                tableData[i][j] = tempStatus.getDeployedDate();
+                                tableData[i][++j] = tempStatus.getDeployedRevisionDelta();
+                                tableData[i][++j] = tempStats.getReceived();
                                 tableData[i][++j] = tempStats.getFiltered();
                                 tableData[i][++j] = tempStats.getQueued();
                                 tableData[i][++j] = tempStats.getSent();

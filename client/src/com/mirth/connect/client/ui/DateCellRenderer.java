@@ -10,21 +10,21 @@
 package com.mirth.connect.client.ui;
 
 import java.awt.Component;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import com.mirth.connect.client.ui.util.DisplayUtil;
+public class DateCellRenderer extends DefaultTableCellRenderer {
 
-// TODO: Maybe add a type definition to determine if this is a float or an int cell
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-public class NumberCellRenderer extends DefaultTableCellRenderer {
-
-    public NumberCellRenderer() {
+    public DateCellRenderer() {
         this(CENTER);
     }
 
-    public NumberCellRenderer(int alignment) {
+    public DateCellRenderer(int alignment) {
         super();
         this.setHorizontalAlignment(alignment);
     }
@@ -40,7 +40,7 @@ public class NumberCellRenderer extends DefaultTableCellRenderer {
         if (value == null) {
             setText("--");
         } else {
-            setText(DisplayUtil.formatNumber((Integer) value));
+            setText(dateFormat.format(((Calendar) value).getTime()));
         }
         return this;
     }

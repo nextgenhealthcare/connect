@@ -11,6 +11,7 @@ package com.mirth.connect.server.controllers;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.QueueUtil;
@@ -39,6 +41,8 @@ public class DefaultChannelController extends ChannelController {
     private static Map<String, Channel> deployedChannelCacheById = new HashMap<String, Channel>();
     private static Map<String, Channel> deployedChannelCacheByName = new HashMap<String, Channel>();
 
+    private static Map<String, DeployedChannelInfo> deployedChannelInfoCache = new HashMap<String, DeployedChannelInfo>();
+    
     private static DefaultChannelController instance = null;
 
     private DefaultChannelController() {
@@ -274,11 +278,18 @@ public class DefaultChannelController extends ChannelController {
     // ---------- DEPLOYED CHANNEL CACHE ----------
 
     public void putDeployedChannelInCache(Channel channel) {
+        DeployedChannelInfo deployedChannelInfo = new DeployedChannelInfo();
+        deployedChannelInfo.setDeployedDate(Calendar.getInstance());
+        deployedChannelInfo.setDeployedRevision(channel.getRevision());
+        deployedChannelInfoCache.put(channel.getId(), deployedChannelInfo);
+        
         deployedChannelCacheById.put(channel.getId(), channel);
         deployedChannelCacheByName.put(channel.getName(), channel);
     }
 
     public void removeDeployedChannelFromCache(String channelId) {
+        deployedChannelInfoCache.remove(channelId);
+        
         String channelName = getDeployedChannelById(channelId).getName();
         deployedChannelCacheById.remove(channelId);
         deployedChannelCacheByName.remove(channelName);
@@ -291,7 +302,12 @@ public class DefaultChannelController extends ChannelController {
     public Channel getDeployedChannelByName(String channelName) {
         return deployedChannelCacheByName.get(channelName);
     }
+    
 
+    public DeployedChannelInfo getDeployedChannelInfoById(String channelId) {
+        return deployedChannelInfoCache.get(channelId);
+    }
+    
     public String getDeployedDestinationName(String id) {
         // String format: channelid_destination_index
         String destinationName = id;

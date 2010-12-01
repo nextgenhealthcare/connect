@@ -9,6 +9,8 @@
 
 package com.mirth.connect.client.ui;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -22,6 +24,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -31,11 +34,15 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.jdesktop.swingx.decorator.ColorHighlighter;
+import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelStatus;
 
 public class ChannelPanel extends javax.swing.JPanel implements DropTargetListener {
 
@@ -44,6 +51,8 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
     private final String NAME_COLUMN_NAME = "Name";
     private final String DESCRIPTION_COLUMN_NAME = "Description";
     private final String ID_COLUMN_NAME = "Id";
+    private final String LAST_DEPLOYED_COLUMN_NAME = "Last Deployed";
+    private final String DEPLOYED_REVISION_DELTA_COLUMN_NAME = "Rev \u0394";
     private final String ENABLED_STATUS = "Enabled";
     
     private final int NAME_COLUMN_NUMBER = 2;
@@ -76,10 +85,19 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         channelTable.getColumnExt(NAME_COLUMN_NAME).setMaxWidth(350);
         channelTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(250);
 
+        channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setMaxWidth(50);
+        channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setMinWidth(50);
+        channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
+        channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setToolTipText("<html><body>The number of times the channel was saved since this channel was deployed.<br>Rev \u0394 = Channel Revision - Deployed Revision</body></html>");
+        
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
 
         channelTable.getColumnExt(ID_COLUMN_NAME).setMinWidth(240);
         channelTable.getColumnExt(ID_COLUMN_NAME).setMaxWidth(240);
+        
+        channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMinWidth(140);
+        channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMaxWidth(140);
+        channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setCellRenderer(new DateCellRenderer());
 
         channelTable.packTable(UIConstants.COL_MARGIN);
 
@@ -145,9 +163,9 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
 
     public void updateChannelTable() {
         Object[][] tableData = null;
-
+        
         if (parent.channels != null) {
-            tableData = new Object[parent.channels.size()][5];
+            tableData = new Object[parent.channels.size()][7];
 
             int i = 0;
             for (Channel channel : parent.channels.values()) {
@@ -159,7 +177,16 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
                 tableData[i][1] = parent.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol());
                 tableData[i][2] = channel.getName();
                 tableData[i][3] = channel.getId();
-                tableData[i][4] = channel.getDescription();
+                tableData[i][4] = null;
+                tableData[i][5] = null;
+                
+                for (ChannelStatus status : parent.status.toArray(new ChannelStatus[]{})) {
+                    if (status.getChannelId().equals(channel.getId())) {
+                        tableData[i][4] = status.getDeployedDate();
+                        tableData[i][5] = status.getDeployedRevisionDelta();
+                    }
+                }
+                tableData[i][6] = channel.getDescription();
 
                 i++;
             }
@@ -170,9 +197,9 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
             model.refreshDataVector(tableData);
         } else {
             channelTable = new MirthTable();
-            channelTable.setModel(new RefreshTableModel(tableData, new String[]{STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, DESCRIPTION_COLUMN_NAME}) {
+            channelTable.setModel(new RefreshTableModel(tableData, new String[]{STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, DESCRIPTION_COLUMN_NAME}) {
 
-                boolean[] canEdit = new boolean[]{false, false, false, false, false};
+                boolean[] canEdit = new boolean[]{false, false, false, false, false, false, false};
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -185,6 +212,35 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
             channelTable.setHighlighters(highlighter);
         }
+        
+        HighlightPredicate revisionDeltaHighlighterPredicate = new HighlightPredicate() {
+            public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
+                if (adapter.column == channelTable.getColumnViewIndex(DEPLOYED_REVISION_DELTA_COLUMN_NAME)) {
+                    if (channelTable.getValueAt(adapter.row, adapter.column) != null && ((Integer) channelTable.getValueAt(adapter.row, adapter.column)).intValue() > 0) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
+        channelTable.addHighlighter(new ColorHighlighter(revisionDeltaHighlighterPredicate, new Color(255, 204, 0), Color.BLACK, new Color(255, 204, 0), Color.BLACK));
+        
+        
+        HighlightPredicate lastDeployedHighlighterPredicate = new HighlightPredicate() {
+            public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
+                if (adapter.column == channelTable.getColumnViewIndex(LAST_DEPLOYED_COLUMN_NAME)) {
+                    Calendar checkAfter = Calendar.getInstance();
+                    checkAfter.add(Calendar.MINUTE, -2);
+
+                    if (channelTable.getValueAt(adapter.row, adapter.column) != null && ((Calendar) channelTable.getValueAt(adapter.row, adapter.column)).after(checkAfter)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
+        channelTable.addHighlighter(new ColorHighlighter(lastDeployedHighlighterPredicate, new Color(240, 230, 140), Color.BLACK, new Color(240, 230, 140), Color.BLACK));
+        
 
     }
 

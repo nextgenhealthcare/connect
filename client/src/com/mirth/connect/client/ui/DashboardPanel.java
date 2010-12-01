@@ -14,6 +14,7 @@ import java.awt.Component;
 import java.awt.Point;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,8 @@ public class DashboardPanel extends javax.swing.JPanel {
     private final String ERROR_COLUMN_NAME = "Errored";
     private final String FILTERED_COLUMN_NAME = "Filtered";
     private final String ALERTED_COLUMN_NAME = "Alerted";
+    private final String LAST_DEPLOYED_COLUMN_NAME = "Last Deployed";
+    private final String DEPLOYED_REVISION_COLUMN_NAME = "Rev \u0394";
     
     private final int NAME_COLUMN_NUMBER = 1;
     
@@ -231,6 +234,8 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMaxWidth(140);
+        statusTable.getColumnExt(DEPLOYED_REVISION_COLUMN_NAME).setMaxWidth(50);
 
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
@@ -240,6 +245,8 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMinWidth(140);
+        statusTable.getColumnExt(DEPLOYED_REVISION_COLUMN_NAME).setMinWidth(50);
 
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
@@ -248,18 +255,22 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
-
+        statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setCellRenderer(new DateCellRenderer());
+        statusTable.getColumnExt(DEPLOYED_REVISION_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
+        
+        statusTable.getColumnExt(DEPLOYED_REVISION_COLUMN_NAME).setToolTipText("<html><body>The number of times the channel was saved since this channel was deployed.<br>Rev \u0394 = Channel Revision - Deployed Revision</body></html>");
+        
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setComparator(new NumberCellComparator());
         statusTable.getColumnExt(SENT_COLUMN_NAME).setComparator(new NumberCellComparator());
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setComparator(new NumberCellComparator());
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setComparator(new NumberCellComparator());
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setComparator(new NumberCellComparator());
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setComparator(new NumberCellComparator());
+        statusTable.getColumnExt(DEPLOYED_REVISION_COLUMN_NAME).setComparator(new NumberCellComparator());
         
         for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStatus.values()) {
             String columnName = plugin.getColumnHeader();
             statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());
-            ;
             statusTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
             statusTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
         }
@@ -320,8 +331,8 @@ public class DashboardPanel extends javax.swing.JPanel {
         } else {
             statusTable = new MirthTable();
             String[] defaultColumns = new String[]{STATUS_COLUMN_NAME,
-                NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME,
-                FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME,
+                NAME_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME, DEPLOYED_REVISION_COLUMN_NAME,  
+                RECEIVED_COLUMN_NAME, FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME,
                 SENT_COLUMN_NAME, ERROR_COLUMN_NAME, ALERTED_COLUMN_NAME};
             ArrayList<String> columns = new ArrayList<String>();
             for (DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values()) {
@@ -359,9 +370,36 @@ public class DashboardPanel extends javax.swing.JPanel {
                 return false;
             }
         };
-
         Highlighter errorHighlighter = new ColorHighlighter(errorHighlighterPredicate, Color.PINK, Color.BLACK, Color.PINK, Color.BLACK);
         statusTable.addHighlighter(errorHighlighter);
+        
+        HighlightPredicate revisionDeltaHighlighterPredicate = new HighlightPredicate() {
+            public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
+                if (adapter.column == statusTable.getColumnViewIndex(DEPLOYED_REVISION_COLUMN_NAME)) {
+                    if (((Integer) statusTable.getValueAt(adapter.row, adapter.column)).intValue() > 0) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
+        statusTable.addHighlighter(new ColorHighlighter(revisionDeltaHighlighterPredicate, new Color(255, 204, 0), Color.BLACK, new Color(255, 204, 0), Color.BLACK));
+        
+        HighlightPredicate lastDeployedHighlighterPredicate = new HighlightPredicate() {
+            public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
+                if (adapter.column == statusTable.getColumnViewIndex(LAST_DEPLOYED_COLUMN_NAME)) {
+                    Calendar checkAfter = Calendar.getInstance();
+                    checkAfter.add(Calendar.MINUTE, -2);
+
+                    if (((Calendar) statusTable.getValueAt(adapter.row, adapter.column)).after(checkAfter)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
+        statusTable.addHighlighter(new ColorHighlighter(lastDeployedHighlighterPredicate, new Color(240, 230, 140), Color.BLACK, new Color(240, 230, 140), Color.BLACK));
+        
     }
 
     /**

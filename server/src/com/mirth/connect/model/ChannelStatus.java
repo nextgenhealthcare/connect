@@ -10,6 +10,7 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
+import java.util.Calendar;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -25,6 +26,8 @@ public class ChannelStatus implements Serializable {
 	private String channelId;
 	private String name;
 	private State state;
+	private int deployedRevisionDelta;
+	private Calendar deployedDate;
 
 	public String getChannelId() {
 		return this.channelId;
@@ -49,6 +52,22 @@ public class ChannelStatus implements Serializable {
 	public void setState(State state) {
 		this.state = state;
 	}
+	
+    public void setDeployedDate(Calendar deployedDate) {
+        this.deployedDate = deployedDate;
+    }
+
+    public Calendar getDeployedDate() {
+        return this.deployedDate;
+    }
+
+    public void setDeployedRevisionDelta(int deployedRevisionDelta) {
+        this.deployedRevisionDelta = deployedRevisionDelta;
+    }
+
+    public int getDeployedRevisionDelta() {
+        return this.deployedRevisionDelta;
+    }
 
 	public boolean equals(Object that) {
 		if (this == that) {
