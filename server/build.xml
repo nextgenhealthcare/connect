@@ -638,7 +638,7 @@
 			
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.MirthLauncher" />
-				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar lib/commons/commons-io-1.4.jar conf/" />
+				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar lib/commons/commons-io-2.0.jar conf/" />
 			</manifest>
 		</jar>
 
