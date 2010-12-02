@@ -15,7 +15,7 @@
 
 	<target name="compile" depends="clean, init">
 		<mkdir dir="${classes}" />
-		<javac srcdir="${src}" destdir="${classes}" debug="${javac.debug}" verbose="${javac.verbose}" deprecation="${javac.deprecation}" target="${javac.target}" source="${javac.source}" includeAntRuntime="false">
+		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="classpath" />
 		</javac>
 	</target>
@@ -47,14 +47,10 @@
 
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.cli.launcher.CommandLineLauncher" />
-				<attribute name="Class-Path" value="cli-lib/log4j-1.2.15.jar conf/" />
+				<attribute name="Class-Path" value="cli-lib/log4j-1.2.15.jar cli-lib/commons-io-1.4.jar conf/" />
 			</manifest>
 		</jar>
 
-		<copy todir="${build}">
-			<fileset file="mirth-cli-launcher.xml" />
-		</copy>
-		
 		<delete dir="${classes}" />
 	</target>
 </project>
