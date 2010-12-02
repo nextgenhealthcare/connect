@@ -10,21 +10,20 @@
 package com.mirth.connect.server.launcher;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.URLClassLoader;
 import java.util.Scanner;
+
+import org.apache.commons.io.FileUtils;
+
+import com.mirth.connect.server.util.ResourceUtil;
 
 public class MirthLauncher {
     private static final String INSTALL_TEMP = "install_temp";
     private static final String UNINSTALL_FILE = "uninstall";
-    private static final String DEFAULT_LAUNCHER_FILE = "mirth-launcher.xml";
 
     public static void main(String[] args) {
-        String launcherFile = DEFAULT_LAUNCHER_FILE;
-        
-        if (args.length > 0) {
-            launcherFile = args[0];
-        }
-
         try {
             try {
                 uninstallExtensions();
@@ -32,9 +31,17 @@ public class MirthLauncher {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            
-            ClasspathBuilder builder = new ClasspathBuilder(launcherFile);
-            URLClassLoader classLoader = new URLClassLoader(builder.getClasspath());
+
+            InputStream is = null;
+
+            if (args.length > 0) {
+                is = new FileInputStream(args[0]);
+            } else {
+                is = ResourceUtil.getResourceStream(MirthLauncher.class, "mirth-launcher.xml");
+            }
+
+            ClasspathBuilder builder = new ClasspathBuilder(is);
+            URLClassLoader classLoader = new URLClassLoader(builder.getClasspathURLs());
             Class<?> mirthClass = classLoader.loadClass("com.mirth.connect.server.Mirth");
             Thread mirthThread = (Thread) mirthClass.newInstance();
             mirthThread.setContextClassLoader(classLoader);
@@ -44,63 +51,47 @@ public class MirthLauncher {
         }
     }
 
+    // if we have an uninstall file, uninstall the listed extensions
     private static void uninstallExtensions() throws Exception {
         String extensionsLocation = new File(ClasspathBuilder.EXTENSION_PATH).getPath();
         String uninstallFileLocation = extensionsLocation + File.separator + UNINSTALL_FILE;
-
         File uninstallFile = new File(uninstallFileLocation);
-        // if we have an uninstall file, uninstall the listed extensions
+
         if (uninstallFile.exists()) {
             Scanner scanner = new Scanner(uninstallFile);
+            
             while (scanner.hasNextLine()) {
                 String extension = scanner.nextLine();
                 File extensionDirectory = new File(extensionsLocation + File.separator + extension);
+                
                 if (extensionDirectory.isDirectory()) {
-                    deleteDirectory(extensionDirectory);
+                    FileUtils.deleteDirectory(extensionDirectory);
                 }
             }
+            
             scanner.close();
             uninstallFile.delete();
         }
     }
 
+    // if we have a temp folder, move the extensions over
     private static void installExtensions() throws Exception {
         String extensionsLocation = new File(ClasspathBuilder.EXTENSION_PATH).getPath();
         String extensionsTempLocation = extensionsLocation + File.separator + INSTALL_TEMP + File.separator;
-
         File extensionsTemp = new File(extensionsTempLocation);
-        // if we have a temp folder, move the extensions over
+        
         if (extensionsTemp.exists()) {
             File[] extensions = extensionsTemp.listFiles();
+
             for (int i = 0; i < extensions.length; i++) {
                 if (extensions[i].isDirectory()) {
                     File target = new File(extensionsLocation + File.separator + extensions[i].getName());
-                    if (target.exists()) {
-                        if (target.isDirectory()) {
-                            deleteDirectory(target);
-                        } else {
-                            target.delete();
-                        }
-                    }
+                    FileUtils.deleteQuietly(target);
                     extensions[i].renameTo(target);
                 }
             }
-            deleteDirectory(extensionsTemp);
+
+            FileUtils.deleteDirectory(extensionsTemp);
         }
     }
-
-    private static boolean deleteDirectory(File path) {
-        if (path.exists()) {
-            File[] files = path.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isDirectory()) {
-                    deleteDirectory(files[i]);
-                } else {
-                    files[i].delete();
-                }
-            }
-        }
-        return (path.delete());
-    }
-
 }
