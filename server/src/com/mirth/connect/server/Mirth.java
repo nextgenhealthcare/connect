@@ -152,6 +152,7 @@ public class Mirth extends Thread {
         
         try {
             InputStream is = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
+            versionProperties.setDelimiterParsingDisabled(true);
             versionProperties.load(is);
             IOUtils.closeQuietly(is);
         } catch (Exception e) {
