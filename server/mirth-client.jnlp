@@ -31,7 +31,7 @@
 		<jar download="eager" href="client-lib/mirth-client-core.jar"/>
 		<jar download="eager" href="client-lib/commons-codec-1.4.jar"/>
 		<jar download="eager" href="client-lib/commons-httpclient-3.0.1.jar"/>
-		<jar download="eager" href="client-lib/commons-io-1.4.jar"/>
+		<jar download="eager" href="client-lib/commons-io-2.0.jar"/>
 		<jar download="eager" href="client-lib/commons-lang-2.5.jar"/>
 		<jar download="eager" href="client-lib/commons-logging-1.1.1.jar"/>
 		<jar download="eager" href="client-lib/databinding-0.8.0.jar"/>
