@@ -103,26 +103,26 @@ public class MirthLauncher {
         }
     }
     
-    private static void addManifestToClasspath(String[] manifest, List<URL> urls) throws Exception {
+    private static void addManifestToClasspath(String[] manifestEntries, List<URL> urls) throws Exception {
         IOFileFilter fileFileFilter = FileFilterUtils.fileFileFilter();
 
-        for (String manifestPath : manifest) {
-            File manifestFile = new File(manifestPath);
+        for (String manifestEntry : manifestEntries) {
+            File manifestEntryFile = new File(manifestEntry);
 
-            if (manifestFile.exists()) {
-                if (manifestFile.isDirectory()) {
-                    Collection<File> pathFiles = FileUtils.listFiles(manifestFile, fileFileFilter, FileFilterUtils.trueFileFilter());
+            if (manifestEntryFile.exists()) {
+                if (manifestEntryFile.isDirectory()) {
+                    Collection<File> pathFiles = FileUtils.listFiles(manifestEntryFile, fileFileFilter, FileFilterUtils.trueFileFilter());
 
                     for (File pathFile : pathFiles) {
                         logger.trace("adding library to classpath: " + pathFile.getAbsolutePath());
                         urls.add(pathFile.toURI().toURL());
                     }
                 } else {
-                    logger.trace("adding library to classpath: " + manifestFile.getAbsolutePath());
-                    urls.add(manifestFile.toURI().toURL());
+                    logger.trace("adding library to classpath: " + manifestEntryFile.getAbsolutePath());
+                    urls.add(manifestEntryFile.toURI().toURL());
                 }
             } else {
-                logger.warn("manifest path not found: " + manifestFile.getAbsolutePath());
+                logger.warn("manifest path not found: " + manifestEntryFile.getAbsolutePath());
             }
         }
     }
