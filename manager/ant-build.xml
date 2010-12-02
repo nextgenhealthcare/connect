@@ -21,7 +21,7 @@
 
 	<target name="compile" depends="clean, init">
 		<mkdir dir="${classes}" />
-		<javac srcdir="${src}" destdir="${classes}" debug="${javac.debug}" verbose="${javac.verbose}" deprecation="${javac.deprecation}" target="${javac.target}" source="${javac.source}" includeAntRuntime="false">
+		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="classpath" />
 		</javac>
 
