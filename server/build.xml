@@ -65,14 +65,18 @@
 		</javac>
 
 		<!-- create version.properties file -->
-		<propertyfile file="${classes}/version.properties">
+		<propertyfile file="version.properties">
 			<entry key="mirth.version" value="${version}" />
 			<entry key="schema.version" value="${schemaVersion}" />
 			<entry key="mirth.date" type="date" value="today" pattern="MMMM d, yyyy" />
 		</propertyfile>
 
 		<!-- copy jnlp file for webstart -->
-		<copy todir="${classes}" file="mirth-client.jnlp" />
+		<copy todir="${classes}">
+			<fileset file="version.properties" />
+			<fileset file="mirth-client.jnlp" />
+			<fileset file="mirth-launcher.xml" />
+		</copy>
 
 		<!-- copy xml file for ant task -->
 		<copy todir="${classes}/com/mirth/connect/ant">
@@ -92,6 +96,8 @@
 			<include name="com/mirth/connect/util/**" />
 			<include name="com/thoughtworks/**" />
 			<include name="org/mozilla/**" />
+			
+			<include name="version.properties" />
 		</jar>
 	</target>
 
@@ -605,7 +611,6 @@
 
 		<!-- copy misc files -->
 		<copy todir="${setup}">
-			<fileset file="${basedir}/mirth-launcher.xml" />
 			<fileset file="${basedir}/truststore.jks" />
 		</copy>
 
@@ -618,24 +623,25 @@
 			<include name="com/mirth/connect/plugins/*.class" />
 			<include name="com/mirth/connect/connectors/*.class" />
 			<include name="org/**" />
-			
-			<include name="version.properties"/>
-			<include name="mirth-client.jnlp"/>
+
+			<include name="mirth-client.jnlp" />
 
 			<exclude name="com/mirth/connect/server/launcher/**" />
 			<exclude name="com/mirth/connect/server/mbeans/**" />
 		</jar>
 
 		<!-- create the dbconf jar -->
-		<jar destfile="${setup.lib}/${dbconf.jar}" basedir="${dbconf}"/>
+		<jar destfile="${setup.lib}/${dbconf.jar}" basedir="${dbconf}" />
 
 		<!-- create the mirth-launcher jar -->
 		<jar destfile="${setup}/${mirth-launcher.jar}" basedir="${classes}">
 			<include name="com/mirth/connect/server/launcher/**" />
+			<include name="com/mirth/connect/server/util/ResourceUtil.class" />
+			<include name="mirth-launcher.xml" />
 			
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.MirthLauncher" />
-				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar conf/" />
+				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar lib/commons/commons-io-1.4.jar conf/" />
 			</manifest>
 		</jar>
 
@@ -684,7 +690,7 @@
 				<fileset dir="${setup.extensions}" includes="**/*.jar" />
 			</signjar>
 		</parallel>
-		
+
 		<!-- delete the compiled classes folder -->
 		<delete dir="${classes}" />
 	</target>

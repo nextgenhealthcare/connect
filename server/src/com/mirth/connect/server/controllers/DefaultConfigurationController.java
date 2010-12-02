@@ -12,6 +12,7 @@ package com.mirth.connect.server.controllers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.KeyPair;
@@ -44,6 +45,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
@@ -63,6 +65,7 @@ import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.JMXConnection;
 import com.mirth.connect.server.util.JMXConnectionFactory;
+import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.Encrypter;
 import com.mirth.connect.util.PropertyLoader;
@@ -83,8 +86,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private boolean isEngineStarting = true;
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private PasswordRequirements passwordRequirements;
-    private static PropertiesConfiguration versionConfig;
-    private static PropertiesConfiguration mirthConfig;
+    private static PropertiesConfiguration versionConfig = new PropertiesConfiguration();
+    private static PropertiesConfiguration mirthConfig = new PropertiesConfiguration();
 
     private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
     private static final String PROPERTY_TEMP_DIR = "dir.tempdata";
@@ -112,13 +115,12 @@ public class DefaultConfigurationController extends ConfigurationController {
         try {
             // Disable delimiter parsing so getString() returns the whole
             // property, even if there are commas
-            mirthConfig = new PropertiesConfiguration();
             mirthConfig.setDelimiterParsingDisabled(true);
             mirthConfig.load("mirth.properties");
 
-            versionConfig = new PropertiesConfiguration();
-            versionConfig.setDelimiterParsingDisabled(true);
-            versionConfig.load(getClass().getResourceAsStream("/version.properties"));
+            InputStream is = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
+            versionConfig.load(is);
+            IOUtils.closeQuietly(is);
 
             if (mirthConfig.getString(PROPERTY_TEMP_DIR) != null) {
                 File tempDataDirFile = new File(mirthConfig.getString(PROPERTY_TEMP_DIR));

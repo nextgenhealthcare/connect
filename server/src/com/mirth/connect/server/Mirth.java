@@ -11,6 +11,7 @@ package com.mirth.connect.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
@@ -23,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -46,6 +49,7 @@ import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.servlets.MirthErrorPageHandler;
+import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.util.PropertyLoader;
 
 /**
@@ -59,7 +63,7 @@ public class Mirth extends Thread {
     private Logger logger = Logger.getLogger(this.getClass());
     private boolean running = false;
     private Properties mirthProperties = null;
-    private Properties versionProperties = null;
+    private PropertiesConfiguration versionProperties = new PropertiesConfiguration();
     private HttpServer httpServer = null;
     private HttpServer servletContainer = null;
     private CommandQueue commandQueue = CommandQueue.getInstance();
@@ -145,7 +149,14 @@ public class Mirth extends Thread {
      */
     public boolean initResources() {
         mirthProperties = PropertyLoader.loadProperties("mirth");
-        versionProperties = PropertyLoader.loadProperties("version");
+        
+        try {
+            InputStream is = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
+            versionProperties.load(is);
+            IOUtils.closeQuietly(is);
+        } catch (Exception e) {
+            logger.error("could not load version.properties", e);
+        }
 
         return (mirthProperties != null);
     }
@@ -400,8 +411,8 @@ public class Mirth extends Thread {
      * 
      */
     private void printSplashScreen() {
-        String version = PropertyLoader.getProperty(versionProperties, "mirth.version");
-        String buildDate = PropertyLoader.getProperty(versionProperties, "mirth.date");
+        String version = versionProperties.getString("mirth.version");
+        String buildDate = versionProperties.getString("mirth.date");
 
         logger.info("Mirth Connect " + version + " (" + buildDate + ") server successfully started: " + (new Date()).toString());
         logger.info("This product was developed by Mirth Corporation (http://www.mirthcorp.com) and its contributors (c)2005-" + Calendar.getInstance().get(Calendar.YEAR) + ".");

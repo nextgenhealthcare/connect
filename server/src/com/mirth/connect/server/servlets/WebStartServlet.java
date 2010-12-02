@@ -9,7 +9,6 @@
 
 package com.mirth.connect.server.servlets;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -30,6 +29,7 @@ import org.w3c.dom.Element;
 
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.util.PropertyLoader;
 
 public class WebStartServlet extends HttpServlet {
@@ -51,14 +51,7 @@ public class WebStartServlet extends HttpServlet {
 			response.setContentType("application/x-java-jnlp-file");
             response.setHeader("Pragma", "no-cache");
 
-            // try to load the jnlp file from the jar
-            InputStream is = getClass().getResourceAsStream("/mirth-client.jnlp");
-            
-            if (is == null) {
-                // if it's not in the jar, it should be in the base dir
-                is = new FileInputStream("mirth-client.jnlp");
-            }
-            
+            InputStream is = ResourceUtil.getResourceStream(this.getClass(), "mirth-client.jnlp");
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
             IOUtils.closeQuietly(is);
             
