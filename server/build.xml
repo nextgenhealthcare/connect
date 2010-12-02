@@ -71,11 +71,10 @@
 			<entry key="mirth.date" type="date" value="today" pattern="MMMM d, yyyy" />
 		</propertyfile>
 
-		<!-- copy jnlp file for webstart -->
+		<!-- copy resource files to be placed in jars -->
 		<copy todir="${classes}">
 			<fileset file="version.properties" />
 			<fileset file="mirth-client.jnlp" />
-			<fileset file="mirth-launcher.xml" />
 		</copy>
 
 		<!-- copy xml file for ant task -->
@@ -637,7 +636,6 @@
 		<jar destfile="${setup}/${mirth-launcher.jar}" basedir="${classes}">
 			<include name="com/mirth/connect/server/launcher/**" />
 			<include name="com/mirth/connect/server/util/ResourceUtil.class" />
-			<include name="mirth-launcher.xml" />
 			
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.MirthLauncher" />
