@@ -12,37 +12,42 @@ package com.mirth.connect.manager;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.apache.commons.io.FileUtils;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.util.PropertyLoader;
 
 public class ManagerController {
 
-    private static ManagerController assistantController = null;
+    private static ManagerController managerController = null;
     private static ServiceController serviceController = null;
+
+    private PropertiesConfiguration serverProperties;
+    private PropertiesConfiguration log4jProperties;
+    private PropertiesConfiguration versionProperties;
+    private PropertiesConfiguration serverIdProperties;
 
     private boolean updating = false;
 
-    // private final String CMD_QUERY_REGEX = ".*STATE.* :.(.)";
     public static ManagerController getInstance() {
-        if (assistantController == null) {
-            assistantController = new ManagerController();
+        if (managerController == null) {
+            managerController = new ManagerController();
+            managerController.initialize();
 
             try {
                 serviceController = ServiceControllerFactory.getServiceController();
@@ -52,7 +57,41 @@ public class ManagerController {
             }
         }
 
-        return assistantController;
+        return managerController;
+    }
+
+    public void initialize() {
+        serverProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES);
+        log4jProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_LOG4J_PROPERTIES);
+        serverIdProperties = initializeProperties(PlatformUI.MIRTH_PATH + getServerProperties().getString(ManagerConstants.DIR_APPDATA) + System.getProperty("file.separator") + ManagerConstants.PATH_SERVER_ID_FILE);
+
+        InputStream is = getClass().getResourceAsStream(ManagerConstants.PATH_VERSION_FILE);
+        if (is != null) {
+            try {
+                versionProperties = new PropertiesConfiguration();
+                versionProperties.load(is);
+            } catch (ConfigurationException e) {
+                alertErrorDialog("Could not load resource: " + ManagerConstants.PATH_VERSION_FILE);
+            }
+        } else {
+            versionProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_VERSION_FILE);
+        }
+    }
+
+    private PropertiesConfiguration initializeProperties(String path) {
+        PropertiesConfiguration properties = new PropertiesConfiguration();
+
+        // Auto reload changes
+        FileChangedReloadingStrategy fileChangedReloadingStrategy = new FileChangedReloadingStrategy();
+        fileChangedReloadingStrategy.setRefreshDelay(1000);
+        properties.setReloadingStrategy(fileChangedReloadingStrategy);
+        properties.setFile(new File(path));
+
+        if (properties.isEmpty()) {
+            alertErrorDialog("Could not load properties from file: " + path);
+        }
+
+        return properties;
     }
 
     /**
@@ -106,11 +145,9 @@ public class ManagerController {
     }
 
     private boolean startMirth() {
-
-        Properties serverProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES, true);
-        String httpPort = serverProperties.getProperty(ManagerConstants.SERVER_WEBSTART_PORT);
-        String httpsPort = serverProperties.getProperty(ManagerConstants.SERVER_ADMINISTRATOR_PORT);
-        String jmxPort = serverProperties.getProperty(ManagerConstants.SERVER_JMX_PORT);
+        String httpPort = getServerProperties().getString(ManagerConstants.SERVER_WEBSTART_PORT);
+        String httpsPort = getServerProperties().getString(ManagerConstants.SERVER_ADMINISTRATOR_PORT);
+        String jmxPort = getServerProperties().getString(ManagerConstants.SERVER_JMX_PORT);
         String httpPortResult = testPort(httpPort, "WebStart");
         String httpsPortResult = testPort(httpsPort, "Administrator");
         String jmxPortResult = testPort(jmxPort, "JMX");
@@ -140,11 +177,11 @@ public class ManagerController {
             } else {
                 // Load the context path property and remove the last char
                 // if it is a '/'.
-                String contextPath = PropertyLoader.getProperty(serverProperties, "context.path");
+                String contextPath = getServerProperties().getString("context.path");
                 if (contextPath.lastIndexOf('/') == (contextPath.length() - 1)) {
                     contextPath = contextPath.substring(0, contextPath.length() - 1);
                 }
-                Client client = new Client(ManagerConstants.CMD_TEST_JETTY_PREFIX + PropertyLoader.getProperty(serverProperties, "https.port") + contextPath);
+                Client client = new Client(ManagerConstants.CMD_TEST_JETTY_PREFIX + getServerProperties().getString("https.port") + contextPath);
 
                 int retriesLeft = 30;
                 long waitTime = 1000;
@@ -251,8 +288,7 @@ public class ManagerController {
     }
 
     public void launchAdministrator() {
-        Properties serverProperties = getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES, true);
-        String port = serverProperties.getProperty(ManagerConstants.SERVER_WEBSTART_PORT);
+        String port = getServerProperties().getString(ManagerConstants.SERVER_WEBSTART_PORT);
         try {
             String cmd = ManagerConstants.CMD_WEBSTART_PREFIX + port + ManagerConstants.CMD_WEBSTART_SUFFIX + "?time=" + new Date().getTime();
 
@@ -264,30 +300,20 @@ public class ManagerController {
         }
     }
 
-    public Properties getProperties(String path, boolean alert) {
-        Properties properties = new Properties();
-        try {
-            FileInputStream propertyFile = new FileInputStream(path);
-            properties.load(propertyFile);
-            propertyFile.close();
-        } catch (IOException ex) {
-            if (alert) {
-                alertErrorDialog("Could not load file: " + path);
-            }
-        }
-        return properties;
+    public PropertiesConfiguration getServerProperties() {
+        return serverProperties;
     }
 
-    public boolean setProperties(Properties properties, String path) {
-        try {
-            FileOutputStream propertyFile = new FileOutputStream(path);
-            properties.store(new FileOutputStream(path), null);
-            propertyFile.close();
-            return true;
-        } catch (IOException e) {
-            alertErrorDialog("Could not save file: " + path);
-        }
-        return false;
+    public PropertiesConfiguration getLog4jProperties() {
+        return log4jProperties;
+    }
+
+    public String getServerVersion() {
+        return versionProperties.getString("mirth.version");
+    }
+
+    public String getServerId() {
+        return serverIdProperties.getString("server.id");
     }
 
     public List<String> getLogFiles(String path) {
@@ -320,7 +346,7 @@ public class ManagerController {
             for (int i = 0; (i < apps.length) && !editorOpened; i++) {
                 try {
                     String output = CmdUtil.execCmdWithErrorOutput(new String[] { apps[i] + " \"" + path + "\"" });
-                    
+
                     if (output.length() == 0) {
                         editorOpened = true;
                     }

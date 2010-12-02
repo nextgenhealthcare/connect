@@ -13,6 +13,4 @@ public class PlatformUI {
     public static ManagerDialog MANAGER_DIALOG;
     public static ManagerTray MANAGER_TRAY;
     public static String MIRTH_PATH;
-    public static String PATH_APPDATA;
-    public static String PATH_LOGS;
 }

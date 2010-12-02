@@ -27,27 +27,15 @@ public class ManagerConstants {
 
     // Database
     public static final String DATABASE_TYPE = "database";
-    public static final String DATABASE_DRIVER = "driver";
-    public static final String DATABASE_URL = "url";
-    public static final String DATABASE_USERNAME = "username";
-    public static final String DATABASE_PASSWORD = "password";
-    public static final String DATABASE_DERBY = "derby";
-    public static final String DATABASE_POSTGRES = "postgres";
-    public static final String DATABASE_MYSQL = "mysql";
-    public static final String DATABASE_SQLSERVER = "sqlserver";
-    public static final String DATABASE_SQLSERVER2005 = "sqlserver2005";
-    public static final String DATABASE_ORACLE = "oracle";
+    public static final String DATABASE_DRIVER = "database.driver";
+    public static final String DATABASE_URL = "database.url";
+    public static final String DATABASE_USERNAME = "database.username";
+    public static final String DATABASE_PASSWORD = "database.password";
 
     // File paths
-    public static final String PATH_SERVER_PROPERTIES = "conf/mirth.properties";
-    public static final String PATH_LOG4J_PROPERTIES = "conf/log4j.properties";
-    public static final String PATH_DERBY_PROPERTIES = "conf/derby/derby-SqlMapConfig.properties";
-    public static final String PATH_POSTGRES_PROPERTIES = "conf/postgres/postgres-SqlMapConfig.properties";
-    public static final String PATH_MYSQL_PROPERTIES = "conf/mysql/mysql-SqlMapConfig.properties";
-    public static final String PATH_SQLSERVER_PROPERTIES = "conf/sqlserver/sqlserver-SqlMapConfig.properties";
-    public static final String PATH_SQLSERVER2005_PROPERTIES = "conf/sqlserver2005/sqlserver2005-SqlMapConfig.properties";
-    public static final String PATH_ORACLE_PROPERTIES = "conf/oracle/oracle-SqlMapConfig.properties";
-    public static final String PATH_VERSION_FILE = "conf/version.properties";
+    public static final String PATH_SERVER_PROPERTIES = "conf" + System.getProperty("file.separator") + "mirth.properties";
+    public static final String PATH_LOG4J_PROPERTIES = "conf" + System.getProperty("file.separator") + "log4j.properties";
+    public static final String PATH_VERSION_FILE = "version.properties";
     public static final String PATH_SERVER_ID_FILE = "server.id";
     public static final String PATH_SERVICE_VMOPTIONS = "mirthconnect_service.vmoptions";
     
