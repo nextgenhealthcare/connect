@@ -35,6 +35,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/xpp3_min-1.1.4c.jar"/>
-	<classpathentry kind="lib" path="lib/commons-io-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
