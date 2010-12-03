@@ -61,9 +61,9 @@ public class ManagerController {
     }
 
     public void initialize() {
-        serverProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES);
-        log4jProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_LOG4J_PROPERTIES);
-        serverIdProperties = initializeProperties(PlatformUI.MIRTH_PATH + getServerProperties().getString(ManagerConstants.DIR_APPDATA) + System.getProperty("file.separator") + ManagerConstants.PATH_SERVER_ID_FILE);
+        serverProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES, true);
+        log4jProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_LOG4J_PROPERTIES, true);
+        serverIdProperties = initializeProperties(PlatformUI.MIRTH_PATH + getServerProperties().getString(ManagerConstants.DIR_APPDATA) + System.getProperty("file.separator") + ManagerConstants.PATH_SERVER_ID_FILE, false);
 
         InputStream is = getClass().getResourceAsStream(ManagerConstants.PATH_VERSION_FILE);
         if (is != null) {
@@ -74,11 +74,11 @@ public class ManagerController {
                 alertErrorDialog("Could not load resource: " + ManagerConstants.PATH_VERSION_FILE);
             }
         } else {
-            versionProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_VERSION_FILE);
+            versionProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_VERSION_FILE, true);
         }
     }
 
-    private PropertiesConfiguration initializeProperties(String path) {
+    private PropertiesConfiguration initializeProperties(String path, boolean alert) {
         PropertiesConfiguration properties = new PropertiesConfiguration();
 
         // Auto reload changes
@@ -87,7 +87,7 @@ public class ManagerController {
         properties.setReloadingStrategy(fileChangedReloadingStrategy);
         properties.setFile(new File(path));
 
-        if (properties.isEmpty()) {
+        if (properties.isEmpty() && alert) {
             alertErrorDialog("Could not load properties from file: " + path);
         }
 
