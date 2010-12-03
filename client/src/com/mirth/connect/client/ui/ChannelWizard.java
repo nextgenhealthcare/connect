@@ -11,18 +11,11 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.TreeSet;
 
 import javax.swing.SwingWorker;
 
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.ExtensionPoint;
-import com.mirth.connect.model.ExtensionPointDefinition;
-import com.mirth.connect.model.PluginMetaData;
-import com.mirth.connect.plugins.ChannelWizardPlugin;
 
 /**
  * A dialog for creating a new channel
@@ -30,7 +23,6 @@ import com.mirth.connect.plugins.ChannelWizardPlugin;
 public class ChannelWizard extends javax.swing.JDialog {
 
     private Frame parent;
-    private Map<String, ChannelWizardPlugin> loadedWizardPlugins = new HashMap<String, ChannelWizardPlugin>();
     private final String DEFAULT_COMBOBOX_VALUE = "Select Channel Wizard";
 
     /** Creates new form ChannelWizard */
@@ -38,19 +30,18 @@ public class ChannelWizard extends javax.swing.JDialog {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
-        loadPlugins();
 
-        if (loadedWizardPlugins.size() == 0) {
+        if (LoadedExtensions.getInstance().getChannelWizardPlugins().size() == 0) {
             skipWizardButtonActionPerformed(null);
             return;
         }
 
-        String[] loadedWizardPluginNames = new String[loadedWizardPlugins.size() + 1];
+        String[] loadedWizardPluginNames = new String[LoadedExtensions.getInstance().getChannelWizardPlugins().size() + 1];
 
         loadedWizardPluginNames[0] = DEFAULT_COMBOBOX_VALUE;
 
         TreeSet<String> sortedKeys = new TreeSet<String>();
-        sortedKeys.addAll(loadedWizardPlugins.keySet());
+        sortedKeys.addAll(LoadedExtensions.getInstance().getChannelWizardPlugins().keySet());
 
         int index = 1;
         for (String key : sortedKeys) {
@@ -79,41 +70,6 @@ public class ChannelWizard extends javax.swing.JDialog {
         setResizable(false);
         setVisible(true);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-    }
-
-    //Extension point for ExtensionPoint.Type.CLIENT_CHANNEL_WIZARD
-    @ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.CLIENT_CHANNEL_WIZARD)
-    public void loadPlugins() {
-        try {
-            Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
-            for (PluginMetaData metaData : plugins.values()) {
-                if (metaData.isEnabled()) {
-                    for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
-                        try {
-                            if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.CLIENT_CHANNEL_WIZARD) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
-                                String pluginName = extensionPoint.getName();
-                                Class<?> clazz = Class.forName(extensionPoint.getClassName());
-                                Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-                                for (int i = 0; i < constructors.length; i++) {
-                                    Class<?> parameters[];
-                                    parameters = constructors[i].getParameterTypes();
-                                    // load plugin if the number of parameters is 1.
-                                    if (parameters.length == 1) {
-                                        ChannelWizardPlugin wizardPlugin = (ChannelWizardPlugin) constructors[i].newInstance(new Object[]{pluginName});
-                                        loadedWizardPlugins.put(pluginName, wizardPlugin);
-                                        i = constructors.length;
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            parent.alertException(this, e.getStackTrace(), e.getMessage());
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
-        }
     }
 
     /**
@@ -311,7 +267,7 @@ public class ChannelWizard extends javax.swing.JDialog {
             Channel channel = null;
 
             public Void doInBackground() {
-                channel = loadedWizardPlugins.get(wizard).runWizard();
+                channel = LoadedExtensions.getInstance().getChannelWizardPlugins().get(wizard).runWizard();
                 return null;
             }
 

@@ -73,7 +73,6 @@ import com.mirth.connect.client.core.UpdateClient;
 import com.mirth.connect.client.ui.browsers.event.EventBrowser;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
-import com.mirth.connect.connectors.ConnectorClass;
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
@@ -97,7 +96,6 @@ import com.mirth.connect.model.filters.MessageObjectFilter;
 import com.mirth.connect.model.filters.SystemEventFilter;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
-import com.mirth.connect.plugins.DashboardPanelPlugin;
 import com.mirth.connect.plugins.extensionmanager.ExtensionManagerClient;
 import com.mirth.connect.plugins.extensionmanager.ExtensionUpdateDialog;
 import com.mirth.connect.util.PropertyVerifier;
@@ -164,8 +162,6 @@ public class Frame extends JXFrame {
     public JPopupMenu globalScriptsPopupMenu;
     
     public JXTitledPanel rightContainer;
-    public ArrayList<ConnectorClass> sourceConnectors;
-    public ArrayList<ConnectorClass> destinationConnectors;
     private Thread statusUpdater;
     public static Preferences userPreferences;
     private StatusUpdater su;
@@ -187,8 +183,6 @@ public class Frame extends JXFrame {
         channels = new HashMap<String, Channel>();
 
         taskPaneContainer = new JXTaskPaneContainer();
-        sourceConnectors = new ArrayList<ConnectorClass>();
-        destinationConnectors = new ArrayList<ConnectorClass>();
 
         protocols = new LinkedHashMap<MessageObject.Protocol, String>();
         protocols.put(MessageObject.Protocol.HL7V2, "HL7 v2.x");
@@ -331,7 +325,7 @@ public class Frame extends JXFrame {
         AuthorizationControllerFactory.getAuthorizationController().initialize();
         refreshCodeTemplates();
         login.setStatus("Loading plugins...");
-        loadPlugins();
+        loadExtensions();
         setInitialVisibleTasks();
         login.setStatus("Loading preferences...");
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
@@ -409,16 +403,19 @@ public class Frame extends JXFrame {
 //         System.out.println("UIManager.put(\"" + key.toString() + "\",\"" +
 //         (null != val ? val.toString() : "(null)") + "\");"); }
 
-
     }
 
-    public void loadPlugins() {
+    public void loadExtensions() {
         try {
             loadedPlugins = mirthClient.getPluginMetaData();
             loadedConnectors = mirthClient.getConnectorMetaData();
         } catch (ClientException e) {
             alertException(this, e.getStackTrace(), "Unable to load plugins");
         }
+        
+        // Initialize all of the extensions now that the metadata has been retrieved
+        LoadedExtensions.getInstance().initialize();
+        
         pluginPanel = new PluginPanel();
     }
 
@@ -1402,7 +1399,7 @@ public class Frame extends JXFrame {
 
                         if (newUpdates) {
                             if (extensionManager) {
-                                new ExtensionUpdateDialog((ExtensionManagerClient) pluginPanel.getLoadedPlugins().get(PluginPanel.EXTENSION_MANAGER), updateInfoList);
+                                new ExtensionUpdateDialog((ExtensionManagerClient) LoadedExtensions.getInstance().getClientPanelPlugins().get(PluginPanel.EXTENSION_MANAGER), updateInfoList);
                             } else {
                                 String[] options = {"Download", "Ignore", "Remind Me Later"};
                                 String question = "A Mirth update is available. You can download it now from:\n" + serverUrl;
@@ -1782,7 +1779,7 @@ public class Frame extends JXFrame {
     }
 
     public void doNewChannel() {
-        if (sourceConnectors.size() == 0 || destinationConnectors.size() == 0) {
+        if (LoadedExtensions.getInstance().getSourceConnectors().size() == 0 || LoadedExtensions.getInstance().getDestinationConnectors().size() == 0) {
             alertError(this, "You must have at least one source connector and one destination connector installed.");
             return;
         }
@@ -1838,35 +1835,17 @@ public class Frame extends JXFrame {
         List<Connector> destinations = channel.getDestinationConnectors();
         ArrayList<String> missingConnectors = new ArrayList<String>();
 
-        boolean missingSourceConnector = true, missingDestinationConnector;
-        boolean allDesintionConnectorsFound = true;
-
-        for (int i = 0; i < sourceConnectors.size(); i++) {
-            if (source.getTransportName().equals(sourceConnectors.get(i).getName())) {
-                missingSourceConnector = false;
-            }
-        }
-
-        if (missingSourceConnector) {
+        if (!LoadedExtensions.getInstance().getSourceConnectors().containsKey(source.getTransportName())) {
             missingConnectors.add(source.getTransportName());
         }
 
         for (int i = 0; i < destinations.size(); i++) {
-            missingDestinationConnector = true;
-
-            for (int j = 0; j < destinationConnectors.size(); j++) {
-                if (destinations.get(i).getTransportName().equals(destinationConnectors.get(j).getName())) {
-                    missingDestinationConnector = false;
-                }
-            }
-
-            if (missingDestinationConnector) {
+            if (!LoadedExtensions.getInstance().getDestinationConnectors().containsKey(destinations.get(i).getTransportName())) {
                 missingConnectors.add(destinations.get(i).getTransportName());
-                allDesintionConnectorsFound = false;
             }
         }
 
-        if (missingSourceConnector || !allDesintionConnectorsFound) {
+        if (missingConnectors.size() > 0) {
             String errorText = "Your Mirth installation is missing required connectors for this channel:\n";
             for (String s : missingConnectors) {
                 errorText += s + "\n";
@@ -2205,26 +2184,22 @@ public class Frame extends JXFrame {
                     resetSafeErrorFailCount(TaskConstants.DASHBOARD_REFRESH);
 
                     if (status != null) {
-                        Map<String, DashboardColumnPlugin> loadedColumnPluginsBeforeStatus = dashboardPanel.getLoadedColumnPluginsBeforeStatus();
-                        Map<String, DashboardColumnPlugin> loadedColumnPluginsAfterStats = dashboardPanel.getLoadedColumnPluginsAfterStats();
-
-                        for (DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values()) {
-                            plugin.tableUpdate(status);
-                        }
-                        for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStats.values()) {
+                        for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
                             plugin.tableUpdate(status);
                         }
 
-                        tableData = new Object[status.size()][10 + loadedColumnPluginsAfterStats.size() + loadedColumnPluginsBeforeStatus.size()];
+                        tableData = new Object[status.size()][10 + LoadedExtensions.getInstance().getDashboardColumnPlugins().size()];
                         for (int i = 0; i < status.size(); i++) {
                             ChannelStatus tempStatus = status.get(i);
                             int statusColumn = 0;
                             try {
                                 ChannelStatistics tempStats = mirthClient.getStatistics(tempStatus.getChannelId());
                                 int j = 0;
-                                for (DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values()) {
-                                    tableData[i][j] = plugin.getTableData(tempStatus);
-                                    j++;
+                                for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
+                                    if (plugin.showBeforeStatusColumn()){
+                                        tableData[i][j] = plugin.getTableData(tempStatus);
+                                        j++;
+                                    }
                                 }
                                 statusColumn = j;
                                 j += 2;
@@ -2238,9 +2213,11 @@ public class Frame extends JXFrame {
                                 tableData[i][++j] = tempStats.getError();
                                 tableData[i][++j] = tempStats.getAlerted();
                                 j++;
-                                for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStats.values()) {
-                                    tableData[i][j] = plugin.getTableData(tempStatus);
-                                    j++;
+                                for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
+                                    if (!plugin.showBeforeStatusColumn()) {
+                                        tableData[i][j] = plugin.getTableData(tempStatus);
+                                        j++;
+                                    }
                                 }
 
                             } catch (ClientException ex) {
@@ -2971,7 +2948,7 @@ public class Frame extends JXFrame {
                 }
             } else {
                 PropertyVerifier.checkChannelProperties(importChannel);
-                PropertyVerifier.checkConnectorProperties(importChannel, channelEditPanel.transports);
+                PropertyVerifier.checkConnectorProperties(importChannel, getConnectorMetaData());
                 updateChannel(importChannel, overwrite);
                 doShowChannel();
             }
@@ -3145,7 +3122,7 @@ public class Frame extends JXFrame {
                 String connectorXML = ImportConverter.convertConnector(FileUtils.readFileToString(connectorFile, UIConstants.CHARSET));
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 Connector connector = (Connector) serializer.fromXML(connectorXML);
-                PropertyVerifier.checkConnectorProperties(connector, channelEditPanel.transports);
+                PropertyVerifier.checkConnectorProperties(connector, getConnectorMetaData());
                 channelEditPanel.importConnector(connector);
             } catch (Exception e) {
                 alertException(this, e.getStackTrace(), e.getMessage());
@@ -4100,10 +4077,6 @@ public class Frame extends JXFrame {
 
     public Map<String, ConnectorMetaData> getConnectorMetaData() {
         return this.loadedConnectors;
-    }
-
-    public Map<String, DashboardPanelPlugin> getDashboardPanelPlugins() {
-        return this.dashboardPanel.getLoadedPanelPlugins();
     }
 
     public String getSelectedChannelIdFromDashboard() {

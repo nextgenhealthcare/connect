@@ -18,7 +18,6 @@ import javax.swing.table.TableCellRenderer;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.CellData;
-import com.mirth.connect.client.ui.DashboardPanel;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.ImageCellRenderer;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -40,10 +39,6 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 
     public DashboardConnectorStatusColumn(String name) {
         super(name);
-    }
-
-    public DashboardConnectorStatusColumn(String name, DashboardPanel parent) {
-        super(name, parent);
         greenBullet = new ImageIcon(Frame.class.getResource("images/bullet_green.png"));
         yellowBullet = new ImageIcon(Frame.class.getResource("images/bullet_yellow.png"));
         redBullet = new ImageIcon(Frame.class.getResource("images/bullet_red.png"));
@@ -92,13 +87,13 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 
     @Override
     public void tableUpdate(List<ChannelStatus> status) {
-        //get states from server
+        // get states from server
         try {
             currentStates = (HashMap<String, String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_STATES, null);
         } catch (ClientException e) {
             PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
             // we can safely ignore this
-            //e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 }

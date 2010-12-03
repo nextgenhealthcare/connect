@@ -22,12 +22,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -57,10 +55,10 @@ import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 import org.w3c.dom.Document;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.core.ListHandlerException;
 import com.mirth.connect.client.core.MessageListHandler;
 import com.mirth.connect.client.ui.EditMessageDialog;
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.MirthFileFilter;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -73,11 +71,8 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.ExtensionPoint;
-import com.mirth.connect.model.ExtensionPointDefinition;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.MessageObject.Protocol;
-import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageObjectFilter;
@@ -112,7 +107,6 @@ public class MessageBrowser extends javax.swing.JPanel {
     private int currentPage = 0;
     private int pageSize;
     private MessageBrowserAdvancedFilter advSearchFilterPopup;
-    private Map<String, AttachmentViewer> loadedPanelPlugins = new HashMap<String, AttachmentViewer>();
     private JPopupMenu attachmentPopupMenu;
 
     /**
@@ -124,7 +118,6 @@ public class MessageBrowser extends javax.swing.JPanel {
         initComponents();
         makeMessageTable();
         makeMappingsTable();
-        loadPanelPlugins();
         updateAttachmentsTable(null, true);
         descriptionTabbedPane.remove(attachmentsPane);
 
@@ -248,46 +241,10 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
         return null;
     }
-    // Extension point for ExtensionPoint.Type.CLIENT_DASHBOARD_PANE
-
-    @ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.ATTACHMENT_VIEWER)
-    public void loadPanelPlugins() {
-        try {
-            Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
-            for (PluginMetaData metaData : plugins.values()) {
-                if (metaData.isEnabled()) {
-                    for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
-                        try {
-                            if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.ATTACHMENT_VIEWER) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
-                                String pluginName = extensionPoint.getName();
-                                Class clazz = Class.forName(extensionPoint.getClassName());
-                                Constructor[] constructors = clazz.getDeclaredConstructors();
-                                for (int i = 0; i < constructors.length; i++) {
-                                    Class parameters[];
-                                    parameters = constructors[i].getParameterTypes();
-                                    // load plugin if the number of parameters is 1.
-                                    if (parameters.length == 1) {
-
-                                        AttachmentViewer attachmentViewer = (AttachmentViewer) constructors[i].newInstance(new Object[]{pluginName});
-                                        loadedPanelPlugins.put(pluginName, attachmentViewer);
-                                        i = constructors.length;
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            parent.alertException(this, e.getStackTrace(), e.getMessage());
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
-        }
-    }
 
     public AttachmentViewer getAttachmentViewer(String type) {
-        if (loadedPanelPlugins.size() > 0) {
-            for (AttachmentViewer plugin : loadedPanelPlugins.values()) {
+        if (LoadedExtensions.getInstance().getAttachmentViewerPlugins().size() > 0) {
+            for (AttachmentViewer plugin : LoadedExtensions.getInstance().getAttachmentViewerPlugins().values()) {
                 if (type.toUpperCase().contains(plugin.getViewerType().toUpperCase())) {
                     return plugin;
                 }

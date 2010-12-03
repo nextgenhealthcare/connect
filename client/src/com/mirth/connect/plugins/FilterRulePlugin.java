@@ -17,7 +17,5 @@ public abstract class FilterRulePlugin extends MirthEditorPanePlugin {
         super(name);
     }
 
-    public FilterRulePlugin(String name, FilterPane parent) {
-        super(name, parent);
-    }
+    public abstract void initialize(FilterPane pane);
 }

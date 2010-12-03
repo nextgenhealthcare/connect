@@ -133,7 +133,7 @@ public class RuleBuilderPanel extends BasePanel {
             SwingUtilities.invokeLater(new Runnable() {
 
                 public void run() {
-                    parent.getTableModel().setValueAt(rulePlugin.getName(), parent.getSelectedRow(), parent.STEP_NAME_COL);
+                    parent.getTableModel().setValueAt(rulePlugin.getStepName(), parent.getSelectedRow(), parent.STEP_NAME_COL);
                     parent.updateTaskPane(parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString());
                 }
             });

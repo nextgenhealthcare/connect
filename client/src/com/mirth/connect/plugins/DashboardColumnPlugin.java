@@ -14,6 +14,7 @@ import java.util.List;
 import javax.swing.table.TableCellRenderer;
 
 import com.mirth.connect.client.ui.DashboardPanel;
+import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.ChannelStatus;
 
 public abstract class DashboardColumnPlugin extends ClientPlugin {
@@ -22,11 +23,7 @@ public abstract class DashboardColumnPlugin extends ClientPlugin {
 
     public DashboardColumnPlugin(String name) {
         super(name);
-    }
-
-    public DashboardColumnPlugin(String name, DashboardPanel parent) {
-        super(name);
-        this.parent = parent;
+        this.parent = PlatformUI.MIRTH_FRAME.dashboardPanel;
     }
 
     public abstract String getColumnHeader();

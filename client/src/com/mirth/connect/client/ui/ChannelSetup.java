@@ -15,15 +15,11 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.prefs.Preferences;
@@ -49,7 +45,6 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
-import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.MessageObject.Protocol;
@@ -83,9 +78,6 @@ public class ChannelSetup extends javax.swing.JPanel {
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
     private boolean channelValidationFailed = false;
-    public Map<String, ConnectorMetaData> transports;
-    private ArrayList<String> sourceConnectors;
-    private ArrayList<String> destinationConnectors;
 
     /**
      * Creates the Channel Editor panel. Calls initComponents() and sets up the
@@ -109,46 +101,6 @@ public class ChannelSetup extends javax.swing.JPanel {
                 showChannelEditPopupMenu(evt);
             }
         });
-
-
-        transports = this.parent.getConnectorMetaData();
-        sourceConnectors = new ArrayList<String>();
-        destinationConnectors = new ArrayList<String>();
-        Iterator<Entry<String, ConnectorMetaData>> i = transports.entrySet().iterator();
-        while (i.hasNext()) {
-            Entry<String, ConnectorMetaData> entry = i.next();
-            try {
-
-                ConnectorMetaData metaData = transports.get(entry.getKey());
-
-                if (metaData.getType() == ConnectorMetaData.Type.SOURCE && metaData.isEnabled()) {
-                    sourceConnectors.add(metaData.getName());
-
-                    try {
-                        parent.sourceConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
-                    } catch (Exception e) {
-                        parent.alertError(this.parent, "Could not load class: " + metaData.getClientClassName());
-                    }
-                }
-                if (metaData.getType() == ConnectorMetaData.Type.DESTINATION && metaData.isEnabled()) {
-                    try {
-                        if (!(metaData.getName().equals("IHE Sender") && !parent.mirthClient.isExtensionEnabled("IHE Configuration"))) {
-                            destinationConnectors.add(metaData.getName());
-                            parent.destinationConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
-                        } else {
-                            parent.alertError(this.parent, "Cannot load IHE Sender connector because required IHE Configuration plugin is not installed or enabled");
-                        }
-                    } catch (Exception e) {
-                        parent.alertError(this.parent, "Could not load class: " + metaData.getClientClassName());
-                    }
-                }
-            } catch (ClassCastException castException) {
-                System.out.println("Unable to load plugin");
-            }
-        }
-
-        Collections.sort(sourceConnectors);
-        Collections.sort(destinationConnectors);
 
         channelView.setMaximumSize(new Dimension(450, 3000));
     }
@@ -454,10 +406,10 @@ public class ChannelSetup extends javax.swing.JPanel {
         lastModelIndex = -1;
         currentChannel = channel;
 
-        PropertyVerifier.checkConnectorProperties(currentChannel, transports);
+        PropertyVerifier.checkConnectorProperties(currentChannel, parent.getConnectorMetaData());
 
-        sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(sourceConnectors.toArray()));
-        destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(destinationConnectors.toArray()));
+        sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getSourceConnectors().keySet().toArray()));
+        destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getDestinationConnectors().keySet().toArray()));
 
         loadChannelInfo();
         makeDestinationTable(false);
@@ -475,8 +427,9 @@ public class ChannelSetup extends javax.swing.JPanel {
         lastModelIndex = -1;
         currentChannel = channel;
 
-        sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(sourceConnectors.toArray()));
-        destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(destinationConnectors.toArray()));
+        
+        sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getSourceConnectors().keySet().toArray()));
+        destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getDestinationConnectors().keySet().toArray()));
 
         Connector sourceConnector = makeNewConnector(false);
         sourceConnector.setName("sourceConnector");
@@ -1038,15 +991,12 @@ public class ChannelSetup extends javax.swing.JPanel {
         Properties tempProps = null;
 
         // Check source connector
-        for (int i = 0; i < parent.sourceConnectors.size(); i++) {
-            if (parent.sourceConnectors.get(i).getName().equalsIgnoreCase(channel.getSourceConnector().getTransportName())) {
-                tempConnector = parent.sourceConnectors.get(i);
-                tempProps = channel.getSourceConnector().getProperties();
+        tempConnector = LoadedExtensions.getInstance().getSourceConnectors().get(channel.getSourceConnector().getTransportName());
+        tempProps = channel.getSourceConnector().getProperties();
 
-                errors += validateFilterRules(channel.getSourceConnector());
-                errors += validateTransformerSteps(channel.getSourceConnector());
-            }
-        }
+        errors += validateFilterRules(channel.getSourceConnector());
+        errors += validateTransformerSteps(channel.getSourceConnector());
+        
         if (tempConnector != null) {
             String validationMessage = tempConnector.doValidate(tempProps, false);
             if (validationMessage != null) {
@@ -1058,15 +1008,12 @@ public class ChannelSetup extends javax.swing.JPanel {
         for (int i = 0; i < channel.getDestinationConnectors().size(); i++) {
             // Only check the destination connector if it is enabled.
             if (channel.getDestinationConnectors().get(i).isEnabled()) {
-                for (int j = 0; j < parent.destinationConnectors.size(); j++) {
-                    if (parent.destinationConnectors.get(j).getName().equalsIgnoreCase(channel.getDestinationConnectors().get(i).getTransportName())) {
-                        tempConnector = parent.destinationConnectors.get(j);
-                        tempProps = channel.getDestinationConnectors().get(i).getProperties();
+                tempConnector = LoadedExtensions.getInstance().getDestinationConnectors().get(channel.getDestinationConnectors().get(i).getTransportName());
+                tempProps = channel.getDestinationConnectors().get(i).getProperties();
 
-                        errors += validateFilterRules(channel.getDestinationConnectors().get(i));
-                        errors += validateTransformerSteps(channel.getDestinationConnectors().get(i));
-                    }
-                }
+                errors += validateFilterRules(channel.getDestinationConnectors().get(i));
+                errors += validateTransformerSteps(channel.getDestinationConnectors().get(i));
+                
                 if (tempConnector != null) {
                     String validationMessage = tempConnector.doValidate(tempProps, false);
                     if (validationMessage != null) {
@@ -1788,11 +1735,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
 
         // Get the selected source connector and set it.
-        for (int i = 0; i < parent.sourceConnectors.size(); i++) {
-            if (parent.sourceConnectors.get(i).getName().equalsIgnoreCase((String) sourceSourceDropdown.getSelectedItem())) {
-                sourceConnectorClass = parent.sourceConnectors.get(i);
-            }
-        }
+        sourceConnectorClass = LoadedExtensions.getInstance().getSourceConnectors().get((String) sourceSourceDropdown.getSelectedItem());
 
         // Sets all of the properties, transformer, filter, etc. on the new
         // source connector.
@@ -1865,11 +1808,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     public void generateMultipleDestinationPage() {
         // Get the selected destination connector and set it.
-        for (int i = 0; i < parent.destinationConnectors.size(); i++) {
-            if (parent.destinationConnectors.get(i).getName().equalsIgnoreCase((String) destinationSourceDropdown.getSelectedItem())) {
-                destinationConnectorClass = parent.destinationConnectors.get(i);
-            }
-        }
+        destinationConnectorClass = LoadedExtensions.getInstance().getDestinationConnectors().get((String) destinationSourceDropdown.getSelectedItem());
 
         // Get the currently selected destination connector.
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();

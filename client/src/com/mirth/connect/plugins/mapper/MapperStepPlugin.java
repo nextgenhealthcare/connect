@@ -22,13 +22,15 @@ import com.mirth.connect.plugins.TransformerStepPlugin;
 public class MapperStepPlugin extends TransformerStepPlugin {
 
     private MapperPanel panel;
+    private TransformerPane parent;
 
     public MapperStepPlugin(String name) {
         super(name);
     }
 
-    public MapperStepPlugin(String name, TransformerPane parent) {
-        super(name, parent);
+    @Override
+    public void initialize(TransformerPane pane) {
+        this.parent = pane;
         panel = new MapperPanel(parent);
     }
 
@@ -52,9 +54,9 @@ public class MapperStepPlugin extends TransformerStepPlugin {
         String var = data.get("Variable").toString();
 
         if (var == null || var.equals("") || !((TransformerPane) parent).isUnique(var, row, false) || isInvalidVar(var)) {
-            ((TransformerPane) parent).setInvalidVar(true);
+            parent.setInvalidVar(true);
             String msg = "";
-            ((TransformerPane) parent).setRowSelectionInterval(row, row);
+            parent.setRowSelectionInterval(row, row);
 
             if (var == null || var.equals("")) {
                 msg = "The variable name cannot be blank.";
@@ -66,9 +68,9 @@ public class MapperStepPlugin extends TransformerStepPlugin {
             }
             msg += "\nPlease enter a new variable name.\n";
 
-            ((TransformerPane) parent).getParentFrame().alertWarning(parent.parent, msg);
+            parent.getParentFrame().alertWarning(parent.parent, msg);
         } else {
-            ((TransformerPane) parent).setInvalidVar(false);
+            parent.setInvalidVar(false);
         }
         return data;
     }
@@ -78,7 +80,8 @@ public class MapperStepPlugin extends TransformerStepPlugin {
         panel.setData(data);
     }
 
-    public String getName() {
+    @Override
+    public String getStepName() {
         return (String) ((Map<Object, Object>) panel.getData()).get("Variable");
     }
 

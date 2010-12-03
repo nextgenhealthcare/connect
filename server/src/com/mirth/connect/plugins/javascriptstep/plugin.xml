@@ -7,7 +7,7 @@
 	<description>This plugin provides a JavaScript step-type for Mirth transformers</description>
 	<enabled>true</enabled>
 	<extensionPoint>
-		<name>Javascript</name>
+		<name>JavaScript</name>
 		<type>CLIENT_TRANSFORMER_STEP</type>
 		<className>com.mirth.connect.plugins.javascriptstep.JavascriptStepPlugin</className>
 		<mode>CLIENT</mode>

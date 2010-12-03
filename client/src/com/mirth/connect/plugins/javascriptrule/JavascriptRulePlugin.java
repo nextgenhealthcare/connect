@@ -31,9 +31,9 @@ public class JavascriptRulePlugin extends FilterRulePlugin {
         super(name);
     }
 
-    public JavascriptRulePlugin(String name, FilterPane parent) {
-        super(name, parent);
-        panel = new ScriptPanel(parent, new JavaScriptTokenMarker(), ContextType.MESSAGE_CONTEXT.getContext());
+    @Override
+    public void initialize(FilterPane pane) {
+        panel = new ScriptPanel(pane, new JavaScriptTokenMarker(), ContextType.MESSAGE_CONTEXT.getContext());
     }
 
     @Override

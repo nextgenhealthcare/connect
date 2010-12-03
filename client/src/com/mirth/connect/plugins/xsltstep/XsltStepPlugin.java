@@ -9,24 +9,26 @@
 
 package com.mirth.connect.plugins.xsltstep;
 
-import com.mirth.connect.plugins.TransformerStepPlugin;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.XsltStepPanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
-
-import java.util.Map;
-import java.util.HashMap;
+import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class XsltStepPlugin extends TransformerStepPlugin {
 
     private XsltStepPanel panel;
+    private TransformerPane parent;
 
     public XsltStepPlugin(String name) {
         super(name);
     }
 
-    public XsltStepPlugin(String name, TransformerPane parent) {
-        super(name, parent);
+    @Override
+    public void initialize(TransformerPane pane) {
+        this.parent = pane;
         panel = new XsltStepPanel(parent);
     }
 
@@ -49,20 +51,20 @@ public class XsltStepPlugin extends TransformerStepPlugin {
         // check for empty variable names
         if (sourceVar == null || sourceVar.equals("")) {
 
-            ((TransformerPane) parent).setInvalidVar(true);
+            parent.setInvalidVar(true);
             String msg = "The source field cannot be blank.\nPlease enter a new source.\n";
-            ((TransformerPane) parent).setRowSelectionInterval(row, row);
-            ((TransformerPane) parent).getParentFrame().alertWarning(parent.parent, msg);
+            parent.setRowSelectionInterval(row, row);
+            parent.getParentFrame().alertWarning(parent.parent, msg);
 
         } else if (resultVar == null || resultVar.equals("")) {
 
-            ((TransformerPane) parent).setInvalidVar(true);
+            parent.setInvalidVar(true);
             String msg = "The result field cannot be blank.\nPlease enter a new result.\n";
-            ((TransformerPane) parent).setRowSelectionInterval(row, row);
-            ((TransformerPane) parent).getParentFrame().alertWarning(parent.parent, msg);
+            parent.setRowSelectionInterval(row, row);
+            parent.getParentFrame().alertWarning(parent.parent, msg);
 
         } else {
-            ((TransformerPane) parent).setInvalidVar(false);
+            parent.setInvalidVar(false);
         }
 
         return data;

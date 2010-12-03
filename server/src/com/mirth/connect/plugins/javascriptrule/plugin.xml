@@ -7,7 +7,7 @@
 	<description>This plugin provides a JavaScript rule-type for Mirth filters</description>
 	<enabled>true</enabled>
 	<extensionPoint>
-		<name>Javascript</name>
+		<name>JavaScript</name>
 		<type>CLIENT_FILTER_RULE</type>
 		<className>com.mirth.connect.plugins.javascriptrule.JavascriptRulePlugin</className>
 		<mode>CLIENT</mode>

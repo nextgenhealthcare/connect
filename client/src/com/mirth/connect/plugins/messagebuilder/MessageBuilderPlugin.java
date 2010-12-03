@@ -21,13 +21,15 @@ import com.mirth.connect.plugins.TransformerStepPlugin;
 public class MessageBuilderPlugin extends TransformerStepPlugin {
 
     private MessageBuilder panel;
+    private TransformerPane parent;
 
     public MessageBuilderPlugin(String name) {
         super(name);
     }
 
-    public MessageBuilderPlugin(String name, TransformerPane parent) {
-        super(name, parent);
+    @Override
+    public void initialize(TransformerPane pane) {
+        this.parent = pane;
         panel = new MessageBuilder(parent);
     }
 
@@ -48,10 +50,10 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 
         // check for empty variable names
         if (var == null || var.equals("")) {
-            ((TransformerPane) parent).setInvalidVar(true);
+            parent.setInvalidVar(true);
             String msg = "";
 
-            ((TransformerPane) parent).setRowSelectionInterval(row, row);
+            parent.setRowSelectionInterval(row, row);
 
             if (var == null || var.equals("")) {
                 msg = "The mapping field cannot be blank.";
@@ -59,9 +61,9 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 
             msg += "\nPlease enter a new mapping field name.\n";
 
-            ((TransformerPane) parent).getParentFrame().alertWarning(parent.parent, msg);
+            parent.getParentFrame().alertWarning(parent.parent, msg);
         } else {
-            ((TransformerPane) parent).setInvalidVar(false);
+            parent.setInvalidVar(false);
         }
 
         return data;

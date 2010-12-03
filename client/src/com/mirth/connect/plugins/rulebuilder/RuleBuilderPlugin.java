@@ -31,10 +31,10 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
     public RuleBuilderPlugin(String name) {
         super(name);
     }
-
-    public RuleBuilderPlugin(String name, FilterPane parent) {
-        super(name, parent);
-        this.parent = parent;
+    
+    @Override
+    public void initialize(FilterPane pane) {
+        this.parent = pane;
         panel = new RuleBuilderPanel(parent, this);
     }
 
@@ -165,7 +165,8 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
         return true;
     }
 
-    public String getName() {
+    @Override
+    public String getStepName() {
         Map<Object, Object> map = panel.getData();
         if (map == null || map.get("Equals") == null || map.get("Field") == null || map.get("Values") == null) {
             return "New Rule";
@@ -224,6 +225,6 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
     }
 
     public void updateName() {
-        parent.updateName(parent.getSelectedRow(), getName());
+        parent.updateName(parent.getSelectedRow(), getStepName());
     }
 }

@@ -11,15 +11,13 @@ package com.mirth.connect.client.ui.panels.reference;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Map.Entry;
 
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.connectors.ConnectorClass;
 import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.ConnectorMetaData;
-import com.mirth.connect.model.ExtensionPoint;
-import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.CodeTemplate.ContextType;
 import com.mirth.connect.plugins.ClientPlugin;
@@ -78,37 +76,17 @@ public class ReferenceListFactory {
         references.put(ListType.UTILITY.getValue(), setupUtilityItems());
         references.put(ListType.DATE.getValue(), setupDateItems());
 
-        Map<String, ConnectorMetaData> connectors = parent.getConnectorMetaData();
-        for (ConnectorMetaData metaData : connectors.values()) {
-            if (metaData.isEnabled()) {
-                try {
-                    String pluginName = metaData.getName();
-                    ArrayList<CodeTemplate> items = ((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance()).getReferenceItems();
-                    if (items.size() > 0) {
-                        references.put(pluginName + " Functions", items);
-                    }
-                } catch (Exception e) {
-                    parent.alertException(parent, e.getStackTrace(), e.getMessage());
-                }
+        for (Entry<String, ConnectorClass> connectorEntry : LoadedExtensions.getInstance().getConnectors().entrySet()) {
+            ArrayList<CodeTemplate> items = connectorEntry.getValue().getReferenceItems();
+            if (items.size() > 0) {
+                references.put(connectorEntry.getKey() + " Functions", items);
             }
         }
-
-        Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
-        for (PluginMetaData metaData : plugins.values()) {
-            if (metaData.isEnabled()) {
-                for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
-                    try {
-                        if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
-                            String pluginName = extensionPoint.getName();
-                            ArrayList<CodeTemplate> items = ((ClientPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructor(new Class[]{String.class}).newInstance(new Object[]{pluginName})).getReferenceItems();
-                            if (items.size() > 0) {
-                                references.put(pluginName + " Functions", items);
-                            }
-                        }
-                    } catch (Exception e) {
-                        parent.alertException(parent, e.getStackTrace(), e.getMessage());
-                    }
-                }
+        
+        for (Entry<String, ClientPlugin> clientPluginEntry : LoadedExtensions.getInstance().getClientPlugins().entrySet()) {
+            ArrayList<CodeTemplate> items = clientPluginEntry.getValue().getReferenceItems();
+            if (items.size() > 0) {
+                references.put(clientPluginEntry.getKey() + " Functions", items);
             }
         }
 
@@ -139,8 +117,7 @@ public class ReferenceListFactory {
     }
 
     public ArrayList<CodeTemplate> getVariableListItems(String itemName, int context) {
-        if (parent != null) // null parent check to let forms load in NetBeans
-        {
+        if (parent != null) { // null parent check to let forms load in NetBeans
             updateUserTemplates();
         }
 

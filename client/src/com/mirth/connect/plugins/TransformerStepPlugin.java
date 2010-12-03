@@ -17,7 +17,5 @@ public abstract class TransformerStepPlugin extends MirthEditorPanePlugin {
         super(name);
     }
 
-    public TransformerStepPlugin(String name, TransformerPane parent) {
-        super(name, parent);
-    }
+    public abstract void initialize(TransformerPane pane);
 }

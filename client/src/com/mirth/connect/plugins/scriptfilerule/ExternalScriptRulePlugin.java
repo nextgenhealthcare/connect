@@ -9,13 +9,13 @@
 
 package com.mirth.connect.plugins.scriptfilerule;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.ExternalScriptPanel;
 import com.mirth.connect.client.ui.editors.filter.FilterPane;
 import com.mirth.connect.plugins.FilterRulePlugin;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ExternalScriptRulePlugin extends FilterRulePlugin {
 
@@ -25,9 +25,9 @@ public class ExternalScriptRulePlugin extends FilterRulePlugin {
         super(name);
     }
 
-    public ExternalScriptRulePlugin(String name, FilterPane parent) {
-        super(name, parent);
-        panel = new ExternalScriptPanel(parent, false);
+    @Override
+    public void initialize(FilterPane pane) {
+        panel = new ExternalScriptPanel(pane, false);
     }
 
     @Override

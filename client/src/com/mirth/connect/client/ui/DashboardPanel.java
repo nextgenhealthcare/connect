@@ -12,12 +12,9 @@ package com.mirth.connect.client.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.JTabbedPane;
@@ -37,7 +34,6 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ExtensionPoint;
 import com.mirth.connect.model.ExtensionPointDefinition;
-import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
 
@@ -57,16 +53,12 @@ public class DashboardPanel extends javax.swing.JPanel {
     private final int NAME_COLUMN_NUMBER = 1;
     
     private Frame parent;
-    private Map<String, DashboardColumnPlugin> loadedColumnPluginsBeforeStatus = new HashMap<String, DashboardColumnPlugin>();
-    private Map<String, DashboardColumnPlugin> loadedColumnPluginsAfterStatus = new HashMap<String, DashboardColumnPlugin>();
-    private Map<String, DashboardPanelPlugin> loadedPanelPlugins = new HashMap<String, DashboardPanelPlugin>();
 
     /** Creates new form DashboardPanel */
     public DashboardPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         statusPane.setDoubleBuffered(true);
-        loadColumnPlugins();
         split.setBottomComponent(null);
         split.setDividerSize(0);
         split.setOneTouchExpandable(true);
@@ -86,105 +78,29 @@ public class DashboardPanel extends javax.swing.JPanel {
         this.setDoubleBuffered(true);
     }
 
-    // Extension point for ExtensionPoint.Type.CLIENT_DASHBOARD_COLUMN
-    @ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.CLIENT_DASHBOARD_COLUMN)
-    public void loadColumnPlugins() {
-        try {
-            Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
-            for (PluginMetaData metaData : plugins.values()) {
-                if (metaData.isEnabled()) {
-                    for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
-                        try {
-                            if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.CLIENT_DASHBOARD_COLUMN) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
-                                String pluginName = extensionPoint.getName();
-                                Class<?> clazz = Class.forName(extensionPoint.getClassName());
-                                Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-                                for (int i = 0; i < constructors.length; i++) {
-                                    Class<?> parameters[];
-                                    parameters = constructors[i].getParameterTypes();
-                                    // load plugin if the number of parameters is 2.
-                                    if (parameters.length == 2) {
-
-                                        DashboardColumnPlugin columnPlugin = (DashboardColumnPlugin) constructors[i].newInstance(new Object[]{pluginName, this});
-                                        if (columnPlugin.showBeforeStatusColumn()) {
-                                            loadedColumnPluginsBeforeStatus.put(columnPlugin.getColumnHeader(), columnPlugin);
-                                        } else {
-                                            loadedColumnPluginsAfterStatus.put(columnPlugin.getColumnHeader(), columnPlugin);
-                                        }
-                                        i = constructors.length;
-
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            parent.alertException(this, e.getStackTrace(), e.getMessage());
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
-        }
-    }
-
-    // Extension point for ExtensionPoint.Type.CLIENT_DASHBOARD_PANE
-    @ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.CLIENT_DASHBOARD_PANE)
     public void loadPanelPlugins() {
-        try {
-            Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
-            for (PluginMetaData metaData : plugins.values()) {
-                if (metaData.isEnabled()) {
-                    for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
-                        try {
-                            if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.CLIENT_DASHBOARD_PANE) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
-                                String pluginName = extensionPoint.getName();
-                                Class<?> clazz = Class.forName(extensionPoint.getClassName());
-                                Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-                                for (int i = 0; i < constructors.length; i++) {
-                                    Class<?> parameters[];
-                                    parameters = constructors[i].getParameterTypes();
-                                    // load plugin if the number of parameters is 1.
-                                    if (parameters.length == 1) {
-
-                                        DashboardPanelPlugin panelPlugin = (DashboardPanelPlugin) constructors[i].newInstance(new Object[]{pluginName});
-                                        loadedPanelPlugins.put(pluginName, panelPlugin);
-                                        i = constructors.length;
-
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            parent.alertException(this, e.getStackTrace(), e.getMessage());
-                        }
-                    }
+        if (LoadedExtensions.getInstance().getDashboardPanelPlugins().size() > 0) {
+            for (DashboardPanelPlugin plugin : LoadedExtensions.getInstance().getDashboardPanelPlugins().values()) {
+                if (plugin.getComponent() != null) {
+                    tabs.addTab(plugin.getName(), plugin.getComponent());
                 }
             }
 
-            if (loadedPanelPlugins.size() > 0) {
-                for (DashboardPanelPlugin plugin : loadedPanelPlugins.values()) {
-                    if (plugin.getComponent() != null) {
-                        tabs.addTab(plugin.getName(), plugin.getComponent());
-                    }
-                }
-
-                split.setBottomComponent(tabs);
-                split.setDividerSize(6);
-                split.setDividerLocation(3 * Preferences.userNodeForPackage(Mirth.class).getInt("height", UIConstants.MIRTH_HEIGHT) / 5);
-                split.setResizeWeight(0.5);
-            }
-        } catch (Exception e) {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            split.setBottomComponent(tabs);
+            split.setDividerSize(6);
+            split.setDividerLocation(3 * Preferences.userNodeForPackage(Mirth.class).getInt("height", UIConstants.MIRTH_HEIGHT) / 5);
+            split.setResizeWeight(0.5);
         }
     }
 
     public void loadDefaultPanel() {
-        if (loadedPanelPlugins.keySet().iterator().hasNext()) {
-            loadPanelPlugin(loadedPanelPlugins.keySet().iterator().next());
+        if (LoadedExtensions.getInstance().getDashboardPanelPlugins().keySet().iterator().hasNext()) {
+            loadPanelPlugin(LoadedExtensions.getInstance().getDashboardPanelPlugins().keySet().iterator().next());
         }
     }
 
     public void loadPanelPlugin(String pluginName) {
-        DashboardPanelPlugin plugin = loadedPanelPlugins.get(pluginName);
+        DashboardPanelPlugin plugin = LoadedExtensions.getInstance().getDashboardPanelPlugins().get(pluginName);
         if (plugin != null && getSelectedStatuses().size() != 0) {
             plugin.update(getSelectedStatuses());
         } else {
@@ -192,20 +108,8 @@ public class DashboardPanel extends javax.swing.JPanel {
         }
     }
 
-    public Map<String, DashboardPanelPlugin> getLoadedPanelPlugins() {
-        return loadedPanelPlugins;
-    }
-
-    public Map<String, DashboardColumnPlugin> getLoadedColumnPluginsBeforeStatus() {
-        return loadedColumnPluginsBeforeStatus;
-    }
-
-    public Map<String, DashboardColumnPlugin> getLoadedColumnPluginsAfterStats() {
-        return loadedColumnPluginsAfterStatus;
-    }
-
     public synchronized void updateCurrentPluginPanel() {
-        if (loadedPanelPlugins.size() > 0) {
+        if (LoadedExtensions.getInstance().getDashboardPanelPlugins().size() > 0) {
             loadPanelPlugin(tabs.getTitleAt(tabs.getSelectedIndex()));
         }
     }
@@ -220,11 +124,13 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         statusTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-        for (DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values()) {
-            String columnName = plugin.getColumnHeader();
-            statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());
-            statusTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
-            statusTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
+        for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
+            if (plugin.showBeforeStatusColumn()) {
+                String columnName = plugin.getColumnHeader();
+                statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());
+                statusTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
+                statusTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
+            }
         }
 
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
@@ -268,11 +174,13 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setComparator(new NumberCellComparator());
         statusTable.getColumnExt(DEPLOYED_REVISION_COLUMN_NAME).setComparator(new NumberCellComparator());
         
-        for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStatus.values()) {
-            String columnName = plugin.getColumnHeader();
-            statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());
-            statusTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
-            statusTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
+        for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
+            if (!plugin.showBeforeStatusColumn()) {
+                String columnName = plugin.getColumnHeader();
+                statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());
+                statusTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
+                statusTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
+            }
         }
 
         statusTable.packTable(UIConstants.COL_MARGIN);
@@ -335,14 +243,18 @@ public class DashboardPanel extends javax.swing.JPanel {
                 RECEIVED_COLUMN_NAME, FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME,
                 SENT_COLUMN_NAME, ERROR_COLUMN_NAME, ALERTED_COLUMN_NAME};
             ArrayList<String> columns = new ArrayList<String>();
-            for (DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values()) {
-                columns.add(plugin.getColumnHeader());
+            for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
+                if (plugin.showBeforeStatusColumn()) {
+                    columns.add(plugin.getColumnHeader());
+                }
             }
             for (int i = 0; i < defaultColumns.length; i++) {
                 columns.add(defaultColumns[i]);
             }
-            for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStatus.values()) {
-                columns.add(plugin.getColumnHeader());
+            for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
+                if (!plugin.showBeforeStatusColumn()) {
+                    columns.add(plugin.getColumnHeader());
+                }
             }
 
             statusTable.setModel(new RefreshTableModel(tableData, columns.toArray(new String[0])) {

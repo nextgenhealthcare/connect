@@ -29,7 +29,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -63,6 +62,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.CenterCellRenderer;
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.MapperDropData;
 import com.mirth.connect.client.ui.MessageBuilderDropData;
 import com.mirth.connect.client.ui.Mirth;
@@ -77,10 +77,7 @@ import com.mirth.connect.client.ui.editors.MirthEditorPane;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.ExtensionPoint;
-import com.mirth.connect.model.ExtensionPointDefinition;
 import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -112,43 +109,7 @@ public class TransformerPane extends MirthEditorPane implements
     protected BasePanel stepPanel; // the card holder
     protected BasePanel blankPanel;
     public static final int NUMBER_OF_COLUMNS = 4;
-    private Map<String, TransformerStepPlugin> loadedPlugins = new HashMap<String, TransformerStepPlugin>();
     private DropTarget dropTarget;
-
-    // Extension point for ExtensionPoint.Type.CLIENT_TRANSFORMER_STEP
-    @ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.CLIENT_TRANSFORMER_STEP)
-    public void loadPlugins() {
-        loadedPlugins = new HashMap<String, TransformerStepPlugin>();
-
-        Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
-        for (PluginMetaData metaData : plugins.values()) {
-            if (metaData.isEnabled()) {
-                for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
-                    try {
-                        if (extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && extensionPoint.getType() == ExtensionPoint.Type.CLIENT_TRANSFORMER_STEP && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
-                            String pluginName = extensionPoint.getName();
-                            Class clazz = Class.forName(extensionPoint.getClassName());
-                            Constructor[] constructors = clazz.getDeclaredConstructors();
-                            for (int i = 0; i < constructors.length; i++) {
-                                Class parameters[];
-                                parameters = constructors[i].getParameterTypes();
-                                // load plugin if the number of parameters is 2.
-                                if (parameters.length == 2) {
-                                    TransformerStepPlugin stepPlugin = (TransformerStepPlugin) constructors[i].newInstance(new Object[]{
-                                                pluginName, this
-                                            });
-                                    loadedPlugins.put(stepPlugin.getDisplayName(), stepPlugin);
-                                    i = constructors.length;
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        parent.alertException(this, e.getStackTrace(), e.getMessage());
-                    }
-                }
-            }
-        }
-    }
 
     /**
      * CONSTRUCTOR
@@ -172,7 +133,7 @@ public class TransformerPane extends MirthEditorPane implements
      */
     public boolean load(Connector c, Transformer t,
             boolean channelHasBeenChanged) {
-        if (loadedPlugins.values().size() == 0) {
+        if (LoadedExtensions.getInstance().getTransformerStepPlugins().values().size() == 0) {
             parent.alertError(this,
                     "No transformer step plugins loaded.\r\nPlease install plugins and try again.");
             return false;
@@ -189,7 +150,7 @@ public class TransformerPane extends MirthEditorPane implements
         ListIterator<Step> li = list.listIterator();
         while (li.hasNext()) {
             Step s = li.next();
-            if (!loadedPlugins.containsKey(s.getType())) {
+            if (!LoadedExtensions.getInstance().getTransformerStepPlugins().containsKey(s.getType())) {
                 parent.alertError(this,
                         "Unable to load transformer step plugin \"" + s.getType() + "\"\r\nPlease install plugin and try again.");
                 return false;
@@ -212,7 +173,7 @@ public class TransformerPane extends MirthEditorPane implements
             prevSelRow = 0;
         } else {
             stepPanel.showCard(BLANK_TYPE);
-            for (TransformerStepPlugin plugin : loadedPlugins.values()) {
+            for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
                 plugin.getPanel().setData(null);
             }
             loadData(-1);
@@ -337,11 +298,14 @@ public class TransformerPane extends MirthEditorPane implements
         // the available panels (cards)
         stepPanel = new BasePanel();
         blankPanel = new BasePanel();
-        loadPlugins();
+
+        for (TransformerStepPlugin transformerStepPlugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
+            transformerStepPlugin.initialize(this);
+        }
 
         // establish the cards to use in the Transformer
         stepPanel.addCard(blankPanel, BLANK_TYPE);
-        for (TransformerStepPlugin plugin : loadedPlugins.values()) {
+        for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
             stepPanel.addCard(plugin.getPanel(), plugin.getDisplayName());
         }
         transformerTablePane = new JScrollPane();
@@ -516,8 +480,8 @@ public class TransformerPane extends MirthEditorPane implements
         transformerTable.getColumnModel().getColumn(STEP_NAME_COL).setCellEditor(new EditorTableCellEditor(this));
 
         // Set the combobox editor on the type column, and add action listener
-        String[] defaultComboBoxValues = new String[loadedPlugins.size()];
-        TransformerStepPlugin[] pluginArray = loadedPlugins.values().toArray(
+        String[] defaultComboBoxValues = new String[LoadedExtensions.getInstance().getTransformerStepPlugins().size()];
+        TransformerStepPlugin[] pluginArray = LoadedExtensions.getInstance().getTransformerStepPlugins().values().toArray(
                 new TransformerStepPlugin[0]);
         for (int i = 0; i < pluginArray.length; i++) {
             defaultComboBoxValues[i] = pluginArray[i].getDisplayName();
@@ -785,7 +749,7 @@ public class TransformerPane extends MirthEditorPane implements
     }
 
     private TransformerStepPlugin getPlugin(String name) throws Exception {
-        TransformerStepPlugin plugin = loadedPlugins.get(name);
+        TransformerStepPlugin plugin = LoadedExtensions.getInstance().getTransformerStepPlugins().get(name);
         if (plugin == null) {
             String message = "Unable to find Transformer Step Plugin: " + name;
             Exception e = new Exception(message);
@@ -818,7 +782,7 @@ public class TransformerPane extends MirthEditorPane implements
             String stepName = step.getName();
             if (stepName == null || stepName.equals("")) {
                 plugin.setData((Map<Object, Object>) step.getData());
-                stepName = plugin.getName();
+                stepName = plugin.getStepName();
             }
             tableData[STEP_NAME_COL] = stepName;
             tableData[STEP_TYPE_COL] = step.getType();
@@ -858,21 +822,21 @@ public class TransformerPane extends MirthEditorPane implements
             step.setName(name);
 
             if (type.equals(MAPPER)) {
-                if (loadedPlugins.containsKey(MAPPER)) {
+                if (LoadedExtensions.getInstance().getTransformerStepPlugins().containsKey(MAPPER)) {
                     step.setType(MAPPER); // mapper type by default, inbound
-                    loadedPlugins.get(MAPPER).initData();
+                    LoadedExtensions.getInstance().getTransformerStepPlugins().get(MAPPER).initData();
                 } else {
                     System.out.println("Mapper Plugin not found");
-                    step.setType(loadedPlugins.keySet().iterator().next());
+                    step.setType(LoadedExtensions.getInstance().getTransformerStepPlugins().keySet().iterator().next());
                 }
             } else if (type.equals(MESSAGE_BUILDER)) {
-                if (loadedPlugins.containsKey(MESSAGE_BUILDER)) {
+                if (LoadedExtensions.getInstance().getTransformerStepPlugins().containsKey(MESSAGE_BUILDER)) {
                     step.setType(MESSAGE_BUILDER); // mapper type by default,
                     // inbound
-                    loadedPlugins.get(MESSAGE_BUILDER).initData();
+                    LoadedExtensions.getInstance().getTransformerStepPlugins().get(MESSAGE_BUILDER).initData();
                 } else {
                     System.out.println("Message Builder Plugin not found");
-                    step.setType(loadedPlugins.keySet().iterator().next());
+                    step.setType(LoadedExtensions.getInstance().getTransformerStepPlugins().keySet().iterator().next());
                 }
             }
 
@@ -886,7 +850,7 @@ public class TransformerPane extends MirthEditorPane implements
                 plugin = getPlugin(type);
                 if (plugin.isProvideOwnStepName()) {
                     plugin.setData(data);
-                    step.setName(plugin.getName());
+                    step.setName(plugin.getStepName());
                     plugin.clearData();
                 }
             } catch (Exception e) {
@@ -930,7 +894,7 @@ public class TransformerPane extends MirthEditorPane implements
             transformerTable.setRowSelectionInterval(row - 1, row - 1);
         } else {
             stepPanel.showCard(BLANK_TYPE);
-            for (TransformerStepPlugin plugin : loadedPlugins.values()) {
+            for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
                 plugin.clearData();
             }
         }

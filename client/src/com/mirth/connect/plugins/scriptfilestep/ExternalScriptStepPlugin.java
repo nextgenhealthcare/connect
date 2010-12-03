@@ -9,24 +9,26 @@
 
 package com.mirth.connect.plugins.scriptfilestep;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.ExternalScriptPanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.plugins.TransformerStepPlugin;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class ExternalScriptStepPlugin extends TransformerStepPlugin {
 
     private ExternalScriptPanel panel;
+    private TransformerPane parent;
 
     public ExternalScriptStepPlugin(String name) {
         super(name);
     }
 
-    public ExternalScriptStepPlugin(String name, TransformerPane parent) {
-        super(name, parent);
+    @Override
+    public void initialize(TransformerPane pane) {
+        this.parent = pane;
         panel = new ExternalScriptPanel(parent, true);
     }
 
@@ -47,12 +49,12 @@ public class ExternalScriptStepPlugin extends TransformerStepPlugin {
 
         // check for empty variable names
         if (var == null || var.trim().equals("")) {
-            ((TransformerPane) parent).setInvalidVar(true);
+            parent.setInvalidVar(true);
             String msg = "The script path field cannot be blank.\nPlease enter a new script path.\n";
-            ((TransformerPane) parent).setRowSelectionInterval(row, row);
-            ((TransformerPane) parent).getParentFrame().alertWarning(parent.parent, msg);
+            parent.setRowSelectionInterval(row, row);
+            parent.getParentFrame().alertWarning(parent.parent, msg);
         } else {
-            ((TransformerPane) parent).setInvalidVar(false);
+            parent.setInvalidVar(false);
         }
 
         return data;

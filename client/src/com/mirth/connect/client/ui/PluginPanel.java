@@ -10,9 +10,6 @@
 package com.mirth.connect.client.ui;
 
 import java.awt.Color;
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,9 +17,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.mirth.connect.model.ExtensionPoint;
-import com.mirth.connect.model.ExtensionPointDefinition;
-import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.plugins.ClientPanelPlugin;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
 
@@ -30,8 +24,6 @@ public class PluginPanel extends javax.swing.JPanel {
 
     public static final String EXTENSION_MANAGER = "Extension Manager";
     private Frame parent;
-    private Map<String, ClientPanelPlugin> loadedPlugins;
-    private Map<String, DashboardPanelPlugin> loadedDashboardPanelPlugins;
     private int oldTabIndex = -1;
     private boolean cancelTabChange = false;
     private ClientPanelPlugin currentPanelPlugin = null;
@@ -72,89 +64,55 @@ public class PluginPanel extends javax.swing.JPanel {
         tabs.addChangeListener(changeListener);
     }
 
-    //Extension point for ExtensionPoint.Type.CLIENT_PANEL
-    @ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.CLIENT_PANEL)
     public void loadPlugins() {
-        loadedPlugins = new HashMap<String, ClientPanelPlugin>();
+        for (ClientPanelPlugin clientPanelPlugin : LoadedExtensions.getInstance().getClientPanelPlugins().values()) {
 
-        Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
+            clientPanelPlugin.start();
 
-        for (PluginMetaData metaData : plugins.values()) {
-            try {
-                if (metaData.isEnabled()) {
-                    for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
-                        if (extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && extensionPoint.getType() == ExtensionPoint.Type.CLIENT_PANEL && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
-                            String pluginName = extensionPoint.getName();
-                            Class<?> clazz = Class.forName(extensionPoint.getClassName());
-                            Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-                            for (int i = 0; i < constructors.length; i++) {
-                                Class<?> parameters[];
-                                parameters = constructors[i].getParameterTypes();
-                                // load plugin if the number of parameters is 1.
-                                if (parameters.length == 1) {
+            // add task pane before the "other" pane
+            if (clientPanelPlugin.getTaskPane() != null) {
+                parent.setNonFocusable(clientPanelPlugin.getTaskPane());
+                clientPanelPlugin.getTaskPane().setVisible(false);
+                parent.taskPaneContainer.add(clientPanelPlugin.getTaskPane(), parent.taskPaneContainer.getComponentCount() - 1);
+            }
 
-                                    ClientPanelPlugin clientPlugin = (ClientPanelPlugin) constructors[i].newInstance(new Object[]{pluginName});
-
-                                    clientPlugin.start();
-
-                                    // add task pane before the "other" pane
-                                    if (clientPlugin.getTaskPane() != null) {
-                                        parent.setNonFocusable(clientPlugin.getTaskPane());
-                                        clientPlugin.getTaskPane().setVisible(false);
-                                        parent.taskPaneContainer.add(clientPlugin.getTaskPane(), parent.taskPaneContainer.getComponentCount() - 1);
-                                    }
-
-                                    if (clientPlugin.getComponent() != null) {
-                                        if (pluginName.equals(EXTENSION_MANAGER) && tabs.getTabCount() > 0) {
-                                            tabs.insertTab(pluginName, null, clientPlugin.getComponent(), null, 0);
-                                        } else {
-                                            tabs.addTab(pluginName, clientPlugin.getComponent());
-                                        }
-                                    }
-
-                                    loadedPlugins.put(pluginName, clientPlugin);
-                                    i = constructors.length;
-
-                                }
-                            }
-                        }
-                    }
+            if (clientPanelPlugin.getComponent() != null) {
+                if (clientPanelPlugin.getName().equals(EXTENSION_MANAGER) && tabs.getTabCount() > 0) {
+                    tabs.insertTab(clientPanelPlugin.getName(), null, clientPanelPlugin.getComponent(), null, 0);
+                } else {
+                    tabs.addTab(clientPanelPlugin.getName(), clientPanelPlugin.getComponent());
                 }
-            } catch (Exception e) {
-                parent.alertException(this, e.getStackTrace(), e.getMessage());
             }
         }
     }
 
     public void stopPlugins() {
-        for (ClientPanelPlugin plugin : loadedPlugins.values()) {
-            plugin.stop();
+        for (ClientPanelPlugin clientPanelPlugin : LoadedExtensions.getInstance().getClientPanelPlugins().values()) {
+            clientPanelPlugin.stop();
         }
 
-        loadedDashboardPanelPlugins = parent.getDashboardPanelPlugins();
-        for (DashboardPanelPlugin plugin : loadedDashboardPanelPlugins.values()) {
-            plugin.stop();
+        for (DashboardPanelPlugin dashboardPanelPlugin : LoadedExtensions.getInstance().getDashboardPanelPlugins().values()) {
+            dashboardPanelPlugin.stop();
         }
     }
     
     public void resetPlugins() {
-        for (ClientPanelPlugin plugin : loadedPlugins.values()) {
-            plugin.reset();
+        for (ClientPanelPlugin clientPanelPlugin : LoadedExtensions.getInstance().getClientPanelPlugins().values()) {
+            clientPanelPlugin.reset();
         }
 
-        loadedDashboardPanelPlugins = parent.getDashboardPanelPlugins();
-        for (DashboardPanelPlugin plugin : loadedDashboardPanelPlugins.values()) {
-            plugin.reset();
+        for (DashboardPanelPlugin dashboardPanelPlugin : LoadedExtensions.getInstance().getDashboardPanelPlugins().values()) {
+            dashboardPanelPlugin.reset();
         }
     }
 
     public void loadDefaultPanel() {
         if (tabs.getTabCount() > 0) {
-            if (loadedPlugins.containsKey(EXTENSION_MANAGER)) {
+            if (LoadedExtensions.getInstance().getClientPanelPlugins().containsKey(EXTENSION_MANAGER)) {
                 loadPlugin(EXTENSION_MANAGER);
             } else {
-                if (loadedPlugins.keySet().iterator().hasNext()) {
-                    loadPlugin(loadedPlugins.keySet().iterator().next());
+                if (LoadedExtensions.getInstance().getClientPanelPlugins().keySet().iterator().hasNext()) {
+                    loadPlugin(LoadedExtensions.getInstance().getClientPanelPlugins().keySet().iterator().next());
                 }
             }
             tabs.setSelectedIndex(0);
@@ -164,7 +122,7 @@ public class PluginPanel extends javax.swing.JPanel {
     }
 
     public void loadPlugin(String pluginName) {
-        ClientPanelPlugin plugin = loadedPlugins.get(pluginName);
+        ClientPanelPlugin plugin = LoadedExtensions.getInstance().getClientPanelPlugins().get(pluginName);
         currentPanelPlugin = plugin;
 
         if (plugin != null) {
@@ -179,14 +137,6 @@ public class PluginPanel extends javax.swing.JPanel {
         return currentPanelPlugin;
     }
     
-    public Map<String, ClientPanelPlugin> getLoadedPlugins() {
-        return loadedPlugins;
-    }
-    
-    public Map<String, DashboardPanelPlugin> getLoadedDashboardPanelPlugins() {
-        return loadedDashboardPanelPlugins;
-    }
-
     public void setBlankPanel() {
         JPanel panel = new JPanel();
         panel.add(new JLabel("No plugin panels to display."));

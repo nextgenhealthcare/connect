@@ -12,24 +12,13 @@ package com.mirth.connect.plugins;
 import java.util.Map;
 
 import com.mirth.connect.client.ui.editors.BasePanel;
-import com.mirth.connect.client.ui.editors.MirthEditorPane;
 
 public abstract class MirthEditorPanePlugin extends ClientPlugin {
 
-    protected MirthEditorPane parent;
     protected boolean provideOwnStepName = false;
 
     public MirthEditorPanePlugin(String name) {
         super(name);
-    }
-
-    public MirthEditorPanePlugin(String name, MirthEditorPane parent) {
-        super(name);
-        this.parent = parent;
-    }
-
-    public String getPluginName() {
-        return name;
     }
 
     public abstract BasePanel getPanel();
@@ -46,7 +35,7 @@ public abstract class MirthEditorPanePlugin extends ClientPlugin {
 
     public abstract void setData(Map<Object, Object> data);
 
-    public String getName() {
+    public String getStepName() {
         return null;
     }
 

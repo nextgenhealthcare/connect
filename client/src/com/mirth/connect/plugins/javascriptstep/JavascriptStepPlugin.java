@@ -26,13 +26,15 @@ import com.mirth.connect.plugins.TransformerStepPlugin;
 public class JavascriptStepPlugin extends TransformerStepPlugin {
 
     private ScriptPanel panel;
+    private TransformerPane parent;
 
     public JavascriptStepPlugin(String name) {
         super(name);
     }
 
-    public JavascriptStepPlugin(String name, TransformerPane parent) {
-        super(name, parent);
+    @Override
+    public void initialize(TransformerPane pane) {
+        this.parent = pane;
         panel = new ScriptPanel(parent, new JavaScriptTokenMarker(), ContextType.MESSAGE_CONTEXT.getContext());
     }
 
@@ -67,7 +69,7 @@ public class JavascriptStepPlugin extends TransformerStepPlugin {
 
     @Override
     public void initData() {
-        ((TransformerPane) parent).invalidVar = false;
+        parent.invalidVar = false;
         clearData();
     }
 

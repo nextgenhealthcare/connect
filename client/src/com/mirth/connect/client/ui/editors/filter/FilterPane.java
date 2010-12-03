@@ -28,7 +28,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -62,6 +61,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.CenterCellRenderer;
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RuleDropData;
@@ -75,10 +75,7 @@ import com.mirth.connect.client.ui.editors.MirthEditorPane;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.ExtensionPoint;
-import com.mirth.connect.model.ExtensionPointDefinition;
 import com.mirth.connect.model.Filter;
-import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -115,7 +112,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     private String[] comboBoxValues = new String[]{Rule.Operator.AND.toString(), Rule.Operator.OR.toString()};
     private Channel channel;
     private DropTarget dropTarget;
-    private Map<String, FilterRulePlugin> loadedPlugins = new HashMap<String, FilterRulePlugin>();
 
     /**
      * CONSTRUCTOR
@@ -125,41 +121,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         modified = false;
         new DropTarget(this, this);
         initComponents();
-    }
-
-    // Extension point for ExtensionPoint.Type.CLIENT_FILTER_RULE
-    @ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.CLIENT_FILTER_RULE)
-    public void loadPlugins() {
-        loadedPlugins = new HashMap<String, FilterRulePlugin>();
-
-        Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
-        for (PluginMetaData metaData : plugins.values()) {
-
-            if (metaData.isEnabled()) {
-                for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
-                    try {
-                        if (extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && extensionPoint.getType() == ExtensionPoint.Type.CLIENT_FILTER_RULE && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
-                            String pluginName = extensionPoint.getName();
-                            Class clazz = Class.forName(extensionPoint.getClassName());
-                            Constructor[] constructors = clazz.getDeclaredConstructors();
-                            for (int i = 0; i < constructors.length; i++) {
-                                Class parameters[];
-                                parameters = constructors[i].getParameterTypes();
-                                // load plugin if the number of parameters is 2.
-                                if (parameters.length == 2) {
-                                    FilterRulePlugin rulePlugin = (FilterRulePlugin) constructors[i].newInstance(new Object[]{pluginName, this});
-                                    loadedPlugins.put(rulePlugin.getDisplayName(), rulePlugin);
-                                    i = constructors.length;
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        parent.alertException(this, e.getStackTrace(), e.getMessage());
-                    }
-                }
-            }
-        }
-
     }
 
     public void reload(Connector c, Filter f) {
@@ -172,7 +133,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
      * load( Filter f )
      */
     public boolean load(Connector c, Filter f, Transformer t, boolean channelHasBeenChanged) {
-        if (loadedPlugins.values().size() == 0) {
+        if (LoadedExtensions.getInstance().getFilterRulePlugins().values().size() == 0) {
             parent.alertError(this, "No filter rule plugins loaded.\r\nPlease install plugins and try again.");
             return false;
         }
@@ -194,7 +155,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         ListIterator<Rule> li = list.listIterator();
         while (li.hasNext()) {
             Rule s = li.next();
-            if (!loadedPlugins.containsKey(s.getType())) {
+            if (!LoadedExtensions.getInstance().getFilterRulePlugins().containsKey(s.getType())) {
                 parent.alertError(this, "Unable to load filter rule plugin \"" + s.getType() + "\"\r\nPlease install plugin and try again.");
                 return false;
             }
@@ -213,7 +174,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         } else {
             rulePanel.showCard(BLANK_TYPE);
 
-            for (FilterRulePlugin plugin : loadedPlugins.values()) {
+            for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
                 plugin.getPanel().setData(null);
             }
 
@@ -321,11 +282,13 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         rulePanel = new BasePanel();
         blankPanel = new BasePanel();
 
-        loadPlugins();
+        for (FilterRulePlugin filterRulePlugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
+            filterRulePlugin.initialize(this);
+        }
 
         // establish the cards to use in the Transformer
         rulePanel.addCard(blankPanel, BLANK_TYPE);
-        for (FilterRulePlugin plugin : loadedPlugins.values()) {
+        for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
             rulePanel.addCard(plugin.getPanel(), plugin.getDisplayName());
         }
 
@@ -491,8 +454,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         });
 
         // Set the combobox editor on the type column, and add action listener
-        String[] defaultComboBoxValues = new String[loadedPlugins.size()];
-        FilterRulePlugin[] pluginArray = loadedPlugins.values().toArray(new FilterRulePlugin[0]);
+        String[] defaultComboBoxValues = new String[LoadedExtensions.getInstance().getFilterRulePlugins().size()];
+        FilterRulePlugin[] pluginArray = LoadedExtensions.getInstance().getFilterRulePlugins().values().toArray(new FilterRulePlugin[0]);
         for (int i = 0; i < pluginArray.length; i++) {
             defaultComboBoxValues[i] = pluginArray[i].getDisplayName();
         }
@@ -726,7 +689,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             String ruleName = rule.getName();
             if (ruleName == null || ruleName.equals("") || plugin.isProvideOwnStepName()) {
                 plugin.setData((Map<Object, Object>) rule.getData());
-                ruleName = plugin.getName();
+                ruleName = plugin.getStepName();
             }
             tableData[RULE_NAME_COL] = ruleName;
             tableData[RULE_TYPE_COL] = rule.getType();
@@ -791,9 +754,9 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             rule.setOperator(Rule.Operator.AND); // AND operator by default
         }        // elsewhere
 
-        if (loadedPlugins.containsKey(RULE_BUILDER)) {
+        if (LoadedExtensions.getInstance().getFilterRulePlugins().containsKey(RULE_BUILDER)) {
             rule.setType(RULE_BUILDER); // graphical rule type by default, inbound
-            FilterRulePlugin plugin = loadedPlugins.get(RULE_BUILDER);
+            FilterRulePlugin plugin = LoadedExtensions.getInstance().getFilterRulePlugins().get(RULE_BUILDER);
             plugin.initData();
             Map<Object, Object> data = new HashMap<Object, Object>();
             data.put("Field", mapping);
@@ -809,12 +772,12 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
             if (plugin.isProvideOwnStepName()) {
                 plugin.setData(data);
-                rule.setName(plugin.getName());
+                rule.setName(plugin.getStepName());
                 plugin.clearData();
             }
         } else {
             System.out.println("Rule Builder not found");
-            rule.setType(loadedPlugins.keySet().iterator().next());
+            rule.setType(LoadedExtensions.getInstance().getFilterRulePlugins().keySet().iterator().next());
         }
 
 
@@ -858,7 +821,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             filterTable.setRowSelectionInterval(row - 1, row - 1);
         } else {
             rulePanel.showCard(BLANK_TYPE);
-            for (FilterRulePlugin plugin : loadedPlugins.values()) {
+            for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
                 plugin.clearData();
             }
         }
@@ -877,7 +840,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     }
 
     private FilterRulePlugin getPlugin(String name) throws Exception {
-        FilterRulePlugin plugin = loadedPlugins.get(name);
+        FilterRulePlugin plugin = LoadedExtensions.getInstance().getFilterRulePlugins().get(name);
         if (plugin == null) {
             String message = "Unable to find Filter Rule Plugin: " + name;
             Exception e = new Exception(message);
