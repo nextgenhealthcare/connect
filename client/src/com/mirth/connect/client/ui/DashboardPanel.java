@@ -32,8 +32,6 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.model.ChannelStatus;
-import com.mirth.connect.model.ExtensionPoint;
-import com.mirth.connect.model.ExtensionPointDefinition;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
 
@@ -48,7 +46,7 @@ public class DashboardPanel extends javax.swing.JPanel {
     private final String FILTERED_COLUMN_NAME = "Filtered";
     private final String ALERTED_COLUMN_NAME = "Alerted";
     private final String LAST_DEPLOYED_COLUMN_NAME = "Last Deployed";
-    private final String DEPLOYED_REVISION_COLUMN_NAME = "Rev \u0394";
+    private final String DEPLOYED_REVISION_DELTA_COLUMN_NAME = "Rev \u0394";
     
     private final int NAME_COLUMN_NUMBER = 1;
     
@@ -141,7 +139,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMaxWidth(95);
-        statusTable.getColumnExt(DEPLOYED_REVISION_COLUMN_NAME).setMaxWidth(50);
+        statusTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setMaxWidth(50);
 
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
@@ -152,7 +150,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMinWidth(95);
-        statusTable.getColumnExt(DEPLOYED_REVISION_COLUMN_NAME).setMinWidth(50);
+        statusTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setMinWidth(50);
 
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
@@ -162,9 +160,18 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
         statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setCellRenderer(new DateCellRenderer());
-        statusTable.getColumnExt(DEPLOYED_REVISION_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
+        statusTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
         
-        statusTable.getColumnExt(DEPLOYED_REVISION_COLUMN_NAME).setToolTipText("<html><body>The number of times the channel was saved since this channel was deployed.<br>Rev \u0394 = Channel Revision - Deployed Revision</body></html>");
+        statusTable.getColumnExt(STATUS_COLUMN_NAME).setToolTipText("<html><body>The status of this deployed channel. Possible values are started, paused, and stopped.</body></html>");
+        statusTable.getColumnExt(NAME_COLUMN_NAME).setToolTipText("<html><body>The name of this deployed channel.</body></html>");
+        statusTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setToolTipText("<html><body>The number of times this channel was saved since it was deployed.<br>Rev \u0394 = Channel Revision - Deployed Revision<br>This value will be highlighted if it is greater than 0.</body></html>");
+        statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setToolTipText("<html><body>The time this channel was last deployed.<br>This value will be highlighted if it is within the last two minutes.</body></html>");
+        statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setToolTipText("<html><body>The number of messages received and accepted by this channel's source connector.</body></html>");
+        statusTable.getColumnExt(FILTERED_COLUMN_NAME).setToolTipText("<html><body>The number of messages filtered out by this channel's source connector or any destination connector.</body></html>");
+        statusTable.getColumnExt(QUEUED_COLUMN_NAME).setToolTipText("<html><body>The number of messages currently queued by all destination connectors in this channel.</body></html>");
+        statusTable.getColumnExt(SENT_COLUMN_NAME).setToolTipText("<html><body>The numer of messages that have been sent by all of the destination connectors in this channel.</body></html>");
+        statusTable.getColumnExt(ERROR_COLUMN_NAME).setToolTipText("<html><body>The number of messages that errored in this channel.<br>This value will be highlighted if it is greater than 0.</body></html>");
+        statusTable.getColumnExt(ALERTED_COLUMN_NAME).setToolTipText("<html><body>The number of alerts sent that were triggered by this channel.</body></html>");
         
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setComparator(new NumberCellComparator());
         statusTable.getColumnExt(SENT_COLUMN_NAME).setComparator(new NumberCellComparator());
@@ -172,7 +179,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setComparator(new NumberCellComparator());
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setComparator(new NumberCellComparator());
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setComparator(new NumberCellComparator());
-        statusTable.getColumnExt(DEPLOYED_REVISION_COLUMN_NAME).setComparator(new NumberCellComparator());
+        statusTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setComparator(new NumberCellComparator());
         
         for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
             if (!plugin.showBeforeStatusColumn()) {
@@ -239,7 +246,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         } else {
             statusTable = new MirthTable();
             String[] defaultColumns = new String[]{STATUS_COLUMN_NAME,
-                NAME_COLUMN_NAME, DEPLOYED_REVISION_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME,
+                NAME_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME,
                 RECEIVED_COLUMN_NAME, FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME,
                 SENT_COLUMN_NAME, ERROR_COLUMN_NAME, ALERTED_COLUMN_NAME};
             ArrayList<String> columns = new ArrayList<String>();
@@ -287,7 +294,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         
         HighlightPredicate revisionDeltaHighlighterPredicate = new HighlightPredicate() {
             public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-                if (adapter.column == statusTable.getColumnViewIndex(DEPLOYED_REVISION_COLUMN_NAME)) {
+                if (adapter.column == statusTable.getColumnViewIndex(DEPLOYED_REVISION_DELTA_COLUMN_NAME)) {
                     if (((Integer) statusTable.getValueAt(adapter.row, adapter.column)).intValue() > 0) {
                         return true;
                     }

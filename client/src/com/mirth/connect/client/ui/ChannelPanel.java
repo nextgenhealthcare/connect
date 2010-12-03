@@ -47,7 +47,7 @@ import com.mirth.connect.model.ChannelStatus;
 public class ChannelPanel extends javax.swing.JPanel implements DropTargetListener {
 
     private final String STATUS_COLUMN_NAME = "Status";
-    private final String PROTOCOL_COLUMN_NAME = "Protocol";
+    private final String DATA_TYPE_COLUMN_NAME = "Data Type";
     private final String NAME_COLUMN_NAME = "Name";
     private final String DESCRIPTION_COLUMN_NAME = "Description";
     private final String ID_COLUMN_NAME = "Id";
@@ -79,28 +79,35 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
+        channelTable.getColumnExt(STATUS_COLUMN_NAME).setToolTipText("<html><body>The status of this channel. Possible values are enabled and disabled.<br>Only enabled channels can be deployed.</body></html>");
 
-        channelTable.getColumnExt(PROTOCOL_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        channelTable.getColumnExt(PROTOCOL_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
-
-        channelTable.getColumnExt(DESCRIPTION_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        channelTable.getColumnExt(DATA_TYPE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        channelTable.getColumnExt(DATA_TYPE_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        channelTable.getColumnExt(DATA_TYPE_COLUMN_NAME).setToolTipText("<html><body>The inbound data type of this channel's source connector.</body></html>");
 
         channelTable.getColumnExt(NAME_COLUMN_NAME).setMaxWidth(325);
         channelTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(150);
+        channelTable.getColumnExt(NAME_COLUMN_NAME).setToolTipText("<html><body>The name of this channel.</body></html>");
+
+        channelTable.getColumnExt(ID_COLUMN_NAME).setMinWidth(150);
+        channelTable.getColumnExt(ID_COLUMN_NAME).setMaxWidth(215);
+        channelTable.getColumnExt(ID_COLUMN_NAME).setToolTipText("<html><body>The unique id of this channel.</body></html>");
+
+        channelTable.getColumnExt(DESCRIPTION_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        channelTable.getColumnExt(DESCRIPTION_COLUMN_NAME).setToolTipText("<html><body>The description of this channel.</body></html>");
 
         channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setMaxWidth(50);
         channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setMinWidth(50);
         channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
         channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setToolTipText("<html><body>The number of times the channel was saved since this channel was deployed.<br>Rev \u0394 = Channel Revision - Deployed Revision</body></html>");
         channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setResizable(false);
-        
-        channelTable.getColumnExt(ID_COLUMN_NAME).setMinWidth(150);
-        channelTable.getColumnExt(ID_COLUMN_NAME).setMaxWidth(215);
-        
+        channelTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setToolTipText("<html><body>The number of times this channel was saved since it was deployed.<br>Rev \u0394 = Channel Revision - Deployed Revision<br>This value will be highlighted if it is greater than 0.</body></html>");
+
         channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMinWidth(95);
         channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMaxWidth(95);
         channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setCellRenderer(new DateCellRenderer());
         channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setResizable(false);
+        channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setToolTipText("<html><body>The time this channel was last deployed.<br>This value will be highlighted if it is within the last two minutes.</body></html>");
 
         channelTable.setRowHeight(UIConstants.ROW_HEIGHT);
         channelTable.setOpaque(true);
@@ -198,7 +205,7 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
             model.refreshDataVector(tableData);
         } else {
             channelTable = new MirthTable();
-            channelTable.setModel(new RefreshTableModel(tableData, new String[]{STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, DESCRIPTION_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME}) {
+            channelTable.setModel(new RefreshTableModel(tableData, new String[]{STATUS_COLUMN_NAME, DATA_TYPE_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, DESCRIPTION_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME}) {
 
                 boolean[] canEdit = new boolean[]{false, false, false, false, false, false, false};
 
