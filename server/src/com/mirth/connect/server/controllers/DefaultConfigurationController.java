@@ -68,7 +68,6 @@ import com.mirth.connect.server.util.JMXConnectionFactory;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.Encrypter;
-import com.mirth.connect.util.PropertyLoader;
 import com.mirth.connect.util.PropertyVerifier;
 
 /**
@@ -593,12 +592,15 @@ public class DefaultConfigurationController extends ConfigurationController {
     public void generateKeyPair() {
         try {
             // load keystore properties
-            Properties properties = PropertyLoader.loadProperties("mirth");
-            String alias = properties.getProperty("keystore.alias");
-            File keyStoreFile = new File(getApplicationDataDir() + File.separator + properties.getProperty("keystore.name"));
-            String keyStoreType = properties.getProperty("keystore.storetype");
-            char[] keyStorePassword = properties.getProperty("keystore.storepass").toCharArray();
-            char[] keyPassword = properties.getProperty("keystore.keypass").toCharArray();
+            PropertiesConfiguration properties = new PropertiesConfiguration();
+            properties.setDelimiterParsingDisabled(true);
+            properties.load(ResourceUtil.getResourceStream(this.getClass(), "mirth.properties"));
+            
+            String alias = properties.getString("keystore.alias");
+            File keyStoreFile = new File(getApplicationDataDir(), properties.getString("keystore.name"));
+            String keyStoreType = properties.getString("keystore.storetype");
+            char[] keyStorePassword = properties.getString("keystore.storepass").toCharArray();
+            char[] keyPassword = properties.getString("keystore.keypass").toCharArray();
 
             // load the keystore if it exists, otherwise create a new one
             KeyStore keyStore = KeyStore.getInstance(keyStoreType);
@@ -646,6 +648,30 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
         } catch (Exception e) {
             logger.error("Could not generate certificate.", e);
+        }
+    }
+    
+    public void generateDefaultTrustStore() {
+        try {
+            PropertiesConfiguration properties = new PropertiesConfiguration();
+            properties.setDelimiterParsingDisabled(true);
+            properties.load(ResourceUtil.getResourceStream(this.getClass(), "mirth.properties"));
+            
+            File trustStoreFile = new File(properties.getString("truststore.path"));
+            String trustStoreType = properties.getString("truststore.storetype");
+            char[] trustStorePassword = properties.getString("truststore.storepass").toCharArray();
+            KeyStore keyStore = KeyStore.getInstance(trustStoreType);
+
+            if (!trustStoreFile.exists()) {
+                logger.debug("no truststore found, creating new one");
+                keyStore.load(null, trustStorePassword);
+                keyStore.store(new FileOutputStream(trustStoreFile), trustStorePassword);
+            } else {
+                logger.debug("truststore found: " + trustStoreFile.getAbsolutePath());
+            }
+
+        } catch (Exception e) {
+            logger.error("Could not generate new truststore.", e);
         }
     }
 }

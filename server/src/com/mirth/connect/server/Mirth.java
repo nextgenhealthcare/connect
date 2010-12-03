@@ -168,6 +168,7 @@ public class Mirth extends Thread {
      */
     public void startup() {
         configurationController.generateKeyPair();
+        configurationController.generateDefaultTrustStore();
         startWebServer();
         extensionController.loadExtensions();
         migrationController.migrate();

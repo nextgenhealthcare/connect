@@ -608,11 +608,6 @@
 			<fileset dir="${docs}" />
 		</copy>
 
-		<!-- copy misc files -->
-		<copy todir="${setup}">
-			<fileset file="${basedir}/truststore.jks" />
-		</copy>
-
 		<!-- create the server jar -->
 		<jar destfile="${setup}/${server.jar}" basedir="${classes}">
 			<include name="com/thoughtworks/**" />
