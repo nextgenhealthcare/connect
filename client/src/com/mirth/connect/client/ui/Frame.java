@@ -2228,9 +2228,9 @@ public class Frame extends JXFrame {
                                 }
                                 statusColumn = j;
                                 j += 2;
-                                
-                                tableData[i][j] = tempStatus.getDeployedDate();
-                                tableData[i][++j] = tempStatus.getDeployedRevisionDelta();
+
+                                tableData[i][j] = tempStatus.getDeployedRevisionDelta();
+                                tableData[i][++j] = tempStatus.getDeployedDate();
                                 tableData[i][++j] = tempStats.getReceived();
                                 tableData[i][++j] = tempStats.getFiltered();
                                 tableData[i][++j] = tempStats.getQueued();
@@ -2242,6 +2242,7 @@ public class Frame extends JXFrame {
                                     tableData[i][j] = plugin.getTableData(tempStatus);
                                     j++;
                                 }
+
                             } catch (ClientException ex) {
                                 alertException(PlatformUI.MIRTH_FRAME, ex.getStackTrace(), ex.getMessage());
                             }

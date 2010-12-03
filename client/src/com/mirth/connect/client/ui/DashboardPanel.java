@@ -234,7 +234,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMaxWidth(140);
+        statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMaxWidth(95);
         statusTable.getColumnExt(DEPLOYED_REVISION_COLUMN_NAME).setMaxWidth(50);
 
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
@@ -245,7 +245,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
-        statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMinWidth(140);
+        statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMinWidth(95);
         statusTable.getColumnExt(DEPLOYED_REVISION_COLUMN_NAME).setMinWidth(50);
 
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
@@ -331,7 +331,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         } else {
             statusTable = new MirthTable();
             String[] defaultColumns = new String[]{STATUS_COLUMN_NAME,
-                NAME_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME, DEPLOYED_REVISION_COLUMN_NAME,  
+                NAME_COLUMN_NAME, DEPLOYED_REVISION_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME,
                 RECEIVED_COLUMN_NAME, FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME,
                 SENT_COLUMN_NAME, ERROR_COLUMN_NAME, ALERTED_COLUMN_NAME};
             ArrayList<String> columns = new ArrayList<String>();
@@ -399,6 +399,8 @@ public class DashboardPanel extends javax.swing.JPanel {
             }
         };
         statusTable.addHighlighter(new ColorHighlighter(lastDeployedHighlighterPredicate, new Color(240, 230, 140), Color.BLACK, new Color(240, 230, 140), Color.BLACK));
+        
+        statusTable.packTable(UIConstants.COL_MARGIN);
         
     }
 
