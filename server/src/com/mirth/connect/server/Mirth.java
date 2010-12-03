@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
@@ -50,7 +49,6 @@ import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.servlets.MirthErrorPageHandler;
 import com.mirth.connect.server.util.ResourceUtil;
-import com.mirth.connect.util.PropertyLoader;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.
@@ -62,7 +60,7 @@ public class Mirth extends Thread {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private boolean running = false;
-    private Properties mirthProperties = null;
+    private PropertiesConfiguration mirthProperties = new PropertiesConfiguration();
     private PropertiesConfiguration versionProperties = new PropertiesConfiguration();
     private HttpServer httpServer = null;
     private HttpServer servletContainer = null;
@@ -109,9 +107,9 @@ public class Mirth extends Thread {
             logger.debug("starting mirth server...");
 
             // Check the ports to see if they are already in use
-            boolean httpPort = testPort(PropertyLoader.getProperty(mirthProperties, "http.port"), "http.port");
-            boolean httpsPort = testPort(PropertyLoader.getProperty(mirthProperties, "https.port"), "https.port");
-            boolean jmxPort = testPort(PropertyLoader.getProperty(mirthProperties, "jmx.port"), "jmx.port");
+            boolean httpPort = testPort(mirthProperties.getString("http.port"), "http.port");
+            boolean httpsPort = testPort(mirthProperties.getString("https.port"), "https.port");
+            boolean jmxPort = testPort(mirthProperties.getString("jmx.port"), "jmx.port");
 
             if (!httpPort || !httpsPort || !jmxPort) {
                 return;
@@ -148,18 +146,25 @@ public class Mirth extends Thread {
      *         successfully loaded
      */
     public boolean initResources() {
-        mirthProperties = PropertyLoader.loadProperties("mirth");
-        
         try {
-            InputStream is = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
+            InputStream mirthPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "mirth.properties");
+            mirthProperties.setDelimiterParsingDisabled(true);
+            mirthProperties.load(mirthPropertiesStream);
+            IOUtils.closeQuietly(mirthPropertiesStream);
+        } catch (Exception e) {
+            logger.error("could not load mirth.properties", e);
+        }
+
+        try {
+            InputStream versionPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
             versionProperties.setDelimiterParsingDisabled(true);
-            versionProperties.load(is);
-            IOUtils.closeQuietly(is);
+            versionProperties.load(versionPropertiesStream);
+            IOUtils.closeQuietly(versionPropertiesStream);
         } catch (Exception e) {
             logger.error("could not load version.properties", e);
         }
 
-        return (mirthProperties != null);
+        return (!mirthProperties.isEmpty());
     }
 
     /**
@@ -262,25 +267,25 @@ public class Mirth extends Thread {
 
             // add HTTPS listener
             SslListener sslListener = new SslListener();
-            sslListener.setHost(PropertyLoader.getProperty(mirthProperties, "https.host", "0.0.0.0"));
+            sslListener.setHost(mirthProperties.getString("https.host", "0.0.0.0"));
             sslListener.setCipherSuites(new String[] { "SSL_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_RC4_128_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA" });
-            sslListener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "https.port")).intValue());
-            sslListener.setKeystore(configurationController.getApplicationDataDir() + File.separator + PropertyLoader.getProperty(mirthProperties, "keystore.name"));
-            sslListener.setPassword(PropertyLoader.getProperty(mirthProperties, "keystore.storepass"));
-            sslListener.setKeyPassword(PropertyLoader.getProperty(mirthProperties, "keystore.keypass"));
-            sslListener.setAlgorithm(PropertyLoader.getProperty(mirthProperties, "keystore.algorithm"));
-            sslListener.setKeystoreType(PropertyLoader.getProperty(mirthProperties, "keystore.storetype"));
+            sslListener.setPort(mirthProperties.getInt("https.port"));
+            sslListener.setKeystore(configurationController.getApplicationDataDir() + File.separator + mirthProperties.getString("keystore.name"));
+            sslListener.setPassword(mirthProperties.getString("keystore.storepass"));
+            sslListener.setKeyPassword(mirthProperties.getString("keystore.keypass"));
+            sslListener.setAlgorithm(mirthProperties.getString("keystore.algorithm"));
+            sslListener.setKeystoreType(mirthProperties.getString("keystore.storetype"));
             servletContainer.addListener(sslListener);
 
             // add HTTP listener
             SocketListener listener = new SocketListener();
-            listener.setHost(PropertyLoader.getProperty(mirthProperties, "http.host", "0.0.0.0"));
-            listener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "http.port")).intValue());
+            listener.setHost(mirthProperties.getString("http.host", "0.0.0.0"));
+            listener.setPort(mirthProperties.getInt("http.port"));
             httpServer.addListener(listener);
 
             // Load the context path property and remove the last char if it is
             // a '/'.
-            String contextPath = PropertyLoader.getProperty(mirthProperties, "context.path");
+            String contextPath = mirthProperties.getString("context.path");
 
             if (contextPath.endsWith("/")) {
                 contextPath = contextPath.substring(0, contextPath.length() - 1);
@@ -377,7 +382,7 @@ public class Mirth extends Thread {
     }
 
     private void stopDatabase() {
-        String database = PropertyLoader.getProperty(mirthProperties, "database");
+        String database = mirthProperties.getString("database");
 
         if (database.equals("derby")) {
             boolean gotException = false;
@@ -413,10 +418,7 @@ public class Mirth extends Thread {
      * 
      */
     private void printSplashScreen() {
-        String version = versionProperties.getString("mirth.version");
-        String buildDate = versionProperties.getString("mirth.date");
-
-        logger.info("Mirth Connect " + version + " (" + buildDate + ") server successfully started: " + (new Date()).toString());
+        logger.info("Mirth Connect " + versionProperties.getString("mirth.version") + " (" + versionProperties.getString("mirth.date") + ") server successfully started: " + (new Date()).toString());
         logger.info("This product was developed by Mirth Corporation (http://www.mirthcorp.com) and its contributors (c)2005-" + Calendar.getInstance().get(Calendar.YEAR) + ".");
         logger.info("Running " + System.getProperty("java.vm.name") + " " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ") with charset " + Charset.defaultCharset() + ".");
     }
