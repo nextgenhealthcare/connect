@@ -47,6 +47,11 @@ public class GlobalChannelVariableStore {
         globalChannelVariableMap.clear();
     }
 
+    @Override
+    public String toString() {
+        return globalChannelVariableMap.toString();
+    }
+
     // ##### SYNC METHODS #####
 
     public void lock(String key) {
