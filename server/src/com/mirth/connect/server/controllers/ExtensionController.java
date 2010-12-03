@@ -74,10 +74,6 @@ public abstract class ExtensionController extends Controller {
 	    }
 	}
 	
-    public static final String PLUGIN_PROPERTIES_FILE = "plugin.properties";
-    
-    public static final String EXTENSIONS_PROPERTIES_FILE = "extensions.properties";
-    
     public static final String EXTENSIONS_UNINSTALL_FILE = "uninstall";
     
     public static final String EXTENSIONS_UNINSTALL_SCRIPTS_FILE = "uninstallScripts";

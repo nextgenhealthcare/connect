@@ -31,8 +31,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class MirthLauncher {
-    private static final String PATH_INSTALL_TEMP = "install_temp";
-    private static final String PATH_EXTENSIONS = "./extensions";
+    private static final String EXTENSIONS_DIR = "./extensions";
     
     private static Logger logger = Logger.getLogger(MirthLauncher.class);
 
@@ -61,45 +60,49 @@ public class MirthLauncher {
 
     // if we have an uninstall file, uninstall the listed extensions
     private static void uninstallExtensions() throws Exception {
-        String extensionsLocation = new File(PATH_EXTENSIONS).getPath();
-        String uninstallFileLocation = extensionsLocation + File.separator + "uninstall";
-        File uninstallFile = new File(uninstallFileLocation);
+        File extensionsDir = new File(EXTENSIONS_DIR);
+        File uninstallFile = new File(extensionsDir, "uninstall");
 
         if (uninstallFile.exists()) {
             Scanner scanner = new Scanner(uninstallFile);
             
             while (scanner.hasNextLine()) {
-                String extension = scanner.nextLine();
-                File extensionDirectory = new File(extensionsLocation + File.separator + extension);
+                File extension = new File(extensionsDir, scanner.nextLine());
                 
-                if (extensionDirectory.isDirectory()) {
-                    FileUtils.deleteDirectory(extensionDirectory);
+                if (extension.exists() && extension.isDirectory()) {
+                    logger.trace("uninstalling extension: " + extension.getName());
+                    FileUtils.deleteDirectory(extension);
                 }
             }
             
             scanner.close();
-            uninstallFile.delete();
+            FileUtils.deleteQuietly(uninstallFile);
         }
     }
 
     // if we have a temp folder, move the extensions over
     private static void installExtensions() throws Exception {
-        String extensionsLocation = new File(PATH_EXTENSIONS).getPath();
-        String extensionsTempLocation = extensionsLocation + File.separator + PATH_INSTALL_TEMP + File.separator;
-        File extensionsTemp = new File(extensionsTempLocation);
+        File extensionsDir = new File(EXTENSIONS_DIR);
+        File extensionsTempDir = new File(extensionsDir, "install_temp");
         
-        if (extensionsTemp.exists()) {
-            File[] extensions = extensionsTemp.listFiles();
+        if (extensionsTempDir.exists()) {
+            File[] extensions = extensionsTempDir.listFiles();
 
             for (int i = 0; i < extensions.length; i++) {
                 if (extensions[i].isDirectory()) {
-                    File target = new File(extensionsLocation + File.separator + extensions[i].getName());
-                    FileUtils.deleteQuietly(target);
+                    logger.trace("installing extension: " + extensions[i].getName());
+                    File target = new File(extensionsDir, extensions[i].getName());
+                    
+                    // delete it if it's already there
+                    if (target.exists()) {
+                        FileUtils.deleteQuietly(target);    
+                    }
+                    
                     extensions[i].renameTo(target);
                 }
             }
 
-            FileUtils.deleteDirectory(extensionsTemp);
+            FileUtils.deleteDirectory(extensionsTempDir);
         }
     }
     
@@ -130,7 +133,7 @@ public class MirthLauncher {
     private static void addExtensionsToClasspath(List<URL> urls) throws Exception {
         FileFilter extensionFileFilter = new NameFileFilter(new String[] { "plugin.xml", "source.xml", "destination.xml" }, IOCase.INSENSITIVE);
         FileFilter directoryFilter = FileFilterUtils.directoryFileFilter();
-        File extensionPath = new File(PATH_EXTENSIONS);
+        File extensionPath = new File(EXTENSIONS_DIR);
 
         if (extensionPath.exists() && extensionPath.isDirectory()) {
             File[] directories = extensionPath.listFiles(directoryFilter);
