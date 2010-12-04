@@ -84,8 +84,4 @@ public class ExternalScriptStepPlugin extends TransformerStepPlugin {
         script.append(variable);
         return script.toString();
     }
-
-    public String getDisplayName() {
-        return "External Script";
-    }
 }

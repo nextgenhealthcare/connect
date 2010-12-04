@@ -306,7 +306,7 @@ public class TransformerPane extends MirthEditorPane implements
         // establish the cards to use in the Transformer
         stepPanel.addCard(blankPanel, BLANK_TYPE);
         for (TransformerStepPlugin plugin : LoadedExtensions.getInstance().getTransformerStepPlugins().values()) {
-            stepPanel.addCard(plugin.getPanel(), plugin.getDisplayName());
+            stepPanel.addCard(plugin.getPanel(), plugin.getName());
         }
         transformerTablePane = new JScrollPane();
         transformerTablePane.setBorder(BorderFactory.createEmptyBorder());
@@ -484,7 +484,7 @@ public class TransformerPane extends MirthEditorPane implements
         TransformerStepPlugin[] pluginArray = LoadedExtensions.getInstance().getTransformerStepPlugins().values().toArray(
                 new TransformerStepPlugin[0]);
         for (int i = 0; i < pluginArray.length; i++) {
-            defaultComboBoxValues[i] = pluginArray[i].getDisplayName();
+            defaultComboBoxValues[i] = pluginArray[i].getName();
         }
         MirthComboBoxCellEditor comboBox = new MirthComboBoxCellEditor(transformerTable, defaultComboBoxValues, 2, true);
 

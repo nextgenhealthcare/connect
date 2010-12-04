@@ -95,9 +95,4 @@ public class JavascriptStepPlugin extends TransformerStepPlugin {
     public boolean showValidateTask() {
         return true;
     }
-
-    @Override
-    public String getDisplayName() {
-        return "JavaScript";
-    }
 }

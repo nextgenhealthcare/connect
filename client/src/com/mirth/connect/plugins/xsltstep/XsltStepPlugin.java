@@ -104,8 +104,4 @@ public class XsltStepPlugin extends TransformerStepPlugin {
 
         return script.toString();
     }
-
-    public String getDisplayName() {
-        return "XSLT Step";
-    }
 }

@@ -289,7 +289,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         // establish the cards to use in the Transformer
         rulePanel.addCard(blankPanel, BLANK_TYPE);
         for (FilterRulePlugin plugin : LoadedExtensions.getInstance().getFilterRulePlugins().values()) {
-            rulePanel.addCard(plugin.getPanel(), plugin.getDisplayName());
+            rulePanel.addCard(plugin.getPanel(), plugin.getName());
         }
 
         filterTablePane = new JScrollPane();
@@ -457,7 +457,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         String[] defaultComboBoxValues = new String[LoadedExtensions.getInstance().getFilterRulePlugins().size()];
         FilterRulePlugin[] pluginArray = LoadedExtensions.getInstance().getFilterRulePlugins().values().toArray(new FilterRulePlugin[0]);
         for (int i = 0; i < pluginArray.length; i++) {
-            defaultComboBoxValues[i] = pluginArray[i].getDisplayName();
+            defaultComboBoxValues[i] = pluginArray[i].getName();
         }
 
         MirthComboBoxCellEditor comboBoxType = new MirthComboBoxCellEditor(filterTable, defaultComboBoxValues, 2, true);

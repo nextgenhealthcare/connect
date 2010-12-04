@@ -92,9 +92,4 @@ public class JavascriptRulePlugin extends FilterRulePlugin {
     public boolean showValidateTask() {
         return true;
     }
-
-    @Override
-    public String getDisplayName() {
-        return "JavaScript";
-    }
 }

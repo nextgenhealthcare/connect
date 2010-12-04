@@ -41,11 +41,6 @@ public class ExternalScriptRulePlugin extends FilterRulePlugin {
     }
 
     @Override
-    public String getDisplayName() {
-        return "External Script";
-    }
-
-    @Override
     public Map<Object, Object> getData(int row) {
         return panel.getData();
     }

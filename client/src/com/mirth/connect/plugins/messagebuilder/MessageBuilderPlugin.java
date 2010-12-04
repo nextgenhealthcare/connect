@@ -124,8 +124,4 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
         }
         return regexArray.toString();
     }
-
-    public String getDisplayName() {
-        return "Message Builder";
-    }
 }

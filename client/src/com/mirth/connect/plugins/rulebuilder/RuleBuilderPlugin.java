@@ -156,11 +156,6 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
         return true;
     }
 
-    @Override
-    public String getDisplayName() {
-        return "Rule Builder";
-    }
-
     public boolean isProvideOwnStepName() {
         return true;
     }

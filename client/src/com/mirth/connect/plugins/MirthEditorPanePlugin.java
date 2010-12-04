@@ -29,8 +29,6 @@ public abstract class MirthEditorPanePlugin extends ClientPlugin {
         return new String();
     }
 
-    public abstract String getDisplayName();
-
     public abstract Map<Object, Object> getData(int row);
 
     public abstract void setData(Map<Object, Object> data);

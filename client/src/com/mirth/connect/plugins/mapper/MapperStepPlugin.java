@@ -145,9 +145,4 @@ public class MapperStepPlugin extends TransformerStepPlugin {
         }
         return regexArray.toString();
     }
-
-    @Override
-    public String getDisplayName() {
-        return "Mapper";
-    }
 }
