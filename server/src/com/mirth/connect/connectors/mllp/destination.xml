@@ -2,7 +2,7 @@
 	<name>LLP Sender</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.0.1</mirthVersion>
+	<mirthVersion>2.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send messages to MLLP compatabile servers. The connector can automatically retry failed messages and handle ACK responses.</description>
 	<clientClassName>com.mirth.connect.connectors.mllp.LLPSender</clientClassName>

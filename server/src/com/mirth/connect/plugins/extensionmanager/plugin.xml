@@ -2,7 +2,7 @@
 	<name>Extension Manager</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.0.1</mirthVersion>
+	<mirthVersion>2.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides a GUI to manager, install and update Mirth extensions</description>
 	<enabled>true</enabled>
