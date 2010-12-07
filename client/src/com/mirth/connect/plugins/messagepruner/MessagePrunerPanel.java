@@ -9,14 +9,19 @@
 
 package com.mirth.connect.plugins.messagepruner;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
+import javax.swing.SwingWorker;
+
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.AbstractSettingsPanel;
 import com.mirth.connect.client.ui.CenterCellRenderer;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.RefreshTableModel;
@@ -24,22 +29,85 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTimePicker;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.plugins.SettingsPanelPlugin;
 
-public class MessagePrunerPanel extends javax.swing.JPanel {
+public class MessagePrunerPanel extends AbstractSettingsPanel {
 
     private final String NAME_COLUMN_NAME = "Channel";
     private final String TIME_COLUMN_NAME = "Time Pruned";
     private final String NUMBER_COLUMN_NAME = "Messages Pruned";
-    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    private SettingsPanelPlugin plugin = null;
 
-    /**
-     * Creates new form MessagePrunerPanel
-     */
-    public MessagePrunerPanel() {
+    public MessagePrunerPanel(String tabName, SettingsPanelPlugin plugin) {
+        super(tabName);
+        this.plugin = plugin;
+
         initComponents();
         pruningBlockSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
         makeLogTable();
+    }
+
+    @Override
+    public void doRefresh() {
+        getFrame().setWorking("Loading " + getTabName() + " properties...", true);
+
+        final Properties serverProperties = new Properties();
+        final List<String[]> log = new ArrayList<String[]>();
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+            public Void doInBackground() {
+                try {
+                    if (!getFrame().confirmLeave()) {
+                        return null;
+                    }
+
+                    Properties propertiesFromServer = plugin.getPropertiesFromServer();
+
+                    if (propertiesFromServer != null) {
+                        serverProperties.putAll(propertiesFromServer);
+                    }
+
+                    log.addAll((List<String[]>) plugin.invoke("getLog", null));
+                } catch (ClientException e) {
+                    getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+
+            @Override
+            public void done() {
+                setProperties(serverProperties, log);
+                getFrame().setWorking("", false);
+            }
+        };
+
+        worker.execute();
+    }
+
+    @Override
+    public void doSave() {
+        getFrame().setWorking("Saving " + getTabName() + " properties...", true);
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+            public Void doInBackground() {
+                try {
+                    plugin.setPropertiesToServer(getProperties());
+                } catch (ClientException e) {
+                    getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+
+            @Override
+            public void done() {
+                setSaveEnabled(false);
+                getFrame().setWorking("", false);
+            }
+        };
+
+        worker.execute();
     }
 
     public void setProperties(Properties properties, List<String[]> log) {
@@ -73,6 +141,8 @@ public class MessagePrunerPanel extends javax.swing.JPanel {
         } else {
             pruningBlockSizeField.setText("1000");
         }
+
+        repaint();
 
         updateTable(log);
     }
@@ -274,11 +344,6 @@ public class MessagePrunerPanel extends javax.swing.JPanel {
         batchYes.setText("Yes");
         batchYes.setToolTipText("Turning batch pruning on increases message pruning performance by allowing channels with the same pruning settings to be pruned in one delete.");
         batchYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        batchYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                batchYesActionPerformed(evt);
-            }
-        });
 
         jLabel2.setText("Enable Batch Pruning:");
 
@@ -288,11 +353,6 @@ public class MessagePrunerPanel extends javax.swing.JPanel {
         batchNo.setText("No");
         batchNo.setToolTipText("Turning batch pruning off decreases message pruning performance, but displays how many messages are pruned from each individual channel.");
         batchNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        batchNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                batchNoActionPerformed(evt);
-            }
-        });
 
         pruningBlockSizeLabel.setText("Pruning Block Size:");
 
@@ -435,7 +495,7 @@ public class MessagePrunerPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void hourButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void hourButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hourButtonActionPerformed
         dayOfMonthLabel.setEnabled(false);
         dayOfWeekLabel.setEnabled(false);
         timeOfDayLabel.setEnabled(false);
@@ -450,10 +510,9 @@ public class MessagePrunerPanel extends javax.swing.JPanel {
         timeOfDay.setEnabled(false);
         timeOfDayWeekly.setEnabled(false);
         timeOfDayMonthly.setEnabled(false);
-    }
+    }//GEN-LAST:event_hourButtonActionPerformed
 
-    private void dayButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dayButtonActionPerformed
-    {//GEN-HEADEREND:event_dayButtonActionPerformed
+    private void dayButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dayButtonActionPerformed
         dayOfMonthLabel.setEnabled(false);
         dayOfWeekLabel.setEnabled(false);
         timeOfDayLabel.setEnabled(true);
@@ -470,15 +529,7 @@ public class MessagePrunerPanel extends javax.swing.JPanel {
         timeOfDayMonthly.setEnabled(false);
     }//GEN-LAST:event_dayButtonActionPerformed
 
-private void batchYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_batchYesActionPerformed
-// TODO add your handling code here:
-}//GEN-LAST:event_batchYesActionPerformed
-
-private void batchNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_batchNoActionPerformed
-// TODO add your handling code here:
-}//GEN-LAST:event_batchNoActionPerformed
-
-    private void weekButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void weekButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_weekButtonActionPerformed
         dayOfMonthLabel.setEnabled(false);
         dayOfWeekLabel.setEnabled(true);
         timeOfDayLabel.setEnabled(false);
@@ -493,9 +544,9 @@ private void batchNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
         timeOfDay.setEnabled(false);
         timeOfDayWeekly.setEnabled(true);
         timeOfDayMonthly.setEnabled(false);
-    }
+    }//GEN-LAST:event_weekButtonActionPerformed
 
-    private void monthButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void monthButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_monthButtonActionPerformed
         dayOfMonthLabel.setEnabled(true);
         dayOfWeekLabel.setEnabled(false);
         timeOfDayLabel.setEnabled(false);
@@ -510,7 +561,7 @@ private void batchNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
         timeOfDay.setEnabled(false);
         timeOfDayWeekly.setEnabled(false);
         timeOfDayMonthly.setEnabled(true);
-    }
+    }//GEN-LAST:event_monthButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthRadioButton batchNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton batchYes;

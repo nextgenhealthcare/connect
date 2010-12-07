@@ -11,11 +11,10 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Color;
 
+import javax.swing.DefaultSingleSelectionModel;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.SingleSelectionModel;
 
 import com.mirth.connect.plugins.ClientPanelPlugin;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
@@ -24,8 +23,6 @@ public class PluginPanel extends javax.swing.JPanel {
 
     public static final String EXTENSION_MANAGER = "Extension Manager";
     private Frame parent;
-    private int oldTabIndex = -1;
-    private boolean cancelTabChange = false;
     private ClientPanelPlugin currentPanelPlugin = null;
 
     /** Creates new form PluginPanel */
@@ -33,35 +30,17 @@ public class PluginPanel extends javax.swing.JPanel {
         parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         loadPlugins();
+        
+        SingleSelectionModel model = new DefaultSingleSelectionModel() {
 
-        ChangeListener changeListener = new ChangeListener() {
-
-            public void stateChanged(ChangeEvent changeEvent) {
-                JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
-
-                /*
-                 * There is no way to cancel a tab change, so instead we
-                 * save the old tab's index and set that tab as selected
-                 * again if the tab change is canceled.  When setting the
-                 * tab back we don't want to execute any tab changed actions,
-                 * so we set a cancelTabChange flag.
-                 * 
-                 */
-                if (cancelTabChange) {
-                    cancelTabChange = false;
-                } else {
-                    if (!parent.confirmLeave()) {
-                        cancelTabChange = true;
-                        sourceTabbedPane.setSelectedIndex(oldTabIndex);
-                    } else {
-                        int index = sourceTabbedPane.getSelectedIndex();
-                        oldTabIndex = index;
-                        loadPlugin(sourceTabbedPane.getTitleAt(index));
-                    }
+            public void setSelectedIndex(int index) {
+                if (parent.confirmLeave()) {
+                    loadPlugin(index);
+                    super.setSelectedIndex(index);
                 }
             }
         };
-        tabs.addChangeListener(changeListener);
+        tabs.setModel(model);
     }
 
     public void loadPlugins() {
@@ -121,7 +100,8 @@ public class PluginPanel extends javax.swing.JPanel {
         }
     }
 
-    public void loadPlugin(String pluginName) {
+    public void loadPlugin(int index) {
+        String pluginName = tabs.getTitleAt(index);
         ClientPanelPlugin plugin = LoadedExtensions.getInstance().getClientPanelPlugins().get(pluginName);
         currentPanelPlugin = plugin;
 
@@ -130,6 +110,15 @@ public class PluginPanel extends javax.swing.JPanel {
             plugin.display();
         } else {
             parent.setFocus(null);
+        }
+    }
+    
+    public void loadPlugin (String pluginName) {
+        for (int i = 0; i < tabs.getTabCount(); i++) {
+            if (pluginName.equals(tabs.getTitleAt(i))) {
+                loadPlugin(i);
+                return;
+            }
         }
     }
 

@@ -356,9 +356,6 @@
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="batchYesActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel2">
           <Properties>
@@ -384,9 +381,6 @@
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="batchNoActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="pruningBlockSizeLabel">
           <Properties>

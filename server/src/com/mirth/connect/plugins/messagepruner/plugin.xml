@@ -8,7 +8,7 @@
 	<enabled>true</enabled>
 	<extensionPoint>
 		<name>Message Pruner</name>
-		<type>CLIENT_PANEL</type>
+		<type>CLIENT_SETTINGS_PANEL</type>
 		<className>com.mirth.connect.plugins.messagepruner.MessagePrunerClient</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>

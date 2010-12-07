@@ -139,8 +139,6 @@ public class Frame extends JXFrame {
     // Task panes and popup menus
     public JXTaskPane viewPane;
     public JXTaskPane otherPane;
-    public JXTaskPane settingsTasks;
-    public JPopupMenu settingsPopupMenu;
     public JXTaskPane channelTasks;
     public JPopupMenu channelPopupMenu;
     public JXTaskPane dashboardTasks;
@@ -548,7 +546,6 @@ public class Frame extends JXFrame {
      */
     private void makePaneContainer() {
         createViewPane();
-        createSettingsPane();
         createChannelPane();
         createChannelEditPane();
         createDashboardPane();
@@ -564,10 +561,6 @@ public class Frame extends JXFrame {
     private void setInitialVisibleTasks() {
         // View Pane
         setVisibleTasks(viewPane, null, 0, -1, true);
-        
-        // Settings Pane
-        setVisibleTasks(settingsTasks, settingsPopupMenu, 0, 0, true);
-        setVisibleTasks(settingsTasks, settingsPopupMenu, 1, 1, false);
         
         // Alert Pane
         setVisibleTasks(alertTasks, alertPopupMenu, 0, 7, false);
@@ -633,24 +626,6 @@ public class Frame extends JXFrame {
         setNonFocusable(viewPane);
         taskPaneContainer.add(viewPane);
         viewPane.setVisible(true);
-    }
-
-    /**
-     * Creates the settings task pane.
-     */
-    private void createSettingsPane() {
-        // Create Settings Tasks Pane
-        settingsTasks = new JXTaskPane();
-        settingsPopupMenu = new JPopupMenu();
-        settingsTasks.setTitle("Settings Tasks");
-        settingsTasks.setName(TaskConstants.SETTINGS_KEY);
-        settingsTasks.setFocusable(false);
-
-        addTask(TaskConstants.SETTINGS_REFRESH, "Refresh", "Refresh settings.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), settingsTasks, settingsPopupMenu);
-        addTask(TaskConstants.SETTINGS_SAVE, "Save Settings", "Save settings.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disk.png")), settingsTasks, settingsPopupMenu);
-
-        setNonFocusable(settingsTasks);
-        taskPaneContainer.add(settingsTasks);
     }
 
     /**
@@ -1184,12 +1159,10 @@ public class Frame extends JXFrame {
                 return false;
             }
         } else if (currentContentPage == settingsPane && isSaveEnabled()) {
-            int option = JOptionPane.showConfirmDialog(this, "Would you like to save the settings?");
+            int option = JOptionPane.showConfirmDialog(this, "Would you like to save the " + settingsPane.getCurrentSettingsPanel().getTabName() + " settings changes?");
 
             if (option == JOptionPane.YES_OPTION) {
-                settingsPane.getSettingsPanel().saveSettings();
-            } else if (option == JOptionPane.NO_OPTION) {
-                settingsPane.getSettingsPanel().loadSettings();
+                settingsPane.getCurrentSettingsPanel().doSave();
             } else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
                 return false;
             }
@@ -1520,7 +1493,7 @@ public class Frame extends JXFrame {
         } else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane) {
             channelEditPanel.filterPane.modified = enabled;
         } else if (currentContentPage == settingsPane) {
-            setVisibleTasks(settingsTasks, settingsPopupMenu, 1, 1, enabled);
+            settingsPane.getCurrentSettingsPanel().setSaveEnabled(enabled);
         } else if (alertPanel != null && currentContentPage == alertPanel) {
             setVisibleTasks(alertTasks, alertPopupMenu, 1, 1, enabled);
         } else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel) {
@@ -1551,7 +1524,7 @@ public class Frame extends JXFrame {
         } else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane) {
             enabled = channelEditTasks.getContentPane().getComponent(0).isVisible() || channelEditPanel.filterPane.modified;
         } else if (currentContentPage == settingsPane) {
-            enabled = settingsTasks.getContentPane().getComponent(1).isVisible();
+            enabled = settingsPane.getCurrentSettingsPanel().isSaveEnabled();
         } else if (alertPanel != null && currentContentPage == alertPanel) {
             enabled = alertTasks.getContentPane().getComponent(1).isVisible();
         } else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel) {
@@ -1663,7 +1636,7 @@ public class Frame extends JXFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                settingsPane.getSettingsPanel().loadSettings();
+                settingsPane.setCurrentSettingsPanel(0);
                 return null;
             }
 
@@ -1671,7 +1644,6 @@ public class Frame extends JXFrame {
                 setBold(viewPane, 3);
                 setPanelName("Settings");
                 setCurrentContentPage(settingsPane);
-                setFocus(settingsTasks);
                 setWorking("", false);
             }
         };
@@ -2746,7 +2718,7 @@ public class Frame extends JXFrame {
         } else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane) {
             return channelEditPanel.filterPane.modified;
         } else if (settingsPane != null && currentContentPage == settingsPane) {
-            return settingsTasks.getContentPane().getComponent(1).isVisible();
+            return settingsPane.getCurrentSettingsPanel().isSaveEnabled();
         } else if (alertPanel != null && currentContentPage == alertPanel) {
             return alertTasks.getContentPane().getComponent(1).isVisible();
         } else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel) {
@@ -2826,24 +2798,6 @@ public class Frame extends JXFrame {
 
         ((JXHyperlink) channelEditTasks.getContentPane().getComponent(componentIndex)).setText(taskName);
         ((JMenuItem) channelEditPopupMenu.getComponent(componentIndex)).setText(taskName);
-    }
-
-    public void doSaveSettings() {
-        setWorking("Saving settings...", true);
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                settingsPane.getSettingsPanel().saveSettings();
-                return null;
-            }
-
-            public void done() {
-                setWorking("", false);
-            }
-        };
-
-        worker.execute();
     }
 
     public void doValidate() {
@@ -3617,32 +3571,6 @@ public class Frame extends JXFrame {
         }
     }
 
-    public void doRefreshSettings() {
-        if (changesHaveBeenMade()) {
-            if (!alertOption(this, "Are you sure you would like to reload the settings from the server and lose your changes?")) {
-                return;
-            } else {
-                setSaveEnabled(false);
-            }
-        }
-
-        setWorking("Loading settings...", true);
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                settingsPane.getSettingsPanel().loadSettings();
-                return null;
-            }
-
-            public void done() {
-                setWorking("", false);
-            }
-        };
-
-        worker.execute();
-    }
-
     public void doRefreshAlerts() {
         setWorking("Loading alerts...", true);
 
@@ -4017,7 +3945,7 @@ public class Frame extends JXFrame {
         } else if (currentContentPage == codeTemplatePanel) {
             doSaveCodeTemplates();
         } else if (currentContentPage == settingsPane) {
-            doSaveSettings();
+            settingsPane.getCurrentSettingsPanel().doSave();
         } else if (currentContentPage == alertPanel) {
             doSaveAlerts();
         } else if (currentContentPage == pluginPanel && pluginPanel.getCurrentPanelPlugin() != null) {

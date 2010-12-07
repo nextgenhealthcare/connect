@@ -27,12 +27,14 @@ import com.mirth.connect.plugins.ClientPlugin;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
 import com.mirth.connect.plugins.FilterRulePlugin;
+import com.mirth.connect.plugins.SettingsPanelPlugin;
 import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class LoadedExtensions {
     private Map<String, ClientPlugin> clientPlugins = new HashMap<String, ClientPlugin>();
 
     private Map<String, ClientPanelPlugin> clientPanelPlugins = new HashMap<String, ClientPanelPlugin>();
+    private Map<String, SettingsPanelPlugin> settingsPanelPlugins = new HashMap<String, SettingsPanelPlugin>();
     private Map<String, DashboardPanelPlugin> dashboardPanelPlugins = new HashMap<String, DashboardPanelPlugin>();
     private Map<String, ChannelWizardPlugin> channelWizardPlugins = new HashMap<String, ChannelWizardPlugin>();
     private Map<String, DashboardColumnPlugin> dashboardColumnPlugins = new HashMap<String, DashboardColumnPlugin>();
@@ -126,6 +128,8 @@ public class LoadedExtensions {
 
         if (plugin instanceof ClientPanelPlugin) {
             clientPanelPlugins.put(plugin.getName(), (ClientPanelPlugin) plugin);
+        } else if (plugin instanceof SettingsPanelPlugin) {
+            settingsPanelPlugins.put(plugin.getName(), (SettingsPanelPlugin) plugin);
         } else if (plugin instanceof DashboardPanelPlugin) {
             dashboardPanelPlugins.put(plugin.getName(), (DashboardPanelPlugin) plugin);
         } else if (plugin instanceof ChannelWizardPlugin) {
@@ -149,6 +153,10 @@ public class LoadedExtensions {
 
     public Map<String, ClientPanelPlugin> getClientPanelPlugins() {
         return clientPanelPlugins;
+    }
+
+    public Map<String, SettingsPanelPlugin> getSettingsPanelPlugins() {
+        return settingsPanelPlugins;
     }
 
     public Map<String, DashboardPanelPlugin> getDashboardPanelPlugins() {

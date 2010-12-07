@@ -9,15 +9,68 @@
 
 package com.mirth.connect.client.ui;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.DefaultSingleSelectionModel;
+import javax.swing.SingleSelectionModel;
+
+import com.mirth.connect.plugins.SettingsPanelPlugin;
+
 public class SettingsPane extends javax.swing.JPanel {
 
-    /** Creates new form SettingsPane */
+    private Frame parent;
+    private AbstractSettingsPanel currentSettingsPanel = null;
+    private Map<String, AbstractSettingsPanel> settingsPanelMap = new HashMap<String, AbstractSettingsPanel>();
+
+    /** Creates new form PluginPanel */
     public SettingsPane() {
+        parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+
+        loadPanel(new SettingsPanelServer("Server"));
+        loadPanel(new SettingsPanelAdministrator("Administrator"));
+        loadPluginPanels();
+
+        SingleSelectionModel model = new DefaultSingleSelectionModel() {
+
+            public void setSelectedIndex(int index) {
+                if (parent.confirmLeave()) {
+                    setCurrentSettingsPanel(index);
+                    super.setSelectedIndex(index);
+                }
+            }
+        };
+        tabbedPane.setModel(model);
     }
 
-    public SettingsPanel getSettingsPanel() {
-        return settingsPanel;
+    public void loadPluginPanels() {
+        for (SettingsPanelPlugin settingsPanelPlugin : LoadedExtensions.getInstance().getSettingsPanelPlugins().values()) {
+            loadPanel(settingsPanelPlugin.getSettingsPanel());
+        }
+    }
+
+    private void loadPanel(AbstractSettingsPanel settingsPanel) {
+        // add task pane before the "other" pane
+        parent.setNonFocusable(settingsPanel.getTaskPane());
+        settingsPanel.getTaskPane().setVisible(false);
+        parent.taskPaneContainer.add(settingsPanel.getTaskPane(), parent.taskPaneContainer.getComponentCount() - 1);
+
+        // Add the tab
+        tabbedPane.addTab(settingsPanel.getTabName(), settingsPanel);
+
+        settingsPanelMap.put(settingsPanel.getTabName(), settingsPanel);
+    }
+
+    public void setCurrentSettingsPanel(int index) {
+        String tabName = tabbedPane.getTitleAt(index);
+        currentSettingsPanel = settingsPanelMap.get(tabName);
+        parent.setFocus(currentSettingsPanel.getTaskPane());
+        currentSettingsPanel.doRefresh();
+    }
+
+    public AbstractSettingsPanel getCurrentSettingsPanel() {
+        return currentSettingsPanel;
     }
 
     /** This method is called from within the constructor to
@@ -28,29 +81,20 @@ public class SettingsPane extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        settingsPanel = new com.mirth.connect.client.ui.SettingsPanel();
-
-        jScrollPane1.setBorder(null);
-        jScrollPane1.setViewportView(settingsPanel);
+        tabbedPane = new javax.swing.JTabbedPane();
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 330, Short.MAX_VALUE)
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE))
+            .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 293, Short.MAX_VALUE)
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE))
+            .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane jScrollPane1;
-    private com.mirth.connect.client.ui.SettingsPanel settingsPanel;
+    private javax.swing.JTabbedPane tabbedPane;
     // End of variables declaration//GEN-END:variables
 }
