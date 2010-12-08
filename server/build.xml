@@ -30,7 +30,6 @@
 		<!-- plugins -->
 		<property name="plugins.dashboardstatus" value="${extensions}/dashboardstatus" />
 		<property name="plugins.dicomviewer" value="${extensions}/dicomviewer" />
-		<property name="plugins.extensionmanager" value="${extensions}/extensionmanager" />
 		<property name="plugins.imageviewer" value="${extensions}/imageviewer" />
 		<property name="plugins.javascriptrule" value="${extensions}/javascriptrule" />
 		<property name="plugins.javascriptstep" value="${extensions}/javascriptstep" />
@@ -397,17 +396,6 @@
 			<fileset dir="${lib.extensions}/dicomviewer" />
 		</copy>
 
-		<!-- plugins.extensionmanager -->
-		<mkdir dir="${plugins.extensionmanager}" />
-		<copy todir="${plugins.extensionmanager}">
-			<fileset dir="${src}/com/mirth/connect/plugins/extensionmanager">
-				<include name="*.xml" />
-			</fileset>
-		</copy>
-		<copy todir="${plugins.extensionmanager}/lib" failonerror="false">
-			<fileset dir="${lib.extensions}/extensionmanager" />
-		</copy>
-
 		<!-- plugins.imageviewer -->
 		<mkdir dir="${plugins.imageviewer}" />
 		<copy todir="${plugins.imageviewer}">
@@ -703,7 +691,6 @@
 		<zip destfile="${dist.extensions}/tcp-${version}.zip" basedir="${extensions}" includes="tcp/**/*" />
 		<zip destfile="${dist.extensions}/dicom-${version}.zip" basedir="${extensions}" includes="dicom/**/*" />
 		<zip destfile="${dist.extensions}/vm-${version}.zip" basedir="${extensions}" includes="vm/**/*" />
-		<zip destfile="${dist.extensions}/extensionmanager-${version}.zip" basedir="${extensions}" includes="extensionmanager/**/*" />
 		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip" basedir="${extensions}" includes="dashboardstatus/**/*" />
 		<zip destfile="${dist.extensions}/serverlog-${version}.zip" basedir="${extensions}" includes="serverlog/**/*" />
 		<zip destfile="${dist.extensions}/messagepruner-${version}.zip" basedir="${extensions}" includes="messagepruner/**/*" />
