@@ -84,4 +84,16 @@ public class ExternalScriptStepPlugin extends TransformerStepPlugin {
         script.append(variable);
         return script.toString();
     }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void reset() {
+    }
 }

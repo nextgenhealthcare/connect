@@ -95,4 +95,16 @@ public class JavascriptStepPlugin extends TransformerStepPlugin {
     public boolean showValidateTask() {
         return true;
     }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void reset() {
+    }
 }

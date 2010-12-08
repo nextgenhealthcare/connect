@@ -26,4 +26,16 @@ public class MessagePrunerClient extends SettingsPanelPlugin {
     public AbstractSettingsPanel getSettingsPanel() {
         return settingsPanel;
     }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void reset() {
+    }
 }

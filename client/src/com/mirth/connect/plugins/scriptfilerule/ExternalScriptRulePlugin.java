@@ -78,4 +78,16 @@ public class ExternalScriptRulePlugin extends FilterRulePlugin {
         }
         return null;
     }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void reset() {
+    }
 }

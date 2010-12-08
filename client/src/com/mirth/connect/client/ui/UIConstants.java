@@ -75,7 +75,7 @@ public class UIConstants {
     public static final String SYSTEM_EVENT_HELP_LOCATION = "Events";
     public static final String SETTINGS_HELP_LOCATION = "Settings";
     public static final String USERS_HELP_LOCATION = "Users";
-    public static final String PLUGINS_HELP_LOCATION = "Plugins";
+    public static final String EXTENSIONS_HELP_LOCATION = "Extensions";
     // for JTrees
     public static final ImageIcon LEAF_ICON = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_green.png"));
     public static final ImageIcon OPEN_ICON = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_yellow.png"));

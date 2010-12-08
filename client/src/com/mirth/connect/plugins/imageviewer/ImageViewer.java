@@ -45,13 +45,13 @@ public class ImageViewer extends AttachmentViewer {
         return false;
     }
 
-    public void viewAttachments(List attachmentIds) {
+    public void viewAttachments(List<String> attachmentIds) {
 
         JFrame frame = new JFrame("Image Viewer");
 
         try {
 
-            Attachment attachment = parent.mirthClient.getAttachment((String) attachmentIds.get(0));
+            Attachment attachment = parent.mirthClient.getAttachment(attachmentIds.get(0));
             byte[] rawData = attachment.getData();
             byte[] rawImage = new Base64().decode(rawData);
             ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
@@ -120,5 +120,17 @@ public class ImageViewer extends AttachmentViewer {
         } catch (Exception e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
+    }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void reset() {
     }
 }

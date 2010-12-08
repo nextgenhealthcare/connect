@@ -13,13 +13,13 @@ import java.util.List;
 
 public abstract class AttachmentViewer extends ClientPlugin {
 
-    public abstract String getViewerType();
-
-    public abstract void viewAttachments(List attachmentIds);
-
-    public abstract boolean handleMultiple();
-
     public AttachmentViewer(String name) {
         super(name);
     }
+
+    public abstract String getViewerType();
+
+    public abstract void viewAttachments(List<String> attachmentIds);
+
+    public abstract boolean handleMultiple();
 }

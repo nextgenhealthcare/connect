@@ -14,6 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.JComponent;
+
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.ChannelStatus;
@@ -36,7 +38,6 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
         connectorInfoLogs = new ConcurrentHashMap<String, LinkedList<String[]>>();
         dcsp = new DashboardConnectorStatusPanel(this);
         currentDashboardLogSize = dcsp.getCurrentDashboardLogSize();
-        setComponent(dcsp);
     }
 
     public void clearLog(String selectedChannel) {
@@ -178,12 +179,25 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
         dcsp.adjustPauseResumeButton(selectedChannel);
 
     }
+    
+    @Override
+    public JComponent getComponent() {
+        return dcsp;
+    }
 
     // used for starting processes in the plugin when the program is started
+    @Override
     public void start() {
     }
 
+    // used for stopping processes in the plugin when the program is exited
+    @Override
+    public void stop() {
+        reset();
+    }
+    
     // Called when establishing a new session for the user
+    @Override
     public void reset() {
         clearLog(NO_CHANNEL_SELECTED);
         
@@ -193,10 +207,5 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
         } catch (ClientException e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
-    }
-    
-    // used for stopping processes in the plugin when the program is exited
-    public void stop() {
-        reset();
     }
 }

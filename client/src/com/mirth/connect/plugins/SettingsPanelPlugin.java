@@ -9,28 +9,13 @@
 
 package com.mirth.connect.plugins;
 
-import java.util.Properties;
-
-import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.AbstractSettingsPanel;
 
 public abstract class SettingsPanelPlugin extends ClientPlugin {
 
     public SettingsPanelPlugin(String name) {
-        this.name = name;
+        super(name);
     }
 
     public abstract AbstractSettingsPanel getSettingsPanel();
-
-    public Object invoke(String method, Object object) throws ClientException {
-        return parent.mirthClient.invokePluginMethod(name, method, object);
-    }
-
-    public Properties getPropertiesFromServer() throws ClientException {
-        return parent.mirthClient.getPluginProperties(name);
-    }
-
-    public void setPropertiesToServer(Properties properties) throws ClientException {
-        parent.mirthClient.setPluginProperties(name, properties);
-    }
 }

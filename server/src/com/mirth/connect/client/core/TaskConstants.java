@@ -22,6 +22,7 @@ public class TaskConstants {
     public static final String CHANNEL_KEY = "channel";
     public static final String ALERT_KEY = "alert";
     public static final String SETTINGS_KEY = "settings";
+    public static final String EXTENSIONS_KEY = "extensions";
     public static final String VIEW_KEY = "view";
 
     // View Tasks
@@ -31,7 +32,7 @@ public class TaskConstants {
     public static final String VIEW_SETTINGS = "doShowSettings";
     public static final String VIEW_ALERTS = "doShowAlerts";
     public static final String VIEW_EVENTS = "doShowEvents";
-    public static final String VIEW_PLUGINS = "doShowPlugins";
+    public static final String VIEW_EXTENSIONS = "doShowExtensions";
 
     // Settings Tasks
     public static final String SETTINGS_REFRESH = "doRefreshSettings";
@@ -129,6 +130,15 @@ public class TaskConstants {
     public static final String GLOBAL_SCRIPT_VALIDATE = "doValidateCurrentGlobalScript";
     public static final String GLOBAL_SCRIPT_IMPORT = "doImportGlobalScripts";
     public static final String GLOBAL_SCRIPT_EXPORT = "doExportGlobalScripts";
+    
+    // Extensions Tasks
+    public static final String EXTENSIONS_REFRESH = "doRefreshExtensions";
+    public static final String EXTENSIONS_SAVE = "doSaveExtensions";
+    public static final String EXTENSIONS_CHECK_FOR_UPDATES = "doCheckForUpdates";
+    public static final String EXTENSIONS_ENABLE = "doEnableExtension";
+    public static final String EXTENSIONS_DISABLE = "doDisableExtension";
+    public static final String EXTENSIONS_SHOW_PROPERTIES = "doShowExtensionProperties";
+    public static final String EXTENSIONS_UNINSTALL = "doUninstallExtension";
     
     // Other Tasks
     public static final String OTHER_HELP = "doHelp";

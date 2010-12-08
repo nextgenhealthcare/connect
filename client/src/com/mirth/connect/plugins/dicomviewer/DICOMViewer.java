@@ -35,10 +35,10 @@ public class DICOMViewer extends AttachmentViewer {
         return true;
     }
 
-    public void viewAttachments(List attachmentIds) {
+    public void viewAttachments(List<String> attachmentIds) {
         // do viewing code
         try {
-            String messageId = parent.mirthClient.getAttachment((String) attachmentIds.get(0)).getMessageId();
+            String messageId = parent.mirthClient.getAttachment(attachmentIds.get(0)).getMessageId();
             MessageObject message = parent.messageBrowser.getMessageObjectById(messageId);
             byte[] rawImage = new Base64().decode(parent.mirthClient.getDICOMMessage(message).getBytes());
             ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
@@ -59,5 +59,17 @@ public class DICOMViewer extends AttachmentViewer {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
 
+    }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void reset() {
     }
 }

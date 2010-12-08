@@ -92,4 +92,16 @@ public class JavascriptRulePlugin extends FilterRulePlugin {
     public boolean showValidateTask() {
         return true;
     }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void reset() {
+    }
 }

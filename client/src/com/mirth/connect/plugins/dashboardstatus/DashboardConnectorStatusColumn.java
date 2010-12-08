@@ -96,4 +96,16 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
             // e.printStackTrace();
         }
     }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void reset() {
+    }
 }

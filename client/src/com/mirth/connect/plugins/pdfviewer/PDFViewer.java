@@ -33,10 +33,10 @@ public class PDFViewer extends AttachmentViewer {
         return false;
     }
 
-    public void viewAttachments(List attachmentIds) {
+    public void viewAttachments(List<String> attachmentIds) {
 
         try {
-            Attachment attachment = parent.mirthClient.getAttachment((String) attachmentIds.get(0));
+            Attachment attachment = parent.mirthClient.getAttachment(attachmentIds.get(0));
             byte[] rawData = attachment.getData();
             byte[] rawPDF = new Base64().decode(rawData);
 
@@ -52,5 +52,17 @@ public class PDFViewer extends AttachmentViewer {
         } catch (Exception e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
+    }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void reset() {
     }
 }

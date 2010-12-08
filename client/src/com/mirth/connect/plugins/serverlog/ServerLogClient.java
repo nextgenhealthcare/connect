@@ -12,6 +12,8 @@ package com.mirth.connect.plugins.serverlog;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JComponent;
+
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.ChannelStatus;
@@ -31,7 +33,6 @@ public class ServerLogClient extends DashboardPanelPlugin {
         serverLogs = new LinkedList<String[]>();
         serverLogPanel = new ServerLogPanel(this);
         currentServerLogSize = serverLogPanel.getCurrentServerLogSize();
-        setComponent(serverLogPanel);
     }
 
     public void clearLog() {
@@ -94,12 +95,25 @@ public class ServerLogClient extends DashboardPanelPlugin {
         update();
 
     }
+    
+    @Override
+    public JComponent getComponent() {
+        return serverLogPanel;
+    }
 
     // used for starting processes in the plugin when the program is started
+    @Override
     public void start() {
+    }
+    
+    // used for stopping processes in the plugin when the program is exited
+    @Override
+    public void stop() {
+        reset();
     }
 
     // Called when establishing a new session for the user.
+    @Override
     public void reset() {
         clearLog();
         
@@ -113,10 +127,5 @@ public class ServerLogClient extends DashboardPanelPlugin {
         } catch (ClientException e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
-    }
-    
-    // used for stopping processes in the plugin when the program is exited
-    public void stop() {
-        reset();
     }
 }

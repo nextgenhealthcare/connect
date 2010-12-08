@@ -222,4 +222,16 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
     public void updateName() {
         parent.updateName(parent.getSelectedRow(), getStepName());
     }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void reset() {
+    }
 }

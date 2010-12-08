@@ -13,17 +13,12 @@ import java.util.List;
 
 import javax.swing.table.TableCellRenderer;
 
-import com.mirth.connect.client.ui.DashboardPanel;
-import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.ChannelStatus;
 
 public abstract class DashboardColumnPlugin extends ClientPlugin {
 
-    protected DashboardPanel parent;
-
     public DashboardColumnPlugin(String name) {
         super(name);
-        this.parent = PlatformUI.MIRTH_FRAME.dashboardPanel;
     }
 
     public abstract String getColumnHeader();

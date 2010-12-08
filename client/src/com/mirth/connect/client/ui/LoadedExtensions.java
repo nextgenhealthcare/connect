@@ -22,7 +22,6 @@ import com.mirth.connect.model.ExtensionPoint;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.plugins.AttachmentViewer;
 import com.mirth.connect.plugins.ChannelWizardPlugin;
-import com.mirth.connect.plugins.ClientPanelPlugin;
 import com.mirth.connect.plugins.ClientPlugin;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
@@ -33,7 +32,6 @@ import com.mirth.connect.plugins.TransformerStepPlugin;
 public class LoadedExtensions {
     private Map<String, ClientPlugin> clientPlugins = new HashMap<String, ClientPlugin>();
 
-    private Map<String, ClientPanelPlugin> clientPanelPlugins = new HashMap<String, ClientPanelPlugin>();
     private Map<String, SettingsPanelPlugin> settingsPanelPlugins = new HashMap<String, SettingsPanelPlugin>();
     private Map<String, DashboardPanelPlugin> dashboardPanelPlugins = new HashMap<String, DashboardPanelPlugin>();
     private Map<String, ChannelWizardPlugin> channelWizardPlugins = new HashMap<String, ChannelWizardPlugin>();
@@ -123,12 +121,28 @@ public class LoadedExtensions {
         }
     }
 
+    public void startPlugins() {
+        for (ClientPlugin clientPlugin : clientPlugins.values()) {
+            clientPlugin.start();
+        }
+    }
+
+    public void stopPlugins() {
+        for (ClientPlugin clientPlugin : clientPlugins.values()) {
+            clientPlugin.stop();
+        }
+    }
+
+    public void resetPlugins() {
+        for (ClientPlugin clientPlugin : clientPlugins.values()) {
+            clientPlugin.reset();
+        }
+    }
+
     private void addPlugin(ClientPlugin plugin) throws Exception {
         clientPlugins.put(plugin.getName(), plugin);
 
-        if (plugin instanceof ClientPanelPlugin) {
-            clientPanelPlugins.put(plugin.getName(), (ClientPanelPlugin) plugin);
-        } else if (plugin instanceof SettingsPanelPlugin) {
+        if (plugin instanceof SettingsPanelPlugin) {
             settingsPanelPlugins.put(plugin.getName(), (SettingsPanelPlugin) plugin);
         } else if (plugin instanceof DashboardPanelPlugin) {
             dashboardPanelPlugins.put(plugin.getName(), (DashboardPanelPlugin) plugin);
@@ -149,10 +163,6 @@ public class LoadedExtensions {
 
     public Map<String, ClientPlugin> getClientPlugins() {
         return clientPlugins;
-    }
-
-    public Map<String, ClientPanelPlugin> getClientPanelPlugins() {
-        return clientPanelPlugins;
     }
 
     public Map<String, SettingsPanelPlugin> getSettingsPanelPlugins() {

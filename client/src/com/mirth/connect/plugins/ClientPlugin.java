@@ -10,12 +10,14 @@
 package com.mirth.connect.plugins;
 
 import java.util.ArrayList;
+import java.util.Properties;
 
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.CodeTemplate;
 
-public class ClientPlugin {
+public abstract class ClientPlugin {
 
     protected String name;
     protected Frame parent = PlatformUI.MIRTH_FRAME;
@@ -34,4 +36,25 @@ public class ClientPlugin {
     public String getName() {
         return name;
     }
+    
+    public Properties getPropertiesFromServer() throws ClientException {
+        return parent.mirthClient.getPluginProperties(name);
+    }
+
+    public void setPropertiesToServer(Properties properties) throws ClientException {
+        parent.mirthClient.setPluginProperties(name, properties);
+    }
+    
+    public Object invoke(String method, Object object) throws ClientException {
+        return parent.mirthClient.invokePluginMethod(name, method, object);
+    }
+    
+    // used for starting processes in the plugin when the program is started
+    public abstract void start();
+
+    // used for stopping processes in the plugin when the program is exited
+    public abstract void stop();
+
+    // Called when establishing a new session for the user
+    public abstract void reset();
 }

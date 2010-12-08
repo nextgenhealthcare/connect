@@ -42,7 +42,7 @@ public class RTFViewer extends AttachmentViewer {
     }
 
     @Override
-    public void viewAttachments(List attachmentIds) {
+    public void viewAttachments(List<String> attachmentIds) {
         // do viewing code
 
         Frame frame = new Frame("RTF Viewer");
@@ -51,7 +51,7 @@ public class RTFViewer extends AttachmentViewer {
 
         try {
 
-            Attachment attachment = parent.mirthClient.getAttachment((String) attachmentIds.get(0));
+            Attachment attachment = parent.mirthClient.getAttachment(attachmentIds.get(0));
             byte[] rawRTF = new Base64().decode(attachment.getData());
             JEditorPane jEditorPane = new JEditorPane("text/rtf", new String(rawRTF));
 
@@ -87,5 +87,17 @@ public class RTFViewer extends AttachmentViewer {
         } catch (Exception e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
+    }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void reset() {
     }
 }
