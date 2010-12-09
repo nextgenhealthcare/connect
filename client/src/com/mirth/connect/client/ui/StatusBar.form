@@ -24,8 +24,16 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <Component id="left" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="207" max="32767" attributes="0"/>
+              <Component id="serverLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="separator1Label" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="timezoneLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="separator2Label" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="statusLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="136" max="32767" attributes="0"/>
               <Component id="workingText" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="progressBar" min="-2" pref="90" max="-2" attributes="0"/>
@@ -36,8 +44,12 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-              <Component id="left" alignment="3" min="-2" max="-2" attributes="3"/>
+              <Component id="serverLabel" alignment="3" min="-2" max="-2" attributes="3"/>
               <Component id="workingText" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Component id="separator1Label" alignment="3" min="-2" max="-2" attributes="3"/>
+              <Component id="timezoneLabel" alignment="3" min="-2" max="-2" attributes="3"/>
+              <Component id="separator2Label" alignment="3" min="-2" max="-2" attributes="3"/>
+              <Component id="statusLabel" alignment="3" min="-2" max="-2" attributes="3"/>
           </Group>
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
@@ -47,9 +59,9 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="left">
+    <Component class="javax.swing.JLabel" name="serverLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="jLabel1"/>
+        <Property name="text" type="java.lang.String" value="server"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JProgressBar" name="progressBar">
@@ -61,6 +73,26 @@
       <Properties>
         <Property name="horizontalAlignment" type="int" value="4"/>
         <Property name="text" type="java.lang.String" value="jLabel1"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="separator1Label">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="|"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="timezoneLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="TZ"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="separator2Label">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="|"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="statusLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="status"/>
       </Properties>
     </Component>
   </SubComponents>

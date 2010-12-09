@@ -381,7 +381,7 @@ public class Frame extends JXFrame {
         }
         
         // Display the server timezone information
-        statusBar.setServerText(statusBar.getServerText() + "  |  " + PlatformUI.SERVER_TIMEZONE);
+        statusBar.setTimezoneText(PlatformUI.SERVER_TIMEZONE);
 
         setCurrentTaskPaneContainer(taskPaneContainer);
         login.setStatus("Loading dashboard...");
@@ -454,6 +454,7 @@ public class Frame extends JXFrame {
      */
     public void setPanelName(String name) {
         rightContainer.setTitle(name);
+        statusBar.setStatusText("");
     }
 
     public void setWorking(final String displayText, final boolean working) {
@@ -2017,6 +2018,15 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
+                int enabled = 0;
+                for (Channel channel : channels.values()) {
+                    if (channel.isEnabled()) {
+                        enabled++;
+                    }
+                }
+                
+                statusBar.setStatusText(channels.size() + " Channels, " + enabled + " Enabled");
+                
                 channelPanel.updateChannelTable();
 
                 setVisibleTasks(channelTasks, channelPopupMenu, 1, 2, false);
@@ -2202,6 +2212,8 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
+                statusBar.setStatusText(status.size() + " Deployed Channels");
+                
                 setWorking("", false);
                 if (status != null) {
                     dashboardPanel.updateTable(tableData);
