@@ -109,6 +109,10 @@ public abstract class AbstractSettingsPanel extends JPanel {
     public JXTaskPane getTaskPane() {
         return taskPane;
     }
+    
+    public JPopupMenu getPopupMenu() {
+        return popupMenu;
+    }
 
     public abstract void doRefresh();
 
