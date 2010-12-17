@@ -6,7 +6,6 @@
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
-
 package com.mirth.connect.client.ui;
 
 import java.awt.Cursor;
@@ -23,6 +22,7 @@ import javax.swing.SwingWorker;
 import org.apache.commons.io.FileUtils;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.ImportConverter;
@@ -39,6 +39,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         provideUsageStatsMoreInfoLabel.setToolTipText(UIConstants.PRIVACY_TOOLTIP);
         provideUsageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        maxQueueSizeField.setDocument(new MirthFieldConstraints(8, false, false, true));
     }
 
     public void doRefresh() {
@@ -73,9 +74,14 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     }
 
     public void doSave() {
-        getFrame().setWorking("Saving " + getTabName() + " settings...", true);
-
         final Properties serverProperties = getProperties();
+
+        if (serverProperties.getProperty("server.maxqueuesize").length() == 0) {
+            getFrame().alertWarning(this, "Please enter a valid maximum queue size.");
+            return;
+        }
+
+        getFrame().setWorking("Saving " + getTabName() + " settings...", true);
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -177,6 +183,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             updateUrlField.setText("");
         }
 
+        if (serverProperties.getProperty("server.maxqueuesize") != null) {
+            maxQueueSizeField.setText(serverProperties.getProperty("server.maxqueuesize"));
+        } else {
+            maxQueueSizeField.setText("");
+        }
+
         if (serverProperties.getProperty("smtp.username") != null) {
             usernameField.setText(serverProperties.getProperty("smtp.username"));
         } else {
@@ -213,6 +225,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         }
 
         serverProperties.put("update.url", updateUrlField.getText());
+
+        serverProperties.put("server.maxqueuesize", maxQueueSizeField.getText());
 
         serverProperties.put("smtp.host", smtpHostField.getText());
         serverProperties.put("smtp.port", smtpPortField.getText());
@@ -349,6 +363,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         updateUrlField = new com.mirth.connect.client.ui.components.MirthTextField();
         updateUrlLabel = new javax.swing.JLabel();
         provideUsageStatsMoreInfoLabel = new javax.swing.JLabel();
+        maxQueueSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
+        maxQueueSizeLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -564,17 +580,22 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             }
         });
 
+        maxQueueSizeField.setToolTipText("<html>The maximum queue size allowed for each connector, or 0 for infinite.<br>Mirth Connect must be restarted for this setting to take effect.</html>");
+
+        maxQueueSizeLabel.setText("Maximum Queue Size:");
+
         javax.swing.GroupLayout configurationPanelLayout = new javax.swing.GroupLayout(configurationPanel);
         configurationPanel.setLayout(configurationPanelLayout);
         configurationPanelLayout.setHorizontalGroup(
             configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(configurationPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(checkForUpdatesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(clearGlobalMapLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(provideUsageStatsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(updateUrlLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(checkForUpdatesLabel)
+                    .addComponent(clearGlobalMapLabel)
+                    .addComponent(provideUsageStatsLabel)
+                    .addComponent(updateUrlLabel)
+                    .addComponent(maxQueueSizeLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(updateUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -591,7 +612,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     .addGroup(configurationPanelLayout.createSequentialGroup()
                         .addComponent(checkForUpdatesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(checkForUpdatesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(checkForUpdatesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(maxQueueSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(31, Short.MAX_VALUE))
         );
         configurationPanelLayout.setVerticalGroup(
@@ -616,6 +638,10 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(updateUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(updateUrlLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(maxQueueSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(maxQueueSizeLabel))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -671,6 +697,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthTextField defaultFromAddressField;
     private javax.swing.JLabel defaultFromAddressLabel;
     private javax.swing.JPanel emailPanel;
+    private com.mirth.connect.client.ui.components.MirthTextField maxQueueSizeField;
+    private javax.swing.JLabel maxQueueSizeLabel;
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.ButtonGroup provideUsageStatsButtonGroup;

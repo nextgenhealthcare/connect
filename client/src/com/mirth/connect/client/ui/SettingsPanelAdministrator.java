@@ -83,8 +83,6 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         dashboardRefreshIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
         messageBrowserPageSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
         messageBrowserPageSizeLabel = new javax.swing.JLabel();
-        dashboardRefreshIntervalAsterisk = new javax.swing.JLabel();
-        messageBrowserPageSizeAsterisk = new javax.swing.JLabel();
         formatXmlLabel = new javax.swing.JLabel();
         formatXmlYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         formatXmlNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -102,12 +100,6 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         messageBrowserPageSizeField.setToolTipText("Sets the default page size for browsers (message, event, etc.)");
 
         messageBrowserPageSizeLabel.setText("Browser page size:");
-
-        dashboardRefreshIntervalAsterisk.setForeground(new java.awt.Color(255, 0, 0));
-        dashboardRefreshIntervalAsterisk.setText("*");
-
-        messageBrowserPageSizeAsterisk.setForeground(new java.awt.Color(255, 0, 0));
-        messageBrowserPageSizeAsterisk.setText("*");
 
         formatXmlLabel.setText("Format XML in message browser:");
 
@@ -138,32 +130,24 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                     .addComponent(dashboardRefreshIntervalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(clientSettingsLayout.createSequentialGroup()
-                        .addComponent(dashboardRefreshIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dashboardRefreshIntervalAsterisk))
-                    .addGroup(clientSettingsLayout.createSequentialGroup()
-                        .addComponent(messageBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(messageBrowserPageSizeAsterisk))
+                    .addComponent(dashboardRefreshIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(messageBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(clientSettingsLayout.createSequentialGroup()
                         .addComponent(formatXmlYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(formatXmlNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
         clientSettingsLayout.setVerticalGroup(
             clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(clientSettingsLayout.createSequentialGroup()
                 .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dashboardRefreshIntervalLabel)
-                    .addComponent(dashboardRefreshIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dashboardRefreshIntervalAsterisk))
+                    .addComponent(dashboardRefreshIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(messageBrowserPageSizeLabel)
-                    .addComponent(messageBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageBrowserPageSizeAsterisk))
+                    .addComponent(messageBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(formatXmlLabel)
@@ -191,14 +175,12 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel clientSettings;
-    private javax.swing.JLabel dashboardRefreshIntervalAsterisk;
     private com.mirth.connect.client.ui.components.MirthTextField dashboardRefreshIntervalField;
     private javax.swing.JLabel dashboardRefreshIntervalLabel;
     private javax.swing.ButtonGroup formatXmlButtonGroup;
     private javax.swing.JLabel formatXmlLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton formatXmlNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton formatXmlYesRadio;
-    private javax.swing.JLabel messageBrowserPageSizeAsterisk;
     private com.mirth.connect.client.ui.components.MirthTextField messageBrowserPageSizeField;
     private javax.swing.JLabel messageBrowserPageSizeLabel;
     // End of variables declaration//GEN-END:variables

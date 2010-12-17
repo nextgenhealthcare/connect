@@ -27,9 +27,11 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.mule.MuleManager;
 import org.mule.components.simple.PassThroughComponent;
+import org.mule.config.QueueProfile;
 import org.mule.impl.MuleDescriptor;
 import org.mule.impl.MuleTransactionConfig;
 import org.mule.impl.endpoint.MuleEndpoint;
@@ -52,6 +54,7 @@ import org.mule.umo.model.UMOModel;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.routing.UMOOutboundRouter;
 import org.mule.umo.transformer.UMOTransformer;
+import org.mule.util.queue.FilePersistenceStrategy;
 
 import com.mirth.connect.connectors.jdbc.JdbcTransactionFactory;
 import com.mirth.connect.model.Channel;
@@ -865,7 +868,9 @@ public class MuleEngineController implements EngineController {
         MuleManager.getConfiguration().setRecoverableMode(true);
         MuleManager.getConfiguration().setClientMode(false);
         MuleManager.getConfiguration().setWorkingDirectory(ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir());
-
+        MuleManager.getConfiguration().setQueueProfile(new QueueProfile(NumberUtils.toInt(configurationController.getServerProperties().getProperty("server.maxqueuesize"), 100000), true));
+        MuleManager.getConfiguration().setPersistenceStrategy(new FilePersistenceStrategy());
+        
         // add interceptor stack
         InterceptorStack stack = new InterceptorStack();
         List<UMOInterceptor> interceptors = new ArrayList<UMOInterceptor>();

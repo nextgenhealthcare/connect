@@ -79,23 +79,15 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="dashboardRefreshIntervalField" min="-2" pref="78" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="dashboardRefreshIntervalAsterisk" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="102" attributes="0">
-                          <Component id="messageBrowserPageSizeField" min="-2" pref="78" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="messageBrowserPageSizeAsterisk" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="dashboardRefreshIntervalField" alignment="0" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="messageBrowserPageSizeField" min="-2" pref="30" max="-2" attributes="0"/>
                       <Group type="102" attributes="0">
                           <Component id="formatXmlYesRadio" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="formatXmlNoRadio" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace pref="29" max="32767" attributes="0"/>
+                  <EmptySpace pref="45" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -105,13 +97,11 @@
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="dashboardRefreshIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="dashboardRefreshIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="dashboardRefreshIntervalAsterisk" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="messageBrowserPageSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="messageBrowserPageSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="messageBrowserPageSizeAsterisk" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
@@ -143,22 +133,6 @@
         <Component class="javax.swing.JLabel" name="messageBrowserPageSizeLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Browser page size:"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="dashboardRefreshIntervalAsterisk">
-          <Properties>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="0" red="ff" type="rgb"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="*"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="messageBrowserPageSizeAsterisk">
-          <Properties>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="0" red="ff" type="rgb"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="*"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="formatXmlLabel">
