@@ -9,6 +9,7 @@
 
 package com.mirth.connect.client.ui;
 
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -45,8 +46,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.mirth.connect.client.ui.components.MirthTree;
-import com.mirth.connect.client.ui.components.MirthTreeNode;
 import com.mirth.connect.client.ui.components.MirthTree.FilterTreeModel;
+import com.mirth.connect.client.ui.components.MirthTreeNode;
 import com.mirth.connect.client.ui.editors.MessageTreePanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.model.MessageObject;
@@ -70,6 +71,12 @@ public class TreePanel extends javax.swing.JPanel {
     private MessageVocabulary vocabulary;
     private Timer timer;
     private JPopupMenu popupMenu;
+    private JMenuItem popupMenuExpand;
+    private JMenuItem popupMenuCollapse;
+    private JMenuItem popupMenuMapToVariable;
+    private JMenuItem popupMenuMapSegmentFilter;
+    private JMenuItem popupMenuMapSegment;
+    private JMenuItem popupMenuFilterSegment;
 
     /**
      * Creates new form TreePanel
@@ -139,12 +146,12 @@ public class TreePanel extends javax.swing.JPanel {
     public void setSuffix(String suffix) {
         _dropSuffix = suffix;
     }
-
+    
     public void setupPopupMenu() {
         popupMenu = new JPopupMenu();
-        JMenuItem expandAll = new JMenuItem("Expand");
-        expandAll.setIcon(new ImageIcon(this.getClass().getResource("images/add.png")));
-        expandAll.addActionListener(new ActionListener() {
+        popupMenuExpand = new JMenuItem("Expand");
+        popupMenuExpand.setIcon(new ImageIcon(this.getClass().getResource("images/add.png")));
+        popupMenuExpand.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 MirthTreeNode tn;
@@ -161,11 +168,11 @@ public class TreePanel extends javax.swing.JPanel {
 
             }
         });
-        popupMenu.add(expandAll);
+        popupMenu.add(popupMenuExpand);
 
-        JMenuItem collapseAll = new JMenuItem("Collapse");
-        collapseAll.setIcon(new ImageIcon(this.getClass().getResource("images/delete.png")));
-        collapseAll.addActionListener(new ActionListener() {
+        popupMenuCollapse = new JMenuItem("Collapse");
+        popupMenuCollapse.setIcon(new ImageIcon(this.getClass().getResource("images/delete.png")));
+        popupMenuCollapse.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 MirthTreeNode tn;
@@ -181,14 +188,14 @@ public class TreePanel extends javax.swing.JPanel {
                 }
             }
         });
-        popupMenu.add(collapseAll);
+        popupMenu.add(popupMenuCollapse);
 
         popupMenu.addSeparator();
 
         if (_dropPrefix.equals(MessageTreePanel.MAPPER_PREFIX)) {
-            JMenuItem mapNode = new JMenuItem("Map to Variable");
-            mapNode.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
-            mapNode.addActionListener(new ActionListener() {
+            popupMenuMapToVariable = new JMenuItem("Map to Variable");
+            popupMenuMapToVariable.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
+            popupMenuMapToVariable.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
                     TreePath path = tree.getSelectionPath();
@@ -204,11 +211,31 @@ public class TreePanel extends javax.swing.JPanel {
                     PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewStep(variable, variable, MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), TransformerPane.MAPPER);
                 }
             });
-            popupMenu.add(mapNode);
+            popupMenu.add(popupMenuMapToVariable);
+            
+            popupMenuMapSegment = new JMenuItem("Map Segment");
+            popupMenuMapSegment.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
+            popupMenuMapSegment.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    TreePath path = tree.getSelectionPath();
+                    if (path == null) {
+                        return;
+                    }
+                    TreeNode tp = (TreeNode) path.getLastPathComponent();
+                    if (tp == null) {
+                        return;
+                    }
+
+                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewStep(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), "").toString(), "", TransformerPane.MESSAGE_BUILDER);
+                }
+            });
+            popupMenu.add(popupMenuMapSegment);
+            
         } else if (_dropPrefix.equals(MessageTreePanel.MESSAGE_BUILDER_PREFIX)) {
-            JMenuItem mapNode = new JMenuItem("Map Segment");
-            mapNode.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
-            mapNode.addActionListener(new ActionListener() {
+            popupMenuMapSegmentFilter = new JMenuItem("Map Segment");
+            popupMenuMapSegmentFilter.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
+            popupMenuMapSegmentFilter.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
                     TreePath path = tree.getSelectionPath();
@@ -223,12 +250,12 @@ public class TreePanel extends javax.swing.JPanel {
                     PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewStep(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), "", TransformerPane.MESSAGE_BUILDER);
                 }
             });
-            popupMenu.add(mapNode);
+            popupMenu.add(popupMenuMapSegmentFilter);
         }
 
-        JMenuItem ruleNode = new JMenuItem("Filter Segment");
-        ruleNode.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
-        ruleNode.addActionListener(new ActionListener() {
+        popupMenuFilterSegment = new JMenuItem("Filter Segment");
+        popupMenuFilterSegment.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
+        popupMenuFilterSegment.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 TreePath path = tree.getSelectionPath();
@@ -243,18 +270,28 @@ public class TreePanel extends javax.swing.JPanel {
                 PlatformUI.MIRTH_FRAME.channelEditPanel.filterPane.addNewRule(MirthTree.constructNodeDescription(tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString());
             }
         });
-        popupMenu.add(ruleNode);
+        popupMenu.add(popupMenuFilterSegment);
     }
 
     public void setFilterView() {
-        popupMenu.getComponent(3).setVisible(false);
-        popupMenu.getComponent(4).setVisible(true);
+        toggleMenuComponent(popupMenuMapToVariable, false);
+        toggleMenuComponent(popupMenuFilterSegment, true);
+        toggleMenuComponent(popupMenuMapSegment, false);
     }
 
     public void setTransformerView() {
-        popupMenu.getComponent(3).setVisible(true);
-        popupMenu.getComponent(4).setVisible(false);
+        toggleMenuComponent(popupMenuFilterSegment, false);
+        toggleMenuComponent(popupMenuMapSegment, true);
+        toggleMenuComponent(popupMenuMapToVariable, true);
     }
+    
+    private void toggleMenuComponent(Component component, boolean show) {
+        int index = popupMenu.getComponentIndex(component);
+        if (index >= 0) {
+            popupMenu.getComponent(index).setVisible(show);
+        }
+    }
+    
 
     public void setBorderText(String text) {
     }

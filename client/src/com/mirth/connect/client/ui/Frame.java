@@ -16,9 +16,12 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GradientPaint;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -177,6 +180,7 @@ public class Frame extends JXFrame {
     private boolean refreshingStatuses = false;
     private Map<String, Integer> safeErrorFailCountMap = new HashMap<String, Integer>();
     private Map<Component, String> componentTaskMap = new HashMap<Component, String>();
+    private boolean isAcceleratorKeyPressed = false;
     
     public Frame() {
         rightContainer = new JXTitledPanel();
@@ -228,6 +232,14 @@ public class Frame extends JXFrame {
                 if (logout()) {
                     System.exit(0);
                 }
+            }
+        });
+        
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent e) {
+                isAcceleratorKeyPressed = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
+                return false;
             }
         });
     }
@@ -4147,5 +4159,9 @@ public class Frame extends JXFrame {
 
     public void retrieveUsers() throws ClientException {
         users = mirthClient.getUser(null);
+    }
+
+    public boolean isAcceleratorKeyPressed() {
+        return isAcceleratorKeyPressed;
     }
 }

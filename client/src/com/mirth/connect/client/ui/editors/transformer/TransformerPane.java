@@ -270,19 +270,24 @@ public class TransformerPane extends MirthEditorPane implements
                 }
             } else if (tr.isDataFlavorSupported(TreeTransferable.MAPPER_DATA_FLAVOR) || tr.isDataFlavorSupported(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR)) {
                 dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+                
 
                 Object mapperTransferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
                 Object messageBuilderTransferData = tr.getTransferData(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
-
-                if (mapperTransferData != null) {
+                
+                if (mapperTransferData != null && !parent.isAcceleratorKeyPressed()) {
                     Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
                     MapperDropData data = (MapperDropData) transferData;
                     addNewStep(data.getVariable(), data.getVariable(), data.getMapping(), MAPPER);
+                } else if (mapperTransferData != null && parent.isAcceleratorKeyPressed()) {
+                    Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
+                    MapperDropData data2 = (MapperDropData) transferData;
+                    MessageBuilderDropData data = new MessageBuilderDropData(data2.getNode(), MirthTree.constructPath(data2.getNode().getParent(), "msg", "").toString(), "");
+                    addNewStep(MirthTree.constructMessageBuilderStepName(null, data.getNode()), data.getMessageSegment(), data.getMapping(), MESSAGE_BUILDER);
                 } else if (messageBuilderTransferData != null) {
                     Object transferData = tr.getTransferData(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
                     MessageBuilderDropData data = (MessageBuilderDropData) transferData;
-                    addNewStep(MirthTree.constructMessageBuilderStepName(null,
-                            data.getNode()), data.getMessageSegment(), data.getMapping(), MESSAGE_BUILDER);
+                    addNewStep(MirthTree.constructMessageBuilderStepName(null, data.getNode()), data.getMessageSegment(), data.getMapping(), MESSAGE_BUILDER);
                 }
             }
         } catch (Exception e) {
