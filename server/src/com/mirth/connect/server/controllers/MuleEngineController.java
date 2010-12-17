@@ -868,7 +868,7 @@ public class MuleEngineController implements EngineController {
         MuleManager.getConfiguration().setRecoverableMode(true);
         MuleManager.getConfiguration().setClientMode(false);
         MuleManager.getConfiguration().setWorkingDirectory(ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir());
-        MuleManager.getConfiguration().setQueueProfile(new QueueProfile(NumberUtils.toInt(configurationController.getServerProperties().getProperty("server.maxqueuesize"), 100000), true));
+        MuleManager.getConfiguration().setQueueProfile(new QueueProfile(NumberUtils.toInt(configurationController.getServerProperties().getProperty("server.maxqueuesize"), 0), true));
         MuleManager.getConfiguration().setPersistenceStrategy(new FilePersistenceStrategy());
         
         // add interceptor stack
