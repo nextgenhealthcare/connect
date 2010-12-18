@@ -37,16 +37,20 @@
 				<exclude name="extensions" />
 			</fileset>
 		</copy>
+
+		<copy todir="${server}/build/client-lib">
+			<fileset dir="${server.setup}/client-lib" />
+		</copy>
 	</target>
 
 	<!-- Manager -->
 	<target name="build-manager" depends="build-client">
 		<copy file="${server.setup}/lib/mirth-client-core.jar" todir="${manager}/lib" />
-		
+
 		<ant antfile="${manager}/ant-build.xml" dir="${manager}" target="build" />
-		
+
 		<copy file="${manager}/dist/mirth-manager.jar" todir="${server.setup}" />
-		
+
 		<copy todir="${server.setup}/manager-lib">
 			<fileset dir="${manager}/lib">
 				<exclude name="mirth-client.jar" />
@@ -57,11 +61,11 @@
 	<!-- CLI -->
 	<target name="build-cli" depends="build-client">
 		<copy file="${server.setup}/lib/mirth-client-core.jar" todir="${cli}/lib" />
-		
+
 		<ant antfile="${cli}/build.xml" dir="${cli}" target="build">
 			<property name="version" value="${version}" />
 		</ant>
-		
+
 		<copy todir="${server.setup}">
 			<fileset dir="${cli}/build">
 				<include name="mirth-cli.jar" />
@@ -69,13 +73,13 @@
 				<include name="mirth-cli-launcher.xml" />
 			</fileset>
 		</copy>
-		
+
 		<copy todir="${server.setup}/cli-lib">
 			<fileset dir="${cli}/lib">
 				<exclude name="mirth-client.jar" />
 			</fileset>
 		</copy>
-		
+
 		<copy todir="${server.setup}/conf">
 			<fileset dir="${cli}/conf">
 				<include name="mirth-cli-config.properties" />
@@ -119,5 +123,8 @@
 		</header>
 	</target>
 
-	<!-- custom extensions start here -->
+	<!-- build custom extensions -->
+	<target name="build-custom" depends="init">
+		<ant antfile="custom-extensions.xml" target="build" />
+	</target>
 </project>
