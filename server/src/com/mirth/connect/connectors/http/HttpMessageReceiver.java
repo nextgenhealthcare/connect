@@ -11,17 +11,19 @@ package com.mirth.connect.connectors.http;
 
 import java.io.IOException;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
-import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpException;
-import org.mortbay.http.HttpHandler;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
-import org.mortbay.http.HttpServer;
-import org.mortbay.http.handler.AbstractHttpHandler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
@@ -49,41 +51,42 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
     private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 
-    private HttpServer server = null;
+    private Server server = null;
 
-    private HttpHandler requestHandler = new AbstractHttpHandler() {
-        public void handle(String pathInContext, String pathParams, HttpRequest httpRequest, HttpResponse httpResponse) throws HttpException, IOException {
+    private class RequestHandler extends AbstractHandler {
+        @Override
+        public void handle(String target, Request baseRequest, HttpServletRequest servletRequest, HttpServletResponse serveltResponse) throws IOException, ServletException {
             logger.debug("received HTTP request");
             monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
 
             try {
-                httpResponse.setContentType(connector.getReceiverResponseContentType());
-                Response response = processData(httpRequest);
+                serveltResponse.setContentType(connector.getReceiverResponseContentType());
+                Response response = processData(baseRequest);
 
                 if (response != null) {
-                    httpResponse.getOutputStream().write(response.getMessage().getBytes(connector.getReceiverCharset()));
+                    serveltResponse.getOutputStream().write(response.getMessage().getBytes(connector.getReceiverCharset()));
 
                     /*
                      * If the destination sends a failure response, the listener
                      * should return a 500 error, otherwise 200.
                      */
                     if (response.getStatus().equals(Response.Status.FAILURE)) {
-                        httpResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                        serveltResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                     } else {
-                        httpResponse.setStatus(HttpStatus.SC_OK);
+                        serveltResponse.setStatus(HttpStatus.SC_OK);
                     }
                 } else {
-                    httpResponse.setStatus(HttpStatus.SC_OK);
+                    serveltResponse.setStatus(HttpStatus.SC_OK);
                 }
             } catch (Exception e) {
-                httpResponse.setContentType("text/plain");
-                httpResponse.getOutputStream().write(ExceptionUtils.getFullStackTrace(e).getBytes());
-                httpResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                serveltResponse.setContentType("text/plain");
+                serveltResponse.getOutputStream().write(ExceptionUtils.getFullStackTrace(e).getBytes());
+                serveltResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 monitoringController.updateStatus(connector, connectorType, Event.DONE);
             }
-
-            httpRequest.setHandled(true);
+            
+            baseRequest.setHandled(true);
         }
     };
 
@@ -94,19 +97,21 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
 
     @Override
     public void doConnect() throws Exception {
-        server = new HttpServer();
+        server = new Server();
         connector.getConfiguration().configureReceiver(server, endpoint);
 
         // add the request handler
-        HttpContext context = server.addContext("/");
-        context.addHandler(requestHandler);
+        ContextHandler contextHandler = new ContextHandler();
+        contextHandler.setContextPath(StringUtils.defaultString(connector.getReceiverContextPath(), "/"));
+        contextHandler.setHandler(new RequestHandler());
+        server.setHandler(contextHandler);
 
         logger.debug("starting HTTP server with address: " + endpoint.getEndpointURI().getUri());
         server.start();
         monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
 
-    private Response processData(HttpRequest request) throws Exception {
+    private Response processData(Request request) throws Exception {
         monitoringController.updateStatus(connector, connectorType, Event.BUSY);
         HttpMessageConverter converter = new HttpMessageConverter();
 
@@ -118,12 +123,12 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
          * called to avoid problems with the treatement of the input stream in
          * Jetty
          */
-        message.setParameters(request.getParameters());
+        message.setParameters(request.getParameterMap());
         message.setContent(IOUtils.toString(request.getInputStream(), converter.getDefaultHttpCharset(request.getCharacterEncoding())));
         message.setIncludeHeaders(!connector.isReceiverBodyOnly());
         message.setContentType(request.getContentType());
         message.setRemoteAddress(request.getRemoteAddr());
-        message.setQueryString(request.getQuery());
+        message.setQueryString(request.getQueryString());
         message.setRequestUrl(request.getRequestURL().toString());
 
         UMOMessage response = routeMessage(new MuleMessage(connector.getMessageAdapter(message)), endpoint.isSynchronous());

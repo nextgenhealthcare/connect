@@ -41,6 +41,7 @@ public class HttpConnector extends QueueEnabledConnector {
     private String receiverResponse;
     private String receiverCharset;
     private int dispatcherSocketTimeout;
+    private String receiverContextPath;
     
     private HttpConfiguration configuration = null;
 
@@ -220,6 +221,14 @@ public class HttpConnector extends QueueEnabledConnector {
 
     public void setDispatcherSocketTimeout(int dispatcherSocketTimeout) {
         this.dispatcherSocketTimeout = dispatcherSocketTimeout;
+    }
+    
+    public String getReceiverContextPath() {
+        return receiverContextPath;
+    }
+
+    public void setReceiverContextPath(String receiverContextPath) {
+        this.receiverContextPath = receiverContextPath;
     }
 
     @Override

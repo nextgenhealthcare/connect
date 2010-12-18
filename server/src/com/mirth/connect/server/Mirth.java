@@ -28,12 +28,17 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpServer;
-import org.mortbay.http.SocketListener;
-import org.mortbay.http.SslListener;
-import org.mortbay.http.handler.ResourceHandler;
-import org.mortbay.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ChannelStatisticsController;
@@ -47,7 +52,20 @@ import com.mirth.connect.server.controllers.MigrationController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.controllers.UserController;
+import com.mirth.connect.server.servlets.AlertServlet;
+import com.mirth.connect.server.servlets.ChannelServlet;
+import com.mirth.connect.server.servlets.ChannelStatisticsServlet;
+import com.mirth.connect.server.servlets.ChannelStatusServlet;
+import com.mirth.connect.server.servlets.CodeTemplateServlet;
+import com.mirth.connect.server.servlets.ConfigurationServlet;
+import com.mirth.connect.server.servlets.EngineServlet;
+import com.mirth.connect.server.servlets.ExtensionServlet;
+import com.mirth.connect.server.servlets.MessageObjectServlet;
 import com.mirth.connect.server.servlets.MirthErrorPageHandler;
+import com.mirth.connect.server.servlets.SystemEventServlet;
+import com.mirth.connect.server.servlets.UserServlet;
+import com.mirth.connect.server.servlets.WebStartServlet;
+import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.ResourceUtil;
 
 /**
@@ -55,15 +73,11 @@ import com.mirth.connect.server.util.ResourceUtil;
  * 
  */
 public class Mirth extends Thread {
-    private static final String EXTENSIONS_LIBS = "/extensions/";
-    private static final String CLIENT_LIBS = "/client-lib/";
-
     private Logger logger = Logger.getLogger(this.getClass());
     private boolean running = false;
     private PropertiesConfiguration mirthProperties = new PropertiesConfiguration();
     private PropertiesConfiguration versionProperties = new PropertiesConfiguration();
-    private HttpServer httpServer = null;
-    private HttpServer servletContainer = null;
+    private Server webServer = null;
     private CommandQueue commandQueue = CommandQueue.getInstance();
     private EngineController engineController = ControllerFactory.getFactory().createEngineController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -97,6 +111,7 @@ public class Mirth extends Thread {
         if (shutdownHooks.contains(hook)) {
             return;
         }
+        
         shutdownHooks.add(hook);
     }
 
@@ -106,7 +121,7 @@ public class Mirth extends Thread {
         if (initResources()) {
             logger.debug("starting mirth server...");
 
-            // Check the ports to see if they are already in use
+            // check the ports to see if they are already in use
             boolean httpPort = testPort(mirthProperties.getString("http.port"), "http.port");
             boolean httpsPort = testPort(mirthProperties.getString("https.port"), "https.port");
             boolean jmxPort = testPort(mirthProperties.getString("jmx.port"), "jmx.port");
@@ -253,114 +268,102 @@ public class Mirth extends Thread {
         logger.debug("starting jetty web server");
 
         try {
-            // this disables validaiton of the web.xml file
-            // which causes exceptions when Mirth is run
-            // behind a firewall and the resources cannot be
-            // accessed
-            System.setProperty("org.mortbay.xml.XmlParser.NotValidating", "true");
             // this disables a "form too large" error for occuring by setting
             // form size to infinite
-            System.setProperty("org.mortbay.http.HttpRequest.maxFormContentSize", "0");
-
-            httpServer = new HttpServer();
-            servletContainer = new HttpServer();
-
-            // add HTTPS listener
-            SslListener sslListener = new SslListener();
-            sslListener.setHost(mirthProperties.getString("https.host", "0.0.0.0"));
-            sslListener.setCipherSuites(new String[] { "SSL_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_RC4_128_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA" });
-            sslListener.setPort(mirthProperties.getInt("https.port"));
-            sslListener.setKeystore(mirthProperties.getString("keystore.path"));
-            sslListener.setPassword(mirthProperties.getString("keystore.storepass"));
-            sslListener.setKeyPassword(mirthProperties.getString("keystore.keypass"));
-            sslListener.setAlgorithm(mirthProperties.getString("keystore.algorithm"));
-            sslListener.setKeystoreType(mirthProperties.getString("keystore.storetype"));
-            servletContainer.addListener(sslListener);
+            System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize", "0");
+            
+            webServer = new Server();
 
             // add HTTP listener
-            SocketListener listener = new SocketListener();
-            listener.setHost(mirthProperties.getString("http.host", "0.0.0.0"));
-            listener.setPort(mirthProperties.getInt("http.port"));
-            httpServer.addListener(listener);
+            SelectChannelConnector connector = new SelectChannelConnector();
+            connector.setHost(mirthProperties.getString("http.host", "0.0.0.0"));
+            connector.setPort(mirthProperties.getInt("http.port"));
+            connector.setName("connector");
 
-            // Load the context path property and remove the last char if it is
-            // a '/'.
-            String contextPath = mirthProperties.getString("context.path");
+            // add HTTPS listener
+            SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
+            sslConnector.setHost(mirthProperties.getString("https.host", "0.0.0.0"));
+            sslConnector.setPort(mirthProperties.getInt("https.port"));
+            sslConnector.setKeystore(mirthProperties.getString("keystore.path"));
+            sslConnector.setPassword(mirthProperties.getString("keystore.storepass"));
+            sslConnector.setKeyPassword(mirthProperties.getString("keystore.keypass"));
+            sslConnector.setSslKeyManagerFactoryAlgorithm(mirthProperties.getString("keystore.algorithm"));
+            sslConnector.setKeystoreType(mirthProperties.getString("keystore.storetype"));
+            sslConnector.setName("sslconnector");
 
-            if (contextPath.endsWith("/")) {
-                contextPath = contextPath.substring(0, contextPath.length() - 1);
+            HandlerList handlers = new HandlerList();
+            String contextPath = mirthProperties.getString("http.contextpath");
+
+            // find the client-lib path
+            String clientLibPath = null;
+            
+            if (ClassPathResource.getResourceURI("client-lib") != null) {
+                clientLibPath = ClassPathResource.getResourceURI("client-lib").getPath() + File.separator;
+            } else {
+                clientLibPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "client-lib" + File.separator;
             }
-
+            
             // Create the lib context
-            HttpContext libContext = new HttpContext();
-            libContext.setContextPath(contextPath + CLIENT_LIBS);
-            httpServer.addContext(libContext);
-
-            // Serve static content from the lib context
-            File extensions = new File(ExtensionController.getExtensionsPath());
-            String libPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "client-lib";
-
-            libContext.setResourceBase(libPath);
-            libContext.addHandler(new ResourceHandler());
+            ContextHandler libContextHandler = new ContextHandler();
+            libContextHandler.setContextPath(contextPath + "webstart/client-lib");
+            libContextHandler.setResourceBase(clientLibPath);
+            libContextHandler.setHandler(new ResourceHandler());
+            handlers.addHandler(libContextHandler);
 
             // Create the extensions context
-            HttpContext extensionsContext = new HttpContext();
-            extensionsContext.setContextPath(contextPath + EXTENSIONS_LIBS);
-            httpServer.addContext(extensionsContext);
-
-            // Serve static content from the extensions context
-            String extensionsPath = extensions.getPath();
-            extensionsContext.setResourceBase(extensionsPath);
-            extensionsContext.addHandler(new ResourceHandler());
+            ContextHandler extensionsContextHandler = new ContextHandler();
+            extensionsContextHandler.setContextPath(contextPath + "webstart/extensions");
+            String extensionsPath = new File(ExtensionController.getExtensionsPath()).getPath();
+            extensionsContextHandler.setResourceBase(extensionsPath);
+            extensionsContextHandler.setHandler(new ResourceHandler());
+            handlers.addHandler(extensionsContextHandler);
 
             // Create the public_html context
-            HttpContext publicContext = new HttpContext();
-            publicContext.setContextPath(contextPath + "/");
-            httpServer.addContext(publicContext);
-
+            ContextHandler publicContextHandler = new ContextHandler();
+            publicContextHandler.setContextPath(contextPath);
             String publicPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "public_html";
-            publicContext.setResourceBase(publicPath);
-            publicContext.addHandler(new ResourceHandler());
+            publicContextHandler.setResourceBase(publicPath);
+            publicContextHandler.setHandler(new ResourceHandler());
+            handlers.addHandler(publicContextHandler);
 
-            // Create a normal servlet container
-            ServletHandler servlets = new ServletHandler();
-            HttpContext servletContext = new HttpContext();
-            servletContext.setContextPath(contextPath + "/");
-            servletContext.addHandler(servlets);
-            httpServer.addContext(servletContext);
-            servlets.addServlet("WebStart", "/webstart.jnlp", "com.mirth.connect.server.servlets.WebStartServlet");
-            // Servlets for backwards compatibility
-            servlets.addServlet("WebStart", "/webstart", "com.mirth.connect.server.servlets.WebStartServlet");
-
-            // Create a secure servlet container
-            ServletHandler secureServlets = new ServletHandler();
-            HttpContext secureServletContext = new HttpContext();
-            secureServletContext.setContextPath(contextPath + "/");
-            secureServletContext.addHandler(secureServlets);
-            servletContainer.addContext(secureServletContext);
+            // Create a normal servlet handler
+            ServletContextHandler servletContextHandler = new ServletContextHandler();
+            servletContextHandler.setContextPath(contextPath);
+            servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart.jnlp");
+            servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart");
+            servletContextHandler.setConnectorNames(new String[] { "connector" });
+            handlers.addHandler(servletContextHandler);
+            
+            // Create the ssl servlet handler
+            ServletContextHandler sslServletContextHandler = new ServletContextHandler();
+            sslServletContextHandler.setSessionHandler(new SessionHandler());
+            sslServletContextHandler.setContextPath(contextPath);
 
             // Use our special error handler so that we dont have ugly URL
             // encoding
-            secureServletContext.setAttribute(HttpContext.__ErrorHandler, new MirthErrorPageHandler());
+            sslServletContextHandler.setErrorHandler(new MirthErrorPageHandler());
+            sslServletContextHandler.addServlet(new ServletHolder(new AlertServlet()), "/alerts");
+            sslServletContextHandler.addServlet(new ServletHolder(new ChannelServlet()), "/channels");
+            sslServletContextHandler.addServlet(new ServletHolder(new ChannelStatisticsServlet()), "/channelstatistics");
+            sslServletContextHandler.addServlet(new ServletHolder(new ChannelStatusServlet()), "/channelstatus");
+            sslServletContextHandler.addServlet(new ServletHolder(new CodeTemplateServlet()), "/codetemplates");
+            sslServletContextHandler.addServlet(new ServletHolder(new ConfigurationServlet()), "/configuration");
+            sslServletContextHandler.addServlet(new ServletHolder(new MessageObjectServlet()), "/messages");
+            sslServletContextHandler.addServlet(new ServletHolder(new EngineServlet()), "/engine");
+            sslServletContextHandler.addServlet(new ServletHolder(new ExtensionServlet()), "/extensions");
+            sslServletContextHandler.addServlet(new ServletHolder(new SystemEventServlet()), "/events");
+            sslServletContextHandler.addServlet(new ServletHolder(new UserServlet()), "/users");
+            sslServletContextHandler.setConnectorNames(new String[] { "sslconnector" });
+            handlers.addHandler(sslServletContextHandler);
+            
+            // add the default handler for misc requests (favicon, etc.)
+            handlers.addHandler(new DefaultHandler());
+            
+            webServer.setHandler(handlers);
+            webServer.setConnectors(new Connector[] { connector, sslConnector });
+            webServer.start();
 
-            // Map a servlet onto the container
-            secureServlets.addServlet("Alerts", "/alerts", "com.mirth.connect.server.servlets.AlertServlet");
-            secureServlets.addServlet("Channels", "/channels", "com.mirth.connect.server.servlets.ChannelServlet");
-            secureServlets.addServlet("ChannelStatistics", "/channelstatistics", "com.mirth.connect.server.servlets.ChannelStatisticsServlet");
-            secureServlets.addServlet("ChannelStatus", "/channelstatus", "com.mirth.connect.server.servlets.ChannelStatusServlet");
-            secureServlets.addServlet("CodeTemplates", "/codetemplates", "com.mirth.connect.server.servlets.CodeTemplateServlet");
-            secureServlets.addServlet("Configuration", "/configuration", "com.mirth.connect.server.servlets.ConfigurationServlet");
-            secureServlets.addServlet("MessageObject", "/messages", "com.mirth.connect.server.servlets.MessageObjectServlet");
-            secureServlets.addServlet("Engine", "/engine", "com.mirth.connect.server.servlets.EngineServlet");
-            secureServlets.addServlet("Extensions", "/extensions", "com.mirth.connect.server.servlets.ExtensionServlet");
-            secureServlets.addServlet("SystemEvent", "/events", "com.mirth.connect.server.servlets.SystemEventServlet");
-            secureServlets.addServlet("Users", "/users", "com.mirth.connect.server.servlets.UserServlet");
-
-            // start the web server
-            httpServer.start();
-            servletContainer.start();
-
-            logger.debug("started jetty web server on ports: " + listener.getPort() + ", " + sslListener.getPort());
+            logger.debug("started jetty web server on ports: " + connector.getPort() + ", " + sslConnector.getPort());
         } catch (Exception e) {
             logger.warn("Could not start web server.", e);
         }
@@ -374,8 +377,7 @@ public class Mirth extends Thread {
         logger.debug("stopping jetty web server");
 
         try {
-            httpServer.stop();
-            servletContainer.stop();
+            webServer.stop();
         } catch (Exception e) {
             logger.warn("Could not stop web server.", e);
         }

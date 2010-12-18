@@ -9,7 +9,7 @@
 
 package com.mirth.connect.connectors.http;
 
-import org.mortbay.http.HttpServer;
+import org.eclipse.jetty.server.Server;
 import org.mule.umo.endpoint.UMOEndpoint;
 
 public interface HttpConfiguration {
@@ -21,7 +21,7 @@ public interface HttpConfiguration {
      */
     public void configureConnector(HttpConnector connector);
     
-    public void configureReceiver(HttpServer server, UMOEndpoint endpoint) throws Exception;
+    public void configureReceiver(Server server, UMOEndpoint endpoint) throws Exception;
     
     public void configureDispatcher();
 }

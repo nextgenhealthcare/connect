@@ -27,25 +27,25 @@
 	
 	<resources>
 		<j2se href="http://java.sun.com/products/autodl/j2se" version="1.6+" max-heap-size="256m"/>
-		<jar download="eager" href="client-lib/mirth-client.jar" main="true"/>
-		<jar download="eager" href="client-lib/mirth-client-core.jar"/>
-		<jar download="eager" href="client-lib/commons-codec-1.4.jar"/>
-		<jar download="eager" href="client-lib/commons-httpclient-3.0.1.jar"/>
-		<jar download="eager" href="client-lib/commons-io-2.0.jar"/>
-		<jar download="eager" href="client-lib/commons-lang-2.5.jar"/>
-		<jar download="eager" href="client-lib/commons-logging-1.1.1.jar"/>
-		<jar download="eager" href="client-lib/databinding-0.8.0.jar"/>
-		<jar download="eager" href="client-lib/hapi-1.0.1.jar"/>
-		<jar download="eager" href="client-lib/mirth-vocab-1.0.jar"/>
-		<jar download="eager" href="client-lib/l2fprod-common-sheet.jar"/>
-		<jar download="eager" href="client-lib/log4j-1.2.15.jar"/>
-		<jar download="eager" href="client-lib/looks-2.3.1.jar"/>
-		<jar download="eager" href="client-lib/rhino-1.7r3pre.jar"/>
-		<jar download="eager" href="client-lib/swingx-1.6.jar"/>
-		<jar download="eager" href="client-lib/wizard.jar"/>
-		<jar download="eager" href="client-lib/xercesImpl-2.9.1.jar"/>
-		<jar download="eager" href="client-lib/xpp3_min-1.1.4c.jar"/>
-		<jar download="eager" href="client-lib/xstream-1.3.jar"/>
+		<jar download="eager" href="webstart/client-lib/mirth-client.jar" main="true"/>
+		<jar download="eager" href="webstart/client-lib/mirth-client-core.jar"/>
+		<jar download="eager" href="webstart/client-lib/commons-codec-1.4.jar"/>
+		<jar download="eager" href="webstart/client-lib/commons-httpclient-3.0.1.jar"/>
+		<jar download="eager" href="webstart/client-lib/commons-io-2.0.jar"/>
+		<jar download="eager" href="webstart/client-lib/commons-lang-2.5.jar"/>
+		<jar download="eager" href="webstart/client-lib/commons-logging-1.1.1.jar"/>
+		<jar download="eager" href="webstart/client-lib/databinding-0.8.0.jar"/>
+		<jar download="eager" href="webstart/client-lib/hapi-1.0.1.jar"/>
+		<jar download="eager" href="webstart/client-lib/mirth-vocab-1.0.jar"/>
+		<jar download="eager" href="webstart/client-lib/l2fprod-common-sheet.jar"/>
+		<jar download="eager" href="webstart/client-lib/log4j-1.2.15.jar"/>
+		<jar download="eager" href="webstart/client-lib/looks-2.3.1.jar"/>
+		<jar download="eager" href="webstart/client-lib/rhino-1.7r3pre.jar"/>
+		<jar download="eager" href="webstart/client-lib/swingx-1.6.jar"/>
+		<jar download="eager" href="webstart/client-lib/wizard.jar"/>
+		<jar download="eager" href="webstart/client-lib/xercesImpl-2.9.1.jar"/>
+		<jar download="eager" href="webstart/client-lib/xpp3_min-1.1.4c.jar"/>
+		<jar download="eager" href="webstart/client-lib/xstream-1.3.jar"/>
 	</resources>
 	
 	<application-desc main-class="com.mirth.connect.client.ui.Mirth"/>

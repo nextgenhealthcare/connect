@@ -13,7 +13,6 @@
 	<classpathentry kind="lib" path="lib/mule/geronimo-spec-j2ee-management-1.0-rc4.jar"/>
 	<classpathentry kind="lib" path="lib/mule/geronimo-spec-jms-1.1-rc4.jar"/>
 	<classpathentry kind="lib" path="lib/mule/geronimo-spec-jta-1.0.1B-rc4.jar"/>
-	<classpathentry kind="lib" path="lib/mule/geronimo-spec-servlet-2.4-rc4.jar"/>
 	<classpathentry kind="lib" path="lib/mule/jug-1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/mule/mule-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/mule/ognl-2.6.7.jar"/>
@@ -59,7 +58,6 @@
 	<classpathentry kind="lib" path="lib/mirth-vocab-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-configuration-1.6.jar"/>
-	<classpathentry kind="lib" path="lib/jetty-5.1.15.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/bcprov-jdk16-144.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/qname-1.6.2.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/relaxngDatatype.jar"/>
@@ -82,6 +80,14 @@
 	<classpathentry kind="lib" path="lib/xom-1.2.6.jar"/>
 	<classpathentry kind="lib" path="lib/database/ojdbc6.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.44.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-continuation-7.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-http-7.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-io-7.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-security-7.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-server-7.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-servlet-7.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-util-7.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/servlet-api-2.5.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

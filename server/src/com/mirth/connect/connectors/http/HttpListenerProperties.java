@@ -23,6 +23,7 @@ public class HttpListenerProperties implements ComponentProperties {
     public static final String HTTP_BODY_ONLY = "receiverBodyOnly";
     public static final String HTTP_RESPONSE_CONTENT_TYPE = "receiverResponseContentType";
     public static final String HTTP_CHARSET = "receiverCharset";
+    public static final String HTTP_CONTEXT_PATH = "receiverContextPath";
     
     public Properties getDefaults() {
         Properties properties = new Properties();
@@ -35,6 +36,7 @@ public class HttpListenerProperties implements ComponentProperties {
         properties.put(HTTP_BODY_ONLY, "1");
         properties.put(HTTP_RESPONSE_CONTENT_TYPE, "text/plain");
         properties.put(HTTP_CHARSET, "UTF-8");
+        properties.put(HTTP_CONTEXT_PATH, "/");
         return properties;
     }
 
