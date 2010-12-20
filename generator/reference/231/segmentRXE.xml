@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>RXE</name>
+    <description>Pharmacy/Treatment Encoded Order</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXE.1</name>
+            <description>Quantity/Timing</description>
+            <datatype>TQ</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXE.2</name>
+            <description>Give Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXE.3</name>
+            <description>Give Amount - Minimum</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.4</name>
+            <description>Give Amount - Maximum</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXE.5</name>
+            <description>Give Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.6</name>
+            <description>Give Dosage Form</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.7</name>
+            <description>Provider's Administration Instructions</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.8</name>
+            <description>Deliver-to Location</description>
+            <datatype>LA1</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.9</name>
+            <description>Substitution Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.10</name>
+            <description>Dispense Amount</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.11</name>
+            <description>Dispense Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.12</name>
+            <description>Number of Refills</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.13</name>
+            <description>Ordering Provider's Dea Number</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.14</name>
+            <description>Pharmacist/Treatment Supplier's Verifier ID</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.15</name>
+            <description>Prescription Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.16</name>
+            <description>Number of Refills Remaining</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.17</name>
+            <description>Number of Refills/Doses Dispensed</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.18</name>
+            <description>D/T of Most Recent Refill or Dose Dispensed</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.19</name>
+            <description>Total Daily Dose</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.20</name>
+            <description>Needs Human Review</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.21</name>
+            <description>Pharmacy/Treatment Supplier's Special Dispensing Instructions</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.22</name>
+            <description>Give Per (time Unit)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.23</name>
+            <description>Give Rate Amount</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.24</name>
+            <description>Give Rate Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.25</name>
+            <description>Give Strength</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.26</name>
+            <description>Give Strength Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.27</name>
+            <description>Give Indication</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.28</name>
+            <description>Dispense Package Size</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.29</name>
+            <description>Dispense Package Size Unit</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXE.30</name>
+            <description>Dispense Package Method</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

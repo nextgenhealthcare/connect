@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>BTX</name>
+    <description>Blood Product Transfusion/Disposition</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>BTX.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BTX.2</name>
+            <description>Donation ID</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BTX.3</name>
+            <description>Component</description>
+            <datatype>CNE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BTX.4</name>
+            <description>Blood Group</description>
+            <datatype>CNE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BTX.5</name>
+            <description>Commercial Product</description>
+            <datatype>CWE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BTX.6</name>
+            <description>Manufacturer</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BTX.7</name>
+            <description>Lot Number</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>BTX.8</name>
+            <description>Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BTX.9</name>
+            <description>Amount</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BTX.10</name>
+            <description>Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>BTX.11</name>
+            <description>Transfusion/Disposition Status</description>
+            <datatype>CWE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>BTX.12</name>
+            <description>Message Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>BTX.13</name>
+            <description>Date/Time of Status</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BTX.14</name>
+            <description>Administrator</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BTX.15</name>
+            <description>Verifier</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BTX.16</name>
+            <description>Transfusion Start Date/Time of Status</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BTX.17</name>
+            <description>Transfusion End Date/Time of Status</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>BTX.18</name>
+            <description>Adverse Reaction Type</description>
+            <datatype>CWE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BTX.19</name>
+            <description>Transfusion Interrupted Reason</description>
+            <datatype>CWE</datatype>
+        </field>
+    </elements>
+</segment>

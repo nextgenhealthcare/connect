@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PLN</name>
+    <description>Practitioner ID Numbers</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PLN.1</name>
+            <description>ID Number (ST)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PLN.2</name>
+            <description>Type of ID Number (IS)</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PLN.3</name>
+            <description>State/Other Qualifying Info</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PLN.4</name>
+            <description>Expiration Date</description>
+            <datatype>DT</datatype>
+        </field>
+    </elements>
+</segment>

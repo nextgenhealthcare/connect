@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>DSR</name>
+    <description>No Description.</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0">MSA</segment>
+        <segment>QRD</segment>
+        <segment minOccurs="0">QRF</segment>
+        <segment maxOccurs="unbounded">DSP</segment>
+        <segment>DSC</segment>
+    </segments>
+</message>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>PCVCV6</name>
+    <description>Provider Synch Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>PCI</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCO</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCW</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCT</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCB</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCL</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCM</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCR</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCD</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCS</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCC</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">PCA</segment>
+    </segments>
+</message>

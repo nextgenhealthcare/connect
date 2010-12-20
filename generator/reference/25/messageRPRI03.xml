@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>RPRI03</name>
+    <description>Request/Receipt of Patient Selection List - Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>MSA</segment>
+        <group maxOccurs="unbounded">
+            <segment>PRD</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">CTD</segment>
+        </group>
+        <segment minOccurs="0" maxOccurs="unbounded">PID</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+    </segments>
+</message>
