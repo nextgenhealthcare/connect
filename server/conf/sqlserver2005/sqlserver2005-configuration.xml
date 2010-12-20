@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"conf/sql-map-2.dtd">
+
+<sqlMap namespace="Configuration">
+	<resultMap id="get-properties-for-category-result" class="java.util.HashMap" >
+		<result property="name" column="NAME" javaType="java.lang.String" />
+		<result property="value" column="VALUE" javaType="java.lang.String" />
+	</resultMap>
+
+	<select id="getKey" resultClass="java.lang.String">
+		SELECT DATA
+		FROM ENCRYPTION_KEY
+	</select>
+
+	<insert id="insertKey" parameterClass="java.lang.String">
+		INSERT INTO
+		ENCRYPTION_KEY (DATA)
+		VALUES (#data#)
+	</insert>
+
+	<select id="getSchemaVersion" resultClass="java.lang.Integer">
+		SELECT VERSION FROM SCHEMA_INFO
+	</select>
+	
+	<insert id="setInitialSchemaVersion" parameterClass="int">
+		INSERT INTO SCHEMA_INFO (VERSION) VALUES (#value#)
+	</insert>
+
+	<update id="updateSchemaVersion" parameterClass="int">
+		UPDATE SCHEMA_INFO SET VERSION = #value#
+	</update>
+	
+	<select id="selectPropertiesForCategory" parameterClass="java.lang.String" resultMap="get-properties-for-category-result">
+		SELECT NAME, VALUE
+		FROM CONFIGURATION
+		WHERE CATEGORY = #category#
+	</select>
+
+	<select id="selectProperty" parameterClass="java.util.Map" resultClass="java.lang.String">
+		SELECT VALUE
+		FROM CONFIGURATION
+		WHERE CATEGORY = #category# AND NAME = #name#
+	</select>
+	
+	<insert id="insertProperty" parameterClass="java.util.Map">
+		INSERT INTO
+		CONFIGURATION (CATEGORY, NAME, VALUE)
+		VALUES (#category#, #name#, #value#)
+	</insert>
+
+	<update id="updateProperty" parameterClass="java.util.Map">
+		UPDATE CONFIGURATION
+		SET VALUE = #value#
+		WHERE CATEGORY = #category# AND NAME = #name#
+	</update>
+
+	<delete id="deleteProperty" parameterClass="java.util.Map">
+		DELETE FROM CONFIGURATION
+		WHERE CATEGORY = #category#
+		<dynamic prepend="AND">
+			<isNotNull property="name">NAME = #name#</isNotNull>
+		</dynamic>
+	</delete>
+</sqlMap>

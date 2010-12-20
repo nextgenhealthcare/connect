@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"conf/sql-map-2.dtd">
+
+<sqlMap namespace="User">
+	<resultMap class="com.mirth.connect.model.User" id="get-user-result">
+		<result property="id" column="ID" jdbcType="INTEGER" />
+		<result property="username" column="USERNAME" />
+		<result property="firstName" column="FIRSTNAME" />
+		<result property="lastName" column="LASTNAME" />
+		<result property="organization" column="ORGANIZATION" />
+		<result property="email" column="EMAIL" />
+		<result property="phoneNumber" column="PHONENUMBER" />
+		<result property="lastLogin" column="LAST_LOGIN" />
+		<result property="description" column="DESCRIPTION" />
+	</resultMap>
+	
+	<resultMap class="com.mirth.connect.model.Credentials" id="get-user-credentials">
+		<result property="username" column="USERNAME" />
+		<result property="password" column="PASSWORD" />
+		<result property="salt" column="SALT" />
+	</resultMap>
+
+	<select id="getUser" parameterClass="com.mirth.connect.model.User" resultMap="get-user-result">
+		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, LAST_LOGIN, DESCRIPTION
+		FROM PERSON
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="id">
+				ID = #id#
+			</isNotNull>
+			<isNotNull prepend="AND" property="username">
+				USERNAME = #username#
+			</isNotNull>
+		</dynamic>
+	</select>
+
+	<select id="getUserCredentials" parameterClass="com.mirth.connect.model.User" resultMap="get-user-credentials">
+		SELECT USERNAME, PASSWORD, SALT
+		FROM PERSON
+		WHERE USERNAME = #username#
+	</select>
+	
+	<insert id="insertUser" parameterClass="java.util.Map">
+		INSERT INTO
+		PERSON (USERNAME, PASSWORD, SALT, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
+		VALUES (#username#, #password#, #salt#, #firstName:VARCHAR#, #lastName:VARCHAR#, #organization:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#, 0)
+	</insert>
+	
+	<update id="updateUser" parameterClass="java.util.Map">
+		UPDATE PERSON
+		SET USERNAME = #username#,
+			PASSWORD = #password#,
+			SALT = #salt#,
+			FIRSTNAME = #firstName:VARCHAR#,
+			LASTNAME = #lastName:VARCHAR#,
+			ORGANIZATION = #organization:VARCHAR#,
+			EMAIL = #email:VARCHAR#,
+			PHONENUMBER = #phoneNumber:VARCHAR#,
+			DESCRIPTION = #description:VARCHAR#
+		WHERE ID = #id#
+	</update>
+	
+	<delete id="deleteUser" parameterClass="com.mirth.connect.model.User">
+		DELETE FROM PERSON
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="id">
+				ID=#id#
+			</isNotNull>
+		</dynamic>
+	</delete>
+
+	<!-- Login/Logout Procedures -->
+
+	<update id="loginUser" parameterClass="java.lang.Integer">
+		UPDATE PERSON
+		SET LOGGED_IN = 1,
+		LAST_LOGIN = GETDATE()
+		WHERE ID = #id#
+	</update>
+
+	<update id="logoutUser" parameterClass="java.lang.Integer">
+		UPDATE PERSON
+		SET LOGGED_IN = 0
+		WHERE ID = #id#
+	</update>
+
+	<select id="isUserLoggedIn" parameterClass="java.lang.Integer" resultClass="java.lang.Boolean">
+		SELECT LOGGED_IN
+		FROM PERSON
+		WHERE ID = #id#
+	</select>
+	
+	<update id="resetUserStatus">
+		UPDATE PERSON
+		SET LOGGED_IN = 0
+	</update>
+</sqlMap>
