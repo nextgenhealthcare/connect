@@ -54,8 +54,9 @@ public class ConfigurationServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_SERVER_PROPERTIES_GET)) {
+                    response.setContentType("application/xml");
+                    
                     if (isUserAuthorized(request)) {
-                        response.setContentType("application/xml");
                         out.println(serializer.toXML(configurationController.getServerProperties()));
                     } else {
                         Properties allServerProperties = configurationController.getServerProperties();
