@@ -64,8 +64,7 @@ public class ImportConverter {
      * Method used to convert messages from one version to another.
      */
     public static String convertMessage(String message) throws Exception {
-        message = convertPackageNames(message);
-        return message;
+        return convertPackageNames(message);
     }
 
     /**

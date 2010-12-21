@@ -9,13 +9,20 @@
 
 package com.mirth.connect.client.core;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Alert;
@@ -37,6 +44,7 @@ import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageObjectFilter;
 import com.mirth.connect.model.filters.SystemEventFilter;
+import com.mirth.connect.model.util.ImportConverter;
 
 public class Client {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -82,12 +90,12 @@ public class Client {
     public int getTimeout() {
         return timeout;
     }
-    
+
     public void cleanup() {
         if (serverConnection != null)
             serverConnection.shutdownTimeoutThread();
     }
-    
+
     public ServerConnection getServerConnection() {
         return serverConnection;
     }
@@ -128,7 +136,7 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_ID_GET) };
         return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
-    
+
     /**
      * Returns the time zone of the server.
      * 
@@ -220,7 +228,7 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", Operations.EXTENSION_INSTALL) };
         serverConnection.executeFileUpload(EXTENSION_SERVLET, params, file);
     }
-    
+
     /**
      * Uninstall an extension
      * 
@@ -508,7 +516,7 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_DEPLOY), new NameValuePair("channels", serializer.toXML(channels)) };
         serverConnection.executePostMethod(ENGINE_SERVLET, params);
     }
-    
+
     /**
      * Undeploys specific channels.
      * 
@@ -519,7 +527,7 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_UNDEPLOY), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
         serverConnection.executePostMethod(ENGINE_SERVLET, params);
     }
-    
+
     /**
      * Starts the channel with the specified id.
      * 
@@ -633,10 +641,130 @@ public class Client {
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
-    public void importMessage(MessageObject message) throws ClientException {
+    public int importMessages(String channelId, File file, String charset) throws ClientException {
+        int messageCount = 0;
+        BufferedReader reader = null;
+
+        try {
+            String deprecatedOpenElement = "<com.webreach.mirth.model.MessageObject>";
+            String deprecatedCloseElement = "</com.webreach.mirth.model.MessageObject>";
+            String openElement = "<com.mirth.connect.model.MessageObject>";
+            String closeElement = "</com.mirth.connect.model.MessageObject>";
+
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
+            StringBuffer buffer = new StringBuffer();
+            String line = null;
+            boolean enteredMessage = false;
+
+            while ((line = reader.readLine()) != null) {
+                if (line.equals(openElement) || line.equals(deprecatedOpenElement)) {
+                    enteredMessage = true;
+                }
+
+                if (enteredMessage) {
+                    buffer.append(line);
+
+                    if (line.equals(closeElement) || line.equals(deprecatedCloseElement)) {
+                        MessageObject messageObject = (MessageObject) serializer.fromXML(ImportConverter.convertMessage(buffer.toString()));
+                        messageObject.setChannelId(channelId);
+                        messageObject.setId(getGuid());
+
+                        try {
+                            importMessage(messageObject);
+                            messageCount++;
+                        } catch (Exception e) {
+                            throw new ClientException("Unable to connect to server. Stopping message import.", e);
+                        }
+
+                        buffer.delete(0, buffer.length());
+                        enteredMessage = false;
+                    }
+                }
+            }
+
+            return messageCount;
+        } catch (Exception e) {
+            throw new ClientException("Invalid message file. Stopping message import.", e);
+        } finally {
+            IOUtils.closeQuietly(reader);
+        }
+    }
+
+    private void importMessage(MessageObject message) throws ClientException {
         logger.debug("importing message");
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_IMPORT), new NameValuePair("message", serializer.toXML(message)) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
+    }
+
+    public int exportMessages(int exportMode, int plainTextMode, MessageObjectFilter filter, int pageSize, File file, String charset) throws ClientException {
+        MessageListHandler messageListHandler = null;
+        int messageCount = 0;
+
+        try {
+            messageListHandler = getMessageListHandler(filter, pageSize, true);
+            List<MessageObject> messageObjectList = messageListHandler.getFirstPage();
+            StringBuffer messageBuffer = new StringBuffer();
+
+            while (messageObjectList.size() > 0) {
+                for (MessageObject messageObject : messageObjectList) {
+                    if (exportMode == 1) {
+                        switch (plainTextMode) {
+                            case 0:
+                                if (StringUtils.isNotBlank(messageObject.getRawData())) {
+                                    messageBuffer.append(messageObject.getRawData());
+                                }
+
+                                break;
+                            case 1:
+                                if (StringUtils.isNotBlank(messageObject.getTransformedData())) {
+                                    messageBuffer.append(messageObject.getTransformedData());
+                                }
+
+                                break;
+                            case 2:
+                                if (StringUtils.isNotBlank(messageObject.getEncodedData())) {
+                                    messageBuffer.append(messageObject.getEncodedData());
+                                }
+
+                                break;
+                            default:
+                                break;
+                        }
+                        
+                        messageBuffer.append(IOUtils.LINE_SEPARATOR);
+                    } else {
+                        messageBuffer.append(serializer.toXML(messageObject));
+                    }
+
+                    messageCount++;
+                    messageBuffer.append(IOUtils.LINE_SEPARATOR);
+                }
+
+                OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file, true), charset);
+
+                try {
+                    writer.write(messageBuffer.toString());
+                    writer.flush();
+                } finally {
+                    IOUtils.closeQuietly(writer);
+                }
+
+                messageBuffer.delete(0, messageBuffer.length());
+                messageObjectList = messageListHandler.getNextPage();
+            }
+
+            return messageCount;
+        } catch (Exception e) {
+            throw new ClientException("Message export file could not be written.", e);
+        } finally {
+            if (messageListHandler != null) {
+                try {
+                    messageListHandler.removeFilterTables();
+                } catch (ClientException e) {
+                    throw new ClientException(e);
+                }
+            }
+        }
     }
 
     public Map<String, String> getGlobalScripts() throws ClientException {
@@ -818,9 +946,9 @@ public class Client {
     public UpdateClient getUpdateClient(User requestUser) {
         return new UpdateClient(this, requestUser);
     }
-    
+
     public PasswordRequirements getPasswordRequirements() throws ClientException {
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_PASSWORD_REQUIREMENTS_GET)};
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_PASSWORD_REQUIREMENTS_GET) };
         return (PasswordRequirements) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
     }
 }
