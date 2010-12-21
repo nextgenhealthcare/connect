@@ -15,13 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -44,7 +38,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.text.DateFormatter;
 
-import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.syntax.jedit.SyntaxDocument;
@@ -74,9 +67,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.MessageObject.Protocol;
 import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageObjectFilter;
-import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.plugins.AttachmentViewer;
 
 /**
@@ -302,88 +293,30 @@ public class MessageBrowser extends javax.swing.JPanel {
 
     public MessageObject getMessageObjectById(String messageId) {
         if (messageObjectList != null) {
-            Iterator i = messageObjectList.iterator();
-            while (i.hasNext()) {
-                MessageObject message = (MessageObject) i.next();
+            for (MessageObject message : messageObjectList) {
                 if (message.getId().equals(messageId)) {
                     return message;
                 }
             }
         }
+        
         return null;
     }
 
     public void importMessages() {
-        File importFile = parent.importFile("XML");
+        File file = parent.importFile("XML");
         String channelId = parent.getSelectedChannelIdFromDashboard();
-
-        if (importFile != null) {
-            String messageXML = "";
-            BufferedReader br = null;
-
-            try {
-                String deprecatedStartOfMessage = "<com.webreach.mirth.model.MessageObject>";
-                String deprecatedEndOfMessage = "</com.webreach.mirth.model.MessageObject>";
-                String startOfMessage = "<com.mirth.connect.model.MessageObject>";
-                String endOfMessage = "</com.mirth.connect.model.MessageObject>";
-                br = new BufferedReader(new InputStreamReader(new FileInputStream(importFile), UIConstants.CHARSET));
-                StringBuffer buffer = new StringBuffer();
-                String line;
-
-                boolean messageImported = false;
-                boolean foundStart = false;
-                
-                while ((line = br.readLine()) != null) {
-                    if (line.equals(startOfMessage) || line.equals(deprecatedStartOfMessage)) {
-                        foundStart = true;
-                    }
-                    
-                    if (foundStart) {
-                        buffer.append(line);
-    
-                        if (line.equals(endOfMessage) || line.equals(deprecatedEndOfMessage)) {
-                            messageXML = ImportConverter.convertMessage(buffer.toString());
-    
-                            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                            MessageObject importMessage;
-                            importMessage = (MessageObject) serializer.fromXML(messageXML);
-                            importMessage.setChannelId(channelId);
-    
-                            try {
-                                importMessage.setId(parent.mirthClient.getGuid());
-                                parent.mirthClient.importMessage(importMessage);
-                                messageImported = true;
-                            } catch (Exception e) {
-                                parent.alertException(this, e.getStackTrace(), "Unable to connect to server. Stopping import. " + e.getMessage());
-                                br.close();
-                                return;
-                            }
-    
-                            buffer.delete(0, buffer.length());
-                            
-                            foundStart = false;
-                        }
-                    }
-                }
-                
-                br.close();
-                
-                if (!messageImported) {
-                    parent.alertError(this, "No messages were found in the file.");
-                    return;
-                }
-                
-                parent.alertInformation(this, "All messages have been successfully imported.");
-            } catch (Exception e) {
-                if (br != null) {
-                    try {
-                        br.close();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-                parent.alertException(this, e.getStackTrace(), "Invalid message file. Message importing will stop. " + e.getMessage());
+        
+        try {
+            int count = parent.mirthClient.importMessages(channelId, file, UIConstants.CHARSET);
+            
+            if (count > 0) {
+                parent.alertInformation(this, count + " messages have been successfully imported.");    
+            } else {
+                parent.alertError(this, "No messages were found in the file.");
             }
+        } catch (ClientException e) {
+            parent.alertException(this, e.getStackTrace(), "Error importing messages. " + e.getMessage());
         }
     }
 
@@ -391,31 +324,35 @@ public class MessageBrowser extends javax.swing.JPanel {
      * Export the current messages to be imported at a later time
      */
     public void exportMessages() {
-        String fileExtension;
-        String[] options = new String[]{"Mirth Format", "Plain Text", "Cancel"};
-        int rawExportAnswer = 0;
-        String[] rawExportOptions = new String[]{"Raw", "Transformed", "Encoded"};
+        String[] formatOptions = new String[] {"Message Object XML", "Plain Text", "Cancel"};
+        String[] plainTextOptions = new String[] {"Raw", "Transformed", "Encoded"};
+        
+        int plainTextResponse = 0;
+        int formatResponse = 0;
 
-        int answer = JOptionPane.showOptionDialog(parent, "Which of the following formats would you like to export the messages to?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, -1);
+        formatResponse = JOptionPane.showOptionDialog(parent, "Which of the following formats would you like to export the messages to?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, formatOptions, -1);
 
-        if (answer == -1 || answer == 2) {
+        if ((formatResponse == -1) || (formatResponse == 2)) {
             return;
-        } else if (answer == 1) {
-            rawExportAnswer = JOptionPane.showOptionDialog(parent, "Which message data would you like to export?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, rawExportOptions, -1);
+        } else if (formatResponse == 1) {
+            plainTextResponse = JOptionPane.showOptionDialog(parent, "Which message data would you like to export?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, plainTextOptions, -1);
 
-            if (rawExportAnswer == -1) {
+            if (plainTextResponse == -1) {
                 return;
             }
         }
 
         JFileChooser exportFileChooser = new JFileChooser();
-
         File currentDir = new File(Preferences.userNodeForPackage(Mirth.class).get("currentDirectory", ""));
+        
         if (currentDir.exists()) {
             exportFileChooser.setCurrentDirectory(currentDir);
         }
+        
         exportFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        if (answer == 1) {
+        String fileExtension = null;
+        
+        if (formatResponse == 1) {
             exportFileChooser.setFileFilter(new MirthFileFilter("TXT"));
             fileExtension = ".txt";
         } else {
@@ -423,76 +360,28 @@ public class MessageBrowser extends javax.swing.JPanel {
             fileExtension = ".xml";
         }
 
-        int returnVal = exportFileChooser.showSaveDialog(parent);
-        File exportFile = null;
+        // they clicked OK, so do the export
+        if (exportFileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION) {
+            File file = exportFileChooser.getSelectedFile();
 
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            MessageListHandler tempMessageListHandler = null;
+            if (file.exists()) {
+                if (!parent.alertOption(this, "The file " + file.getName() + " already exists. Would you like to overwrite it?")) {
+                    return;
+                }
+            }
+
+            if (file.getName().length() < 4 || !file.getName().endsWith(fileExtension)) {
+                file = new File(file.getAbsolutePath() + fileExtension);
+            }
+
             try {
-                exportFile = exportFileChooser.getSelectedFile();
-                int length = exportFile.getName().length();
-                StringBuffer messages = new StringBuffer();
-
-                if (exportFile.exists()) {
-                    if (!parent.alertOption(this, "The file " + exportFile.getName() + " already exists.  Would you like to overwrite it?")) {
-                        return;
-                    }
-                }
-
-                if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(fileExtension)) {
-                    exportFile = new File(exportFile.getAbsolutePath() + fileExtension);
-                }
+                int count = parent.mirthClient.exportMessages(formatResponse, plainTextResponse, messageListHandler.getFilter(), pageSize, file, UIConstants.CHARSET);
                 
-                FileUtils.writeStringToFile(exportFile, "", UIConstants.CHARSET);
-
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-
-                tempMessageListHandler = parent.mirthClient.getMessageListHandler(messageListHandler.getFilter(), pageSize, true);
-                List<MessageObject> messageObjects = tempMessageListHandler.getFirstPage();
-
-                while (messageObjects.size() > 0) {
-                    for (int i = 0; i < messageObjects.size(); i++) {
-                        if (answer == 1) {
-                            if (rawExportAnswer == 0 && messageObjects.get(i).getRawData() != null) {
-                                messages.append(messageObjects.get(i).getRawData());
-                                messages.append("\n");
-                            } else if (rawExportAnswer == 1 && messageObjects.get(i).getTransformedData() != null) {
-                                messages.append(messageObjects.get(i).getTransformedData());
-                                messages.append("\n");
-                            } else if (rawExportAnswer == 2 && messageObjects.get(i).getEncodedData() != null) {
-                                messages.append(messageObjects.get(i).getEncodedData());
-                                messages.append("\n");
-                            }
-                        } else {
-                            messages.append(serializer.toXML(messageObjects.get(i)));
-                        }
-                        messages.append("\n");
-                    }
-
-                    OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(exportFile, true), UIConstants.CHARSET);
-                    try {
-                        writer.write(messages.toString());
-                        writer.flush();
-                    } finally {
-                        writer.close();
-                    }
-                    
-                    messages.delete(0, messages.length());
-
-                    messageObjects = tempMessageListHandler.getNextPage();
+                if (count > 0) {
+                    parent.alertInformation(this, count + " messages were sucessfully exported to " + file.getPath());    
                 }
-
-                parent.alertInformation(this, "All messages were written successfully to " + exportFile.getPath() + ".");
-            } catch (Exception ex) {
-                parent.alertError(this, "File could not be written.");
-            } finally {
-                if (tempMessageListHandler != null) {
-                    try {
-                        tempMessageListHandler.removeFilterTables();
-                    } catch (ClientException e) {
-                        parent.alertException(this, e.getStackTrace(), e.getMessage());
-                    }
-                }
+            } catch (Exception e) {
+                parent.alertException(this, e.getStackTrace(), "Error exporting messages.");
             }
         }
     }
@@ -1572,7 +1461,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
                 parent.setWorking("Loading " + attachType + " viewer...", true);
 
-                SwingWorker worker = new SwingWorker<Void, Void>() {
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                     public Void doInBackground() {
                         attachmentViewer.viewAttachments(finalAttachmentIds);
@@ -1632,7 +1521,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private void nextPageButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_nextPageButtonActionPerformed
         parent.setWorking("Loading next page...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 getMessageTableData(messageListHandler, NEXT_PAGE);
@@ -1655,7 +1544,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private void previousPageButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_previousPageButtonActionPerformed
         parent.setWorking("Loading previous page...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 getMessageTableData(messageListHandler, PREVIOUS_PAGE);
