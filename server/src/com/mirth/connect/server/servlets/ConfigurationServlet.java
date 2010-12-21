@@ -65,7 +65,7 @@ public class ConfigurationServlet extends MirthServlet {
                         for (Object key : allServerProperties.keySet()) {
                             String property = (String) key;
                             
-                            if ("firstlogin".equals(property) || "update.enabled".equals(property) || "stats.enabled".equals(property)) {
+                            if ("firstlogin".equals(property) || "update.enabled".equals(property) || "stats.enabled".equals(property) || "update.url".equals(property)) {
                                 permittedServerProperties.setProperty(property, allServerProperties.getProperty(property));
                             }
                         }
