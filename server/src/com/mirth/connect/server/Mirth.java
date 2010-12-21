@@ -61,7 +61,6 @@ import com.mirth.connect.server.servlets.ConfigurationServlet;
 import com.mirth.connect.server.servlets.EngineServlet;
 import com.mirth.connect.server.servlets.ExtensionServlet;
 import com.mirth.connect.server.servlets.MessageObjectServlet;
-import com.mirth.connect.server.servlets.MirthErrorPageHandler;
 import com.mirth.connect.server.servlets.SystemEventServlet;
 import com.mirth.connect.server.servlets.UserServlet;
 import com.mirth.connect.server.servlets.WebStartServlet;
@@ -341,7 +340,6 @@ public class Mirth extends Thread {
 
             // Use our special error handler so that we dont have ugly URL
             // encoding
-            sslServletContextHandler.setErrorHandler(new MirthErrorPageHandler());
             sslServletContextHandler.addServlet(new ServletHolder(new AlertServlet()), "/alerts");
             sslServletContextHandler.addServlet(new ServletHolder(new ChannelServlet()), "/channels");
             sslServletContextHandler.addServlet(new ServletHolder(new ChannelStatisticsServlet()), "/channelstatistics");
