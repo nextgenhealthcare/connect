@@ -22,20 +22,23 @@ import javax.swing.SwingWorker;
 import org.apache.commons.io.FileUtils;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.ImportConverter;
 
 public class SettingsPanelServer extends AbstractSettingsPanel {
+    
+    public static final String TAB_NAME = "Server";
 
     public SettingsPanelServer(String tabName) {
         super(tabName);
 
         initComponents();
 
-        addTask("doBackup", "Backup Config", "Backup your server configuration to an XML file. The backup includes channels, alerts, code templates, server properties, global scripts, and plugin properties.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")));
-        addTask("doRestore", "Restore Config", "Restore your server configuration from a server configuration XML file. This will remove and restore your channels, alerts, code templates, server properties, global scripts, and plugin properties.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")));
+        addTask(TaskConstants.SETTINGS_SERVER_BACKUP, "Backup Config", "Backup your server configuration to an XML file. The backup includes channels, alerts, code templates, server properties, global scripts, and plugin properties.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")));
+        addTask(TaskConstants.SETTINGS_SERVER_RESTORE, "Restore Config", "Restore your server configuration from a server configuration XML file. This will remove and restore your channels, alerts, code templates, server properties, global scripts, and plugin properties.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")));
 
         provideUsageStatsMoreInfoLabel.setToolTipText(UIConstants.PRIVACY_TOOLTIP);
         provideUsageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));

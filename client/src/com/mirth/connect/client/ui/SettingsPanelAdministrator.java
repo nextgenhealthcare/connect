@@ -15,6 +15,7 @@ import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 
 public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
+    public static final String TAB_NAME = "Administrator";
     private static Preferences userPreferences;
 
     public SettingsPanelAdministrator(String tabName) {

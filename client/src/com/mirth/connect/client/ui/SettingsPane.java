@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.swing.DefaultSingleSelectionModel;
 import javax.swing.SingleSelectionModel;
 
+import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.plugins.SettingsPanelPlugin;
 
 public class SettingsPane extends javax.swing.JPanel {
@@ -28,8 +29,8 @@ public class SettingsPane extends javax.swing.JPanel {
         parent = PlatformUI.MIRTH_FRAME;
         initComponents();
 
-        loadPanel(new SettingsPanelServer("Server"));
-        loadPanel(new SettingsPanelAdministrator("Administrator"));
+        loadPanel(new SettingsPanelServer(SettingsPanelServer.TAB_NAME));
+        loadPanel(new SettingsPanelAdministrator(SettingsPanelAdministrator.TAB_NAME));
         loadPluginPanels();
 
         SingleSelectionModel model = new DefaultSingleSelectionModel() {
@@ -51,22 +52,30 @@ public class SettingsPane extends javax.swing.JPanel {
     }
 
     private void loadPanel(AbstractSettingsPanel settingsPanel) {
-        // add task pane before the "other" pane
-        parent.setNonFocusable(settingsPanel.getTaskPane());
-        settingsPanel.getTaskPane().setVisible(false);
-        parent.taskPaneContainer.add(settingsPanel.getTaskPane(), parent.taskPaneContainer.getComponentCount() - 1);
+        // Only load the panel if the refresh task is authorized
+        if (AuthorizationControllerFactory.getAuthorizationController().checkTask(TaskConstants.SETTINGS_KEY_PREFIX + settingsPanel.getTabName(), TaskConstants.SETTINGS_REFRESH)) {
+            // add task pane before the "other" pane
+            parent.setNonFocusable(settingsPanel.getTaskPane());
+            settingsPanel.getTaskPane().setVisible(false);
+            parent.taskPaneContainer.add(settingsPanel.getTaskPane(), parent.taskPaneContainer.getComponentCount() - 1);
 
-        // Add the tab
-        tabbedPane.addTab(settingsPanel.getTabName(), settingsPanel);
+            // Add the tab
+            tabbedPane.addTab(settingsPanel.getTabName(), settingsPanel);
 
-        settingsPanelMap.put(settingsPanel.getTabName(), settingsPanel);
+            settingsPanelMap.put(settingsPanel.getTabName(), settingsPanel);
+        }
     }
 
-    public void setCurrentSettingsPanel(int index) {
+    private void setCurrentSettingsPanel(int index) {
         String tabName = tabbedPane.getTitleAt(index);
         currentSettingsPanel = settingsPanelMap.get(tabName);
         parent.setFocus(currentSettingsPanel.getTaskPane());
         currentSettingsPanel.doRefresh();
+    }
+    
+    public void setSelectedSettingsPanel(int index) {
+        setCurrentSettingsPanel(index);
+        tabbedPane.setSelectedIndex(0);
     }
 
     public AbstractSettingsPanel getCurrentSettingsPanel() {

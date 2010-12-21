@@ -12,7 +12,7 @@ package com.mirth.connect.client.core;
 public class TaskConstants {
     // Task pane name keys
     public static final String OTHER_KEY = "other";
-    public static final String SCRIPT_KEY = "script";
+    public static final String GLOBAL_SCRIPT_KEY = "script";
     public static final String CODE_TEMPLATE_KEY = "codeTemplate";
     public static final String USER_KEY = "user";
     public static final String MESSAGE_KEY = "message";
@@ -21,9 +21,10 @@ public class TaskConstants {
     public static final String CHANNEL_EDIT_KEY = "channelEdit";
     public static final String CHANNEL_KEY = "channel";
     public static final String ALERT_KEY = "alert";
-    public static final String SETTINGS_KEY = "settings";
     public static final String EXTENSIONS_KEY = "extensions";
     public static final String VIEW_KEY = "view";
+    public static final String SETTINGS_KEY_PREFIX = "settings_";
+    public static final String SETTINGS_SERVER_KEY = SETTINGS_KEY_PREFIX + "Server";
 
     // View Tasks
     public static final String VIEW_DASHBOARD = "doShowDashboard";
@@ -35,8 +36,12 @@ public class TaskConstants {
     public static final String VIEW_EXTENSIONS = "doShowExtensions";
 
     // Settings Tasks
-    public static final String SETTINGS_REFRESH = "doRefreshSettings";
-    public static final String SETTINGS_SAVE = "doSaveSettings";
+    public static final String SETTINGS_REFRESH = "doRefresh";
+    public static final String SETTINGS_SAVE = "doSave";
+    
+    // Server Settings Tasks
+    public static final String SETTINGS_SERVER_BACKUP = "doBackup";
+    public static final String SETTINGS_SERVER_RESTORE = "doRestore";
 
     // Alert Tasks
     public static final String ALERT_REFRESH = "doRefreshAlerts";
@@ -114,7 +119,7 @@ public class TaskConstants {
     public static final String USER_REFRESH = "doRefreshUser";
     public static final String USER_NEW = "doNewUser";
     public static final String USER_EDIT = "doEditUser";
-    public static final String USER_DELETE = "doDeleteUser";    
+    public static final String USER_DELETE = "doDeleteUser";
     
     // Code Template Tasks
     public static final String CODE_TEMPLATE_REFRESH = "doRefreshCodeTemplates";

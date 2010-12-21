@@ -22,6 +22,8 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
 
+import com.mirth.connect.client.core.TaskConstants;
+
 public abstract class AbstractSettingsPanel extends JPanel {
 
     private JXTaskPane taskPane = new JXTaskPane();
@@ -35,11 +37,11 @@ public abstract class AbstractSettingsPanel extends JPanel {
         this.tabName = tabName;
 
         taskPane.setTitle(tabName + " Tasks");
-        taskPane.setName(tabName);
+        taskPane.setName(TaskConstants.SETTINGS_KEY_PREFIX + tabName);
         taskPane.setFocusable(false);
 
-        addTask("doRefresh", "Refresh", "Refresh " + tabName + " settings.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")));
-        saveIndex = addTask("doSave", "Save", "Save " + tabName + " settings.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disk.png")));
+        addTask(TaskConstants.SETTINGS_REFRESH, "Refresh", "Refresh " + tabName + " settings.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")));
+        saveIndex = addTask(TaskConstants.SETTINGS_SAVE, "Save", "Save " + tabName + " settings.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disk.png")));
 
         setVisibleTasks(saveIndex, saveIndex, false);
 
@@ -79,7 +81,7 @@ public abstract class AbstractSettingsPanel extends JPanel {
         boundAction.registerCallback(this, callbackMethod);
 
         Component component = taskPane.add(boundAction);
-        parent.getComponentTaskMap().put(component, taskPane.getName() + "#" + callbackMethod);
+        parent.getComponentTaskMap().put(component, callbackMethod);
 
         popupMenu.add(boundAction);
 

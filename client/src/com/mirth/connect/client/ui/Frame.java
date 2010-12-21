@@ -859,7 +859,7 @@ public class Frame extends JXFrame {
         globalScriptsTasks = new JXTaskPane();
         globalScriptsPopupMenu = new JPopupMenu();
         globalScriptsTasks.setTitle("Script Tasks");
-        globalScriptsTasks.setName(TaskConstants.SCRIPT_KEY);
+        globalScriptsTasks.setName(TaskConstants.GLOBAL_SCRIPT_KEY);
         globalScriptsTasks.setFocusable(false);
 
         addTask(TaskConstants.GLOBAL_SCRIPT_SAVE, "Save Scripts", "Save all changes made to all scripts.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disk.png")), globalScriptsTasks, globalScriptsPopupMenu);
@@ -1644,7 +1644,7 @@ public class Frame extends JXFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                settingsPane.setCurrentSettingsPanel(0);
+                settingsPane.setSelectedSettingsPanel(0);
                 return null;
             }
 
