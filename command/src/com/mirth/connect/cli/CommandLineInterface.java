@@ -38,6 +38,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
@@ -53,11 +54,13 @@ import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.SystemEvent;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.filters.MessageObjectFilter;
 import com.mirth.connect.model.filters.SystemEventFilter;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.util.PropertyVerifier;
 
 public class CommandLineInterface {
+    private String DEFAULT_CHARSET = "UTF-8";
     private Client client;
     private boolean debug;
     private SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yy_HH-mm-ss.SS");
@@ -255,6 +258,10 @@ public class CommandLineInterface {
                     commandImportCodeTemplates(arguments);
                 } else if (arg1 == Token.EXPORTCODETEMPLATES) {
                     commandExportCodeTemplates(arguments);
+                } else if (arg1 == Token.IMPORTMESSAGES) {
+                    commandImportMessages(arguments);
+                } else if (arg1 == Token.EXPORTMESSAGES) {
+                    commandExportMessages(arguments);
                 } else if (arg1 == Token.STATUS) {
                     commandStatus(arguments);
                 } else if (arg1 == Token.EXPORT) {
@@ -421,6 +428,8 @@ public class CommandLineInterface {
         out.println("exportscripts \"path\"\n\tExports global script to <path>\n");
         out.println("importcodetemplates \"path\"\n\tImports code templates specified by <path>\n");
         out.println("exportcodetemplates \"path\"\n\tExports code templates to <path>\n");
+        out.println("importmessages \"path\" id\n\tImports messages specified by <path> into the channel specified by <id>\n");
+        out.println("exportmessages \"path\" id [xml|raw|transformed|encoded] [pageSize]\n\tExports all messages for channel specified by <id> to <path>\n");
         out.println("channel undeploy|deploy|start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
         out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
         out.println("channel list\n\tLists all Channels\n");
@@ -732,6 +741,81 @@ public class CommandLineInterface {
         out.println("Code Templates Import Complete");
     }
 
+    private void commandImportMessages(Token[] arguments) {
+        if (hasInvalidNumberOfArguments(arguments, 2)) {
+            return;
+        }
+
+        String path = arguments[1].getText();
+        File fXml = new File(path);
+        String channelId = arguments[2].getText();
+
+        int messageCount = 0;
+        
+        try {
+            messageCount = client.importMessages(channelId, fXml, DEFAULT_CHARSET);
+        } catch (Exception e) {
+            error("cannot read " + path, e);
+            return;
+        }
+
+        out.println("Messages Import Complete. " + messageCount + " Messages Imported.");
+    }
+
+    private void commandExportMessages(Token[] arguments) {
+        if (hasInvalidNumberOfArguments(arguments, 2)) {
+            return;
+        }
+
+        // file path
+        String path = arguments[1].getText();
+        File fXml = new File(path);
+
+        // message filter
+        MessageObjectFilter filter = new MessageObjectFilter();
+        String channelId = arguments[2].getText();
+        filter.setChannelId(channelId);
+
+        // export mode
+        int exportMode = 0;
+        int plainTextMode = 0;
+
+        if (arguments.length == 4) {
+            String modeArg = arguments[3].getText();
+            
+            if (StringUtils.equals(modeArg, "xml")) {
+                exportMode = 0;
+            } else if (StringUtils.equals(modeArg, "raw")) {
+                exportMode = 1;
+                plainTextMode = 0;
+            } else if (StringUtils.equals(modeArg, "transformed")) {
+                exportMode = 1;
+                plainTextMode = 1;
+            } else if (StringUtils.equals(modeArg, "encoded")) {
+                exportMode = 1;
+                plainTextMode = 2;
+            }
+        }
+        
+        // page size
+        int pageSize = 100;
+        
+        if (arguments.length == 5) {
+            pageSize = NumberUtils.toInt(arguments[4].getText());
+        }
+        
+        int messageCount = 0;
+        
+        try {
+            out.println("Exporting messages to file: " + fXml.getPath());
+            messageCount = client.exportMessages(exportMode, plainTextMode, filter, pageSize, fXml, DEFAULT_CHARSET);
+        } catch (Exception e) {
+            error("unable to write file " + path + ": " + e, e);
+        }
+
+        out.println("Messages Export Complete. " + messageCount + " Messages Exported.");
+    }
+
     private void commandStatus(Token[] arguments) throws ClientException {
         out.println("ID\t\t\t\t\tStatus\t\tName");
         List<ChannelStatus> channels = client.getChannelStatusList();
@@ -1034,7 +1118,7 @@ public class CommandLineInterface {
 
         File dumpFile = new File(dumpFilename);
         SystemEventListHandler eventListHandler = client.getSystemEventListHandler(new SystemEventFilter(), 20, false);
-        
+
         try {
             List<SystemEvent> events = eventListHandler.getFirstPage();
 
@@ -1045,7 +1129,7 @@ public class CommandLineInterface {
 
                 events = eventListHandler.getNextPage();
             }
-            
+
             FileUtils.writeStringToFile(dumpFile, builder.toString());
         } catch (ListHandlerException lhe) {
             lhe.printStackTrace();

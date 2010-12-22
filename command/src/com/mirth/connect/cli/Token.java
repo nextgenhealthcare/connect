@@ -52,6 +52,8 @@ public class Token {
 	static Token EXPORTSCRIPTS = addKeyword("exportscripts");
     static Token IMPORTCODETEMPLATES = addKeyword("importcodetemplates");
     static Token EXPORTCODETEMPLATES = addKeyword("exportcodetemplates");
+    static Token IMPORTMESSAGES = addKeyword("importmessages");
+    static Token EXPORTMESSAGES = addKeyword("exportmessages");
 	static Token FORCE = addKeyword("force");
 	static Token STATUS = addKeyword("status");
 	static Token EXPORT = addKeyword("export");
