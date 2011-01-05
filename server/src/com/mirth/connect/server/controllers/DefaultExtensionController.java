@@ -38,6 +38,7 @@ import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -564,7 +565,7 @@ public class DefaultExtensionController extends ExtensionController {
         String serverMirthVersion = ControllerFactory.getFactory().createConfigurationController().getServerVersion();
         String[] extensionMirthVersions = metaData.getMirthVersion().split(",");
 
-        logger.debug("checking extension \"" + metaData.getName() + "\" version compatability: versions=" + extensionMirthVersions + ", server=" + serverMirthVersion);
+        logger.debug("checking extension \"" + metaData.getName() + "\" version compatability: versions=" + ArrayUtils.toString(extensionMirthVersions) + ", server=" + serverMirthVersion);
 
         // if there is no build version, just use the patch version
         if (serverMirthVersion.split("\\.").length == 4) {
