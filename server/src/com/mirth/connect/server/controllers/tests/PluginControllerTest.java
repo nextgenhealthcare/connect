@@ -49,7 +49,7 @@ public class PluginControllerTest extends TestCase {
     }
 
     public void testGetConnectorLibraries() throws ControllerException {
-        List<String> libraries = pluginController.getClientLibraries();
+        List<String> libraries = pluginController.getClientExtensionLibraries();
 
         for (Iterator<String> iter = libraries.iterator(); iter.hasNext();) {
             String library = iter.next();

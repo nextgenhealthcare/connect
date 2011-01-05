@@ -38,7 +38,7 @@ import com.mirth.connect.server.controllers.ExtensionController;
 
 public class ExtensionServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
-    
+
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -47,23 +47,20 @@ public class ExtensionServlet extends MirthServlet {
                 ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 PrintWriter out = response.getWriter();
-                FileItem multiPartFile = null;
-                String operation = "";
-                Map<String, String> multipartParameters = new HashMap<String, String>();
-                boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+                FileItem multiPartFileItem = null;
+                String operation = null;
 
-                if (isMultipart) {
-                    // we need to load properties from the multipart data
-                    DiskFileItemFactory factory = new DiskFileItemFactory();
-
-                    String location = ExtensionController.getExtensionsPath() + "install_temp" + File.separator;
-                    File locationFile = new File(location);
-                    if (!locationFile.exists()) {
-                        locationFile.mkdir();
+                if (ServletFileUpload.isMultipartContent(request)) {
+                    Map<String, String> multipartParameters = new HashMap<String, String>();
+                    File installTempDir = new File(ExtensionController.getExtensionsPath(), "install_temp");
+                    
+                    if (!installTempDir.exists()) {
+                        installTempDir.mkdir();
                     }
 
-                    factory.setRepository(locationFile);
-
+                    // we need to load properties from the multipart data
+                    DiskFileItemFactory factory = new DiskFileItemFactory();
+                    factory.setRepository(installTempDir);
                     ServletFileUpload upload = new ServletFileUpload(factory);
                     List<FileItem> items = upload.parseRequest(request);
 
@@ -72,13 +69,15 @@ public class ExtensionServlet extends MirthServlet {
                             multipartParameters.put(item.getFieldName(), item.getString());
                         } else {
                             // only supports a single file
-                            multiPartFile = item;
+                            multiPartFileItem = item;
                         }
                     }
+                    
                     operation = multipartParameters.get("op");
                 } else {
                     operation = request.getParameter("op");
                 }
+                
                 if (operation.equals(Operations.PLUGIN_PROPERTIES_GET)) {
                     response.setContentType("application/xml");
                     String name = request.getParameter("name");
@@ -88,7 +87,7 @@ public class ExtensionServlet extends MirthServlet {
                         String name = request.getParameter("name");
                         Properties properties = (Properties) serializer.fromXML(request.getParameter("properties"));
                         extensionController.setPluginProperties(name, properties);
-                        extensionController.updatePlugin(name, properties);
+                        extensionController.updatePluginProperties(name, properties);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -123,7 +122,6 @@ public class ExtensionServlet extends MirthServlet {
                     if (isUserAuthorizedForExtension(request, pluginName, method)) {
                         out.println(serializer.toXML(extensionController.invokePluginService(pluginName, method, object, sessionId)));
                     }
-                    
                 } else if (operation.equals(Operations.CONNECTOR_SERVICE_INVOKE)) {
                     String name = request.getParameter("name");
                     String method = request.getParameter("method");
@@ -133,16 +131,17 @@ public class ExtensionServlet extends MirthServlet {
                 } else if (operation.equals(Operations.EXTENSION_UNINSTALL)) {
                     if (isUserAuthorized(request)) {
                         String packageName = request.getParameter("packageName");
-                        extensionController.uninstallExtension(packageName);
+                        extensionController.prepareExtensionForUninstallation(packageName);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.EXTENSION_INSTALL)) {
                     if (isUserAuthorized(request)) {
-                        // This is a multi-part method, so we need our
-                        // parameters
-                        // from the new map
-                        extensionController.installExtension(multiPartFile);
+                        /*
+                         * This is a multi-part method, so we need our
+                         * parameters from the new map
+                         */
+                        extensionController.extractExtension(multiPartFileItem);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }

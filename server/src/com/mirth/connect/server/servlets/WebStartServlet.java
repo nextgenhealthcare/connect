@@ -105,7 +105,7 @@ public class WebStartServlet extends HttpServlet {
             // add the connector client jars to the classpath
             Element resourcesElement = (Element) jnlpElement.getElementsByTagName("resources").item(0);
 
-            List<String> clientLibraries = ControllerFactory.getFactory().createExtensionController().getClientLibraries();
+            List<String> clientLibraries = ControllerFactory.getFactory().createExtensionController().getClientExtensionLibraries();
 
             for (String lib : clientLibraries) {
                 Element jarElement = document.createElement("jar");

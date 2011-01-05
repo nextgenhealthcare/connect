@@ -16,7 +16,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Scanner;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -32,16 +31,16 @@ import org.w3c.dom.NodeList;
 
 public class MirthLauncher {
     private static final String EXTENSIONS_DIR = "./extensions";
-    
+
     private static Logger logger = Logger.getLogger(MirthLauncher.class);
 
     public static void main(String[] args) {
         try {
             try {
-                uninstallExtensions();
-                installExtensions();
+                uninstallPendingExtensions();
+                installPendingExtensions();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e);
             }
 
             String[] manifest = new String[] { "mirth-server.jar", "lib", "custom-lib" };
@@ -59,32 +58,35 @@ public class MirthLauncher {
     }
 
     // if we have an uninstall file, uninstall the listed extensions
-    private static void uninstallExtensions() throws Exception {
+    private static void uninstallPendingExtensions() throws Exception {
         File extensionsDir = new File(EXTENSIONS_DIR);
         File uninstallFile = new File(extensionsDir, "uninstall");
 
         if (uninstallFile.exists()) {
-            Scanner scanner = new Scanner(uninstallFile);
-            
-            while (scanner.hasNextLine()) {
-                File extension = new File(extensionsDir, scanner.nextLine());
-                
-                if (extension.exists() && extension.isDirectory()) {
-                    logger.trace("uninstalling extension: " + extension.getName());
-                    FileUtils.deleteDirectory(extension);
+            List<String> extensionPaths = FileUtils.readLines(uninstallFile);
+
+            for (String extensionPath : extensionPaths) {
+                File extensionFile = new File(extensionsDir, extensionPath);
+
+                if (extensionFile.exists() && extensionFile.isDirectory()) {
+                    logger.trace("uninstalling extension: " + extensionFile.getName());
+                    FileUtils.deleteDirectory(extensionFile);
                 }
             }
-            
-            scanner.close();
+
+            // delete the uninstall file when we're done
             FileUtils.deleteQuietly(uninstallFile);
         }
     }
 
-    // if we have a temp folder, move the extensions over
-    private static void installExtensions() throws Exception {
+    /*
+     * This picks up any folders in the installation temp dir and moves them
+     * over to the extensions dir, in effect "installing" them.
+     */
+    private static void installPendingExtensions() throws Exception {
         File extensionsDir = new File(EXTENSIONS_DIR);
         File extensionsTempDir = new File(extensionsDir, "install_temp");
-        
+
         if (extensionsTempDir.exists()) {
             File[] extensions = extensionsTempDir.listFiles();
 
@@ -92,12 +94,12 @@ public class MirthLauncher {
                 if (extensions[i].isDirectory()) {
                     logger.trace("installing extension: " + extensions[i].getName());
                     File target = new File(extensionsDir, extensions[i].getName());
-                    
+
                     // delete it if it's already there
                     if (target.exists()) {
-                        FileUtils.deleteQuietly(target);    
+                        FileUtils.deleteQuietly(target);
                     }
-                    
+
                     extensions[i].renameTo(target);
                 }
             }
@@ -105,7 +107,7 @@ public class MirthLauncher {
             FileUtils.deleteDirectory(extensionsTempDir);
         }
     }
-    
+
     private static void addManifestToClasspath(String[] manifestEntries, List<URL> urls) throws Exception {
         IOFileFilter fileFileFilter = FileFilterUtils.fileFileFilter();
 
@@ -170,5 +172,5 @@ public class MirthLauncher {
         } else {
             logger.warn("no extensions found");
         }
-    }    
+    }
 }

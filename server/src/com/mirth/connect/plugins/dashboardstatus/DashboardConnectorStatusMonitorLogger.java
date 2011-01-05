@@ -21,7 +21,7 @@ public class DashboardConnectorStatusMonitorLogger implements ConnectorStatusPlu
     private DashboardConnectorStatusMonitor monitor;
 
     public DashboardConnectorStatusMonitorLogger() {
-        monitor = (DashboardConnectorStatusMonitor) ControllerFactory.getFactory().createExtensionController().getLoadedPlugins().get(DASHBOARD_STATUS_COLUMN_SERVER);
+        monitor = (DashboardConnectorStatusMonitor) ControllerFactory.getFactory().createExtensionController().getLoadedServerPlugins().get(DASHBOARD_STATUS_COLUMN_SERVER);
     }
 
     public void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket) {
