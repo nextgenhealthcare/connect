@@ -17,6 +17,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.mule.umo.MessagingException;
 import org.mule.umo.UMOException;
+import org.mule.umo.endpoint.UMOEndpoint;
 
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.converters.DelimitedSerializer;
@@ -52,7 +53,7 @@ public class DelimitedAdaptor extends Adaptor implements BatchAdaptor {
 		return SerializerFactory.getSerializer(MessageObject.Protocol.DELIMITED, properties);
 	}
 
-	public void processBatch(Reader src, Map properties, BatchMessageProcessor dest)
+	public void processBatch(Reader src, Map properties, BatchMessageProcessor dest, UMOEndpoint endpoint)
 		throws MessagingException, UMOException, IOException
 	{
 	    String channelId = null;

@@ -14,14 +14,21 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+import org.mule.config.i18n.Message;
+import org.mule.config.i18n.Messages;
+import org.mule.impl.MuleMessage;
 import org.mule.umo.MessagingException;
 import org.mule.umo.UMOException;
+import org.mule.umo.endpoint.UMOEndpoint;
+import org.mule.umo.routing.RoutingException;
 
 import com.mirth.connect.model.MessageObject.Protocol;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.SerializerFactory;
 
 public class HL7v2Adaptor extends Adaptor implements BatchAdaptor {
+    private Logger logger = Logger.getLogger(this.getClass());
 
     protected void populateMessage(boolean emptyFilterAndTransformer) throws AdaptorException {
         messageObject.setRawDataProtocol(com.mirth.connect.model.MessageObject.Protocol.HL7V2);
@@ -47,7 +54,7 @@ public class HL7v2Adaptor extends Adaptor implements BatchAdaptor {
         return SerializerFactory.getSerializer(Protocol.HL7V2, properties);
     }
 
-    public void processBatch(Reader src, Map properties, BatchMessageProcessor dest) throws MessagingException, UMOException {
+    public void processBatch(Reader src, Map properties, BatchMessageProcessor dest, UMOEndpoint endpoint) throws MessagingException, UMOException {
         // TODO: The values of these parameters should come from the protocol
         // properties passed to processBatch
         // TODO: src is a character stream, not a byte stream
@@ -59,13 +66,20 @@ public class HL7v2Adaptor extends Adaptor implements BatchAdaptor {
         scanner.useDelimiter(Pattern.compile("\r\n|\r|\n"));
         StringBuilder message = new StringBuilder();
         char data[] = { (char) startOfMessage, (char) endOfMessage };
-        
+        boolean errored = false;
+
         while (scanner.hasNext()) {
             String line = scanner.next().replaceAll(new String(data, 0, 1), "").replaceAll(new String(data, 1, 1), "").trim();
 
             if ((line.length() == 0) || line.equals((char) endOfMessage) || line.startsWith("MSH")) {
                 if (message.length() > 0) {
-                    dest.processBatchMessage(message.toString());
+                    try {
+                        dest.processBatchMessage(message.toString());
+                    } catch (UMOException e) {
+                        errored = true;
+                        logger.error("Error processing message in batch.", e);
+                    }
+
                     message = new StringBuilder();
                 }
 
@@ -80,7 +94,13 @@ public class HL7v2Adaptor extends Adaptor implements BatchAdaptor {
             } else if (line.startsWith("FHS") || line.startsWith("BHS") || line.startsWith("BTS") || line.startsWith("FTS")) {
                 // ignore batch headers
                 if (!scanner.hasNext()) {
-                    dest.processBatchMessage(message.toString());
+                    try {
+                        dest.processBatchMessage(message.toString());
+                    } catch (UMOException e) {
+                        errored = true;
+                        logger.error("Error processing message in batch.", e);
+                    }
+
                     message = new StringBuilder();
                 }
             } else {
@@ -88,12 +108,22 @@ public class HL7v2Adaptor extends Adaptor implements BatchAdaptor {
                 message.append((char) endOfRecord);
 
                 if (!scanner.hasNext()) {
-                    dest.processBatchMessage(message.toString());
+                    try {
+                        dest.processBatchMessage(message.toString());
+                    } catch (UMOException e) {
+                        errored = true;
+                        logger.error("Error processing message in batch.", e);
+                    }
+
                     message = new StringBuilder();
                 }
             }
         }
 
         scanner.close();
+        
+        if (errored) {
+            throw new RoutingException(new Message(Messages.ROUTING_ERROR), new MuleMessage(null), endpoint);
+        }
     }
 }
