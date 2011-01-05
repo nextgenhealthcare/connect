@@ -134,7 +134,7 @@ public class DefaultExtensionController extends ExtensionController {
                         }
                     }
                 } else {
-                    logger.debug("Server plugin \"" + metaData.getName() + "\" is not enabled or is not compatible with this version of Mirth Connect.");
+                    logger.warn("Server plugin \"" + metaData.getName() + "\" is not enabled or is not compatible with this version of Mirth Connect.");
                 }
             } catch (Exception e) {
                 logger.error("Error initializing server plugin \"" + metaData.getName() + "\" with properties.", e);
@@ -561,16 +561,18 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     private boolean isExtensionCompatible(MetaData metaData) {
-        String mirthVersion = ControllerFactory.getFactory().createConfigurationController().getServerVersion();
-        String[] extensionVersions = metaData.getMirthVersion().split(",");
+        logger.debug("checking extension \"" + metaData.getName() + "\" version compatability: versions=" + metaData.getMirthVersion());
+
+        String[] extensionMirthVersions = metaData.getMirthVersion().split(",");
+        String serverMirthVersion = ControllerFactory.getFactory().createConfigurationController().getServerVersion();
 
         // if there is no build version, just use the patch version
-        if (mirthVersion.split("\\.").length == 4) {
-            mirthVersion = mirthVersion.substring(0, mirthVersion.lastIndexOf('.'));
+        if (serverMirthVersion.split("\\.").length == 4) {
+            serverMirthVersion = serverMirthVersion.substring(0, serverMirthVersion.lastIndexOf('.'));
         }
 
-        for (int i = 0; i < extensionVersions.length; i++) {
-            if (extensionVersions[i].trim().equals(mirthVersion)) {
+        for (int i = 0; i < extensionMirthVersions.length; i++) {
+            if (extensionMirthVersions[i].trim().equals(serverMirthVersion)) {
                 return true;
             }
         }
