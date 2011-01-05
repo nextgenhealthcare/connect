@@ -561,10 +561,10 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     private boolean isExtensionCompatible(MetaData metaData) {
-        logger.debug("checking extension \"" + metaData.getName() + "\" version compatability: versions=" + metaData.getMirthVersion());
-
-        String[] extensionMirthVersions = metaData.getMirthVersion().split(",");
         String serverMirthVersion = ControllerFactory.getFactory().createConfigurationController().getServerVersion();
+        String[] extensionMirthVersions = metaData.getMirthVersion().split(",");
+
+        logger.debug("checking extension \"" + metaData.getName() + "\" version compatability: versions=" + extensionMirthVersions + ", server=" + serverMirthVersion);
 
         // if there is no build version, just use the patch version
         if (serverMirthVersion.split("\\.").length == 4) {
