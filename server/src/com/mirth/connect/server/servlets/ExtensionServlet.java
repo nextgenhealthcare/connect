@@ -79,15 +79,19 @@ public class ExtensionServlet extends MirthServlet {
                 }
                 
                 if (operation.equals(Operations.PLUGIN_PROPERTIES_GET)) {
-                    response.setContentType("application/xml");
-                    String name = request.getParameter("name");
-                    out.println(serializer.toXML(extensionController.getPluginProperties(name)));
+                    String pluginName = request.getParameter("name");
+                    if (isUserAuthorizedForExtension(request, pluginName, operation)) {
+                        response.setContentType("application/xml");
+                        out.println(serializer.toXML(extensionController.getPluginProperties(pluginName)));
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
                 } else if (operation.equals(Operations.PLUGIN_PROPERTIES_SET)) {
-                    if (isUserAuthorized(request)) {
-                        String name = request.getParameter("name");
+                    String pluginName = request.getParameter("name");
+                    if (isUserAuthorizedForExtension(request, pluginName, operation)) {
                         Properties properties = (Properties) serializer.fromXML(request.getParameter("properties"));
-                        extensionController.setPluginProperties(name, properties);
-                        extensionController.updatePluginProperties(name, properties);
+                        extensionController.setPluginProperties(pluginName, properties);
+                        extensionController.updatePluginProperties(pluginName, properties);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -121,6 +125,8 @@ public class ExtensionServlet extends MirthServlet {
 
                     if (isUserAuthorizedForExtension(request, pluginName, method)) {
                         out.println(serializer.toXML(extensionController.invokePluginService(pluginName, method, object, sessionId)));
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONNECTOR_SERVICE_INVOKE)) {
                     String name = request.getParameter("name");

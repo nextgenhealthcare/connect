@@ -13,7 +13,7 @@
 		<mode>SERVER</mode>
 	</extensionPoint>
 	<extensionPoint>
-		<name>Dashboard Status Column Server</name>
+		<name>Dashboard Connector Status Monitor</name>
 		<type>SERVER_PLUGIN</type>
 		<className>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusMonitor</className>
 		<mode>SERVER</mode>

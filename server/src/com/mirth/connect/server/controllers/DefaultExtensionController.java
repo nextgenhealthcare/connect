@@ -51,6 +51,7 @@ import com.mirth.connect.client.core.VersionMismatchException;
 import com.mirth.connect.connectors.ConnectorService;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.ExtensionLibrary;
+import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.ExtensionPoint;
 import com.mirth.connect.model.ExtensionPointDefinition;
 import com.mirth.connect.model.MetaData;
@@ -160,8 +161,21 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     public void startPlugins() {
+        // Call all of the server plugin start methods
         for (ServerPlugin plugin : serverPlugins.values()) {
             plugin.start();
+        }
+        
+        // Get all of the server plugin extension permissions and
+        // add those to the authorization controller.
+        AuthorizationController authorizationController = ControllerFactory.getFactory().createAuthorizationController();
+        
+        for (ServerPlugin plugin : serverPlugins.values()) {
+            if (plugin.getExtensionPermissions() != null) {
+                for (ExtensionPermission extensionPermission : plugin.getExtensionPermissions()) {
+                    authorizationController.addExtensionPermission(extensionPermission);
+                }
+            }
         }
     }
 

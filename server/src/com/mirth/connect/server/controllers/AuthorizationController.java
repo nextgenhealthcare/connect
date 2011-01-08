@@ -9,8 +9,12 @@
 
 package com.mirth.connect.server.controllers;
 
+import com.mirth.connect.model.ExtensionPermission;
+
 public interface AuthorizationController {
     public boolean isUserAuthorized(Integer userId, String operation) throws ControllerException;
-    
-    public boolean isUserAuthorizedForExtension(Integer userId, String extensionName, String method) throws ControllerException;
+
+    public boolean isUserAuthorizedForExtension(Integer userId, String extensionName, String operation) throws ControllerException;
+
+    public void addExtensionPermission(ExtensionPermission extensionPermission);
 }

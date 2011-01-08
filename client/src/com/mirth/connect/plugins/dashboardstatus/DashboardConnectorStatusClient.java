@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.JComponent;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
@@ -27,7 +28,7 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
     private static final String REMOVE_SESSIONID = "removeSessionId";
     private static final String GET_CONNECTION_INFO_LOGS = "getConnectionInfoLogs";
     private static final String CHANNELS_DEPLOYED = "channelsDeployed";
-    private static final String SERVER_PLUGIN_NAME = "Dashboard Status Column Server";
+    private static final String SERVER_PLUGIN_NAME = "Dashboard Connector Status Monitor";
     private static final String NO_CHANNEL_SELECTED = "No Channel Selected";
     private ConcurrentHashMap<String, LinkedList<String[]>> connectorInfoLogs;
     private int currentDashboardLogSize;
@@ -154,7 +155,11 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
                     connectionInfoLogsReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_CONNECTION_INFO_LOGS, selectedChannel);
                 }
             } catch (ClientException e) {
-                parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                if (e.getCause() instanceof UnauthorizedException) {
+                    // Don't error. Let an empty list be processed
+                } else {
+                    parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                }
             }
 
             synchronized (this) {

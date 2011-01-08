@@ -11,6 +11,8 @@ package com.mirth.connect.plugins;
 
 import java.util.Properties;
 
+import com.mirth.connect.model.ExtensionPermission;
+
 public interface ServerPlugin {
     public void init(Properties properties);
 
@@ -31,4 +33,12 @@ public interface ServerPlugin {
      * @return
      */
     public Properties getDefaultProperties();
+
+    /**
+     * Returns permissions for this plugin so they can be initialized on
+     * startup.
+     * 
+     * @return
+     */
+    public ExtensionPermission[] getExtensionPermissions();
 }

@@ -34,6 +34,7 @@ import com.mirth.connect.connectors.vm.ChannelWriterProperties;
 import com.mirth.connect.connectors.ws.WebServiceSenderProperties;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.converters.ObjectCloner;
 import com.mirth.connect.model.converters.ObjectClonerException;
 import com.mirth.connect.plugins.ServerPlugin;
@@ -43,6 +44,8 @@ import com.mirth.connect.server.controllers.MonitoringController.Event;
 
 public class DashboardConnectorStatusMonitor implements ServerPlugin {
     private Logger logger = Logger.getLogger(this.getClass());
+
+    private static final String PLUGIN_NAME = "Dashboard Connector Status Monitor";
 
     private static final String COLOR_BLACK = "black";
     private static final String COLOR_YELLOW = "yellow";
@@ -248,7 +251,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin {
             String channelId = tokenizer.nextToken();
             int destinationIndex;
             LinkedList<String[]> channelLog = null;
-            
+
             Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
 
             if (channel != null) {
@@ -549,5 +552,12 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin {
         }
 
         return null;
+    }
+
+    @Override
+    public ExtensionPermission[] getExtensionPermissions() {
+        ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_NAME, "View Connection Status", "Displays the connection status and history of the selected channel on the Dashboard.", new String[] { METHOD_GET_STATES, METHOD_GET_CONNECTION_INFO_LOGS }, new String[] { });
+        
+        return new ExtensionPermission[] { viewPermission };
     }
 }

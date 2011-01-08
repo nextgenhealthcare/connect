@@ -17,11 +17,11 @@ import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
 
 public class DashboardConnectorStatusMonitorLogger implements ConnectorStatusPlugin {
-    private static final String DASHBOARD_STATUS_COLUMN_SERVER = "Dashboard Status Column Server";
+    private static final String SERVER_PLUGIN_NAME = "Dashboard Connector Status Monitor";
     private DashboardConnectorStatusMonitor monitor;
 
     public DashboardConnectorStatusMonitorLogger() {
-        monitor = (DashboardConnectorStatusMonitor) ControllerFactory.getFactory().createExtensionController().getLoadedServerPlugins().get(DASHBOARD_STATUS_COLUMN_SERVER);
+        monitor = (DashboardConnectorStatusMonitor) ControllerFactory.getFactory().createExtensionController().getLoadedServerPlugins().get(SERVER_PLUGIN_NAME);
     }
 
     public void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket) {

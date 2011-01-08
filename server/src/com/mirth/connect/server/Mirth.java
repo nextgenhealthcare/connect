@@ -188,7 +188,6 @@ public class Mirth extends Thread {
     public void startup() {
         configurationController.generateKeyPair();
         configurationController.generateDefaultTrustStore();
-        startWebServer();
         extensionController.loadExtensions();
         migrationController.migrate();
         messageObjectController.removeAllFilterTables();
@@ -208,7 +207,9 @@ public class Mirth extends Thread {
 
         // disable the velocity logging
         Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
+        
         startEngine();
+        startWebServer();
         printSplashScreen();
     }
 

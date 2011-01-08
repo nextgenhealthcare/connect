@@ -9,6 +9,8 @@
 
 package com.mirth.connect.server.controllers;
 
+import com.mirth.connect.model.ExtensionPermission;
+
 public class DefaultAuthorizationController implements AuthorizationController {
 
     private static DefaultAuthorizationController instance = null;
@@ -27,11 +29,19 @@ public class DefaultAuthorizationController implements AuthorizationController {
         }
     }
 
-    public boolean isUserAuthorized(Integer userId, String operation) {
+    @Override
+    public boolean isUserAuthorized(Integer userId, String operation) throws ControllerException {
         return true;
     }
 
-    public boolean isUserAuthorizedForExtension(Integer userId, String extensionName, String method) {
+    @Override
+    public boolean isUserAuthorizedForExtension(Integer userId, String extensionName, String operation) throws ControllerException {
         return true;
     }
+
+    @Override
+    public void addExtensionPermission(ExtensionPermission extensionPermission) {
+
+    }
+
 }

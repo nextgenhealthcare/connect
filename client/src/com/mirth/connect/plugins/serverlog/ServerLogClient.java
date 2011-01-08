@@ -15,6 +15,7 @@ import java.util.List;
 import javax.swing.JComponent;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
@@ -23,6 +24,7 @@ public class ServerLogClient extends DashboardPanelPlugin {
 
     private ServerLogPanel serverLogPanel;
     private LinkedList<String[]> serverLogs;
+    private static final String[] unauthorizedLog = new String[] { "0", "You are not authorized to view the server log." };
     private static final String GET_SERVER_LOGS = "getMirthServerLogs";
     private static final String REMOVE_SESSIONID = "removeSessionId";
     private static final String SERVER_PLUGIN_NAME = "Server Log";
@@ -69,7 +71,16 @@ public class ServerLogClient extends DashboardPanelPlugin {
             try {
                 serverLogReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_SERVER_LOGS, null);
             } catch (ClientException e) {
-                parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                if (e.getCause() instanceof UnauthorizedException) {
+                    LinkedList<String[]> unauthorizedLogs = new LinkedList<String[]>();
+                    // Add the unauthorized log message if it's not already there.
+                    if (serverLogs.isEmpty() || !serverLogs.getLast().equals(unauthorizedLog)) {
+                        unauthorizedLogs.add(unauthorizedLog);
+                    }
+                    serverLogReceived = unauthorizedLogs;
+                } else {
+                    parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                }
             }
 
             if (serverLogReceived.size() > 0) {

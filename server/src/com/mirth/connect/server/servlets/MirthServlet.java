@@ -37,11 +37,11 @@ public abstract class MirthServlet extends HttpServlet {
         
     }
     
-    public boolean isUserAuthorizedForExtension(HttpServletRequest request, String extensionName, String method) throws ServletException {
+    public boolean isUserAuthorizedForExtension(HttpServletRequest request, String extensionName, String operation) throws ServletException {
         HttpSession session = request.getSession();
 
         try {
-            return authorizationController.isUserAuthorizedForExtension((Integer) session.getAttribute(UserServlet.SESSION_USER), extensionName, method);    
+            return authorizationController.isUserAuthorizedForExtension((Integer) session.getAttribute(UserServlet.SESSION_USER), extensionName, operation);    
         } catch (ControllerException e) {
             throw new ServletException(e);
         }
