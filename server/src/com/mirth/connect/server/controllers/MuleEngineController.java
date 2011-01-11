@@ -351,6 +351,7 @@ public class MuleEngineController implements EngineController {
     private void configureInboundRouter(UMODescriptor descriptor, Channel channel) throws Exception {
         logger.debug("configuring inbound router for channel: " + channel.getId() + " (" + channel.getName() + ")");
         InboundMessageRouter inboundRouter = new InboundMessageRouter();
+        Exception exceptionRegisteringInboundRouter = null;
 
         // add source endpoints
         MuleEndpoint vmEndpoint = new MuleEndpoint();
@@ -385,8 +386,14 @@ public class MuleEngineController implements EngineController {
         }
 
         // STEP 2. append the preprocessing transformer
-        UMOTransformer preprocessorTransformer = registerPreprocessor(channel, connectorReference + "_preprocessor");
-
+        UMOTransformer preprocessorTransformer = createPreprocessor(channel, connectorReference + "_preprocessor");
+        
+        try {
+            muleManager.registerTransformer(preprocessorTransformer);
+        } catch (Exception e) {
+            exceptionRegisteringInboundRouter = e;
+        }
+        
         if (!transformerList.isEmpty()) {
             transformerList.getLast().setTransformer(preprocessorTransformer);
         } else {
@@ -397,7 +404,14 @@ public class MuleEngineController implements EngineController {
 
         // STEP 3. finally, append the JavaScriptTransformer that does the
         // mappings
-        UMOTransformer javascriptTransformer = registerTransformer(channel, channel.getSourceConnector(), connectorReference + "_transformer");
+        UMOTransformer javascriptTransformer = createTransformer(channel, channel.getSourceConnector(), connectorReference + "_transformer");
+        
+        try {
+            muleManager.registerTransformer(javascriptTransformer);
+        } catch (Exception e) {
+            exceptionRegisteringInboundRouter = e;
+        }
+        
         preprocessorTransformer.setTransformer(javascriptTransformer);
 
         // STEP 4. add the transformer sequence as an attribute to the endpoint
@@ -438,19 +452,18 @@ public class MuleEngineController implements EngineController {
          * endpoint and inbound router so that the channel can be properly
          * unregistered.
          */
-        Exception exceptionRegisteringConnector = null;
         try {
             endpoint.setConnector(registerConnector(channel.getSourceConnector(), getConnectorNameForRouter(connectorReference), channel.getId()));
         } catch (Exception e) {
-            exceptionRegisteringConnector = e;
+            exceptionRegisteringInboundRouter = e;
         }
 
         inboundRouter.addEndpoint(endpoint);
 
         descriptor.setInboundRouter(inboundRouter);
 
-        if (exceptionRegisteringConnector != null) {
-            throw exceptionRegisteringConnector;
+        if (exceptionRegisteringInboundRouter != null) {
+            throw exceptionRegisteringInboundRouter;
         }
     }
 
@@ -458,10 +471,10 @@ public class MuleEngineController implements EngineController {
         logger.debug("configuring outbound router for channel: " + channel.getId() + " (" + channel.getName() + ")");
         FilteringMulticastingRouter fmr = new FilteringMulticastingRouter();
         boolean enableTransactions = false;
-        Exception exceptionRegisteringConnector = null;
+        Exception exceptionRegisteringOutboundRouter = null;
 
         // If there was an exception registering a connector, break the loop.
-        for (ListIterator<Connector> iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext() && (exceptionRegisteringConnector == null);) {
+        for (ListIterator<Connector> iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext() && (exceptionRegisteringOutboundRouter == null);) {
             Connector connector = iterator.next();
 
             if (connector.isEnabled()) {
@@ -485,12 +498,18 @@ public class MuleEngineController implements EngineController {
                 try {
                     endpoint.setConnector(registerConnector(connector, connectorName, channel.getId()));
                 } catch (Exception e) {
-                    exceptionRegisteringConnector = e;
+                    exceptionRegisteringOutboundRouter = e;
                 }
 
                 // 1. append the JavaScriptTransformer that does the
                 // mappings
-                UMOTransformer javascriptTransformer = registerTransformer(channel, connector, connectorReference + "_transformer");
+                UMOTransformer javascriptTransformer = createTransformer(channel, connector, connectorReference + "_transformer");
+                
+                try {
+                    muleManager.registerTransformer(javascriptTransformer);
+                } catch (Exception e) {
+                    exceptionRegisteringOutboundRouter = e;
+                }
 
                 // 2. finally, append any transformers needed by the
                 // transport (ie. StringToByteArray)
@@ -537,8 +556,8 @@ public class MuleEngineController implements EngineController {
          * FilteringMulticastingRouter doesn't fail when unregistering the
          * failed channel and stopping its dispatchers.
          */
-        if (exceptionRegisteringConnector != null) {
-            throw exceptionRegisteringConnector;
+        if (exceptionRegisteringOutboundRouter != null) {
+            throw exceptionRegisteringOutboundRouter;
         }
     }
 
@@ -560,7 +579,7 @@ public class MuleEngineController implements EngineController {
         return channel.getId() + "_destination_" + index;
     }
 
-    private UMOTransformer registerTransformer(Channel channel, Connector connector, String name) throws Exception {
+    private UMOTransformer createTransformer(Channel channel, Connector connector, String name) throws Exception {
         Transformer transformer = connector.getTransformer();
         logger.debug("registering transformer: " + name);
         UMOTransformer umoTransformer = (UMOTransformer) Class.forName("com.mirth.connect.server.mule.transformers.JavaScriptTransformer").newInstance();
@@ -611,7 +630,7 @@ public class MuleEngineController implements EngineController {
         }
 
         BeanUtils.populate(umoTransformer, beanProperties);
-        muleManager.registerTransformer(umoTransformer);
+        
         return umoTransformer;
     }
 
@@ -676,13 +695,11 @@ public class MuleEngineController implements EngineController {
         return umoConnector;
     }
 
-    private UMOTransformer registerPreprocessor(Channel channel, String name) throws Exception {
+    private UMOTransformer createPreprocessor(Channel channel, String name) throws Exception {
         UMOTransformer umoTransformer = (UMOTransformer) Class.forName("com.mirth.connect.server.mule.transformers.JavaScriptPreprocessor").newInstance();
         umoTransformer.setName(name);
         PropertyUtils.setSimpleProperty(umoTransformer, "channelId", channel.getId());
 
-        // add the transformer to the manager
-        muleManager.registerTransformer(umoTransformer);
         return umoTransformer;
     }
 
