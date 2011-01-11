@@ -117,7 +117,9 @@ public class DefaultConfigurationController extends ConfigurationController {
             mirthConfig.setDelimiterParsingDisabled(true);
             mirthConfig.load("mirth.properties");
 
+            // load the server version
             InputStream is = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
+            versionConfig.setDelimiterParsingDisabled(true);
             versionConfig.load(is);
             IOUtils.closeQuietly(is);
 
