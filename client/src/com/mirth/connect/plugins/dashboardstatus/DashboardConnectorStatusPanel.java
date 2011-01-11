@@ -276,7 +276,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
                     // Event State - INITIALIZED (blue), CONNECTED (green), BUSY (yellow), DONE (black), DISCONNECTED (red)
                     if (channelLogs.get(i)[4].equalsIgnoreCase("INITIALIZED")) {
                         tableData[i][4] = new CellData(blueBullet, "Initialized");
-                    } else if (channelLogs.get(i)[4].equalsIgnoreCase("ATTEMPTING_TO_CONNECT")) {
+                    } else if (channelLogs.get(i)[4].equalsIgnoreCase("ATTEMPTING")) {
                         tableData[i][4] = new CellData(yellowBullet, "Attempting to Connect");
                     } else if (channelLogs.get(i)[4].equalsIgnoreCase("CONNECTED")) {
                         tableData[i][4] = new CellData(greenBullet, "Connected");
