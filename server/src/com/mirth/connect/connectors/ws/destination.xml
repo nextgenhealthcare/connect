@@ -22,16 +22,19 @@
 	<library path="ws-shared.jar">
 		<type>SHARED</type>
 	</library>
-	<library path="lib/qname-1.6.2.jar">
+	<library path="lib/soapui-3.6.1.jar">
 		<type>SERVER</type>
 	</library>
-	<library path="lib/relaxngDatatype.jar">
+	<library path="lib/wsdl4j-1.6.2-fixed.jar">
 		<type>SERVER</type>
 	</library>
-	<library path="lib/wsdl4j-1.6.2.jar">
+	<library path="lib/xbean-fixed-2.4.0.jar">
 		<type>SERVER</type>
 	</library>
-	<library path="lib/xsom.jar">
+	<library path="lib/soapui-xmlbeans-3.6.1.jar">
+		<type>SERVER</type>
+	</library>
+	<library path="lib/not-yet-commons-ssl-0.3.11.jar">
 		<type>SERVER</type>
 	</library>
 	<mule-properties>

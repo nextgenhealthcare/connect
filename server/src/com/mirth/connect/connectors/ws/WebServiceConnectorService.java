@@ -9,103 +9,115 @@
 
 package com.mirth.connect.connectors.ws;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.wsdl.BindingOperation;
-import javax.wsdl.Definition;
-import javax.wsdl.Port;
+import javax.wsdl.PortType;
 import javax.wsdl.Service;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
-import javax.xml.namespace.QName;
 
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
+
+import com.eviware.soapui.SoapUI;
+import com.eviware.soapui.impl.WsdlInterfaceFactory;
+import com.eviware.soapui.impl.wsdl.WsdlInterface;
+import com.eviware.soapui.impl.wsdl.WsdlProject;
+import com.eviware.soapui.impl.wsdl.WsdlProjectFactory;
+import com.eviware.soapui.impl.wsdl.support.soap.SoapMessageBuilder;
+import com.eviware.soapui.impl.wsdl.support.wsdl.UrlWsdlLoader;
+import com.eviware.soapui.impl.wsdl.support.wsdl.WsdlLoader;
+import com.eviware.soapui.model.iface.Operation;
 import com.mirth.connect.connectors.ConnectorService;
 
 public class WebServiceConnectorService implements ConnectorService {
-    private static Map<String, Definition> definitionCache = new HashMap<String, Definition>();
+    private static Map<String, WsdlInterface> wsdlInterfaceCache = new HashMap<String, WsdlInterface>();
 
     public Object invoke(String method, Object object, String sessionsId) throws Exception {
         if (method.equals("cacheWsdlFromUrl")) {
             Map<String, String> params = (Map<String, String>) object;
             String id = params.get("id");
-            String wsdlUrl = params.get("wsdlUrl");
+            URI wsdlUrl = new URI(params.get("wsdlUrl"));
             String username = params.get("username");
             String password = params.get("password");
-
-            definitionCache.put(id, getDefinition(wsdlUrl, username, password));
+            wsdlInterfaceCache.put(id, getWsdlInterface(wsdlUrl, username, password));
         } else if (method.equals("isWsdlCached")) {
             String id = (String) object;
-            return (definitionCache.get(id) != null);
+            return (wsdlInterfaceCache.get(id) != null);
         } else if (method.equals("getOperations")) {
             String id = (String) object;
-            Definition definition = definitionCache.get(id);
-
-            if (definition != null) {
-                return getOperations(definition);
-            }
+            WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
+            return getOperations(wsdlInterface);
         } else if (method.equals("getService")) {
             String id = (String) object;
-            String serviceName = null;
-            Definition definition = definitionCache.get(id);
+            WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
 
-            if (definition.getServices().values().iterator().hasNext()) {
-                Service service = (Service) definition.getServices().values().iterator().next();
-                serviceName = service.getQName().toString();
+            if (MapUtils.isNotEmpty(wsdlInterface.getWsdlContext().getDefinition().getServices())) {
+                Service service = (Service) wsdlInterface.getWsdlContext().getDefinition().getServices().values().iterator().next();
+                return service.getQName().toString();
             }
-
-            return serviceName;
         } else if (method.equals("getPort")) {
             String id = (String) object;
-            String portName = null;
-            Definition definition = definitionCache.get(id);
+            WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
 
-            if (definition.getServices().values().iterator().hasNext()) {
-                Service service = (Service) definition.getServices().values().iterator().next();
-                if (service.getPorts().values().iterator().hasNext()) {
-                    Port port = (Port) service.getPorts().values().iterator().next();
-                    portName = new QName(service.getQName().getNamespaceURI(), port.getName()).toString();
-                }
+            if (MapUtils.isNotEmpty(wsdlInterface.getWsdlContext().getDefinition().getPortTypes())) {
+                PortType portType = (PortType) wsdlInterface.getWsdlContext().getDefinition().getPortTypes().values().iterator().next();
+                return portType.getQName().toString();
             }
-
-            return portName;
         } else if (method.equals("generateEnvelope")) {
             Map<String, String> params = (Map<String, String>) object;
             String id = params.get("id");
-            String operation = params.get("operation");
-            SoapEnvelopeGenerator envelopeGenerator = new SoapEnvelopeGenerator(definitionCache.get(id));
-            return envelopeGenerator.generateEnvelopeForOperation(operation);
+            String operationName = params.get("operation");
+            WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
+            return buildEnvelope(wsdlInterface, operationName);
+        } else if (method.equals("getSoapAction")) {
+            Map<String, String> params = (Map<String, String>) object;
+            String id = params.get("id");
+            String operationName = params.get("operation");
+            WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
+            return wsdlInterface.getOperationByName(operationName).getAction();
         }
 
         return null;
     }
 
-    private Definition getDefinition(String wsdlUrl, String username, String password) throws Exception {
-        WSDLReader wsdlReader = WSDLFactory.newInstance().newWSDLReader();
-        wsdlReader.setFeature("javax.wsdl.verbose", false);
-        wsdlReader.setFeature("javax.wsdl.importDocuments", true);
-        return wsdlReader.readWSDL(new AuthWsdlLocator(wsdlUrl, username, password));
+    private WsdlInterface getWsdlInterface(URI wsdlUrl, String username, String password) throws Exception {
+        // add the username:password to the URL if using authentication
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+            String hostWithCredentials = username + ":" + password + "@" + wsdlUrl.getHost();
+            wsdlUrl = new URI(wsdlUrl.getScheme(), hostWithCredentials, wsdlUrl.getPath(), wsdlUrl.getQuery(), wsdlUrl.getFragment());
+        }
+
+        // disable ERROR and below logging for soapUI
+        SoapUI.log.getParent().setLevel(Level.FATAL);
+
+        // create a new soapUI project
+        WsdlProject wsdlProject = new WsdlProjectFactory().createNew();
+
+        // import the WSDL interface
+        WsdlLoader wsdlLoader = new UrlWsdlLoader(wsdlUrl.toURL().toString());
+        WsdlInterface[] wsdlInterfaces = WsdlInterfaceFactory.importWsdl(wsdlProject, wsdlUrl.toURL().toString(), false, wsdlLoader);
+
+        return wsdlInterfaces[0];
     }
 
-    private List<String> getOperations(Definition definition) {
+    private List<String> getOperations(WsdlInterface wsdlInterface) {
         List<String> operations = new ArrayList<String>();
 
-        for (Iterator<Service> serviceIterator = definition.getServices().values().iterator(); serviceIterator.hasNext();) {
-            Service service = serviceIterator.next();
-
-            for (Iterator<Port> portIterator = service.getPorts().values().iterator(); portIterator.hasNext();) {
-                Port port = portIterator.next();
-
-                for (Iterator<BindingOperation> iterator = port.getBinding().getBindingOperations().iterator(); iterator.hasNext();) {
-                    BindingOperation operation = iterator.next();
-                    operations.add(operation.getName());
-                }
-            }
+        for (Operation operation : wsdlInterface.getOperationList()) {
+            operations.add(operation.getName());
         }
 
         return operations;
+    }
+
+    private String buildEnvelope(WsdlInterface wsdlInterface, String operationName) throws Exception {
+        SoapMessageBuilder messageBuilder = wsdlInterface.getMessageBuilder();
+        BindingOperation bindingOperation = wsdlInterface.getOperationByName(operationName).getBindingOperation();
+        return messageBuilder.buildSoapMessageFromInput(bindingOperation, true);
     }
 }

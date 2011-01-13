@@ -59,10 +59,6 @@
 	<classpathentry kind="lib" path="lib/xstream-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-configuration-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/bcprov-jdk16-144.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/ws/qname-1.6.2.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/ws/relaxngDatatype.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/ws/wsdl4j-1.6.2.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/ws/xsom.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/file/webdavclient4j-core-0.92.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-core-2.0.22.jar"/>
@@ -89,5 +85,10 @@
 	<classpathentry kind="lib" path="lib/jetty/jetty-util-7.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/servlet-api-2.5.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/extensions/ws/not-yet-commons-ssl-0.3.11.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/ws/soapui-3.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-3.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/ws/wsdl4j-1.6.2-fixed.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/ws/xbean-fixed-2.4.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
