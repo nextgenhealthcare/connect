@@ -603,8 +603,8 @@
                         <StringItem index="1" value="postgres"/>
                         <StringItem index="2" value="mysql"/>
                         <StringItem index="3" value="oracle"/>
-                        <StringItem index="4" value="sqlserver"/>
-                        <StringItem index="5" value="sqlserver2005"/>
+                        <StringItem index="4" value="sqlserver2000"/>
+                        <StringItem index="5" value="sqlserver"/>
                       </StringArray>
                     </Property>
                   </Properties>

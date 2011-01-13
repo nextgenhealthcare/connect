@@ -46,8 +46,8 @@ public class ManagerDialog extends javax.swing.JDialog {
         databaseUrls.put("postgres", "jdbc:postgresql://localhost:5432/mirthdb");
         databaseUrls.put("mysql", "jdbc:mysql://localhost:3306/mirthdb");
         databaseUrls.put("oracle", "jdbc:oracle:thin:@localhost:1521:DB");
+        databaseUrls.put("sqlserver2000", "jdbc:jtds:sqlserver://localhost:1433/mirthdb");
         databaseUrls.put("sqlserver", "jdbc:jtds:sqlserver://localhost:1433/mirthdb");
-        databaseUrls.put("sqlserver2005", "jdbc:jtds:sqlserver://localhost:1433/mirthdb");
 
         // Remove the service tab if it's not supported
         if (!serviceController.isShowServiceTab()) {
@@ -461,7 +461,7 @@ public class ManagerDialog extends javax.swing.JDialog {
 
         jLabel8.setText(" URL:");
 
-        databaseType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "derby", "postgres", "mysql", "oracle", "sqlserver", "sqlserver2005" }));
+        databaseType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "derby", "postgres", "mysql", "oracle", "sqlserver2000", "sqlserver" }));
         databaseType.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 databaseTypeActionPerformed(evt);
