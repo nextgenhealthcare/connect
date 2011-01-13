@@ -40,11 +40,11 @@ public class WebServiceConnectorService implements ConnectorService {
     public Object invoke(String method, Object object, String sessionsId) throws Exception {
         if (method.equals("cacheWsdlFromUrl")) {
             Map<String, String> params = (Map<String, String>) object;
-            String id = params.get("id");
-            URI wsdlUrl = new URI(params.get("wsdlUrl"));
+            String wsdlUrl = params.get("wsdlUrl");
+            URI wsdlUri = new URI(wsdlUrl);
             String username = params.get("username");
             String password = params.get("password");
-            wsdlInterfaceCache.put(id, getWsdlInterface(wsdlUrl, username, password));
+            wsdlInterfaceCache.put(wsdlUrl, getWsdlInterface(wsdlUri, username, password));
         } else if (method.equals("isWsdlCached")) {
             String id = (String) object;
             return (wsdlInterfaceCache.get(id) != null);

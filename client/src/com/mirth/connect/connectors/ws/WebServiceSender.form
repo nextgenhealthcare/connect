@@ -295,7 +295,7 @@
     <Component class="javax.swing.JButton" name="generateEnvelope">
       <Properties>
         <Property name="text" type="java.lang.String" value="Generate Envelope"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Clicking this button regenerates the contents of the SOAP Envelope control based on the&lt;br&gt;schema defined in the WSDL, discarding any changes that may have been made.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Clicking this button regenerates the contents of the SOAP Envelope control based on the&lt;br&gt;schema defined in the WSDL, discarding any changes that may have been made.&lt;br&gt;It also populates the SOAP Action field, if available.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateEnvelopeActionPerformed"/>
@@ -612,7 +612,10 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="soapActionField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The SOAPAction HTTP request header field can be used to indicate the intent of the SOAP HTTP request.&lt;br&gt;This field is optional for most web services.&lt;/html&gt;"/>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="de" green="de" red="de" type="rgb"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The SOAPAction HTTP request header field can be used to indicate the intent of the SOAP HTTP request.&lt;br&gt;This field is optional for most web services, and will be auto-populated when you select an operation.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="soapActionLabel">

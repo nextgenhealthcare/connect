@@ -6,7 +6,6 @@
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
-
 package com.mirth.connect.connectors.ws;
 
 import java.awt.Component;
@@ -21,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractCellEditor;
@@ -64,7 +62,6 @@ public class WebServiceSender extends ConnectorClass {
     private final String MIME_TYPE_COLUMN_NAME = "MIME Type";
     ObjectXMLSerializer serializer = new ObjectXMLSerializer();
     private HashMap<String, String> channelList;
-    private String wsdlCacheId = "";
 
     public WebServiceSender() {
         name = WebServiceSenderProperties.name;
@@ -82,8 +79,6 @@ public class WebServiceSender extends ConnectorClass {
         Properties properties = new Properties();
 
         properties.put(WebServiceSenderProperties.DATATYPE, name);
-
-        properties.put(WebServiceSenderProperties.WEBSERVICE_WSDL_CACHE_ID, wsdlCacheId);
 
         // Queue properties
         properties.put(QueuedSenderProperties.QUEUE_POLL_INTERVAL, queuePollIntervalField.getText());
@@ -155,8 +150,6 @@ public class WebServiceSender extends ConnectorClass {
 
     public void setProperties(Properties props) {
         resetInvalidProperties();
-
-        wsdlCacheId = props.getProperty(WebServiceSenderProperties.WEBSERVICE_WSDL_URL);
 
         wsdlUrlField.setText((String) props.get(WebServiceSenderProperties.WEBSERVICE_WSDL_URL));
         serviceField.setText((String) props.get(WebServiceSenderProperties.WEBSERVICE_SERVICE));
@@ -344,14 +337,16 @@ public class WebServiceSender extends ConnectorClass {
     }
 
     private boolean isWsdlCached() {
-        if (wsdlCacheId.equals("")) {
+        String wsdlUrl = wsdlUrlField.getText().trim();
+        
+        if (wsdlUrl.equals("")) {
             return false;
         }
 
         boolean isWsdlCached = false;
 
         try {
-            isWsdlCached = (Boolean) parent.mirthClient.invokeConnectorService(name, "isWsdlCached", wsdlCacheId);
+            isWsdlCached = (Boolean) parent.mirthClient.invokeConnectorService(name, "isWsdlCached", wsdlUrl);
         } catch (ClientException e) {
             parent.alertError(parent, "Error checking if the wsdl is cached.");
         }
@@ -363,9 +358,6 @@ public class WebServiceSender extends ConnectorClass {
         try {
             String wsdlUrl = wsdlUrlField.getText().trim();
             Map<String, String> cacheWsdlMap = new HashMap<String, String>();
-
-            wsdlCacheId = UUID.randomUUID().toString();
-            cacheWsdlMap.put("id", wsdlCacheId);
 
             cacheWsdlMap.put("wsdlUrl", wsdlUrl);
 
@@ -388,14 +380,15 @@ public class WebServiceSender extends ConnectorClass {
     }
 
     private Object invokeConnectorService(String method, String paramName, String paramValue) {
+        String wsdlUrl = wsdlUrlField.getText().trim();
         Object returnObject = null;
-
         Object params = null;
+        
         if (paramName == null) {
-            params = wsdlCacheId;
+            params = wsdlUrl;
         } else {
             Map<String, String> paramMap = new HashMap<String, String>();
-            paramMap.put("id", wsdlCacheId);
+            paramMap.put("id", wsdlUrl);
             paramMap.put(paramName, paramValue);
 
             params = paramMap;
@@ -419,7 +412,7 @@ public class WebServiceSender extends ConnectorClass {
             return wsdlUrlField.getText().substring(7);
         } else if (wsdlUrlField.getText().startsWith("https://")) {
             return wsdlUrlField.getText().substring(8);
-        }  else {
+        } else {
             return wsdlUrlField.getText();
         }
     }
@@ -724,7 +717,7 @@ public class WebServiceSender extends ConnectorClass {
         jLabel4.setText("SOAP Envelope:");
 
         generateEnvelope.setText("Generate Envelope");
-        generateEnvelope.setToolTipText("<html>Clicking this button regenerates the contents of the SOAP Envelope control based on the<br>schema defined in the WSDL, discarding any changes that may have been made.</html>");
+        generateEnvelope.setToolTipText("<html>Clicking this button regenerates the contents of the SOAP Envelope control based on the<br>schema defined in the WSDL, discarding any changes that may have been made.<br>It also populates the SOAP Action field, if available.</html>");
         generateEnvelope.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 generateEnvelopeActionPerformed(evt);
@@ -887,7 +880,8 @@ public class WebServiceSender extends ConnectorClass {
 
         queuePollIntervalField.setToolTipText("<html>The amount of time that should elapse between polls of an empty queue to check for queued messages.</html>");
 
-        soapActionField.setToolTipText("<html>The SOAPAction HTTP request header field can be used to indicate the intent of the SOAP HTTP request.<br>This field is optional for most web services.</html>");
+        soapActionField.setBackground(new java.awt.Color(222, 222, 222));
+        soapActionField.setToolTipText("<html>The SOAPAction HTTP request header field can be used to indicate the intent of the SOAP HTTP request.<br>This field is optional for most web services, and will be auto-populated when you select an operation.</html>");
 
         soapActionLabel.setText("SOAP Action:");
 
@@ -1140,41 +1134,6 @@ private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) 
     worker.execute();
 }//GEN-LAST:event_getOperationsButtonActionPerformed
 
-private void generateEnvelopeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateEnvelopeActionPerformed
-    if (soapEnvelope.getText().length() > 0) {
-        if (!parent.alertOkCancel(parent, "This will replace your current SOAP envelope with a generated envelope. Press OK to continue.")) {
-            return;
-        }
-    }
-
-    parent.setWorking("Generating envelope...", true);
-
-    SwingWorker worker = new SwingWorker<Void, Void>() {
-
-        private String generatedEnvelope = null;
-
-        public Void doInBackground() {
-            if (!isWsdlCached()) {
-                parent.alertInformation(parent, "The WSDL is no longer cached on the server. Press \"Get Operations\" to fetch the latest WSDL.");
-            } else {
-                generatedEnvelope = (String) invokeConnectorService("generateEnvelope", "operation", (String) operationComboBox.getSelectedItem());
-            }
-
-            return null;
-        }
-
-        public void done() {
-            if (generatedEnvelope != null) {
-                soapEnvelope.setText(generatedEnvelope);
-                parent.setSaveEnabled(true);
-            }
-
-            parent.setWorking("", false);
-        }
-    };
-    worker.execute();
-}//GEN-LAST:event_generateEnvelopeActionPerformed
-
 private void authenticationYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationYesRadioActionPerformed
     usernameLabel.setEnabled(true);
     usernameField.setEnabled(true);
@@ -1218,6 +1177,49 @@ private void useMtomNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GE
     attachmentsTable.setRowSelectionAllowed(false);
     attachmentsTable.clearSelection();
 }//GEN-LAST:event_useMtomNoRadioActionPerformed
+
+private void generateEnvelopeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateEnvelopeActionPerformed
+    if (soapEnvelope.getText().length() > 0) {
+        if (!parent.alertOkCancel(parent, "This will replace your current SOAP envelope with a generated envelope. Press OK to continue.")) {
+            return;
+        }
+    }
+
+    parent.setWorking("Generating envelope...", true);
+
+    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+        private String soapAction = null;
+        private String generatedEnvelope = null;
+
+        public Void doInBackground() {
+            if (!isWsdlCached()) {
+                parent.alertInformation(parent, "The WSDL is no longer cached on the server. Press \"Get Operations\" to fetch the latest WSDL.");
+            } else {
+                generatedEnvelope = (String) invokeConnectorService("generateEnvelope", "operation", (String) operationComboBox.getSelectedItem());
+                soapAction = (String) invokeConnectorService("getSoapAction", "operation", (String) operationComboBox.getSelectedItem());                
+            }
+
+            return null;
+        }
+
+        public void done() {
+            if (generatedEnvelope != null) {
+                soapEnvelope.setText(generatedEnvelope);
+                parent.setSaveEnabled(true);
+            }
+
+            if (soapAction != null) {
+                soapActionField.setText(soapAction);
+                parent.setSaveEnabled(true);
+            }
+
+            parent.setWorking("", false);
+        }
+    };
+    worker.execute();
+}//GEN-LAST:event_generateEnvelopeActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL1;
     private javax.swing.JLabel attachmentsLabel;
