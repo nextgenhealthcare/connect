@@ -46,7 +46,7 @@ public class SqlConfig {
         databaseDriverMap.put("oracle", "oracle.jdbc.OracleDriver");
         databaseDriverMap.put("postgres", "org.postgresql.Driver");
         databaseDriverMap.put("sqlserver2000", "net.sourceforge.jtds.jdbc.Driver");
-        databaseDriverMap.put("sqlserver2005", "net.sourceforge.jtds.jdbc.Driver");
+        databaseDriverMap.put("sqlserver", "net.sourceforge.jtds.jdbc.Driver");
     }
 
     private SqlConfig() {
