@@ -2,17 +2,16 @@
 	<target name="init">
 		<property file="mirth-build.properties" />
 		<property name="server.setup" value="${server}/setup" />
+		<property name="server.build" value="${server}/build" />
 	</target>
 
 	<!-- Server extensions -->
 	<target name="build-server-extensions" depends="init">
-		<ant antfile="${server}/build.xml" dir="${server}" target="create-plugins">
-			<property name="version" value="${version}" />
-		</ant>
+		<ant antfile="${server}/build.xml" dir="${server}" target="create-plugins" />
 
 		<!-- copy the shared extension jars to the client lib -->
 		<copy todir="${client}/lib" flatten="true">
-			<fileset dir="${server}/build/extensions/">
+			<fileset dir="${server.build}/extensions/">
 				<include name="**/*-shared.jar" />
 			</fileset>
 		</copy>
@@ -27,19 +26,15 @@
 
 		<copy file="${client}/dist/mirth-client.jar" todir="${server.setup}/client-lib/" />
 
-		<copy todir="${server}/build/extensions/">
-			<fileset dir="${client}/dist/extensions/" />
-		</copy>
-
 		<copy todir="${server.setup}/client-lib">
 			<fileset dir="${client}/lib">
 				<exclude name="*-shared.jar" />
 				<exclude name="extensions" />
 			</fileset>
 		</copy>
-
-		<copy todir="${server}/build/client-lib">
-			<fileset dir="${server.setup}/client-lib" />
+		
+		<copy todir="${server.setup}/extensions">
+			<fileset dir="${client}/dist/extensions" />
 		</copy>
 	</target>
 
@@ -91,6 +86,14 @@
 		<ant antfile="${server}/build.xml" dir="${server}" target="create-setup">
 			<property name="version" value="${version}" />
 		</ant>
+		
+		<copy todir="${server.build}/extensions/">
+			<fileset dir="${server.setup}/extensions/" />
+		</copy>
+
+		<copy todir="${server.build}/client-lib">
+			<fileset dir="${server.setup}/client-lib" />
+		</copy>
 	</target>
 
 	<target name="dist" depends="build-manager, build-cli">
