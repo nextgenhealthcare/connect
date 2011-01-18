@@ -61,7 +61,7 @@ import com.mirth.connect.server.servlets.ConfigurationServlet;
 import com.mirth.connect.server.servlets.EngineServlet;
 import com.mirth.connect.server.servlets.ExtensionServlet;
 import com.mirth.connect.server.servlets.MessageObjectServlet;
-import com.mirth.connect.server.servlets.SystemEventServlet;
+import com.mirth.connect.server.servlets.EventServlet;
 import com.mirth.connect.server.servlets.UserServlet;
 import com.mirth.connect.server.servlets.WebStartServlet;
 import com.mirth.connect.server.tools.ClassPathResource;
@@ -191,7 +191,7 @@ public class Mirth extends Thread {
         extensionController.loadExtensions();
         migrationController.migrate();
         messageObjectController.removeAllFilterTables();
-        eventController.removeAllFilterTables();
+        eventController.removeAllEventFilterTables();
         extensionController.uninstallExtensions();
         migrationController.migrateExtensions();
         extensionController.initPlugins();
@@ -350,7 +350,7 @@ public class Mirth extends Thread {
             sslServletContextHandler.addServlet(new ServletHolder(new MessageObjectServlet()), "/messages");
             sslServletContextHandler.addServlet(new ServletHolder(new EngineServlet()), "/engine");
             sslServletContextHandler.addServlet(new ServletHolder(new ExtensionServlet()), "/extensions");
-            sslServletContextHandler.addServlet(new ServletHolder(new SystemEventServlet()), "/events");
+            sslServletContextHandler.addServlet(new ServletHolder(new EventServlet()), "/events");
             sslServletContextHandler.addServlet(new ServletHolder(new UserServlet()), "/users");
             sslServletContextHandler.setConnectorNames(new String[] { "sslconnector" });
             handlers.addHandler(sslServletContextHandler);

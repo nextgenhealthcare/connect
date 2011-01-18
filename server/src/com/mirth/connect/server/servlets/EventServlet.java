@@ -16,16 +16,17 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.model.filters.SystemEventFilter;
+import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 
-public class SystemEventServlet extends MirthServlet {
+public class EventServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
     
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -35,44 +36,41 @@ public class SystemEventServlet extends MirthServlet {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             try {
-                EventController systemLogger = ControllerFactory.getFactory().createEventController();
+                EventController eventController = ControllerFactory.getFactory().createEventController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 PrintWriter out = response.getWriter();
                 String operation = request.getParameter("op");
                 String uid = null;
                 boolean useNewTempTable = false;
 
-                if (request.getParameter("uid") != null && !request.getParameter("uid").equals("")) {
+                if (StringUtils.isNotBlank(request.getParameter("uid"))) {
                     uid = request.getParameter("uid");
                     useNewTempTable = true;
                 } else {
                     uid = request.getSession().getId();
                 }
 
-                if (operation.equals(Operations.SYSTEM_EVENT_CREATE_TEMP_TABLE)) {
+                if (operation.equals(Operations.EVENT_CREATE_TEMP_TABLE)) {
                     String filter = request.getParameter("filter");
                     response.setContentType("text/plain");
-                    out.println(systemLogger.createSystemEventsTempTable((SystemEventFilter) serializer.fromXML(filter), uid, useNewTempTable));
-                } else if (operation.equals(Operations.SYSTEM_EVENT_REMOVE_FILTER_TABLES)) {
-                    systemLogger.removeFilterTable(uid);
-                } else if (operation.equals(Operations.SYSTEM_EVENT_GET_BY_PAGE)) {
+                    out.println(eventController.createEventTempTable((EventFilter) serializer.fromXML(filter), uid, useNewTempTable));
+                } else if (operation.equals(Operations.EVENT_REMOVE_FILTER_TABLES)) {
+                    eventController.removeEventFilterTable(uid);
+                } else if (operation.equals(Operations.EVENT_GET_BY_PAGE)) {
                     String page = request.getParameter("page");
                     String pageSize = request.getParameter("pageSize");
-                    String maxMessages = request.getParameter("maxSystemEvents");
+                    String maxMessages = request.getParameter("maxEvents");
                     response.setContentType("application/xml");
-                    out.print(serializer.toXML(systemLogger.getSystemEventsByPage(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), uid)));
-                } else if (operation.equals(Operations.SYSTEM_EVENT_GET_BY_PAGE_LIMIT)) {
+                    out.print(serializer.toXML(eventController.getEventsByPage(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), uid)));
+                } else if (operation.equals(Operations.EVENT_GET_BY_PAGE_LIMIT)) {
                     String page = request.getParameter("page");
                     String pageSize = request.getParameter("pageSize");
-                    String maxSystemEvents = request.getParameter("maxSystemEvents");
+                    String maxSystemEvents = request.getParameter("maxEvents");
                     String filter = request.getParameter("filter");
                     response.setContentType("application/xml");
-                    out.print(serializer.toXML(systemLogger.getSystemEventsByPageLimit(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxSystemEvents), uid, (SystemEventFilter) serializer.fromXML(filter))));
-                } else if (operation.equals(Operations.SYSTEM_EVENT_REMOVE)) {
-                    String filter = request.getParameter("filter");
-                    systemLogger.removeSystemEvents((SystemEventFilter) serializer.fromXML(filter));
-                } else if (operation.equals(Operations.SYSTEM_EVENT_CLEAR)) {
-                    systemLogger.clearSystemEvents();
+                    out.print(serializer.toXML(eventController.getEventsByPageLimit(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxSystemEvents), uid, (EventFilter) serializer.fromXML(filter))));
+                } else if (operation.equals(Operations.EVENT_CLEAR)) {
+                    eventController.clearEvents();
                 }
             } catch (Throwable t) {
                 logger.error(ExceptionUtils.getStackTrace(t));

@@ -22,11 +22,11 @@ import org.apache.tools.ant.BuildException;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ListHandlerException;
-import com.mirth.connect.client.core.SystemEventListHandler;
+import com.mirth.connect.client.core.EventListHandler;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
-import com.mirth.connect.model.SystemEvent;
-import com.mirth.connect.model.filters.SystemEventFilter;
+import com.mirth.connect.model.Event;
+import com.mirth.connect.model.filters.EventFilter;
 
 /**
  * an ant task to dump stats or events
@@ -129,13 +129,13 @@ public class DumpTask extends AbstractMirthTask {
 			writer.write("Mirth Event Log Dump: " + (new Date()).toString() + "\n");
 			writer.write("Id, Event, Date, Description, Level\n");
 
-			SystemEventListHandler eventListHandler = client.getSystemEventListHandler(new SystemEventFilter(), 20, false);
+			EventListHandler eventListHandler = client.getEventListHandler(new EventFilter(), 20, false);
 			try {
-				List<SystemEvent> events = eventListHandler.getFirstPage();
+				List<Event> events = eventListHandler.getFirstPage();
 
 				while (events.size() != 0) {
-					for (Iterator<SystemEvent> iter = events.iterator(); iter.hasNext();) {
-						SystemEvent event = iter.next();
+					for (Iterator<Event> iter = events.iterator(); iter.hasNext();) {
+						Event event = iter.next();
 						writer.write(event.getId() + ", " + event.getEvent() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel() + "\n");
 					}
 

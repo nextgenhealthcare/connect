@@ -15,7 +15,7 @@ import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
 import org.mule.providers.FatalConnectException;
 
-import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.Event;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 
@@ -49,9 +49,9 @@ public class ExceptionStrategy extends DefaultComponentExceptionStrategy {
 	}
 
 	protected void logException(Throwable t) {
-		EventController systemLogger = ControllerFactory.getFactory().createEventController();
-		SystemEvent event = new SystemEvent("Exception occured in channel.");
+		EventController eventController = ControllerFactory.getFactory().createEventController();
+		Event event = new Event("Exception occured in channel.");
 		event.setDescription(ExceptionUtils.getStackTrace(t));
-		systemLogger.logSystemEvent(event);
+		eventController.addEvent(event);
 	}
 }

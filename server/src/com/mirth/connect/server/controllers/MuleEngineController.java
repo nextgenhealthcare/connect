@@ -61,7 +61,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.Event;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
 import com.mirth.connect.model.converters.IXMLSerializer;
@@ -222,15 +222,15 @@ public class MuleEngineController implements EngineController {
                 }
             }
 
-            eventController.logSystemEvent(new SystemEvent("Channels deployed."));
+            eventController.addEvent(new Event("Channels deployed."));
         } catch (Exception e) {
             logger.error("Error deploying channels.", e);
 
             // if deploy fails, log to system events
-            SystemEvent event = new SystemEvent("Error deploying channels.");
-            event.setLevel(SystemEvent.Level.HIGH);
+            Event event = new Event("Error deploying channels.");
+            event.setLevel(Event.Level.HIGH);
             event.setDescription(ExceptionUtils.getStackTrace(e));
-            eventController.logSystemEvent(event);
+            eventController.addEvent(event);
         }
     }
 
@@ -273,7 +273,7 @@ public class MuleEngineController implements EngineController {
             logger.error("Error undeploying channels.", e);
         }
 
-        eventController.logSystemEvent(new SystemEvent("Channels undeployed."));
+        eventController.addEvent(new Event("Channels undeployed."));
     }
 
     public void redeployAllChannels() throws ControllerException {

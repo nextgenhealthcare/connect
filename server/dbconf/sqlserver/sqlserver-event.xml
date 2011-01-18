@@ -5,14 +5,14 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 "conf/sql-map-2.dtd">
 
 <sqlMap namespace="Event">
-	<parameterMap class="com.mirth.connect.model.SystemEvent" id="insert-event-param">
+	<parameterMap class="com.mirth.connect.model.Event" id="insert-event-param">
 		<parameter property="event" jdbcType="CLOB" />
 		<parameter property="level" jdbcType="VARCHAR" />
 		<parameter property="description" jdbcType="CLOB" />
 		<parameter property="attributes" jdbcType="CLOB" />
 	</parameterMap>
 
-	<resultMap class="com.mirth.connect.model.SystemEvent" id="get-event-result">
+	<resultMap class="com.mirth.connect.model.Event" id="get-event-result">
 		<result property="id" column="ID" />
 		<result property="date" column="DATE_CREATED" />
 		<result property="level" column="EVENT_LEVEL"/>
@@ -41,7 +41,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		</dynamic>
 	</sql>
 		
-	<select id="getSystemEventsByPage" parameterClass="java.util.Map" resultMap="get-event-result">
+	<select id="getEventsByPage" parameterClass="java.util.Map" resultMap="get-event-result">
 		SELECT
 			EVENT.*
 		FROM
@@ -59,7 +59,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		ORDER BY TEMP_TABLE.DATE_CREATED DESC
 	</select>
 	
-	<select id="getSystemEventsByPageLimit" parameterClass="java.util.Map" resultMap="get-event-result">
+	<select id="getEventsByPageLimit" parameterClass="java.util.Map" resultMap="get-event-result">
 		SELECT * FROM (
 			SELECT TOP ($offset$ + $limit$) ROW_NUMBER() OVER (ORDER BY DATE_CREATED DESC) 
 				AS ROWID, EVENT.*
@@ -70,31 +70,31 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		WHERE ROWID <![CDATA[ > ]]> $offset$ AND ROWID <![CDATA[ <= ]]> ($offset$ + $limit$)
 	</select>
 
-	<statement id="dropTempSystemEventsTable" parameterClass="java.lang.String">
+	<statement id="dropTempEventTable" parameterClass="java.lang.String">
 		DROP TABLE EVT_TMP_$uid$
 	</statement>
 
-	<statement id="createTempSystemEventsTable" parameterClass="java.lang.String">
+	<statement id="createTempEventTable" parameterClass="java.lang.String">
 		CREATE TABLE EVT_TMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER IDENTITY (1, 1) NOT NULL, DATE_CREATED TIMESTAMP)
 	</statement>
 
-	<statement id="createTempSystemEventsTableIndex" parameterClass="java.lang.String">
+	<statement id="createTempEventTableIndex" parameterClass="java.lang.String">
 		CREATE INDEX IDX_EVT_TMP_$uid$ ON EVT_TMP_$uid$ (SEQUENCE_ORDER, ID)
 	</statement>
 
 	<!-- NOTE: The nested SELECT needs an ORDER BY DATE_CREATED, which Derby does not support -->
-	<insert id="populateTempSystemEventsTable" parameterClass="java.util.Map">
+	<insert id="populateTempEventTable" parameterClass="java.util.Map">
 		INSERT INTO EVT_TMP_$uid$ (ID)
 			(SELECT ID
 			FROM EVENT
 			<include refid="eventFilterCriteria" />)
 	</insert>
 	
-	<delete id="deleteTempSystemEventsTable" parameterClass="java.lang.String">
+	<delete id="deleteTempEventTable" parameterClass="java.lang.String">
 		DROP TABLE EVT_TMP_$uid$
 	</delete>
 
-	<delete id="deleteTempSystemEventsTableIndex" parameterClass="java.lang.String">
+	<delete id="deleteTempEventTableIndex" parameterClass="java.lang.String">
 		DROP INDEX IDX_EVT_TMP_$uid$
 	</delete>
 

@@ -17,8 +17,8 @@ import java.util.List;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.mirth.connect.model.SystemEvent;
-import com.mirth.connect.model.filters.SystemEventFilter;
+import com.mirth.connect.model.Event;
+import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -29,7 +29,7 @@ import com.mirth.connect.server.util.SqlConfig;
 public class EventControllerTest extends TestCase {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-    private List<SystemEvent> sampleEventList;
+    private List<Event> sampleEventList;
 
     private boolean forceTempTableCreation = true;
     private String tempTableUID = "test";
@@ -39,10 +39,10 @@ public class EventControllerTest extends TestCase {
         // clear all database tables
         ScriptRunner.runScript(new File("conf/" + ControllerTestSuite.database + "/" + ControllerTestSuite.database + "-database.sql"));
         // ScriptRunner.runScript("derby-database.sql");
-        sampleEventList = new ArrayList<SystemEvent>();
+        sampleEventList = new ArrayList<Event>();
 
         for (int i = 0; i < 10; i++) {
-            SystemEvent sampleEvent = new SystemEvent("Sample event " + i);
+            Event sampleEvent = new Event("Sample event " + i);
             sampleEventList.add(sampleEvent);
         }
     }
@@ -53,13 +53,13 @@ public class EventControllerTest extends TestCase {
     }
 
     public void testAddEvent() throws ControllerException {
-        SystemEvent sampleEvent = sampleEventList.get(0);
-        eventController.logSystemEvent(sampleEvent);
+        Event sampleEvent = sampleEventList.get(0);
+        eventController.addEvent(sampleEvent);
 
-        SystemEventFilter testFilter = new SystemEventFilter();
-        eventController.createSystemEventsTempTable(testFilter, tempTableUID, forceTempTableCreation);
+        EventFilter testFilter = new EventFilter();
+        eventController.createEventTempTable(testFilter, tempTableUID, forceTempTableCreation);
 
-        List<SystemEvent> testEventList = eventController.getSystemEventsByPage(-1, -1, 0, "test");
+        List<Event> testEventList = eventController.getEventsByPage(-1, -1, 0, "test");
 
         Assert.assertEquals(1, testEventList.size());
     }
@@ -67,28 +67,28 @@ public class EventControllerTest extends TestCase {
     public void testGetEvent() throws ControllerException {
         insertSampleEvents();
 
-        SystemEventFilter testFilter = new SystemEventFilter();
-        eventController.createSystemEventsTempTable(testFilter, tempTableUID, forceTempTableCreation);
+        EventFilter testFilter = new EventFilter();
+        eventController.createEventTempTable(testFilter, tempTableUID, forceTempTableCreation);
 
-        List<SystemEvent> testEventList = eventController.getSystemEventsByPage(-1, -1, 0, "test");
+        List<Event> testEventList = eventController.getEventsByPage(-1, -1, 0, "test");
         Assert.assertEquals(sampleEventList.size(), testEventList.size());
     }
 
     public void testRemoveEvent() throws ControllerException {
         insertSampleEvents();
 
-        SystemEventFilter testFilter = new SystemEventFilter();
-        eventController.createSystemEventsTempTable(testFilter, tempTableUID, forceTempTableCreation);
+        EventFilter testFilter = new EventFilter();
+        eventController.createEventTempTable(testFilter, tempTableUID, forceTempTableCreation);
 
-        eventController.clearSystemEvents();
-        List<SystemEvent> testEventList = eventController.getSystemEventsByPage(-1, -1, 0, "test");
+        eventController.clearEvents();
+        List<Event> testEventList = eventController.getEventsByPage(-1, -1, 0, "test");
         Assert.assertTrue(testEventList.isEmpty());
     }
 
     private void insertSampleEvents() throws ControllerException {
-        for (Iterator<SystemEvent> iter = sampleEventList.iterator(); iter.hasNext();) {
-            SystemEvent sampleEvent = iter.next();
-            eventController.logSystemEvent(sampleEvent);
+        for (Iterator<Event> iter = sampleEventList.iterator(); iter.hasNext();) {
+            Event sampleEvent = iter.next();
+            eventController.addEvent(sampleEvent);
         }
     }
 }

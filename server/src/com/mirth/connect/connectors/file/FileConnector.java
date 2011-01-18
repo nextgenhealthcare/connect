@@ -42,9 +42,6 @@ import org.mule.util.Utility;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
 import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.SystemEvent;
-import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.EventController;
 
 
 public class FileConnector extends AbstractServiceEnabledConnector {
@@ -587,10 +584,6 @@ public class FileConnector extends AbstractServiceEnabledConnector {
             // exception
             this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
             logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
-            EventController systemLogger = ControllerFactory.getFactory().createEventController();
-            SystemEvent event = new SystemEvent("Exception occured in channel.");
-            event.setDescription("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
-            systemLogger.logSystemEvent(event);
         }
     }
 

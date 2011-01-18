@@ -22,10 +22,7 @@ import org.mule.umo.provider.ConnectorException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
 import com.mirth.connect.connectors.mllp.protocols.LlpProtocol;
-import com.mirth.connect.model.SystemEvent;
 import com.mirth.connect.server.Constants;
-import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.EventController;
 
 public class MllpConnector extends QueueEnabledConnector {
     // custom properties
@@ -353,12 +350,7 @@ public class MllpConnector extends QueueEnabledConnector {
             // set the encoding to the default one: this charset can't launch an
             // exception
             this.charsetEncoding = Charset.defaultCharset().name();
-
             logger.error("Unable to use " + charsetEncoding + " as the charset encoding: changing to the platform default [" + this.charsetEncoding + "]");
-            EventController systemLogger = ControllerFactory.getFactory().createEventController();
-            SystemEvent event = new SystemEvent("Exception occured in channel.");
-            event.setDescription("Unable to use " + charsetEncoding + " as the charset encoding: changing to the platform default [" + this.charsetEncoding + "]");
-            systemLogger.logSystemEvent(event);
         }
     }
 

@@ -47,7 +47,7 @@ import org.mule.umo.model.UMOModel;
 import org.mule.umo.routing.UMOOutboundRouter;
 import org.mule.umo.routing.UMORouter;
 
-import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.Event;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 
@@ -404,11 +404,11 @@ public abstract class AbstractModel implements UMOModel {
 					}
 					logger.error("Error starting component [" + temp + "] \n" + e);
 
-					SystemEvent event = new SystemEvent("Error starting the channel cannot be activated due to a problem at one of the endpoint " + temp.getDescriptor().getName());
-					event.setLevel(SystemEvent.Level.HIGH);
+					EventController eventController = ControllerFactory.getFactory().createEventController();
+					Event event = new Event("Error starting the channel cannot be activated due to a problem at one of the endpoint " + temp.getDescriptor().getName());
+					event.setLevel(Event.Level.HIGH);
 					event.setDescription(ExceptionUtils.getStackTrace(e));
-					EventController sl = ControllerFactory.getFactory().createEventController();
-					sl.logSystemEvent(event);
+					eventController.addEvent(event);
 				}
 
 			}
@@ -504,11 +504,11 @@ public abstract class AbstractModel implements UMOModel {
 					logger.warn("Error stopping a connector after an error " + t);
 				}
 
-				SystemEvent event = new SystemEvent("Error starting the channel cannot be activated due to a problem at one of the endpoint " + component.getDescriptor().getName());
-				event.setLevel(SystemEvent.Level.HIGH);
+				EventController eventController = ControllerFactory.getFactory().createEventController();
+				Event event = new Event("Error starting the channel cannot be activated due to a problem at one of the endpoint " + component.getDescriptor().getName());
+				event.setLevel(Event.Level.HIGH);
 				event.setDescription(ExceptionUtils.getStackTrace(e));
-				EventController sl = ControllerFactory.getFactory().createEventController();;
-				sl.logSystemEvent(event);
+				eventController.addEvent(event);
 			}
 		}
 	}

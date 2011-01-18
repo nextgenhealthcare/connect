@@ -43,7 +43,7 @@ import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageObjectFilter;
-import com.mirth.connect.model.filters.SystemEventFilter;
+import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.util.ImportConverter;
 
 public class Client {
@@ -600,26 +600,9 @@ public class Client {
         serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params);
     }
 
-    /**
-     * Clears the system event list.
-     * 
-     * @throws ClientException
-     */
-    public void clearSystemEvents() throws ClientException {
-        logger.debug("clearing system events");
-        NameValuePair[] params = { new NameValuePair("op", Operations.SYSTEM_EVENT_CLEAR) };
-        serverConnection.executePostMethod(EVENT_SERVLET, params);
-    }
-
-    /**
-     * Removes the system events in the filter.
-     * 
-     * @param filter
-     * @throws ClientException
-     */
-    public void removeSystemEvents(SystemEventFilter filter) throws ClientException {
-        logger.debug("removing system events");
-        NameValuePair[] params = { new NameValuePair("op", Operations.SYSTEM_EVENT_REMOVE), new NameValuePair("filter", serializer.toXML(filter)) };
+    public void removeAllEvents() throws ClientException {
+        logger.debug("removing all events");
+        NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_CLEAR) };
         serverConnection.executePostMethod(EVENT_SERVLET, params);
     }
 
@@ -831,8 +814,8 @@ public class Client {
         return new MessageListHandler(filter, pageSize, (newInstance ? (System.currentTimeMillis() + "") : null), serverConnection);
     }
 
-    public SystemEventListHandler getSystemEventListHandler(SystemEventFilter filter, int pageSize, boolean newInstance) throws ClientException {
-        return new SystemEventListHandler(filter, pageSize, (newInstance ? (System.currentTimeMillis() + "") : null), serverConnection);
+    public EventListHandler getEventListHandler(EventFilter filter, int pageSize, boolean newInstance) throws ClientException {
+        return new EventListHandler(filter, pageSize, (newInstance ? (System.currentTimeMillis() + "") : null), serverConnection);
     }
 
     /**

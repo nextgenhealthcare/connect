@@ -11,7 +11,7 @@ package com.mirth.connect.model.filters;
 
 import java.util.Calendar;
 
-import com.mirth.connect.model.SystemEvent.Level;
+import com.mirth.connect.model.Event.Level;
 
 /**
  * A SystemEventFilter is used to search the system event log.
@@ -19,7 +19,7 @@ import com.mirth.connect.model.SystemEvent.Level;
  * @author geraldb
  * 
  */
-public class SystemEventFilter {
+public class EventFilter {
 	private Integer id;
 	private Level level;
 	private Calendar startDate;

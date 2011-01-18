@@ -21,13 +21,13 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.DeployedChannelInfo;
-import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.Event;
 import com.mirth.connect.server.util.JMXConnection;
 import com.mirth.connect.server.util.JMXConnectionFactory;
 
 public class DefaultChannelStatusController extends ChannelStatusController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private EventController systemLogger = ControllerFactory.getFactory().createEventController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
 
     private static DefaultChannelStatusController instance = null;
 
@@ -70,9 +70,9 @@ public class DefaultChannelStatusController extends ChannelStatusController {
             jmxConnection.close();
         }
 
-        SystemEvent systemEvent = new SystemEvent("Channel started.");
-        systemEvent.getAttributes().put("channelId", channelId);
-        systemLogger.logSystemEvent(systemEvent);
+        Event event = new Event("Channel started.");
+        event.getAttributes().put("channelId", channelId);
+        eventController.addEvent(event);
     }
 
     /**
@@ -106,9 +106,9 @@ public class DefaultChannelStatusController extends ChannelStatusController {
             jmxConnection.close();
         }
 
-        SystemEvent systemEvent = new SystemEvent("Channel stopped.");
-        systemEvent.getAttributes().put("channelId", channelId);
-        systemLogger.logSystemEvent(systemEvent);
+        Event event = new Event("Channel stopped.");
+        event.getAttributes().put("channelId", channelId);
+        eventController.addEvent(event);
     }
 
     /**
@@ -136,9 +136,9 @@ public class DefaultChannelStatusController extends ChannelStatusController {
             jmxConnection.close();
         }
 
-        SystemEvent systemEvent = new SystemEvent("Channel paused.");
-        systemEvent.getAttributes().put("channelId", channelId);
-        systemLogger.logSystemEvent(systemEvent);
+        Event event = new Event("Channel paused.");
+        event.getAttributes().put("channelId", channelId);
+        eventController.addEvent(event);
     }
 
     /**
@@ -166,9 +166,9 @@ public class DefaultChannelStatusController extends ChannelStatusController {
             jmxConnection.close();
         }
 
-        SystemEvent systemEvent = new SystemEvent("Channel resumed.");
-        systemEvent.getAttributes().put("channelId", channelId);
-        systemLogger.logSystemEvent(systemEvent);
+        Event event = new Event("Channel resumed.");
+        event.getAttributes().put("channelId", channelId);
+        eventController.addEvent(event);
     }
 
     /**
@@ -222,7 +222,6 @@ public class DefaultChannelStatusController extends ChannelStatusController {
     public List<String> getDeployedIds() throws ControllerException {
         logger.debug("retrieving deployed channel id list");
         List<String> deployedChannelIdList = new ArrayList<String>();
-
         JMXConnection jmxConnection = null;
 
         try {
@@ -264,7 +263,6 @@ public class DefaultChannelStatusController extends ChannelStatusController {
      */
     private ChannelStatus.State getState(String channelId) throws ControllerException {
         logger.debug("retrieving channel state: channelId=" + channelId);
-
         JMXConnection jmxConnection = null;
 
         try {
@@ -289,7 +287,6 @@ public class DefaultChannelStatusController extends ChannelStatusController {
 
     private boolean isComponentRegistered(String id) throws ControllerException {
         logger.debug("checking component registration state: id=" + id);
-
         JMXConnection jmxConnection = null;
 
         try {

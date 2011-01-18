@@ -14,29 +14,29 @@ import java.util.List;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.Event;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.model.filters.SystemEventFilter;
+import com.mirth.connect.model.filters.EventFilter;
 
-public class SystemEventListHandler implements ListHandler {
+public class EventListHandler implements ListHandler {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ServerConnection connection;
 	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-	private SystemEventFilter filter;
+	private EventFilter filter;
 	private int pageSize;
 	private int currentPage;
 	private int size = 0;
 	private boolean tempEnabled = true;
 	private String uid;
 	
-	public SystemEventListHandler(SystemEventFilter filter, int pageSize, String uid, ServerConnection connection) throws ClientException {
+	public EventListHandler(EventFilter filter, int pageSize, String uid, ServerConnection connection) throws ClientException {
 		this.filter = filter;
 		this.pageSize = pageSize;
 		this.connection = connection;
 		this.uid = uid;
 
 		try {
-			size = createSystemEventsTempTable();
+			size = createEventTempTable();
 			
 			if (size == -1) {
 				tempEnabled = false;
@@ -47,7 +47,7 @@ public class SystemEventListHandler implements ListHandler {
 		}
 	}
 	
-	public SystemEventFilter getFilter() {
+	public EventFilter getFilter() {
 		return filter;
 	}
 	
@@ -67,43 +67,43 @@ public class SystemEventListHandler implements ListHandler {
 		currentPage = 0;
 	}
 	
-	public List<SystemEvent> getAllPages() throws ListHandlerException {
+	public List<Event> getAllPages() throws ListHandlerException {
 		logger.debug("retrieving all pages");
-		return getSystemEventsByPage(-1);
+		return getEventsByPage(-1);
 	}
 	
-	public List<SystemEvent> getFirstPage() throws ListHandlerException {
+	public List<Event> getFirstPage() throws ListHandlerException {
 		logger.debug("retrieving first page of " + pageSize + " results");
 		
 		currentPage = 0;
-		return getSystemEventsByPage(currentPage);
+		return getEventsByPage(currentPage);
 	}
 	
-	public List<SystemEvent> getNextPage() throws ListHandlerException  {
+	public List<Event> getNextPage() throws ListHandlerException  {
 		logger.debug("retrieving next page of " + pageSize + " results");
 		
 		currentPage++;
-		return getSystemEventsByPage(currentPage);		
+		return getEventsByPage(currentPage);		
 	}
 
-	public List<SystemEvent> getPreviousPage() throws ListHandlerException  {
+	public List<Event> getPreviousPage() throws ListHandlerException  {
 		logger.debug("retrieving previous page of " + pageSize + " results");
 		
 		if (currentPage > 0) {
 			currentPage--;	
-			return getSystemEventsByPage(currentPage);
+			return getEventsByPage(currentPage);
 		} else {
 			throw new ListHandlerException("Invalid page.");
 		}
 	}
 	
-	public void removeFilterTables() throws ClientException {
-		NameValuePair[] params = { new NameValuePair("op", "removeFilterTables"), new NameValuePair("uid", uid) };
+	public void removeEventFilterTables() throws ClientException {
+		NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_REMOVE_FILTER_TABLES), new NameValuePair("uid", uid) };
 		connection.executePostMethod(Client.EVENT_SERVLET, params);
 	}
 	
-	private int createSystemEventsTempTable() throws ListHandlerException {
-		NameValuePair[] params = { new NameValuePair("op", "createSystemEventsTempTable"), new NameValuePair("filter", serializer.toXML(filter)), new NameValuePair("uid", uid) };
+	private int createEventTempTable() throws ListHandlerException {
+		NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_CREATE_TEMP_TABLE), new NameValuePair("filter", serializer.toXML(filter)), new NameValuePair("uid", uid) };
 		
 		try {
 			return Integer.parseInt(connection.executePostMethod(Client.EVENT_SERVLET, params));	
@@ -112,16 +112,16 @@ public class SystemEventListHandler implements ListHandler {
 		}
 	}
 	
-	private List<SystemEvent> getSystemEventsByPage(int page) throws ListHandlerException {	
-		NameValuePair[] params = { (tempEnabled ? new NameValuePair("op", "getSystemEventsByPage") : new NameValuePair("op", "getSystemEventsByPageLimit")), 
+	private List<Event> getEventsByPage(int page) throws ListHandlerException {	
+		NameValuePair[] params = { (tempEnabled ? new NameValuePair("op", Operations.EVENT_GET_BY_PAGE) : new NameValuePair("op", Operations.EVENT_GET_BY_PAGE_LIMIT)), 
 				new NameValuePair("page", String.valueOf(page)), 
 				new NameValuePair("pageSize", String.valueOf(pageSize)), 
-				new NameValuePair("maxSystemEvents", String.valueOf(size)), 
+				new NameValuePair("maxEvents", String.valueOf(size)), 
 				new NameValuePair("uid", uid), 
 				(tempEnabled ? new NameValuePair("filter", "") : new NameValuePair("filter", serializer.toXML(filter)))};
 
 		try {
-			return (List<SystemEvent>) serializer.fromXML(connection.executePostMethod(Client.EVENT_SERVLET, params));	
+			return (List<Event>) serializer.fromXML(connection.executePostMethod(Client.EVENT_SERVLET, params));	
 		} catch (ClientException e) {
 			throw new ListHandlerException(e);
 		}

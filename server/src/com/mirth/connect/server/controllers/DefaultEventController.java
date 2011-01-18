@@ -20,11 +20,8 @@ import java.util.Map;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 
-import com.ibatis.sqlmap.client.SqlMapException;
-import com.ibatis.sqlmap.engine.impl.SqlMapClientImpl;
-import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
-import com.mirth.connect.model.SystemEvent;
-import com.mirth.connect.model.filters.SystemEventFilter;
+import com.mirth.connect.model.Event;
+import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 
@@ -46,7 +43,7 @@ public class DefaultEventController extends EventController {
         }
     }
 
-    public void removeAllFilterTables() {
+    public void removeAllEventFilterTables() {
         Connection conn = null;
         ResultSet resultSet = null;
 
@@ -72,10 +69,9 @@ public class DefaultEventController extends EventController {
                 // Get the table name
                 String tableName = resultSet.getString(3);
                 // Get the uid and remove its filter tables/indexes/sequences
-                removeFilterTable(tableName.substring(8));
+                removeEventFilterTable(tableName.substring(8));
                 resultFound = resultSet.next();
             }
-
         } catch (SQLException e) {
             logger.error(e);
         } finally {
@@ -84,18 +80,18 @@ public class DefaultEventController extends EventController {
         }
     }
 
-    public void logSystemEvent(SystemEvent systemEvent) {
-        logger.debug("adding log event: " + systemEvent);
+    public void addEvent(Event event) {
+        logger.debug("adding event: " + event);
 
         try {
-            SqlConfig.getSqlMapClient().insert("Event.insertEvent", systemEvent);
+            SqlConfig.getSqlMapClient().insert("Event.insertEvent", event);
         } catch (Exception e) {
-            logger.error("could not log system event", e);
+            logger.error("Could not add event.", e);
         }
     }
 
-    public void clearSystemEvents() throws ControllerException {
-        logger.debug("clearing system event list");
+    public void clearEvents() throws ControllerException {
+        logger.debug("removing all events");
 
         try {
             SqlConfig.getSqlMapClient().delete("Event.deleteEvent");
@@ -103,13 +99,12 @@ public class DefaultEventController extends EventController {
             if (DatabaseUtil.statementExists("Event.vacuumEventTable")) {
                 SqlConfig.getSqlMapClient().update("Event.vacuumEventTable");
             }
-
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
     }
 
-    private Map<String, Object> getFilterMap(SystemEventFilter filter, String uid) {
+    private Map<String, Object> getEventFilterMap(EventFilter filter, String uid) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
         if (uid != null) {
@@ -131,125 +126,88 @@ public class DefaultEventController extends EventController {
         return parameterMap;
     }
 
-    public int createSystemEventsTempTable(SystemEventFilter filter, String uid, boolean forceTemp) throws ControllerException {
-        logger.debug("creating temporary system event table: filter=" + filter.toString());
+    public int createEventTempTable(EventFilter filter, String uid, boolean forceTemp) throws ControllerException {
+        logger.debug("creating temporary event table: filter=" + filter.toString());
 
-        if (!forceTemp && statementExists("Event.getSystemEventsByPageLimit")) {
+        if (!forceTemp && DatabaseUtil.statementExists("Event.getEventsByPageLimit")) {
             return -1;
         }
-        // If it's not forcing temp tables (export or reprocessing),
-        // then it's reusing the same ones, so remove them.
+        
         if (!forceTemp) {
-            removeFilterTable(uid);
+            removeEventFilterTable(uid);
         }
 
         try {
-            if (statementExists("Event.createTempSystemEventsTableSequence")) {
-                SqlConfig.getSqlMapClient().update("Event.createTempSystemEventsTableSequence", uid);
+            if (DatabaseUtil.statementExists("Event.createTempEventTableSequence")) {
+                SqlConfig.getSqlMapClient().update("Event.createTempEventTableSequence", uid);
             }
 
-            SqlConfig.getSqlMapClient().update("Event.createTempSystemEventsTable", uid);
-            SqlConfig.getSqlMapClient().update("Event.createTempSystemEventsTableIndex", uid);
-            return SqlConfig.getSqlMapClient().update("Event.populateTempSystemEventsTable", getFilterMap(filter, uid));
+            SqlConfig.getSqlMapClient().update("Event.createTempEventTable", uid);
+            SqlConfig.getSqlMapClient().update("Event.createTempEventTableIndex", uid);
+            return SqlConfig.getSqlMapClient().update("Event.populateTempEventTable", getEventFilterMap(filter, uid));
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
     }
 
-    public void removeFilterTable(String uid) {
-        logger.debug("Removing temporary system event table: uid=" + uid);
+    public void removeEventFilterTable(String uid) {
+        logger.debug("removing temporary event table: uid=" + uid);
+        
         try {
-            if (statementExists("Event.dropTempSystemEventsTableSequence")) {
-                SqlConfig.getSqlMapClient().update("Event.dropTempSystemEventsTableSequence", uid);
+            if (DatabaseUtil.statementExists("Event.dropTempEventTableSequence")) {
+                SqlConfig.getSqlMapClient().update("Event.dropTempEventTableSequence", uid);
             }
         } catch (SQLException e) {
-            // supress any warnings about the sequence not existing
             logger.debug(e);
         }
+        
         try {
-            if (statementExists("Event.deleteTempSystemEventsTableIndex")) {
-                SqlConfig.getSqlMapClient().update("Event.deleteTempSystemEventsTableIndex", uid);
+            if (DatabaseUtil.statementExists("Event.deleteTempEventTableIndex")) {
+                SqlConfig.getSqlMapClient().update("Event.deleteTempEventTableIndex", uid);
             }
         } catch (SQLException e) {
-            // supress any warnings about the index not existing
             logger.debug(e);
         }
+        
         try {
-            SqlConfig.getSqlMapClient().update("Event.dropTempSystemEventsTable", uid);
+            SqlConfig.getSqlMapClient().update("Event.dropTempEventTable", uid);
         } catch (SQLException e) {
-            // supress any warnings about the table not existing
             logger.debug(e);
         }
     }
 
-    public List<SystemEvent> getSystemEventsByPage(int page, int pageSize, int maxSystemEvents, String uid) throws ControllerException {
-        logger.debug("retrieving system events by page: page=" + page);
+    public List<Event> getEventsByPage(int page, int pageSize, int maxEvents, String uid) throws ControllerException {
+        logger.debug("retrieving events by page: page=" + page);
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        parameterMap.put("uid", uid);
+
+        if ((page != -1) && (pageSize != -1)) {
+            int last = maxEvents - (page * pageSize);
+            int first = last - pageSize + 1;
+            parameterMap.put("first", first);
+            parameterMap.put("last", last);
+        }
 
         try {
-            Map<String, Object> parameterMap = new HashMap<String, Object>();
-            parameterMap.put("uid", uid);
-
-            if ((page != -1) && (pageSize != -1)) {
-                int last = maxSystemEvents - (page * pageSize);
-                int first = last - pageSize + 1;
-                parameterMap.put("first", first);
-                parameterMap.put("last", last);
-            }
-
-            List<SystemEvent> systemEvents = SqlConfig.getSqlMapClient().queryForList("Event.getSystemEventsByPage", parameterMap);
-
-            return systemEvents;
+            return SqlConfig.getSqlMapClient().queryForList("Event.getEventsByPage", parameterMap);
         } catch (Exception e) {
             throw new ControllerException(e);
         }
     }
 
-    public int removeSystemEvents(SystemEventFilter filter) throws ControllerException {
-        logger.debug("removing system events: filter=" + filter.toString());
+    public List<Event> getEventsByPageLimit(int page, int pageSize, int maxEvents, String uid, EventFilter filter) throws ControllerException {
+        logger.debug("retrieving events by page: page=" + page);
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        parameterMap.put("uid", uid);
+        int offset = page * pageSize;
+        parameterMap.put("offset", offset);
+        parameterMap.put("limit", pageSize);
+        parameterMap.putAll(getEventFilterMap(filter, uid));
 
         try {
-            int eventsDeleted = SqlConfig.getSqlMapClient().delete("Event.deleteEvent", getFilterMap(filter, null));
-
-            if (DatabaseUtil.statementExists("Event.vacuumEventTable")) {
-                SqlConfig.getSqlMapClient().update("Event.vacuumEventTable");
-            }
-
-            return eventsDeleted;
-        } catch (SQLException e) {
-            throw new ControllerException(e);
-        }
-    }
-
-    public List<SystemEvent> getSystemEventsByPageLimit(int page, int pageSize, int maxSystemEvents, String uid, SystemEventFilter filter) throws ControllerException {
-        logger.debug("retrieving system events by page: page=" + page);
-
-        try {
-            Map<String, Object> parameterMap = new HashMap<String, Object>();
-            parameterMap.put("uid", uid);
-            int offset = page * pageSize;
-
-            parameterMap.put("offset", offset);
-            parameterMap.put("limit", pageSize);
-
-            parameterMap.putAll(getFilterMap(filter, uid));
-
-            List<SystemEvent> systemEvents = SqlConfig.getSqlMapClient().queryForList("Event.getSystemEventsByPageLimit", parameterMap);
-
-            return systemEvents;
+            return SqlConfig.getSqlMapClient().queryForList("Event.getEventsByPageLimit", parameterMap);
         } catch (Exception e) {
             throw new ControllerException(e);
         }
-    }
-
-    private boolean statementExists(String statement) {
-        try {
-            SqlMapExecutorDelegate delegate = ((SqlMapClientImpl) SqlConfig.getSqlMapClient()).getDelegate();
-            delegate.getMappedStatement(statement);
-        } catch (SqlMapException sme) {
-            // The statement does not exist
-            return false;
-        }
-
-        return true;
     }
 }

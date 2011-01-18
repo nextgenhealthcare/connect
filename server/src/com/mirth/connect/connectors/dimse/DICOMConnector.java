@@ -22,10 +22,6 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
-import com.mirth.connect.model.SystemEvent;
-import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.EventController;
-
 public class DICOMConnector extends AbstractServiceEnabledConnector {
     // --------------------------------
     // custom properties
@@ -173,10 +169,6 @@ public class DICOMConnector extends AbstractServiceEnabledConnector {
             // exception
             this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
             logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
-            EventController systemLogger = ControllerFactory.getFactory().createEventController();
-            SystemEvent event = new SystemEvent("Exception occured in channel.");
-            event.setDescription("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
-            systemLogger.logSystemEvent(event);
         }
     }
 

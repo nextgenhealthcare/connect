@@ -87,13 +87,12 @@ public class Operations {
     public static final String MESSAGE_CREATE_TEMP_TABLE = "createMessagesTempTable";
     public static final String MESSAGE_FILTER_TABLES_REMOVE = "removeFilterTables";
     
-    // System Events
-    public static final String SYSTEM_EVENT_CREATE_TEMP_TABLE = "createSystemEventsTempTable";
-    public static final String SYSTEM_EVENT_REMOVE_FILTER_TABLES = "removeFilterTables";
-    public static final String SYSTEM_EVENT_GET_BY_PAGE = "getSystemEventsByPage";
-    public static final String SYSTEM_EVENT_GET_BY_PAGE_LIMIT = "getSystemEventsByPageLimit";
-    public static final String SYSTEM_EVENT_REMOVE = "removeSystemEvents";
-    public static final String SYSTEM_EVENT_CLEAR = "clearSystemEvents";
+    // Events
+    public static final String EVENT_CREATE_TEMP_TABLE = "createEventTempTable";
+    public static final String EVENT_REMOVE_FILTER_TABLES = "removeEventFilterTables";
+    public static final String EVENT_GET_BY_PAGE = "getEventsByPage";
+    public static final String EVENT_GET_BY_PAGE_LIMIT = "getEventsByPageLimit";
+    public static final String EVENT_CLEAR = "clearSystemEvents";
     
     // Users
     public static final String USER_GET = "getUser";

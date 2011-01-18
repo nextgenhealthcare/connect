@@ -27,7 +27,7 @@ import org.mule.umo.UMOEventContext;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.Event;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -247,7 +247,7 @@ public class JavaScriptUtil {
      * @param e
      */
     private void logScriptError(String scriptType, String channelId, Exception e) {
-        EventController systemLogger = ControllerFactory.getFactory().createEventController();
+        EventController eventController = ControllerFactory.getFactory().createEventController();
 
         String error = "Error executing " + scriptType + " script from channel: ";
 
@@ -257,10 +257,10 @@ public class JavaScriptUtil {
             error += "Global";
         }
 
-        SystemEvent event = new SystemEvent(error);
-        event.setLevel(SystemEvent.Level.NORMAL);
+        Event event = new Event(error);
+        event.setLevel(Event.Level.NORMAL);
         event.setDescription(ExceptionUtils.getStackTrace(e));
-        systemLogger.logSystemEvent(event);
+        eventController.addEvent(event);
         logger.error(error, e);
     }
 

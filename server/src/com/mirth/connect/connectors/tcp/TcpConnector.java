@@ -19,10 +19,7 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
 import com.mirth.connect.connectors.tcp.protocols.DefaultProtocol;
-import com.mirth.connect.model.SystemEvent;
 import com.mirth.connect.server.Constants;
-import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.EventController;
 
 /**
  * <code>TcpConnector</code> can bind or sent to a given tcp port on a given
@@ -283,10 +280,6 @@ public class TcpConnector extends QueueEnabledConnector {
             // exception
             this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
             logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
-            EventController systemLogger = ControllerFactory.getFactory().createEventController();
-            SystemEvent event = new SystemEvent("Exception occured in channel.");
-            event.setDescription("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
-            systemLogger.logSystemEvent(event);
         }
     }
 
