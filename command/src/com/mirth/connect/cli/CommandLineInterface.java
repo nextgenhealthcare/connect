@@ -54,8 +54,8 @@ import com.mirth.connect.model.Event;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageObjectFilter;
-import com.mirth.connect.model.filters.SystemEventFilter;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.util.PropertyVerifier;
 
