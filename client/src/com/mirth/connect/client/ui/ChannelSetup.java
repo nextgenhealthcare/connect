@@ -1779,9 +1779,10 @@ public class ChannelSetup extends javax.swing.JPanel {
      */
     private void destinationSourceDropdownActionPerformed(java.awt.event.ActionEvent evt) {
         // If a channel is not being loaded then alert the user when necessary
-        // that
-        // changing the connector type will lose all current connector data.
-        if (!loadingChannel) {
+        // that changing the connector type will lose all current connector
+        // data. Continue when deleting a destination because the selected 
+        // destination index will not be different than the last index.
+        if (!loadingChannel && !isDeleting) {
             if (destinationConnectorClass.getName() != null && destinationConnectorClass.getName().equals(destinationSourceDropdown.getSelectedItem()) && lastModelIndex == destinationTable.getSelectedModelIndex()) {
                 return;
             }
@@ -1790,7 +1791,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             // not deleting) AND the default properties/transformer/filter 
             // have not been changed from defaults then ask if the user would
             // like to really change connector type.
-            if (!isDeleting && lastModelIndex == destinationTable.getSelectedModelIndex() && (!PropertyVerifier.compareProps(destinationConnectorClass.getProperties(), destinationConnectorClass.getDefaults()) || currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getFilter().getRules().size() > 0 || currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getTransformer().getSteps().size() > 0)) {
+            if (lastModelIndex == destinationTable.getSelectedModelIndex() && (!PropertyVerifier.compareProps(destinationConnectorClass.getProperties(), destinationConnectorClass.getDefaults()) || currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getFilter().getRules().size() > 0 || currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getTransformer().getSteps().size() > 0)) {
                 boolean changeType = parent.alertOption(this.parent, "Are you sure you would like to change this connector type and lose all of the current connector data?");
                 if (!changeType) {
                     destinationSourceDropdown.setSelectedItem(destinationConnectorClass.getProperties().get(DATA_TYPE_KEY));

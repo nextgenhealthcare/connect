@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.vm;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import com.mirth.connect.client.ui.UIConstants;
@@ -24,7 +25,7 @@ import com.mirth.connect.model.Channel;
  */
 public class ChannelWriter extends ConnectorClass {
 
-    private HashMap channelList;
+    private Map<String, String> channelList;
 
     public ChannelWriter() {
         name = ChannelWriterProperties.name;
@@ -50,7 +51,7 @@ public class ChannelWriter extends ConnectorClass {
         resetInvalidProperties();
 
         ArrayList<String> channelNameArray = new ArrayList<String>();
-        channelList = new HashMap();
+        channelList = new HashMap<String, String>();
         channelList.put("None", "sink");
 
         String selectedChannelName = "None";
