@@ -100,7 +100,6 @@ public class EventBrowser extends javax.swing.JPanel {
         pageSizeField.setText(pageSize + "");
 
         // use the start filters and make the table.
-        parent.setVisibleTasks(parent.eventTasks, parent.eventPopupMenu, 3, 3, false);
         eventListHandler = null;
 
         eventField.setText("");
@@ -329,7 +328,6 @@ public class EventBrowser extends javax.swing.JPanel {
      * Deselects all rows in the table and clears the description information.
      */
     public void deselectRows() {
-        parent.setVisibleTasks(parent.eventTasks, parent.eventPopupMenu, 3, 3, false);
         if (eventTable != null) {
             eventTable.clearSelection();
             clearDescription();
@@ -351,8 +349,6 @@ public class EventBrowser extends javax.swing.JPanel {
             int row = eventTable.getSelectedModelIndex();
 
             if (row >= 0) {
-                parent.setVisibleTasks(parent.eventTasks, parent.eventPopupMenu, 3, 3, true);
-
                 descriptionTextPane.setText(eventList.get(row).getDescription() + "\n" + eventList.get(row).getAttributes());
                 descriptionTextPane.setCaretPosition(0);
             }
