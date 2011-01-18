@@ -42,16 +42,16 @@ import org.apache.commons.lang.math.NumberUtils;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.EventListHandler;
 import com.mirth.connect.client.core.ListHandlerException;
-import com.mirth.connect.client.core.SystemEventListHandler;
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelStatus.State;
 import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.Event;
 import com.mirth.connect.model.ServerConfiguration;
-import com.mirth.connect.model.SystemEvent;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageObjectFilter;
@@ -1117,13 +1117,13 @@ public class CommandLineInterface {
         builder.append("Id, Event, Date, Description, Level\n");
 
         File dumpFile = new File(dumpFilename);
-        SystemEventListHandler eventListHandler = client.getSystemEventListHandler(new SystemEventFilter(), 20, false);
+        EventListHandler eventListHandler = client.getEventListHandler(new EventFilter(), 20, false);
 
         try {
-            List<SystemEvent> events = eventListHandler.getFirstPage();
+            List<Event> events = eventListHandler.getFirstPage();
 
             while (!events.isEmpty()) {
-                for (SystemEvent event : events) {
+                for (Event event : events) {
                     builder.append(event.getId() + ", " + event.getEvent() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel() + "\n");
                 }
 
