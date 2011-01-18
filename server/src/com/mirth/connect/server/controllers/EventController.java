@@ -18,7 +18,7 @@ public abstract class EventController extends Controller {
     public static EventController getInstance() {
         return ControllerFactory.getFactory().createEventController();
     }
-    
+
     /**
      * Adds a new system event.
      * 
