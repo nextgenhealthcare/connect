@@ -86,11 +86,11 @@ public class DefaultEventController extends EventController {
         try {
             SqlConfig.getSqlMapClient().insert("Event.insertEvent", event);
         } catch (Exception e) {
-            logger.error("Could not add event.", e);
+            logger.error("Error adding event.", e);
         }
     }
 
-    public void clearEvents() throws ControllerException {
+    public void removeAllEvents() throws ControllerException {
         logger.debug("removing all events");
 
         try {

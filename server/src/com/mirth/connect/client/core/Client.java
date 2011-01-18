@@ -602,7 +602,7 @@ public class Client {
 
     public void removeAllEvents() throws ClientException {
         logger.debug("removing all events");
-        NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_CLEAR) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_REMOVE_ALL) };
         serverConnection.executePostMethod(EVENT_SERVLET, params);
     }
 

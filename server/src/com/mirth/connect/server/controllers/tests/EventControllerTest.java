@@ -80,7 +80,7 @@ public class EventControllerTest extends TestCase {
         EventFilter testFilter = new EventFilter();
         eventController.createEventTempTable(testFilter, tempTableUID, forceTempTableCreation);
 
-        eventController.clearEvents();
+        eventController.removeAllEvents();
         List<Event> testEventList = eventController.getEventsByPage(-1, -1, 0, "test");
         Assert.assertTrue(testEventList.isEmpty());
     }

@@ -92,7 +92,7 @@ public class Operations {
     public static final String EVENT_REMOVE_FILTER_TABLES = "removeEventFilterTables";
     public static final String EVENT_GET_BY_PAGE = "getEventsByPage";
     public static final String EVENT_GET_BY_PAGE_LIMIT = "getEventsByPageLimit";
-    public static final String EVENT_CLEAR = "clearSystemEvents";
+    public static final String EVENT_REMOVE_ALL = "removeAllEvents";
     
     // Users
     public static final String USER_GET = "getUser";

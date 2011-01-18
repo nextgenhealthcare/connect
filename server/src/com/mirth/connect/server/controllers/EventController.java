@@ -21,7 +21,7 @@ public abstract class EventController extends Controller {
 
     public abstract void addEvent(Event event);
 
-    public abstract void clearEvents() throws ControllerException;
+    public abstract void removeAllEvents() throws ControllerException;
 
     public abstract List<Event> getEventsByPage(int page, int pageSize, int maxSystemEvents, String uid) throws ControllerException;
 

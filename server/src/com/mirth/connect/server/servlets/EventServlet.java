@@ -69,8 +69,8 @@ public class EventServlet extends MirthServlet {
                     String filter = request.getParameter("filter");
                     response.setContentType("application/xml");
                     out.print(serializer.toXML(eventController.getEventsByPageLimit(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxSystemEvents), uid, (EventFilter) serializer.fromXML(filter))));
-                } else if (operation.equals(Operations.EVENT_CLEAR)) {
-                    eventController.clearEvents();
+                } else if (operation.equals(Operations.EVENT_REMOVE_ALL)) {
+                    eventController.removeAllEvents();
                 }
             } catch (Throwable t) {
                 logger.error(ExceptionUtils.getStackTrace(t));
