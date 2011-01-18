@@ -98,7 +98,6 @@ import com.mirth.connect.model.converters.ObjectCloner;
 import com.mirth.connect.model.converters.ObjectClonerException;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageObjectFilter;
-import com.mirth.connect.model.filters.SystemEventFilter;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.util.PropertyVerifier;
@@ -596,8 +595,7 @@ public class Frame extends JXFrame {
         setVisibleTasks(dashboardTasks, dashboardPopupMenu, 1, -1, false);
         
         // Event Pane
-        setVisibleTasks(eventTasks, eventPopupMenu, 0, 2, true);
-        setVisibleTasks(eventTasks, eventPopupMenu, 3, 3, false);
+        setVisibleTasks(eventTasks, eventPopupMenu, 0, 1, true);
         
         // Message Pane
         setVisibleTasks(messageTasks, messagePopupMenu, 0, -1, true);
@@ -775,9 +773,7 @@ public class Frame extends JXFrame {
         eventTasks.setFocusable(false);
 
         addTask(TaskConstants.EVENT_REFRESH, "Refresh", "Refresh the list of events with the given filter.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), eventTasks, eventPopupMenu);
-        addTask(TaskConstants.EVENT_REMOVE_ALL, "Remove All Events", "Remove all the System Events.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
-        addTask(TaskConstants.EVENT_REMOVE_FILTERED, "Remove Results", "Remove all System Events in the current search.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
-        addTask(TaskConstants.EVENT_REMOVE, "Remove Event", "Remove the selected Event.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/delete.png")), eventTasks, eventPopupMenu);
+        addTask(TaskConstants.EVENT_REMOVE_ALL, "Remove All Events", "Remove all the events.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
 
         setNonFocusable(eventTasks);
         taskPaneContainer.add(eventTasks);
@@ -3508,7 +3504,7 @@ public class Frame extends JXFrame {
 
                 public Void doInBackground() {
                     try {
-                        mirthClient.clearSystemEvents();
+                        mirthClient.removeAllEvents();
                     } catch (ClientException e) {
                         alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
@@ -3517,62 +3513,6 @@ public class Frame extends JXFrame {
 
                 public void done() {
                     eventBrowser.refresh();
-                    setWorking("", false);
-                }
-            };
-
-            worker.execute();
-        }
-    }
-
-    public void doRemoveFilteredEvents() {
-        if (alertOption(this, "Are you sure you would like to remove all currently filtered system events?")) {
-            setWorking("Removing events...", true);
-
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-                public Void doInBackground() {
-                    try {
-                        mirthClient.removeSystemEvents(eventBrowser.getCurrentFilter());
-                    } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                    }
-                    return null;
-                }
-
-                public void done() {
-                    if (currentContentPage == eventBrowser) {
-                        eventBrowser.refresh();
-                    }
-                    setWorking("", false);
-                }
-            };
-
-            worker.execute();
-        }
-    }
-
-    public void doRemoveEvent() {
-        if (alertOption(this, "Are you sure you would like to remove the selected system event?")) {
-            setWorking("Removing event...", true);
-
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-                public Void doInBackground() {
-                    try {
-                        SystemEventFilter filter = new SystemEventFilter();
-                        filter.setId(eventBrowser.getSelectedEventID());
-                        mirthClient.removeSystemEvents(filter);
-                    } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                    }
-                    return null;
-                }
-
-                public void done() {
-                    if (currentContentPage == eventBrowser) {
-                        eventBrowser.refresh();
-                    }
                     setWorking("", false);
                 }
             };

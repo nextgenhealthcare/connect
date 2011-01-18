@@ -10,8 +10,6 @@
 package com.mirth.connect.client.ui.browsers.event;
 
 import java.awt.Point;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.Calendar;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -25,8 +23,8 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.EventListHandler;
 import com.mirth.connect.client.core.ListHandlerException;
-import com.mirth.connect.client.core.SystemEventListHandler;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -34,8 +32,9 @@ import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
-import com.mirth.connect.model.SystemEvent;
-import com.mirth.connect.model.filters.SystemEventFilter;
+import com.mirth.connect.model.Event;
+import com.mirth.connect.model.Event.Level;
+import com.mirth.connect.model.filters.EventFilter;
 
 /**
  * The event browser panel.
@@ -50,9 +49,9 @@ public class EventBrowser extends javax.swing.JPanel {
     private final String LEVEL_COLUMN_NAME = "Level";
     private final String EVENT_COLUMN_NAME = "Event";
     private Frame parent;
-    private SystemEventListHandler systemEventListHandler;
-    private List<SystemEvent> systemEventList;
-    private SystemEventFilter systemEventFilter;
+    private EventListHandler eventListHandler;
+    private List<Event> eventList;
+    private EventFilter eventFilter;
     private int eventCount = -1;
     private int currentPage = 0;
     private int pageSize;
@@ -83,10 +82,10 @@ public class EventBrowser extends javax.swing.JPanel {
 
         pageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
 
-        String[] values = new String[SystemEvent.Level.values().length + 1];
+        String[] values = new String[Level.values().length + 1];
         values[0] = "ALL";
         for (int i = 1; i < values.length; i++) {
-            values[i] = SystemEvent.Level.values()[i - 1].toString();
+            values[i] = Level.values()[i - 1].toString();
         }
 
         levelComboBox.setModel(new javax.swing.DefaultComboBoxModel(values));
@@ -102,7 +101,7 @@ public class EventBrowser extends javax.swing.JPanel {
 
         // use the start filters and make the table.
         parent.setVisibleTasks(parent.eventTasks, parent.eventPopupMenu, 3, 3, false);
-        systemEventListHandler = null;
+        eventListHandler = null;
 
         eventField.setText("");
         levelComboBox.setSelectedIndex(0);
@@ -119,14 +118,14 @@ public class EventBrowser extends javax.swing.JPanel {
         filterButtonActionPerformed(null);
     }
 
-    public void updateEventTable(List<SystemEvent> systemEventList) {
+    public void updateEventTable(List<Event> systemEventList) {
         Object[][] tableData = null;
 
         if (systemEventList != null) {
             tableData = new Object[systemEventList.size()][4];
 
             for (int i = 0; i < systemEventList.size(); i++) {
-                SystemEvent systemEvent = systemEventList.get(i);
+                Event systemEvent = systemEventList.get(i);
 
                 tableData[i][0] = systemEvent.getId();
 
@@ -252,25 +251,9 @@ public class EventBrowser extends javax.swing.JPanel {
                 checkSelectionAndPopupMenu(evt);
             }
         });
-
-        // Key Listener trigger for DEL
-        eventTable.addKeyListener(new KeyListener() {
-
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-                    parent.doRemoveEvent();
-                }
-            }
-
-            public void keyReleased(KeyEvent e) {
-            }
-
-            public void keyTyped(KeyEvent e) {
-            }
-        });
     }
 
-    private void getEventTableData(SystemEventListHandler handler, int page) {
+    private void getEventTableData(EventListHandler handler, int page) {
         if (handler != null) {
             // Do all paging information below.
             try {
@@ -279,13 +262,13 @@ public class EventBrowser extends javax.swing.JPanel {
                 pageSize = handler.getPageSize();
 
                 if (page == FIRST_PAGE) {
-                    systemEventList = handler.getFirstPage();
+                    eventList = handler.getFirstPage();
                     currentPage = handler.getCurrentPage();
                 } else if (page == PREVIOUS_PAGE) {
                     if (currentPage == 0) {
                         return;
                     }
-                    systemEventList = handler.getPreviousPage();
+                    eventList = handler.getPreviousPage();
                     currentPage = handler.getCurrentPage();
                 } else if (page == NEXT_PAGE) {
                     int numberOfPages = getNumberOfPages(pageSize, eventCount);
@@ -293,15 +276,15 @@ public class EventBrowser extends javax.swing.JPanel {
                         return;
                     }
 
-                    systemEventList = handler.getNextPage();
-                    if (systemEventList.size() == 0) {
-                        systemEventList = handler.getPreviousPage();
+                    eventList = handler.getNextPage();
+                    if (eventList.size() == 0) {
+                        eventList = handler.getPreviousPage();
                     }
                     currentPage = handler.getCurrentPage();
                 }
 
             } catch (ListHandlerException e) {
-                systemEventList = null;
+                eventList = null;
                 parent.alertException(this, e.getStackTrace(), e.getMessage());
             }
         }
@@ -360,25 +343,17 @@ public class EventBrowser extends javax.swing.JPanel {
         descriptionTextPane.setText("Select an event to see its description.");
     }
 
-    private int getSelectedEventIndex() {
-        int row = -1;
-        if (eventTable.getSelectedRow() > -1) {
-            row = eventTable.convertRowIndexToModel(eventTable.getSelectedRow());
-        }
-        return row;
-    }
-
     /**
      * An action for when a row is selected in the table.
      */
     private void EventListSelected(ListSelectionEvent evt) {
         if (!evt.getValueIsAdjusting()) {
-            int row = eventTable.convertRowIndexToModel(eventTable.getSelectedRow());
+            int row = eventTable.getSelectedModelIndex();
 
             if (row >= 0) {
                 parent.setVisibleTasks(parent.eventTasks, parent.eventPopupMenu, 3, 3, true);
 
-                descriptionTextPane.setText(systemEventList.get(row).getDescription() + "\n" + systemEventList.get(row).getAttributes());
+                descriptionTextPane.setText(eventList.get(row).getDescription() + "\n" + eventList.get(row).getAttributes());
                 descriptionTextPane.setCaretPosition(0);
             }
         }
@@ -394,14 +369,14 @@ public class EventBrowser extends javax.swing.JPanel {
                 column = i;
             }
         }
-        return ((Integer) (eventTable.getModel().getValueAt(eventTable.convertRowIndexToModel(eventTable.getSelectedRow()), column)));
+        return ((Integer) (eventTable.getModel().getValueAt(eventTable.getSelectedModelIndex(), column)));
     }
 
     /**
      * Returns the current SystemEventFilter that is set.
      */
-    public SystemEventFilter getCurrentFilter() {
-        return systemEventFilter;
+    public EventFilter getCurrentFilter() {
+        return eventFilter;
     }
 
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
@@ -635,16 +610,16 @@ public class EventBrowser extends javax.swing.JPanel {
     private void nextPageButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_nextPageButtonActionPerformed
         parent.setWorking("Loading next page...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                getEventTableData(systemEventListHandler, NEXT_PAGE);
+                getEventTableData(eventListHandler, NEXT_PAGE);
                 return null;
             }
 
             public void done() {
-                if (systemEventListHandler != null) {
-                    updateEventTable(systemEventList);
+                if (eventListHandler != null) {
+                    updateEventTable(eventList);
                 } else {
                     updateEventTable(null);
                 }
@@ -658,16 +633,16 @@ public class EventBrowser extends javax.swing.JPanel {
     private void previousPageButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_previousPageButtonActionPerformed
         parent.setWorking("Loading previous page...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                getEventTableData(systemEventListHandler, PREVIOUS_PAGE);
+                getEventTableData(eventListHandler, PREVIOUS_PAGE);
                 return null;
             }
 
             public void done() {
-                if (systemEventListHandler != null) {
-                    updateEventTable(systemEventList);
+                if (eventListHandler != null) {
+                    updateEventTable(eventList);
                 } else {
                     updateEventTable(null);
                 }
@@ -689,16 +664,16 @@ public class EventBrowser extends javax.swing.JPanel {
             }
         }
 
-        systemEventFilter = new SystemEventFilter();
+        eventFilter = new EventFilter();
 
         if (!eventField.getText().equals("")) {
-            systemEventFilter.setEvent(eventField.getText());
+            eventFilter.setEvent(eventField.getText());
         }
 
         if (!((String) levelComboBox.getSelectedItem()).equalsIgnoreCase("ALL")) {
-            for (int i = 0; i < SystemEvent.Level.values().length; i++) {
-                if (((String) levelComboBox.getSelectedItem()).equalsIgnoreCase(SystemEvent.Level.values()[i].toString())) {
-                    systemEventFilter.setLevel(SystemEvent.Level.values()[i]);
+            for (int i = 0; i < Level.values().length; i++) {
+                if (((String) levelComboBox.getSelectedItem()).equalsIgnoreCase(Level.values()[i].toString())) {
+                    eventFilter.setLevel(Level.values()[i]);
                 }
             }
         }
@@ -706,12 +681,12 @@ public class EventBrowser extends javax.swing.JPanel {
         if (mirthDatePicker1.getDate() != null) {
             Calendar calendarStart = Calendar.getInstance();
             calendarStart.setTime(mirthDatePicker1.getDate());
-            systemEventFilter.setStartDate(calendarStart);
+            eventFilter.setStartDate(calendarStart);
         }
         if (mirthDatePicker2.getDate() != null) {
             Calendar calendarEnd = Calendar.getInstance();
             calendarEnd.setTime(mirthDatePicker2.getDate());
-            systemEventFilter.setEndDate(calendarEnd);
+            eventFilter.setEndDate(calendarEnd);
         }
 
         if (!pageSizeField.getText().equals("")) {
@@ -720,7 +695,7 @@ public class EventBrowser extends javax.swing.JPanel {
 
         parent.setWorking("Loading events...", true);
 
-        if (systemEventListHandler == null) {
+        if (eventListHandler == null) {
             updateEventTable(null);
         }
 
@@ -728,17 +703,17 @@ public class EventBrowser extends javax.swing.JPanel {
 
             public Void doInBackground() {
                 try {
-                    systemEventListHandler = parent.mirthClient.getSystemEventListHandler(systemEventFilter, pageSize, false);
+                    eventListHandler = parent.mirthClient.getEventListHandler(eventFilter, pageSize, false);
                 } catch (ClientException e) {
                     parent.alertException(parent, e.getStackTrace(), e.getMessage());
                 }
-                getEventTableData(systemEventListHandler, FIRST_PAGE);
+                getEventTableData(eventListHandler, FIRST_PAGE);
                 return null;
             }
 
             public void done() {
-                if (systemEventListHandler != null) {
-                    updateEventTable(systemEventList);
+                if (eventListHandler != null) {
+                    updateEventTable(eventList);
                 } else {
                     updateEventTable(null);
                 }
