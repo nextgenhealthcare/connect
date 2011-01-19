@@ -19,6 +19,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -160,7 +161,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
         statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setCellRenderer(new DateCellRenderer());
-        statusTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
+        statusTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setCellRenderer(new NumberCellRenderer(SwingConstants.CENTER, false));
         
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setToolTipText("<html><body>The status of this deployed channel. Possible values are started, paused, and stopped.</body></html>");
         statusTable.getColumnExt(NAME_COLUMN_NAME).setToolTipText("<html><body>The name of this deployed channel.</body></html>");

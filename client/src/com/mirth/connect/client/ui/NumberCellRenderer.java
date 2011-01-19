@@ -20,12 +20,15 @@ import com.mirth.connect.client.ui.util.DisplayUtil;
 
 public class NumberCellRenderer extends DefaultTableCellRenderer {
 
+    private boolean padding = false;
+
     public NumberCellRenderer() {
-        this(RIGHT);
+        this(RIGHT, true);
     }
 
-    public NumberCellRenderer(int alignment) {
+    public NumberCellRenderer(int alignment, boolean padding) {
         super();
+        this.padding = padding;
         this.setHorizontalAlignment(alignment);
     }
 
@@ -40,7 +43,12 @@ public class NumberCellRenderer extends DefaultTableCellRenderer {
         if (value == null) {
             setText("--");
         } else {
-            setText(DisplayUtil.formatNumber((Integer) value));
+            String displayText = DisplayUtil.formatNumber((Integer) value);
+            if (padding) {
+                setText(displayText + " ");
+            } else {
+                setText(displayText);
+            }
         }
         return this;
     }
