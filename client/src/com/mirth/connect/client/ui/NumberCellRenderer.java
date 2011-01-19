@@ -21,7 +21,7 @@ import com.mirth.connect.client.ui.util.DisplayUtil;
 public class NumberCellRenderer extends DefaultTableCellRenderer {
 
     public NumberCellRenderer() {
-        this(CENTER);
+        this(RIGHT);
     }
 
     public NumberCellRenderer(int alignment) {
