@@ -39,6 +39,11 @@ public class DatabaseUtil {
 
         try {
             conn = sqlMap.getDataSource().getConnection();
+
+            // Set auto commit to false or an exception will be thrown when
+            // trying to rollback
+            conn.setAutoCommit(false);
+
             statement = conn.createStatement();
 
             Scanner s = new Scanner(script);
