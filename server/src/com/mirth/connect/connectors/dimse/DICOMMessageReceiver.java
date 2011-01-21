@@ -24,8 +24,8 @@ import org.dcm4che2.net.Association;
 import org.dcm4che2.net.CommandUtils;
 import org.dcm4che2.net.DicomServiceException;
 import org.dcm4che2.net.PDVInputStream;
+import org.dcm4che2.net.service.StorageService;
 import org.dcm4che2.tool.dcmrcv.DcmRcv;
-import org.dcm4che2.tool.dcmrcv.StorageSCP;
 import org.mule.config.i18n.Message;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageReceiver;
@@ -45,7 +45,7 @@ import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
 
 public class DICOMMessageReceiver extends AbstractMessageReceiver {
     // --- DICOM Specific Variables ---
-    MirthDcmRcv dcmrcv = new MirthDcmRcv("DCMRCV");
+    DcmRcv dcmrcv = new DcmRcv("DCMRCV");
 
     protected DICOMConnector connector;
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
@@ -169,10 +169,10 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
         logger.info("Closed DICOM port");
     }
 
-    public class MirthStorageSCP extends StorageSCP {
-
-        public MirthStorageSCP(MirthDcmRcv dcmrcv, String[] sopClasses) {
-            super(dcmrcv, sopClasses);
+    public class MirthStorageSCP extends StorageService {
+        
+        public MirthStorageSCP(DcmRcv dcmrcv, String[] sopClasses) {
+            super(sopClasses);
         }
 
         @Override
@@ -215,18 +215,4 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
 
     }
 
-    public class MirthDcmRcv extends DcmRcv {
-
-        public final MirthStorageSCP storageScp = new MirthStorageSCP(this, MirthDcmRcv.CUIDS);
-
-        public MirthDcmRcv() {
-            super();
-            this.registerStorageSCP(storageScp);
-        }
-
-        public MirthDcmRcv(String name) {
-            super(name);
-            this.registerStorageSCP(storageScp);
-        }
-    }
 }

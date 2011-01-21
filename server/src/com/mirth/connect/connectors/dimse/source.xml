@@ -14,13 +14,13 @@
 	<library path="dicom-shared.jar">
 		<type>SHARED</type>
 	</library>
-	<library path="lib/slf4j-api-1.5.0.jar">
+	<library path="lib/slf4j-api-1.6.1.jar">
 		<type>SHARED</type>
 	</library>	
-	<library path="lib/slf4j-log4j12-1.5.0.jar">
+	<library path="lib/slf4j-log4j12-1.6.1.jar">
 		<type>SHARED</type>
 	</library>
-	<library path="lib/dcm4che-core-2.0.22.jar">
+	<library path="lib/dcm4che-core-2.0.25.jar">
 		<type>SHARED</type>
 	</library>
 	<library path="dicom-server.jar">
@@ -29,16 +29,16 @@
 	<library path="lib/jai_imageio.jar">
 		<type>SERVER</type>
 	</library>
-	<library path="lib/dcm4che-net-2.0.22.jar">
+	<library path="lib/dcm4che-net-2.0.25.jar">
 		<type>SERVER</type>
 	</library>
-	<library path="lib/dcm4che-tool-dcmrcv-2.0.22.jar">
+	<library path="lib/dcm4che-tool-dcmrcv-2.0.25.jar">
 		<type>SERVER</type>
 	</library>
-	<library path="lib/dcm4che-tool-dcmsnd-2.0.22.jar">
+	<library path="lib/dcm4che-tool-dcmsnd-2.0.25.jar">
 		<type>SERVER</type>
 	</library>
-	<library path="lib/dcm4che-filecache-2.0.22.jar">
+	<library path="lib/dcm4che-filecache-2.0.25.jar">
 		<type>SERVER</type>
 	</library>
 	<transformers></transformers>

@@ -61,13 +61,6 @@
 	<classpathentry kind="lib" path="lib/extensions/doc/bcprov-jdk16-144.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/file/webdavclient4j-core-0.92.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-core-2.0.22.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-filecache-2.0.22.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-net-2.0.22.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-tool-dcmrcv-2.0.22.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-tool-dcmsnd-2.0.22.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-api-1.5.0.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-log4j12-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/database/jtds-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.0.8-bin.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-1.0.1.jar"/>
@@ -84,6 +77,13 @@
 	<classpathentry kind="lib" path="lib/jetty/jetty-servlet-7.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-util-7.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-core-2.0.25.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-filecache-2.0.25.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-net-2.0.25.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-tool-dcmrcv-2.0.25.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-tool-dcmsnd-2.0.25.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-api-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-3.6.1.jar"/>
