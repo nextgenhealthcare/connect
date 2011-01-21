@@ -303,10 +303,15 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
     </select>
 
     <delete id="pruneMessages" parameterClass="java.util.Map">
-		DELETE FROM MESSAGE WHERE ID IN
-		(
-			SELECT <dynamic><isNotNull property="limit">TOP $limit$</isNotNull></dynamic> ID FROM MESSAGE
+		DELETE FROM MESSAGE
+		<dynamic>
+			<isNotNull property="limit">
+				WHERE SEQUENCE_ID IN (SELECT TOP $limit$ SEQUENCE_ID FROM MESSAGE
+			</isNotNull>
 			<include refid="messageFilterCriteria" />
-		)
+			<isNotNull property="limit">
+				)
+			</isNotNull>
+		</dynamic>
 	</delete>
 </sqlMap>

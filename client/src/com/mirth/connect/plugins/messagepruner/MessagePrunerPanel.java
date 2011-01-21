@@ -356,7 +356,7 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
 
         pruningBlockSizeLabel.setText("Pruning Block Size:");
 
-        pruningBlockSizeField.setToolTipText("The number of messages to be pruned in each delete block. Increase this size for high performance systems with large message volumes, or set it to 0 to delete all messages in a single query.");
+        pruningBlockSizeField.setToolTipText("<html>If this number is 0, all messages are pruned in a single query. If the single query is slowing down<br>the system for too long, messages can be pruned in blocks of the specified size. Block pruning can<br>be a much longer process, but it will not slow down the system as much as a single query.</html>");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);

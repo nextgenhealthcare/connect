@@ -286,11 +286,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
     </select>
 
     <delete id="pruneMessages" parameterClass="java.util.Map">
-		DELETE FROM MESSAGE WHERE ID IN
-		(
-			SELECT ID FROM MESSAGE
-			<include refid="messageFilterCriteria" />
-		)
+		DELETE FROM MESSAGE
+		<include refid="messageFilterCriteria" />
 	</delete>
 
 	<procedure id="vacuumMessageTable">
