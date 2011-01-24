@@ -124,6 +124,13 @@ public abstract class AbstractJmsTransformer extends AbstractTransformer impleme
 
             Map props = ctx.getProperties();
             props = PropertiesHelper.getPropertiesWithoutPrefix(props, "JMS");
+
+            // FIXME: If we add the "destinations" property, then this message will be
+            // ignored by channels that are not related to the original source
+            // channel.
+            // Bug: MIRTH-1689
+            props.remove("destinations");
+            
             Map.Entry entry;
             String key;
             for (Iterator iterator = props.entrySet().iterator(); iterator.hasNext();) {
