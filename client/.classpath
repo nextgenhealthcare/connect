@@ -20,7 +20,6 @@
 	<classpathentry kind="lib" path="lib/hapi-1.0.1.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dicomviewer/ij.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/pdfviewer/PDFRenderer.jar"/>
-	<classpathentry kind="lib" path="activemq-core-5.2.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/dcm4che-core-2.0.25.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/slf4j-api-1.6.1.jar"/>
