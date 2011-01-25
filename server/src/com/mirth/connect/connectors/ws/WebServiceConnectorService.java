@@ -16,8 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.wsdl.BindingOperation;
-import javax.wsdl.PortType;
+import javax.wsdl.Port;
 import javax.wsdl.Service;
+import javax.xml.namespace.QName;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -66,9 +67,11 @@ public class WebServiceConnectorService implements ConnectorService {
             String id = (String) object;
             WsdlInterface wsdlInterface = wsdlInterfaceCache.get(id);
 
-            if (MapUtils.isNotEmpty(wsdlInterface.getWsdlContext().getDefinition().getPortTypes())) {
-                PortType portType = (PortType) wsdlInterface.getWsdlContext().getDefinition().getPortTypes().values().iterator().next();
-                return portType.getQName().toString();
+            if (MapUtils.isNotEmpty(wsdlInterface.getWsdlContext().getDefinition().getServices())) {
+                Service service = (Service) wsdlInterface.getWsdlContext().getDefinition().getServices().values().iterator().next();
+                Port port = (Port) service.getPorts().values().iterator().next();
+                QName qName = new QName(service.getQName().getNamespaceURI(), port.getName());
+                return qName.toString();
             }
         } else if (method.equals("generateEnvelope")) {
             Map<String, String> params = (Map<String, String>) object;
@@ -96,7 +99,7 @@ public class WebServiceConnectorService implements ConnectorService {
 
         // make sure we maintain the logging environment
         SoapUI.setSoapUICore(new EmbeddedSoapUICore());
-        
+
         // create a new soapUI project
         WsdlProject wsdlProject = new WsdlProjectFactory().createNew();
 
@@ -122,7 +125,11 @@ public class WebServiceConnectorService implements ConnectorService {
         BindingOperation bindingOperation = wsdlInterface.getOperationByName(operationName).getBindingOperation();
         return messageBuilder.buildSoapMessageFromInput(bindingOperation, true);
     }
-    
+
+    /*
+     * This is needed to prevent soapUI from disabling logging for the entire
+     * application.
+     */
     private class EmbeddedSoapUICore extends DefaultSoapUICore {
         @Override
         protected void initLog() {
