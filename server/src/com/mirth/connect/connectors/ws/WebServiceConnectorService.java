@@ -21,7 +21,10 @@ import javax.wsdl.Service;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
+import com.eviware.soapui.DefaultSoapUICore;
+import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.impl.WsdlInterfaceFactory;
 import com.eviware.soapui.impl.wsdl.WsdlInterface;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
@@ -30,6 +33,7 @@ import com.eviware.soapui.impl.wsdl.support.soap.SoapMessageBuilder;
 import com.eviware.soapui.impl.wsdl.support.wsdl.UrlWsdlLoader;
 import com.eviware.soapui.impl.wsdl.support.wsdl.WsdlLoader;
 import com.eviware.soapui.model.iface.Operation;
+import com.eviware.soapui.model.settings.Settings;
 import com.mirth.connect.connectors.ConnectorService;
 
 public class WebServiceConnectorService implements ConnectorService {
@@ -90,6 +94,9 @@ public class WebServiceConnectorService implements ConnectorService {
             wsdlUrl = new URI(wsdlUrl.getScheme(), hostWithCredentials, wsdlUrl.getPath(), wsdlUrl.getQuery(), wsdlUrl.getFragment());
         }
 
+        // make sure we maintain the logging environment
+        SoapUI.setSoapUICore(new EmbeddedSoapUICore());
+        
         // create a new soapUI project
         WsdlProject wsdlProject = new WsdlProjectFactory().createNew();
 
@@ -114,5 +121,21 @@ public class WebServiceConnectorService implements ConnectorService {
         SoapMessageBuilder messageBuilder = wsdlInterface.getMessageBuilder();
         BindingOperation bindingOperation = wsdlInterface.getOperationByName(operationName).getBindingOperation();
         return messageBuilder.buildSoapMessageFromInput(bindingOperation, true);
+    }
+    
+    private class EmbeddedSoapUICore extends DefaultSoapUICore {
+        @Override
+        protected void initLog() {
+            log = Logger.getLogger(DefaultSoapUICore.class);
+        }
+
+        @Override
+        public Settings getSettings() {
+            if (log == null) {
+                initLog();
+            }
+
+            return super.getSettings();
+        }
     }
 }
