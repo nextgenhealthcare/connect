@@ -21,9 +21,7 @@ import javax.wsdl.Service;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
 
-import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.impl.WsdlInterfaceFactory;
 import com.eviware.soapui.impl.wsdl.WsdlInterface;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
@@ -91,9 +89,6 @@ public class WebServiceConnectorService implements ConnectorService {
             String hostWithCredentials = username + ":" + password + "@" + wsdlUrl.getHost();
             wsdlUrl = new URI(wsdlUrl.getScheme(), hostWithCredentials, wsdlUrl.getPath(), wsdlUrl.getQuery(), wsdlUrl.getFragment());
         }
-
-        // disable ERROR and below logging for soapUI
-        SoapUI.log.getParent().setLevel(Level.FATAL);
 
         // create a new soapUI project
         WsdlProject wsdlProject = new WsdlProjectFactory().createNew();

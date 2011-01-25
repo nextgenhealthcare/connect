@@ -37,6 +37,9 @@
 	<library path="lib/not-yet-commons-ssl-0.3.11.jar">
 		<type>SERVER</type>
 	</library>
+	<library path="lib/policy-xmlbeans-1.5.jar">
+		<type>SERVER</type>
+	</library>
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.ws.WebServiceConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.ws.WebServiceMessageDispatcherFactory</property>

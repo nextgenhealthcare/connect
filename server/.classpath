@@ -84,6 +84,7 @@
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-tool-dcmsnd-2.0.25.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-log4j12-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/ws/policy-xmlbeans-1.5.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-3.6.1.jar"/>
