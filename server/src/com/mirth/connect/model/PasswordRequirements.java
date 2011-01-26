@@ -12,65 +12,69 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 
 public class PasswordRequirements implements Serializable {
-	private boolean requireUpper;
-	private boolean requireLower;
-	private boolean requireNumeric;
-	private boolean requireSpecial;
-	private int minLength;
 
-	public PasswordRequirements() {
-		this.requireUpper = false;
-		this.requireLower = false;
-		this.requireNumeric = false;
-		this.requireSpecial = false;
-		this.minLength = 0;
-	}
+    private static final long serialVersionUID = 1L;
 
-	public PasswordRequirements(boolean requireUpper, boolean requireLower, boolean requireNumeric, boolean requireSpecial, int minLength) {
-		this.requireUpper = requireUpper;
-		this.requireLower = requireLower;
-		this.requireSpecial = requireSpecial;
-		this.minLength = minLength;
-		this.requireNumeric = requireNumeric;
-	}
+    private int minUpper;
+    private int minLower;
+    private int minNumeric;
+    private int minSpecial;
+    private int minLength;
 
-	public int getMinLength() {
-		return minLength;
-	}
+    public PasswordRequirements() {
+        this.minUpper = 0;
+        this.minLower = 0;
+        this.minNumeric = 0;
+        this.minSpecial = 0;
 
-	public void setMinLength(int minLength) {
-		this.minLength = minLength;
-	}
+        this.minLength = 0;
+    }
 
-	public boolean isRequireLower() {
-		return requireLower;
-	}
+    public PasswordRequirements(int minUpper, int minLower, int minNumeric, int minSpecial, int minLength) {
+        this.minUpper = minUpper;
+        this.minLower = minLower;
+        this.minNumeric = minNumeric;
+        this.minSpecial = minSpecial;
+        this.minLength = minLength;
+    }
 
-	public void setRequireLower(boolean requireLower) {
-		this.requireLower = requireLower;
-	}
+    public int getMinLength() {
+        return minLength;
+    }
 
-	public boolean isRequireNumeric() {
-		return requireNumeric;
-	}
+    public void setMinLength(int minLength) {
+        this.minLength = minLength;
+    }
 
-	public void setRequireNumeric(boolean requireNumeric) {
-		this.requireNumeric = requireNumeric;
-	}
+    public int getMinLower() {
+        return minLower;
+    }
 
-	public boolean isRequireSpecial() {
-		return requireSpecial;
-	}
+    public void setMinLower(int minLower) {
+        this.minLower = minLower;
+    }
 
-	public void setRequireSpecial(boolean requireSpecial) {
-		this.requireSpecial = requireSpecial;
-	}
+    public int getMinNumeric() {
+        return minNumeric;
+    }
 
-	public boolean isRequireUpper() {
-		return requireUpper;
-	}
+    public void setMinNumeric(int minNumeric) {
+        this.minNumeric = minNumeric;
+    }
 
-	public void setRequireUpper(boolean requireUpper) {
-		this.requireUpper = requireUpper;
-	}
+    public int getMinSpecial() {
+        return minSpecial;
+    }
+
+    public void setMinSpecial(int minSpecial) {
+        this.minSpecial = minSpecial;
+    }
+
+    public int getMinUpper() {
+        return minUpper;
+    }
+
+    public void setMinUpper(int minUpper) {
+        this.minUpper = minUpper;
+    }
 }

@@ -69,7 +69,7 @@ public class DefaultUserController extends UserController {
         try {
 
             PasswordRequirements passwordRequirments = ControllerFactory.getFactory().createConfigurationController().getPasswordRequirements();
-            Vector<String> responses = PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements(plainTextPassword, passwordRequirments);
+            List<String> responses = PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements(plainTextPassword, passwordRequirments);
             if (responses != null) {
                 String resString = "";
                 for (String response : responses) {
