@@ -16,11 +16,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("messageObject")
-public class MessageObject implements Serializable, Cloneable {
+public class MessageObject implements Serializable, Cloneable, Auditable {
 	/**
 	 * Need to set this so that messages written to the queue will not fail with new versions of this class
 	 */
@@ -319,48 +320,10 @@ public class MessageObject implements Serializable, Cloneable {
 	}
 	
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getName() + "[");
-		builder.append("id=");
-		builder.append(this.getId());
-		builder.append(", ");
-        builder.append("serverId=");
-        builder.append(this.getServerId());
-        builder.append(", ");
-		builder.append("channelId=");
-		builder.append(this.getChannelId());
-		builder.append(", ");
-		builder.append("correlationId=");
-		builder.append(this.getCorrelationId());
-		builder.append(", ");
-		builder.append("type=");
-		builder.append(this.getType());
-		builder.append(", ");
-		builder.append("status=");
-		builder.append(this.getStatus().toString());
-		builder.append(", ");
-		builder.append("date-created=");
-		builder.append(this.getDateCreated().toString());
-		builder.append(", ");
-		builder.append("version=");
-		builder.append(this.getVersion());
-		builder.append(", ");
-		builder.append("raw-data protocol=");
-		builder.append(this.getRawDataProtocol());
-		builder.append(", ");
-		builder.append("transformed-data protocol=");
-		builder.append(this.getTransformedDataProtocol());
-		builder.append(", ");
-		builder.append("encoded-data protocol=");
-		builder.append(this.getEncodedDataProtocol());
-		builder.append(", ");
-		builder.append("errors=");
-		builder.append(this.getErrors());
-        builder.append(", ");
-        builder.append("isAttachment=");
-        builder.append(this.isAttachment());
-		builder.append("]");
-		return builder.toString();
-
+	    return new ToStringBuilder(this, CalendarToStringStyle.instance()).append("id", id).append("channelId", channelId).append("status", status).toString();
+	}
+	
+	public String toAuditString() {
+	    return new ToStringBuilder(this, CalendarToStringStyle.instance()).append("id", id).toString();
 	}
 }

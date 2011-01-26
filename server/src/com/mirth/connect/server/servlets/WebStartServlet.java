@@ -85,11 +85,11 @@ public class WebStartServlet extends HttpServlet {
             } else {
                 int httpsPort = mirthProperties.getInt("https.port", 8443);
                 String contextPathProp = mirthProperties.getString("http.contextpath");
-                
+
                 if (contextPathProp.lastIndexOf('/') == (contextPathProp.length() - 1)) {
                     contextPathProp = contextPathProp.substring(0, contextPathProp.length() - 1);
                 }
-                
+
                 server = "https://" + serverName + ":" + httpsPort + contextPathProp;
             }
 

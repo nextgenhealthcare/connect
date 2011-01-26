@@ -11,6 +11,8 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,12 +28,10 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class ChannelStatisticsServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
-    
+
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else if (!isUserAuthorized(request)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             try {
                 ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
@@ -39,18 +39,28 @@ public class ChannelStatisticsServlet extends MirthServlet {
                 PrintWriter out = response.getWriter();
                 String operation = request.getParameter("op");
                 String channelId = request.getParameter("id");
+                Map<String, Object> parameterMap = new HashMap<String, Object>();
+                parameterMap.put("channelId", channelId);
 
                 if (operation.equals(Operations.CHANNEL_STATS_GET)) {
-                    response.setContentType("application/xml");
-                    out.println(serializer.toXML(statisticsController.getStatistics(channelId)));
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        response.setContentType("application/xml");
+                        out.println(serializer.toXML(statisticsController.getStatistics(channelId)));
+                    }
                 } else if (operation.equals(Operations.CHANNEL_STATS_CLEAR)) {
-                    boolean deleteReceived = Boolean.valueOf(request.getParameter("deleteReceived"));
-                    boolean deleteFiltered = Boolean.valueOf(request.getParameter("deleteFiltered"));
-                    boolean deleteQueued = Boolean.valueOf(request.getParameter("deleteQueued"));
-                    boolean deleteSent = Boolean.valueOf(request.getParameter("deleteSent"));
-                    boolean deleteErrored = Boolean.valueOf(request.getParameter("deleteErrored"));
-                    boolean deleteAlerted = Boolean.valueOf(request.getParameter("deleteAlerted"));
-                    statisticsController.clearStatistics(channelId, deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored, deleteAlerted);
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        boolean deleteReceived = Boolean.valueOf(request.getParameter("deleteReceived"));
+                        boolean deleteFiltered = Boolean.valueOf(request.getParameter("deleteFiltered"));
+                        boolean deleteQueued = Boolean.valueOf(request.getParameter("deleteQueued"));
+                        boolean deleteSent = Boolean.valueOf(request.getParameter("deleteSent"));
+                        boolean deleteErrored = Boolean.valueOf(request.getParameter("deleteErrored"));
+                        boolean deleteAlerted = Boolean.valueOf(request.getParameter("deleteAlerted"));
+                        statisticsController.clearStatistics(channelId, deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored, deleteAlerted);
+                    }
                 }
             } catch (Throwable t) {
                 logger.error(ExceptionUtils.getStackTrace(t));

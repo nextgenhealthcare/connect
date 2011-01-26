@@ -11,7 +11,8 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +23,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.Operations;
-import com.mirth.connect.model.Event;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -34,7 +34,7 @@ import com.mirth.connect.server.util.UserSessionCache;
 
 public class UserServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
-    
+
     public static final String SESSION_USER = "user";
     public static final String SESSION_AUTHORIZED = "authorized";
 
@@ -44,7 +44,7 @@ public class UserServlet extends MirthServlet {
         PrintWriter out = response.getWriter();
         String operation = request.getParameter("op");
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        
+
         if (operation.equals(Operations.USER_LOGIN)) {
             String username = request.getParameter("username");
             String password = request.getParameter("password");
@@ -55,6 +55,8 @@ public class UserServlet extends MirthServlet {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
             try {
+                Map<String, Object> parameterMap = new HashMap<String, Object>();
+                
                 if (operation.equals(Operations.USER_AUTHORIZE)) {
                     response.setContentType("text/plain");
                     User user = (User) serializer.fromXML(request.getParameter("user"));
@@ -68,47 +70,50 @@ public class UserServlet extends MirthServlet {
                      * return themselves.
                      */
                     response.setContentType("application/xml");
-                    List<User> users = null;
-                    User user = null;
+                    User user = (User) serializer.fromXML(request.getParameter("user"));
+                    parameterMap.put("user", user);
 
-                    if (isUserAuthorized(request)) {
-                        user = (User) serializer.fromXML(request.getParameter("user"));
-                    } else {
+                    if (!isUserAuthorized(request, parameterMap)) {
                         user = new User();
                         user.setId(getCurrentUserId(request));
                     }
 
-                    users = userController.getUser(user);
-                    out.println(serializer.toXML(users));
+                    out.println(serializer.toXML(userController.getUser(user)));
                 } else if (operation.equals(Operations.USER_UPDATE)) {
                     User user = (User) serializer.fromXML(request.getParameter("user"));
+                    parameterMap.put("user", user);
 
-                    if (isUserAuthorized(request) || isCurrentUser(request, user)) {
+                    if (isUserAuthorized(request, parameterMap) || isCurrentUser(request, user)) {
                         String password = request.getParameter("password");
                         userController.updateUser(user, password);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.USER_REMOVE)) {
-                    if (isUserAuthorized(request)) {
-                        User user = (User) serializer.fromXML(request.getParameter("user"));
+                    User user = (User) serializer.fromXML(request.getParameter("user"));
+                    parameterMap.put("user", user);
+
+                    if (isUserAuthorized(request, parameterMap)) {
                         UserSessionCache.getInstance().invalidateAllSessionsForUser(user);
                         userController.removeUser(user, (Integer) request.getSession().getAttribute(SESSION_USER));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.USER_IS_USER_LOGGED_IN)) {
-                    if (isUserAuthorized(request)) {
+                    User user = (User) serializer.fromXML(request.getParameter("user"));
+                    parameterMap.put("user", user);
+
+                    if (isUserAuthorized(request, parameterMap)) {
                         response.setContentType("text/plain");
-                        User user = (User) serializer.fromXML(request.getParameter("user"));
                         out.print(userController.isUserLoggedIn(user));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.USER_PREFERENCES_GET)) {
                     User user = (User) serializer.fromXML(request.getParameter("user"));
+                    parameterMap.put("user", user);
 
-                    if (isUserAuthorized(request) || isCurrentUser(request, user)) {
+                    if (isUserAuthorized(request, parameterMap) || isCurrentUser(request, user)) {
                         response.setContentType("text/plain");
                         out.println(serializer.toXML(userController.getUserPreferences(user)));
                     } else {
@@ -116,8 +121,9 @@ public class UserServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.USER_PREFERENCES_SET)) {
                     User user = (User) serializer.fromXML(request.getParameter("user"));
+                    parameterMap.put("user", user);
 
-                    if (isUserAuthorized(request) || isCurrentUser(request, user)) {
+                    if (isUserAuthorized(request, parameterMap) || isCurrentUser(request, user)) {
                         String name = request.getParameter("name");
                         String value = request.getParameter("value");
                         userController.setUserPreference(user, name, value);
@@ -144,7 +150,7 @@ public class UserServlet extends MirthServlet {
             }
 
             HttpSession session = request.getSession();
-            
+
             User user = new User();
             user.setUsername(username);
 
@@ -160,16 +166,9 @@ public class UserServlet extends MirthServlet {
 
                 // set the user status to logged in in the database
                 userController.loginUser(validUser);
-                
+
                 // add the user's session to to session map
                 UserSessionCache.getInstance().registerSessionForUser(session, validUser);
-                
-                // log the event
-                Event event = new Event("User logged in.");
-                event.getAttributes().put("Session ID", session.getId());
-                event.getAttributes().put("User ID", validUser.getId());
-                event.getAttributes().put("User Name", validUser.getUsername());
-                eventController.addEvent(event);
 
                 return true;
             }
@@ -205,15 +204,10 @@ public class UserServlet extends MirthServlet {
         } catch (ControllerException ce) {
             throw new ServletException(ce);
         }
-        
+
         // delete any temp tables created for this session
         ControllerFactory.getFactory().createMessageObjectController().removeFilterTable(sessionId);
         eventController.removeEventFilterTable(sessionId);
-
-        // log the event
-        Event event = new Event("User logged out.");
-        event.getAttributes().put("Session ID", session.getId());
-        eventController.addEvent(event);
     }
 
     private boolean isCurrentUser(HttpServletRequest request, User user) {

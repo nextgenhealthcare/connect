@@ -228,7 +228,7 @@ public class MuleEngineController implements EngineController {
 
             // if deploy fails, log to system events
             Event event = new Event("Error deploying channels.");
-            event.setLevel(Event.Level.HIGH);
+            event.setLevel(Event.Level.ERROR);
             event.setDescription(ExceptionUtils.getStackTrace(e));
             eventController.addEvent(event);
         }

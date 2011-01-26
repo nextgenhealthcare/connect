@@ -11,7 +11,9 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -31,12 +33,10 @@ import com.mirth.connect.server.util.DICOMUtil;
 
 public class MessageObjectServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
-    
+
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else if (!isUserAuthorized(request)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             try {
                 MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
@@ -45,6 +45,7 @@ public class MessageObjectServlet extends MirthServlet {
                 String operation = request.getParameter("op");
                 String uid = null;
                 boolean useNewTempTable = false;
+                Map<String, Object> parameterMap = new HashMap<String, Object>();
 
                 if (request.getParameter("uid") != null && !request.getParameter("uid").equals("")) {
                     uid = request.getParameter("uid");
@@ -54,57 +55,137 @@ public class MessageObjectServlet extends MirthServlet {
                 }
 
                 if (operation.equals(Operations.MESSAGE_CREATE_TEMP_TABLE)) {
-                    String filter = request.getParameter("filter");
-                    response.setContentType("text/plain");
-                    out.println(messageObjectController.createMessagesTempTable((MessageObjectFilter) serializer.fromXML(filter), uid, useNewTempTable));
+                    MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
+                    parameterMap.put("messageFilter", filter);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        response.setContentType("text/plain");
+                        out.println(messageObjectController.createMessagesTempTable(filter, uid, useNewTempTable));
+                    }
                 } else if (operation.equals(Operations.MESSAGE_FILTER_TABLES_REMOVE)) {
-                    messageObjectController.removeFilterTable(uid);
+                    if (!isUserAuthorized(request, null)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        messageObjectController.removeFilterTable(uid);
+                    }
                 } else if (operation.equals(Operations.MESSAGE_GET_BY_PAGE)) {
-                    String page = request.getParameter("page");
-                    String pageSize = request.getParameter("pageSize");
-                    String maxMessages = request.getParameter("maxMessages");
-                    response.setContentType("application/xml");
-                    out.print(serializer.toXML(messageObjectController.getMessagesByPage(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), uid, true)));
+                    if (!isUserAuthorized(request, null)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        int page = Integer.parseInt(request.getParameter("page"));
+                        int pageSize = Integer.parseInt(request.getParameter("pageSize"));
+                        int max = Integer.parseInt(request.getParameter("maxMessages"));
+                        response.setContentType("application/xml");
+                        out.print(serializer.toXML(messageObjectController.getMessagesByPage(page, pageSize, max, uid, true)));
+                    }
+
                 } else if (operation.equals(Operations.MESSAGE_GET_BY_PAGE_LIMIT)) {
-                    String page = request.getParameter("page");
-                    String pageSize = request.getParameter("pageSize");
-                    String maxMessages = request.getParameter("maxMessages");
-                    String filter = request.getParameter("filter");
-                    response.setContentType("application/xml");
-                    out.print(serializer.toXML(messageObjectController.getMessagesByPageLimit(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), uid, (MessageObjectFilter) serializer.fromXML(filter))));
+                    MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
+                    parameterMap.put("filter", filter);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        int page = Integer.parseInt(request.getParameter("page"));
+                        int pageSize = Integer.parseInt(request.getParameter("pageSize"));
+                        int max = Integer.parseInt(request.getParameter("maxMessages"));
+                        response.setContentType("application/xml");
+                        out.print(serializer.toXML(messageObjectController.getMessagesByPageLimit(page, pageSize, max, uid, filter)));
+                    }
                 } else if (operation.equals(Operations.MESSAGE_REMOVE)) {
-                    String filter = request.getParameter("filter");
-                    messageObjectController.removeMessages((MessageObjectFilter) serializer.fromXML(filter));
+                    MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
+                    parameterMap.put("filter", filter);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        messageObjectController.removeMessages(filter);
+                    }
                 } else if (operation.equals(Operations.MESSAGE_CLEAR)) {
                     String channelId = request.getParameter("data");
-                    messageObjectController.clearMessages(channelId);
+                    parameterMap.put("channelId", channelId);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        messageObjectController.clearMessages(channelId);
+                    }
                 } else if (operation.equals(Operations.MESSAGE_REPROCESS)) {
                     MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
                     boolean replace = Boolean.valueOf(request.getParameter("replace"));
                     List<String> destinations = (List<String>) serializer.fromXML(request.getParameter("destinations"));
-                    messageObjectController.reprocessMessages(filter, replace, destinations);
+                    parameterMap.put("filter", filter);
+                    parameterMap.put("replace", replace);
+                    parameterMap.put("destinations", destinations);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        messageObjectController.reprocessMessages(filter, replace, destinations);
+                    }
                 } else if (operation.equals(Operations.MESSAGE_PROCESS)) {
-                    String message = request.getParameter("message");
-                    messageObjectController.processMessage((MessageObject) serializer.fromXML(message));
+                    MessageObject message = (MessageObject) serializer.fromXML(request.getParameter("message"));
+                    parameterMap.put("message", message);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        messageObjectController.processMessage(message);
+                    }
                 } else if (operation.equals(Operations.MESSAGE_IMPORT)) {
-                    String message = request.getParameter("message");
-                    messageObjectController.importMessage((MessageObject) serializer.fromXML(message));
+                    MessageObject message = (MessageObject) serializer.fromXML(request.getParameter("message"));
+                    parameterMap.put("message", message);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        messageObjectController.importMessage(message);
+                    }
                 } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET)) {
-                    response.setContentType("application/xml");
-                    Attachment attachment = messageObjectController.getAttachment(request.getParameter("attachmentId"));
-                    out.println(serializer.toXML(attachment));
+                    String attachmentId = request.getParameter("attachmentId");
+                    parameterMap.put("attachmentId", attachmentId);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        response.setContentType("application/xml");
+                        Attachment attachment = messageObjectController.getAttachment(attachmentId);
+                        out.println(serializer.toXML(attachment));
+                    }
                 } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID)) {
-                    response.setContentType("application/xml");
-                    List<Attachment> list = messageObjectController.getAttachmentsByMessageId(request.getParameter("messageId"));
-                    out.println(serializer.toXML(list));
+                    String messageId = request.getParameter("messageId");
+                    parameterMap.put("messageId", messageId);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        response.setContentType("application/xml");
+                        List<Attachment> list = messageObjectController.getAttachmentsByMessageId(messageId);
+                        out.println(serializer.toXML(list));
+                    }
                 } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID)) {
-                    response.setContentType("application/xml");
-                    List<Attachment> list = messageObjectController.getAttachmentIdsByMessageId(request.getParameter("messageId"));
-                    out.println(serializer.toXML(list));
+                    String messageId = request.getParameter("messageId");
+                    parameterMap.put("messageId", messageId);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        response.setContentType("application/xml");
+                        List<Attachment> list = messageObjectController.getAttachmentIdsByMessageId(messageId);
+                        out.println(serializer.toXML(list));
+                    }
                 } else if (operation.equals(Operations.MESSAGE_DICOM_MESSAGE_GET)) {
-                    String message = request.getParameter("message");
-                    String dicomMessage = DICOMUtil.getDICOMRawData((MessageObject) serializer.fromXML(message));
-                    out.println(dicomMessage);
+                    MessageObject message = (MessageObject) serializer.fromXML(request.getParameter("message"));
+                    parameterMap.put("message", message);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        String dicomMessage = DICOMUtil.getDICOMRawData(message);
+                        out.println(dicomMessage);
+                    }
                 }
             } catch (Throwable t) {
                 logger.error(ExceptionUtils.getStackTrace(t));

@@ -49,11 +49,12 @@ public class ExtensionServlet extends MirthServlet {
                 PrintWriter out = response.getWriter();
                 FileItem multiPartFileItem = null;
                 String operation = null;
-
+                Map<String, Object> parameterMap = new HashMap<String, Object>();
+                
                 if (ServletFileUpload.isMultipartContent(request)) {
                     Map<String, String> multipartParameters = new HashMap<String, String>();
                     File installTempDir = new File(ExtensionController.getExtensionsPath(), "install_temp");
-                    
+
                     if (!installTempDir.exists()) {
                         installTempDir.mkdir();
                     }
@@ -72,15 +73,16 @@ public class ExtensionServlet extends MirthServlet {
                             multiPartFileItem = item;
                         }
                     }
-                    
+
                     operation = multipartParameters.get("op");
                 } else {
                     operation = request.getParameter("op");
                 }
-                
+
                 if (operation.equals(Operations.PLUGIN_PROPERTIES_GET)) {
                     String pluginName = request.getParameter("name");
-                    if (isUserAuthorizedForExtension(request, pluginName, operation)) {
+
+                    if (isUserAuthorizedForExtension(request, pluginName, operation, null)) {
                         response.setContentType("application/xml");
                         out.println(serializer.toXML(extensionController.getPluginProperties(pluginName)));
                     } else {
@@ -88,7 +90,8 @@ public class ExtensionServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.PLUGIN_PROPERTIES_SET)) {
                     String pluginName = request.getParameter("name");
-                    if (isUserAuthorizedForExtension(request, pluginName, operation)) {
+
+                    if (isUserAuthorizedForExtension(request, pluginName, operation, null)) {
                         Properties properties = (Properties) serializer.fromXML(request.getParameter("properties"));
                         extensionController.setPluginProperties(pluginName, properties);
                         extensionController.updatePluginProperties(pluginName, properties);
@@ -98,8 +101,10 @@ public class ExtensionServlet extends MirthServlet {
                 } else if (operation.equals(Operations.PLUGIN_METADATA_GET)) {
                     out.println(serializer.toXML(extensionController.getPluginMetaData(), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class }));
                 } else if (operation.equals(Operations.PLUGIN_METADATA_SET)) {
-                    if (isUserAuthorized(request)) {
-                        Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class });
+                    Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class });
+                    parameterMap.put("metaData", metaData);
+
+                    if (isUserAuthorized(request, parameterMap)) {
                         extensionController.savePluginMetaData(metaData);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -108,8 +113,10 @@ public class ExtensionServlet extends MirthServlet {
                     response.setContentType("application/xml");
                     out.println(serializer.toXML(extensionController.getConnectorMetaData(), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class }));
                 } else if (operation.equals(Operations.CONNECTOR_METADATA_SET)) {
-                    if (isUserAuthorized(request)) {
-                        Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
+                    Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
+                    parameterMap.put("metaData", metaData);
+
+                    if (isUserAuthorized(request, parameterMap)) {
                         extensionController.saveConnectorMetaData(metaData);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -123,7 +130,7 @@ public class ExtensionServlet extends MirthServlet {
                     Object object = serializer.fromXML(request.getParameter("object"));
                     String sessionId = request.getSession().getId();
 
-                    if (isUserAuthorizedForExtension(request, pluginName, method)) {
+                    if (isUserAuthorizedForExtension(request, pluginName, method, null)) {
                         out.println(serializer.toXML(extensionController.invokePluginService(pluginName, method, object, sessionId)));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -135,14 +142,16 @@ public class ExtensionServlet extends MirthServlet {
                     String sessionId = request.getSession().getId();
                     out.println(serializer.toXML(extensionController.invokeConnectorService(name, method, object, sessionId)));
                 } else if (operation.equals(Operations.EXTENSION_UNINSTALL)) {
-                    if (isUserAuthorized(request)) {
-                        String packageName = request.getParameter("packageName");
+                    String packageName = request.getParameter("packageName");
+                    parameterMap.put("packageName", packageName);
+
+                    if (isUserAuthorized(request, parameterMap)) {
                         extensionController.prepareExtensionForUninstallation(packageName);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.EXTENSION_INSTALL)) {
-                    if (isUserAuthorized(request)) {
+                    if (isUserAuthorized(request, null)) {
                         /*
                          * This is a multi-part method, so we need our
                          * parameters from the new map

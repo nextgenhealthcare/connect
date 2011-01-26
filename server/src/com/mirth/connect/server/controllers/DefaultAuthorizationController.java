@@ -9,9 +9,12 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.util.Map;
+
+import com.mirth.connect.model.Event;
 import com.mirth.connect.model.ExtensionPermission;
 
-public class DefaultAuthorizationController implements AuthorizationController {
+public class DefaultAuthorizationController extends AuthorizationController {
 
     private static DefaultAuthorizationController instance = null;
 
@@ -30,12 +33,14 @@ public class DefaultAuthorizationController implements AuthorizationController {
     }
 
     @Override
-    public boolean isUserAuthorized(Integer userId, String operation) throws ControllerException {
+    public boolean isUserAuthorized(Integer userId, String operation, Map<String, Object> parameterMap, String address) throws ControllerException {
+        auditAuthorizationRequest(userId, operation, parameterMap, Event.Outcome.SUCCESS, address);
         return true;
     }
 
     @Override
-    public boolean isUserAuthorizedForExtension(Integer userId, String extensionName, String operation) throws ControllerException {
+    public boolean isUserAuthorizedForExtension(Integer userId, String extensionName, String operation, Map<String, Object> parameterMap, String address) throws ControllerException {
+        auditAuthorizationRequest(userId, extensionName + "#" + operation, parameterMap, Event.Outcome.SUCCESS, address);
         return true;
     }
 
@@ -43,5 +48,4 @@ public class DefaultAuthorizationController implements AuthorizationController {
     public void addExtensionPermission(ExtensionPermission extensionPermission) {
 
     }
-
 }

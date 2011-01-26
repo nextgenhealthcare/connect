@@ -11,6 +11,7 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -45,9 +46,10 @@ public class ConfigurationServlet extends MirthServlet {
                 ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
                 ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                Map<String, Object> parameterMap = new HashMap<String, Object>();
 
                 if (operation.equals(Operations.CONFIGURATION_CHARSET_ENCODINGS_GET)) {
-                    if (isUserAuthorized(request)) {
+                    if (isUserAuthorized(request, null)) {
                         response.setContentType("application/xml");
                         out.println(serializer.toXML(configurationController.getAvaiableCharsetEncodings()));
                     } else {
@@ -55,102 +57,108 @@ public class ConfigurationServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_SERVER_PROPERTIES_GET)) {
                     response.setContentType("application/xml");
-                    
-                    if (isUserAuthorized(request)) {
+
+                    if (isUserAuthorized(request, null)) {
                         out.println(serializer.toXML(configurationController.getServerProperties()));
                     } else {
                         Properties allServerProperties = configurationController.getServerProperties();
                         Properties permittedServerProperties = new Properties();
-                        
+
                         for (Object key : allServerProperties.keySet()) {
                             String property = (String) key;
-                            
+
                             if ("firstlogin".equals(property) || "update.enabled".equals(property) || "stats.enabled".equals(property) || "update.url".equals(property)) {
                                 permittedServerProperties.setProperty(property, allServerProperties.getProperty(property));
                             }
                         }
-                        
+
                         out.println(serializer.toXML(permittedServerProperties));
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_SERVER_PROPERTIES_SET)) {
-                    if (isUserAuthorized(request)) {
-                        String properties = request.getParameter("data");
+                    String properties = request.getParameter("data");
+                    parameterMap.put("properties", properties);
+
+                    if (isUserAuthorized(request, parameterMap)) {
                         configurationController.setServerProperties((Properties) serializer.fromXML(properties));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_GUID_GET)) {
-                    if (isUserAuthorized(request)) {
+                    if (isUserAuthorized(request, null)) {
                         response.setContentType("text/plain");
                         out.print(configurationController.generateGuid());
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_DATABASE_DRIVERS_GET)) {
-                    if (isUserAuthorized(request)) {
+                    if (isUserAuthorized(request, null)) {
                         response.setContentType("application/xml");
                         out.println(serializer.toXML(configurationController.getDatabaseDrivers()));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_VERSION_GET)) {
-                    if (isUserAuthorized(request)) {
+                    if (isUserAuthorized(request, null)) {
                         response.setContentType("text/plain");
                         out.print(configurationController.getServerVersion());
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_BUILD_DATE_GET)) {
-                    if (isUserAuthorized(request)) {
+                    if (isUserAuthorized(request, null)) {
                         response.setContentType("text/plain");
                         out.print(configurationController.getBuildDate());
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.SERVER_CONFIGURATION_GET)) {
-                    if (isUserAuthorized(request)) {
+                    if (isUserAuthorized(request, null)) {
                         response.setContentType("application/xml");
                         out.println(serializer.toXML(configurationController.getServerConfiguration()));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.SERVER_CONFIGURATION_SET)) {
-                    if (isUserAuthorized(request)) {
-                        String serverConfiguration = request.getParameter("data");
+                    String serverConfiguration = request.getParameter("data");
+                    parameterMap.put("data", serverConfiguration);
+
+                    if (isUserAuthorized(request, parameterMap)) {
                         configurationController.setServerConfiguration((ServerConfiguration) serializer.fromXML(serverConfiguration));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_SERVER_ID_GET)) {
-                    if (isUserAuthorized(request)) {
+                    if (isUserAuthorized(request, null)) {
                         response.setContentType("application/xml");
                         out.println(configurationController.getServerId());
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_SERVER_TIMEZONE_GET)) {
-                    if (isUserAuthorized(request)) {
+                    if (isUserAuthorized(request, null)) {
                         response.setContentType("application/xml");
                         out.println(configurationController.getServerTimezone(request.getLocale()));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.GLOBAL_SCRIPT_GET)) {
-                    if (isUserAuthorized(request)) {
+                    if (isUserAuthorized(request, null)) {
                         response.setContentType("application/xml");
                         out.println(serializer.toXML(scriptController.getGlobalScripts()));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.GLOBAL_SCRIPT_SET)) {
-                    if (isUserAuthorized(request)) {
-                        String scripts = request.getParameter("scripts");
+                    String scripts = request.getParameter("scripts");
+                    parameterMap.put("scripts", scripts);
+
+                    if (isUserAuthorized(request, parameterMap)) {
                         scriptController.setGlobalScripts((Map<String, String>) serializer.fromXML(scripts));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_PASSWORD_REQUIREMENTS_GET)) {
-                    if (isUserAuthorized(request)) {
+                    if (isUserAuthorized(request, null)) {
                         response.setContentType("application/xml");
                         out.println(serializer.toXML(configurationController.getPasswordRequirements()));
                     } else {

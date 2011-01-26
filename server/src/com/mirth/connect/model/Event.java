@@ -11,44 +11,54 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("event")
 public class Event implements Serializable {
     public enum Level {
-        NORMAL, HIGH
+        INFORMATION, WARNING, ERROR
+    }
+
+    public enum Outcome {
+        SUCCESS, FAILURE
     }
 
     private int id;
-    private Calendar date;
+    private Calendar dateTime;
     private Level level;
     private String event;
     private String description;
-    private Properties attributes;
+    private Map<String, Object> attributes;
+    private String operation;
+    private Outcome outcome;
+    private int userId;
+    private String ipAddress;
 
     public Event() {
-        this.level = Level.NORMAL;
+        this.level = Level.INFORMATION;
         this.description = new String();
-        this.attributes = new Properties();
+        this.attributes = new HashMap<String, Object>();
     }
 
     public Event(String event) {
         this.event = event;
-        this.level = Level.NORMAL;
+        this.level = Level.INFORMATION;
         this.description = new String();
-        this.attributes = new Properties();
+        this.attributes = new HashMap<String, Object>();
     }
 
     public Calendar getDate() {
-        return this.date;
+        return this.dateTime;
     }
 
     public void setDate(Calendar date) {
-        this.date = date;
+        this.dateTime = date;
     }
 
     public String getDescription() {
@@ -75,11 +85,11 @@ public class Event implements Serializable {
         this.level = level;
     }
 
-    public Properties getAttributes() {
+    public Map<String, Object> getAttributes() {
         return this.attributes;
     }
 
-    public void setAttributes(Properties attributes) {
+    public void setAttributes(Map<String, Object> attributes) {
         this.attributes = attributes;
     }
 
@@ -90,30 +100,52 @@ public class Event implements Serializable {
     public void setEvent(String event) {
         this.event = event;
     }
+    
+    public Calendar getDateTime() {
+        return dateTime;
+    }
 
-    public boolean equals(Object that) {
-        if (this == that) {
-            return true;
-        }
+    public void setDateTime(Calendar dateTime) {
+        this.dateTime = dateTime;
+    }
 
-        if (!(that instanceof Event)) {
-            return false;
-        }
+    public String getOperation() {
+        return operation;
+    }
 
-        Event event = (Event) that;
+    public void setOperation(String operation) {
+        this.operation = operation;
+    }
 
-        return ObjectUtils.equals(this.getId(), event.getId()) && ObjectUtils.equals(this.getLevel(), event.getLevel()) && ObjectUtils.equals(this.getEvent(), event.getEvent()) && ObjectUtils.equals(this.getDescription(), event.getDescription()) && ObjectUtils.equals(this.getDate(), event.getDate()) && ObjectUtils.equals(this.getAttributes(), event.getAttributes());
+    public Outcome getOutcome() {
+        return outcome;
+    }
+
+    public void setOutcome(Outcome outcome) {
+        this.outcome = outcome;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(this.getClass().getName() + "[");
-        builder.append("id=" + getId() + ", ");
-        builder.append("level=" + getLevel() + ", ");
-        builder.append("event=" + getEvent() + ", ");
-        builder.append("description=" + getDescription() + ", ");
-        builder.append("date=" + getDate());
-        builder.append("]");
-        return builder.toString();
+        return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());
     }
 }

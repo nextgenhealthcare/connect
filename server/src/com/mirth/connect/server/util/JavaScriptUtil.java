@@ -258,7 +258,7 @@ public class JavaScriptUtil {
         }
 
         Event event = new Event(error);
-        event.setLevel(Event.Level.NORMAL);
+        event.setLevel(Event.Level.ERROR);
         event.setDescription(ExceptionUtils.getStackTrace(e));
         eventController.addEvent(event);
         logger.error(error, e);

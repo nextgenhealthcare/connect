@@ -12,83 +12,84 @@ package com.mirth.connect.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("alert")
-public class Alert {
-	private String id;
-	private String name;
-	private String expression;
-	private String template;
-	private boolean enabled;
-	private String subject;
-	private List<String> channels;
-	private List<String> emails;
+public class Alert implements Auditable {
+    private String id;
+    private String name;
+    private String expression;
+    private String template;
+    private boolean enabled;
+    private String subject;
+    private List<String> channels;
+    private List<String> emails;
 
-	public Alert() {
-		channels = new ArrayList<String>();
-		emails = new ArrayList<String>();
-	}
-	
-	public List<String> getChannels() {
-		return this.channels;
-	}
+    public Alert() {
+        channels = new ArrayList<String>();
+        emails = new ArrayList<String>();
+    }
 
-	public void setChannels(List<String> channels) {
-		this.channels = channels;
-	}
+    public List<String> getChannels() {
+        return this.channels;
+    }
 
-	public List<String> getEmails() {
-		return this.emails;
-	}
+    public void setChannels(List<String> channels) {
+        this.channels = channels;
+    }
 
-	public void setEmails(List<String> emails) {
-		this.emails = emails;
-	}
+    public List<String> getEmails() {
+        return this.emails;
+    }
 
-	public String getExpression() {
-		return this.expression;
-	}
+    public void setEmails(List<String> emails) {
+        this.emails = emails;
+    }
 
-	public void setExpression(String expression) {
-		this.expression = expression;
-	}
+    public String getExpression() {
+        return this.expression;
+    }
 
-	public String getId() {
-		return this.id;
-	}
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public String getId() {
+        return this.id;
+    }
 
-	public String getName() {
-		return this.name;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return this.name;
+    }
 
-	public String getTemplate() {
-		return this.template;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setTemplate(String template) {
-		this.template = template;
-	}
+    public String getTemplate() {
+        return this.template;
+    }
 
-	public boolean isEnabled() {
-		return this.enabled;
-	}
+    public void setTemplate(String template) {
+        this.template = template;
+    }
 
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
+    public boolean isEnabled() {
+        return this.enabled;
+    }
 
-	public String getSubject() {
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public String getSubject() {
         return subject;
     }
 
@@ -96,24 +97,11 @@ public class Alert {
         this.subject = subject;
     }
 
-    public boolean equals(Object that) {
-		if (this == that) {
-			return true;
-		}
-		
-		if (!(that instanceof Alert)) {
-			return false;
-		}
-		
-		Alert alert = (Alert) that;
-		
-		return
-    		ObjectUtils.equals(this.getId(), alert.getId()) &&
-    		ObjectUtils.equals(this.getSubject(), alert.getSubject()) &&
-    		ObjectUtils.equals(this.isEnabled(), alert.isEnabled()) &&
-    		ObjectUtils.equals(this.getExpression(), alert.getExpression()) &&
-    		ObjectUtils.equals(this.getTemplate(), alert.getTemplate()) &&
-    		ObjectUtils.equals(this.getChannels(), alert.getChannels()) &&
-    		ObjectUtils.equals(this.getEmails(), alert.getEmails());
-	}
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
+
+    public String toAuditString() {
+        return new ToStringBuilder(this).append("id", id).append("name", name).toString();
+    }
 }

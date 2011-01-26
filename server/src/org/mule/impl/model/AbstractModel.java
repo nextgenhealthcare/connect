@@ -406,7 +406,7 @@ public abstract class AbstractModel implements UMOModel {
 
 					EventController eventController = ControllerFactory.getFactory().createEventController();
 					Event event = new Event("Error starting the channel cannot be activated due to a problem at one of the endpoint " + temp.getDescriptor().getName());
-					event.setLevel(Event.Level.HIGH);
+					event.setLevel(Event.Level.ERROR);
 					event.setDescription(ExceptionUtils.getStackTrace(e));
 					eventController.addEvent(event);
 				}
@@ -506,7 +506,7 @@ public abstract class AbstractModel implements UMOModel {
 
 				EventController eventController = ControllerFactory.getFactory().createEventController();
 				Event event = new Event("Error starting the channel cannot be activated due to a problem at one of the endpoint " + component.getDescriptor().getName());
-				event.setLevel(Event.Level.HIGH);
+				event.setLevel(Event.Level.ERROR);
 				event.setDescription(ExceptionUtils.getStackTrace(e));
 				eventController.addEvent(event);
 			}

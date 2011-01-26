@@ -13,6 +13,9 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.List;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import com.mirth.connect.model.CalendarToStringStyle;
 import com.mirth.connect.model.MessageObject.Protocol;
 import com.mirth.connect.model.MessageObject.Status;
 
@@ -21,42 +24,42 @@ import com.mirth.connect.model.MessageObject.Status;
  * 
  */
 public class MessageObjectFilter implements Serializable {
-	private String id;
-	private String correlationId;
-	private String channelId;
-	private Calendar startDate;
-	private Calendar endDate;
-	private Status status;
-	private String source;
-	private String connectorName;
-	private boolean searchRawData;
-	private boolean searchTransformedData;
-	private boolean searchEncodedData;
-	private boolean searchErrors;
-	private String quickSearch;
-	private String searchCriteria;
-	private String type;
-	private Protocol protocol;
-	private boolean ignoreQueued;
-	private List<String> channelIdList;
-	
-	public String getChannelId() {
-		return this.channelId;
-	}
+    private String id;
+    private String correlationId;
+    private String channelId;
+    private Calendar startDate;
+    private Calendar endDate;
+    private Status status;
+    private String source;
+    private String connectorName;
+    private boolean searchRawData;
+    private boolean searchTransformedData;
+    private boolean searchEncodedData;
+    private boolean searchErrors;
+    private String quickSearch;
+    private String searchCriteria;
+    private String type;
+    private Protocol protocol;
+    private boolean ignoreQueued;
+    private List<String> channelIdList;
 
-	public void setChannelId(String channelId) {
-		this.channelId = channelId;
-	}
+    public String getChannelId() {
+        return this.channelId;
+    }
 
-	public String getId() {
-		return this.id;
-	}
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public String getId() {
+        return this.id;
+    }
 
-	public void setCorrelationId(String correlationId) {
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setCorrelationId(String correlationId) {
         this.correlationId = correlationId;
     }
 
@@ -65,146 +68,126 @@ public class MessageObjectFilter implements Serializable {
     }
 
     public Calendar getEndDate() {
-		return this.endDate;
-	}
+        return this.endDate;
+    }
 
-	public void setEndDate(Calendar endDate) {
-		this.endDate = endDate;
-	}
+    public void setEndDate(Calendar endDate) {
+        this.endDate = endDate;
+    }
 
-	public Calendar getStartDate() {
-		return this.startDate;
-	}
+    public Calendar getStartDate() {
+        return this.startDate;
+    }
 
-	public void setStartDate(Calendar startDate) {
-		this.startDate = startDate;
-	}
+    public void setStartDate(Calendar startDate) {
+        this.startDate = startDate;
+    }
 
-	public Status getStatus() {
-		return this.status;
-	}
+    public Status getStatus() {
+        return this.status;
+    }
 
-	public void setStatus(Status status) {
-		this.status = status;
-	}
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
-	public String getConnectorName() {
-		return this.connectorName;
-	}
+    public String getConnectorName() {
+        return this.connectorName;
+    }
 
-	public void setConnectorName(String connectorName) {
-		this.connectorName = connectorName;
-	}
+    public void setConnectorName(String connectorName) {
+        this.connectorName = connectorName;
+    }
 
-	public String getType() {
-		return this.type;
-	}
+    public String getType() {
+        return this.type;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public Protocol getProtocol() {
-		return this.protocol;
-	}
+    public Protocol getProtocol() {
+        return this.protocol;
+    }
 
-	public void setProtocol(Protocol protocol) {
-		this.protocol = protocol;
-	}
-	
-	public String getSearchCriteria() {
-		return searchCriteria;
-	}
+    public void setProtocol(Protocol protocol) {
+        this.protocol = protocol;
+    }
 
-	public void setSearchCriteria(String searchCriteria) {
-		this.searchCriteria = searchCriteria;
-	}
+    public String getSearchCriteria() {
+        return searchCriteria;
+    }
 
-	public boolean isSearchEncodedData() {
-		return searchEncodedData;
-	}
+    public void setSearchCriteria(String searchCriteria) {
+        this.searchCriteria = searchCriteria;
+    }
 
-	public void setSearchEncodedData(boolean searchEncodedData) {
-		this.searchEncodedData = searchEncodedData;
-	}
+    public boolean isSearchEncodedData() {
+        return searchEncodedData;
+    }
 
-	public boolean isSearchRawData() {
-		return searchRawData;
-	}
+    public void setSearchEncodedData(boolean searchEncodedData) {
+        this.searchEncodedData = searchEncodedData;
+    }
 
-	public void setSearchRawData(boolean searchRawData) {
-		this.searchRawData = searchRawData;
-	}
+    public boolean isSearchRawData() {
+        return searchRawData;
+    }
 
-	public boolean isSearchTransformedData() {
-		return searchTransformedData;
-	}
+    public void setSearchRawData(boolean searchRawData) {
+        this.searchRawData = searchRawData;
+    }
 
-	public void setSearchTransformedData(boolean searchTransformedData) {
-		this.searchTransformedData = searchTransformedData;
-	}
+    public boolean isSearchTransformedData() {
+        return searchTransformedData;
+    }
 
-	public boolean isSearchErrors() {
-		return searchErrors;
-	}
+    public void setSearchTransformedData(boolean searchTransformedData) {
+        this.searchTransformedData = searchTransformedData;
+    }
 
-	public void setSearchErrors(boolean searchErrors) {
-		this.searchErrors = searchErrors;
-	}
-	
-	public String getSource() {
-		return source;
-	}
+    public boolean isSearchErrors() {
+        return searchErrors;
+    }
 
-	public void setSource(String source) {
-		this.source = source;
-	}
+    public void setSearchErrors(boolean searchErrors) {
+        this.searchErrors = searchErrors;
+    }
 
-	public String getQuickSearch() {
-		return quickSearch;
-	}
+    public String getSource() {
+        return source;
+    }
 
-	public void setQuickSearch(String quickSearch) {
-		this.quickSearch = quickSearch;
-	}
-	
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getName() + "[");
-		builder.append("id=" + getId() + ", ");
-		builder.append("channelId=" + getChannelId() + ", ");
-		builder.append("source=" + getSource() + ", ");
-		builder.append("type=" + getType() + ", ");
-		builder.append("startDate=" + String.format("%1$tY-%1$tm-%1$td", getStartDate()) + ", ");
-		builder.append("endDate=" + String.format("%1$tY-%1$tm-%1$td", getEndDate()) + ", ");
-		builder.append("status=" + getStatus() + ", ");
-		builder.append("protocol=" + getProtocol() + ", ");
-		builder.append("searchCriteria=" + getSearchCriteria() + ", ");
-		builder.append("searchEncodedData=" + isSearchEncodedData() + ", ");
-		builder.append("searchRawData=" + isSearchRawData() + ", ");
-		builder.append("searchTransformedData=" + isSearchTransformedData() + ", ");
-		builder.append("searchErrors=" + isSearchErrors() + ", ");
-		builder.append("ignoreQueued=" + isIgnoreQueued() + ", ");
-		builder.append("connectorName=" + getConnectorName() + ", ");
-		builder.append("channelIdList=" + getChannelIdList() + ", ");
-		builder.append("quickSearch=" + getQuickSearch());
-		builder.append("]");
-		return builder.toString();
-	}
+    public void setSource(String source) {
+        this.source = source;
+    }
 
-	public boolean isIgnoreQueued() {
-		return ignoreQueued;
-	}
+    public String getQuickSearch() {
+        return quickSearch;
+    }
 
-	public void setIgnoreQueued(boolean ignoreQueued) {
-		this.ignoreQueued = ignoreQueued;
-	}
+    public void setQuickSearch(String quickSearch) {
+        this.quickSearch = quickSearch;
+    }
 
-	public List<String> getChannelIdList() {
-		return channelIdList;
-	}
+    public boolean isIgnoreQueued() {
+        return ignoreQueued;
+    }
 
-	public void setChannelIdList(List<String> channelIdList) {
-		this.channelIdList = channelIdList;
-	}
+    public void setIgnoreQueued(boolean ignoreQueued) {
+        this.ignoreQueued = ignoreQueued;
+    }
+
+    public List<String> getChannelIdList() {
+        return channelIdList;
+    }
+
+    public void setChannelIdList(List<String> channelIdList) {
+        this.channelIdList = channelIdList;
+    }
+
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());
+    }
 }

@@ -12,7 +12,8 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.Properties;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -26,85 +27,85 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("connector")
 public class Connector implements Serializable {
-	public enum Mode {
-		SOURCE, DESTINATION
-	}
-	
-	private String name;
-	private Properties properties;
-	private Transformer transformer;
-	private Filter filter;
-	private String transportName;
-	private Mode mode;
-	private boolean enabled;
-	private String version;
+    public enum Mode {
+        SOURCE, DESTINATION
+    }
 
-	public Connector() {
-		this.properties = new Properties();
-	}
+    private String name;
+    private Properties properties;
+    private Transformer transformer;
+    private Filter filter;
+    private String transportName;
+    private Mode mode;
+    private boolean enabled;
+    private String version;
 
-	public Connector(String name) {
-		this.properties = new Properties();
-		this.name = name;
-	}
-	
-	public Mode getMode() {
-		return this.mode;
-	}
+    public Connector() {
+        this.properties = new Properties();
+    }
 
-	public void setMode(Mode mode) {
-		this.mode = mode;
-	}
+    public Connector(String name) {
+        this.properties = new Properties();
+        this.name = name;
+    }
 
-	public String getName() {
-		return this.name;
-	}
+    public Mode getMode() {
+        return this.mode;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
 
-	public Transformer getTransformer() {
-		return this.transformer;
-	}
+    public String getName() {
+        return this.name;
+    }
 
-	public void setTransformer(Transformer transformer) {
-		this.transformer = transformer;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Filter getFilter() {
-		return this.filter;
-	}
+    public Transformer getTransformer() {
+        return this.transformer;
+    }
 
-	public void setFilter(Filter filter) {
-		this.filter = filter;
-	}
+    public void setTransformer(Transformer transformer) {
+        this.transformer = transformer;
+    }
 
-	public String getTransportName() {
-		return this.transportName;
-	}
+    public Filter getFilter() {
+        return this.filter;
+    }
 
-	public void setTransportName(String transportName) {
-		this.transportName = transportName;
-	}
+    public void setFilter(Filter filter) {
+        this.filter = filter;
+    }
 
-	public Properties getProperties() {
-		return this.properties;
-	}
+    public String getTransportName() {
+        return this.transportName;
+    }
 
-	public void setProperties(Properties properties) {
-		this.properties = properties;
-	}
-	
-	public boolean isEnabled() {
-		return enabled;
-	}
+    public void setTransportName(String transportName) {
+        this.transportName = transportName;
+    }
 
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-	
-	public String getVersion() {
+    public Properties getProperties() {
+        return this.properties;
+    }
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public String getVersion() {
         return version;
     }
 
@@ -112,35 +113,11 @@ public class Connector implements Serializable {
         this.version = version;
     }
 
-    public boolean equals(Object that) {
-		if (this == that) {
-			return true;
-		}
-		
-		if (!(that instanceof Connector)) {
-			return false;
-		}
-		
-		Connector connector = (Connector) that;
-		
-		return
-			ObjectUtils.equals(this.getName(), connector.getName()) &&
-			ObjectUtils.equals(this.getProperties(), connector.getProperties()) &&
-			ObjectUtils.equals(this.getTransformer(), connector.getTransformer()) &&
-			ObjectUtils.equals(this.getFilter(), connector.getFilter()) &&
-			ObjectUtils.equals(this.isEnabled(), connector.isEnabled()) &&
-			ObjectUtils.equals(this.getTransportName(), connector.getTransportName());
-	}
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
 
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getName() + "[");
-		builder.append("name=" + getName() + ", ");
-		builder.append("transportName=" + getTransportName() + ", ");
-		builder.append("properties=" + getProperties());
-		builder.append("enabled=" + isEnabled());
-		builder.append("]");
-		return builder.toString();
-	}
-
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());
+    }
 }

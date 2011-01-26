@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -26,7 +27,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 
 @XStreamAlias("channel")
-public class Channel implements Serializable {
+public class Channel implements Serializable, Auditable {
 	private String id;
 	private String name;
 	private String description;
@@ -197,13 +198,10 @@ public class Channel implements Serializable {
 	}
 
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getName() + "[");
-		builder.append("id=" + getId() + ", ");
-		builder.append("name=" + getName() + ", ");
-		builder.append("enabled=" + isEnabled() + ", ");
-		builder.append("version=" + getVersion());
-		builder.append("]");
-		return builder.toString();
+	    return new ToStringBuilder(this, CalendarToStringStyle.instance()).append("name", name).append("enabled", enabled).append("version", version).toString();
+	}
+	
+	public String toAuditString() {
+	    return new ToStringBuilder(this, CalendarToStringStyle.instance()).append("id", id).append("name", name).toString();
 	}
 }

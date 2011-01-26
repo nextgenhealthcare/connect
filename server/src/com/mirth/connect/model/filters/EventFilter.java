@@ -11,70 +11,65 @@ package com.mirth.connect.model.filters;
 
 import java.util.Calendar;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import com.mirth.connect.model.CalendarToStringStyle;
 import com.mirth.connect.model.Event.Level;
 
 /**
- * A SystemEventFilter is used to search the system event log.
+ * A EventFilter is used to search the event log.
  * 
  * @author geraldb
  * 
  */
 public class EventFilter {
-	private Integer id;
-	private Level level;
-	private Calendar startDate;
-	private Calendar endDate;
-	private String event;
-	
-	public Integer getId() {
-		return this.id;
-	}
+    private Integer id;
+    private Level level;
+    private Calendar startDate;
+    private Calendar endDate;
+    private String event;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public Integer getId() {
+        return this.id;
+    }
 
-	public String getEvent() {
-		return this.event;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setEvent(String event) {
-		this.event = event;
-	}
+    public String getEvent() {
+        return this.event;
+    }
 
-	public Level getLevel() {
-		return this.level;
-	}
+    public void setEvent(String event) {
+        this.event = event;
+    }
 
-	public void setLevel(Level level) {
-		this.level = level;
-	}
+    public Level getLevel() {
+        return this.level;
+    }
 
-	public Calendar getEndDate() {
-		return this.endDate;
-	}
+    public void setLevel(Level level) {
+        this.level = level;
+    }
 
-	public void setEndDate(Calendar endDate) {
-		this.endDate = endDate;
-	}
+    public Calendar getEndDate() {
+        return this.endDate;
+    }
 
-	public Calendar getStartDate() {
-		return this.startDate;
-	}
+    public void setEndDate(Calendar endDate) {
+        this.endDate = endDate;
+    }
 
-	public void setStartDate(Calendar startDate) {
-		this.startDate = startDate;
-	}
+    public Calendar getStartDate() {
+        return this.startDate;
+    }
 
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getName() + "[");
-		builder.append("id=" + getId() + ", ");
-		builder.append("level=" + getLevel() + ", ");
-		builder.append("startDate=" + String.format("%1$tY-%1$tm-%1$td", getStartDate()) + ", ");
-		builder.append("endDate=" + String.format("%1$tY-%1$tm-%1$td", getEndDate()) + ", ");
-		builder.append("event=" + getEvent());
-		builder.append("]");
-		return builder.toString();
-	}
+    public void setStartDate(Calendar startDate) {
+        this.startDate = startDate;
+    }
+
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());
+    }
 }

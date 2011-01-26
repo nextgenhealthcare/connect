@@ -11,6 +11,8 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -28,12 +30,10 @@ import com.mirth.connect.server.controllers.EventController;
 
 public class EventServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
-    
+
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else if (!isUserAuthorized(request)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             try {
                 EventController eventController = ControllerFactory.getFactory().createEventController();
@@ -42,7 +42,8 @@ public class EventServlet extends MirthServlet {
                 String operation = request.getParameter("op");
                 String uid = null;
                 boolean useNewTempTable = false;
-
+                Map<String, Object> parameterMap = new HashMap<String, Object>();
+                
                 if (StringUtils.isNotBlank(request.getParameter("uid"))) {
                     uid = request.getParameter("uid");
                     useNewTempTable = true;
@@ -51,26 +52,50 @@ public class EventServlet extends MirthServlet {
                 }
 
                 if (operation.equals(Operations.EVENT_CREATE_TEMP_TABLE)) {
-                    String filter = request.getParameter("filter");
-                    response.setContentType("text/plain");
-                    out.println(eventController.createEventTempTable((EventFilter) serializer.fromXML(filter), uid, useNewTempTable));
+                    EventFilter eventFilter = (EventFilter) serializer.fromXML(request.getParameter("filter"));
+                    parameterMap.put("filter", eventFilter);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        response.setContentType("text/plain");
+                        out.println(eventController.createEventTempTable(eventFilter, uid, useNewTempTable));
+                    }
                 } else if (operation.equals(Operations.EVENT_REMOVE_FILTER_TABLES)) {
-                    eventController.removeEventFilterTable(uid);
+                    if (!isUserAuthorized(request, null)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        eventController.removeEventFilterTable(uid);
+                    }
                 } else if (operation.equals(Operations.EVENT_GET_BY_PAGE)) {
-                    String page = request.getParameter("page");
-                    String pageSize = request.getParameter("pageSize");
-                    String maxMessages = request.getParameter("maxEvents");
-                    response.setContentType("application/xml");
-                    out.print(serializer.toXML(eventController.getEventsByPage(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), uid)));
+                    if (!isUserAuthorized(request, null)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        int page = Integer.parseInt(request.getParameter("page"));
+                        int pageSize = Integer.parseInt(request.getParameter("pageSize"));
+                        int max = Integer.parseInt(request.getParameter("maxEvents"));
+                        response.setContentType("application/xml");
+                        out.print(serializer.toXML(eventController.getEventsByPage(page, pageSize, max, uid)));
+                    }
                 } else if (operation.equals(Operations.EVENT_GET_BY_PAGE_LIMIT)) {
-                    String page = request.getParameter("page");
-                    String pageSize = request.getParameter("pageSize");
-                    String maxSystemEvents = request.getParameter("maxEvents");
-                    String filter = request.getParameter("filter");
-                    response.setContentType("application/xml");
-                    out.print(serializer.toXML(eventController.getEventsByPageLimit(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxSystemEvents), uid, (EventFilter) serializer.fromXML(filter))));
+                    EventFilter eventFilter = (EventFilter) serializer.fromXML(request.getParameter("filter"));
+                    parameterMap.put("filter", eventFilter);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        int page = Integer.parseInt(request.getParameter("page"));
+                        int pageSize = Integer.parseInt(request.getParameter("pageSize"));
+                        int max = Integer.parseInt(request.getParameter("maxEvents"));
+                        response.setContentType("application/xml");
+                        out.print(serializer.toXML(eventController.getEventsByPageLimit(page, pageSize, max, uid, eventFilter)));
+                    }
                 } else if (operation.equals(Operations.EVENT_REMOVE_ALL)) {
-                    eventController.removeAllEvents();
+                    if (!isUserAuthorized(request, null)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        eventController.removeAllEvents();
+                    }
                 }
             } catch (Throwable t) {
                 logger.error(ExceptionUtils.getStackTrace(t));

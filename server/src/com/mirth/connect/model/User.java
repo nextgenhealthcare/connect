@@ -12,12 +12,13 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.Calendar;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("user")
-public class User implements Serializable {
+public class User implements Serializable, Auditable {
 	private Integer id;
 	private String username;
 	private String email;
@@ -100,42 +101,15 @@ public class User implements Serializable {
 		this.lastLogin = lastLogin;
 	}
 	
-	public boolean equals(Object that) {
-		if (this == that) {
-			return true;
-		}
-		
-		if (!(that instanceof User)) {
-			return false;
-		}
-		
-		User user = (User) that;
-		
-		return
-			ObjectUtils.equals(this.getId(), user.getId()) &&
-			ObjectUtils.equals(this.getUsername(), user.getUsername()) &&
-			ObjectUtils.equals(this.getEmail(), user.getEmail()) &&
-			ObjectUtils.equals(this.getFirstName(), user.getFirstName()) &&
-			ObjectUtils.equals(this.getLastName(), user.getLastName()) &&
-			ObjectUtils.equals(this.getOrganization(), user.getOrganization()) &&
-			ObjectUtils.equals(this.getDescription(), user.getDescription()) &&
-			ObjectUtils.equals(this.getLastLogin(), user.getLastLogin()) &&
-			ObjectUtils.equals(this.getPhoneNumber(), user.getPhoneNumber());
+	public boolean equals(Object obj) {
+	    return EqualsBuilder.reflectionEquals(this, obj);
 	}
 
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getName() + "[");
-		builder.append("id=" + getId() + ", ");
-		builder.append("username=" + getUsername() + ", ");
-		builder.append("email=" + getEmail() + ", ");
-		builder.append("firstname=" + getFirstName() + ", ");
-		builder.append("lastname=" + getLastName() + ", ");
-		builder.append("organization=" + getOrganization() + ", ");
-		builder.append("description=" + getDescription() + ", ");
-		builder.append("lastLogin=" + getLastLogin() + ", ");
-		builder.append("phonenumber=" + getPhoneNumber());
-		builder.append("]");
-		return builder.toString();
+	    return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());
+	}
+	
+	public String toAuditString() {
+	    return new ToStringBuilder(this, CalendarToStringStyle.instance()).append("id", id).append("username", username).toString();
 	}
 }

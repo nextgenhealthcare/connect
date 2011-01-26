@@ -11,7 +11,9 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -28,29 +30,46 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class CodeTemplateServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
-    
+
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else if (!isUserAuthorized(request)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             try {
                 CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 PrintWriter out = response.getWriter();
                 String operation = request.getParameter("op");
+                Map<String, Object> parameterMap = new HashMap<String, Object>();
 
                 if (operation.equals(Operations.CODE_TEMPLATE_GET)) {
-                    response.setContentType("application/xml");
                     CodeTemplate codeTemplate = (CodeTemplate) serializer.fromXML(request.getParameter("codeTemplate"));
-                    out.println(serializer.toXML(codeTemplateController.getCodeTemplate(codeTemplate)));
+                    parameterMap.put("codeTemplate", codeTemplate);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        response.setContentType("application/xml");
+                        out.println(serializer.toXML(codeTemplateController.getCodeTemplate(codeTemplate)));
+                    }
                 } else if (operation.equals(Operations.CODE_TEMPLATE_UPDATE)) {
                     List<CodeTemplate> codeTemplates = (List<CodeTemplate>) serializer.fromXML(request.getParameter("codeTemplates"));
-                    codeTemplateController.updateCodeTemplates(codeTemplates);
+                    parameterMap.put("codeTemplates", codeTemplates);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        codeTemplateController.updateCodeTemplates(codeTemplates);
+                    }
                 } else if (operation.equals(Operations.CODE_TEMPLATE_REMOVE)) {
                     CodeTemplate codeTemplate = (CodeTemplate) serializer.fromXML(request.getParameter("codeTemplate"));
-                    codeTemplateController.removeCodeTemplate(codeTemplate);
+                    parameterMap.put("codeTemplate", codeTemplate);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        codeTemplateController.removeCodeTemplate(codeTemplate);
+                    }
                 }
             } catch (Throwable t) {
                 logger.error(ExceptionUtils.getStackTrace(t));

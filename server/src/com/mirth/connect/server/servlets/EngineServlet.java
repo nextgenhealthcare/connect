@@ -10,7 +10,9 @@
 package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -27,26 +29,41 @@ import com.mirth.connect.server.controllers.EngineController;
 
 public class EngineServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
-    
+
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else if (!isUserAuthorized(request)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             try {
                 EngineController engineController = ControllerFactory.getFactory().createEngineController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 String operation = request.getParameter("op");
-
+                Map<String, Object> parameterMap = new HashMap<String, Object>();
+                
                 if (operation.equals(Operations.CHANNEL_REDEPLOY)) {
-                    engineController.redeployAllChannels();
+                    if (!isUserAuthorized(request, null)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        engineController.redeployAllChannels();
+                    }
                 } else if (operation.equals(Operations.CHANNEL_DEPLOY)) {
                     List<Channel> channels = (List<Channel>) serializer.fromXML(request.getParameter("channels"));
-                    engineController.deployChannels(channels);
+                    parameterMap.put("channels", channels);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        engineController.deployChannels(channels);
+                    }
                 } else if (operation.equals(Operations.CHANNEL_UNDEPLOY)) {
                     List<String> channelIds = (List<String>) serializer.fromXML(request.getParameter("channelIds"));
-                    engineController.undeployChannels(channelIds);
+                    parameterMap.put("channelIds", channelIds);
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        engineController.undeployChannels(channelIds);
+                    }
                 }
             } catch (Throwable t) {
                 logger.error(ExceptionUtils.getStackTrace(t));
