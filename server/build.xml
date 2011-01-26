@@ -95,7 +95,7 @@
 			<include name="com/mirth/connect/util/**" />
 			<include name="com/thoughtworks/**" />
 			<include name="org/mozilla/**" />
-			
+
 			<include name="version.properties" />
 		</jar>
 	</target>
@@ -568,7 +568,9 @@
 
 		<!-- copy lib -->
 		<copy todir="${setup.lib}">
-			<fileset dir="${lib}" />
+			<fileset dir="${lib}">
+				<exclude name="extensions/**" />
+			</fileset>
 		</copy>
 
 		<!-- copy conf files -->
@@ -619,7 +621,7 @@
 		<!-- create the mirth-launcher jar -->
 		<jar destfile="${setup}/${mirth-launcher.jar}" basedir="${classes}">
 			<include name="com/mirth/connect/server/launcher/**" />
-			
+
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.MirthLauncher" />
 				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar lib/commons/commons-io-2.0.jar conf/" />
