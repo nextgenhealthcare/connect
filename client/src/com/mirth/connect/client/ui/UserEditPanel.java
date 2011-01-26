@@ -9,7 +9,7 @@
 
 package com.mirth.connect.client.ui;
 
-import java.util.Vector;
+import java.util.List;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
@@ -124,7 +124,7 @@ public class UserEditPanel extends javax.swing.JPanel {
 
         try {
             PasswordRequirements requirements = parent.getPasswordRequirements();
-            Vector<String> passwordProblems = PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements(String.valueOf(password.getPassword()), requirements);
+            List<String> passwordProblems = PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements(String.valueOf(password.getPassword()), requirements);
             if (passwordProblems != null) {
                 String retString = "";
                 for (String problem : passwordProblems) {
