@@ -221,7 +221,7 @@ public class WebServiceSender extends ConnectorClass {
         }
 
         operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(operations.toArray()));
-        enableOrDisableGenerateEnvelope(operations);
+        generateEnvelope.setEnabled(!isDefaultOperations());
 
         operationComboBox.setSelectedItem(props.getProperty(WebServiceSenderProperties.WEBSERVICE_OPERATION));
 
@@ -328,12 +328,8 @@ public class WebServiceSender extends ConnectorClass {
         return error;
     }
 
-    private void enableOrDisableGenerateEnvelope(List<String> operations) {
-        if ((operations.size() == 1) && operations.get(0).equals(WebServiceSenderProperties.WEBSERVICE_DEFAULT_DROPDOWN)) {
-            generateEnvelope.setEnabled(false);
-        } else {
-            generateEnvelope.setEnabled(true);
-        }
+    private boolean isDefaultOperations() {
+        return (operationComboBox.getItemCount() == 1 && operationComboBox.getItemAt(0).equals(WebServiceSenderProperties.WEBSERVICE_DEFAULT_DROPDOWN));
     }
 
     private boolean isWsdlCached() {
@@ -892,22 +888,22 @@ public class WebServiceSender extends ConnectorClass {
             .addGroup(layout.createSequentialGroup()
                 .addGap(10, 10, 10)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(authenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(invocationTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(portLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(serviceLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(useMtomLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(reconnectIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(queuePollIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(URL1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(wsdlUrlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel36, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(authenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(attachmentsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(soapActionLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(jLabel36, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(reconnectIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(URL1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(soapActionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(portLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(queuePollIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(invocationTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(serviceLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(useMtomLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(wsdlUrlLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -916,6 +912,7 @@ public class WebServiceSender extends ConnectorClass {
                         .addComponent(getOperationsButton))
                     .addComponent(serviceField, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
                     .addComponent(portField, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
+                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
                     .addComponent(soapActionField, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
                     .addComponent(queuePollIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
@@ -939,7 +936,6 @@ public class WebServiceSender extends ConnectorClass {
                                 .addComponent(rotateMessagesCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(64, 64, 64))
-                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(invocationTwoWayRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -971,10 +967,6 @@ public class WebServiceSender extends ConnectorClass {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(portLabel)
                     .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(soapActionField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(soapActionLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(authenticationLabel)
@@ -1017,9 +1009,13 @@ public class WebServiceSender extends ConnectorClass {
                     .addComponent(operationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(generateEnvelope))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(soapActionField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(soapActionLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
-                    .addComponent(jLabel4))
+                    .addComponent(jLabel4)
+                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(useMtomLabel)
@@ -1087,6 +1083,20 @@ private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 }//GEN-LAST:event_deleteButtonActionPerformed
 
 private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getOperationsButtonActionPerformed
+    if (serviceField.getText().length() > 0 || portField.getText().length() > 0 || !isDefaultOperations()) {
+        if (!parent.alertOkCancel(parent, "This will replace your current service, port, and operation list. Press OK to continue.")) {
+            return;
+        }
+    }
+
+    // Reset all of the fields
+    serviceField.setText("");
+    portField.setText("");
+    operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { WebServiceSenderProperties.WEBSERVICE_DEFAULT_DROPDOWN } ));
+    operationComboBox.setSelectedIndex(0);
+    generateEnvelope.setEnabled(false);
+
+    // Get the new operations
     parent.setWorking("Getting operations...", true);
 
     SwingWorker worker = new SwingWorker<Void, Void>() {
@@ -1111,7 +1121,7 @@ private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) 
                 loadedMethods.toArray(methodNames);
 
                 operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
-                enableOrDisableGenerateEnvelope(loadedMethods);
+                generateEnvelope.setEnabled(!isDefaultOperations());
 
                 if (methodNames.length > 0) {
                     operationComboBox.setSelectedIndex(0);
@@ -1179,8 +1189,8 @@ private void useMtomNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GE
 }//GEN-LAST:event_useMtomNoRadioActionPerformed
 
 private void generateEnvelopeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateEnvelopeActionPerformed
-    if (soapEnvelope.getText().length() > 0) {
-        if (!parent.alertOkCancel(parent, "This will replace your current SOAP envelope with a generated envelope. Press OK to continue.")) {
+    if (soapEnvelope.getText().length() > 0 || soapActionField.getText().length() > 0) {
+        if (!parent.alertOkCancel(parent, "This will replace your current SOAP envelope and SOAP action. Press OK to continue.")) {
             return;
         }
     }

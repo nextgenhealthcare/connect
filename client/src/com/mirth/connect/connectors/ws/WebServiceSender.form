@@ -39,22 +39,22 @@
           <Group type="102" attributes="0">
               <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="authenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="invocationTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="portLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="serviceLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="useMtomLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="queuePollIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="URL1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="wsdlUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="URL1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="soapActionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="portLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="queuePollIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="invocationTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="serviceLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="useMtomLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="wsdlUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -65,6 +65,7 @@
                   </Group>
                   <Component id="serviceField" alignment="0" pref="402" max="32767" attributes="2"/>
                   <Component id="portField" alignment="0" pref="402" max="32767" attributes="2"/>
+                  <Component id="soapEnvelope" pref="402" max="32767" attributes="2"/>
                   <Component id="soapActionField" alignment="0" pref="402" max="32767" attributes="2"/>
                   <Component id="queuePollIntervalField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
@@ -93,7 +94,6 @@
                       </Group>
                       <EmptySpace min="-2" pref="64" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="soapEnvelope" pref="402" max="32767" attributes="2"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="invocationTwoWayRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -135,12 +135,7 @@
                   <Component id="portLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="portField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="soapActionField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="soapActionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="authenticationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -190,12 +185,17 @@
                   <Component id="operationComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="generateEnvelope" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="soapEnvelope" alignment="0" pref="98" max="32767" attributes="0"/>
-                  <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="soapActionField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="soapActionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
+                  <Component id="soapEnvelope" pref="98" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="useMtomLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="useMtomYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -211,7 +211,7 @@
                   </Group>
                   <Component id="attachmentsPane" alignment="0" min="-2" pref="90" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
