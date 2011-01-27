@@ -4,17 +4,9 @@
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="keepConnectionOpenGroup">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup1">
-    </Component>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup2">
-    </Component>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup3">
-    </Component>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup4">
-    </Component>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup5">
-    </Component>
     <Component class="javax.swing.ButtonGroup" name="dataTypeButtonGroup">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="ackOnNewConnectionButtonGroup">
     </Component>
   </NonVisualComponents>
   <Properties>
@@ -54,9 +46,15 @@
                   <Component id="ackOnNewConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="ackIPLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="ackPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="keepConnectionOpenLabel" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="keepConnectionOpenYesRadio" min="-2" max="-2" attributes="1"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <Component id="listenerAddressField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
                   <Component id="listenerPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
                   <Component id="receiveTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
@@ -76,7 +74,7 @@
                       <Component id="dataTypeASCII" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="88" max="32767" attributes="0"/>
+              <EmptySpace pref="23" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -101,6 +99,12 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="bufferSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="keepConnectionOpenYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="keepConnectionOpenNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="keepConnectionOpenLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -134,7 +138,7 @@
                   <Component id="ackPortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="ackPortField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="108" max="32767" attributes="0"/>
+              <EmptySpace pref="21" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -217,7 +221,7 @@
           </Border>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup4"/>
+          <ComponentRef name="ackOnNewConnectionButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on.&lt;br&gt;Select Yes to send the response on a new connection.&lt;/html&gt;"/>
@@ -240,7 +244,7 @@
           </Border>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup4"/>
+          <ComponentRef name="ackOnNewConnectionButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on.&lt;br&gt;Select Yes to send the response on a new connection.&lt;/html&gt;"/>
@@ -340,6 +344,51 @@
     <Component class="javax.swing.JLabel" name="dataTypeLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Data Type:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="keepConnectionOpenLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Keep Connection Open:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="keepConnectionOpenYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="keepConnectionOpenGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to close the listening socket after each message is received and the response (if selected) is sent. &lt;br&gt;Select Yes to always keep the socket open unless the sending system closes it.  If Yes is selected, messages &lt;br&gt;will only be processed if data is received and either the receive timeout is reached or the sending system closes &lt;br&gt;the socket. The sending system will also need to use a timeout or delimiter method of processing responses.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="keepConnectionOpenNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="keepConnectionOpenGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to close the listening socket after each message is received and the response (if selected) is sent. &lt;br&gt;Select Yes to always keep the socket open unless the sending system closes it.  If Yes is selected, messages &lt;br&gt;will only be processed if data is received and either the receive timeout is reached or the sending system closes &lt;br&gt;the socket. The sending system will also need to use a timeout or delimiter method of processing responses.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
       </Properties>
     </Component>
   </SubComponents>

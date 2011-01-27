@@ -256,10 +256,24 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
                 while (!socket.isClosed() && !disposing.get()) {
                     byte[] b;
                     try {
-                        b = protocol.read(dataIn);
+                        try {
+                            b = protocol.read(dataIn);
+                        } catch (SocketException e) {
+                            // If there was a socket exception, break and
+                            // dispose the connection whether or not
+                            // keepSendSocketOpen is true.
+                            break;
+                        }
                         // end of stream
                         if (b == null) {
-                            break;
+                            // No message was received, possibly because of a
+                            // timeout. If keepSendSocketOpen is true then
+                            // continue waiting, otherwise break.
+                            if (connector.isKeepSendSocketOpen()) {
+                                continue;
+                            } else {
+                                break;
+                            }
                         } else {
                             monitoringController.updateStatus(connector, connectorType, Event.BUSY, socket);
                             processData(b);
@@ -268,6 +282,8 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
                         }
 
                     } catch (SocketTimeoutException e) {
+                        // getKeepAlive always returns true, since it is set
+                        // manually.
                         if (!socket.getKeepAlive()) {
                             break;
                         }
@@ -326,7 +342,12 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
                                 protocol.write(os, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
                                 os.flush(); // need to flush the stream to
                                             // actually commit the bytes
-                                os.close();
+
+                                // Only close the stream (and socket) if
+                                // keepSendSocketOpen is false.
+                                if (!connector.isKeepSendSocketOpen()) {
+                                    os.close();
+                                }
                             }
                         }
                     }

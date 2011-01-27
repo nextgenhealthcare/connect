@@ -55,6 +55,12 @@ public class TCPListener extends ConnectorClass {
         properties.put(TCPListenerProperties.TCP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
         properties.put(TCPListenerProperties.TCP_BUFFER_SIZE, bufferSizeField.getText());
 
+        if (keepConnectionOpenYesRadio.isSelected()) {
+            properties.put(TCPListenerProperties.TCP_KEEP_CONNECTION_OPEN, UIConstants.YES_OPTION);
+        } else {
+            properties.put(TCPListenerProperties.TCP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
+        }
+
         properties.put(TCPListenerProperties.TCP_RESPONSE_VALUE, (String) responseFromTransformer.getSelectedItem());
 
         // ast:encoding
@@ -84,6 +90,12 @@ public class TCPListener extends ConnectorClass {
         listenerPortField.setText((String) props.get(TCPListenerProperties.TCP_PORT));
         receiveTimeoutField.setText((String) props.get(TCPListenerProperties.TCP_RECEIVE_TIMEOUT));
         bufferSizeField.setText((String) props.get(TCPListenerProperties.TCP_BUFFER_SIZE));
+
+        if (((String) props.get(TCPListenerProperties.TCP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION)) {
+            keepConnectionOpenYesRadio.setSelected(true);
+        } else {
+            keepConnectionOpenNoRadio.setSelected(true);
+        }
 
         boolean enabled = parent.isSaveEnabled();
 
@@ -196,12 +208,8 @@ public class TCPListener extends ConnectorClass {
     private void initComponents() {
 
         keepConnectionOpenGroup = new javax.swing.ButtonGroup();
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        buttonGroup2 = new javax.swing.ButtonGroup();
-        buttonGroup3 = new javax.swing.ButtonGroup();
-        buttonGroup4 = new javax.swing.ButtonGroup();
-        buttonGroup5 = new javax.swing.ButtonGroup();
         dataTypeButtonGroup = new javax.swing.ButtonGroup();
+        ackOnNewConnectionButtonGroup = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -224,6 +232,9 @@ public class TCPListener extends ConnectorClass {
         dataTypeASCII = new com.mirth.connect.client.ui.components.MirthRadioButton();
         dataTypeBinary = new com.mirth.connect.client.ui.components.MirthRadioButton();
         dataTypeLabel = new javax.swing.JLabel();
+        keepConnectionOpenLabel = new javax.swing.JLabel();
+        keepConnectionOpenYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        keepConnectionOpenNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -253,7 +264,7 @@ public class TCPListener extends ConnectorClass {
 
         ackOnNewConnectionYes.setBackground(new java.awt.Color(255, 255, 255));
         ackOnNewConnectionYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(ackOnNewConnectionYes);
+        ackOnNewConnectionButtonGroup.add(ackOnNewConnectionYes);
         ackOnNewConnectionYes.setText("Yes");
         ackOnNewConnectionYes.setToolTipText("<html>Select No to send the message response on the same connection as the inbound message was received on.<br>Select Yes to send the response on a new connection.</html>");
         ackOnNewConnectionYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -265,7 +276,7 @@ public class TCPListener extends ConnectorClass {
 
         ackOnNewConnectionNo.setBackground(new java.awt.Color(255, 255, 255));
         ackOnNewConnectionNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(ackOnNewConnectionNo);
+        ackOnNewConnectionButtonGroup.add(ackOnNewConnectionNo);
         ackOnNewConnectionNo.setText("No");
         ackOnNewConnectionNo.setToolTipText("<html>Select No to send the message response on the same connection as the inbound message was received on.<br>Select Yes to send the response on a new connection.</html>");
         ackOnNewConnectionNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -315,6 +326,22 @@ public class TCPListener extends ConnectorClass {
 
         dataTypeLabel.setText("Data Type:");
 
+        keepConnectionOpenLabel.setText("Keep Connection Open:");
+
+        keepConnectionOpenYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        keepConnectionOpenYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        keepConnectionOpenGroup.add(keepConnectionOpenYesRadio);
+        keepConnectionOpenYesRadio.setText("Yes");
+        keepConnectionOpenYesRadio.setToolTipText("<html>Select No to close the listening socket after each message is received and the response (if selected) is sent. <br>Select Yes to always keep the socket open unless the sending system closes it.  If Yes is selected, messages <br>will only be processed if data is received and either the receive timeout is reached or the sending system closes <br>the socket. The sending system will also need to use a timeout or delimiter method of processing responses.</html>");
+        keepConnectionOpenYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        keepConnectionOpenNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        keepConnectionOpenNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        keepConnectionOpenGroup.add(keepConnectionOpenNoRadio);
+        keepConnectionOpenNoRadio.setText("No");
+        keepConnectionOpenNoRadio.setToolTipText("<html>Select No to close the listening socket after each message is received and the response (if selected) is sent. <br>Select Yes to always keep the socket open unless the sending system closes it.  If Yes is selected, messages <br>will only be processed if data is received and either the receive timeout is reached or the sending system closes <br>the socket. The sending system will also need to use a timeout or delimiter method of processing responses.</html>");
+        keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -331,9 +358,14 @@ public class TCPListener extends ConnectorClass {
                     .addComponent(responseFromLabel)
                     .addComponent(ackOnNewConnectionLabel)
                     .addComponent(ackIPLabel)
-                    .addComponent(ackPortLabel))
+                    .addComponent(ackPortLabel)
+                    .addComponent(keepConnectionOpenLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -350,7 +382,7 @@ public class TCPListener extends ConnectorClass {
                         .addComponent(dataTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dataTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(88, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -370,6 +402,11 @@ public class TCPListener extends ConnectorClass {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(keepConnectionOpenLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(encodingLabel)
@@ -396,7 +433,7 @@ public class TCPListener extends ConnectorClass {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ackPortLabel)
                     .addComponent(ackPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(108, Short.MAX_VALUE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -517,17 +554,13 @@ public class TCPListener extends ConnectorClass {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthTextField ackAddressField;
     private javax.swing.JLabel ackIPLabel;
+    private javax.swing.ButtonGroup ackOnNewConnectionButtonGroup;
     private javax.swing.JLabel ackOnNewConnectionLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton ackOnNewConnectionNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton ackOnNewConnectionYes;
     private com.mirth.connect.client.ui.components.MirthTextField ackPortField;
     private javax.swing.JLabel ackPortLabel;
     private com.mirth.connect.client.ui.components.MirthTextField bufferSizeField;
-    private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.ButtonGroup buttonGroup2;
-    private javax.swing.ButtonGroup buttonGroup3;
-    private javax.swing.ButtonGroup buttonGroup4;
-    private javax.swing.ButtonGroup buttonGroup5;
     private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeASCII;
     private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeBinary;
@@ -539,6 +572,9 @@ public class TCPListener extends ConnectorClass {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
+    private javax.swing.JLabel keepConnectionOpenLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
     private com.mirth.connect.client.ui.components.MirthTextField listenerAddressField;
     private com.mirth.connect.client.ui.components.MirthTextField listenerPortField;
     private com.mirth.connect.client.ui.components.MirthTextField receiveTimeoutField;

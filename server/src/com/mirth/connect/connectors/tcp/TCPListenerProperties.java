@@ -21,6 +21,7 @@ public class TCPListenerProperties implements ComponentProperties {
     public static final String TCP_PORT = "port";
     public static final String TCP_RECEIVE_TIMEOUT = "receiveTimeout";
     public static final String TCP_BUFFER_SIZE = "bufferSize";
+    public static final String TCP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
     public static final String TCP_CHAR_ENCODING = "charEncoding";
     public static final String TCP_ACK_NEW_CONNECTION = "ackOnNewConnection";
     public static final String TCP_ACK_NEW_CONNECTION_IP = "ackIP";
@@ -36,6 +37,7 @@ public class TCPListenerProperties implements ComponentProperties {
         properties.put(TCP_PORT, "6661");
         properties.put(TCP_RECEIVE_TIMEOUT, "5000");
         properties.put(TCP_BUFFER_SIZE, "65536");
+        properties.put(TCP_KEEP_CONNECTION_OPEN, "0");
         properties.put(TCP_ACK_NEW_CONNECTION, "0");
         properties.put(TCP_ACK_NEW_CONNECTION_IP, "");
         properties.put(TCP_ACK_NEW_CONNECTION_PORT, "");

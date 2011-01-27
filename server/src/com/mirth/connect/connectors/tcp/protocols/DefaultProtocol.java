@@ -51,7 +51,8 @@ public class DefaultProtocol implements TcpProtocol {
 			c = myReader.read();
 		} catch (SocketException e) {
 			logger.info("SocketException on read() attempt.  Socket appears to have been closed: " + e.getMessage());
-			return null;
+			// Throw the exception so the socket can always be recycled.
+			throw e;
 		} catch (SocketTimeoutException ste) {
 			logger.info("SocketTimeoutException on read() attempt.  Socket appears to have been closed: " + ste.getMessage());
 			return null;

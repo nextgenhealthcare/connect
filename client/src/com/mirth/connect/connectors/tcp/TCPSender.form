@@ -4,8 +4,6 @@
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="keepConnectionOpenGroup">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup1">
-    </Component>
     <Component class="javax.swing.ButtonGroup" name="usePersistenceQueuesGroup">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="dataTypeButtonGroup">
