@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.lang.StringUtils;
 
 import com.mirth.connect.model.PasswordRequirements;
 
@@ -54,6 +55,7 @@ public class PasswordRequirementsChecker implements Serializable {
             if (instance == null) {
                 instance = new PasswordRequirementsChecker();
             }
+
             return instance;
         }
     }
@@ -68,88 +70,104 @@ public class PasswordRequirementsChecker implements Serializable {
         return passwordRequirements;
     }
 
-    // Determines if password matches criteria
-    // Returns a vector with a description of any conditions not met
-    // or null if the password meets all requirements
+    /**
+     * Determines if password matches criteria. Returns a vector with a
+     * description of any conditions not met or null if the password meets all
+     * requirements.
+     * 
+     * @param plainTextPassword
+     * @param passwordRequirements
+     * @return
+     */
     public List<String> doesPasswordMeetRequirements(String plainTextPassword, PasswordRequirements passwordRequirements) {
-        List<String> responses = new ArrayList<String>();
-        String message = null;
-
-        message = checkMinLower(plainTextPassword, passwordRequirements.getMinLower());
-        if (message != null) {
-            responses.add(message);
-        }
-
-        message = checkMinUpper(plainTextPassword, passwordRequirements.getMinUpper());
-        if (message != null) {
-            responses.add(message);
-        }
-
-        message = checkMinNumeric(plainTextPassword, passwordRequirements.getMinNumeric());
-        if (message != null) {
-            responses.add(message);
-        }
-
-        message = checkMinSpecial(plainTextPassword, passwordRequirements.getMinSpecial());
-        if (message != null) {
-            responses.add(message);
-        }
-
+        List<String> resultList = new ArrayList<String>();
+        addResult(resultList, checkMinLower(plainTextPassword, passwordRequirements.getMinLower()));
+        addResult(resultList, checkMinUpper(plainTextPassword, passwordRequirements.getMinUpper()));
+        addResult(resultList, checkMinNumeric(plainTextPassword, passwordRequirements.getMinNumeric()));
+        addResult(resultList, checkMinSpecial(plainTextPassword, passwordRequirements.getMinSpecial()));
+        
         if (passwordRequirements.getMinLength() > 0) {
-            if (plainTextPassword.length() < passwordRequirements.getMinLength())
-                responses.add(String.format(PASSWORD_IS_TOO_SHORT_MINIMUM_LENGTH, passwordRequirements.getMinLength()));
+            if (plainTextPassword.length() < passwordRequirements.getMinLength()) {
+                addResult(resultList, String.format(PASSWORD_IS_TOO_SHORT_MINIMUM_LENGTH, passwordRequirements.getMinLength()));
+            }
         }
-        if (responses.size() == 0)
+        
+        if (resultList.size() == 0) {
             return null;
-        else
-            return responses;
+        } else {
+            return resultList;
+        }
+    }
+    
+    /**
+     * Adds a check response to the list if it is not null.
+     * 
+     * @param responseList
+     * @param result
+     */
+    private void addResult(List<String> responseList, String result) {
+        if (StringUtils.isNotBlank(result)) {
+            responseList.add(result);
+        }
     }
 
     private String checkMinNumeric(String plainTextPassword, int minNumeric) {
-
         if (minNumeric == -1) {
             Pattern pattern = Pattern.compile("[0-9]");
             Matcher matcher = pattern.matcher(plainTextPassword);
-            if (matcher.find())
+            
+            if (matcher.find()) {
                 return PASSWORD_MUST_NOT_CONTAIN_A_NUMERIC_VALUE;
+            }
         } else {
             Pattern pattern = Pattern.compile("[0-9]{" + minNumeric + ",}");
             Matcher matcher = pattern.matcher(plainTextPassword);
-            if (!matcher.find())
+            
+            if (!matcher.find()) {
                 return String.format(PASSWORD_MUST_CONTAIN_A_NUMERIC_VALUE, minNumeric);
+            }
         }
+        
         return null;
     }
 
     private String checkMinUpper(String plainTextPassword, int minUpper) {
-
         if (minUpper == -1) {
             Pattern pattern = Pattern.compile("[A-Z]");
             Matcher matcher = pattern.matcher(plainTextPassword);
-            if (matcher.find())
+            
+            if (matcher.find()) {
                 return PASSWORD_MUST_NOT_CONTAIN_AN_UPPERCASE_LETTER;
+            }
         } else {
             Pattern pattern = Pattern.compile("[A-Z]{" + minUpper + ",}");
             Matcher matcher = pattern.matcher(plainTextPassword);
-            if (!matcher.find())
+            
+            if (!matcher.find()) {
                 return String.format(PASSWORD_MUST_CONTAIN_AN_UPPERCASE_LETTER, minUpper);
+            }
         }
+        
         return null;
     }
 
     private String checkMinLower(String plainTextPassword, int minLower) {
-
         if (minLower == -1) {
             Pattern pattern = Pattern.compile("[a-z]");
             Matcher matcher = pattern.matcher(plainTextPassword);
-            if (matcher.find())
+            
+            if (matcher.find()) {
                 return PASSWORD_MUST_NOT_CONTAIN_A_LOWERCASE_LETTER;
+            }
         } else {
             Pattern pattern = Pattern.compile("[a-z]{" + minLower + ",}");
             Matcher matcher = pattern.matcher(plainTextPassword);
-            if (!matcher.find())
+            
+            if (!matcher.find()) {
                 return String.format(PASSWORD_MUST_CONTAIN_A_LOWERCASE_LETTER, minLower);
+            }
         }
+        
         return null;
     }
 
@@ -157,14 +175,19 @@ public class PasswordRequirementsChecker implements Serializable {
         if (minSpecial == -1) {
             Pattern pattern = Pattern.compile("[!,@,#,$,%,^,&,*,?,_,~,\\+,-,=,\\(,\\),`,\\[,\\],:,;,\",\',/,<,>]");
             Matcher matcher = pattern.matcher(plainTextPassword);
-            if (matcher.find())
+            
+            if (matcher.find()) {
                 return PASSWORD_MUST_NOT_CONTAIN_A_SPECIAL_CHARACTER;
+            }
         } else {
             Pattern pattern = Pattern.compile("[!,@,#,$,%,^,&,*,?,_,~,\\+,-,=,\\(,\\),`,\\[,\\],:,;,\",\',/,<,>]{" + minSpecial + ",}");
             Matcher matcher = pattern.matcher(plainTextPassword);
-            if (!matcher.find())
+            
+            if (!matcher.find()) {
                 return String.format(PASSWORD_MUST_CONTAIN_A_SPECIAL_CHARACTER, minSpecial);
+            }
         }
+        
         return null;
     }
 
