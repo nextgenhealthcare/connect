@@ -22,17 +22,20 @@ import java.util.Map;
 
 import javax.activation.UnsupportedDataTypeException;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mule.umo.UMOEvent;
 
+import com.ibatis.sqlmap.client.SqlMapClient;
+import com.ibatis.sqlmap.client.SqlMapSession;
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.MessageObject.Status;
 import com.mirth.connect.model.Response;
-import com.mirth.connect.model.converters.ObjectCloner;
 import com.mirth.connect.model.filters.MessageObjectFilter;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.util.AttachmentUtil;
@@ -434,8 +437,30 @@ public class DefaultMessageObjectController extends MessageObjectController {
                 // Retry blocks of pruning if they fail in case of deadlocks
                 int retryCount = 0;
                 do {
+                    Connection connection = null;
+                    SqlMapSession session = null;
+                    
                     try {
-                        rowCount = SqlConfig.getSqlMapClient().delete("Message.pruneMessages", parameterMap);
+                        SqlMapClient sqlMapClient = SqlConfig.getSqlMapClient();
+                        // get a connection from the conection pool
+                        connection = sqlMapClient.getDataSource().getConnection();
+                        // open a new session with that connection
+                        session = sqlMapClient.openSession(connection);
+
+                        // start "ionice" if exists
+                        if (DatabaseUtil.statementExists("Message.startPruningTransaction", session)) {
+                            session.update("Message.startPruningTransaction");
+                        }
+                        
+                        // delete the messages
+                        rowCount = session.delete("Message.pruneMessages", parameterMap);
+
+                        // end "ionice" if exists
+                        if (DatabaseUtil.statementExists("Message.endPruningTransaction", session)) {
+                            session.update("Message.endPruningTransaction");
+                        }
+                        
+                        connection.commit();
                         retryCount = 0;
                     } catch (Exception e) {
                         if (retryCount < 10) {
@@ -444,6 +469,9 @@ public class DefaultMessageObjectController extends MessageObjectController {
                         } else {
                             throw e; // Quit trying to prune after 10 failures
                         }
+                    } finally {
+                        session.close();
+                        DbUtils.close(connection);
                     }
                 } while (retryCount > 0);
 
@@ -458,6 +486,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
             // Retry attachment pruning if it fails in case of deadlocks
             int retryCount = 0;
+            
             do {
                 try {
                     SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
@@ -482,7 +511,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
     private void removeMessagesFromQueue(MessageObjectFilter filter) throws Exception {
         String uid = System.currentTimeMillis() + "";
         // clone the filter so that we don't modify the original
-        MessageObjectFilter queueFilter = (MessageObjectFilter) ObjectCloner.deepCopy(filter);
+        MessageObjectFilter queueFilter = (MessageObjectFilter) SerializationUtils.clone(filter);
         queueFilter.setStatus(Status.QUEUED);
         int size = createMessagesTempTable(queueFilter, uid, true);
         int page = 0;
@@ -627,6 +656,14 @@ public class DefaultMessageObjectController extends MessageObjectController {
                                     }
 
                                     message.getContext().put("destinations", destinations);
+                                    
+                                    /* Keep the original filename if reprocessing
+                                     * See MIRTH-1372 for more details
+                                     */
+                                    if (message.getChannelMap().containsKey("originalFilename")) {
+                                        message.getContext().put("originalFilename", MapUtils.getString(message.getChannelMap(), "originalFilename"));    
+                                    }
+                                    
                                     router.routeMessageByChannelId(message.getChannelId(), message, true);
                                 }
                             } catch (Exception e) {

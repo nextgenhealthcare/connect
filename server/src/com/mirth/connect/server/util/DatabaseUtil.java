@@ -24,8 +24,10 @@ import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.ibatis.sqlmap.client.SqlMapException;
+import com.ibatis.sqlmap.client.SqlMapSession;
 import com.ibatis.sqlmap.engine.impl.SqlMapClientImpl;
 import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
+import com.ibatis.sqlmap.engine.impl.SqlMapSessionImpl;
 
 public class DatabaseUtil {
     private static Logger logger = Logger.getLogger(DatabaseUtil.class);
@@ -126,9 +128,34 @@ public class DatabaseUtil {
         }
     }
 
+    /**
+     * Returns true if the statement exists in the SqlMap, false otherwise.
+     * 
+     * @param statement the statement, including the namespace
+     * @return
+     */
     public static boolean statementExists(String statement) {
         try {
             SqlMapExecutorDelegate delegate = ((SqlMapClientImpl) SqlConfig.getSqlMapClient()).getDelegate();
+            delegate.getMappedStatement(statement);
+        } catch (SqlMapException sme) {
+            // The statement does not exist
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns true if the statement exists in the SqlMap, false otherwise.
+     * 
+     * @param statement the statement, including the namespace
+     * @param session the SqlMapSession to use
+     * @return
+     */
+    public static boolean statementExists(String statement, SqlMapSession session) {
+        try {
+            SqlMapExecutorDelegate delegate = ((SqlMapSessionImpl) session).getDelegate();
             delegate.getMappedStatement(statement);
         } catch (SqlMapException sme) {
             // The statement does not exist
