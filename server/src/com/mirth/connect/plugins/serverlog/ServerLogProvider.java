@@ -13,14 +13,14 @@ import java.util.LinkedList;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.SerializationException;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Layout;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
 import com.mirth.connect.model.ExtensionPermission;
-import com.mirth.connect.model.converters.ObjectCloner;
-import com.mirth.connect.model.converters.ObjectClonerException;
 import com.mirth.connect.plugins.ServerPlugin;
 
 public class ServerLogProvider implements ServerPlugin {
@@ -43,8 +43,7 @@ public class ServerLogProvider implements ServerPlugin {
         arrayAppender.setLayout(patternLayout);
         patternLayout.activateOptions();
         Logger.getRootLogger().addAppender(arrayAppender);
-
-        this.lastDisplayedServerLogIdBySessionId = new ConcurrentHashMap<String, Long>();
+        lastDisplayedServerLogIdBySessionId = new ConcurrentHashMap<String, Long>();
     }
 
     public void init(Properties properties) {
@@ -55,6 +54,7 @@ public class ServerLogProvider implements ServerPlugin {
         if (serverLogs.size() == LOG_SIZE) {
             serverLogs.removeLast();
         }
+        
         serverLogs.addFirst(new String[] { String.valueOf(logId), logMessage });
         logId++;
     }
@@ -65,23 +65,13 @@ public class ServerLogProvider implements ServerPlugin {
             // work with deep copied clone of the static server logs object in
             // order to avoid multiple threads ConcurrentModificationException.
             LinkedList<String[]> serverLogsCloned = new LinkedList<String[]>();
-            try {
-                serverLogsCloned = (LinkedList<String[]>) ObjectCloner.deepCopy(serverLogs);
-            } catch (ObjectClonerException oce) {
-                // ignore potential OptionalDataException.
-                // even if the Exception may be thrown, the logs will properly
-                // be retrieved to the Dashboard next time it refreshes (by
-                // default set to every second).
-                // this error is purely relevant to the display only. i.e. the
-                // only time/chance it may occur is when the Mirth Administrator
-                // is open.
-                // this error won't affect the server and any other running
-                // process.
-                // It is also pointless anyway since it'll be impossible to keep
-                // track or view a single specific error, if there are that many
-                // new errors constantly being displayed on the Dashboard.
-            }
 
+            try {
+                serverLogsCloned = (LinkedList<String[]>) SerializationUtils.clone(serverLogs);
+            } catch (SerializationException e) {
+                // ignore
+            }
+            
             if (lastDisplayedServerLogIdBySessionId.containsKey(sessionId)) {
                 // client exist with the sessionId.
                 // -> only display new log entries.
@@ -104,11 +94,10 @@ public class ServerLogProvider implements ServerPlugin {
                 }
 
                 try {
-                    return ObjectCloner.deepCopy(newServerLogEntries);
-                } catch (ObjectClonerException oce) {
-                    logger.error("Error: ServerLogProvider.java", oce);
+                    return SerializationUtils.clone(newServerLogEntries);
+                } catch (SerializationException e) {
+                    logger.error(e);
                 }
-
             } else {
                 // brand new client. i.e. brand new session id, and all log
                 // entries are new.
@@ -120,10 +109,11 @@ public class ServerLogProvider implements ServerPlugin {
                     // very latest logId.
                     lastDisplayedServerLogIdBySessionId.put(sessionId, logId - 1);
                 }
+                
                 try {
-                    return ObjectCloner.deepCopy(serverLogsCloned);
-                } catch (ObjectClonerException oce) {
-                    logger.error("Error: ServerLogProvider.java", oce);
+                    return SerializationUtils.clone(serverLogsCloned);
+                } catch (SerializationException e) {
+                    logger.error(e);
                 }
             }
 
@@ -135,8 +125,10 @@ public class ServerLogProvider implements ServerPlugin {
                 lastDisplayedServerLogIdBySessionId.remove(sessionId);
                 return true; // sessionId found and successfully removed.
             }
+            
             return false; // no sessionId found.
         }
+        
         return null;
     }
 
@@ -163,7 +155,6 @@ public class ServerLogProvider implements ServerPlugin {
     @Override
     public ExtensionPermission[] getExtensionPermissions() {
         ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_NAME, "View Server Log", "Displays the contents of the Server Log on the Dashboard.", new String[] { GET_SERVER_LOGS }, new String[] { });
-        
         return new ExtensionPermission[] { viewPermission };
     }
 }

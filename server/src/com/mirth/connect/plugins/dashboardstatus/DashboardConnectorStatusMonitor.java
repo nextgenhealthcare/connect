@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.SerializationException;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.connectors.doc.DocumentWriterProperties;
@@ -35,8 +37,6 @@ import com.mirth.connect.connectors.ws.WebServiceSenderProperties;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ExtensionPermission;
-import com.mirth.connect.model.converters.ObjectCloner;
-import com.mirth.connect.model.converters.ObjectClonerException;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
@@ -478,11 +478,10 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin {
                     }
 
                     try {
-                        return ObjectCloner.deepCopy(newChannelLogEntries);
-                    } catch (ObjectClonerException oce) {
-                        logger.error("Error: DashboardConnectorStatusMonitor.java", oce);
+                        return SerializationUtils.clone(newChannelLogEntries);
+                    } catch (SerializationException e) {
+                        logger.error(e);
                     }
-
                 } else {
                     /*
                      * new channel viewing on an already open client. -> all log
@@ -497,9 +496,9 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin {
                     }
 
                     try {
-                        return ObjectCloner.deepCopy(channelLog);
-                    } catch (ObjectClonerException oce) {
-                        logger.error("Error: DashboardConnectorStatusMonitor.java", oce);
+                        return SerializationUtils.clone(channelLog);
+                    } catch (SerializationException e) {
+                        logger.error(e);
                     }
                 }
 
@@ -518,11 +517,11 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin {
                 }
 
                 lastDisplayedLogIndexBySessionId.put(sessionId, lastDisplayedLogIdByChannel);
-
+                
                 try {
-                    return ObjectCloner.deepCopy(channelLog);
-                } catch (ObjectClonerException oce) {
-                    logger.error("Error: DashboardConnectorStatusMonitor.java", oce);
+                    return SerializationUtils.clone(channelLog);
+                } catch (SerializationException e) {
+                    logger.error(e);
                 }
             }
 
