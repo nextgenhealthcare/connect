@@ -37,6 +37,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private ConnectorType connectorType = ConnectorType.WRITER;
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     public FileMessageDispatcher(FileConnector connector) {
         super(connector);
@@ -45,19 +46,19 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
     }
 
     public void doDispatch(UMOEvent event) throws Exception {
-
         monitoringController.updateStatus(connector, connectorType, Event.BUSY);
-        TemplateValueReplacer replacer = new TemplateValueReplacer();
-
         MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+        
         if (messageObject == null) {
             return;
         }
 
-        FileSystemConnection con = null;
+        FileSystemConnection fileSystemConnection = null;
         UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
+        
         try {
             String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
+            
             if (filename == null) {
                 String pattern = (String) event.getProperty(FileConnector.PROPERTY_OUTPUT_PATTERN);
 
@@ -76,19 +77,16 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
             String path = generateFilename(event, connector.getPathPart(uri), messageObject);
             String template = replacer.replaceValues(connector.getTemplate(), messageObject);
 
-            // ast: change the output method to allow encoding election
-            // if (connector.isOutputAppend())
-            // template+=System.getProperty("line.separator");
-            // don't automatically include line break
             byte[] buffer = null;
+            
             if (connector.isBinary()) {
                 buffer = new Base64().decode(template.getBytes());
             } else {
                 buffer = template.getBytes(connector.getCharsetEncoding());
             }
-            // logger.info("Writing file to: " + file.getAbsolutePath());
-            con = connector.getConnection(uri, messageObject);
-            con.writeFile(filename, path, connector.isOutputAppend(), buffer);
+            
+            fileSystemConnection = connector.getConnection(uri, messageObject);
+            fileSystemConnection.writeFile(filename, path, connector.isOutputAppend(), buffer);
 
             // update the message status to sent
             messageObjectController.setSuccess(messageObject, "File successfully written: " + filename, null);
@@ -97,9 +95,10 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
             messageObjectController.setError(messageObject, Constants.ERROR_403, "Error writing file", e, null);
             connector.handleException(e);
         } finally {
-            if (con != null) {
-                connector.releaseConnection(uri, con, messageObject);
+            if (fileSystemConnection != null) {
+                connector.releaseConnection(uri, fileSystemConnection, messageObject);
             }
+            
             monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
     }
@@ -134,7 +133,9 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
         return null;
     }
 
-    public void doDispose() {}
+    public void doDispose() {
+        
+    }
 
     private String generateFilename(UMOEvent event, String pattern, MessageObject messageObject) {
         if (connector.getFilenameParser() instanceof VariableFilenameParser) {

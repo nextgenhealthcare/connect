@@ -14,11 +14,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.log4j.Logger;
@@ -50,6 +52,8 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     // These are properties that can be overridden on the Receiver by the
     // endpoint
     // declarations
+    private static final String DEFAULT_ENCODING = "DEFAULT_ENCODING";
+
     public static final String PROPERTY_POLLING_TYPE = "pollingType";
     public static final String PROPERTY_POLLING_TIME = "pollingTime";
     public static final String PROPERTY_ORIGINAL_FILENAME = "originalFilename";
@@ -515,9 +519,11 @@ public class FileConnector extends AbstractServiceEnabledConnector {
      */
     public void setWriteToDirectory(String dir) throws IOException {
         this.writeToDirectoryName = dir;
+        
         if (writeToDirectoryName != null) {
             File writeToDirectory = Utility.openDirectory((writeToDirectoryName));
-            if (!(writeToDirectory.canRead()) || !writeToDirectory.canWrite()) {
+            
+            if (!writeToDirectory.canRead() || !writeToDirectory.canWrite()) {
                 throw new IOException("Error on initialization, Write To directory does not exist or is not read/write");
             }
         }
@@ -530,8 +536,10 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     public void setSerialiseObjects(boolean serialiseObjects) {
         // set serialisable transformers on the connector if this is set
         if (serialiseObjects) {
-            if (serviceOverrides == null)
+            if (serviceOverrides == null) {
                 serviceOverrides = new Properties();
+            }
+                
             serviceOverrides.setProperty(MuleProperties.CONNECTOR_INBOUND_TRANSFORMER, ByteArrayToSerializable.class.getName());
             serviceOverrides.setProperty(MuleProperties.CONNECTOR_OUTBOUND_TRANSFORMER, SerializableToByteArray.class.getName());
         }
@@ -569,31 +577,29 @@ public class FileConnector extends AbstractServiceEnabledConnector {
         this.sortAttribute = sortAttribute;
     }
 
-    // ast: set the charset Encoding
     public void setCharsetEncoding(String charsetEncoding) {
-        if ((charsetEncoding == null) || (charsetEncoding.equals("")) || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
+        if (StringUtils.isBlank(charsetEncoding) || charsetEncoding.equalsIgnoreCase(DEFAULT_ENCODING)) {
             charsetEncoding = DEFAULT_CHARSET_ENCODING;
         }
         
-        logger.debug("FileConnector: trying to set the encoding to " + charsetEncoding);
+        logger.debug("trying to set the encoding to " + charsetEncoding);
         
         try {
             this.charsetEncoding = charsetEncoding;
         } catch (Exception e) {
             // set the encoding to the default one: this charset can't launch an
             // exception
-            this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
+            this.charsetEncoding = Charset.defaultCharset().name();
             logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
         }
     }
 
-    // ast: get the charset encoding
     public String getCharsetEncoding() {
-        if ((this.charsetEncoding == null) || (this.charsetEncoding.equals("")) || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
-            // Default Charset
+        if (StringUtils.isEmpty(charsetEncoding) || charsetEncoding.equalsIgnoreCase(DEFAULT_ENCODING)) {
             return DEFAULT_CHARSET_ENCODING;
         }
-        return (this.charsetEncoding);
+        
+        return charsetEncoding;
     }
 
     public String getFileFilter() {
