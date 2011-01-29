@@ -30,6 +30,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.commons.lang.SerializationException;
+import org.apache.commons.lang.SerializationUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -52,8 +54,6 @@ import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
-import com.mirth.connect.model.converters.ObjectCloner;
-import com.mirth.connect.model.converters.ObjectClonerException;
 import com.mirth.connect.util.PropertyVerifier;
 
 /** The channel editor panel. Majority of the client application */
@@ -732,7 +732,8 @@ public class ChannelSetup extends javax.swing.JPanel {
             updated = parent.updateChannel(currentChannel, false);
 
             try {
-                currentChannel = (Channel) ObjectCloner.deepCopy(parent.channels.get(currentChannel.getId()));
+                currentChannel = (Channel) SerializationUtils.clone(parent.channels.get(currentChannel.getId()));
+                
                 if (parent.currentContentPage == transformerPane) {
                     if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
                         transformerPane.reload(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer());
@@ -751,7 +752,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 }
                 updateRevision();
                 updateLastModified();
-            } catch (ObjectClonerException e) {
+            } catch (SerializationException e) {
                 parent.alertException(this.parent, e.getStackTrace(), e.getMessage());
             }
         } catch (ClientException e) {
@@ -829,8 +830,8 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         Connector destination = null;
         try {
-            destination = (Connector) ObjectCloner.deepCopy(destinationConnectors.get(destinationTable.getSelectedModelIndex()));
-        } catch (ObjectClonerException e) {
+            destination = (Connector) SerializationUtils.clone(destinationConnectors.get(destinationTable.getSelectedModelIndex()));
+        } catch (SerializationException e) {
             parent.alertException(this.parent, e.getStackTrace(), e.getMessage());
             return;
         }

@@ -56,6 +56,8 @@ import javax.swing.SwingWorker;
 import javax.swing.border.LineBorder;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.SerializationException;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXFrame;
 import org.jdesktop.swingx.JXHyperlink;
@@ -94,8 +96,6 @@ import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.UpdateInfo;
 import com.mirth.connect.model.User;
-import com.mirth.connect.model.converters.ObjectCloner;
-import com.mirth.connect.model.converters.ObjectClonerException;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageObjectFilter;
 import com.mirth.connect.model.util.ImportConverter;
@@ -1788,9 +1788,9 @@ public class Frame extends JXFrame {
                 Channel channel = selectedChannels.get(0);
 
                 if (checkInstalledConnectors(channel)) {
-                    editChannel((Channel) ObjectCloner.deepCopy(channel));
+                    editChannel((Channel) SerializationUtils.clone(channel));
                 }
-            } catch (ObjectClonerException e) {
+            } catch (SerializationException e) {
                 alertException(this, e.getStackTrace(), e.getMessage());
             }
         }
@@ -3127,8 +3127,8 @@ public class Frame extends JXFrame {
 
         Channel channel = null;
         try {
-            channel = (Channel) ObjectCloner.deepCopy(selectedChannels.get(0));
-        } catch (ObjectClonerException e) {
+            channel = (Channel) SerializationUtils.clone(selectedChannels.get(0));
+        } catch (SerializationException e) {
             alertException(this, e.getStackTrace(), e.getMessage());
             return;
         }
