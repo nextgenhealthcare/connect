@@ -208,8 +208,10 @@ public class Mirth extends Thread {
         // disable the velocity logging
         Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
         
-        startEngine();
+        // Start web server before starting the engine in case there is a 
+        // problem starting the engine that causes it to hang
         startWebServer();
+        startEngine();
         printSplashScreen();
     }
 
