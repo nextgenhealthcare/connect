@@ -39,8 +39,8 @@ public class DefaultAuthorizationController extends AuthorizationController {
     }
 
     @Override
-    public boolean isUserAuthorizedForExtension(Integer userId, String extensionName, String operation, Map<String, Object> parameterMap, String address) throws ControllerException {
-        auditAuthorizationRequest(userId, extensionName + "#" + operation, parameterMap, Event.Outcome.SUCCESS, address);
+    public boolean isUserAuthorizedForExtension(Integer userId, String extensionName, String operationName, Map<String, Object> parameterMap, String address) throws ControllerException {
+        auditAuthorizationRequest(userId, extensionName + "#" + operationName, parameterMap, Event.Outcome.SUCCESS, address);
         return true;
     }
 

@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -39,7 +40,7 @@ public class AlertServlet extends MirthServlet {
                 AlertController alertController = ControllerFactory.getFactory().createAlertController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 PrintWriter out = response.getWriter();
-                String operation = request.getParameter("op");
+                Operation operation = Operations.getOperation(request.getParameter("op"));
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
 
                 if (operation.equals(Operations.ALERT_GET)) {

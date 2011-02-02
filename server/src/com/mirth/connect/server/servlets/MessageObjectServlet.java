@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.MessageObject;
@@ -42,7 +43,7 @@ public class MessageObjectServlet extends MirthServlet {
                 MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 PrintWriter out = response.getWriter();
-                String operation = request.getParameter("op");
+                Operation operation = Operations.getOperation(request.getParameter("op"));
                 String uid = null;
                 boolean useNewTempTable = false;
                 Map<String, Object> parameterMap = new HashMap<String, Object>();

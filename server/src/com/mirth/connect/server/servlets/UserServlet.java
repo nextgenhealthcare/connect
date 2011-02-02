@@ -22,6 +22,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -42,7 +43,7 @@ public class UserServlet extends MirthServlet {
         UserController userController = ControllerFactory.getFactory().createUserController();
         EventController eventController = ControllerFactory.getFactory().createEventController();
         PrintWriter out = response.getWriter();
-        String operation = request.getParameter("op");
+        Operation operation = Operations.getOperation(request.getParameter("op"));
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
         if (operation.equals(Operations.USER_LOGIN)) {

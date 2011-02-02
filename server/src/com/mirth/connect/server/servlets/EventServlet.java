@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
@@ -39,7 +40,7 @@ public class EventServlet extends MirthServlet {
                 EventController eventController = ControllerFactory.getFactory().createEventController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 PrintWriter out = response.getWriter();
-                String operation = request.getParameter("op");
+                Operation operation = Operations.getOperation(request.getParameter("op"));
                 String uid = null;
                 boolean useNewTempTable = false;
                 Map<String, Object> parameterMap = new HashMap<String, Object>();

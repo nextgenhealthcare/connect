@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -40,7 +41,7 @@ public class ChannelStatusServlet extends MirthServlet {
                 ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 PrintWriter out = response.getWriter();
-                String operation = request.getParameter("op");
+                Operation operation = Operations.getOperation(request.getParameter("op"));
                 String channelId = request.getParameter("id");
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
                 parameterMap.put("channelId", channelId);

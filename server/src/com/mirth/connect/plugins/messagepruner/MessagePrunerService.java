@@ -295,8 +295,8 @@ public class MessagePrunerService implements ServerPlugin, Job {
 
     @Override
     public ExtensionPermission[] getExtensionPermissions() {
-        ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_NAME, "View Settings", "Displays the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_GET, GET_LOG }, new String[] { TaskConstants.SETTINGS_REFRESH });
-        ExtensionPermission savePermission = new ExtensionPermission(PLUGIN_NAME, "Save Settings", "Allows changing the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_SET }, new String[] { TaskConstants.SETTINGS_SAVE });
+        ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_NAME, "View Settings", "Displays the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_GET.getName(), GET_LOG }, new String[] { TaskConstants.SETTINGS_REFRESH });
+        ExtensionPermission savePermission = new ExtensionPermission(PLUGIN_NAME, "Save Settings", "Allows changing the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_SET.getName() }, new String[] { TaskConstants.SETTINGS_SAVE });
         
         return new ExtensionPermission[] { viewPermission, savePermission };
     }

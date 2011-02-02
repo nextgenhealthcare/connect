@@ -27,6 +27,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.ExtensionLibrary;
@@ -48,7 +49,7 @@ public class ExtensionServlet extends MirthServlet {
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 PrintWriter out = response.getWriter();
                 FileItem multiPartFileItem = null;
-                String operation = null;
+                Operation operation = null;
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
                 
                 if (ServletFileUpload.isMultipartContent(request)) {
@@ -74,15 +75,15 @@ public class ExtensionServlet extends MirthServlet {
                         }
                     }
 
-                    operation = multipartParameters.get("op");
+                    operation = Operations.getOperation(multipartParameters.get("op"));
                 } else {
-                    operation = request.getParameter("op");
+                    operation = Operations.getOperation(request.getParameter("op"));
                 }
 
                 if (operation.equals(Operations.PLUGIN_PROPERTIES_GET)) {
                     String pluginName = request.getParameter("name");
 
-                    if (isUserAuthorizedForExtension(request, pluginName, operation, null)) {
+                    if (isUserAuthorizedForExtension(request, pluginName, operation.getName(), null)) {
                         response.setContentType("application/xml");
                         out.println(serializer.toXML(extensionController.getPluginProperties(pluginName)));
                     } else {
@@ -91,7 +92,7 @@ public class ExtensionServlet extends MirthServlet {
                 } else if (operation.equals(Operations.PLUGIN_PROPERTIES_SET)) {
                     String pluginName = request.getParameter("name");
 
-                    if (isUserAuthorizedForExtension(request, pluginName, operation, null)) {
+                    if (isUserAuthorizedForExtension(request, pluginName, operation.getName(), null)) {
                         Properties properties = (Properties) serializer.fromXML(request.getParameter("properties"));
                         extensionController.setPluginProperties(pluginName, properties);
                         extensionController.updatePluginProperties(pluginName, properties);

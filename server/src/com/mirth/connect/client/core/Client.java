@@ -110,7 +110,7 @@ public class Client {
      */
     public synchronized boolean login(String username, String password, String version) throws ClientException {
         logger.debug("attempting to login user: username=" + username);
-        NameValuePair[] params = { new NameValuePair("op", Operations.USER_LOGIN), new NameValuePair("username", username), new NameValuePair("password", password), new NameValuePair("version", version) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.USER_LOGIN.getName()), new NameValuePair("username", username), new NameValuePair("password", password), new NameValuePair("version", version) };
         return Boolean.valueOf(serverConnection.executePostMethod(USER_SERVLET, params)).booleanValue();
     }
 
@@ -121,7 +121,7 @@ public class Client {
      */
     public synchronized void logout() throws ClientException {
         logger.debug("logging out");
-        NameValuePair[] params = { new NameValuePair("op", Operations.USER_LOGOUT) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.USER_LOGOUT.getName()) };
         serverConnection.executePostMethod(USER_SERVLET, params);
     }
 
@@ -133,7 +133,7 @@ public class Client {
      */
     public String getServerId() throws ClientException {
         logger.debug("retrieving server's id");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_ID_GET) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_ID_GET.getName()) };
         return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 
@@ -145,7 +145,7 @@ public class Client {
      */
     public String getServerTimezone() throws ClientException {
         logger.debug("retrieving server's timezone");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_TIMEZONE_GET) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_TIMEZONE_GET.getName()) };
         return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 
@@ -158,7 +158,7 @@ public class Client {
      */
     public ServerConfiguration getServerConfiguration() throws ClientException {
         logger.debug("getting server configuration");
-        NameValuePair[] params = { new NameValuePair("op", Operations.SERVER_CONFIGURATION_GET) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.SERVER_CONFIGURATION_GET.getName()) };
         return (ServerConfiguration) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
     }
 
@@ -171,7 +171,7 @@ public class Client {
      */
     public synchronized void setServerConfiguration(ServerConfiguration serverConfiguration) throws ClientException {
         logger.debug("setting server configuration");
-        NameValuePair[] params = { new NameValuePair("op", Operations.SERVER_CONFIGURATION_SET), new NameValuePair("data", serializer.toXML(serverConfiguration)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.SERVER_CONFIGURATION_SET.getName()), new NameValuePair("data", serializer.toXML(serverConfiguration)) };
         serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 
@@ -183,13 +183,13 @@ public class Client {
      */
     public List<Channel> getChannel(Channel channel) throws ClientException {
         logger.debug("getting channel");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET), new NameValuePair("channel", serializer.toXML(channel)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET.getName()), new NameValuePair("channel", serializer.toXML(channel)) };
         return (List<Channel>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_SERVLET, params));
     }
 
     public List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ClientException {
         logger.debug("getting channel summary");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_SUMMARY), new NameValuePair("cachedChannels", serializer.toXML(cachedChannels)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_SUMMARY.getName()), new NameValuePair("cachedChannels", serializer.toXML(cachedChannels)) };
         return (List<ChannelSummary>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_SERVLET, params));
     }
 
@@ -201,7 +201,7 @@ public class Client {
      */
     public synchronized boolean updateChannel(Channel channel, boolean override) throws ClientException {
         logger.debug("updating channel: channelId=" + channel.getId() + ", override=" + override);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_UPDATE), new NameValuePair("channel", serializer.toXML(channel)), new NameValuePair("override", new Boolean(override).toString()) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_UPDATE.getName()), new NameValuePair("channel", serializer.toXML(channel)), new NameValuePair("override", new Boolean(override).toString()) };
         return Boolean.valueOf(serverConnection.executePostMethod(CHANNEL_SERVLET, params)).booleanValue();
     }
 
@@ -213,7 +213,7 @@ public class Client {
      */
     public synchronized void removeChannel(Channel channel) throws ClientException {
         logger.debug("removing channel: channelId=" + channel.getId());
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_REMOVE), new NameValuePair("channel", serializer.toXML(channel)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_REMOVE.getName()), new NameValuePair("channel", serializer.toXML(channel)) };
         serverConnection.executePostMethod(CHANNEL_SERVLET, params);
     }
 
@@ -225,7 +225,7 @@ public class Client {
      */
     public void installExtension(File file) throws ClientException {
         logger.debug("installing extension");
-        NameValuePair[] params = { new NameValuePair("op", Operations.EXTENSION_INSTALL) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.EXTENSION_INSTALL.getName()) };
         serverConnection.executeFileUpload(EXTENSION_SERVLET, params, file);
     }
 
@@ -237,7 +237,7 @@ public class Client {
      */
     public void uninstallExtension(String packageName) throws ClientException {
         logger.debug("installing extension");
-        NameValuePair[] params = { new NameValuePair("op", Operations.EXTENSION_UNINSTALL), new NameValuePair("packageName", packageName) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.EXTENSION_UNINSTALL.getName()), new NameValuePair("packageName", packageName) };
         serverConnection.executePostMethod(EXTENSION_SERVLET, params);
     }
 
@@ -249,7 +249,7 @@ public class Client {
      */
     public Map<String, ConnectorMetaData> getConnectorMetaData() throws ClientException {
         logger.debug("retrieving connector list");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_METADATA_GET) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_METADATA_GET.getName()) };
         return (Map<String, ConnectorMetaData>) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
     }
 
@@ -261,7 +261,7 @@ public class Client {
      */
     public void setConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ClientException {
         logger.debug("saving connector settings");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_METADATA_SET), new NameValuePair("metaData", serializer.toXML(metaData, new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class })) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_METADATA_SET.getName()), new NameValuePair("metaData", serializer.toXML(metaData, new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class })) };
         serverConnection.executePostMethod(EXTENSION_SERVLET, params);
     }
 
@@ -273,7 +273,7 @@ public class Client {
      */
     public Map<String, PluginMetaData> getPluginMetaData() throws ClientException {
         logger.debug("retrieving plugin list");
-        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_METADATA_GET) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_METADATA_GET.getName()) };
         return (Map<String, PluginMetaData>) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class });
     }
 
@@ -285,7 +285,7 @@ public class Client {
      */
     public void setPluginMetaData(Map<String, PluginMetaData> metaData) throws ClientException {
         logger.debug("saving plugin settings");
-        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_METADATA_SET), new NameValuePair("metaData", serializer.toXML(metaData, new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class })) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_METADATA_SET.getName()), new NameValuePair("metaData", serializer.toXML(metaData, new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class })) };
         serverConnection.executePostMethod(EXTENSION_SERVLET, params);
     }
 
@@ -297,7 +297,7 @@ public class Client {
      */
     public Object invokePluginMethod(String pluginName, String method, Object object) throws ClientException {
         logger.debug("invoking method " + method + " on " + pluginName);
-        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_SERVICE_INVOKE), new NameValuePair("name", pluginName), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_SERVICE_INVOKE.getName()), new NameValuePair("name", pluginName), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
         return serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
     }
 
@@ -309,7 +309,7 @@ public class Client {
      */
     public Object invokeConnectorService(String connectorName, String method, Object object) throws ClientException {
         logger.debug("invoking connector service " + method + " on " + connectorName);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_SERVICE_INVOKE), new NameValuePair("name", connectorName), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_SERVICE_INVOKE.getName()), new NameValuePair("name", connectorName), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
         return serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
     }
 
@@ -323,7 +323,7 @@ public class Client {
     // server is running
     public List<String> getAvailableCharsetEncodings() throws ClientException {
         logger.debug("retrieving the server supported charset encoging list");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_CHARSET_ENCODINGS_GET) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_CHARSET_ENCODINGS_GET.getName()) };
         return (List<String>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
     }
 
@@ -335,7 +335,7 @@ public class Client {
      */
     public List<User> getUser(User user) throws ClientException {
         logger.debug("getting user: " + user);
-        NameValuePair[] params = { new NameValuePair("op", Operations.USER_GET), new NameValuePair("user", serializer.toXML(user)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.USER_GET.getName()), new NameValuePair("user", serializer.toXML(user)) };
         return (List<User>) serializer.fromXML(serverConnection.executePostMethod(USER_SERVLET, params));
     }
 
@@ -347,7 +347,7 @@ public class Client {
      */
     public synchronized void updateUser(User user, String password) throws ClientException {
         logger.debug("updating user: " + user);
-        NameValuePair[] params = { new NameValuePair("op", Operations.USER_UPDATE), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("password", password) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.USER_UPDATE.getName()), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("password", password) };
         serverConnection.executePostMethod(USER_SERVLET, params);
     }
 
@@ -359,7 +359,7 @@ public class Client {
      */
     public synchronized void removeUser(User user) throws ClientException {
         logger.debug("removing user: " + user);
-        NameValuePair[] params = { new NameValuePair("op", Operations.USER_REMOVE), new NameValuePair("user", serializer.toXML(user)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.USER_REMOVE.getName()), new NameValuePair("user", serializer.toXML(user)) };
         serverConnection.executePostMethod(USER_SERVLET, params);
     }
 
@@ -372,7 +372,7 @@ public class Client {
      */
     public boolean authenticateUser(User user, String password) throws ClientException {
         logger.debug("authorizing user: " + user);
-        NameValuePair[] params = { new NameValuePair("op", Operations.USER_AUTHORIZE), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("password", password) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.USER_AUTHORIZE.getName()), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("password", password) };
         return Boolean.valueOf(serverConnection.executePostMethod(USER_SERVLET, params));
     }
 
@@ -384,7 +384,7 @@ public class Client {
      */
     public boolean isUserLoggedIn(User user) throws ClientException {
         logger.debug("checking if user logged in: " + user);
-        NameValuePair[] params = { new NameValuePair("op", Operations.USER_IS_USER_LOGGED_IN), new NameValuePair("user", serializer.toXML(user)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.USER_IS_USER_LOGGED_IN.getName()), new NameValuePair("user", serializer.toXML(user)) };
         return Boolean.valueOf(serverConnection.executePostMethod(USER_SERVLET, params));
     }
 
@@ -396,7 +396,7 @@ public class Client {
      */
     public List<Alert> getAlert(Alert alert) throws ClientException {
         logger.debug("getting alert: " + alert);
-        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_GET), new NameValuePair("alert", serializer.toXML(alert)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_GET.getName()), new NameValuePair("alert", serializer.toXML(alert)) };
         return (List<Alert>) serializer.fromXML(serverConnection.executePostMethod(ALERT_SERVLET, params));
     }
 
@@ -408,7 +408,7 @@ public class Client {
      */
     public synchronized void updateAlerts(List<Alert> alerts) throws ClientException {
         logger.debug("updating alerts: " + alerts);
-        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_UPDATE), new NameValuePair("alerts", serializer.toXML(alerts)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_UPDATE.getName()), new NameValuePair("alerts", serializer.toXML(alerts)) };
         serverConnection.executePostMethod(ALERT_SERVLET, params);
     }
 
@@ -420,7 +420,7 @@ public class Client {
      */
     public synchronized void removeAlert(Alert alert) throws ClientException {
         logger.debug("removing alert: " + alert);
-        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_REMOVE), new NameValuePair("alert", serializer.toXML(alert)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.ALERT_REMOVE.getName()), new NameValuePair("alert", serializer.toXML(alert)) };
         serverConnection.executePostMethod(ALERT_SERVLET, params);
     }
 
@@ -432,7 +432,7 @@ public class Client {
      */
     public List<CodeTemplate> getCodeTemplate(CodeTemplate codeTemplate) throws ClientException {
         logger.debug("getting code template: " + codeTemplate);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CODE_TEMPLATE_GET), new NameValuePair("codeTemplate", serializer.toXML(codeTemplate)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CODE_TEMPLATE_GET.getName()), new NameValuePair("codeTemplate", serializer.toXML(codeTemplate)) };
         return (List<CodeTemplate>) serializer.fromXML(serverConnection.executePostMethod(TEMPLATE_SERVLET, params));
     }
 
@@ -445,7 +445,7 @@ public class Client {
      */
     public synchronized void updateCodeTemplates(List<CodeTemplate> codeTemplates) throws ClientException {
         logger.debug("updating code templates: " + codeTemplates);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CODE_TEMPLATE_UPDATE), new NameValuePair("codeTemplates", serializer.toXML(codeTemplates)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CODE_TEMPLATE_UPDATE.getName()), new NameValuePair("codeTemplates", serializer.toXML(codeTemplates)) };
         serverConnection.executePostMethod(TEMPLATE_SERVLET, params);
     }
 
@@ -457,7 +457,7 @@ public class Client {
      */
     public synchronized void removeCodeTemplate(CodeTemplate codeTemplate) throws ClientException {
         logger.debug("removing code template: " + codeTemplate);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CODE_TEMPLATE_REMOVE), new NameValuePair("codeTemplate", serializer.toXML(codeTemplate)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CODE_TEMPLATE_REMOVE.getName()), new NameValuePair("codeTemplate", serializer.toXML(codeTemplate)) };
         serverConnection.executePostMethod(TEMPLATE_SERVLET, params);
     }
 
@@ -469,7 +469,7 @@ public class Client {
      */
     public Properties getServerProperties() throws ClientException {
         logger.debug("retrieving server properties");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_PROPERTIES_GET) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_PROPERTIES_GET.getName()) };
         return (Properties) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
     }
 
@@ -481,7 +481,7 @@ public class Client {
      */
     public synchronized void setServerProperties(Properties properties) throws ClientException {
         logger.debug("updating server properties");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_PROPERTIES_SET), new NameValuePair("data", serializer.toXML(properties)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_PROPERTIES_SET.getName()), new NameValuePair("data", serializer.toXML(properties)) };
         serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 
@@ -502,7 +502,7 @@ public class Client {
      */
     public synchronized void redeployAllChannels() throws ClientException {
         logger.debug("deploying channels");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_REDEPLOY) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_REDEPLOY.getName()) };
         serverConnection.executePostMethod(ENGINE_SERVLET, params);
     }
 
@@ -513,7 +513,7 @@ public class Client {
      */
     public synchronized void deployChannels(List<Channel> channels) throws ClientException {
         logger.debug("deploying channels");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_DEPLOY), new NameValuePair("channels", serializer.toXML(channels)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_DEPLOY.getName()), new NameValuePair("channels", serializer.toXML(channels)) };
         serverConnection.executePostMethod(ENGINE_SERVLET, params);
     }
 
@@ -524,7 +524,7 @@ public class Client {
      */
     public synchronized void undeployChannels(List<String> channelIds) throws ClientException {
         logger.debug("undeploying channels");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_UNDEPLOY), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_UNDEPLOY.getName()), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
         serverConnection.executePostMethod(ENGINE_SERVLET, params);
     }
 
@@ -536,7 +536,7 @@ public class Client {
      */
     public synchronized void startChannel(String channelId) throws ClientException {
         logger.debug("starting channel: channelId=" + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_START), new NameValuePair("id", channelId) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_START.getName()), new NameValuePair("id", channelId) };
         serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);
     }
 
@@ -548,7 +548,7 @@ public class Client {
      */
     public synchronized void stopChannel(String channelId) throws ClientException {
         logger.debug("stopping channel: channelId=" + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STOP), new NameValuePair("id", channelId) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STOP.getName()), new NameValuePair("id", channelId) };
         serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);
     }
 
@@ -560,7 +560,7 @@ public class Client {
      */
     public synchronized void pauseChannel(String channelId) throws ClientException {
         logger.debug("pausing channel: channelId=" + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_PAUSE), new NameValuePair("id", channelId) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_PAUSE.getName()), new NameValuePair("id", channelId) };
         serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);
     }
 
@@ -572,7 +572,7 @@ public class Client {
      */
     public synchronized void resumeChannel(String channelId) throws ClientException {
         logger.debug("resuming channel: channelId=" + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_RESUME), new NameValuePair("id", channelId) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_RESUME.getName()), new NameValuePair("id", channelId) };
         serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);
     }
 
@@ -584,7 +584,7 @@ public class Client {
      */
     public ChannelStatistics getStatistics(String channelId) throws ClientException {
         logger.debug("retrieving channel statistics: channelId=" + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STATS_GET), new NameValuePair("id", channelId) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STATS_GET.getName()), new NameValuePair("id", channelId) };
         return (ChannelStatistics) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params));
     }
 
@@ -596,31 +596,31 @@ public class Client {
      */
     public void clearStatistics(String channelId, boolean received, boolean filtered, boolean queued, boolean sent, boolean error, boolean alerted) throws ClientException {
         logger.debug("clearing channel statistics: channelId=" + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STATS_CLEAR), new NameValuePair("id", channelId), new NameValuePair("deleteReceived", new Boolean(received).toString()), new NameValuePair("deleteFiltered", new Boolean(filtered).toString()), new NameValuePair("deleteQueued", new Boolean(queued).toString()), new NameValuePair("deleteSent", new Boolean(sent).toString()), new NameValuePair("deleteErrored", new Boolean(error).toString()), new NameValuePair("deleteAlerted", new Boolean(alerted).toString()) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STATS_CLEAR.getName()), new NameValuePair("id", channelId), new NameValuePair("deleteReceived", new Boolean(received).toString()), new NameValuePair("deleteFiltered", new Boolean(filtered).toString()), new NameValuePair("deleteQueued", new Boolean(queued).toString()), new NameValuePair("deleteSent", new Boolean(sent).toString()), new NameValuePair("deleteErrored", new Boolean(error).toString()), new NameValuePair("deleteAlerted", new Boolean(alerted).toString()) };
         serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params);
     }
 
     public void removeAllEvents() throws ClientException {
         logger.debug("removing all events");
-        NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_REMOVE_ALL) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_REMOVE_ALL.getName()) };
         serverConnection.executePostMethod(EVENT_SERVLET, params);
     }
 
     public void removeMessages(MessageObjectFilter filter) throws ClientException {
         logger.debug("removing messages");
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_REMOVE), new NameValuePair("filter", serializer.toXML(filter)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_REMOVE.getName()), new NameValuePair("filter", serializer.toXML(filter)) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
     public void reprocessMessages(MessageObjectFilter filter, boolean replace, List<String> destinations) throws ClientException {
         logger.debug("reprocessing messages");
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_REPROCESS), new NameValuePair("filter", serializer.toXML(filter)), new NameValuePair("replace", String.valueOf(replace)), new NameValuePair("destinations", serializer.toXML(destinations)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_REPROCESS.getName()), new NameValuePair("filter", serializer.toXML(filter)), new NameValuePair("replace", String.valueOf(replace)), new NameValuePair("destinations", serializer.toXML(destinations)) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
     public void processMessage(MessageObject message) throws ClientException {
         logger.debug("processing message");
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_PROCESS), new NameValuePair("message", serializer.toXML(message)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_PROCESS.getName()), new NameValuePair("message", serializer.toXML(message)) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
@@ -675,7 +675,7 @@ public class Client {
 
     private void importMessage(MessageObject message) throws ClientException {
         logger.debug("importing message");
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_IMPORT), new NameValuePair("message", serializer.toXML(message)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_IMPORT.getName()), new NameValuePair("message", serializer.toXML(message)) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
@@ -752,13 +752,13 @@ public class Client {
 
     public Map<String, String> getGlobalScripts() throws ClientException {
         logger.debug("getting global scripts");
-        NameValuePair[] params = { new NameValuePair("op", Operations.GLOBAL_SCRIPT_GET) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.GLOBAL_SCRIPT_GET.getName()) };
         return (Map<String, String>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
     }
 
     public void setGlobalScripts(Map<String, String> scripts) throws ClientException {
         logger.debug("setting global scripts");
-        NameValuePair[] params = { new NameValuePair("op", Operations.GLOBAL_SCRIPT_SET), new NameValuePair("scripts", serializer.toXML(scripts)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.GLOBAL_SCRIPT_SET.getName()), new NameValuePair("scripts", serializer.toXML(scripts)) };
         serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 
@@ -770,7 +770,7 @@ public class Client {
      */
     public Properties getPluginProperties(String pluginName) throws ClientException {
         logger.debug("getting " + pluginName + " properties");
-        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_PROPERTIES_GET), new NameValuePair("name", pluginName) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_PROPERTIES_GET.getName()), new NameValuePair("name", pluginName) };
         return (Properties) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
     }
 
@@ -782,7 +782,7 @@ public class Client {
      */
     public void setPluginProperties(String pluginName, Properties properties) throws ClientException {
         logger.debug("setting " + pluginName + " properties");
-        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_PROPERTIES_SET), new NameValuePair("name", pluginName), new NameValuePair("properties", serializer.toXML(properties)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_PROPERTIES_SET.getName()), new NameValuePair("name", pluginName), new NameValuePair("properties", serializer.toXML(properties)) };
         serverConnection.executePostMethod(EXTENSION_SERVLET, params);
     }
 
@@ -794,7 +794,7 @@ public class Client {
      */
     public boolean isExtensionEnabled(String extensionName) throws ClientException {
         logger.debug("checking if " + extensionName + " is installed/enabled");
-        NameValuePair[] params = { new NameValuePair("op", Operations.EXTENSION_IS_ENABLED), new NameValuePair("name", extensionName) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.EXTENSION_IS_ENABLED.getName()), new NameValuePair("name", extensionName) };
         return Boolean.valueOf(serverConnection.executePostMethod(EXTENSION_SERVLET, params)).booleanValue();
     }
 
@@ -806,7 +806,7 @@ public class Client {
      */
     public void clearMessages(String channelId) throws ClientException {
         logger.debug("clearing messages: " + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_CLEAR), new NameValuePair("data", channelId) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_CLEAR.getName()), new NameValuePair("data", channelId) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
@@ -826,7 +826,7 @@ public class Client {
      */
     public List<ChannelStatus> getChannelStatusList() throws ClientException {
         logger.debug("retrieving channel status list");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_STATUS) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_STATUS.getName()) };
         return (List<ChannelStatus>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params));
     }
 
@@ -838,7 +838,7 @@ public class Client {
      */
     public List<DriverInfo> getDatabaseDrivers() throws ClientException {
         logger.debug("retrieving database driver list");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_DATABASE_DRIVERS_GET) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_DATABASE_DRIVERS_GET.getName()) };
         return (List<DriverInfo>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
     }
 
@@ -850,7 +850,7 @@ public class Client {
      */
     public String getVersion() throws ClientException {
         logger.debug("retrieving version");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_VERSION_GET) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_VERSION_GET.getName()) };
         return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 
@@ -862,7 +862,7 @@ public class Client {
      */
     public synchronized int getStatus() throws ClientException {
         logger.debug("retrieving status");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_STATUS_GET) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_STATUS_GET.getName()) };
         return Integer.valueOf(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
     }
 
@@ -874,7 +874,7 @@ public class Client {
      */
     public String getBuildDate() throws ClientException {
         logger.debug("retrieving build date");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_BUILD_DATE_GET) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_BUILD_DATE_GET.getName()) };
         return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 
@@ -886,7 +886,7 @@ public class Client {
      */
     public Properties getUserPreferences(User user) throws ClientException {
         logger.debug("retrieving user preferences");
-        NameValuePair[] params = { new NameValuePair("op", Operations.USER_PREFERENCES_GET), new NameValuePair("user", serializer.toXML(user)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.USER_PREFERENCES_GET.getName()), new NameValuePair("user", serializer.toXML(user)) };
         return (Properties) serializer.fromXML(serverConnection.executePostMethod(USER_SERVLET, params));
     }
 
@@ -898,31 +898,31 @@ public class Client {
      */
     public void setUserPreference(User user, String name, String value) throws ClientException {
         logger.debug("setting user preference");
-        NameValuePair[] params = { new NameValuePair("op", Operations.USER_PREFERENCES_SET), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("name", name), new NameValuePair("value", value) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.USER_PREFERENCES_SET.getName()), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("name", name), new NameValuePair("value", value) };
         serverConnection.executePostMethod(USER_SERVLET, params);
     }
 
     public Attachment getAttachment(String attachmentId) throws ClientException {
         logger.debug("getting Attachment: " + attachmentId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET), new NameValuePair("attachmentId", attachmentId) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET.getName()), new NameValuePair("attachmentId", attachmentId) };
         return (Attachment) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET, params));
     }
 
     public List<Attachment> getAttachmentsByMessageId(String messageId) throws ClientException {
         logger.debug("getting Attachments for message: " + messageId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID), new NameValuePair("messageId", messageId) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID.getName()), new NameValuePair("messageId", messageId) };
         return (List<Attachment>) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET, params));
     }
 
     public List<Attachment> getAttachmentIdsByMessageId(String messageId) throws ClientException {
         logger.debug("getting Attachments for message: " + messageId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID), new NameValuePair("messageId", messageId) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID.getName()), new NameValuePair("messageId", messageId) };
         return (List<Attachment>) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET, params));
     }
 
     public String getDICOMMessage(MessageObject message) throws ClientException {
         logger.debug("Getting DICOM message for message: " + message);
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_DICOM_MESSAGE_GET), new NameValuePair("message", serializer.toXML(message)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_DICOM_MESSAGE_GET.getName()), new NameValuePair("message", serializer.toXML(message)) };
         return serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
@@ -931,7 +931,7 @@ public class Client {
     }
 
     public PasswordRequirements getPasswordRequirements() throws ClientException {
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_PASSWORD_REQUIREMENTS_GET) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_PASSWORD_REQUIREMENTS_GET.getName()) };
         return (PasswordRequirements) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
     }
 }

@@ -46,7 +46,6 @@ public abstract class MirthServlet extends HttpServlet {
         } catch (ControllerException e) {
             throw new ServletException(e);
         }
-
     }
 
     protected int getCurrentUserId(HttpServletRequest request) {

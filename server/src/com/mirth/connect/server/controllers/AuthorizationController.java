@@ -14,7 +14,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 
+import com.mirth.connect.client.core.Operation;
+import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Auditable;
 import com.mirth.connect.model.Event;
 import com.mirth.connect.model.Event.Level;
@@ -29,23 +32,45 @@ public abstract class AuthorizationController {
 
     public abstract void addExtensionPermission(ExtensionPermission extensionPermission);
 
-    public void auditAuthorizationRequest(Integer userId, String operation, Map<String, Object> parameterMap, Event.Outcome outcome, String address) {
-        Event event = new Event();
-        event.setLevel(Level.INFORMATION);
-        event.setUserId(userId);
-        event.setEvent(operation);
-        event.setOutcome(outcome);
-        event.setIpAddress(address);
+    public void auditAuthorizationRequest(Integer userId, String operationName, Map<String, Object> parameterMap, Event.Outcome outcome, String address) {
+        Operation operation = null;
+        String extensionName = null;
 
-        if (MapUtils.isNotEmpty(parameterMap)) {
-            for (Entry<String, Object> entry : parameterMap.entrySet()) {
-                StringBuilder builder = new StringBuilder();
-                getAuditDescription(entry.getValue(), builder);
-                event.getAttributes().put(entry.getKey(), builder.toString());
-            }
+        /*
+         * If this is an operation being invoked through an extension, get the
+         * name of the extension
+         */
+        if (StringUtils.contains(operationName, "#")) {
+            operation = Operations.getOperation(StringUtils.split(operationName)[0]);
+            extensionName = StringUtils.split(operationName)[1];
+        } else {
+            operation = Operations.getOperation(operationName);
         }
 
-        eventController.addEvent(event);
+        if ((operation != null) && operation.isAuditable()) {
+            Event event = new Event();
+            event.setLevel(Level.INFORMATION);
+            event.setUserId(userId);
+
+            if (extensionName != null) {
+                event.setEvent(operation.getDisplayName() + " invoked through " + extensionName);
+            } else {
+                event.setEvent(operation.getDisplayName());
+            }
+
+            event.setOutcome(outcome);
+            event.setIpAddress(address);
+
+            if (MapUtils.isNotEmpty(parameterMap)) {
+                for (Entry<String, Object> entry : parameterMap.entrySet()) {
+                    StringBuilder builder = new StringBuilder();
+                    getAuditDescription(entry.getValue(), builder);
+                    event.getAttributes().put(entry.getKey(), builder.toString());
+                }
+            }
+
+            eventController.addEvent(event);
+        }
     }
 
     private void getAuditDescription(Object value, StringBuilder builder) {

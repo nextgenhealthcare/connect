@@ -98,12 +98,12 @@ public class MessageListHandler implements ListHandler {
 	}
 	
 	public void removeFilterTables() throws ClientException {
-		NameValuePair[] params = { new NameValuePair("op", "removeFilterTables"), new NameValuePair("uid", uid) };
+		NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_FILTER_TABLES_REMOVE.getName()), new NameValuePair("uid", uid) };
 		connection.executePostMethod(Client.MESSAGE_SERVLET, params);
 	}
 	
 	private int createMessagesTempTable() throws ListHandlerException {
-		NameValuePair[] params = { new NameValuePair("op", "createMessagesTempTable"), new NameValuePair("filter", serializer.toXML(filter)), new NameValuePair("uid", uid) };
+		NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_CREATE_TEMP_TABLE.getName()), new NameValuePair("filter", serializer.toXML(filter)), new NameValuePair("uid", uid) };
 		
 		try {
 			return Integer.parseInt(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
@@ -113,7 +113,7 @@ public class MessageListHandler implements ListHandler {
 	}
 	
 	private List<MessageObject> getMessagesByPage(int page) throws ListHandlerException {	
-		NameValuePair[] params = { (tempEnabled ? new NameValuePair("op", "getMessagesByPage") : new NameValuePair("op", "getMessagesByPageLimit")), 
+		NameValuePair[] params = { (tempEnabled ? new NameValuePair("op", Operations.MESSAGE_GET_BY_PAGE.getName()) : new NameValuePair("op", Operations.MESSAGE_GET_BY_PAGE_LIMIT.getName())), 
 				new NameValuePair("page", String.valueOf(page)), 
 				new NameValuePair("pageSize", String.valueOf(pageSize)), 
 				new NameValuePair("maxMessages", String.valueOf(size)), 

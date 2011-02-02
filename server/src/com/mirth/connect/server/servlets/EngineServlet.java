@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -37,7 +38,7 @@ public class EngineServlet extends MirthServlet {
             try {
                 EngineController engineController = ControllerFactory.getFactory().createEngineController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                String operation = request.getParameter("op");
+                Operation operation = Operations.getOperation(request.getParameter("op"));
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
                 
                 if (operation.equals(Operations.CHANNEL_REDEPLOY)) {
