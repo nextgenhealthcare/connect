@@ -444,6 +444,8 @@ public class DefaultMessageObjectController extends MessageObjectController {
                         SqlMapClient sqlMapClient = SqlConfig.getSqlMapClient();
                         // get a connection from the conection pool
                         connection = sqlMapClient.getDataSource().getConnection();
+                        // Must set auto commit to false or the commit will fail
+                        connection.setAutoCommit(false);
                         // open a new session with that connection
                         session = sqlMapClient.openSession(connection);
 
