@@ -2220,10 +2220,9 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                statusBar.setStatusText(status.size() + " Deployed Channels");
-                
                 setWorking("", false);
                 if (status != null) {
+                    statusBar.setStatusText(status.size() + " Deployed Channels");
                     dashboardPanel.updateTable(tableData);
                     dashboardPanel.updateCurrentPluginPanel();
                 }
