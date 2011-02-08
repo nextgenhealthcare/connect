@@ -14,10 +14,6 @@ import org.apache.log4j.spi.ErrorCode;
 import org.apache.log4j.spi.LoggingEvent;
 
 
-/**
- * Created by IntelliJ IDEA. User: chrisr Date: Oct 18, 2007 Time: 4:10:46 PM To
- * change this template use File | Settings | File Templates.
- */
 public class ArrayAppender extends AppenderSkeleton {
 	private ServerLogProvider serverLogProvider;
 
