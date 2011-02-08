@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Port;
@@ -90,24 +95,31 @@ public class WebServiceConnectorService implements ConnectorService {
         return null;
     }
 
+    /*
+     * Retrieves the WSDL interface from the specified URL (with optional
+     * credentials). Uses a Future to execute the request in the background and
+     * timeout after 30 seconds if the server could not be contacted.
+     */
     private WsdlInterface getWsdlInterface(URI wsdlUrl, String username, String password) throws Exception {
-        // add the username:password to the URL if using authentication
+        /* add the username:password to the URL if using authentication */
         if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
             String hostWithCredentials = username + ":" + password + "@" + wsdlUrl.getHost();
             wsdlUrl = new URI(wsdlUrl.getScheme(), hostWithCredentials, wsdlUrl.getPath(), wsdlUrl.getQuery(), wsdlUrl.getFragment());
         }
 
-        // make sure we maintain the logging environment
+        // 
         SoapUI.setSoapUICore(new EmbeddedSoapUICore());
-
-        // create a new soapUI project
         WsdlProject wsdlProject = new WsdlProjectFactory().createNew();
-
-        // import the WSDL interface
         WsdlLoader wsdlLoader = new UrlWsdlLoader(wsdlUrl.toURL().toString());
-        WsdlInterface[] wsdlInterfaces = WsdlInterfaceFactory.importWsdl(wsdlProject, wsdlUrl.toURL().toString(), false, wsdlLoader);
 
-        return wsdlInterfaces[0];
+        try {
+            Future<WsdlInterface> future = importWsdlInterface(wsdlProject, wsdlUrl, wsdlLoader);
+            return future.get(30, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            wsdlLoader.abort();
+        }
+
+        return null;
     }
 
     private List<String> getOperations(WsdlInterface wsdlInterface) {
@@ -124,6 +136,17 @@ public class WebServiceConnectorService implements ConnectorService {
         SoapMessageBuilder messageBuilder = wsdlInterface.getMessageBuilder();
         BindingOperation bindingOperation = wsdlInterface.getOperationByName(operationName).getBindingOperation();
         return messageBuilder.buildSoapMessageFromInput(bindingOperation, true);
+    }
+
+    private Future<WsdlInterface> importWsdlInterface(final WsdlProject wsdlProject, final URI newWsdlUrl, final WsdlLoader wsdlLoader) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        return executor.submit(new Callable<WsdlInterface>() {
+            public WsdlInterface call() throws Exception {
+                WsdlInterface[] wsdlInterfaces = WsdlInterfaceFactory.importWsdl(wsdlProject, newWsdlUrl.toURL().toString(), false, wsdlLoader);
+                return wsdlInterfaces[0];
+            }
+        });
     }
 
     /*
