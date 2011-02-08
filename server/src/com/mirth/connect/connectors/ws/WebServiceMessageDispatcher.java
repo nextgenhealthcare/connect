@@ -189,7 +189,14 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
         try {
             processMessage(thePayload.getMessageObject());
         } catch (Exception e) {
-            if (e.getCause().getClass() == ConnectException.class) {
+            /*
+             * If there's an exception getting the dispatch WSDL from the
+             * connector, ConnectException will be the root exception class. If
+             * the dispatch has already been retrieved and then the destination
+             * goes down, ConnectException will be inside of a
+             * ClientTransportException.
+             */
+            if ((e.getClass() == ConnectException.class) || ((e.getCause() != null) && (e.getCause().getClass() == ConnectException.class))) {
                 logger.warn("Can't connect to the queued endpoint: " + channelController.getDeployedChannelById(connector.getChannelId()).getName() + " - " + channelController.getDeployedDestinationName(connector.getName()) + " \r\n'" + e.getMessage());
                 messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_410, "Connection refused", e, null);
                 throw e;
