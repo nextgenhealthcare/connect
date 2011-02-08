@@ -117,9 +117,8 @@ public class WebServiceConnectorService implements ConnectorService {
             return future.get(30, TimeUnit.SECONDS);
         } catch (Exception e) {
             wsdlLoader.abort();
+            throw e;
         }
-
-        return null;
     }
 
     private List<String> getOperations(WsdlInterface wsdlInterface) {
