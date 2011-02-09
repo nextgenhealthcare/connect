@@ -15,19 +15,25 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.mirth.connect.model.CalendarToStringStyle;
 import com.mirth.connect.model.Event.Level;
+import com.mirth.connect.model.Event.Outcome;
 
 /**
  * A EventFilter is used to search the event log.
- * 
- * @author geraldb
- * 
  */
 public class EventFilter {
+    /*
+     * Note that any filter criteria that is an int must be represented using
+     * Integer otherwise it will default to 0 and not pass the isNotNull check
+     * in the SQL mapping.
+     */
     private Integer id;
     private Level level;
     private Calendar startDate;
     private Calendar endDate;
-    private String event;
+    private String name;
+    private Outcome outcome;
+    private Integer userId;
+    private String ipAddress;
 
     public Integer getId() {
         return this.id;
@@ -37,12 +43,12 @@ public class EventFilter {
         this.id = id;
     }
 
-    public String getEvent() {
-        return this.event;
+    public String getName() {
+        return this.name;
     }
 
-    public void setEvent(String event) {
-        this.event = event;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Level getLevel() {
@@ -67,6 +73,30 @@ public class EventFilter {
 
     public void setStartDate(Calendar startDate) {
         this.startDate = startDate;
+    }
+
+    public Outcome getOutcome() {
+        return outcome;
+    }
+
+    public void setOutcome(Outcome outcome) {
+        this.outcome = outcome;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
     }
 
     public String toString() {

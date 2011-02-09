@@ -24,6 +24,11 @@ import com.mirth.connect.model.MessageObject.Status;
  * 
  */
 public class MessageObjectFilter implements Serializable {
+    /*
+     * Note that any filter criteria that is an int must be represented using
+     * Integer otherwise it will default to 0 and not pass the isNotNull check
+     * in the SQL mapping.
+     */
     private String id;
     private String correlationId;
     private String channelId;

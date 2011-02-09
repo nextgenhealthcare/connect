@@ -112,7 +112,7 @@ public class DefaultEventController extends EventController {
         }
 
         parameterMap.put("id", filter.getId());
-        parameterMap.put("event", filter.getEvent());
+        parameterMap.put("name", filter.getName());
         parameterMap.put("level", filter.getLevel());
 
         if (filter.getStartDate() != null) {
@@ -122,6 +122,10 @@ public class DefaultEventController extends EventController {
         if (filter.getEndDate() != null) {
             parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));
         }
+        
+        parameterMap.put("outcome", filter.getOutcome());
+        parameterMap.put("userId", filter.getUserId());
+        parameterMap.put("ipAddress", filter.getIpAddress());
 
         return parameterMap;
     }

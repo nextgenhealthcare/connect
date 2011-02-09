@@ -31,26 +31,21 @@ public class Event implements Serializable {
 
     private int id;
     private Calendar dateTime;
-    private Level level;
-    private String event;
+    private Level level = Level.INFORMATION;
+    private String name;
     private String description;
-    private Map<String, Object> attributes;
+    private Map<String, Object> attributes = new HashMap<String, Object>();
     private String operation;
-    private Outcome outcome;
+    private Outcome outcome = Outcome.SUCCESS;
     private int userId;
     private String ipAddress;
 
     public Event() {
-        this.level = Level.INFORMATION;
-        this.description = new String();
-        this.attributes = new HashMap<String, Object>();
+
     }
 
-    public Event(String event) {
-        this.event = event;
-        this.level = Level.INFORMATION;
-        this.description = new String();
-        this.attributes = new HashMap<String, Object>();
+    public Event(String name) {
+        this.name = name;
     }
 
     public Calendar getDate() {
@@ -93,14 +88,14 @@ public class Event implements Serializable {
         this.attributes = attributes;
     }
 
-    public String getEvent() {
-        return this.event;
+    public String getName() {
+        return this.name;
     }
 
-    public void setEvent(String event) {
-        this.event = event;
+    public void setName(String name) {
+        this.name = name;
     }
-    
+
     public Calendar getDateTime() {
         return dateTime;
     }

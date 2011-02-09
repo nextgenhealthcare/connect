@@ -9,6 +9,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 	<typeHandler javaType="com.mirth.connect.model.MessageObject$Status" callback="com.mirth.connect.server.sqlmap.extensions.MessageStatusTypeHandler" />
 	<typeHandler javaType="com.mirth.connect.model.CodeTemplate$CodeSnippetType" callback="com.mirth.connect.server.sqlmap.extensions.CodeSnippetTypeHandler" />
 	<typeHandler javaType="com.mirth.connect.model.Event$Level" callback="com.mirth.connect.server.sqlmap.extensions.EventLevelTypeHandler" />
+	<typeHandler javaType="com.mirth.connect.model.Event$Outcome" callback="com.mirth.connect.server.sqlmap.extensions.EventOutcomeTypeHandler" />
 	<typeHandler javaType="com.mirth.connect.model.Connector" callback="com.mirth.connect.server.sqlmap.extensions.ConnectorTypeHandler" />
 	<typeHandler javaType="java.util.List" callback="com.mirth.connect.server.sqlmap.extensions.ListTypeHandler" />
 	<typeHandler javaType="java.util.Properties" callback="com.mirth.connect.server.sqlmap.extensions.PropertiesTypeHandler" />

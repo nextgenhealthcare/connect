@@ -53,9 +53,9 @@ public abstract class AuthorizationController {
             event.setUserId(userId);
 
             if (extensionName != null) {
-                event.setEvent(operation.getDisplayName() + " invoked through " + extensionName);
+                event.setName(operation.getDisplayName() + " invoked through " + extensionName);
             } else {
-                event.setEvent(operation.getDisplayName());
+                event.setName(operation.getDisplayName());
             }
 
             event.setOutcome(outcome);
