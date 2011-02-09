@@ -1114,7 +1114,7 @@ public class CommandLineInterface {
 
         StringBuilder builder = new StringBuilder();
         builder.append("Mirth Connect Event Log Dump: " + (new Date()).toString() + "\n");
-        builder.append("Id, Event, Date, Description, Level\n");
+        builder.append("Id, Name, Date, Description, Level\n");
 
         File dumpFile = new File(dumpFilename);
         EventListHandler eventListHandler = client.getEventListHandler(new EventFilter(), 20, false);
@@ -1124,7 +1124,7 @@ public class CommandLineInterface {
 
             while (!events.isEmpty()) {
                 for (Event event : events) {
-                    builder.append(event.getId() + ", " + event.getEvent() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel() + "\n");
+                    builder.append(event.getId() + ", " + event.getName() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel() + "\n");
                 }
 
                 events = eventListHandler.getNextPage();
