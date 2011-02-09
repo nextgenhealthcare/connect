@@ -12,6 +12,7 @@ package com.mirth.connect.client.ui.browsers.event;
 import java.awt.Point;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
 import javax.swing.JOptionPane;
@@ -133,7 +134,7 @@ public class EventBrowser extends javax.swing.JPanel {
                 tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", calendar);
 
                 tableData[i][2] = systemEvent.getLevel().toString();
-                tableData[i][3] = systemEvent.getEvent();
+                tableData[i][3] = systemEvent.getName();
             }
         } else {
             tableData = new Object[0][4];
@@ -349,7 +350,14 @@ public class EventBrowser extends javax.swing.JPanel {
             int row = eventTable.getSelectedModelIndex();
 
             if (row >= 0) {
-                descriptionTextPane.setText(eventList.get(row).getDescription() + "\n" + eventList.get(row).getAttributes());
+                StringBuilder builder = new StringBuilder();
+                builder.append(eventList.get(row).getDescription() + "\n");
+                
+                for (Entry<String, Object> entry : eventList.get(row).getAttributes().entrySet()) {
+                    builder.append(entry.getKey() + " = " + entry.getValue().toString() + "\n");
+                }
+                
+                descriptionTextPane.setText(builder.toString());
                 descriptionTextPane.setCaretPosition(0);
             }
         }
@@ -663,7 +671,7 @@ public class EventBrowser extends javax.swing.JPanel {
         eventFilter = new EventFilter();
 
         if (!eventField.getText().equals("")) {
-            eventFilter.setEvent(eventField.getText());
+            eventFilter.setName(eventField.getText());
         }
 
         if (!((String) levelComboBox.getSelectedItem()).equalsIgnoreCase("ALL")) {
