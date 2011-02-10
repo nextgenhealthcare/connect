@@ -351,7 +351,6 @@ public class EventBrowser extends javax.swing.JPanel {
 
             if (row >= 0) {
                 StringBuilder builder = new StringBuilder();
-                builder.append(eventList.get(row).getDescription() + "\n");
                 
                 for (Entry<String, Object> entry : eventList.get(row).getAttributes().entrySet()) {
                     builder.append(entry.getKey() + " = " + entry.getValue().toString() + "\n");
