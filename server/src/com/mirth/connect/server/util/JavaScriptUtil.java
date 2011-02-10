@@ -259,7 +259,7 @@ public class JavaScriptUtil {
 
         Event event = new Event(error);
         event.setLevel(Event.Level.ERROR);
-        event.setDescription(ExceptionUtils.getStackTrace(e));
+        event.getAttributes().put(Event.ATTR_EXCEPTION, ExceptionUtils.getStackTrace(e));
         eventController.addEvent(event);
         logger.error(error, e);
     }

@@ -33,7 +33,7 @@ public class Operations {
     public static final Operation CHANNEL_STOP = new Operation("stopChannel", "Stop channel", true);
     public static final Operation CHANNEL_PAUSE = new Operation("pauseChannel", "Pause channel", true);
     public static final Operation CHANNEL_RESUME = new Operation("resumeChannel", "Resume channel", true);
-    public static final Operation CHANNEL_GET_STATUS = new Operation("getChannelStatusList", "Get channel status list", true);
+    public static final Operation CHANNEL_GET_STATUS = new Operation("getChannelStatusList", "Get channel status list", false);
 
     // Code Templates
     public static final Operation CODE_TEMPLATE_GET = new Operation("getCodeTemplate", "Get code template", true);
@@ -53,7 +53,7 @@ public class Operations {
     public static final Operation SERVER_CONFIGURATION_GET = new Operation("getServerConfiguration", "Get server configuration", true);
     public static final Operation SERVER_CONFIGURATION_SET = new Operation("setServerConfiguration", "Set server configuration", true);
     public static final Operation CONFIGURATION_SERVER_ID_GET = new Operation("getServerId", "Get server ID", false);
-    public static final Operation CONFIGURATION_SERVER_TIMEZONE_GET = new Operation("getServerTimezone", "Get server timezone", true);
+    public static final Operation CONFIGURATION_SERVER_TIMEZONE_GET = new Operation("getServerTimezone", "Get server timezone", false);
     public static final Operation CONFIGURATION_PASSWORD_REQUIREMENTS_GET = new Operation("getPasswordRequirements", "Get password requirements", true);
     public static final Operation CONFIGURATION_STATUS_GET = new Operation("getStatus", "Get status", true);
 

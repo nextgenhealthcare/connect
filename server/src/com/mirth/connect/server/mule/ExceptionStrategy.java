@@ -51,7 +51,7 @@ public class ExceptionStrategy extends DefaultComponentExceptionStrategy {
 	protected void logException(Throwable t) {
 		EventController eventController = ControllerFactory.getFactory().createEventController();
 		Event event = new Event("Exception occured in channel.");
-		event.setDescription(ExceptionUtils.getStackTrace(t));
+		event.getAttributes().put(Event.ATTR_EXCEPTION, ExceptionUtils.getStackTrace(t));
 		eventController.addEvent(event);
 	}
 }

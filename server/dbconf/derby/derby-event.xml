@@ -9,7 +9,6 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="name" jdbcType="CLOB" />
 		<parameter property="level" jdbcType="VARCHAR" />
 		<parameter property="outcome" jdbcType="VARCHAR" />
-		<parameter property="description" jdbcType="CLOB" />
 		<parameter property="attributes" jdbcType="CLOB" />
 		<parameter property="userId" jdbcType="INTEGER" />
 		<parameter property="ipAddress" jdbcType="VARCHAR" />
@@ -21,7 +20,6 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="level" column="LEVEL"/>
 		<result property="outcome" column="OUTCOME" />
 		<result property="name" column="NAME" />
-		<result property="description" column="DESCRIPTION" />
 		<result property="attributes" column="ATTRIBUTES" />
 		<result property="userId" column="USER_ID" />
 		<result property="ipAddress" column="IP_ADDRESS" />
@@ -104,8 +102,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<insert id="insertEvent" parameterMap="insert-event-param">
 		INSERT INTO
-		EVENT (NAME, LEVEL, OUTCOME, DESCRIPTION, ATTRIBUTES, USER_ID, IP_ADDRESS)
-		VALUES (?, ?, ?, ?, ?, ?, ?)
+		EVENT (NAME, LEVEL, OUTCOME, ATTRIBUTES, USER_ID, IP_ADDRESS)
+		VALUES (?, ?, ?, ?, ?, ?)
 	</insert>
 
 	<delete id="deleteEvent" parameterClass="java.util.Map">

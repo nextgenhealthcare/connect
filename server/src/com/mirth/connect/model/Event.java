@@ -11,7 +11,7 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -21,6 +21,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("event")
 public class Event implements Serializable {
+    public static final String ATTR_EXCEPTION = "Exception";
+    
     public enum Level {
         INFORMATION, WARNING, ERROR
     }
@@ -33,8 +35,7 @@ public class Event implements Serializable {
     private Calendar dateTime;
     private Level level = Level.INFORMATION;
     private String name;
-    private String description;
-    private Map<String, Object> attributes = new HashMap<String, Object>();
+    private Map<String, Object> attributes = new LinkedHashMap<String, Object>();
     private String operation;
     private Outcome outcome = Outcome.SUCCESS;
     private int userId;
@@ -54,14 +55,6 @@ public class Event implements Serializable {
 
     public void setDate(Calendar date) {
         this.dateTime = date;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
-
-    public void setDescription(String event) {
-        this.description = event;
     }
 
     public int getId() {
