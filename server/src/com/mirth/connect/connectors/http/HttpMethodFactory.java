@@ -49,7 +49,7 @@ public class HttpMethodFactory {
                 logger.debug("setting multipart file content");
                 File tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tmp");
                 FileUtils.writeStringToFile(tempFile, content, charset);
-                Part[] parts = new Part[] { new FilePart(tempFile.getName(), tempFile) };
+                Part[] parts = new Part[] { new FilePart(tempFile.getName(), tempFile, contentType, charset) };
                 postMethod.setRequestEntity(new MultipartRequestEntity(parts, postMethod.getParams()));
             } else {
                 postMethod.setRequestEntity(new StringRequestEntity(content, contentType, charset));
