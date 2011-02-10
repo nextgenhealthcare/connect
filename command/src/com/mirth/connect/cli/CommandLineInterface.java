@@ -1124,7 +1124,7 @@ public class CommandLineInterface {
 
             while (!events.isEmpty()) {
                 for (Event event : events) {
-                    builder.append(event.getId() + ", " + event.getName() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel() + "\n");
+                    builder.append(event.getId() + ", " + event.getName() + ", " + formatDate(event.getDate()) + ", " + event.getLevel() + "\n");
                 }
 
                 events = eventListHandler.getNextPage();
