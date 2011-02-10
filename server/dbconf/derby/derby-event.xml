@@ -16,7 +16,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<resultMap class="com.mirth.connect.model.Event" id="get-event-result">
 		<result property="id" column="ID" />
-		<result property="date" column="DATE_CREATED" />
+		<result property="dateTime" column="DATE_CREATED" />
 		<result property="level" column="LEVEL"/>
 		<result property="outcome" column="OUTCOME" />
 		<result property="name" column="NAME" />
