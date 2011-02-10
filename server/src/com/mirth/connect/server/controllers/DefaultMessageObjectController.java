@@ -511,7 +511,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
     }
 
     private void removeMessagesFromQueue(MessageObjectFilter filter) throws Exception {
-        String uid = System.currentTimeMillis() + "";
+        String uid = String.valueOf(System.currentTimeMillis());
         // clone the filter so that we don't modify the original
         MessageObjectFilter queueFilter = (MessageObjectFilter) SerializationUtils.clone(filter);
         queueFilter.setStatus(Status.QUEUED);

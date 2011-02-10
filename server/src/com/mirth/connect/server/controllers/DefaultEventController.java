@@ -9,6 +9,9 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -18,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Event;
@@ -43,7 +47,7 @@ public class DefaultEventController extends EventController {
         }
     }
 
-    public void removeAllEventFilterTables() {
+    public void removeAllFilterTables() {
         Connection conn = null;
         ResultSet resultSet = null;
 
@@ -69,7 +73,7 @@ public class DefaultEventController extends EventController {
                 // Get the table name
                 String tableName = resultSet.getString(3);
                 // Get the uid and remove its filter tables/indexes/sequences
-                removeEventFilterTable(tableName.substring(8));
+                removeFilterTable(tableName.substring(8));
                 resultFound = resultSet.next();
             }
         } catch (SQLException e) {
@@ -100,7 +104,46 @@ public class DefaultEventController extends EventController {
                 SqlConfig.getSqlMapClient().update("Event.vacuumEventTable");
             }
         } catch (SQLException e) {
-            throw new ControllerException(e);
+            throw new ControllerException("Error removing all events.", e);
+        }
+    }
+    
+    public String exportAndRemoveAllEvents() throws ControllerException {
+        try {
+            String uid = String.valueOf(System.currentTimeMillis());
+            String appDataDir = ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir();
+            File exportFile = new File(new File(appDataDir, "exports"), uid + "-events.txt");
+            FileWriter writer = new FileWriter(exportFile, true);
+            
+            // write the CSV headers to the file
+            writer.write(Event.getExportHeader());
+
+            EventFilter filter = new EventFilter();
+            int size = createTempTable(filter, uid, true);
+            int page = 0;
+            int interval = 10;
+
+            while ((page * interval) < size) {
+                for (Event event : getEventsByPage(page, interval, size, uid)) {
+                    writer.write(event.toExportString());
+                }
+
+                page++;
+            }
+
+            IOUtils.closeQuietly(writer);
+            logger.debug("events exported to file: " + exportFile.getAbsolutePath());
+            removeFilterTable(uid);
+            
+            // remove all the events after exporting them
+            removeAllEvents();
+            
+            // return the path to the export file
+            return exportFile.getAbsolutePath();
+        } catch (IOException e) {
+            throw new ControllerException("Error exporting events to file.", e);
+        } catch (ControllerException e) {
+            throw e;
         }
     }
 
@@ -130,7 +173,7 @@ public class DefaultEventController extends EventController {
         return parameterMap;
     }
 
-    public int createEventTempTable(EventFilter filter, String uid, boolean forceTemp) throws ControllerException {
+    public int createTempTable(EventFilter filter, String uid, boolean forceTemp) throws ControllerException {
         logger.debug("creating temporary event table: filter=" + filter.toString());
 
         if (!forceTemp && DatabaseUtil.statementExists("Event.getEventsByPageLimit")) {
@@ -138,7 +181,7 @@ public class DefaultEventController extends EventController {
         }
         
         if (!forceTemp) {
-            removeEventFilterTable(uid);
+            removeFilterTable(uid);
         }
 
         try {
@@ -154,7 +197,7 @@ public class DefaultEventController extends EventController {
         }
     }
 
-    public void removeEventFilterTable(String uid) {
+    public void removeFilterTable(String uid) {
         logger.debug("removing temporary event table: uid=" + uid);
         
         try {
@@ -180,13 +223,13 @@ public class DefaultEventController extends EventController {
         }
     }
 
-    public List<Event> getEventsByPage(int page, int pageSize, int maxEvents, String uid) throws ControllerException {
+    public List<Event> getEventsByPage(int page, int pageSize, int max, String uid) throws ControllerException {
         logger.debug("retrieving events by page: page=" + page);
         Map<String, Object> parameterMap = new HashMap<String, Object>();
         parameterMap.put("uid", uid);
 
         if ((page != -1) && (pageSize != -1)) {
-            int last = maxEvents - (page * pageSize);
+            int last = max - (page * pageSize);
             int first = last - pageSize + 1;
             parameterMap.put("first", first);
             parameterMap.put("last", last);

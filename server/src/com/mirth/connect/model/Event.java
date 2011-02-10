@@ -9,20 +9,24 @@
 
 package com.mirth.connect.model;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("event")
-public class Event implements Serializable {
+public class Event implements Serializable, Exportable {
     public static final String ATTR_EXCEPTION = "Exception";
-    
+
     public enum Level {
         INFORMATION, WARNING, ERROR
     }
@@ -47,14 +51,6 @@ public class Event implements Serializable {
 
     public Event(String name) {
         this.name = name;
-    }
-
-    public Calendar getDate() {
-        return this.dateTime;
-    }
-
-    public void setDate(Calendar date) {
-        this.dateTime = date;
     }
 
     public int getId() {
@@ -135,5 +131,31 @@ public class Event implements Serializable {
 
     public String toString() {
         return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());
+    }
+
+    public static String getExportHeader() {
+        return "id,level,outcome,operation,userId,name,ipAddress,attributes";
+    }
+
+    public String toExportString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(id + ",");
+        builder.append(level + ",");
+        builder.append(outcome + ",");
+        builder.append(operation + ",");
+        builder.append(userId + ",");
+        builder.append(name + ",");
+        builder.append(ipAddress + ",");
+
+        /*
+         * Print out the attributes and Base64 encode them in case there are
+         * newlines.
+         */
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        MapUtils.verbosePrint(ps, "attributes", attributes);
+        builder.append(Base64.encodeBase64String(baos.toByteArray()));
+
+        return builder.toString();
     }
 }

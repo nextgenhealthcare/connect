@@ -136,7 +136,7 @@ public class DumpTask extends AbstractMirthTask {
 				while (events.size() != 0) {
 					for (Iterator<Event> iter = events.iterator(); iter.hasNext();) {
 						Event event = iter.next();
-						writer.write(event.getId() + ", " + event.getName() + ", " + formatDate(event.getDate()) + ", " + event.getLevel() + "\n");
+						writer.write(event.getId() + ", " + event.getName() + ", " + formatDate(event.getDateTime()) + ", " + event.getLevel() + "\n");
 					}
 
 					writer.flush();

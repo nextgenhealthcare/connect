@@ -106,9 +106,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		VALUES (?, ?, ?, ?, ?, ?)
 	</insert>
 
-	<delete id="deleteEvent" parameterClass="java.util.Map">
-		DELETE FROM EVENT
-		<include refid="eventFilterCriteria" />
+	<delete id="deleteEvent">
+		TRUNCATE TABLE EVENT
 	</delete>
 	
 	<procedure id="vacuumEventTable">

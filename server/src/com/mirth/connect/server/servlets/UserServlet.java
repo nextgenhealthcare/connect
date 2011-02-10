@@ -208,7 +208,7 @@ public class UserServlet extends MirthServlet {
 
         // delete any temp tables created for this session
         ControllerFactory.getFactory().createMessageObjectController().removeFilterTable(sessionId);
-        eventController.removeEventFilterTable(sessionId);
+        eventController.removeFilterTable(sessionId);
     }
 
     private boolean isCurrentUser(HttpServletRequest request, User user) {

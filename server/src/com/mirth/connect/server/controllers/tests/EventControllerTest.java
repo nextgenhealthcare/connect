@@ -57,7 +57,7 @@ public class EventControllerTest extends TestCase {
         eventController.addEvent(sampleEvent);
 
         EventFilter testFilter = new EventFilter();
-        eventController.createEventTempTable(testFilter, tempTableUID, forceTempTableCreation);
+        eventController.createTempTable(testFilter, tempTableUID, forceTempTableCreation);
 
         List<Event> testEventList = eventController.getEventsByPage(-1, -1, 0, "test");
 
@@ -68,7 +68,7 @@ public class EventControllerTest extends TestCase {
         insertSampleEvents();
 
         EventFilter testFilter = new EventFilter();
-        eventController.createEventTempTable(testFilter, tempTableUID, forceTempTableCreation);
+        eventController.createTempTable(testFilter, tempTableUID, forceTempTableCreation);
 
         List<Event> testEventList = eventController.getEventsByPage(-1, -1, 0, "test");
         Assert.assertEquals(sampleEventList.size(), testEventList.size());
@@ -78,7 +78,7 @@ public class EventControllerTest extends TestCase {
         insertSampleEvents();
 
         EventFilter testFilter = new EventFilter();
-        eventController.createEventTempTable(testFilter, tempTableUID, forceTempTableCreation);
+        eventController.createTempTable(testFilter, tempTableUID, forceTempTableCreation);
 
         eventController.removeAllEvents();
         List<Event> testEventList = eventController.getEventsByPage(-1, -1, 0, "test");

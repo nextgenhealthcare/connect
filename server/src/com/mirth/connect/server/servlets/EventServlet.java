@@ -60,13 +60,13 @@ public class EventServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         response.setContentType("text/plain");
-                        out.println(eventController.createEventTempTable(eventFilter, uid, useNewTempTable));
+                        out.println(eventController.createTempTable(eventFilter, uid, useNewTempTable));
                     }
                 } else if (operation.equals(Operations.EVENT_REMOVE_FILTER_TABLES)) {
                     if (!isUserAuthorized(request, null)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        eventController.removeEventFilterTable(uid);
+                        eventController.removeFilterTable(uid);
                     }
                 } else if (operation.equals(Operations.EVENT_GET_BY_PAGE)) {
                     if (!isUserAuthorized(request, null)) {
