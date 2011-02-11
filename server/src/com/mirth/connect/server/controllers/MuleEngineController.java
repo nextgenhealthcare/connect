@@ -222,7 +222,7 @@ public class MuleEngineController implements EngineController {
                 }
             }
 
-            eventController.addEvent(new Event("Channels deployed."));
+            eventController.addEvent(new Event("Channels deployed"));
         } catch (Exception e) {
             logger.error("Error deploying channels.", e);
 
@@ -273,7 +273,7 @@ public class MuleEngineController implements EngineController {
             logger.error("Error undeploying channels.", e);
         }
 
-        eventController.addEvent(new Event("Channels undeployed."));
+        eventController.addEvent(new Event("Channels undeployed"));
     }
 
     public void redeployAllChannels() throws ControllerException {

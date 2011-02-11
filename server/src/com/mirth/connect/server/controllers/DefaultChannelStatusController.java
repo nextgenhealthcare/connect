@@ -69,10 +69,6 @@ public class DefaultChannelStatusController extends ChannelStatusController {
         } finally {
             jmxConnection.close();
         }
-
-        Event event = new Event("Channel started.");
-        event.getAttributes().put("channelId", channelId);
-        eventController.addEvent(event);
     }
 
     /**
@@ -105,10 +101,6 @@ public class DefaultChannelStatusController extends ChannelStatusController {
         } finally {
             jmxConnection.close();
         }
-
-        Event event = new Event("Channel stopped.");
-        event.getAttributes().put("channelId", channelId);
-        eventController.addEvent(event);
     }
 
     /**
@@ -135,10 +127,6 @@ public class DefaultChannelStatusController extends ChannelStatusController {
         } finally {
             jmxConnection.close();
         }
-
-        Event event = new Event("Channel paused.");
-        event.getAttributes().put("channelId", channelId);
-        eventController.addEvent(event);
     }
 
     /**
@@ -165,10 +153,6 @@ public class DefaultChannelStatusController extends ChannelStatusController {
         } finally {
             jmxConnection.close();
         }
-
-        Event event = new Event("Channel resumed.");
-        event.getAttributes().put("channelId", channelId);
-        eventController.addEvent(event);
     }
 
     /**
