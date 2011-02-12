@@ -9,6 +9,7 @@
 
 package com.mirth.connect.client.ui.browsers.message;
 
+import com.mirth.connect.client.ui.UIConstants;
 import java.awt.Dimension;
 import java.awt.Point;
 
@@ -26,7 +27,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private boolean includeTransformedMessage = false;
     private boolean includeEncodedMessage = false;
     private boolean includeErrors = false;
-    private String protocol = "ALL";
+    private String protocol = UIConstants.ALL_OPTION;
 
     /** Creates new form MessageBrowserAdvancedFilter */
     public MessageBrowserAdvancedFilter(com.mirth.connect.client.ui.Frame parent, String title, boolean modal, boolean allowSearch) {
@@ -49,7 +50,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         setResizable(false);
 
         String[] protocolValues = new String[MessageObject.Protocol.values().length + 1];
-        protocolValues[0] = "ALL";
+        protocolValues[0] = UIConstants.ALL_OPTION;
         for (int i = 1; i < protocolValues.length; i++) {
             protocolValues[i] = MessageObject.Protocol.values()[i - 1].toString();
         }
@@ -70,7 +71,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         includeTransformedMessage = false;
         includeEncodedMessage = false;
         includeErrors = false;
-        protocol = "ALL";
+        protocol = UIConstants.ALL_OPTION;
 
         connectorField.setText(connector);
         messageSourceField.setText(messageSource);
@@ -116,7 +117,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         encodedMessageCheckBox.setSelected(this.includeEncodedMessage);
         errorsCheckBox.setSelected(this.includeErrors);
 
-        if (this.protocol.equals("ALL")) {
+        if (this.protocol.equals(UIConstants.ALL_OPTION)) {
             protocolComboBox.setSelectedIndex(0);
         } else if (this.protocol.equals("HL7V2")) {
             protocolComboBox.setSelectedIndex(1);

@@ -12,7 +12,6 @@ package com.mirth.connect.client.ui.browsers.event;
 import java.awt.Point;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
 import javax.swing.JOptionPane;
@@ -31,24 +30,34 @@ import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.ViewContentDialog;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.model.Event;
 import com.mirth.connect.model.Event.Level;
+import com.mirth.connect.model.Event.Outcome;
+import com.mirth.connect.model.User;
 import com.mirth.connect.model.filters.EventFilter;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import javax.swing.table.DefaultTableCellRenderer;
 
-/**
- * The event browser panel.
- */
 public class EventBrowser extends javax.swing.JPanel {
 
     private final int FIRST_PAGE = 0;
     private final int PREVIOUS_PAGE = -1;
     private final int NEXT_PAGE = 1;
-    private final String EVENT_ID_COLUMN_NAME = "Event ID";
-    private final String DATE_COLUMN_NAME = "Date";
-    private final String LEVEL_COLUMN_NAME = "Level";
-    private final String EVENT_COLUMN_NAME = "Event";
+    private final String EVENT_ID_COLUMN_NAME = "ID";
+    private final String EVENT_DATE_COLUMN_NAME = "Date";
+    private final String EVENT_LEVEL_COLUMN_NAME = "Level";
+    private final String EVENT_NAME_COLUMN_NAME = "Name";
+    private final String EVENT_USER_COLUMN_NAME = "User";
+    private final String EVENT_OUTCOME_COLUMN_NAME = "Outcome";
+    private final String EVENT_IP_ADDRESS_COLUMN_NAME = "IP Address";
+    private final String ATTRIBUTES_NAME_COLUMN_NAME = "Name";
+    private final String ATTRIBUTES_VALUE_COLUMN_NAME = "Value";
+    private final int ATTRIBUTES_VALUE_COLUMN_NUMBER = 1;
     private Frame parent;
     private EventListHandler eventListHandler;
     private List<Event> eventList;
@@ -56,6 +65,8 @@ public class EventBrowser extends javax.swing.JPanel {
     private int eventCount = -1;
     private int currentPage = 0;
     private int pageSize;
+    private EventBrowserAdvancedFilter advancedSearchFilterPopup;
+    private Map<Integer, String> userMapById = new LinkedHashMap<Integer, String>();
 
     /**
      * Constructs the new event browser and sets up its default
@@ -65,6 +76,8 @@ public class EventBrowser extends javax.swing.JPanel {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         makeEventTable();
+        makeAttributesTable();
+        updateCachedUserMap();
 
         this.addMouseListener(new java.awt.event.MouseAdapter() {
 
@@ -84,12 +97,17 @@ public class EventBrowser extends javax.swing.JPanel {
         pageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
 
         String[] values = new String[Level.values().length + 1];
-        values[0] = "ALL";
+        values[0] = UIConstants.ALL_OPTION;
         for (int i = 1; i < values.length; i++) {
             values[i] = Level.values()[i - 1].toString();
         }
 
         levelComboBox.setModel(new javax.swing.DefaultComboBoxModel(values));
+
+        advancedSearchFilterPopup = new EventBrowserAdvancedFilter(parent, "Advanced Search Filter", true, userMapById);
+        advancedSearchFilterPopup.setVisible(false);
+
+        eventSplitPane.setDividerLocation(0.8);
     }
 
     /**
@@ -103,26 +121,46 @@ public class EventBrowser extends javax.swing.JPanel {
         // use the start filters and make the table.
         eventListHandler = null;
 
-        eventField.setText("");
+        nameField.setText("");
         levelComboBox.setSelectedIndex(0);
-        mirthDatePicker1.setDate(Calendar.getInstance().getTime());
-        mirthDatePicker2.setDate(Calendar.getInstance().getTime());
-        filterButtonActionPerformed(null);
-        descriptionTabbedPane.setSelectedIndex(0);
+        startDatePicker.setDate(Calendar.getInstance().getTime());
+        endDatePicker.setDate(Calendar.getInstance().getTime());
+
+        updateCachedUserMap();
+
+        advancedSearchFilterPopup.reset();
+
+        searchButtonActionPerformed(null);
+    }
+
+    /**
+     * Updates the cached username/id list so user ids can be displayed with
+     * their names.
+     */
+    private void updateCachedUserMap() {
+        // TODO: Update cached users, but this shows up as an extra event
+        // parent.retrieveUsers()
+        
+        userMapById.clear();
+        userMapById.put(-1, UIConstants.ALL_OPTION);
+        userMapById.put(0, "System");
+        for (User user : parent.users) {
+            userMapById.put(user.getId(), user.getUsername());
+        }
     }
 
     /**
      * Refreshes the panel with the curent filter information.
      */
     public void refresh() {
-        filterButtonActionPerformed(null);
+        searchButtonActionPerformed(null);
     }
 
     public void updateEventTable(List<Event> systemEventList) {
         Object[][] tableData = null;
 
         if (systemEventList != null) {
-            tableData = new Object[systemEventList.size()][4];
+            tableData = new Object[systemEventList.size()][7];
 
             for (int i = 0; i < systemEventList.size(); i++) {
                 Event systemEvent = systemEventList.get(i);
@@ -135,9 +173,20 @@ public class EventBrowser extends javax.swing.JPanel {
 
                 tableData[i][2] = systemEvent.getLevel().toString();
                 tableData[i][3] = systemEvent.getName();
+
+                // Write the username (if cached) next to the user id
+                int userId = systemEvent.getUserId();
+                String user = String.valueOf(userId);
+                if (userMapById.containsKey(userId)) {
+                    user += " (" + userMapById.get(userId) + ")";
+                }
+                tableData[i][4] = user;
+
+                tableData[i][5] = systemEvent.getOutcome();
+                tableData[i][6] = systemEvent.getIpAddress();
             }
         } else {
-            tableData = new Object[0][4];
+            tableData = new Object[0][7];
         }
 
         int systemEventListSize = 0;
@@ -185,14 +234,13 @@ public class EventBrowser extends javax.swing.JPanel {
         }
 
         if (eventTable != null) {
-            //lastRow = messageTable.getSelectedRow();
             RefreshTableModel model = (RefreshTableModel) eventTable.getModel();
             model.refreshDataVector(tableData);
         } else {
             eventTable = new MirthTable();
-            eventTable.setModel(new RefreshTableModel(tableData, new String[]{EVENT_ID_COLUMN_NAME, DATE_COLUMN_NAME, LEVEL_COLUMN_NAME, EVENT_COLUMN_NAME}) {
+            eventTable.setModel(new RefreshTableModel(tableData, new String[]{EVENT_ID_COLUMN_NAME, EVENT_DATE_COLUMN_NAME, EVENT_LEVEL_COLUMN_NAME, EVENT_NAME_COLUMN_NAME, EVENT_USER_COLUMN_NAME, EVENT_OUTCOME_COLUMN_NAME, EVENT_IP_ADDRESS_COLUMN_NAME}) {
 
-                boolean[] canEdit = new boolean[]{false, false, false, false};
+                boolean[] canEdit = new boolean[]{false, false, false, false, false, false, false};
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -219,7 +267,7 @@ public class EventBrowser extends javax.swing.JPanel {
         eventTable.setSelectionMode(0);
 
         eventTable.getColumnExt(EVENT_ID_COLUMN_NAME).setVisible(false);
-        eventTable.getColumnExt(DATE_COLUMN_NAME).setMinWidth(100);
+        eventTable.getColumnExt(EVENT_DATE_COLUMN_NAME).setMinWidth(100);
 
         eventTable.setRowHeight(UIConstants.ROW_HEIGHT);
         eventTable.setOpaque(true);
@@ -232,7 +280,7 @@ public class EventBrowser extends javax.swing.JPanel {
         }
 
         eventPane.setViewportView(eventTable);
-        jSplitPane1.setLeftComponent(eventPane);
+        eventSplitPane.setLeftComponent(eventPane);
 
         eventTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -331,15 +379,8 @@ public class EventBrowser extends javax.swing.JPanel {
     public void deselectRows() {
         if (eventTable != null) {
             eventTable.clearSelection();
-            clearDescription();
+            setEventAttributes(null, true);
         }
-    }
-
-    /**
-     * Clears all description information.
-     */
-    public void clearDescription() {
-        descriptionTextPane.setText("Select an event to see its description.");
     }
 
     /**
@@ -350,29 +391,84 @@ public class EventBrowser extends javax.swing.JPanel {
             int row = eventTable.getSelectedModelIndex();
 
             if (row >= 0) {
-                StringBuilder builder = new StringBuilder();
-                
-                for (Entry<String, Object> entry : eventList.get(row).getAttributes().entrySet()) {
-                    builder.append(entry.getKey() + " = " + entry.getValue().toString() + "\n");
-                }
-                
-                descriptionTextPane.setText(builder.toString());
-                descriptionTextPane.setCaretPosition(0);
+                setEventAttributes(eventList.get(row).getAttributes(), false);
             }
         }
     }
 
-    /**
-     * Returns the ID of the selected event in the table.
-     */
-    public Integer getSelectedEventID() {
-        int column = -1;
-        for (int i = 0; i < eventTable.getModel().getColumnCount(); i++) {
-            if (eventTable.getModel().getColumnName(i).equals(EVENT_ID_COLUMN_NAME)) {
-                column = i;
+    private void makeAttributesTable() {
+        setEventAttributes(null, true);
+
+        // listen for trigger button and double click to edit channel.
+        eventAttributesTable.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (eventAttributesTable.rowAtPoint(new Point(evt.getX(), evt.getY())) == -1) {
+                    return;
+                }
+
+                if (evt.getClickCount() >= 2) {
+                    new ViewContentDialog((String) eventAttributesTable.getModel().getValueAt(eventAttributesTable.getSelectedModelIndex(), ATTRIBUTES_VALUE_COLUMN_NUMBER));
+                }
+            }
+        });
+
+        eventAttributesTable.setSelectionMode(0);
+
+        // Disable HTML in a column.
+        DefaultTableCellRenderer noHTMLRenderer = new DefaultTableCellRenderer();
+        noHTMLRenderer.putClientProperty("html.disable", Boolean.TRUE);
+        eventAttributesTable.getColumnExt(ATTRIBUTES_VALUE_COLUMN_NAME).setCellRenderer(noHTMLRenderer);
+
+        eventAttributesPane.setViewportView(eventAttributesTable);
+    }
+
+    private void setEventAttributes(Map<String, Object> attributes, boolean cleared) {
+
+        Object[][] tableData;
+
+        if (attributes == null || attributes.size() == 0) {
+            tableData = new String[1][2];
+            if (cleared) {
+                tableData[0][0] = "Please select an event to view its attributes.";
+            } else {
+                tableData[0][0] = "There are no attributes for this event.";
+            }
+            tableData[0][1] = "";
+        } else {
+            tableData = new String[attributes.size()][2];
+
+            int i = 0;
+            for (Entry<String, Object> entry : attributes.entrySet()) {
+                tableData[i][0] = entry.getKey();
+                tableData[i][1] = entry.getValue();
+                i++;
             }
         }
-        return ((Integer) (eventTable.getModel().getValueAt(eventTable.getSelectedModelIndex(), column)));
+
+        if (eventAttributesTable != null) {
+            RefreshTableModel model = (RefreshTableModel) eventAttributesTable.getModel();
+            model.refreshDataVector(tableData);
+        } else {
+            eventAttributesTable = new MirthTable();
+
+            eventAttributesTable.setModel(new RefreshTableModel(tableData, new String[]{ATTRIBUTES_NAME_COLUMN_NAME, ATTRIBUTES_VALUE_COLUMN_NAME}) {
+
+                boolean[] canEdit = new boolean[]{false, false};
+
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
+                    return canEdit[columnIndex];
+                }
+            });
+        }
+
+
+        // Set highlighter.
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            eventAttributesTable.setHighlighters(highlighter);
+        }
+
     }
 
     /**
@@ -387,36 +483,39 @@ public class EventBrowser extends javax.swing.JPanel {
     private void initComponents() {
 
         filterPanel = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
+        pagePanel = new javax.swing.JPanel();
         resultsLabel = new javax.swing.JLabel();
         pageSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
         nextPageButton = new javax.swing.JButton();
         previousPageButton = new javax.swing.JButton();
-        jLabel6 = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
-        eventLabel = new javax.swing.JLabel();
-        eventField = new com.mirth.connect.client.ui.components.MirthTextField();
-        mirthDatePicker1 = new com.mirth.connect.client.ui.components.MirthDatePicker();
-        jLabel3 = new javax.swing.JLabel();
-        mirthDatePicker2 = new com.mirth.connect.client.ui.components.MirthDatePicker();
-        jLabel2 = new javax.swing.JLabel();
+        pageSizeLabel = new javax.swing.JLabel();
+        searchPanel = new javax.swing.JPanel();
+        nameLabel = new javax.swing.JLabel();
+        nameField = new com.mirth.connect.client.ui.components.MirthTextField();
         levelComboBox = new javax.swing.JComboBox();
         levelLabel = new javax.swing.JLabel();
-        filterButton = new javax.swing.JButton();
-        jSplitPane1 = new javax.swing.JSplitPane();
-        descriptionTabbedPane = new javax.swing.JTabbedPane();
-        descriptionPanel = new javax.swing.JPanel();
-        descriptionTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        startTimeLabel = new javax.swing.JLabel();
+        startDatePicker = new com.mirth.connect.client.ui.components.MirthDatePicker();
+        startTimePicker = new com.mirth.connect.client.ui.components.MirthTimePicker();
+        endTimePicker = new com.mirth.connect.client.ui.components.MirthTimePicker();
+        endDatePicker = new com.mirth.connect.client.ui.components.MirthDatePicker();
+        endTimeLabel = new javax.swing.JLabel();
+        advancedSearchButton = new javax.swing.JButton();
+        searchButton = new javax.swing.JButton();
+        eventSplitPane = new javax.swing.JSplitPane();
         eventPane = new javax.swing.JScrollPane();
         eventTable = null;
+        eventDetailsPanel = new javax.swing.JPanel();
+        eventAttributesPane = new javax.swing.JScrollPane();
+        eventAttributesTable = null;
 
         setBackground(new java.awt.Color(255, 255, 255));
 
         filterPanel.setBackground(new java.awt.Color(255, 255, 255));
         filterPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
-        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1)));
+        pagePanel.setBackground(new java.awt.Color(255, 255, 255));
+        pagePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1)));
 
         resultsLabel.setForeground(new java.awt.Color(204, 0, 0));
         resultsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -438,103 +537,121 @@ public class EventBrowser extends javax.swing.JPanel {
             }
         });
 
-        jLabel6.setText("Page Size:");
+        pageSizeLabel.setText("Page Size:");
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+        javax.swing.GroupLayout pagePanelLayout = new javax.swing.GroupLayout(pagePanel);
+        pagePanel.setLayout(pagePanelLayout);
+        pagePanelLayout.setHorizontalGroup(
+            pagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pagePanelLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                            .addComponent(jLabel6)
+                .addGroup(pagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pagePanelLayout.createSequentialGroup()
+                            .addComponent(pageSizeLabel)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(pageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addComponent(resultsLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pagePanelLayout.createSequentialGroup()
                         .addComponent(previousPageButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(nextPageButton))))
         );
 
-        jPanel3Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {nextPageButton, previousPageButton});
+        pagePanelLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {nextPageButton, previousPageButton});
 
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
+        pagePanelLayout.setVerticalGroup(
+            pagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pagePanelLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(resultsLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(pageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
+                    .addComponent(pageSizeLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(nextPageButton)
                     .addComponent(previousPageButton)))
         );
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Search", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        searchPanel.setBackground(new java.awt.Color(255, 255, 255));
+        searchPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Search", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
-        eventLabel.setText("Event:");
-
-        jLabel3.setText("Start Date:");
-
-        jLabel2.setText("End Date:");
+        nameLabel.setText("Name:");
 
         levelLabel.setText("Level:");
 
-        filterButton.setText("Search");
-        filterButton.addActionListener(new java.awt.event.ActionListener() {
+        startTimeLabel.setText("Start Time:");
+
+        endTimeLabel.setText("End Time:");
+
+        advancedSearchButton.setText("Advanced...");
+        advancedSearchButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                filterButtonActionPerformed(evt);
+                advancedSearchButtonActionPerformed(evt);
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(filterButton)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(eventLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(eventField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(mirthDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(22, 22, 22)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(levelLabel)
-                            .addComponent(jLabel2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(levelComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(mirthDatePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(eventLabel)
-                    .addComponent(eventField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        searchButton.setText("Search");
+        searchButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout searchPanelLayout = new javax.swing.GroupLayout(searchPanel);
+        searchPanel.setLayout(searchPanelLayout);
+        searchPanelLayout.setHorizontalGroup(
+            searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(searchPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(levelLabel)
-                    .addComponent(levelComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(endTimeLabel)
+                    .addComponent(startTimeLabel)
+                    .addComponent(nameLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel3)
-                    .addComponent(mirthDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2)
-                    .addComponent(mirthDatePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(searchPanelLayout.createSequentialGroup()
+                        .addGroup(searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(startDatePicker, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(endDatePicker, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(6, 6, 6)
+                        .addGroup(searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(endTimePicker, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(startTimePicker, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(nameField, javax.swing.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, searchPanelLayout.createSequentialGroup()
+                        .addComponent(levelComboBox, 0, 125, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(advancedSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(filterButton))
+                .addComponent(searchButton)
+                .addContainerGap())
+        );
+        searchPanelLayout.setVerticalGroup(
+            searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(searchPanelLayout.createSequentialGroup()
+                .addGroup(searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(startTimeLabel)
+                    .addComponent(startDatePicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(startTimePicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(endDatePicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(endTimeLabel)
+                    .addComponent(endTimePicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(nameLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(searchPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(levelComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(levelLabel)
+                    .addComponent(advancedSearchButton)
+                    .addComponent(searchButton)))
         );
 
         javax.swing.GroupLayout filterPanelLayout = new javax.swing.GroupLayout(filterPanel);
@@ -543,125 +660,89 @@ public class EventBrowser extends javax.swing.JPanel {
             filterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(filterPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(searchPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
+                .addComponent(pagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         filterPanelLayout.setVerticalGroup(
             filterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(filterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
-        jSplitPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jSplitPane1.setDividerLocation(200);
-        jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-        jSplitPane1.setResizeWeight(0.5);
-
-        descriptionTabbedPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        descriptionTabbedPane.setFocusable(false);
-
-        descriptionPanel.setBackground(new java.awt.Color(255, 255, 255));
-        descriptionPanel.setFocusable(false);
-
-        descriptionTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        descriptionTextPane.setEditable(false);
-
-        javax.swing.GroupLayout descriptionPanelLayout = new javax.swing.GroupLayout(descriptionPanel);
-        descriptionPanel.setLayout(descriptionPanelLayout);
-        descriptionPanelLayout.setHorizontalGroup(
-            descriptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(descriptionPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(descriptionTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 671, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        descriptionPanelLayout.setVerticalGroup(
-            descriptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(descriptionPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(descriptionTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, filterPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(filterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(pagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(searchPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
-        descriptionTabbedPane.addTab("Description", descriptionPanel);
-
-        jSplitPane1.setRightComponent(descriptionTabbedPane);
+        eventSplitPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        eventSplitPane.setDividerLocation(250);
+        eventSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        eventSplitPane.setResizeWeight(1.0);
 
         eventPane.setViewportView(eventTable);
 
-        jSplitPane1.setLeftComponent(eventPane);
+        eventSplitPane.setLeftComponent(eventPane);
+
+        eventDetailsPanel.setBackground(new java.awt.Color(255, 255, 255));
+        eventDetailsPanel.setMinimumSize(new java.awt.Dimension(0, 150));
+
+        eventAttributesPane.setViewportView(eventAttributesTable);
+
+        javax.swing.GroupLayout eventDetailsPanelLayout = new javax.swing.GroupLayout(eventDetailsPanel);
+        eventDetailsPanel.setLayout(eventDetailsPanelLayout);
+        eventDetailsPanelLayout.setHorizontalGroup(
+            eventDetailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(eventDetailsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(eventAttributesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        eventDetailsPanelLayout.setVerticalGroup(
+            eventDetailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, eventDetailsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(eventAttributesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        eventSplitPane.setRightComponent(eventDetailsPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(filterPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 696, Short.MAX_VALUE)
+            .addComponent(eventSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 661, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(filterPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(filterPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE))
+                .addComponent(eventSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void nextPageButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_nextPageButtonActionPerformed
-        parent.setWorking("Loading next page...", true);
+    private void advancedSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advancedSearchButtonActionPerformed
+        // display the advanced search filter pop up window.
+        Integer user = advancedSearchFilterPopup.getUser();
+        String outcome = advancedSearchFilterPopup.getOutcome();
+        String ipAddress = advancedSearchFilterPopup.getIpAddress();
 
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+        advancedSearchFilterPopup = new EventBrowserAdvancedFilter(parent, "Advanced Search Filter", true, userMapById);
+        advancedSearchFilterPopup.setFieldValues(user, outcome, ipAddress);
 
-            public Void doInBackground() {
-                getEventTableData(eventListHandler, NEXT_PAGE);
-                return null;
-            }
-
-            public void done() {
-                if (eventListHandler != null) {
-                    updateEventTable(eventList);
-                } else {
-                    updateEventTable(null);
-                }
-                parent.setWorking("", false);
-            }
-        };
-        worker.execute();
-
-    }// GEN-LAST:event_nextPageButtonActionPerformed
-
-    private void previousPageButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_previousPageButtonActionPerformed
-        parent.setWorking("Loading previous page...", true);
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                getEventTableData(eventListHandler, PREVIOUS_PAGE);
-                return null;
-            }
-
-            public void done() {
-                if (eventListHandler != null) {
-                    updateEventTable(eventList);
-                } else {
-                    updateEventTable(null);
-                }
-                parent.setWorking("", false);
-            }
-        };
-        worker.execute();
-    }// GEN-LAST:event_previousPageButtonActionPerformed
+        advancedSearchFilterPopup.setVisible(true);
+    }//GEN-LAST:event_advancedSearchButtonActionPerformed
 
     /**
      * An action when the filter button is pressed. Creates the actual filter
      * and remakes the table with that filter.
      */
-    private void filterButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_filterButtonActionPerformed
-        if (mirthDatePicker1.getDate() != null && mirthDatePicker2.getDate() != null) {
-            if (mirthDatePicker1.getDate().after(mirthDatePicker2.getDate())) {
+    private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
+        if (startDatePicker.getDate() != null && endDatePicker.getDate() != null) {
+            if (startDatePicker.getDate().after(endDatePicker.getDate())) {
                 JOptionPane.showMessageDialog(parent, "Start date cannot be after the end date.");
                 return;
             }
@@ -669,11 +750,11 @@ public class EventBrowser extends javax.swing.JPanel {
 
         eventFilter = new EventFilter();
 
-        if (!eventField.getText().equals("")) {
-            eventFilter.setName(eventField.getText());
+        if (!nameField.getText().equals("")) {
+            eventFilter.setName(nameField.getText());
         }
 
-        if (!((String) levelComboBox.getSelectedItem()).equalsIgnoreCase("ALL")) {
+        if (!((String) levelComboBox.getSelectedItem()).equalsIgnoreCase(UIConstants.ALL_OPTION)) {
             for (int i = 0; i < Level.values().length; i++) {
                 if (((String) levelComboBox.getSelectedItem()).equalsIgnoreCase(Level.values()[i].toString())) {
                     eventFilter.setLevel(Level.values()[i]);
@@ -681,16 +762,36 @@ public class EventBrowser extends javax.swing.JPanel {
             }
         }
 
-        if (mirthDatePicker1.getDate() != null) {
+        if (startDatePicker.getDate() != null) {
             Calendar calendarStart = Calendar.getInstance();
-            calendarStart.setTime(mirthDatePicker1.getDate());
+            calendarStart.setTime(startDatePicker.getDate());
             eventFilter.setStartDate(calendarStart);
         }
-        if (mirthDatePicker2.getDate() != null) {
+        if (endDatePicker.getDate() != null) {
             Calendar calendarEnd = Calendar.getInstance();
-            calendarEnd.setTime(mirthDatePicker2.getDate());
+            calendarEnd.setTime(endDatePicker.getDate());
             eventFilter.setEndDate(calendarEnd);
         }
+
+        // Start advanced search properties
+
+        if (advancedSearchFilterPopup.getUser() != -1) {
+            eventFilter.setUserId(advancedSearchFilterPopup.getUser());
+        }
+
+        if (!advancedSearchFilterPopup.getOutcome().equals(UIConstants.ALL_OPTION)) {
+            for (int i = 0; i < Outcome.values().length; i++) {
+                if (advancedSearchFilterPopup.getOutcome().equalsIgnoreCase(Outcome.values()[i].toString())) {
+                    eventFilter.setOutcome(Outcome.values()[i]);
+                }
+            }
+        }
+
+        if (!advancedSearchFilterPopup.getIpAddress().equals("")) {
+            eventFilter.setIpAddress(advancedSearchFilterPopup.getIpAddress());
+        }
+
+        // End advanced search properties
 
         if (!pageSizeField.getText().equals("")) {
             pageSize = Integer.parseInt(pageSizeField.getText());
@@ -727,30 +828,77 @@ public class EventBrowser extends javax.swing.JPanel {
         ;
         EventWorker worker = new EventWorker();
         worker.execute();
-    }// GEN-LAST:event_filterButtonActionPerformed
+    }//GEN-LAST:event_searchButtonActionPerformed
+
+    private void previousPageButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_previousPageButtonActionPerformed
+        parent.setWorking("Loading previous page...", true);
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+            public Void doInBackground() {
+                getEventTableData(eventListHandler, PREVIOUS_PAGE);
+                return null;
+            }
+
+            public void done() {
+                if (eventListHandler != null) {
+                    updateEventTable(eventList);
+                } else {
+                    updateEventTable(null);
+                }
+                parent.setWorking("", false);
+            }
+        };
+        worker.execute();
+    }//GEN-LAST:event_previousPageButtonActionPerformed
+
+    private void nextPageButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextPageButtonActionPerformed
+        parent.setWorking("Loading next page...", true);
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+            public Void doInBackground() {
+                getEventTableData(eventListHandler, NEXT_PAGE);
+                return null;
+            }
+
+            public void done() {
+                if (eventListHandler != null) {
+                    updateEventTable(eventList);
+                } else {
+                    updateEventTable(null);
+                }
+                parent.setWorking("", false);
+            }
+        };
+        worker.execute();
+    }//GEN-LAST:event_nextPageButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel descriptionPanel;
-    private javax.swing.JTabbedPane descriptionTabbedPane;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea descriptionTextPane;
-    private com.mirth.connect.client.ui.components.MirthTextField eventField;
-    private javax.swing.JLabel eventLabel;
+    private javax.swing.JButton advancedSearchButton;
+    private com.mirth.connect.client.ui.components.MirthDatePicker endDatePicker;
+    private javax.swing.JLabel endTimeLabel;
+    private com.mirth.connect.client.ui.components.MirthTimePicker endTimePicker;
+    private javax.swing.JScrollPane eventAttributesPane;
+    private com.mirth.connect.client.ui.components.MirthTable eventAttributesTable;
+    private javax.swing.JPanel eventDetailsPanel;
     private javax.swing.JScrollPane eventPane;
+    private javax.swing.JSplitPane eventSplitPane;
     private com.mirth.connect.client.ui.components.MirthTable eventTable;
-    private javax.swing.JButton filterButton;
     private javax.swing.JPanel filterPanel;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JComboBox levelComboBox;
     private javax.swing.JLabel levelLabel;
-    private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker1;
-    private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker2;
+    private com.mirth.connect.client.ui.components.MirthTextField nameField;
+    private javax.swing.JLabel nameLabel;
     private javax.swing.JButton nextPageButton;
+    private javax.swing.JPanel pagePanel;
     private com.mirth.connect.client.ui.components.MirthTextField pageSizeField;
+    private javax.swing.JLabel pageSizeLabel;
     private javax.swing.JButton previousPageButton;
     private javax.swing.JLabel resultsLabel;
+    private javax.swing.JButton searchButton;
+    private javax.swing.JPanel searchPanel;
+    private com.mirth.connect.client.ui.components.MirthDatePicker startDatePicker;
+    private javax.swing.JLabel startTimeLabel;
+    private com.mirth.connect.client.ui.components.MirthTimePicker startTimePicker;
     // End of variables declaration//GEN-END:variables
 }

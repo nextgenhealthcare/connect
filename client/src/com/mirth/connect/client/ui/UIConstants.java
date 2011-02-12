@@ -88,6 +88,7 @@ public class UIConstants {
     public static final String YES_OPTION = "1";
     public static final String NO_OPTION = "0";
     public static final Color INVALID_COLOR = Color.PINK;
+    public static final String ALL_OPTION = "ALL";
     // ast: encodings
     public static final String DEFAULT_ENCODING_OPTION = "DEFAULT_ENCODING";
     public static final String UTF8_OPTION = "UTF-8";

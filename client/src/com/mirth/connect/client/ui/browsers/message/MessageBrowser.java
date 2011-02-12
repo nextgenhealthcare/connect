@@ -128,7 +128,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         });
 
         String[] statusValues = new String[MessageObject.Status.values().length + 1];
-        statusValues[0] = "ALL";
+        statusValues[0] = UIConstants.ALL_OPTION;
         for (int i = 1; i < statusValues.length; i++) {
             statusValues[i] = MessageObject.Status.values()[i - 1].toString();
         }
@@ -1620,7 +1620,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         messageObjectFilter.setChannelId(parent.getSelectedChannelIdFromDashboard());
 
-        if (!((String) statusComboBox.getSelectedItem()).equalsIgnoreCase("ALL")) {
+        if (!((String) statusComboBox.getSelectedItem()).equalsIgnoreCase(UIConstants.ALL_OPTION)) {
             for (int i = 0; i < MessageObject.Status.values().length; i++) {
                 if (((String) statusComboBox.getSelectedItem()).equalsIgnoreCase(MessageObject.Status.values()[i].toString())) {
                     messageObjectFilter.setStatus(MessageObject.Status.values()[i]);
@@ -1664,7 +1664,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             messageObjectFilter.setQuickSearch(quickSearchField.getText());
         }
 
-        if (advSearchFilterPopup.getProtocol().equalsIgnoreCase("ALL")) {
+        if (advSearchFilterPopup.getProtocol().equalsIgnoreCase(UIConstants.ALL_OPTION)) {
             // clear the protocol search criteria.
             messageObjectFilter.setProtocol(null);
         } else {
