@@ -191,7 +191,8 @@ public class MuleEngineController implements EngineController {
 
             // update the manager with the new classes
             List<String> failedChannelIds = new ArrayList<String>();
-
+            int deployedChannelCount = 0;
+            
             for (Channel channel : channels) {
                 if (channel.isEnabled()) {
                     try {
@@ -205,6 +206,7 @@ public class MuleEngineController implements EngineController {
                             failedChannelIds.add(channel.getId());
                         } else {
                             channelController.putDeployedChannelInCache(channel);
+                            deployedChannelCount++;
                         }
                     } catch (Exception e) {
                         logger.error("Error registering channel.", e);
@@ -217,17 +219,25 @@ public class MuleEngineController implements EngineController {
             for (String channelId : failedChannelIds) {
                 try {
                     unregisterChannel(channelId);
-                } catch (Exception ue) {
-                    logger.error("Error unregistering channel after failed deploy.", ue);
+                } catch (Exception e) {
+                    logger.error("Error unregistering channel after failed deploy.", e);
                 }
             }
+            
+            if (deployedChannelCount > 0) {
+                Event event = new Event();
 
-            eventController.addEvent(new Event("Channels deployed"));
+                if (deployedChannelCount == 1) {
+                    event.setName("1 channel deployed");
+                } else if (deployedChannelCount > 1) {
+                    event.setName(deployedChannelCount + " channels deployed");
+                }
+
+                eventController.addEvent(event);
+            }
         } catch (Exception e) {
             logger.error("Error deploying channels.", e);
-
-            // if deploy fails, log to system events
-            Event event = new Event("Error deploying channels.");
+            Event event = new Event("Error deploying channels");
             event.setLevel(Event.Level.ERROR);
             event.getAttributes().put(Event.ATTR_EXCEPTION, ExceptionUtils.getStackTrace(e));
             eventController.addEvent(event);

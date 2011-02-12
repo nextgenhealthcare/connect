@@ -107,7 +107,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</insert>
 
 	<delete id="deleteEvent">
-		TRUNCATE TABLE EVENT
+		DELETE FROM EVENT
 	</delete>
 	
 	<procedure id="vacuumEventTable">
