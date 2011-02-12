@@ -11,15 +11,18 @@ package com.mirth.connect.server.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.configuration.ConfigurationConverter;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -33,7 +36,6 @@ import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
-import com.mirth.connect.util.PropertyLoader;
 
 public class SqlConfig {
     private static SqlMapClient sqlMapClient = null;
@@ -67,11 +69,17 @@ public class SqlConfig {
                     LogFactory.selectLog4JLogging();
                     System.setProperty("derby.stream.error.method", "com.mirth.connect.server.Mirth.getNullOutputStream");
 
-                    Properties props = PropertyLoader.loadProperties("mirth");
-                    String database = props.getProperty("database");
+                    // load the database properties
+                    PropertiesConfiguration properties = new PropertiesConfiguration();
+                    InputStream is = ResourceUtil.getResourceStream(SqlMapClient.class, "mirth.properties");
+                    properties.setDelimiterParsingDisabled(true);
+                    properties.load(is);
+                    IOUtils.closeQuietly(is);
+
+                    String database = properties.getString("database");
                     BufferedReader br = new BufferedReader(Resources.getResourceAsReader("SqlMapConfig.xml"));
 
-                    // Parse the SqlMapConfig (ignoring the DTD)
+                    // parse the SqlMapConfig (ignoring the DTD)
                     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                     factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
                     Document document = factory.newDocumentBuilder().parse(new InputSource(br));
@@ -99,13 +107,25 @@ public class SqlConfig {
 
                     DocumentSerializer docSerializer = new DocumentSerializer();
                     Reader reader = new StringReader(docSerializer.toXML(document));
+
+                    // if a database driver is not being set, use the default
                     
-                    if (!props.containsKey("database.driver") || StringUtils.isBlank(props.getProperty("database.driver"))) {
-                        props.setProperty("database.driver", MapUtils.getString(databaseDriverMap, database));    
+                    if (!properties.containsKey("database.driver") || StringUtils.isBlank(properties.getString("database.driver"))) {
+                        properties.setProperty("database.driver", MapUtils.getString(databaseDriverMap, database));
                     }
                     
-                    props.setProperty("dir.base", ControllerFactory.getFactory().createConfigurationController().getBaseDir());
-                    sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader, props);
+                    // MIRTH-1749: in case someone comments out the username and password properties
+                    
+                    if (!properties.containsKey("database.username")) {
+                        properties.setProperty("database.username", StringUtils.EMPTY);
+                    }
+
+                    if (!properties.containsKey("database.password")) {
+                        properties.setProperty("database.password", StringUtils.EMPTY);
+                    }
+
+                    properties.setProperty("dir.base", ControllerFactory.getFactory().createConfigurationController().getBaseDir());
+                    sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader, ConfigurationConverter.getProperties(properties));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
