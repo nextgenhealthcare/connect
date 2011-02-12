@@ -20,7 +20,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -59,9 +58,9 @@ import com.mirth.connect.server.servlets.ChannelStatusServlet;
 import com.mirth.connect.server.servlets.CodeTemplateServlet;
 import com.mirth.connect.server.servlets.ConfigurationServlet;
 import com.mirth.connect.server.servlets.EngineServlet;
+import com.mirth.connect.server.servlets.EventServlet;
 import com.mirth.connect.server.servlets.ExtensionServlet;
 import com.mirth.connect.server.servlets.MessageObjectServlet;
-import com.mirth.connect.server.servlets.EventServlet;
 import com.mirth.connect.server.servlets.UserServlet;
 import com.mirth.connect.server.servlets.WebStartServlet;
 import com.mirth.connect.server.tools.ClassPathResource;
@@ -421,7 +420,7 @@ public class Mirth extends Thread {
      * 
      */
     private void printSplashScreen() {
-        logger.info("Mirth Connect " + versionProperties.getString("mirth.version") + " (" + versionProperties.getString("mirth.date") + ") server successfully started: " + (new Date()).toString());
+        logger.info("Mirth Connect " + versionProperties.getString("mirth.version") + " (Built on " + versionProperties.getString("mirth.date") + ") server successfully started.");
         logger.info("This product was developed by Mirth Corporation (http://www.mirthcorp.com) and its contributors (c)2005-" + Calendar.getInstance().get(Calendar.YEAR) + ".");
         logger.info("Running " + System.getProperty("java.vm.name") + " " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ") with charset " + Charset.defaultCharset() + ".");
     }
