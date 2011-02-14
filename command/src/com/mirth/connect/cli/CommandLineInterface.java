@@ -18,7 +18,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -1114,7 +1113,7 @@ public class CommandLineInterface {
 
         StringBuilder builder = new StringBuilder();
         builder.append("Mirth Connect Event Log Dump: " + (new Date()).toString() + "\n");
-        builder.append("Id, Name, Date, Description, Level\n");
+        builder.append(Event.getExportHeader() + "\n");
 
         File dumpFile = new File(dumpFilename);
         EventListHandler eventListHandler = client.getEventListHandler(new EventFilter(), 20, false);
@@ -1124,7 +1123,7 @@ public class CommandLineInterface {
 
             while (!events.isEmpty()) {
                 for (Event event : events) {
-                    builder.append(event.getId() + ", " + event.getName() + ", " + formatDate(event.getDateTime()) + ", " + event.getLevel() + "\n");
+                    builder.append(event.toExportString() + "\n");
                 }
 
                 events = eventListHandler.getNextPage();
@@ -1239,9 +1238,5 @@ public class CommandLineInterface {
     private String getTimeStamp() {
         Date currentTime = new Date();
         return formatter.format(currentTime);
-    }
-
-    private String formatDate(Calendar date) {
-        return String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", date);
     }
 }
