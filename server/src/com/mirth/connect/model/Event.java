@@ -12,6 +12,7 @@ package com.mirth.connect.model;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -135,12 +136,13 @@ public class Event implements Serializable, Exportable {
     }
 
     public static String getExportHeader() {
-        return "ID, Level, Outcome, Operation, Name, User ID, IP Address, Attributes";
+        return "ID, Date and Time, Level, Outcome, Operation, Name, User ID, IP Address, Attributes";
     }
 
     public String toExportString() {
         StringBuilder builder = new StringBuilder();
         builder.append(id + ", ");
+        builder.append(new SimpleDateFormat(Exportable.DATE_TIME_FORMAT).format(dateTime) + ", ");
         builder.append(level + ", ");
         builder.append(outcome + ", ");
         builder.append(operation + ", ");
