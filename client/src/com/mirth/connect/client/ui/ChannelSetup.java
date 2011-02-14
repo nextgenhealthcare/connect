@@ -6,6 +6,7 @@
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
+
 package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
@@ -427,7 +428,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         lastModelIndex = -1;
         currentChannel = channel;
 
-        
         sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getSourceConnectors().keySet().toArray()));
         destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(LoadedExtensions.getInstance().getDestinationConnectors().keySet().toArray()));
 
@@ -542,16 +542,10 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         if (((String) currentChannel.getProperties().get("store_messages")).equalsIgnoreCase("false")) {
             storeMessages.setSelected(false);
-            storeMessagesAll.setEnabled(false);
-            storeMessagesAll.setSelected(true);
-            storeMessagesDays.setEnabled(false);
-            storeMessagesErrors.setEnabled(false);
-            storeFiltered.setEnabled(false);
-            numDays.setText("");
-            numDays.setEnabled(false);
-            days.setEnabled(false);
+            storeMessagesActionPerformed(null);
         } else {
             storeMessages.setSelected(true);
+            storeMessagesActionPerformed(null);
 
             if (((String) currentChannel.getProperties().get("error_messages_only")).equalsIgnoreCase("true")) {
                 storeMessagesErrors.setSelected(true);
@@ -570,11 +564,10 @@ public class ChannelSetup extends javax.swing.JPanel {
             if (!((String) currentChannel.getProperties().get("max_message_age")).equalsIgnoreCase("-1")) {
                 numDays.setText((String) currentChannel.getProperties().get("max_message_age"));
                 storeMessagesDays.setSelected(true);
-                numDays.setEnabled(true);
+                storeMessagesDaysActionPerformed(null);
             } else {
                 storeMessagesAll.setSelected(true);
-                numDays.setText("");
-                numDays.setEnabled(false);
+                storeMessagesAllActionPerformed(null);
             }
         }
 
@@ -733,7 +726,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
             try {
                 currentChannel = (Channel) SerializationUtils.clone(parent.channels.get(currentChannel.getId()));
-                
+
                 if (parent.currentContentPage == transformerPane) {
                     if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
                         transformerPane.reload(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer());
@@ -997,7 +990,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         errors += validateFilterRules(channel.getSourceConnector());
         errors += validateTransformerSteps(channel.getSourceConnector());
-        
+
         if (tempConnector != null) {
             String validationMessage = tempConnector.doValidate(tempProps, false);
             if (validationMessage != null) {
@@ -1014,7 +1007,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
                 errors += validateFilterRules(channel.getDestinationConnectors().get(i));
                 errors += validateTransformerSteps(channel.getDestinationConnectors().get(i));
-                
+
                 if (tempConnector != null) {
                     String validationMessage = tempConnector.doValidate(tempProps, false);
                     if (validationMessage != null) {
@@ -1244,11 +1237,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         storeMessagesErrors.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         storeMessagesErrors.setText("With errors only");
         storeMessagesErrors.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        storeMessagesErrors.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                storeMessagesErrorsActionPerformed(evt);
-            }
-        });
 
         storeFiltered.setBackground(new java.awt.Color(255, 255, 255));
         storeFiltered.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -1617,54 +1605,40 @@ public class ChannelSetup extends javax.swing.JPanel {
         new DataTypesDialog();
     }//GEN-LAST:event_changeDataTypesButtonActionPerformed
 
-    private void summaryNameFieldKeyReleased(java.awt.event.KeyEvent evt)// GEN-FIRST:event_summaryNameFieldKeyReleased
-    {// GEN-HEADEREND:event_summaryNameFieldKeyReleased
-        currentChannel.setName(summaryNameField.getText());
-        parent.setPanelName("Edit Channel - " + currentChannel.getName());
-    }// GEN-LAST:event_summaryNameFieldKeyReleased
-
-    private void storeMessagesErrorsActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
-    }
-
-    private void storeMessagesDaysActionPerformed(java.awt.event.ActionEvent evt) {
+    private void storeMessagesDaysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_storeMessagesDaysActionPerformed
         numDays.setEnabled(true);
-    }
+    }//GEN-LAST:event_storeMessagesDaysActionPerformed
 
-    private void storeMessagesAllActionPerformed(java.awt.event.ActionEvent evt) {
+    private void storeMessagesAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_storeMessagesAllActionPerformed
         numDays.setEnabled(false);
         numDays.setText("");
-    }
+    }//GEN-LAST:event_storeMessagesAllActionPerformed
 
-    private void storeMessagesActionPerformed(java.awt.event.ActionEvent evt) {
-        if (storeMessages.isSelected()) {
-            storeMessagesAll.setEnabled(true);
-            storeMessagesDays.setEnabled(true);
-            storeMessagesErrors.setEnabled(true);
-            storeFiltered.setEnabled(true);
-            days.setEnabled(true);
-            numDays.setEnabled(true);
-        } else {
-            storeMessagesAll.setEnabled(false);
-            storeMessagesDays.setEnabled(false);
-            storeMessagesErrors.setEnabled(false);
-            storeFiltered.setEnabled(false);
-            days.setEnabled(false);
-            numDays.setText("");
-            numDays.setEnabled(false);
-        }
-    }
+    private void storeMessagesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_storeMessagesActionPerformed
+        storeMessagesAll.setEnabled(storeMessages.isSelected());
+        storeMessagesDays.setEnabled(storeMessages.isSelected());
+        storeMessagesErrors.setEnabled(storeMessages.isSelected());
+        storeFiltered.setEnabled(storeMessages.isSelected());
+        days.setEnabled(storeMessages.isSelected());
 
-    /** Action when the summary tab is shown. */
-    private void summaryComponentShown(java.awt.event.ComponentEvent evt)// GEN-FIRST:event_summaryComponentShown
-    {
+        // If turning off store message data, set pruning to off. If turning
+        // store message data back on, pruning should still default to off.
+        storeMessagesAll.setSelected(true);
+        storeMessagesAllActionPerformed(null);
+    }//GEN-LAST:event_storeMessagesActionPerformed
+
+    private void summaryNameFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_summaryNameFieldKeyReleased
+        currentChannel.setName(summaryNameField.getText());
+        parent.setPanelName("Edit Channel - " + currentChannel.getName());
+    }//GEN-LAST:event_summaryNameFieldKeyReleased
+
+    private void summaryComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_summaryComponentShown
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 12, false);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 14, 14, false);
-    }
+    }//GEN-LAST:event_summaryComponentShown
 
     /** Action when the source tab is shown. */
-    private void sourceComponentShown(java.awt.event.ComponentEvent evt)// GEN-FIRST:event_sourceComponentShown
-    {
+    private void sourceComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_sourceComponentShown
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 8, false);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 9, 13, true);
@@ -1686,11 +1660,10 @@ public class ChannelSetup extends javax.swing.JPanel {
         if (channelValidationFailed) {
             sourceConnectorClass.checkProperties(sourceConnectorClass.getProperties(), true);
         }
-    }
+    }//GEN-LAST:event_sourceComponentShown
 
     /** Action when the destinations tab is shown. */
-    private void destinationComponentShown(java.awt.event.ComponentEvent evt)// GEN-FIRST:event_destinationComponentShown
-    {
+    private void destinationComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_destinationComponentShown
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 12, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 14, 14, false);
@@ -1701,13 +1674,12 @@ public class ChannelSetup extends javax.swing.JPanel {
         if (channelValidationFailed && currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).isEnabled()) {
             destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), true);
         }
-    }
+    }//GEN-LAST:event_destinationComponentShown
 
     /** Action when an action is performed on the source connector type dropdown. */
-    private void sourceSourceDropdownActionPerformed(java.awt.event.ActionEvent evt) {
+    private void sourceSourceDropdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sourceSourceDropdownActionPerformed
         // If a channel is not being loaded then alert the user when necessary
-        // that
-        // changing the connector type will lose all current connector data.
+        // that changing the connector type will lose all current connector data.
         if (!loadingChannel) {
             if (sourceConnectorClass.getName() != null && sourceConnectorClass.getName().equals(sourceSourceDropdown.getSelectedItem())) {
                 return;
@@ -1771,25 +1743,25 @@ public class ChannelSetup extends javax.swing.JPanel {
         if (channelValidationFailed) {
             sourceConnectorClass.checkProperties(sourceConnectorClass.getProperties(), true);
         }
-    }
+    }//GEN-LAST:event_sourceSourceDropdownActionPerformed
 
     /**
      * Action when an action is performed on the destination connector type
      * dropdown. Fires off either generateMultipleDestinationPage() or
      * generateSingleDestinationPage()
      */
-    private void destinationSourceDropdownActionPerformed(java.awt.event.ActionEvent evt) {
+    private void destinationSourceDropdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_destinationSourceDropdownActionPerformed
         // If a channel is not being loaded then alert the user when necessary
         // that changing the connector type will lose all current connector
-        // data. Continue when deleting a destination because the selected 
+        // data. Continue when deleting a destination because the selected
         // destination index will not be different than the last index.
         if (!loadingChannel && !isDeleting) {
             if (destinationConnectorClass.getName() != null && destinationConnectorClass.getName().equals(destinationSourceDropdown.getSelectedItem()) && lastModelIndex == destinationTable.getSelectedModelIndex()) {
                 return;
             }
 
-            // if the selected destination is still the same (same index and 
-            // not deleting) AND the default properties/transformer/filter 
+            // if the selected destination is still the same (same index and
+            // not deleting) AND the default properties/transformer/filter
             // have not been changed from defaults then ask if the user would
             // like to really change connector type.
             if (lastModelIndex == destinationTable.getSelectedModelIndex() && (!PropertyVerifier.compareProps(destinationConnectorClass.getProperties(), destinationConnectorClass.getDefaults()) || currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getFilter().getRules().size() > 0 || currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getTransformer().getSteps().size() > 0)) {
@@ -1806,7 +1778,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         if (channelValidationFailed && currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).isEnabled()) {
             destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), true);
         }
-    }
+    }//GEN-LAST:event_destinationSourceDropdownActionPerformed
 
     public void generateMultipleDestinationPage() {
         // Get the selected destination connector and set it.
