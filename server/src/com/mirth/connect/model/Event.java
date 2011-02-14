@@ -135,18 +135,18 @@ public class Event implements Serializable, Exportable {
     }
 
     public static String getExportHeader() {
-        return "id,level,outcome,operation,userId,name,ipAddress,attributes";
+        return "ID, Level, Outcome, Operation, Name, User ID, IP Address, Attributes";
     }
 
     public String toExportString() {
         StringBuilder builder = new StringBuilder();
-        builder.append(id + ",");
-        builder.append(level + ",");
-        builder.append(outcome + ",");
-        builder.append(operation + ",");
-        builder.append(userId + ",");
-        builder.append(name + ",");
-        builder.append(ipAddress + ",");
+        builder.append(id + ", ");
+        builder.append(level + ", ");
+        builder.append(outcome + ", ");
+        builder.append(operation + ", ");
+        builder.append(name + ", ");
+        builder.append(userId + ", ");
+        builder.append(ipAddress + ", ");
 
         /*
          * Print out the attributes and Base64 encode them in case there are

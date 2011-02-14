@@ -109,6 +109,8 @@ public class DefaultEventController extends EventController {
     }
     
     public String exportAndRemoveAllEvents() throws ControllerException {
+        logger.debug("exporting events");
+        
         try {
             String uid = String.valueOf(System.currentTimeMillis());
             String appDataDir = ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir();
