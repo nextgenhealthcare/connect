@@ -9,44 +9,45 @@
 
 package com.mirth.connect.server.builders;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.mozilla.javascript.RhinoException;
 
 public class ErrorMessageBuilder {
-    private String lineSeperator = System.getProperty("line.separator");
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
     public String buildErrorMessage(String errorType, String customMessage, Throwable e) {
-        // error source is initialized to blank
-        String lineSource = null;
+        String errorSourceLine = null;
 
         // if the exception occured during execution of the script, get the
         // line of code that caused the error
         if (e instanceof RhinoException) {
-            RhinoException re = (RhinoException) e;
-            lineSource = re.lineSource();
+            errorSourceLine = ((RhinoException) e).lineSource();
         }
 
         // construct the error message
-        StringBuilder errorMessage = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         String stackTrace = new String();
-        
+
         if (e != null) {
             stackTrace = ExceptionUtils.getStackTrace(e);
         }
-        
-        errorMessage.append(errorType + lineSeperator);
 
-        if ((lineSource != null) && (lineSource.length() > 0)) {
-            errorMessage.append("ERROR SOURCE:\t" + lineSource + lineSeperator);
+        builder.append(errorType + LINE_SEPARATOR);
+
+        if (StringUtils.isNotBlank(errorSourceLine)) {
+            builder.append("ERROR SOURCE:\t");
+            builder.append(errorSourceLine + LINE_SEPARATOR);
         }
 
-        if ((customMessage != null) && (customMessage.length() > 0)) {
-            customMessage += lineSeperator;
-            errorMessage.append("ERROR MESSAGE:\t" + customMessage + stackTrace + lineSeperator);
+        if (StringUtils.isNotBlank(customMessage)) {
+            builder.append("ERROR MESSAGE:\t");
+            builder.append(customMessage + LINE_SEPARATOR);
+            builder.append(stackTrace + LINE_SEPARATOR);
         } else {
-            errorMessage.append(stackTrace + lineSeperator);
+            builder.append(stackTrace + LINE_SEPARATOR);
         }
 
-        return errorMessage.toString();
+        return builder.toString();
     }
 }

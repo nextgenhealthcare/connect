@@ -21,13 +21,11 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.DeployedChannelInfo;
-import com.mirth.connect.model.Event;
 import com.mirth.connect.server.util.JMXConnection;
 import com.mirth.connect.server.util.JMXConnectionFactory;
 
 public class DefaultChannelStatusController extends ChannelStatusController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private EventController eventController = ControllerFactory.getFactory().createEventController();
 
     private static DefaultChannelStatusController instance = null;
 

@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.apache.velocity.tools.generic.DateTool;
 import org.mule.providers.TemplateValueReplacer;
@@ -153,14 +154,14 @@ public class DefaultAlertController extends AlertController {
     }
 
     public void sendAlerts(String channelId, String errorType, String customMessage, Throwable e) {
-        String fullError = errorBuilder.buildErrorMessage(errorType, customMessage, e);
-        String errorMessage = (e == null) ? "No exception message." : e.getMessage();
+        String fullErrorMessage = errorBuilder.buildErrorMessage(errorType, customMessage, e);
+        String shortErrorMessage = (e == null) ? "No exception message." : e.getMessage();
 
         try {
             for (Alert alert : getAlertByChannelId(channelId)) {
-                if (alert.isEnabled() && isAlertableError(alert.getExpression(), fullError)) {
+                if (alert.isEnabled() && isAlertableError(alert.getExpression(), fullErrorMessage)) {
                     statisticsController.incrementAlertedCount(channelId);
-                    sendAlertEmails(alert.getSubject(), alert.getEmails(), alert.getTemplate(), fullError, errorMessage, channelId);
+                    sendAlertEmails(alert.getSubject(), alert.getEmails(), alert.getTemplate(), fullErrorMessage, shortErrorMessage, channelId);
                 }
             }
         } catch (ControllerException ce) {
@@ -176,7 +177,7 @@ public class DefaultAlertController extends AlertController {
         }
     }
 
-    private void sendAlertEmails(String subject, List<String> emails, String template, String fullError, String errorMessage, String channelId) throws ControllerException {
+    private void sendAlertEmails(String subject, List<String> emails, String template, String fullErrorMessage, String shortErrorMessage, String channelId) throws ControllerException {
         TemplateValueReplacer replacer = new TemplateValueReplacer();
         Properties properties = ControllerFactory.getFactory().createConfigurationController().getServerProperties();
         final String fromAddress = PropertyLoader.getProperty(properties, "smtp.from");
@@ -185,21 +186,23 @@ public class DefaultAlertController extends AlertController {
         Map<String, Object> context = new HashMap<String, Object>();
         
         String channelName = "";
+        
         if (channelId != null) {
             Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
+            
             if (channel != null) {
                 channelName = channel.getName();
             }
         }
         
         context.put("channelName", channelName);
-        context.put("error", fullError);
-        context.put("errorMessage", errorMessage);
+        context.put("error", fullErrorMessage);
+        context.put("errorMessage", shortErrorMessage);
         context.put("systemTime", String.valueOf(System.currentTimeMillis()));
         context.put("date", new DateTool());
         
         // no longer shown on UI
-        context.put("ERROR", fullError);
+        context.put("ERROR", fullErrorMessage);
         context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
         
         if (subject != null) {
@@ -211,7 +214,7 @@ public class DefaultAlertController extends AlertController {
             subject = "Mirth Connect Alert";
         }
 
-        String body = fullError;
+        String body = fullErrorMessage;
 
         if (template != null) {
             body = replacer.replaceValues(template, context);
