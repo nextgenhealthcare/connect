@@ -68,7 +68,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         this.parent = m;
 
         initComponents();
-        openFileButton.setIcon(UIConstants.FILE_PICKER_ICON);
+        openFileButton.setIcon(UIConstants.ICON_FILE_PICKER);
 
         if (PlatformUI.MIRTH_FRAME != null) {
             dataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));

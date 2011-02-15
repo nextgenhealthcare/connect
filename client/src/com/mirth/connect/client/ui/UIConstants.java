@@ -110,16 +110,20 @@ public class UIConstants {
     public static final String ENABLED_STATUS = "Enabled";
     public static final String DISABLED_STATUS = "Disabled";
     // for message template
-    public static final ImageIcon FILE_PICKER_ICON = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/folder_explore.png"));
+    public static final ImageIcon ICON_FILE_PICKER = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/folder_explore.png"));
     // for dashboard connector monitoring and Mirth server logs
-    public static final ImageIcon PAUSE_LOG_ICON = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_pause_blue.png"));
-    public static final ImageIcon RESUME_LOG_ICON = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png"));
-    public static final ImageIcon CLEAR_LOG_ICON = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/cross.png"));
-    public static final ImageIcon CHANGE_LOGSIZE_ICON = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/tick.png"));
+    public static final ImageIcon ICON_PAUSE = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_pause_blue.png"));
+    public static final ImageIcon ICON_RESUME = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png"));
+    public static final ImageIcon ICON_X = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/cross.png"));
+    public static final ImageIcon ICON_CHECK = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/tick.png"));
     // for dashboard statistics
-    public static final ImageIcon GREEN_BULLET = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_green.png"));
-    public static final ImageIcon YELLOW_BULLET = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_yellow.png"));
-    public static final ImageIcon RED_BULLET = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_red.png"));
+    public static final ImageIcon ICON_BULLET_GREEN = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_green.png"));
+    public static final ImageIcon ICON_BULLET_YELLOW = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_yellow.png"));
+    public static final ImageIcon ICON_BULLET_RED = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_red.png"));
+    // for events
+    public static final ImageIcon ICON_INFORMATION = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/information.png"));
+    public static final ImageIcon ICON_WARNING = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/error.png"));
+    public static final ImageIcon ICON_ERROR = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/exclamation.png"));
     // for privacy
     public static final String PRIVACY_URL = "http://www.mirthcorp.com/company/about/privacy#mirthconnect";
     public static final String PRIVACY_TOOLTIP = "Privacy Information";

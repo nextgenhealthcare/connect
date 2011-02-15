@@ -53,10 +53,10 @@ public class ServerLogPanel extends javax.swing.JPanel {
         initComponents();
         initLayouts();
 
-        clearLog.setIcon(UIConstants.CLEAR_LOG_ICON);
+        clearLog.setIcon(UIConstants.ICON_X);
         clearLog.setToolTipText("Clear Displayed Log");
 
-        logSizeChange.setIcon(UIConstants.CHANGE_LOGSIZE_ICON);
+        logSizeChange.setIcon(UIConstants.ICON_CHECK);
         logSizeChange.setToolTipText("Change Log Display Size");
 
         makeLogTextArea();
@@ -123,16 +123,16 @@ public class ServerLogPanel extends javax.swing.JPanel {
         //Create the popup menu.
         rightclickPopup = new JPopupMenu();
         menuItem = new JMenuItem("Pause Log");
-        menuItem.setIcon(UIConstants.PAUSE_LOG_ICON);
+        menuItem.setIcon(UIConstants.ICON_PAUSE);
         menuItem.addActionListener(new PauseResumeActionListener());
         rightclickPopup.add(menuItem);
         menuItem = new JMenuItem("Resume Log");
-        menuItem.setIcon(UIConstants.RESUME_LOG_ICON);
+        menuItem.setIcon(UIConstants.ICON_RESUME);
         menuItem.addActionListener(new PauseResumeActionListener());
         rightclickPopup.add(menuItem);
         rightclickPopup.addSeparator();
         menuItem = new JMenuItem("Clear Log");
-        menuItem.setIcon(UIConstants.CLEAR_LOG_ICON);
+        menuItem.setIcon(UIConstants.ICON_X);
         menuItem.addActionListener(new ClearLogActionListener());
         rightclickPopup.add(menuItem);
 
@@ -207,13 +207,13 @@ public class ServerLogPanel extends javax.swing.JPanel {
     public void adjustPauseResumeButton() {
         if (state == RESUMED) {
             state = PAUSED;
-            pauseResume.setIcon(UIConstants.RESUME_LOG_ICON);
+            pauseResume.setIcon(UIConstants.ICON_RESUME);
             pauseResume.setToolTipText("Resume Log");
             rightclickPopup.getComponent(0).setVisible(false);
             rightclickPopup.getComponent(1).setVisible(true);
         } else {
             state = RESUMED;
-            pauseResume.setIcon(UIConstants.PAUSE_LOG_ICON);
+            pauseResume.setIcon(UIConstants.ICON_PAUSE);
             pauseResume.setToolTipText("Pause Log");
             rightclickPopup.getComponent(0).setVisible(true);
             rightclickPopup.getComponent(1).setVisible(false);

@@ -16,6 +16,15 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 /** A new renderer that for table cells that has both an image and a text value. */
 public class ImageCellRenderer extends DefaultTableCellRenderer {
+    
+    public ImageCellRenderer() {
+        this(LEFT);        
+    }
+    
+    public ImageCellRenderer(int alignment) {
+        super();
+        this.setHorizontalAlignment(alignment);
+    }
 
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         if (isSelected) {

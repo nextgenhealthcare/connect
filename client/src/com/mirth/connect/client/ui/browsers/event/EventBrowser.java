@@ -11,13 +11,18 @@ package com.mirth.connect.client.ui.browsers.event;
 
 import java.awt.Point;
 import java.util.Calendar;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -25,7 +30,9 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.EventListHandler;
 import com.mirth.connect.client.core.ListHandlerException;
+import com.mirth.connect.client.ui.CellData;
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.ImageCellRenderer;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
@@ -38,10 +45,6 @@ import com.mirth.connect.model.Event.Level;
 import com.mirth.connect.model.Event.Outcome;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.filters.EventFilter;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import javax.swing.table.DefaultTableCellRenderer;
 
 public class EventBrowser extends javax.swing.JPanel {
 
@@ -167,11 +170,18 @@ public class EventBrowser extends javax.swing.JPanel {
 
                 tableData[i][0] = systemEvent.getId();
 
-                Calendar calendar = systemEvent.getDateTime();
-
-                tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", calendar);
-
-                tableData[i][2] = systemEvent.getLevel().toString();
+                if (systemEvent.getLevel().equals(Level.INFORMATION)) {
+                    tableData[i][1] = new CellData(UIConstants.ICON_INFORMATION, "");
+                } else if (systemEvent.getLevel().equals(Level.WARNING)) {
+                    tableData[i][1] = new CellData(UIConstants.ICON_WARNING, "");
+                } else if (systemEvent.getLevel().equals(Level.ERROR)) {
+                    tableData[i][1] = new CellData(UIConstants.ICON_ERROR, "");
+                } else {
+                    tableData[i][1] = new CellData(null, systemEvent.getLevel().toString());
+                }
+                
+                tableData[i][2] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", systemEvent.getDateTime());
+                
                 tableData[i][3] = systemEvent.getName();
 
                 // Write the username (if cached) next to the user id
@@ -182,7 +192,14 @@ public class EventBrowser extends javax.swing.JPanel {
                 }
                 tableData[i][4] = user;
 
-                tableData[i][5] = systemEvent.getOutcome();
+                if (systemEvent.getOutcome().equals(Outcome.SUCCESS)) {
+                    tableData[i][5] = new CellData(UIConstants.ICON_CHECK, "");
+                } else if (systemEvent.getOutcome().equals(Outcome.FAILURE)) {
+                    tableData[i][5] = new CellData(UIConstants.ICON_X, "");
+                } else {
+                    tableData[i][5] = new CellData(null, systemEvent.getOutcome().toString());
+                }
+                
                 tableData[i][6] = systemEvent.getIpAddress();
             }
         } else {
@@ -238,7 +255,7 @@ public class EventBrowser extends javax.swing.JPanel {
             model.refreshDataVector(tableData);
         } else {
             eventTable = new MirthTable();
-            eventTable.setModel(new RefreshTableModel(tableData, new String[]{EVENT_ID_COLUMN_NAME, EVENT_DATE_COLUMN_NAME, EVENT_LEVEL_COLUMN_NAME, EVENT_NAME_COLUMN_NAME, EVENT_USER_COLUMN_NAME, EVENT_OUTCOME_COLUMN_NAME, EVENT_IP_ADDRESS_COLUMN_NAME}) {
+            eventTable.setModel(new RefreshTableModel(tableData, new String[]{EVENT_ID_COLUMN_NAME, EVENT_LEVEL_COLUMN_NAME, EVENT_DATE_COLUMN_NAME, EVENT_NAME_COLUMN_NAME, EVENT_USER_COLUMN_NAME, EVENT_OUTCOME_COLUMN_NAME, EVENT_IP_ADDRESS_COLUMN_NAME}) {
 
                 boolean[] canEdit = new boolean[]{false, false, false, false, false, false, false};
 
@@ -265,9 +282,17 @@ public class EventBrowser extends javax.swing.JPanel {
         updateEventTable(null);
 
         eventTable.setSelectionMode(0);
+        
+        eventTable.getColumnExt(EVENT_LEVEL_COLUMN_NAME).setCellRenderer(new ImageCellRenderer(SwingConstants.CENTER));
+        eventTable.getColumnExt(EVENT_OUTCOME_COLUMN_NAME).setCellRenderer(new ImageCellRenderer(SwingConstants.CENTER));
 
         eventTable.getColumnExt(EVENT_ID_COLUMN_NAME).setVisible(false);
+        
         eventTable.getColumnExt(EVENT_DATE_COLUMN_NAME).setMinWidth(100);
+        eventTable.getColumnExt(EVENT_LEVEL_COLUMN_NAME).setMinWidth(50);
+        eventTable.getColumnExt(EVENT_LEVEL_COLUMN_NAME).setMaxWidth(50);
+        eventTable.getColumnExt(EVENT_OUTCOME_COLUMN_NAME).setMinWidth(65);
+        eventTable.getColumnExt(EVENT_OUTCOME_COLUMN_NAME).setMaxWidth(65);
 
         eventTable.setRowHeight(UIConstants.ROW_HEIGHT);
         eventTable.setOpaque(true);

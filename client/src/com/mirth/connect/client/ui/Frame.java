@@ -2201,11 +2201,11 @@ public class Frame extends JXFrame {
                             }
 
                             if (tempStatus.getState() == ChannelStatus.State.STARTED) {
-                                tableData[i][statusColumn] = new CellData(UIConstants.GREEN_BULLET, "Started");
+                                tableData[i][statusColumn] = new CellData(UIConstants.ICON_BULLET_GREEN, "Started");
                             } else if (tempStatus.getState() == ChannelStatus.State.STOPPED) {
-                                tableData[i][statusColumn] = new CellData(UIConstants.RED_BULLET, "Stopped");
+                                tableData[i][statusColumn] = new CellData(UIConstants.ICON_BULLET_RED, "Stopped");
                             } else if (tempStatus.getState() == ChannelStatus.State.PAUSED) {
-                                tableData[i][statusColumn] = new CellData(UIConstants.YELLOW_BULLET, "Paused");
+                                tableData[i][statusColumn] = new CellData(UIConstants.ICON_BULLET_YELLOW, "Paused");
                             }
 
                             tableData[i][statusColumn + 1] = tempStatus.getName();
