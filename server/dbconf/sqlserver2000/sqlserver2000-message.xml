@@ -155,24 +155,28 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<select id="getMessageCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
 		SELECT COUNT(*) AS VALUE
 		FROM MESSAGE
+		WITH (NOLOCK)
 		WHERE ID = #id#
 	</select>
 
     <select id="getAttachmentsByMessageId" parameterClass="java.lang.String" resultMap="get-attachment-result">
         SELECT ID,MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE
         FROM ATTACHMENT
+        WITH (NOLOCK)
         WHERE MESSAGE_ID = #messageId#
     </select>
 
     <select id="getAttachmentIdsByMessageId" parameterClass="java.lang.String" resultMap="get-attachment-result2">
         SELECT ID,MESSAGE_ID, ATTACHMENT_SIZE, ATTACHMENT_TYPE
         FROM ATTACHMENT
+        WITH (NOLOCK)
         WHERE MESSAGE_ID = #messageId#
     </select>
 
     <select id="getAttachment" parameterClass="java.lang.String" resultMap="get-attachment-result">
         SELECT ID,MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE
         FROM ATTACHMENT
+        WITH (NOLOCK)
         WHERE ID = #attachmentId#
     </select>
 
@@ -182,6 +186,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		FROM
 			MSG_TMP_$uid$ AS TEMP_TABLE,
 			MESSAGE
+		WITH (NOLOCK)
 		WHERE
 			TEMP_TABLE.ID = MESSAGE.SEQUENCE_ID
 			<dynamic prepend="AND">
@@ -203,6 +208,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 					MESSAGE.*
 				FROM
 					MESSAGE
+				WITH (NOLOCK)
 				<include refid="messageFilterCriteria" />
 				ORDER BY DATE_CREATED DESC
 			) AS OFFSETANDLIMIT ORDER BY DATE_CREATED ASC
@@ -223,28 +229,29 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		CREATE INDEX IDX_MSG_TMP_$uid$ ON MSG_TMP_$uid$ (SEQUENCE_ORDER, ID)
 	</statement>
 
-	<!-- NOTE: The nested SELECT needs an ORDER BY DATE_CREATED, which Derby does not support -->
 	<insert id="populateTempMessageTable" parameterClass="java.util.Map">
-		INSERT INTO MSG_TMP_$uid$ (ID)
+		INSERT INTO MSG_TMP_$uid$ WITH (ROWLOCK) (ID)
 			(SELECT SEQUENCE_ID
 			FROM MESSAGE
+			WITH (NOLOCK)
 			<include refid="messageFilterCriteria" />)
 	</insert>
 
 	<insert id="insertMessage" parameterMap="insert-message-param">
 		INSERT INTO
-		MESSAGE (ID, SERVER_ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, CONNECTOR_NAME, ERRORS, CORRELATION_ID, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP, ATTACHMENT)
+		MESSAGE WITH (ROWLOCK) (ID, SERVER_ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, CONNECTOR_NAME, ERRORS, CORRELATION_ID, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP, ATTACHMENT)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</insert>
 
     <insert id="insertAttachment" parameterMap="insert-attachment-param">
         INSERT INTO
-        ATTACHMENT (ID, MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE)
+        ATTACHMENT WITH (ROWLOCK) (ID, MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE)
         VALUES (?, ?, ?, ?, ?)
 	</insert>
 
 	<update id="updateMessage" parameterMap="update-message-param">
 		UPDATE MESSAGE
+		WITH (ROWLOCK)
 		SET STATUS = ?,
 			RAW_DATA = ?,
 			TRANSFORMED_DATA = ?,
@@ -260,12 +267,14 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<update id="updateMessageStatus" parameterClass="java.util.Map">
 		UPDATE MESSAGE
+		WITH (ROWLOCK)
 		SET STATUS = #status#
 		WHERE ID = #id#
 	</update>
 
 	<delete id="deleteMessage" parameterClass="java.util.Map">
 		DELETE FROM MESSAGE
+		WITH (ROWLOCK)
 		<include refid="messageFilterCriteria" />
 	</delete>
 
@@ -279,6 +288,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
     <delete id="deleteAttachments" parameterClass="com.mirth.connect.model.MessageObject">
         DELETE FROM ATTACHMENT
+        WITH (ROWLOCK)
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
 				MESSAGE_ID=#id#
@@ -287,26 +297,29 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
     </delete>
 
     <delete id="deleteUnusedAttachments">
-        DELETE FROM ATTACHMENT WHERE MESSAGE_ID NOT IN (SELECT ID FROM MESSAGE WHERE ATTACHMENT=1 UNION SELECT CORRELATION_ID FROM MESSAGE WHERE CORRELATION_ID IS NOT NULL AND ATTACHMENT=1)
+        DELETE FROM ATTACHMENT WITH (ROWLOCK) WHERE MESSAGE_ID NOT IN (SELECT ID FROM MESSAGE WITH (NOLOCK) WHERE ATTACHMENT=1 UNION SELECT CORRELATION_ID FROM MESSAGE WHERE CORRELATION_ID IS NOT NULL AND ATTACHMENT=1)
     </delete>
 
     <select id="lookupMessageId" parameterClass="java.util.Map" resultClass="java.lang.String">
 		SELECT ID
 		FROM MESSAGE
+		WITH (NOLOCK)
 		WHERE CORRELATION_ID = #correlationId# AND CONNECTOR_NAME = #connectorName#
     </select>
 
 	<select id="lookupMessageStatus" parameterClass="java.lang.String" resultClass="java.lang.String">
 		SELECT STATUS
 		FROM MESSAGE
+		WITH (NOLOCK)
 		WHERE ID = '$id$'
     </select>
 
     <delete id="pruneMessages" parameterClass="java.util.Map">
 		DELETE FROM MESSAGE
+		WITH (ROWLOCK)
 		<dynamic>
 			<isNotNull property="limit">
-				WHERE SEQUENCE_ID IN (SELECT TOP $limit$ SEQUENCE_ID FROM MESSAGE
+				WHERE SEQUENCE_ID IN (SELECT TOP $limit$ SEQUENCE_ID FROM MESSAGE WITH (NOLOCK)
 			</isNotNull>
 			<include refid="messageFilterCriteria" />
 			<isNotNull property="limit">
