@@ -2769,7 +2769,7 @@ public class Frame extends JXFrame {
         }
 
         setBold(viewPane, 5);
-        setPanelName("System Events");
+        setPanelName("Events");
         setCurrentContentPage(eventBrowser);
         setFocus(eventTasks);
 
@@ -3496,7 +3496,7 @@ public class Frame extends JXFrame {
     }
 
     public void doRemoveAllEvents() {
-        if (alertOption(this, "Are you sure you would like to clear all system events?")) {
+        if (alertOption(this, "Are you sure you would like to clear all events?")) {
             setWorking("Clearing events...", true);
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {

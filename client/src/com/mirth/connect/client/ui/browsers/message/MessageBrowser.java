@@ -79,7 +79,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private final int PREVIOUS_PAGE = -1;
     private final int NEXT_PAGE = 1;
     private final String MESSAGE_ID_COLUMN_NAME = "Message ID";
-    private final String DATE_COLUMN_NAME = "Date";
+    private final String DATE_COLUMN_NAME = "Date & Time";
     private final String CONNECTOR_COLUMN_NAME = "Connector";
     private final String STATUS_COLUMN_NAME = "Status";
     private final String SCOPE_COLUMN_NAME = "Scope";
@@ -488,7 +488,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageTable.setSelectionMode(0);
 
         messageTable.getColumnExt(MESSAGE_ID_COLUMN_NAME).setVisible(false);
-        messageTable.getColumnExt(DATE_COLUMN_NAME).setMinWidth(100);
+        messageTable.getColumnExt(DATE_COLUMN_NAME).setMinWidth(140);
+        messageTable.getColumnExt(DATE_COLUMN_NAME).setMaxWidth(140);
 
         messageTable.setRowHeight(UIConstants.ROW_HEIGHT);
         messageTable.setOpaque(true);

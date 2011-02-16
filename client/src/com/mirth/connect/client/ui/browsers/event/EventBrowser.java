@@ -52,7 +52,7 @@ public class EventBrowser extends javax.swing.JPanel {
     private final int PREVIOUS_PAGE = -1;
     private final int NEXT_PAGE = 1;
     private final String EVENT_ID_COLUMN_NAME = "ID";
-    private final String EVENT_DATE_COLUMN_NAME = "Date";
+    private final String EVENT_DATE_COLUMN_NAME = "Date & Time";
     private final String EVENT_LEVEL_COLUMN_NAME = "Level";
     private final String EVENT_NAME_COLUMN_NAME = "Name";
     private final String EVENT_USER_COLUMN_NAME = "User";
@@ -288,7 +288,8 @@ public class EventBrowser extends javax.swing.JPanel {
 
         eventTable.getColumnExt(EVENT_ID_COLUMN_NAME).setVisible(false);
         
-        eventTable.getColumnExt(EVENT_DATE_COLUMN_NAME).setMinWidth(100);
+        eventTable.getColumnExt(EVENT_DATE_COLUMN_NAME).setMinWidth(140);
+        eventTable.getColumnExt(EVENT_DATE_COLUMN_NAME).setMaxWidth(140);
         eventTable.getColumnExt(EVENT_LEVEL_COLUMN_NAME).setMinWidth(50);
         eventTable.getColumnExt(EVENT_LEVEL_COLUMN_NAME).setMaxWidth(50);
         eventTable.getColumnExt(EVENT_OUTCOME_COLUMN_NAME).setMinWidth(65);
