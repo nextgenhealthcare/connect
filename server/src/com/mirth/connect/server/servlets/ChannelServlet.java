@@ -46,7 +46,7 @@ public class ChannelServlet extends MirthServlet {
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
                 
                 if (operation.equals(Operations.CHANNEL_GET)) {
-                    response.setContentType("application/xml");
+                    response.setContentType(APPLICATION_XML);
                     List<Channel> channels = null;
                     Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
                     parameterMap.put("channel", channel);
@@ -67,7 +67,7 @@ public class ChannelServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        response.setContentType("text/plain");
+                        response.setContentType(TEXT_PLAIN);
                         // NOTE: This needs to be print rather than println to
                         // avoid the newline
                         out.print(channelController.updateChannel(channel, override));
@@ -82,7 +82,7 @@ public class ChannelServlet extends MirthServlet {
                         channelController.removeChannel(channel);
                     }
                 } else if (operation.equals(Operations.CHANNEL_GET_SUMMARY)) {
-                    response.setContentType("application/xml");
+                    response.setContentType(APPLICATION_XML);
                     List<ChannelSummary> channels = null;
                     Map<String, Integer> cachedChannels = (Map<String, Integer>) serializer.fromXML(request.getParameter("cachedChannels"));
                     parameterMap.put("cachedChannels", cachedChannels);

@@ -21,6 +21,9 @@ import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
 public abstract class MirthServlet extends HttpServlet {
+    public static final String TEXT_PLAIN = "text/plain";
+    public static final String APPLICATION_XML = "application/xml";
+    
     private AuthorizationController authorizationController = ControllerFactory.getFactory().createAuthorizationController();
 
     public boolean isUserLoggedIn(HttpServletRequest request) {

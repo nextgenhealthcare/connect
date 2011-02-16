@@ -50,7 +50,7 @@ public class UserServlet extends MirthServlet {
             String username = request.getParameter("username");
             String password = request.getParameter("password");
             String version = request.getParameter("version");
-            response.setContentType("text/plain");
+            response.setContentType(TEXT_PLAIN);
             out.print(login(request, response, userController, eventController, username, password, version));
         } else if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -59,7 +59,7 @@ public class UserServlet extends MirthServlet {
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
                 
                 if (operation.equals(Operations.USER_AUTHORIZE)) {
-                    response.setContentType("text/plain");
+                    response.setContentType(TEXT_PLAIN);
                     User user = (User) serializer.fromXML(request.getParameter("user"));
                     String password = request.getParameter("password");
                     out.print(userController.authorizeUser(user, password));
@@ -70,7 +70,7 @@ public class UserServlet extends MirthServlet {
                      * If the requesting user does not have permission, only
                      * return themselves.
                      */
-                    response.setContentType("application/xml");
+                    response.setContentType(APPLICATION_XML);
                     User user = (User) serializer.fromXML(request.getParameter("user"));
                     parameterMap.put("user", user);
 
@@ -105,7 +105,7 @@ public class UserServlet extends MirthServlet {
                     parameterMap.put("user", user);
 
                     if (isUserAuthorized(request, parameterMap)) {
-                        response.setContentType("text/plain");
+                        response.setContentType(TEXT_PLAIN);
                         out.print(userController.isUserLoggedIn(user));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -115,7 +115,7 @@ public class UserServlet extends MirthServlet {
                     parameterMap.put("user", user);
 
                     if (isUserAuthorized(request, parameterMap) || isCurrentUser(request, user)) {
-                        response.setContentType("text/plain");
+                        response.setContentType(TEXT_PLAIN);
                         out.println(serializer.toXML(userController.getUserPreferences(user)));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);

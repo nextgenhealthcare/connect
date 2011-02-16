@@ -84,7 +84,7 @@ public class ExtensionServlet extends MirthServlet {
                     String pluginName = request.getParameter("name");
 
                     if (isUserAuthorizedForExtension(request, pluginName, operation.getName(), null)) {
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.println(serializer.toXML(extensionController.getPluginProperties(pluginName)));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -100,6 +100,7 @@ public class ExtensionServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.PLUGIN_METADATA_GET)) {
+                    response.setContentType(APPLICATION_XML);
                     out.println(serializer.toXML(extensionController.getPluginMetaData(), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class }));
                 } else if (operation.equals(Operations.PLUGIN_METADATA_SET)) {
                     Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class });
@@ -111,7 +112,7 @@ public class ExtensionServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONNECTOR_METADATA_GET)) {
-                    response.setContentType("application/xml");
+                    response.setContentType(APPLICATION_XML);
                     out.println(serializer.toXML(extensionController.getConnectorMetaData(), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class }));
                 } else if (operation.equals(Operations.CONNECTOR_METADATA_SET)) {
                     Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
@@ -124,7 +125,8 @@ public class ExtensionServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.EXTENSION_IS_ENABLED)) {
                     String extensionName = request.getParameter("name");
-                    out.println(extensionController.isExtensionEnabled(extensionName));
+                    response.setContentType(TEXT_PLAIN);
+                    out.print(extensionController.isExtensionEnabled(extensionName));
                 } else if (operation.equals(Operations.PLUGIN_SERVICE_INVOKE)) {
                     String pluginName = request.getParameter("name");
                     String method = request.getParameter("method");
@@ -141,6 +143,7 @@ public class ExtensionServlet extends MirthServlet {
                     String method = request.getParameter("method");
                     Object object = serializer.fromXML(request.getParameter("object"));
                     String sessionId = request.getSession().getId();
+                    response.setContentType(APPLICATION_XML);
                     out.println(serializer.toXML(extensionController.invokeConnectorService(name, method, object, sessionId)));
                 } else if (operation.equals(Operations.EXTENSION_UNINSTALL)) {
                     String packageName = request.getParameter("packageName");

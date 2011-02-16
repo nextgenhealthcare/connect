@@ -39,7 +39,7 @@ public class ConfigurationServlet extends MirthServlet {
             Operation operation = Operations.getOperation(request.getParameter("op"));
 
             if (operation.equals(Operations.CONFIGURATION_STATUS_GET)) {
-                response.setContentType("text/plain");
+                response.setContentType(TEXT_PLAIN);
                 out.println(ControllerFactory.getFactory().createConfigurationController().getStatus());
             } else if (!isUserLoggedIn(request)) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -51,13 +51,13 @@ public class ConfigurationServlet extends MirthServlet {
 
                 if (operation.equals(Operations.CONFIGURATION_CHARSET_ENCODINGS_GET)) {
                     if (isUserAuthorized(request, null)) {
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.println(serializer.toXML(configurationController.getAvaiableCharsetEncodings()));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_SERVER_PROPERTIES_GET)) {
-                    response.setContentType("application/xml");
+                    response.setContentType(APPLICATION_XML);
 
                     if (isUserAuthorized(request, null)) {
                         out.println(serializer.toXML(configurationController.getServerProperties()));
@@ -86,35 +86,35 @@ public class ConfigurationServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_GUID_GET)) {
                     if (isUserAuthorized(request, null)) {
-                        response.setContentType("text/plain");
+                        response.setContentType(TEXT_PLAIN);
                         out.print(configurationController.generateGuid());
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_DATABASE_DRIVERS_GET)) {
                     if (isUserAuthorized(request, null)) {
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.println(serializer.toXML(configurationController.getDatabaseDrivers()));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_VERSION_GET)) {
                     if (isUserAuthorized(request, null)) {
-                        response.setContentType("text/plain");
+                        response.setContentType(TEXT_PLAIN);
                         out.print(configurationController.getServerVersion());
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_BUILD_DATE_GET)) {
                     if (isUserAuthorized(request, null)) {
-                        response.setContentType("text/plain");
+                        response.setContentType(TEXT_PLAIN);
                         out.print(configurationController.getBuildDate());
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.SERVER_CONFIGURATION_GET)) {
                     if (isUserAuthorized(request, null)) {
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.println(serializer.toXML(configurationController.getServerConfiguration()));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -130,21 +130,21 @@ public class ConfigurationServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_SERVER_ID_GET)) {
                     if (isUserAuthorized(request, null)) {
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.println(configurationController.getServerId());
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_SERVER_TIMEZONE_GET)) {
                     if (isUserAuthorized(request, null)) {
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.println(configurationController.getServerTimezone(request.getLocale()));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.GLOBAL_SCRIPT_GET)) {
                     if (isUserAuthorized(request, null)) {
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.println(serializer.toXML(scriptController.getGlobalScripts()));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -160,7 +160,7 @@ public class ConfigurationServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.CONFIGURATION_PASSWORD_REQUIREMENTS_GET)) {
                     if (isUserAuthorized(request, null)) {
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.println(serializer.toXML(configurationController.getPasswordRequirements()));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);

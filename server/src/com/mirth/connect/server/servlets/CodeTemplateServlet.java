@@ -50,7 +50,7 @@ public class CodeTemplateServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.println(serializer.toXML(codeTemplateController.getCodeTemplate(codeTemplate)));
                     }
                 } else if (operation.equals(Operations.CODE_TEMPLATE_UPDATE)) {

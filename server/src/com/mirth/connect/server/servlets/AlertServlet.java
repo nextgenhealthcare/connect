@@ -50,7 +50,7 @@ public class AlertServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.println(serializer.toXML(alertController.getAlert(alert)));
                     }
                 } else if (operation.equals(Operations.ALERT_UPDATE)) {

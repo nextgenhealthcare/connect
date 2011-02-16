@@ -62,7 +62,7 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        response.setContentType("text/plain");
+                        response.setContentType(TEXT_PLAIN);
                         out.println(messageObjectController.createMessagesTempTable(filter, uid, useNewTempTable));
                     }
                 } else if (operation.equals(Operations.MESSAGE_FILTER_TABLES_REMOVE)) {
@@ -78,7 +78,7 @@ public class MessageObjectServlet extends MirthServlet {
                         int page = Integer.parseInt(request.getParameter("page"));
                         int pageSize = Integer.parseInt(request.getParameter("pageSize"));
                         int max = Integer.parseInt(request.getParameter("maxMessages"));
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.print(serializer.toXML(messageObjectController.getMessagesByPage(page, pageSize, max, uid, true)));
                     }
 
@@ -92,7 +92,7 @@ public class MessageObjectServlet extends MirthServlet {
                         int page = Integer.parseInt(request.getParameter("page"));
                         int pageSize = Integer.parseInt(request.getParameter("pageSize"));
                         int max = Integer.parseInt(request.getParameter("maxMessages"));
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.print(serializer.toXML(messageObjectController.getMessagesByPageLimit(page, pageSize, max, uid, filter)));
                     }
                 } else if (operation.equals(Operations.MESSAGE_REMOVE)) {
@@ -151,7 +151,7 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         Attachment attachment = messageObjectController.getAttachment(attachmentId);
                         out.println(serializer.toXML(attachment));
                     }
@@ -162,7 +162,7 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         List<Attachment> list = messageObjectController.getAttachmentsByMessageId(messageId);
                         out.println(serializer.toXML(list));
                     }
@@ -173,7 +173,7 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         List<Attachment> list = messageObjectController.getAttachmentIdsByMessageId(messageId);
                         out.println(serializer.toXML(list));
                     }

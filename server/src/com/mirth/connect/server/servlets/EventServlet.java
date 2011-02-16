@@ -59,7 +59,7 @@ public class EventServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        response.setContentType("text/plain");
+                        response.setContentType(TEXT_PLAIN);
                         out.println(eventController.createTempTable(eventFilter, uid, useNewTempTable));
                     }
                 } else if (operation.equals(Operations.EVENT_REMOVE_FILTER_TABLES)) {
@@ -75,7 +75,7 @@ public class EventServlet extends MirthServlet {
                         int page = Integer.parseInt(request.getParameter("page"));
                         int pageSize = Integer.parseInt(request.getParameter("pageSize"));
                         int max = Integer.parseInt(request.getParameter("maxEvents"));
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.print(serializer.toXML(eventController.getEventsByPage(page, pageSize, max, uid)));
                     }
                 } else if (operation.equals(Operations.EVENT_GET_BY_PAGE_LIMIT)) {
@@ -88,7 +88,7 @@ public class EventServlet extends MirthServlet {
                         int page = Integer.parseInt(request.getParameter("page"));
                         int pageSize = Integer.parseInt(request.getParameter("pageSize"));
                         int max = Integer.parseInt(request.getParameter("maxEvents"));
-                        response.setContentType("application/xml");
+                        response.setContentType(APPLICATION_XML);
                         out.print(serializer.toXML(eventController.getEventsByPageLimit(page, pageSize, max, uid, eventFilter)));
                     }
                 } else if (operation.equals(Operations.EVENT_REMOVE_ALL)) {
