@@ -442,9 +442,12 @@ public class DefaultExtensionController extends ExtensionController {
         extensionMetaData.addAll(connectors.values());
 
         for (MetaData metaData : extensionMetaData) {
-            for (ExtensionLibrary library : metaData.getLibraries()) {
-                if (library.getType().equals(ExtensionLibrary.Type.CLIENT) || library.getType().equals(ExtensionLibrary.Type.SHARED)) {
-                    clientLibraries.add(metaData.getPath() + "/" + library.getPath());
+            // Only add enabled extension libraries to the classpath
+            if (metaData.isEnabled()) {
+                for (ExtensionLibrary library : metaData.getLibraries()) {
+                    if (library.getType().equals(ExtensionLibrary.Type.CLIENT) || library.getType().equals(ExtensionLibrary.Type.SHARED)) {
+                        clientLibraries.add(metaData.getPath() + "/" + library.getPath());
+                    }
                 }
             }
         }
