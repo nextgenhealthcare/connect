@@ -165,11 +165,11 @@ public class DefaultExtensionController extends ExtensionController {
         for (ServerPlugin plugin : serverPlugins.values()) {
             plugin.start();
         }
-        
-        // Get all of the server plugin extension permissions and
-        // add those to the authorization controller.
+
+        // Get all of the server plugin extension permissions and add those to
+        // the authorization controller.
         AuthorizationController authorizationController = ControllerFactory.getFactory().createAuthorizationController();
-        
+
         for (ServerPlugin plugin : serverPlugins.values()) {
             if (plugin.getExtensionPermissions() != null) {
                 for (ExtensionPermission extensionPermission : plugin.getExtensionPermissions()) {

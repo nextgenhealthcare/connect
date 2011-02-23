@@ -48,6 +48,8 @@ import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.MessageObject.Protocol;
 import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.ServerSettings;
+import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
@@ -127,6 +129,15 @@ public class ImportConverter {
 
         ServerConfiguration config = (ServerConfiguration) serializer.fromXML(serverConfiguration);
         config.setChannels(channelList);
+        
+        // ServerSettings and UpdateSettings didn't exist until 2.1
+        if (config.getServerSettings() == null) {
+            config.setServerSettings(new ServerSettings());
+        }
+        
+        if (config.getUpdateSettings() == null) {
+            config.setUpdateSettings(new UpdateSettings());
+        }
 
         return config;
     }

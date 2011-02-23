@@ -83,7 +83,7 @@ public class ErrorDialog extends javax.swing.JDialog {
         image = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Submit Error");
+        setTitle("Error");
 
         cancel.setText("Close");
         cancel.addActionListener(new java.awt.event.ActionListener() {

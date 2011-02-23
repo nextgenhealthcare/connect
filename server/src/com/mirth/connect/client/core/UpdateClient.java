@@ -34,10 +34,10 @@ import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerInfo;
 import com.mirth.connect.model.UpdateInfo;
+import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.UsageData;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.util.PropertyLoader;
 
 public class UpdateClient {
     private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -105,18 +105,18 @@ public class UpdateClient {
     }
 
     public void sendUsageStatistics() throws ClientException {
-    	// Only send stats if they haven't been sent in the last 24 hours.
-    	long now = System.currentTimeMillis();
-    	String lastUpdate = client.getServerProperties().getProperty("stats.time");
-    	
-    	if (lastUpdate != null && lastUpdate.length() > 0) {
-    		long last = Long.parseLong(lastUpdate);
-    		// 86400 seconds in a day
-    		if ((now - last) < (86400 * 1000)) {
-    			return;
-    		}
-    	}
-    	
+        // Only send stats if they haven't been sent in the last 24 hours.
+        long now = System.currentTimeMillis();
+        Long lastUpdate = client.getUpdateSettings().getLastStatsTime();
+
+        if (lastUpdate != null) {
+            long last = lastUpdate;
+            // 86400 seconds in a day
+            if ((now - last) < (86400 * 1000)) {
+                return;
+            }
+        }
+
         List<UsageData> usageData = null;
 
         try {
@@ -126,13 +126,13 @@ public class UpdateClient {
         }
 
         HttpClientParams httpClientParams = new HttpClientParams();
-    	HttpConnectionManager httpConnectionManager = new SimpleHttpConnectionManager();
-    	httpClientParams.setSoTimeout(10 * 1000);
+        HttpConnectionManager httpConnectionManager = new SimpleHttpConnectionManager();
+        httpClientParams.setSoTimeout(10 * 1000);
         httpConnectionManager.getParams().setConnectionTimeout(10 * 1000);
         httpConnectionManager.getParams().setSoTimeout(10 * 1000);
         HttpClient httpClient = new HttpClient(httpClientParams, httpConnectionManager);
 
-        PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_USAGE_STATISTICS);
+        PostMethod post = new PostMethod(client.getUpdateSettings().getUpdateUrl() + URL_USAGE_STATISTICS);
         NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("version", client.getVersion()), new NameValuePair("data", serializer.toXML(usageData)) };
         post.setRequestBody(params);
 
@@ -142,12 +142,12 @@ public class UpdateClient {
             if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
                 throw new Exception("Failed to connect to update server: " + post.getStatusLine());
             }
-            
+
             // Save the sent time if sending was successful.
-            Properties properties = client.getServerProperties();
-            properties.setProperty("stats.time", Long.toString(now));
-            client.setServerProperties(properties);
-            
+            UpdateSettings settings = new UpdateSettings();
+            settings.setLastStatsTime(now);
+            client.setUpdateSettings(settings);
+
         } catch (Exception e) {
             throw new ClientException(e);
         } finally {
@@ -156,14 +156,14 @@ public class UpdateClient {
     }
 
     public void registerUser(User user) throws ClientException {
-    	HttpClientParams httpClientParams = new HttpClientParams();
-    	HttpConnectionManager httpConnectionManager = new SimpleHttpConnectionManager();
-    	httpClientParams.setSoTimeout(10 * 1000);
+        HttpClientParams httpClientParams = new HttpClientParams();
+        HttpConnectionManager httpConnectionManager = new SimpleHttpConnectionManager();
+        httpClientParams.setSoTimeout(10 * 1000);
         httpConnectionManager.getParams().setConnectionTimeout(10 * 1000);
         httpConnectionManager.getParams().setSoTimeout(10 * 1000);
         HttpClient httpClient = new HttpClient(httpClientParams, httpConnectionManager);
 
-        PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_REGISTRATION);
+        PostMethod post = new PostMethod(client.getUpdateSettings().getUpdateUrl() + URL_REGISTRATION);
         NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("user", serializer.toXML(requestUser)) };
         post.setRequestBody(params);
 
@@ -181,14 +181,14 @@ public class UpdateClient {
     }
 
     private List<UpdateInfo> getUpdatesFromUri(ServerInfo serverInfo) throws Exception {
-    	HttpClientParams httpClientParams = new HttpClientParams();
-    	HttpConnectionManager httpConnectionManager = new SimpleHttpConnectionManager();
-    	httpClientParams.setSoTimeout(10 * 1000);
+        HttpClientParams httpClientParams = new HttpClientParams();
+        HttpConnectionManager httpConnectionManager = new SimpleHttpConnectionManager();
+        httpClientParams.setSoTimeout(10 * 1000);
         httpConnectionManager.getParams().setConnectionTimeout(10 * 1000);
         httpConnectionManager.getParams().setSoTimeout(10 * 1000);
         HttpClient httpClient = new HttpClient(httpClientParams, httpConnectionManager);
 
-        PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_UPDATES);
+        PostMethod post = new PostMethod(client.getUpdateSettings().getUpdateUrl() + URL_UPDATES);
         NameValuePair[] params = { new NameValuePair("serverInfo", serializer.toXML(serverInfo)) };
         post.setRequestBody(params);
 

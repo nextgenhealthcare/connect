@@ -63,6 +63,10 @@ public class LoadedExtensions {
     }
 
     public void initialize() {
+        // Remove all existing extensions from the maps in case they are being
+        // initialized again
+        clearExtensionMaps();
+
         for (PluginMetaData metaData : parent.getPluginMetaData().values()) {
             try {
                 if (metaData.isEnabled()) {
@@ -159,6 +163,22 @@ public class LoadedExtensions {
         } else {
             throw new Exception("Client plugin is not a recognized plugin class.");
         }
+    }
+
+    private void clearExtensionMaps() {
+        clientPlugins.clear();
+
+        settingsPanelPlugins.clear();
+        dashboardPanelPlugins.clear();
+        channelWizardPlugins.clear();
+        dashboardColumnPlugins.clear();
+        attachmentViewerPlugins.clear();
+        filterRulePlugins.clear();
+        transformerStepPlugins.clear();
+
+        connectors.clear();
+        sourceConnectors.clear();
+        destinationConnectors.clear();
     }
 
     public Map<String, ClientPlugin> getClientPlugins() {

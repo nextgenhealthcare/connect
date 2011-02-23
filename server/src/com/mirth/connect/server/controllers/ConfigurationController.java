@@ -18,6 +18,8 @@ import javax.crypto.SecretKey;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.ServerSettings;
+import com.mirth.connect.model.UpdateSettings;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.
@@ -109,20 +111,36 @@ public abstract class ConfigurationController extends Controller {
     public abstract String getApplicationDataDir();
 
     /**
-     * Returns all properties from the "core" group.
+     * Returns all server settings.
      * 
-     * @return all server properties
+     * @return server settings
      * @throws ControllerException
      */
-    public abstract Properties getServerProperties() throws ControllerException;
+    public abstract ServerSettings getServerSettings() throws ControllerException;
 
     /**
-     * Sets all properties in the "core" group.
+     * Sets all server settings.
      * 
-     * @param properties the properties to set
+     * @param server settings
      * @throws ControllerException
      */
-    public abstract void setServerProperties(Properties properties) throws ControllerException;
+    public abstract void setServerSettings(ServerSettings settings) throws ControllerException;
+    
+    /**
+     * Returns all update settings.
+     * 
+     * @return update settings
+     * @throws ControllerException
+     */
+    public abstract UpdateSettings getUpdateSettings() throws ControllerException;
+
+    /**
+     * Sets all update settings.
+     * 
+     * @param update settings
+     * @throws ControllerException
+     */
+    public abstract void setUpdateSettings(UpdateSettings settings) throws ControllerException;
 
     /**
      * Generates a new GUID.

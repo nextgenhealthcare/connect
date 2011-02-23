@@ -23,7 +23,8 @@ public class ServerConfiguration implements Serializable {
     private List<User> users = null;
     private List<Alert> alerts = null;
     private List<CodeTemplate> codeTemplates = null;
-    private Properties properties = null;
+    private ServerSettings serverSettings = null;
+    private UpdateSettings updateSettings = null;
     private Map<String, String> globalScripts = null;
     private Map<String, Properties> pluginProperties = null;
 
@@ -43,12 +44,20 @@ public class ServerConfiguration implements Serializable {
         this.channels = channels;
     }
 
-    public Properties getProperties() {
-        return this.properties;
+    public ServerSettings getServerSettings() {
+        return serverSettings;
     }
 
-    public void setProperties(Properties properties) {
-        this.properties = properties;
+    public void setServerSettings(ServerSettings serverSettings) {
+        this.serverSettings = serverSettings;
+    }
+
+    public UpdateSettings getUpdateSettings() {
+        return updateSettings;
+    }
+
+    public void setUpdateSettings(UpdateSettings updateSettings) {
+        this.updateSettings = updateSettings;
     }
 
     public List<User> getUsers() {
@@ -71,7 +80,7 @@ public class ServerConfiguration implements Serializable {
         return this.codeTemplates;
     }
 
-    public void setCodeTempaltes(List<CodeTemplate> codeTemplates) {
+    public void setCodeTemplates(List<CodeTemplate> codeTemplates) {
         this.codeTemplates = codeTemplates;
     }
 

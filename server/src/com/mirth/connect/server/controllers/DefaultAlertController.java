@@ -179,8 +179,7 @@ public class DefaultAlertController extends AlertController {
 
     private void sendAlertEmails(String subject, List<String> emails, String template, String fullErrorMessage, String shortErrorMessage, String channelId) throws ControllerException {
         TemplateValueReplacer replacer = new TemplateValueReplacer();
-        Properties properties = ControllerFactory.getFactory().createConfigurationController().getServerProperties();
-        final String fromAddress = PropertyLoader.getProperty(properties, "smtp.from");
+        final String fromAddress = ControllerFactory.getFactory().createConfigurationController().getServerSettings().getSmtpFrom();
         final String toAddresses = generateEmailList(emails);
 
         Map<String, Object> context = new HashMap<String, Object>();

@@ -74,7 +74,8 @@ public class SettingsPane extends javax.swing.JPanel {
     }
     
     public void setSelectedSettingsPanel(int index) {
-        setCurrentSettingsPanel(index);
+        // The custom SingleSelectionModel calls setCurrentSettingsPanel(index)
+        // when tabbedPane.setSelectedIndex(0) is called.
         tabbedPane.setSelectedIndex(0);
     }
 

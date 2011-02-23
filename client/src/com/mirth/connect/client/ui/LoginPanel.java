@@ -10,7 +10,6 @@
 package com.mirth.connect.client.ui;
 
 import java.awt.Cursor;
-import java.util.Properties;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
@@ -362,9 +361,7 @@ public class LoginPanel extends javax.swing.JFrame {
                         thisPanel.dispose();
 
                         try {
-                            Properties serverProperties = client.getServerProperties();
-                            String registered = serverProperties.getProperty("firstlogin");
-                            if (registered == null || registered.equals(UIConstants.YES_OPTION)) {
+                            if (client.getUpdateSettings().getFirstLogin()) {
                                 User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(PlatformUI.MIRTH_FRAME);
 
                                 if (currentUser != null) {

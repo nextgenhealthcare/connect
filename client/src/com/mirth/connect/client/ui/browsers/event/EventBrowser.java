@@ -141,8 +141,12 @@ public class EventBrowser extends javax.swing.JPanel {
      * their names.
      */
     private void updateCachedUserMap() {
-        // TODO: Update cached users, but this shows up as an extra event
-        // parent.retrieveUsers()
+        // Retrieve users again to update the cache
+        try {
+            parent.retrieveUsers();
+        } catch (ClientException e) {
+            parent.alertException(this, e.getStackTrace(), e.getMessage());
+        }
         
         userMapById.clear();
         userMapById.put(-1, UIConstants.ALL_OPTION);

@@ -59,6 +59,8 @@ import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.ServerSettings;
+import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.tools.ClassPathResource;
@@ -237,11 +239,23 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
-    public Properties getServerProperties() throws ControllerException {
-        return getPropertiesForGroup(PROPERTIES_CORE);
+    public ServerSettings getServerSettings() throws ControllerException {
+        return new ServerSettings(getPropertiesForGroup(PROPERTIES_CORE));
     }
 
-    public void setServerProperties(Properties properties) throws ControllerException {
+    public void setServerSettings(ServerSettings settings) throws ControllerException {
+        Properties properties = settings.getProperties();
+        for (Object name : properties.keySet()) {
+            saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));
+        }
+    }
+
+    public UpdateSettings getUpdateSettings() throws ControllerException {
+        return new UpdateSettings(getPropertiesForGroup(PROPERTIES_CORE));
+    }
+
+    public void setUpdateSettings(UpdateSettings settings) throws ControllerException {
+        Properties properties = settings.getProperties();
         for (Object name : properties.keySet()) {
             saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));
         }
@@ -398,8 +412,9 @@ public class DefaultConfigurationController extends ConfigurationController {
         ServerConfiguration serverConfiguration = new ServerConfiguration();
         serverConfiguration.setChannels(channelController.getChannel(null));
         serverConfiguration.setAlerts(alertController.getAlert(null));
-        serverConfiguration.setCodeTempaltes(codeTemplateController.getCodeTemplate(null));
-        serverConfiguration.setProperties(getServerProperties());
+        serverConfiguration.setCodeTemplates(codeTemplateController.getCodeTemplate(null));
+        serverConfiguration.setServerSettings(getServerSettings());
+        serverConfiguration.setUpdateSettings(getUpdateSettings());
         serverConfiguration.setGlobalScripts(scriptController.getGlobalScripts());
 
         // Put the properties for every plugin with properties in a map.
@@ -426,8 +441,6 @@ public class DefaultConfigurationController extends ConfigurationController {
         CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
         ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
-
-        setServerProperties(serverConfiguration.getProperties());
 
         if (serverConfiguration.getChannels() != null) {
             // Undeploy all channels before updating or removing them
@@ -464,6 +477,14 @@ public class DefaultConfigurationController extends ConfigurationController {
         if (serverConfiguration.getCodeTemplates() != null) {
             codeTemplateController.removeCodeTemplate(null);
             codeTemplateController.updateCodeTemplates(serverConfiguration.getCodeTemplates());
+        }
+
+        if (serverConfiguration.getServerSettings() != null) {
+            setServerSettings(serverConfiguration.getServerSettings());
+        }
+        
+        if (serverConfiguration.getUpdateSettings() != null) {
+            setUpdateSettings(serverConfiguration.getUpdateSettings());
         }
 
         if (serverConfiguration.getGlobalScripts() != null) {
@@ -597,7 +618,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             PropertiesConfiguration properties = new PropertiesConfiguration();
             properties.setDelimiterParsingDisabled(true);
             properties.load(ResourceUtil.getResourceStream(this.getClass(), "mirth.properties"));
-            
+
             String alias = properties.getString("keystore.alias");
             File keyStoreFile = new File(properties.getString("keystore.path"));
             String keyStoreType = properties.getString("keystore.storetype");
@@ -652,13 +673,13 @@ public class DefaultConfigurationController extends ConfigurationController {
             logger.error("Could not generate certificate.", e);
         }
     }
-    
+
     public void generateDefaultTrustStore() {
         try {
             PropertiesConfiguration properties = new PropertiesConfiguration();
             properties.setDelimiterParsingDisabled(true);
             properties.load(ResourceUtil.getResourceStream(this.getClass(), "mirth.properties"));
-            
+
             File trustStoreFile = new File(properties.getString("truststore.path"));
             String trustStoreType = properties.getString("truststore.storetype");
             char[] trustStorePassword = properties.getString("truststore.storepass").toCharArray();

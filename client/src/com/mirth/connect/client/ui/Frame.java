@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Stack;
 import java.util.UUID;
 import java.util.prefs.Preferences;
@@ -58,6 +57,7 @@ import javax.swing.border.LineBorder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXFrame;
 import org.jdesktop.swingx.JXHyperlink;
@@ -94,7 +94,9 @@ import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateInfo;
+import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageObjectFilter;
@@ -332,11 +334,12 @@ public class Frame extends JXFrame {
     public void setupFrame(Client mirthClient, LoginPanel login) {
 
         this.mirthClient = mirthClient;
+        login.setStatus("Loading extensions...");
+        loadExtensionMetaData();
         // Re-initialize the controller every time the frame is setup
         AuthorizationControllerFactory.getAuthorizationController().initialize();
         refreshCodeTemplates();
-        login.setStatus("Loading extensions...");
-        loadExtensions();
+        initializeExtensions();
         setInitialVisibleTasks();
         login.setStatus("Loading preferences...");
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
@@ -416,17 +419,18 @@ public class Frame extends JXFrame {
 
     }
 
-    public void loadExtensions() {
+    private void loadExtensionMetaData() {
         try {
             loadedPlugins = mirthClient.getPluginMetaData();
             loadedConnectors = mirthClient.getConnectorMetaData();
         } catch (ClientException e) {
             alertException(this, e.getStackTrace(), "Unable to load extensions");
         }
-        
+    }
+    
+    private void initializeExtensions() {
         // Initialize all of the extensions now that the metadata has been retrieved
         LoadedExtensions.getInstance().initialize();
-        
         LoadedExtensions.getInstance().startPlugins();
     }
 
@@ -1381,15 +1385,15 @@ public class Frame extends JXFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                Properties serverProperties = null;
+                UpdateSettings updateSettings = null;
                 try {
-                    serverProperties = mirthClient.getServerProperties();
+                    updateSettings = mirthClient.getUpdateSettings();
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
 
                 // Only check if updates are enabled
-                if ((serverProperties != null) && (serverProperties.getProperty("update.enabled") != null) && serverProperties.getProperty("update.enabled").equals(UIConstants.YES_OPTION)) {
+                if ((updateSettings != null) && updateSettings.getUpdatesEnabled()) {
                     try {
                         List<UpdateInfo> updateInfoList = getUpdateClient(PlatformUI.MIRTH_FRAME).getUpdates();
 
@@ -1427,14 +1431,14 @@ public class Frame extends JXFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                Properties serverProperties = null;
+                UpdateSettings updateSettings = null;
                 try {
-                    serverProperties = mirthClient.getServerProperties();
+                    updateSettings = mirthClient.getUpdateSettings();
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
 
-                if ((serverProperties != null) && (serverProperties.getProperty("stats.enabled") != null) && serverProperties.getProperty("stats.enabled").equals(UIConstants.YES_OPTION)) {
+                if ((updateSettings != null) && updateSettings.getStatsEnabled()) {
                     try {
                         getUpdateClient(PlatformUI.MIRTH_FRAME).sendUsageStatistics();
                     } catch (ClientException e) {
@@ -3567,9 +3571,15 @@ public class Frame extends JXFrame {
 
     public boolean saveAlerts() {
         try {
-            Properties serverProperties = mirthClient.getServerProperties();
-            if (!(serverProperties.getProperty("smtp.host") != null && (serverProperties.getProperty("smtp.host")).length() > 0) || !(serverProperties.getProperty("smtp.port") != null && (serverProperties.getProperty("smtp.port")).length() > 0)) {
-                alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
+            try {
+                ServerSettings serverSettings = mirthClient.getServerSettings();
+                if (StringUtils.isBlank(serverSettings.getSmtpHost()) || StringUtils.isBlank(serverSettings.getSmtpPort())) {
+                    alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
+                } 
+            } catch (ClientException e) {
+                if (!(e.getCause() instanceof UnauthorizedException)) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage()); 
+                }
             }
 
             alertPanel.saveAlert();

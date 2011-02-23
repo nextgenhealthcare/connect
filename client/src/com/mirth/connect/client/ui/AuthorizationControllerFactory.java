@@ -9,17 +9,19 @@
 
 package com.mirth.connect.client.ui;
 
-import java.util.Properties;
-
 public class AuthorizationControllerFactory {
     private static AuthorizationController authorizationController = null;
 
     public static AuthorizationController getAuthorizationController() {
         if (authorizationController == null) {
-            try {
-                Properties serverProperties = PlatformUI.MIRTH_FRAME.mirthClient.getServerProperties();
-                authorizationController = (AuthorizationController) Class.forName(serverProperties.getProperty("clientAuthorizationController")).newInstance();
-            } catch (Exception e) {
+
+            if (PlatformUI.MIRTH_FRAME.getPluginMetaData().containsKey("User Authorization Plugin")) {
+                try {
+                    authorizationController = (AuthorizationController) Class.forName("com.mirth.connect.plugins.auth.client.SecureAuthorizationController").newInstance();
+                } catch (Exception e) {
+                    authorizationController = new DefaultAuthorizationController();
+                }
+            } else {
                 authorizationController = new DefaultAuthorizationController();
             }
         }

@@ -40,10 +40,12 @@ import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.ServerSettings;
+import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.model.filters.MessageObjectFilter;
 import com.mirth.connect.model.filters.EventFilter;
+import com.mirth.connect.model.filters.MessageObjectFilter;
 import com.mirth.connect.model.util.ImportConverter;
 
 public class Client {
@@ -462,26 +464,50 @@ public class Client {
     }
 
     /**
-     * Returns a Properties object with all server configuration properties.
+     * Returns a ServerSettings object with all server settings.
      * 
      * @return
      * @throws ClientException
      */
-    public Properties getServerProperties() throws ClientException {
-        logger.debug("retrieving server properties");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_PROPERTIES_GET.getName()) };
-        return (Properties) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
+    public ServerSettings getServerSettings() throws ClientException {
+        logger.debug("retrieving server settings");
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_SETTINGS_GET.getName()) };
+        return (ServerSettings) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
     }
 
     /**
-     * Updates the server configuration properties.
+     * Updates the server configuration settings.
      * 
-     * @param properties
+     * @param settings
      * @throws ClientException
      */
-    public synchronized void setServerProperties(Properties properties) throws ClientException {
-        logger.debug("updating server properties");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_PROPERTIES_SET.getName()), new NameValuePair("data", serializer.toXML(properties)) };
+    public synchronized void setServerSettings(ServerSettings settings) throws ClientException {
+        logger.debug("updating server settings");
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_SETTINGS_SET.getName()), new NameValuePair("data", serializer.toXML(settings)) };
+        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+    }
+    
+    /**
+     * Returns an UpdateSettings object with all update settings.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public UpdateSettings getUpdateSettings() throws ClientException {
+        logger.debug("retrieving update settings");
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_UPDATE_SETTINGS_GET.getName()) };
+        return (UpdateSettings) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
+    }
+
+    /**
+     * Updates the update settings.
+     * 
+     * @param settings
+     * @throws ClientException
+     */
+    public synchronized void setUpdateSettings(UpdateSettings settings) throws ClientException {
+        logger.debug("updating update settings");
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_UPDATE_SETTINGS_SET.getName()), new NameValuePair("data", serializer.toXML(settings)) };
         serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 

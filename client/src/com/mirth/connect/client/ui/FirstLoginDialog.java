@@ -14,11 +14,11 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Properties;
 
 import javax.swing.JDialog;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
 
 /**
@@ -240,16 +240,12 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         }
 
         try {
-            Properties serverProperties = parent.mirthClient.getServerProperties();
+            UpdateSettings updateSettings = new UpdateSettings();
+            
+            updateSettings.setStatsEnabled(usageStatsCheckBox.isSelected());
+            updateSettings.setFirstLogin(false);
 
-            if (usageStatsCheckBox.isSelected()) {
-                serverProperties.put("stats.enabled", UIConstants.YES_OPTION);
-            } else {
-                serverProperties.put("stats.enabled", UIConstants.NO_OPTION);
-            }
-
-            serverProperties.put("firstlogin", UIConstants.NO_OPTION);
-            parent.mirthClient.setServerProperties(serverProperties);
+            parent.mirthClient.setUpdateSettings(updateSettings);
         } catch (ClientException e) {
             parent.alertException(this, e.getStackTrace(), e.getMessage());
         }

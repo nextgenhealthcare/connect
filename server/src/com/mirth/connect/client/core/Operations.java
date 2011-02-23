@@ -22,10 +22,10 @@ public class Operations {
     public static final Operation CHANNEL_GET = new Operation("getChannel", "Get channel", true);
     public static final Operation CHANNEL_UPDATE = new Operation("updateChannel", "Update channel", true);
     public static final Operation CHANNEL_REMOVE = new Operation("removeChannel", "Remove channel", true);
-    public static final Operation CHANNEL_GET_SUMMARY = new Operation("getChannelSummary", "Get channel summary", true);
+    public static final Operation CHANNEL_GET_SUMMARY = new Operation("getChannelSummary", "Get channel summary", false);
 
     // Channel Statistics
-    public static final Operation CHANNEL_STATS_GET = new Operation("getStatistics", "Get statistics", true);
+    public static final Operation CHANNEL_STATS_GET = new Operation("getStatistics", "Get statistics", false);
     public static final Operation CHANNEL_STATS_CLEAR = new Operation("clearStatistics", "Clear statistics", true);
 
     // Channel Status
@@ -44,8 +44,10 @@ public class Operations {
     public static final Operation GLOBAL_SCRIPT_GET = new Operation("getGlobalScripts", "Get global scripts", true);
     public static final Operation GLOBAL_SCRIPT_SET = new Operation("setGlobalScripts", "Set global scripts", true);
     public static final Operation CONFIGURATION_CHARSET_ENCODINGS_GET = new Operation("getAvailableCharsetEncodings", "Get available charset encodings", false);
-    public static final Operation CONFIGURATION_SERVER_PROPERTIES_GET = new Operation("getServerProperties", "Get server properties", true);
-    public static final Operation CONFIGURATION_SERVER_PROPERTIES_SET = new Operation("setServerProperties", "Set server properties", true);
+    public static final Operation CONFIGURATION_SERVER_SETTINGS_GET = new Operation("getServerSettings", "Get server settings", true);
+    public static final Operation CONFIGURATION_SERVER_SETTINGS_SET = new Operation("setServerSettings", "Set server settings", true);
+    public static final Operation CONFIGURATION_UPDATE_SETTINGS_GET = new Operation("getUpdateSettings", "Get update settings", false);
+    public static final Operation CONFIGURATION_UPDATE_SETTINGS_SET = new Operation("setUpdateSettings", "Set update settings", true);
     public static final Operation CONFIGURATION_GUID_GET = new Operation("getGuid", "Get GUID", false);
     public static final Operation CONFIGURATION_DATABASE_DRIVERS_GET = new Operation("getDatabaseDrivers", "Get database drivers", false);
     public static final Operation CONFIGURATION_VERSION_GET = new Operation("getVersion", "Get version", false);
@@ -98,7 +100,7 @@ public class Operations {
     public static final Operation EVENT_REMOVE_ALL = new Operation("removeAllEvents", "Remove all events", true);
 
     // Users
-    public static final Operation USER_GET = new Operation("getUser", "Get user", true);
+    public static final Operation USER_GET = new Operation("getUser", "Get user", false);
     public static final Operation USER_UPDATE = new Operation("updateUser", "Update user", true);
     public static final Operation USER_REMOVE = new Operation("removeUser", "Remove user", true);
     public static final Operation USER_AUTHORIZE = new Operation("authorizeUser", "Authorize user", true);
@@ -131,8 +133,10 @@ public class Operations {
         operationMap.put(GLOBAL_SCRIPT_GET.getName(), GLOBAL_SCRIPT_GET);
         operationMap.put(GLOBAL_SCRIPT_SET.getName(), GLOBAL_SCRIPT_SET);
         operationMap.put(CONFIGURATION_CHARSET_ENCODINGS_GET.getName(), CONFIGURATION_CHARSET_ENCODINGS_GET);
-        operationMap.put(CONFIGURATION_SERVER_PROPERTIES_GET.getName(), CONFIGURATION_SERVER_PROPERTIES_GET);
-        operationMap.put(CONFIGURATION_SERVER_PROPERTIES_SET.getName(), CONFIGURATION_SERVER_PROPERTIES_SET);
+        operationMap.put(CONFIGURATION_SERVER_SETTINGS_GET.getName(), CONFIGURATION_SERVER_SETTINGS_GET);
+        operationMap.put(CONFIGURATION_SERVER_SETTINGS_SET.getName(), CONFIGURATION_SERVER_SETTINGS_SET);
+        operationMap.put(CONFIGURATION_UPDATE_SETTINGS_GET.getName(), CONFIGURATION_UPDATE_SETTINGS_GET);
+        operationMap.put(CONFIGURATION_UPDATE_SETTINGS_SET.getName(), CONFIGURATION_UPDATE_SETTINGS_SET);
         operationMap.put(CONFIGURATION_GUID_GET.getName(), CONFIGURATION_GUID_GET);
         operationMap.put(CONFIGURATION_DATABASE_DRIVERS_GET.getName(), CONFIGURATION_DATABASE_DRIVERS_GET);
         operationMap.put(CONFIGURATION_VERSION_GET.getName(), CONFIGURATION_VERSION_GET);

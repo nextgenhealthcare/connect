@@ -9,20 +9,18 @@
 
 package com.mirth.connect.server.util;
 
-import java.util.Properties;
-
+import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.util.PropertyLoader;
 
 public class SMTPConnectionFactory {
     public static SMTPConnection createSMTPConnection() throws Exception {
-        Properties properties = ControllerFactory.getFactory().createConfigurationController().getServerProperties();
-        String host = PropertyLoader.getProperty(properties, "smtp.host");
-        String port = PropertyLoader.getProperty(properties, "smtp.port");
-        boolean auth = PropertyLoader.getProperty(properties, "smtp.auth").equals("1");
-        String secure = PropertyLoader.getProperty(properties, "smtp.secure");
-        String username = PropertyLoader.getProperty(properties, "smtp.username");
-        String password = PropertyLoader.getProperty(properties, "smtp.password");
+        ServerSettings settings = ControllerFactory.getFactory().createConfigurationController().getServerSettings();
+        String host = settings.getSmtpHost();
+        String port = settings.getSmtpPort();
+        boolean auth = settings.getSmtpAuth();
+        String secure = settings.getSmtpSecure();
+        String username = settings.getSmtpUsername();
+        String password = settings.getSmtpPassword();
         return new SMTPConnection(host, port, auth, secure, username, password);
     }
 }

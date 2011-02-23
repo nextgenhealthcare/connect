@@ -35,6 +35,8 @@ import org.w3c.dom.NodeList;
 
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.ServerSettings;
+import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
@@ -350,12 +352,13 @@ public class DefaultMigrationController extends MigrationController {
             File propertiesFile = new File(configurationController.getBaseDir() + File.separator + "server.properties");
 
             if (propertiesFile.exists()) {
-                Properties newProperties = configurationController.getServerProperties();
+                Properties newProperties = configurationController.getServerSettings().getProperties();
                 Properties oldProperties = new Properties();
 
                 oldProperties.load(new FileInputStream(propertiesFile));
                 newProperties.putAll(oldProperties);
-                configurationController.setServerProperties(newProperties);
+                configurationController.setServerSettings(new ServerSettings(newProperties));
+                configurationController.setUpdateSettings(new UpdateSettings(newProperties));
 
                 if (!propertiesFile.delete()) {
                     logger.error("Could not delete existing server.properties file. Please delete it manually.");

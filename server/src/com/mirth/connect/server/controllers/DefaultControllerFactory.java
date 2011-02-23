@@ -11,27 +11,32 @@ package com.mirth.connect.server.controllers;
 
 import org.apache.log4j.Logger;
 
-
 public class DefaultControllerFactory extends ControllerFactory {
     private Logger logger = Logger.getLogger(this.getClass());
     private AuthorizationController authorizationController = null;
-    
+
     public AuthorizationController createAuthorizationController() {
         if (authorizationController == null) {
-            try {
-                String serverAuthorizationController = createConfigurationController().getServerProperties().getProperty("serverAuthorizationController");
-                authorizationController =  (AuthorizationController) Class.forName(serverAuthorizationController).newInstance();
-                logger.debug("using authorization controller: " + serverAuthorizationController);
-            } catch (Exception e) {
-                // could not instantiate controller
+            ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+            if (extensionController.getPluginMetaData().containsKey("User Authorization Plugin")) {
+                try {
+                    String serverAuthorizationController = "com.mirth.connect.plugins.auth.server.SecureAuthorizationController";
+                    authorizationController = (AuthorizationController) Class.forName(serverAuthorizationController).newInstance();
+                    logger.debug("using authorization controller: " + serverAuthorizationController);
+                } catch (Exception e) {
+                    // could not instantiate controller, using default
+                    authorizationController = DefaultAuthorizationController.create();
+                    logger.debug("using default authorization controller");
+                }
+            } else {
                 authorizationController = DefaultAuthorizationController.create();
                 logger.debug("using default authorization controller");
             }
         }
-        
+
         return authorizationController;
     }
-    
+
     public AlertController createAlertController() {
         return DefaultAlertController.create();
     }
@@ -59,7 +64,7 @@ public class DefaultControllerFactory extends ControllerFactory {
     public EngineController createEngineController() {
         return MuleEngineController.create();
     }
-    
+
     public ExtensionController createExtensionController() {
         return DefaultExtensionController.create();
     }

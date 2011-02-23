@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +24,8 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.ServerSettings;
+import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -56,31 +57,37 @@ public class ConfigurationServlet extends MirthServlet {
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
-                } else if (operation.equals(Operations.CONFIGURATION_SERVER_PROPERTIES_GET)) {
+                } else if (operation.equals(Operations.CONFIGURATION_SERVER_SETTINGS_GET)) {
                     response.setContentType(APPLICATION_XML);
 
                     if (isUserAuthorized(request, null)) {
-                        out.println(serializer.toXML(configurationController.getServerProperties()));
+                        out.println(serializer.toXML(configurationController.getServerSettings()));
                     } else {
-                        Properties allServerProperties = configurationController.getServerProperties();
-                        Properties permittedServerProperties = new Properties();
-
-                        for (Object key : allServerProperties.keySet()) {
-                            String property = (String) key;
-
-                            if ("firstlogin".equals(property) || "update.enabled".equals(property) || "stats.enabled".equals(property) || "update.url".equals(property)) {
-                                permittedServerProperties.setProperty(property, allServerProperties.getProperty(property));
-                            }
-                        }
-
-                        out.println(serializer.toXML(permittedServerProperties));
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
-                } else if (operation.equals(Operations.CONFIGURATION_SERVER_PROPERTIES_SET)) {
-                    String properties = request.getParameter("data");
-                    parameterMap.put("properties", properties);
+                } else if (operation.equals(Operations.CONFIGURATION_SERVER_SETTINGS_SET)) {
+                    String settings = request.getParameter("data");
+                    parameterMap.put("settings", settings);
 
                     if (isUserAuthorized(request, parameterMap)) {
-                        configurationController.setServerProperties((Properties) serializer.fromXML(properties));
+                        configurationController.setServerSettings((ServerSettings) serializer.fromXML(settings));
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
+                } else if (operation.equals(Operations.CONFIGURATION_UPDATE_SETTINGS_GET)) {
+                    response.setContentType(APPLICATION_XML);
+
+                    if (isUserAuthorized(request, null)) {
+                        out.println(serializer.toXML(configurationController.getUpdateSettings()));
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
+                } else if (operation.equals(Operations.CONFIGURATION_UPDATE_SETTINGS_SET)) {
+                    String settings = request.getParameter("data");
+                    parameterMap.put("settings", settings);
+
+                    if (isUserAuthorized(request, parameterMap)) {
+                        configurationController.setUpdateSettings((UpdateSettings) serializer.fromXML(settings));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }

@@ -13,18 +13,20 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Properties;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.ServerSettings;
+import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.ImportConverter;
 
@@ -50,12 +52,14 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
-            Properties serverProperties = null;
+            ServerSettings serverSettings = null;
+            UpdateSettings updateSettings = null;
 
             public Void doInBackground() {
                 try {
                     if (getFrame().confirmLeave()) {
-                        serverProperties = getFrame().mirthClient.getServerProperties();
+                        serverSettings = getFrame().mirthClient.getServerSettings();
+                        updateSettings = getFrame().mirthClient.getUpdateSettings();
                     }
                 } catch (ClientException e) {
                     getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
@@ -65,9 +69,10 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
             @Override
             public void done() {
-                // null if it failed to get the server properties or if confirmLeave returned false
-                if (serverProperties != null) {
-                    setProperties(serverProperties);
+                // null if it failed to get the server/update settings or if confirmLeave returned false
+                if (serverSettings != null && updateSettings != null) {
+                    setServerSettings(serverSettings);
+                    setUpdateSettings(updateSettings);
                 }
                 getFrame().setWorking("", false);
             }
@@ -77,9 +82,11 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     }
 
     public void doSave() {
-        final Properties serverProperties = getProperties();
+        final ServerSettings serverSettings = getServerSettings();
+        final UpdateSettings updateSettings = getUpdateSettings();
 
-        if (serverProperties.getProperty("server.maxqueuesize").length() == 0) {
+        // Integer maxQueueSize will be null if it was invalid
+        if (serverSettings.getMaxQueueSize() == null) {
             getFrame().alertWarning(this, "Please enter a valid maximum queue size.");
             return;
         }
@@ -90,7 +97,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
             public Void doInBackground() {
                 try {
-                    getFrame().mirthClient.setServerProperties(serverProperties);
+                    getFrame().mirthClient.setServerSettings(serverSettings);
+                    getFrame().mirthClient.setUpdateSettings(updateSettings);
                 } catch (ClientException e) {
                     getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
                 }
@@ -108,27 +116,27 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         worker.execute();
     }
 
-    /** Loads the current settings into the Settings form */
-    public void setProperties(Properties serverProperties) {
-        if (serverProperties.getProperty("smtp.host") != null) {
-            smtpHostField.setText(serverProperties.getProperty("smtp.host"));
+    /** Loads the current server settings into the Settings form */
+    public void setServerSettings(ServerSettings serverSettings) {
+        if (serverSettings.getSmtpHost() != null) {
+            smtpHostField.setText(serverSettings.getSmtpHost());
         } else {
             smtpHostField.setText("");
         }
 
-        if (serverProperties.getProperty("smtp.port") != null) {
-            smtpPortField.setText(serverProperties.getProperty("smtp.port"));
+        if (serverSettings.getSmtpPort()!= null) {
+            smtpPortField.setText(serverSettings.getSmtpPort());
         } else {
             smtpPortField.setText("");
         }
 
-        if (serverProperties.getProperty("smtp.from") != null) {
-            defaultFromAddressField.setText(serverProperties.getProperty("smtp.from"));
+        if (serverSettings.getSmtpFrom() != null) {
+            defaultFromAddressField.setText(serverSettings.getSmtpFrom());
         } else {
             defaultFromAddressField.setText("");
         }
 
-        String smtpSecure = serverProperties.getProperty("smtp.secure");
+        String smtpSecure = serverSettings.getSmtpSecure();
         if (smtpSecure != null && smtpSecure.equalsIgnoreCase("tls")) {
             secureConnectionTLSRadio.setSelected(true);
         } else if (smtpSecure != null && smtpSecure.equalsIgnoreCase("ssl")) {
@@ -137,123 +145,106 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             secureConnectionNoneRadio.setSelected(true);
         }
 
-        if (serverProperties.getProperty("smtp.auth") != null) {
-            if (serverProperties.getProperty("smtp.auth").equals(UIConstants.YES_OPTION)) {
-                requireAuthenticationYesRadio.setSelected(true);
-                requireAuthenticationYesRadioActionPerformed(null);
-            } else {
-                requireAuthenticationNoRadio.setSelected(true);
-                requireAuthenticationNoRadioActionPerformed(null);
-            }
+        if (serverSettings.getSmtpAuth() != null && serverSettings.getSmtpAuth()) {
+            requireAuthenticationYesRadio.setSelected(true);
+            requireAuthenticationYesRadioActionPerformed(null);
         } else {
             requireAuthenticationNoRadio.setSelected(true);
             requireAuthenticationNoRadioActionPerformed(null);
         }
 
-        if (serverProperties.getProperty("server.resetglobalvariables") != null) {
-            if (serverProperties.getProperty("server.resetglobalvariables").equals(UIConstants.YES_OPTION)) {
-                clearGlobalMapYesRadio.setSelected(true);
-            } else {
-                clearGlobalMapNoRadio.setSelected(true);
-            }
+        if (serverSettings.getClearGlobalMap() != null && !serverSettings.getClearGlobalMap()) {
+            clearGlobalMapNoRadio.setSelected(true);
         } else {
             clearGlobalMapYesRadio.setSelected(true);
         }
 
-        if (serverProperties.getProperty("update.enabled") != null) {
-            if (serverProperties.getProperty("update.enabled").equals(UIConstants.YES_OPTION)) {
-                checkForUpdatesYesRadio.setSelected(true);
-            } else {
-                checkForUpdatesNoRadio.setSelected(true);
-            }
-        } else {
-            checkForUpdatesYesRadio.setSelected(true);
-        }
-
-        if (serverProperties.getProperty("stats.enabled") != null) {
-            if (serverProperties.getProperty("stats.enabled").equals(UIConstants.YES_OPTION)) {
-                provideUsageStatsYesRadio.setSelected(true);
-            } else {
-                provideUsageStatsNoRadio.setSelected(true);
-            }
-        } else {
-            provideUsageStatsYesRadio.setSelected(true);
-        }
-
-        if (serverProperties.getProperty("update.url") != null) {
-            updateUrlField.setText(serverProperties.getProperty("update.url"));
-        } else {
-            updateUrlField.setText("");
-        }
-
-        if (serverProperties.getProperty("server.maxqueuesize") != null) {
-            maxQueueSizeField.setText(serverProperties.getProperty("server.maxqueuesize"));
+        if (serverSettings.getMaxQueueSize() != null) {
+            maxQueueSizeField.setText(serverSettings.getMaxQueueSize().toString());
         } else {
             maxQueueSizeField.setText("");
         }
 
-        if (serverProperties.getProperty("smtp.username") != null) {
-            usernameField.setText(serverProperties.getProperty("smtp.username"));
+        if (serverSettings.getSmtpUsername() != null) {
+            usernameField.setText(serverSettings.getSmtpUsername());
         } else {
             usernameField.setText("");
         }
 
-        if (serverProperties.getProperty("smtp.password") != null) {
-            passwordField.setText(serverProperties.getProperty("smtp.password"));
+        if (serverSettings.getSmtpPassword() != null) {
+            passwordField.setText(serverSettings.getSmtpPassword());
         } else {
             passwordField.setText("");
         }
     }
+    
+    public void setUpdateSettings(UpdateSettings updateSettings) {
+        if (updateSettings.getUpdatesEnabled() != null && !updateSettings.getUpdatesEnabled()) {
+            checkForUpdatesNoRadio.setSelected(true);
+        } else {
+            checkForUpdatesYesRadio.setSelected(true);
+        }
+
+        if (updateSettings.getStatsEnabled() != null  && !updateSettings.getStatsEnabled()) {
+            provideUsageStatsNoRadio.setSelected(true);
+        } else {
+            provideUsageStatsYesRadio.setSelected(true);
+        }
+
+        if (updateSettings.getUpdateUrl() != null) {
+            updateUrlField.setText(updateSettings.getUpdateUrl());
+        } else {
+            updateUrlField.setText("");
+        }
+    }
 
     /** Saves the current settings from the settings form */
-    public Properties getProperties() {
-        Properties serverProperties = new Properties();
+    public ServerSettings getServerSettings() {
+        ServerSettings serverSettings = new ServerSettings();
 
-        if (clearGlobalMapNoRadio.isSelected()) {
-            serverProperties.put("server.resetglobalvariables", UIConstants.NO_OPTION);
+        serverSettings.setClearGlobalMap(clearGlobalMapYesRadio.isSelected());
+        
+        // Set the max queue size Integer to null if it was invalid
+        int maxQueueSize = NumberUtils.toInt(maxQueueSizeField.getText(), -1);
+        if (maxQueueSize == -1) {
+            serverSettings.setMaxQueueSize(null);
         } else {
-            serverProperties.put("server.resetglobalvariables", UIConstants.YES_OPTION);
+            serverSettings.setMaxQueueSize(maxQueueSize);
         }
-
-        if (checkForUpdatesNoRadio.isSelected()) {
-            serverProperties.put("update.enabled", UIConstants.NO_OPTION);
-        } else {
-            serverProperties.put("update.enabled", UIConstants.YES_OPTION);
-        }
-
-        if (provideUsageStatsNoRadio.isSelected()) {
-            serverProperties.put("stats.enabled", UIConstants.NO_OPTION);
-        } else {
-            serverProperties.put("stats.enabled", UIConstants.YES_OPTION);
-        }
-
-        serverProperties.put("update.url", updateUrlField.getText());
-
-        serverProperties.put("server.maxqueuesize", maxQueueSizeField.getText());
-
-        serverProperties.put("smtp.host", smtpHostField.getText());
-        serverProperties.put("smtp.port", smtpPortField.getText());
-        serverProperties.put("smtp.from", defaultFromAddressField.getText());
-
+        
+        serverSettings.setSmtpHost(smtpHostField.getText());
+        serverSettings.setSmtpPort(smtpPortField.getText());
+        serverSettings.setSmtpFrom(defaultFromAddressField.getText());
+        
         if (secureConnectionTLSRadio.isSelected()) {
-            serverProperties.put("smtp.secure", "tls");
+            serverSettings.setSmtpSecure("tls");
         } else if (secureConnectionSSLRadio.isSelected()) {
-            serverProperties.put("smtp.secure", "ssl");
+            serverSettings.setSmtpSecure("ssl");
         } else {
-            serverProperties.put("smtp.secure", "none");
+            serverSettings.setSmtpSecure("none");
         }
 
         if (requireAuthenticationYesRadio.isSelected()) {
-            serverProperties.put("smtp.auth", UIConstants.YES_OPTION);
-            serverProperties.put("smtp.username", usernameField.getText());
-            serverProperties.put("smtp.password", new String(passwordField.getPassword()));
+            serverSettings.setSmtpAuth(true);
+            serverSettings.setSmtpUsername(usernameField.getText());
+            serverSettings.setSmtpPassword(new String(passwordField.getPassword()));
         } else {
-            serverProperties.put("smtp.auth", UIConstants.NO_OPTION);
-            serverProperties.put("smtp.username", "");
-            serverProperties.put("smtp.password", "");
+            serverSettings.setSmtpAuth(false);
+            serverSettings.setSmtpUsername("");
+            serverSettings.setSmtpPassword("");
         }
 
-        return serverProperties;
+        return serverSettings;
+    }
+    
+    public UpdateSettings getUpdateSettings() {
+        UpdateSettings updateSettings = new UpdateSettings();
+
+        updateSettings.setUpdatesEnabled(checkForUpdatesYesRadio.isSelected());
+        updateSettings.setStatsEnabled(provideUsageStatsYesRadio.isSelected());
+        updateSettings.setUpdateUrl(updateUrlField.getText());
+
+        return updateSettings;
     }
 
     public void doBackup() {

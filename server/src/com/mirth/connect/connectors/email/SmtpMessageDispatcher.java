@@ -10,7 +10,6 @@
 package com.mirth.connect.connectors.email;
 
 import java.util.Calendar;
-import java.util.Properties;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -31,6 +30,7 @@ import org.mule.umo.provider.UMOConnector;
 
 import com.mirth.connect.connectors.email.transformers.MessageObjectToEmailMessage;
 import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.server.Constants;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerException;
@@ -39,7 +39,6 @@ import com.mirth.connect.server.controllers.MessageObjectController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
-import com.mirth.connect.util.PropertyLoader;
 
 /**
  * @author Ross Mason
@@ -65,18 +64,17 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
         int port = -1;
         String username = null;
         String password = null;
-        boolean auth = false;
         String secureType = null;
 
         if (connector.isUseServerSettings()) {
             try {
-                Properties properties = ControllerFactory.getFactory().createConfigurationController().getServerProperties();
-                connector.setHostname(PropertyLoader.getProperty(properties, "smtp.host"));
-                connector.setSmtpPort(PropertyLoader.getProperty(properties, "smtp.port"));
-                connector.setUsername(PropertyLoader.getProperty(properties, "smtp.username"));
-                connector.setPassword(PropertyLoader.getProperty(properties, "smtp.password"));
-                connector.setUseAuthentication(PropertyLoader.getProperty(properties, "smtp.auth").equals("1"));
-                connector.setEmailSecure(PropertyLoader.getProperty(properties, "smtp.secure").toLowerCase());
+                ServerSettings settings = ControllerFactory.getFactory().createConfigurationController().getServerSettings();
+                connector.setHostname(settings.getSmtpHost());
+                connector.setSmtpPort(settings.getSmtpPort());
+                connector.setUsername(settings.getSmtpUsername());
+                connector.setPassword(settings.getSmtpPassword());
+                connector.setUseAuthentication(settings.getSmtpAuth());
+                connector.setEmailSecure(settings.getSmtpSecure());
             } catch (ControllerException e) {
                 logger.error("Unable to load server properties.", e);
             }
