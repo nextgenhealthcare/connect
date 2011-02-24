@@ -101,9 +101,9 @@ public class ExtensionServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.PLUGIN_METADATA_GET)) {
                     response.setContentType(APPLICATION_XML);
-                    out.println(serializer.toXML(extensionController.getPluginMetaData(), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class }));
+                    out.println(serializer.toXML(extensionController.getPluginMetaData()));
                 } else if (operation.equals(Operations.PLUGIN_METADATA_SET)) {
-                    Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class });
+                    Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"));
                     parameterMap.put("metaData", metaData);
 
                     if (isUserAuthorized(request, parameterMap)) {
@@ -113,9 +113,9 @@ public class ExtensionServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.CONNECTOR_METADATA_GET)) {
                     response.setContentType(APPLICATION_XML);
-                    out.println(serializer.toXML(extensionController.getConnectorMetaData(), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class }));
+                    out.println(serializer.toXML(extensionController.getConnectorMetaData()));
                 } else if (operation.equals(Operations.CONNECTOR_METADATA_SET)) {
-                    Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
+                    Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"));
                     parameterMap.put("metaData", metaData);
 
                     if (isUserAuthorized(request, parameterMap)) {

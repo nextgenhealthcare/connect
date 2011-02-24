@@ -252,7 +252,7 @@ public class Client {
     public Map<String, ConnectorMetaData> getConnectorMetaData() throws ClientException {
         logger.debug("retrieving connector list");
         NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_METADATA_GET.getName()) };
-        return (Map<String, ConnectorMetaData>) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
+        return (Map<String, ConnectorMetaData>) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
     }
 
     /**
@@ -263,7 +263,7 @@ public class Client {
      */
     public void setConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ClientException {
         logger.debug("saving connector settings");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_METADATA_SET.getName()), new NameValuePair("metaData", serializer.toXML(metaData, new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class })) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_METADATA_SET.getName()), new NameValuePair("metaData", serializer.toXML(metaData)) };
         serverConnection.executePostMethod(EXTENSION_SERVLET, params);
     }
 
@@ -276,7 +276,7 @@ public class Client {
     public Map<String, PluginMetaData> getPluginMetaData() throws ClientException {
         logger.debug("retrieving plugin list");
         NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_METADATA_GET.getName()) };
-        return (Map<String, PluginMetaData>) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class });
+        return (Map<String, PluginMetaData>) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
     }
 
     /**
@@ -287,7 +287,7 @@ public class Client {
      */
     public void setPluginMetaData(Map<String, PluginMetaData> metaData) throws ClientException {
         logger.debug("saving plugin settings");
-        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_METADATA_SET.getName()), new NameValuePair("metaData", serializer.toXML(metaData, new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class })) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_METADATA_SET.getName()), new NameValuePair("metaData", serializer.toXML(metaData)) };
         serverConnection.executePostMethod(EXTENSION_SERVLET, params);
     }
 

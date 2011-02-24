@@ -12,8 +12,13 @@ package com.mirth.connect.model;
 import java.util.Properties;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
-public class ServerSettings extends AbstractSettings {
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("serverSettings")
+public class ServerSettings extends AbstractSettings implements Auditable {
 
     private static final String CLEAR_GLOBAL_MAP = "server.resetglobalvariables";
     private static final String MAX_QUEUE_SIZE = "server.maxqueuesize";
@@ -162,6 +167,11 @@ public class ServerSettings extends AbstractSettings {
 
     public void setSmtpPassword(String smtpPassword) {
         this.smtpPassword = smtpPassword;
+    }
+
+    @Override
+    public String toAuditString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
     }
 
 }

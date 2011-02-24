@@ -242,7 +242,7 @@ public class DefaultExtensionController extends ExtensionController {
                 String entryName = entry.getName();
 
                 if (entryName.endsWith(pluginFilename) || entryName.endsWith(destinationFilename) || entryName.endsWith(sourceFilename)) {
-                    ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { MetaData.class, PluginMetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
+                    ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
                     // parse the extension metadata xml file
                     MetaData extensionMetaData = (MetaData) serializer.fromXML(IOUtils.toString(zipFile.getInputStream(entry)));
@@ -542,7 +542,7 @@ public class DefaultExtensionController extends ExtensionController {
         Collection<File> extensionFiles = FileUtils.listFiles(extensionPath, andFileFilter, FileFilterUtils.trueFileFilter());
 
         Map<String, MetaData> extensionMetaDataMap = new HashMap<String, MetaData>();
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { MetaData.class, PluginMetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
         for (File extensionFile : extensionFiles) {
             MetaData extensionMetaData = (MetaData) serializer.fromXML(FileUtils.readFileToString(extensionFile));
@@ -559,7 +559,7 @@ public class DefaultExtensionController extends ExtensionController {
      * @throws ControllerException
      */
     private void saveExtensionMetaData(Map<String, ? extends MetaData> metaData) throws IOException {
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { MetaData.class, PluginMetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
         for (Entry<String, ? extends MetaData> entry : metaData.entrySet()) {
             MetaData extensionMetaData = entry.getValue();

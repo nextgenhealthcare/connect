@@ -11,8 +11,10 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
+@XStreamAlias("extensionLibrary")
 public class ExtensionLibrary implements Serializable {
     public enum Type {
         SERVER, CLIENT, SHARED

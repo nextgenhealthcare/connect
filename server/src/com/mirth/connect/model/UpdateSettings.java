@@ -12,8 +12,13 @@ package com.mirth.connect.model;
 import java.util.Properties;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
-public class UpdateSettings extends AbstractSettings {
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("updateSettings")
+public class UpdateSettings extends AbstractSettings implements Auditable {
 
     private static final String FIRST_LOGIN = "firstlogin";
     private static final String UPDATES_ENABLED = "update.enabled";
@@ -103,6 +108,11 @@ public class UpdateSettings extends AbstractSettings {
 
     public void setLastStatsTime(Long lastStatsTime) {
         this.lastStatsTime = lastStatsTime;
+    }
+
+    @Override
+    public String toAuditString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
     }
 
 }

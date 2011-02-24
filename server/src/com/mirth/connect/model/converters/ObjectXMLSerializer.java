@@ -15,14 +15,57 @@ import java.util.WeakHashMap;
 
 import org.w3c.dom.Document;
 
+import com.mirth.connect.model.Alert;
+import com.mirth.connect.model.ArchiveMetaData;
+import com.mirth.connect.model.Attachment;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.Event;
+import com.mirth.connect.model.ExtensionLibrary;
+import com.mirth.connect.model.Filter;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.MetaData;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.Rule;
+import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.ServerSettings;
+import com.mirth.connect.model.Step;
+import com.mirth.connect.model.Transformer;
+import com.mirth.connect.model.UpdateSettings;
+import com.mirth.connect.model.User;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.basic.StringConverter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
-public class ObjectXMLSerializer implements IXMLSerializer<Object> {
+public class ObjectXMLSerializer {
     private XStream xstream;
     private static final Map<String, String> stringCache = new WeakHashMap<String, String>();
+    
+    private static final Class<?>[] annotatedClasses = new Class<?>[] {
+        Alert.class,
+        ArchiveMetaData.class,
+        Attachment.class,
+        Channel.class,
+        CodeTemplate.class,
+        Connector.class,
+        ConnectorMetaData.class,
+        Event.class,
+        ExtensionLibrary.class,
+        Filter.class,
+        MessageObject.class,
+        MetaData.class,
+        PluginMetaData.class,
+        Rule.class,
+        ServerConfiguration.class,
+        ServerSettings.class,
+        Step.class,
+        Transformer.class,
+        UpdateSettings.class,
+        User.class
+    };
 
     public ObjectXMLSerializer() {
         xstream = new XStream(new XppDriver());
@@ -54,55 +97,11 @@ public class ObjectXMLSerializer implements IXMLSerializer<Object> {
         return xstream.toXML(source);
     }
 
-    public String toXML(Object source, Class<?>[] aliases) {
-        xstream.processAnnotations(aliases);
-        processAnnotations();
-        String retval = xstream.toXML(source);
-        return retval;
-    }
-
     public Object fromXML(String source) {
         return xstream.fromXML(source);
     }
 
-    public <E> List<E> fromXMLAsList(E objType, String source) {
-        return (List<E>) fromXML(source);
-    }
-
-    public Object fromXML(String source, Class<?>[] aliases) {
-        xstream.processAnnotations(aliases);
-        processAnnotations();
-        Object retval = xstream.fromXML(source);
-        return retval;
-    }
-
     private void processAnnotations() {
-        xstream.processAnnotations(com.mirth.connect.model.Transformer.class);
+        xstream.processAnnotations(annotatedClasses);
     }
-
-    public Map<String, String> getMetadata() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Map<String, String> getMetadata(Document doc) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }
