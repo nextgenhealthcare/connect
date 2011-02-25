@@ -118,7 +118,7 @@ public class EventBrowser extends javax.swing.JPanel {
      */
     public void loadNew() {
         // Set the default page size
-        pageSize = Preferences.userNodeForPackage(Mirth.class).getInt("messageBrowserPageSize", 20);
+        pageSize = Preferences.userNodeForPackage(Mirth.class).getInt("eventBrowserPageSize", 100);
         pageSizeField.setText(pageSize + "");
 
         // use the start filters and make the table.

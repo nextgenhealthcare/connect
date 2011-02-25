@@ -42,7 +42,7 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Component id="clientSettings" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="52" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -73,6 +73,7 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
+                      <Component id="eventBrowserPageSizeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="formatXmlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="messageBrowserPageSizeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="dashboardRefreshIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -86,6 +87,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="formatXmlNoRadio" min="-2" max="-2" attributes="0"/>
                       </Group>
+                      <Component id="eventBrowserPageSizeField" min="-2" pref="30" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="45" max="32767" attributes="0"/>
               </Group>
@@ -103,7 +105,12 @@
                       <Component id="messageBrowserPageSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="messageBrowserPageSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="eventBrowserPageSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="eventBrowserPageSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="formatXmlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="formatXmlYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -132,7 +139,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="messageBrowserPageSizeLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Browser page size:"/>
+            <Property name="text" type="java.lang.String" value="Message browser page size:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="formatXmlLabel">
@@ -179,6 +186,16 @@
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="eventBrowserPageSizeLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Event browser page size:"/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="eventBrowserPageSizeField">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="Sets the default page size for browsers (message, event, etc.)"/>
           </Properties>
         </Component>
       </SubComponents>

@@ -28,12 +28,16 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         if (getFrame().confirmLeave()) {
             dashboardRefreshIntervalField.setDocument(new MirthFieldConstraints(3, false, false, true));
             messageBrowserPageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
+            eventBrowserPageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
             userPreferences = Preferences.userNodeForPackage(Mirth.class);
             int interval = userPreferences.getInt("intervalTime", 10);
             dashboardRefreshIntervalField.setText(interval + "");
 
             int messageBrowserPageSize = userPreferences.getInt("messageBrowserPageSize", 20);
             messageBrowserPageSizeField.setText(messageBrowserPageSize + "");
+
+            int eventBrowserPageSize = userPreferences.getInt("eventBrowserPageSize", 100);
+            eventBrowserPageSizeField.setText(eventBrowserPageSize + "");
 
             if (userPreferences.getBoolean("messageBrowserFormatXml", true)) {
                 formatXmlYesRadio.setSelected(true);
@@ -52,17 +56,25 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             getFrame().alertWarning(this, "Please enter a valid message browser page size.");
             return;
         }
+        if (eventBrowserPageSizeField.getText().length() == 0) {
+            getFrame().alertWarning(this, "Please enter a valid event browser page size.");
+            return;
+        }
 
         int interval = Integer.parseInt(dashboardRefreshIntervalField.getText());
         int messageBrowserPageSize = Integer.parseInt(messageBrowserPageSizeField.getText());
+        int eventBrowserPageSize = Integer.parseInt(eventBrowserPageSizeField.getText());
 
         if (interval <= 0) {
             getFrame().alertWarning(this, "Please enter an interval time that is larger than 0.");
         } else if (messageBrowserPageSize <= 0) {
             getFrame().alertWarning(this, "Please enter an message browser page size larger than 0.");
+        } else if (eventBrowserPageSize <= 0) {
+            getFrame().alertWarning(this, "Please enter an event browser page size larger than 0.");
         } else {
             userPreferences.putInt("intervalTime", interval);
             userPreferences.putInt("messageBrowserPageSize", messageBrowserPageSize);
+            userPreferences.putInt("eventBrowserPageSize", eventBrowserPageSize);
             userPreferences.putBoolean("messageBrowserFormatXml", formatXmlYesRadio.isSelected());
 
             getFrame().setSaveEnabled(false);
@@ -87,6 +99,8 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         formatXmlLabel = new javax.swing.JLabel();
         formatXmlYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         formatXmlNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        eventBrowserPageSizeLabel = new javax.swing.JLabel();
+        eventBrowserPageSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -100,7 +114,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
         messageBrowserPageSizeField.setToolTipText("Sets the default page size for browsers (message, event, etc.)");
 
-        messageBrowserPageSizeLabel.setText("Browser page size:");
+        messageBrowserPageSizeLabel.setText("Message browser page size:");
 
         formatXmlLabel.setText("Format XML in message browser:");
 
@@ -119,6 +133,10 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         formatXmlNoRadio.setToolTipText("Pretty print messages in the message browser that are XML.");
         formatXmlNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        eventBrowserPageSizeLabel.setText("Event browser page size:");
+
+        eventBrowserPageSizeField.setToolTipText("Sets the default page size for browsers (message, event, etc.)");
+
         javax.swing.GroupLayout clientSettingsLayout = new javax.swing.GroupLayout(clientSettings);
         clientSettings.setLayout(clientSettingsLayout);
         clientSettingsLayout.setHorizontalGroup(
@@ -126,6 +144,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             .addGroup(clientSettingsLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(eventBrowserPageSizeLabel)
                     .addComponent(formatXmlLabel)
                     .addComponent(messageBrowserPageSizeLabel)
                     .addComponent(dashboardRefreshIntervalLabel))
@@ -136,7 +155,8 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                     .addGroup(clientSettingsLayout.createSequentialGroup()
                         .addComponent(formatXmlYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(formatXmlNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(formatXmlNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(eventBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(45, Short.MAX_VALUE))
         );
         clientSettingsLayout.setVerticalGroup(
@@ -149,6 +169,10 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                 .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(messageBrowserPageSizeLabel)
                     .addComponent(messageBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(eventBrowserPageSizeLabel)
+                    .addComponent(eventBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(formatXmlLabel)
@@ -171,13 +195,15 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(clientSettings, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(52, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel clientSettings;
     private com.mirth.connect.client.ui.components.MirthTextField dashboardRefreshIntervalField;
     private javax.swing.JLabel dashboardRefreshIntervalLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField eventBrowserPageSizeField;
+    private javax.swing.JLabel eventBrowserPageSizeLabel;
     private javax.swing.ButtonGroup formatXmlButtonGroup;
     private javax.swing.JLabel formatXmlLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton formatXmlNoRadio;
