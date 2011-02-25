@@ -24,6 +24,9 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
+import com.mirth.connect.model.Event;
+import com.mirth.connect.model.Event.Level;
+import com.mirth.connect.model.Event.Outcome;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -57,13 +60,16 @@ public class UserServlet extends MirthServlet {
         } else {
             try {
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
-                
+
                 if (operation.equals(Operations.USER_AUTHORIZE)) {
                     response.setContentType(TEXT_PLAIN);
                     User user = (User) serializer.fromXML(request.getParameter("user"));
                     String password = request.getParameter("password");
                     out.print(userController.authorizeUser(user, password));
                 } else if (operation.equals(Operations.USER_LOGOUT)) {
+                    // Audit the logout request but don't block it
+                    isUserAuthorized(request, null);
+
                     logout(request, userController, eventController);
                 } else if (operation.equals(Operations.USER_GET)) {
                     /*
@@ -141,42 +147,62 @@ public class UserServlet extends MirthServlet {
 
     private boolean login(HttpServletRequest request, HttpServletResponse response, UserController userController, EventController eventController, String username, String password, String version) throws ServletException {
         try {
+            boolean success = true;
+
             ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
             // if the version of the client in is not the same as the server and
             // the version is not 0.0.0 (bypass)
             if (!version.equals(configurationController.getServerVersion()) && !version.equals("0.0.0")) {
                 response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
-                return false;
+                success = false;
+            } else {
+                HttpSession session = request.getSession();
+
+                User user = new User();
+                user.setUsername(username);
+
+                if (userController.authorizeUser(user, password)) {
+                    User validUser = userController.getUser(user).get(0);
+
+                    // set the sessions attributes
+                    session.setAttribute(SESSION_USER, validUser.getId());
+                    session.setAttribute(SESSION_AUTHORIZED, true);
+
+                    // this prevents the session from timing out
+                    session.setMaxInactiveInterval(-1);
+
+                    // set the user status to logged in in the database
+                    userController.loginUser(validUser);
+
+                    // add the user's session to to session map
+                    UserSessionCache.getInstance().registerSessionForUser(session, validUser);
+
+                    success = true;
+                } else {
+                    // failed to login
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                    success = false;
+                }
             }
 
-            HttpSession session = request.getSession();
+            // Manually audit the Login event with the username since the user
+            // id has not been stored to the session yet
+            Event event = new Event();
+            event.setIpAddress(getRequestIpAddress(request));
+            event.setLevel(Level.INFORMATION);
+            event.setName(Operations.USER_LOGIN.getDisplayName());
 
-            User user = new User();
-            user.setUsername(username);
+            // Set the outcome to the result of the login attempt
+            event.setOutcome(success ? Outcome.SUCCESS : Outcome.FAILURE);
 
-            if (userController.authorizeUser(user, password)) {
-                User validUser = userController.getUser(user).get(0);
+            Map<String, Object> attributes = new HashMap<String, Object>();
+            attributes.put("username", username);
+            event.setAttributes(attributes);
 
-                // set the sessions attributes
-                session.setAttribute(SESSION_USER, validUser.getId());
-                session.setAttribute(SESSION_AUTHORIZED, true);
+            eventController.addEvent(event);
 
-                // this prevents the session from timing out
-                session.setMaxInactiveInterval(-1);
-
-                // set the user status to logged in in the database
-                userController.loginUser(validUser);
-
-                // add the user's session to to session map
-                UserSessionCache.getInstance().registerSessionForUser(session, validUser);
-
-                return true;
-            }
-
-            // failed to login
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
-            return false;
+            return success;
         } catch (Exception e) {
             throw new ServletException(e);
         }

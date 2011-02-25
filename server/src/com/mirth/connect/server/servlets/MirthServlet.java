@@ -55,7 +55,7 @@ public abstract class MirthServlet extends HttpServlet {
         return Integer.parseInt(request.getSession().getAttribute(UserServlet.SESSION_USER).toString());
     }
 
-    private String getRequestIpAddress(HttpServletRequest request) {
+    protected String getRequestIpAddress(HttpServletRequest request) {
         String address = request.getHeader("x-forwarded-for");
 
         if (address == null) {
