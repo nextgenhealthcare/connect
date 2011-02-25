@@ -97,7 +97,7 @@ public class ImportConverter {
         }
 
         Element channelsRoot = (Element) document.getElementsByTagName("channels").item(0);
-        NodeList channels = document.getElementsByTagName("com.mirth.connect.model.Channel");
+        NodeList channels = getElements(document, "channel", "com.mirth.connect.model.Channel");
         List<Channel> channelList = new ArrayList<Channel>();
         int length = channels.getLength();
 
@@ -170,7 +170,7 @@ public class ImportConverter {
         builder = factory.newDocumentBuilder();
         document = builder.parse(new InputSource(new StringReader(codeTemplatesXML)));
 
-        NodeList codeTemplates = document.getElementsByTagName("com.mirth.connect.model.CodeTemplate");
+        NodeList codeTemplates = getElements(document, "codeTemplate", "com.mirth.connect.model.CodeTemplate");
         int length = codeTemplates.getLength();
 
         for (int i = 0; i < length; i++) {
@@ -280,7 +280,7 @@ public class ImportConverter {
                 Direction direction = null;
                 Element sourceConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("sourceConnector").item(0);
                 Element destinationConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("destinationConnectors").item(0);
-                NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.mirth.connect.model.Connector");
+                NodeList destinationsConnectors = getElements(destinationConnectorRoot, "connector", "com.mirth.connect.model.Connector");
 
                 Node channelDirection = channelRoot.getElementsByTagName("direction").item(0);
 
@@ -357,7 +357,7 @@ public class ImportConverter {
 
                 Element sourceConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("sourceConnector").item(0);
                 Element destinationConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("destinationConnectors").item(0);
-                NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.mirth.connect.model.Connector");
+                NodeList destinationsConnectors = getElements(destinationConnectorRoot, "connector", "com.mirth.connect.model.Connector");
 
                 // Check SOURCE CONNECTOR node for "enabled" element which is
                 // added by migration automatically. Add it if not found.
@@ -463,7 +463,7 @@ public class ImportConverter {
     public static void convertChannelConnectorsFor1_8(Document document, Element channelRoot) throws Exception {
         Element sourceConnectorRoot = (Element) channelRoot.getElementsByTagName("sourceConnector").item(0);
         Element destinationConnectorRoot = (Element) channelRoot.getElementsByTagName("destinationConnectors").item(0);
-        NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.mirth.connect.model.Connector");
+        NodeList destinationsConnectors = getElements(destinationConnectorRoot, "connector", "com.mirth.connect.model.Connector");
 
         // Convert the source connector
         convertOneConnectorFor1_8(document, sourceConnectorRoot);
@@ -606,7 +606,7 @@ public class ImportConverter {
     public static void convertChannelConnectorsFor2_0(Document document, Element channelRoot) throws Exception {
         Element sourceConnectorRoot = (Element) channelRoot.getElementsByTagName("sourceConnector").item(0);
         Element destinationConnectorRoot = (Element) channelRoot.getElementsByTagName("destinationConnectors").item(0);
-        NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.mirth.connect.model.Connector");
+        NodeList destinationsConnectors = getElements(destinationConnectorRoot, "connector", "com.mirth.connect.model.Connector");
 
         // Convert the source connector
         convertSoapConnectorFor2_0(document, sourceConnectorRoot);
@@ -1055,7 +1055,7 @@ public class ImportConverter {
             transformerRoot.appendChild(outboundProtocolElement);
 
         // replace HL7 Message builder with Message Builder
-        NodeList steps = transformerRoot.getElementsByTagName("com.mirth.connect.model.Step");
+        NodeList steps = getElements(transformerRoot, "step", "com.mirth.connect.model.Step");
 
         for (int i = 0; i < steps.getLength(); i++) {
             Element step = (Element) steps.item(i);
@@ -1158,7 +1158,7 @@ public class ImportConverter {
 
     private static void updateFilterFor1_7(Document document) {
         // add data element to Rules
-        NodeList rules = document.getElementsByTagName("com.mirth.connect.model.Rule");
+        NodeList rules = getElements(document, "rule", "com.mirth.connect.model.Rule");
 
         for (int i = 0; i < rules.getLength(); i++) {
             Element rule = (Element) rules.item(i);
@@ -1457,7 +1457,7 @@ public class ImportConverter {
 
     private static void updateFilterFor2_0(Document document) {
         // Convert Rule Builder steps using "Reject" to JavaScript steps
-        NodeList rules = document.getElementsByTagName("com.mirth.connect.model.Rule");
+        NodeList rules = getElements(document, "rule", "com.mirth.connect.model.Rule");
 
         for (int i = 0; i < rules.getLength(); i++) {
             Element rule = (Element) rules.item(i);
@@ -1588,6 +1588,48 @@ public class ImportConverter {
                 child.setTextContent(Boolean.toString(value));
             }
         }
+    }
+    
+    /**
+     * Gets elements by the tag name passed in and returns the NodeList from
+     * the first tagName that returns results.  If there are no results from
+     * any of the tagNames an empty list is returned.
+     * 
+     * @param document
+     * @param tagName
+     * @param oldTagNames
+     * @return
+     */
+    private static NodeList getElements(Document document, String tagName, String... oldTagNames) {
+        NodeList elements = document.getElementsByTagName(tagName);
+        
+        // loop through the oldTagNames while there are still no results
+        for (int i = 0; (elements.getLength() == 0) && (i < oldTagNames.length); i++) {
+            elements = document.getElementsByTagName(oldTagNames[i]);
+        }
+        
+        return elements;
+    }
+    
+    /**
+     * Gets elements by the tag name passed in and returns the NodeList from
+     * the first tagName that returns results.  If there are no results from
+     * any of the tagNames an empty list is returned.
+     * 
+     * @param element
+     * @param tagName
+     * @param oldTagNames
+     * @return
+     */
+    private static NodeList getElements(Element element, String tagName, String... oldTagNames) {
+        NodeList elements = element.getElementsByTagName(tagName);
+        
+        // loop through the oldTagNames while there are still no results
+        for (int i = 0; (elements.getLength() == 0) && (i < oldTagNames.length); i++) {
+            elements = element.getElementsByTagName(oldTagNames[i]);
+        }
+        
+        return elements;
     }
 
     /**

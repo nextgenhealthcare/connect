@@ -655,10 +655,12 @@ public class Client {
         BufferedReader reader = null;
 
         try {
-            String deprecatedOpenElement = "<com.webreach.mirth.model.MessageObject>";
-            String deprecatedCloseElement = "</com.webreach.mirth.model.MessageObject>";
-            String openElement = "<com.mirth.connect.model.MessageObject>";
-            String closeElement = "</com.mirth.connect.model.MessageObject>";
+            String deprecatedOpenElement2 = "<com.webreach.mirth.model.MessageObject>";
+            String deprecatedCloseElement2 = "</com.webreach.mirth.model.MessageObject>";
+            String deprecatedOpenElement = "<com.mirth.connect.model.MessageObject>";
+            String deprecatedCloseElement = "</com.mirth.connect.model.MessageObject>";
+            String openElement = "<messageObject>";
+            String closeElement = "</messageObject>";
 
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
             StringBuffer buffer = new StringBuffer();
@@ -666,14 +668,14 @@ public class Client {
             boolean enteredMessage = false;
 
             while ((line = reader.readLine()) != null) {
-                if (line.equals(openElement) || line.equals(deprecatedOpenElement)) {
+                if (line.equals(openElement) || line.equals(deprecatedOpenElement) || line.equals(deprecatedOpenElement2)) {
                     enteredMessage = true;
                 }
 
                 if (enteredMessage) {
                     buffer.append(line);
 
-                    if (line.equals(closeElement) || line.equals(deprecatedCloseElement)) {
+                    if (line.equals(closeElement) || line.equals(deprecatedCloseElement) || line.equals(deprecatedCloseElement2)) {
                         MessageObject messageObject = (MessageObject) serializer.fromXML(ImportConverter.convertMessage(buffer.toString()));
                         messageObject.setChannelId(channelId);
                         messageObject.setId(getGuid());
