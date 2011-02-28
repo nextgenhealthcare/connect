@@ -39,6 +39,7 @@ import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
+import com.mirth.connect.model.Event;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ChannelStatisticsController;
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -207,11 +208,14 @@ public class Mirth extends Thread {
         // disable the velocity logging
         Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
         
+        eventController.addEvent(new Event("Server startup"));
+        
         // Start web server before starting the engine in case there is a 
         // problem starting the engine that causes it to hang
         startWebServer();
         startEngine();
         printSplashScreen();
+        
     }
 
     /**
@@ -220,6 +224,8 @@ public class Mirth extends Thread {
      */
     public void shutdown() {
         logger.info("shutting down mirth due to normal request");
+        eventController.addEvent(new Event("Server shutdown"));
+        
         stopEngine();
         stopWebServer();
         extensionController.stopPlugins();

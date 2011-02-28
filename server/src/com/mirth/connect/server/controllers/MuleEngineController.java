@@ -226,11 +226,8 @@ public class MuleEngineController implements EngineController {
             if (deployedChannelCount > 0) {
                 Event event = new Event();
 
-                if (deployedChannelCount == 1) {
-                    event.setName("1 channel deployed");
-                } else if (deployedChannelCount > 1) {
-                    event.setName(deployedChannelCount + " channels deployed");
-                }
+                String deployedMessage = deployedChannelCount + " channel" + (deployedChannelCount == 1 ? "" : "s") + " deployed"; 
+                event.setName(deployedMessage);
 
                 eventController.addEvent(event);
             }
@@ -281,8 +278,9 @@ public class MuleEngineController implements EngineController {
         } catch (Exception e) {
             logger.error("Error undeploying channels.", e);
         }
-
-        eventController.addEvent(new Event("Channels undeployed"));
+        
+        String undeployedMessage =  registeredChannelIds.size() + " channel" + (registeredChannelIds.size() == 1 ? "" : "s") + " undeployed";
+        eventController.addEvent(new Event(undeployedMessage));
     }
 
     public void redeployAllChannels() throws ControllerException {
