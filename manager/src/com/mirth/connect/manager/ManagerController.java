@@ -177,7 +177,7 @@ public class ManagerController {
             } else {
                 // Load the context path property and remove the last char
                 // if it is a '/'.
-                String contextPath = getServerProperties().getString("context.path");
+                String contextPath = getServerProperties().getString(ManagerConstants.PROPERTY_HTTP_CONTEXT_PATH);
                 if (contextPath.lastIndexOf('/') == (contextPath.length() - 1)) {
                     contextPath = contextPath.substring(0, contextPath.length() - 1);
                 }
@@ -313,11 +313,11 @@ public class ManagerController {
     }
 
     public String getServerVersion() {
-        return versionProperties.getString("mirth.version");
+        return versionProperties.getString(ManagerConstants.PROPERTY_SERVER_VERSION);
     }
 
     public String getServerId() {
-        return serverIdProperties.getString("server.id");
+        return serverIdProperties.getString(ManagerConstants.PROPERTY_SERVER_ID);
     }
 
     public List<String> getLogFiles(String path) {

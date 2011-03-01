@@ -31,6 +31,11 @@ public class ManagerConstants {
     public static final String DATABASE_URL = "database.url";
     public static final String DATABASE_USERNAME = "database.username";
     public static final String DATABASE_PASSWORD = "database.password";
+    
+    // Other Properties
+    public static final String PROPERTY_HTTP_CONTEXT_PATH = "http.contextpath";
+    public static final String PROPERTY_SERVER_ID = "server.id";
+    public static final String PROPERTY_SERVER_VERSION = "mirth.version";
 
     // File paths
     public static final String PATH_SERVER_PROPERTIES = "conf" + System.getProperty("file.separator") + "mirth.properties";
