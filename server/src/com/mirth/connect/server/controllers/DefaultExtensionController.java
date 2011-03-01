@@ -573,7 +573,7 @@ public class DefaultExtensionController extends ExtensionController {
                 }
             }
 
-            File metaDataFile = new File(ExtensionController.getExtensionsPath() + extensionMetaData.getPath() + File.pathSeparator + fileName);
+            File metaDataFile = new File(ExtensionController.getExtensionsPath() + extensionMetaData.getPath() + File.separator + fileName);
             FileUtils.writeStringToFile(metaDataFile, serializer.toXML(metaData.get(entry.getKey())));
         }
     }
