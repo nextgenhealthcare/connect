@@ -131,7 +131,7 @@ public class ManagerController {
         SwingWorker worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                startMirth();
+                startMirth(true);
                 return null;
             }
 
@@ -144,7 +144,7 @@ public class ManagerController {
         worker.execute();
     }
 
-    private boolean startMirth() {
+    private boolean startMirth(boolean alertOnSuccess) {
         String httpPort = getServerProperties().getString(ManagerConstants.SERVER_WEBSTART_PORT);
         String httpsPort = getServerProperties().getString(ManagerConstants.SERVER_ADMINISTRATOR_PORT);
         String jmxPort = getServerProperties().getString(ManagerConstants.SERVER_JMX_PORT);
@@ -202,7 +202,9 @@ public class ManagerController {
                 if (!started) {
                     PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Service could not be started.");
                 } else {
-                    PlatformUI.MANAGER_TRAY.alertInfo("The Mirth Connect Service was started successfully.");
+                    if (alertOnSuccess) {
+                        PlatformUI.MANAGER_TRAY.alertInfo("The Mirth Connect Service was started successfully.");
+                    }
                     updating = false;
                     updateMirthServiceStatus();
                     return true;
@@ -224,7 +226,7 @@ public class ManagerController {
         SwingWorker worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                stopMirth();
+                stopMirth(true);
                 return null;
             }
 
@@ -237,13 +239,15 @@ public class ManagerController {
         worker.execute();
     }
 
-    private boolean stopMirth() {
+    private boolean stopMirth(boolean alertOnSuccess) {
         try {
             updating = true;
             if (!serviceController.stopService()) {
                 PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Service could not be stopped.  Please verify that it is installed and started.");
             } else {
-                PlatformUI.MANAGER_TRAY.alertInfo("The Mirth Connect Service was stopped successfully.");
+                if (alertOnSuccess) {
+                    PlatformUI.MANAGER_TRAY.alertInfo("The Mirth Connect Service was stopped successfully.");
+                }
                 updating = false;
                 updateMirthServiceStatus();
                 return true;
@@ -278,8 +282,8 @@ public class ManagerController {
     }
 
     private void restartMirth() {
-        if (stopMirth()) {
-            if (startMirth()) {
+        if (stopMirth(false)) {
+            if (startMirth(false)) {
                 PlatformUI.MANAGER_TRAY.alertInfo("The Mirth Connect Service was restarted successfully.");
                 updating = false;
                 updateMirthServiceStatus();
