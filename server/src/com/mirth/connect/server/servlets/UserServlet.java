@@ -120,7 +120,9 @@ public class UserServlet extends MirthServlet {
                     User user = (User) serializer.fromXML(request.getParameter("user"));
                     parameterMap.put("user", user);
 
-                    if (isUserAuthorized(request, parameterMap) || isCurrentUser(request, user)) {
+                    // Allow if the user is requesting his own preferences.
+                    // Check this first so a current user call is not audited.
+                    if (isCurrentUser(request, user) || isUserAuthorized(request, parameterMap)) {
                         response.setContentType(TEXT_PLAIN);
                         out.println(serializer.toXML(userController.getUserPreferences(user)));
                     } else {
@@ -130,7 +132,9 @@ public class UserServlet extends MirthServlet {
                     User user = (User) serializer.fromXML(request.getParameter("user"));
                     parameterMap.put("user", user);
 
-                    if (isUserAuthorized(request, parameterMap) || isCurrentUser(request, user)) {
+                    // Allow if the user is setting his own preferences. Check
+                    // this first so a current user call is not audited.
+                    if (isCurrentUser(request, user) || isUserAuthorized(request, parameterMap)) {
                         String name = request.getParameter("name");
                         String value = request.getParameter("value");
                         userController.setUserPreference(user, name, value);
