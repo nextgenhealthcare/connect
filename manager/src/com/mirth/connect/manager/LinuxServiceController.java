@@ -11,7 +11,7 @@ package com.mirth.connect.manager;
 
 public class LinuxServiceController implements ServiceController {
 
-    private final String LINUX_SERVICE_NAME = "mirthconnect_service";
+    private final String LINUX_SERVICE_NAME = "mcservice";
     private final String LINUX_SERVICE_CMD = "/etc/init.d/";
     private final String LINUX_SERVICE_START = "start";
     private final String LINUX_SERVICE_STOP = "stop";
