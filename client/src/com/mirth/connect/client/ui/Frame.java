@@ -1058,14 +1058,13 @@ public class Frame extends JXFrame {
                 this.dispose();
                 Mirth.main(new String[]{PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION});
                 return;
+            } else if (message.indexOf("Unauthorized") != -1) {
+                message = "You are not authorized to peform this action.\n\n" + message;
             }
         }
 
-        if (message.indexOf("Unauthorized") != -1) {
-            message = "You are not authorized to peform this action.\n\n" + message;
-        }
+        String stackTrace = (message == null ? "" : message + "\n");
         
-        String stackTrace = message + "\n";
         for (int i = 0; i < strace.length; i++) {
             stackTrace += strace[i].toString() + "\n";
         }
