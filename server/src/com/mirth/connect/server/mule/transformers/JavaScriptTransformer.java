@@ -17,7 +17,6 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
 import org.mule.transformers.AbstractEventAwareTransformer;
 import org.mule.umo.UMOEventContext;
 import org.mule.umo.lifecycle.InitialisationException;
@@ -505,13 +504,26 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         newScript.append("XML.prettyPrinting=false;");
 
         // Check to see if the property to strip namespaces off of incoming
-        // messages has been set to false.
-        // For XML, HL7v2, and HL7v3 stripNamespaces can be turned off.
-        boolean stripIncomingNamespaces = true;
+        // messages has been set.
+        // For XML, HL7v2, and HL7v3 stripNamespaces can be turned on/off.
+        boolean stripIncomingNamespaces = false;
 
-        if (Protocol.valueOf(inboundProtocol).equals(Protocol.XML) || Protocol.valueOf(inboundProtocol).equals(Protocol.HL7V2) || Protocol.valueOf(inboundProtocol).equals(Protocol.HL7V3)) {
+        if (Protocol.valueOf(inboundProtocol).equals(Protocol.HL7V2)) {
+            // If HL7v2, only strip namespaces if using the strict parser
+            if ((inboundProperties != null) && Boolean.parseBoolean(inboundProperties.get("useStrictParser"))) {
+                // If the property has been set, use it, otherwise use the default true
+                if (inboundProperties.get("stripNamespaces") != null) {
+                    stripIncomingNamespaces = Boolean.parseBoolean(inboundProperties.get("stripNamespaces"));
+                } else {
+                    stripIncomingNamespaces = true;
+                }
+            }
+        } else if (Protocol.valueOf(inboundProtocol).equals(Protocol.XML) || Protocol.valueOf(inboundProtocol).equals(Protocol.HL7V3)) {
+            // If the property has been set, use it, otherwise use the default true
             if ((inboundProperties != null) && (inboundProperties.get("stripNamespaces") != null)) {
                 stripIncomingNamespaces = Boolean.parseBoolean(inboundProperties.get("stripNamespaces"));
+            } else {
+                stripIncomingNamespaces = true;
             }
         }
 
@@ -533,13 +545,26 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
             // msg[''] syntax
 
             // Check to see if the property to strip namespaces off of outbound
-            // templates has been set to false.
-            // For XML, HL7v2, and HL7v3 stripNamespaces can be turned off.
-            boolean stripOutboundNamespaces = true;
+            // templates has been set.
+            // For XML, HL7v2, and HL7v3 stripNamespaces can be turned on/off.
+            boolean stripOutboundNamespaces = false;
 
-            if (Protocol.valueOf(outboundProtocol).equals(Protocol.XML) || Protocol.valueOf(outboundProtocol).equals(Protocol.HL7V2) || Protocol.valueOf(outboundProtocol).equals(Protocol.HL7V3)) {
+            if (Protocol.valueOf(outboundProtocol).equals(Protocol.HL7V2)) {
+                // If HL7v2, only strip namespaces if using the strict parser
+                if ((outboundProperties != null) && Boolean.parseBoolean(outboundProperties.get("useStrictParser"))) {
+                    // If the property has been set, use it, otherwise use the default true
+                    if (outboundProperties.get("stripNamespaces") != null) {
+                        stripOutboundNamespaces = Boolean.parseBoolean(outboundProperties.get("stripNamespaces"));
+                    } else {
+                        stripOutboundNamespaces = true;
+                    }
+                }
+            } else if (Protocol.valueOf(outboundProtocol).equals(Protocol.XML) || Protocol.valueOf(outboundProtocol).equals(Protocol.HL7V3)) {
+                // If the property has been set, use it, otherwise use the default true
                 if ((outboundProperties != null) && (outboundProperties.get("stripNamespaces") != null)) {
                     stripOutboundNamespaces = Boolean.parseBoolean(outboundProperties.get("stripNamespaces"));
+                } else {
+                    stripOutboundNamespaces = true;
                 }
             }
 

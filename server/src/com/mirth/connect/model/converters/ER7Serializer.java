@@ -37,7 +37,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
     private XMLParser xmlParser = null;
     private boolean useStrictParser = false;
     private boolean useStrictValidation = false;
-    private boolean stripNamespaces = true;
+    private boolean stripNamespaces = true;  // Used in JST for strict parser
     private boolean handleRepetitions = false;
     private boolean handleSubcomponents = false;
     private boolean convertLFtoCR = true;
