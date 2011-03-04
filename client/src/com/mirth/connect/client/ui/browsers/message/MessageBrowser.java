@@ -268,7 +268,12 @@ public class MessageBrowser extends javax.swing.JPanel {
         quickSearchField.setText("");
         
         Channel selectedChannel = parent.getSelectedChannelFromDashboard();
-        boolean allowSearch = !((String) selectedChannel.getProperties().get("encryptData")).equalsIgnoreCase("true");
+        
+        // Channel could be null if user doesn't have permission to get channels, so default to true.
+        boolean allowSearch = true;
+        if (selectedChannel != null) {
+            allowSearch = !((String) selectedChannel.getProperties().get("encryptData")).equalsIgnoreCase("true");
+        }
         
         quickSearchLabel.setEnabled(allowSearch);
         quickSearchField.setEnabled(allowSearch);
@@ -1498,7 +1503,12 @@ public class MessageBrowser extends javax.swing.JPanel {
         String protocol = advSearchFilterPopup.getProtocol();
 
         Channel selectedChannel = parent.getSelectedChannelFromDashboard();
-        boolean allowSearch = !((String) selectedChannel.getProperties().get("encryptData")).equalsIgnoreCase("true");
+        
+        // Channel could be null if user doesn't have permission to get channels, so default to true.
+        boolean allowSearch = true;
+        if (selectedChannel != null) {
+            allowSearch = !((String) selectedChannel.getProperties().get("encryptData")).equalsIgnoreCase("true");
+        }
         
         advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true, allowSearch);
         advSearchFilterPopup.setFieldValues(connector, messageSource, messageType, containingKeyword, messageId, correlationId, includeRawMessage, includeTransformedMessage, includeEncodedMessage, includeErrors, protocol);
