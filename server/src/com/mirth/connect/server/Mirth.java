@@ -224,9 +224,12 @@ public class Mirth extends Thread {
      */
     public void shutdown() {
         logger.info("shutting down mirth due to normal request");
-        eventController.addEvent(new Event("Server shutdown"));
         
         stopEngine();
+        
+        // Add event after stopping the engine, but before stopping the plugins
+        eventController.addEvent(new Event("Server shutdown"));
+        
         stopWebServer();
         extensionController.stopPlugins();
         // Stats updater thread will update the stats one more time before
