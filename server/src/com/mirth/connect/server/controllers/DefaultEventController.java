@@ -161,11 +161,11 @@ public class DefaultEventController extends EventController {
         parameterMap.put("level", filter.getLevel());
 
         if (filter.getStartDate() != null) {
-            parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));
+            parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", filter.getStartDate()));
         }
 
         if (filter.getEndDate() != null) {
-            parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));
+            parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", filter.getEndDate()));
         }
         
         parameterMap.put("outcome", filter.getOutcome());

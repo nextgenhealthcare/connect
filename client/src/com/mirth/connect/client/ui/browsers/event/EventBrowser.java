@@ -10,19 +10,21 @@
 package com.mirth.connect.client.ui.browsers.event;
 
 import java.awt.Point;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
-import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.text.DateFormatter;
 
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -126,8 +128,14 @@ public class EventBrowser extends javax.swing.JPanel {
 
         nameField.setText("");
         levelComboBox.setSelectedIndex(0);
-        startDatePicker.setDate(Calendar.getInstance().getTime());
-        endDatePicker.setDate(Calendar.getInstance().getTime());
+        
+        Calendar calendar = Calendar.getInstance();
+        startDatePicker.setDate(calendar.getTime());
+        calendar.add(Calendar.DATE, 1);
+        endDatePicker.setDate(calendar.getTime());
+        
+        startTimePicker.setDate("00:00 am");
+        endTimePicker.setDate("00:00 am");
 
         updateCachedUserMap();
 
@@ -606,7 +614,7 @@ public class EventBrowser extends javax.swing.JPanel {
         );
 
         searchPanel.setBackground(new java.awt.Color(255, 255, 255));
-        searchPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Search", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        searchPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
         nameLabel.setText("Name:");
 
@@ -689,20 +697,14 @@ public class EventBrowser extends javax.swing.JPanel {
         filterPanelLayout.setHorizontalGroup(
             filterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(filterPanelLayout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(searchPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
-                .addComponent(pagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                .addComponent(pagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         filterPanelLayout.setVerticalGroup(
             filterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, filterPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(filterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(pagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(searchPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+            .addComponent(searchPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(pagePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         eventSplitPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -732,7 +734,7 @@ public class EventBrowser extends javax.swing.JPanel {
             eventDetailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, eventDetailsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(eventAttributesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                .addComponent(eventAttributesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -748,9 +750,9 @@ public class EventBrowser extends javax.swing.JPanel {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(filterPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(filterPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(eventSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE))
+                .addComponent(eventSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -771,14 +773,54 @@ public class EventBrowser extends javax.swing.JPanel {
      * and remakes the table with that filter.
      */
     private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
-        if (startDatePicker.getDate() != null && endDatePicker.getDate() != null) {
-            if (startDatePicker.getDate().after(endDatePicker.getDate())) {
-                JOptionPane.showMessageDialog(parent, "Start date cannot be after the end date.");
+        eventFilter = new EventFilter();
+        
+        if (startDatePicker.getDate() != null && endDatePicker.getDate() != null
+                && startTimePicker.getDate() != null && endTimePicker.getDate() != null) {
+            SimpleDateFormat timeDateFormat = new SimpleDateFormat("hh:mm aa");
+            DateFormatter timeFormatter = new DateFormatter(timeDateFormat);
+
+            Date startDate = startDatePicker.getDate();
+            Date endDate = endDatePicker.getDate();
+
+            String startTime = startTimePicker.getDate();
+            String endTime = endTimePicker.getDate();
+
+            Date startTimeDate;
+            Date endTimeDate;
+
+            try {
+                startTimeDate = (Date) timeFormatter.stringToValue(startTime);
+                endTimeDate = (Date) timeFormatter.stringToValue(endTime);
+            } catch (Exception e) {
+                parent.alertError(this, "Invalid date.");
                 return;
             }
-        }
 
-        eventFilter = new EventFilter();
+            Calendar startDateCalendar = Calendar.getInstance();
+            Calendar endDateCalendar = Calendar.getInstance();
+            Calendar startTimeCalendar = Calendar.getInstance();
+            Calendar endTimeCalendar = Calendar.getInstance();
+
+            startDateCalendar.setTime(startDate);
+            endDateCalendar.setTime(endDate);
+            startTimeCalendar.setTime(startTimeDate);
+            endTimeCalendar.setTime(endTimeDate);
+
+            Calendar startCalendar = Calendar.getInstance();
+            Calendar endCalendar = Calendar.getInstance();
+
+            startCalendar.set(startDateCalendar.get(Calendar.YEAR), startDateCalendar.get(Calendar.MONTH), startDateCalendar.get(Calendar.DATE), startTimeCalendar.get(Calendar.HOUR_OF_DAY), startTimeCalendar.get(Calendar.MINUTE), startTimeCalendar.get(Calendar.SECOND));
+            endCalendar.set(endDateCalendar.get(Calendar.YEAR), endDateCalendar.get(Calendar.MONTH), endDateCalendar.get(Calendar.DATE), endTimeCalendar.get(Calendar.HOUR_OF_DAY), endTimeCalendar.get(Calendar.MINUTE), endTimeCalendar.get(Calendar.SECOND));
+
+            if (startCalendar.getTimeInMillis() > endCalendar.getTimeInMillis()) {
+                parent.alertError(this, "Start date cannot be after the end date.");
+                return;
+            }
+            
+            eventFilter.setStartDate(startCalendar);
+            eventFilter.setEndDate(endCalendar);
+        }
 
         if (!nameField.getText().equals("")) {
             eventFilter.setName(nameField.getText());
@@ -790,17 +832,6 @@ public class EventBrowser extends javax.swing.JPanel {
                     eventFilter.setLevel(Level.values()[i]);
                 }
             }
-        }
-
-        if (startDatePicker.getDate() != null) {
-            Calendar calendarStart = Calendar.getInstance();
-            calendarStart.setTime(startDatePicker.getDate());
-            eventFilter.setStartDate(calendarStart);
-        }
-        if (endDatePicker.getDate() != null) {
-            Calendar calendarEnd = Calendar.getInstance();
-            calendarEnd.setTime(endDatePicker.getDate());
-            eventFilter.setEndDate(calendarEnd);
         }
 
         // Start advanced search properties
