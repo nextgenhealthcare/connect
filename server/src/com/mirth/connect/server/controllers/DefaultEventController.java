@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,9 +124,9 @@ public class DefaultEventController extends EventController {
     public String exportAllEvents() throws ControllerException {
         logger.debug("exporting events");
 
-        String uid = String.valueOf(System.currentTimeMillis());
+        String currentDateTime = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(System.currentTimeMillis());
         String appDataDir = ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir();
-        File exportFile = new File(new File(appDataDir, "exports"), uid + "-events.txt");
+        File exportFile = new File(new File(appDataDir, "exports"), currentDateTime + "-events.txt");
 
         try {
             FileWriter writer = new FileWriter(exportFile, true);
@@ -134,12 +135,12 @@ public class DefaultEventController extends EventController {
             writer.write(Event.getExportHeader());
 
             EventFilter filter = new EventFilter();
-            int size = createTempTable(filter, uid, true);
+            int size = createTempTable(filter, currentDateTime, true);
             int page = 0;
             int interval = 10;
 
             while ((page * interval) < size) {
-                for (Event event : getEventsByPage(page, interval, size, uid)) {
+                for (Event event : getEventsByPage(page, interval, size, currentDateTime)) {
                     writer.write(event.toExportString());
                 }
 
@@ -148,7 +149,7 @@ public class DefaultEventController extends EventController {
 
             IOUtils.closeQuietly(writer);
             logger.debug("events exported to file: " + exportFile.getAbsolutePath());
-            removeFilterTable(uid);
+            removeFilterTable(currentDateTime);
 
             Event event = new Event("Sucessfully exported events.");
             event.addAttribute("file", exportFile.getAbsolutePath());
