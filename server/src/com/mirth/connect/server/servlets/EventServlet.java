@@ -44,7 +44,7 @@ public class EventServlet extends MirthServlet {
                 String uid = null;
                 boolean useNewTempTable = false;
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
-                
+
                 if (StringUtils.isNotBlank(request.getParameter("uid"))) {
                     uid = request.getParameter("uid");
                     useNewTempTable = true;
@@ -96,6 +96,20 @@ public class EventServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         eventController.removeAllEvents();
+                    }
+                } else if (operation.equals(Operations.EVENT_EXPORT_ALL)) {
+                    if (!isUserAuthorized(request, null)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        response.setContentType(TEXT_PLAIN);
+                        out.println(eventController.exportAllEvents());
+                    }
+                } else if (operation.equals(Operations.EVENT_EXPORT_AND_REMOVE_REMOVE_ALL)) {
+                    if (!isUserAuthorized(request, null)) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        response.setContentType(TEXT_PLAIN);
+                        out.println(eventController.exportAndRemoveAllEvents());
                     }
                 }
             } catch (Throwable t) {

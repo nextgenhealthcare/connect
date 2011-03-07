@@ -107,16 +107,29 @@ public class DefaultEventController extends EventController {
             throw new ControllerException("Error removing all events.", e);
         }
     }
-    
+
     public String exportAndRemoveAllEvents() throws ControllerException {
-        logger.debug("exporting events");
-        
         try {
-            String uid = String.valueOf(System.currentTimeMillis());
-            String appDataDir = ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir();
-            File exportFile = new File(new File(appDataDir, "exports"), uid + "-events.txt");
+            String exportFilePath = exportAllEvents();
+            removeAllEvents();
+            Event event = new Event("Sucessfully exported events.");
+            event.addAttribute("file", exportFilePath);
+            return exportFilePath;
+        } catch (ControllerException e) {
+            throw e;
+        }
+    }
+
+    public String exportAllEvents() throws ControllerException {
+        logger.debug("exporting events");
+
+        String uid = String.valueOf(System.currentTimeMillis());
+        String appDataDir = ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir();
+        File exportFile = new File(new File(appDataDir, "exports"), uid + "-events.txt");
+
+        try {
             FileWriter writer = new FileWriter(exportFile, true);
-            
+
             // write the CSV headers to the file
             writer.write(Event.getExportHeader());
 
@@ -136,17 +149,14 @@ public class DefaultEventController extends EventController {
             IOUtils.closeQuietly(writer);
             logger.debug("events exported to file: " + exportFile.getAbsolutePath());
             removeFilterTable(uid);
-            
-            // remove all the events after exporting them
-            removeAllEvents();
-            
-            // return the path to the export file
-            return exportFile.getAbsolutePath();
+
+            Event event = new Event("Sucessfully exported events.");
+            event.addAttribute("file", exportFile.getAbsolutePath());
         } catch (IOException e) {
             throw new ControllerException("Error exporting events to file.", e);
-        } catch (ControllerException e) {
-            throw e;
         }
+
+        return exportFile.getAbsolutePath();
     }
 
     private Map<String, Object> getEventFilterMap(EventFilter filter, String uid) {
@@ -167,7 +177,7 @@ public class DefaultEventController extends EventController {
         if (filter.getEndDate() != null) {
             parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", filter.getEndDate()));
         }
-        
+
         parameterMap.put("outcome", filter.getOutcome());
         parameterMap.put("userId", filter.getUserId());
         parameterMap.put("ipAddress", filter.getIpAddress());
@@ -181,7 +191,7 @@ public class DefaultEventController extends EventController {
         if (!forceTemp && DatabaseUtil.statementExists("Event.getEventsByPageLimit")) {
             return -1;
         }
-        
+
         if (!forceTemp) {
             removeFilterTable(uid);
         }
@@ -201,7 +211,7 @@ public class DefaultEventController extends EventController {
 
     public void removeFilterTable(String uid) {
         logger.debug("removing temporary event table: uid=" + uid);
-        
+
         try {
             if (DatabaseUtil.statementExists("Event.dropTempEventTableSequence")) {
                 SqlConfig.getSqlMapClient().update("Event.dropTempEventTableSequence", uid);
@@ -209,7 +219,7 @@ public class DefaultEventController extends EventController {
         } catch (SQLException e) {
             logger.debug(e);
         }
-        
+
         try {
             if (DatabaseUtil.statementExists("Event.deleteTempEventTableIndex")) {
                 SqlConfig.getSqlMapClient().update("Event.deleteTempEventTableIndex", uid);
@@ -217,7 +227,7 @@ public class DefaultEventController extends EventController {
         } catch (SQLException e) {
             logger.debug(e);
         }
-        
+
         try {
             SqlConfig.getSqlMapClient().update("Event.dropTempEventTable", uid);
         } catch (SQLException e) {

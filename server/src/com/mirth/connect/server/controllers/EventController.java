@@ -33,6 +33,8 @@ public abstract class EventController extends Controller {
      */
     public abstract void removeAllEvents() throws ControllerException;
 
+    public abstract String exportAllEvents() throws ControllerException;
+    
     /**
      * Exports all events to a new CSV file, removes all the events, and returns
      * the path to the generated export file.

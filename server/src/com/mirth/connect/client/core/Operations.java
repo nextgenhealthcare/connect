@@ -98,6 +98,8 @@ public class Operations {
     public static final Operation EVENT_GET_BY_PAGE = new Operation("getEventsByPage", "Get events by page", false);
     public static final Operation EVENT_GET_BY_PAGE_LIMIT = new Operation("getEventsByPageLimit", "Get events by page limit", false);
     public static final Operation EVENT_REMOVE_ALL = new Operation("removeAllEvents", "Remove all events", true);
+    public static final Operation EVENT_EXPORT_AND_REMOVE_REMOVE_ALL = new Operation("exportAndRemoveAllEvents", "Export and remove all events.", false);
+    public static final Operation EVENT_EXPORT_ALL = new Operation("exportAllEvents", "Export all events.", true);
 
     // Users
     public static final Operation USER_GET = new Operation("getUser", "Get user", false);

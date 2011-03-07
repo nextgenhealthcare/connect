@@ -14,6 +14,7 @@ import java.io.PrintStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -77,6 +78,14 @@ public class Event implements Serializable, Exportable {
 
     public void setAttributes(Map<String, Object> attributes) {
         this.attributes = attributes;
+    }
+
+    public void addAttribute(String name, Object value) {
+        if (attributes == null) {
+            attributes = new HashMap<String, Object>();
+        }
+
+        attributes.put(name, value);
     }
 
     public String getName() {

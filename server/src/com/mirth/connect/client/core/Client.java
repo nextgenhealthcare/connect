@@ -34,9 +34,7 @@ import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DriverInfo;
-import com.mirth.connect.model.ExtensionLibrary;
 import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerConfiguration;
@@ -632,6 +630,18 @@ public class Client {
         serverConnection.executePostMethod(EVENT_SERVLET, params);
     }
 
+    public String exportAllEvents() throws ClientException {
+        logger.debug("exporting all events");
+        NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_EXPORT_ALL.getName()) };
+        return (String) serverConnection.executePostMethod(EVENT_SERVLET, params);
+    }
+    
+    public String exportAndRemoveAllEvents() throws ClientException {
+        logger.debug("exporting and removing all events");
+        NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_EXPORT_AND_REMOVE_REMOVE_ALL.getName()) };
+        return (String) serverConnection.executePostMethod(EVENT_SERVLET, params);
+    }
+    
     public void removeMessages(MessageObjectFilter filter) throws ClientException {
         logger.debug("removing messages");
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_REMOVE.getName()), new NameValuePair("filter", serializer.toXML(filter)) };
