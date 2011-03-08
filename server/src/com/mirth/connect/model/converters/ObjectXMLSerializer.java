@@ -9,11 +9,8 @@
 
 package com.mirth.connect.model.converters;
 
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import org.w3c.dom.Document;
 
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.ArchiveMetaData;
