@@ -599,7 +599,7 @@ public class Frame extends JXFrame {
         setVisibleTasks(dashboardTasks, dashboardPopupMenu, 1, -1, false);
         
         // Event Pane
-        setVisibleTasks(eventTasks, eventPopupMenu, 0, 1, true);
+        setVisibleTasks(eventTasks, eventPopupMenu, 0, 2, true);
         
         // Message Pane
         setVisibleTasks(messageTasks, messagePopupMenu, 0, -1, true);
@@ -777,7 +777,8 @@ public class Frame extends JXFrame {
         eventTasks.setFocusable(false);
 
         addTask(TaskConstants.EVENT_REFRESH, "Refresh", "Refresh the list of events with the given filter.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), eventTasks, eventPopupMenu);
-        addTask(TaskConstants.EVENT_REMOVE_ALL, "Remove All Events", "Remove all the events.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
+        addTask(TaskConstants.EVENT_EXPORT_ALL, "Export All Events", "Export all events to a file on the server.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), eventTasks, eventPopupMenu);
+        addTask(TaskConstants.EVENT_REMOVE_ALL, "Remove All Events", "Remove all events and optionally export them to a file on the server.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
 
         setNonFocusable(eventTasks);
         taskPaneContainer.add(eventTasks);
@@ -3499,14 +3500,59 @@ public class Frame extends JXFrame {
     }
 
     public void doRemoveAllEvents() {
-        if (alertOption(this, "Are you sure you would like to clear all events?")) {
-            setWorking("Clearing events...", true);
+        int option = JOptionPane.showConfirmDialog(this, "All events will be removed. Would you also like them to be\n" +
+                                                         "exported to a file on the server?");
+        if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
+            return;
+        }
+        
+        final boolean export = (option == JOptionPane.YES_OPTION);
+        
+        setWorking("Clearing events...", true);
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            
+            private String exportPath = null;
+            
+            public Void doInBackground() {
+                try {
+                    if (export) {
+                        exportPath = mirthClient.exportAndRemoveAllEvents();
+                    } else {
+                        mirthClient.removeAllEvents();
+                    }
+                } catch (ClientException e) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+
+            public void done() {
+                eventBrowser.refresh();
+                
+                if (exportPath != null) {
+                    alertInformation(PlatformUI.MIRTH_FRAME, "Events have been exported to the following server path:\n" + exportPath);
+                }
+                
+                setWorking("", false);
+            }
+        };
+
+        worker.execute();
+    }
+    
+    public void doExportAllEvents() {
+        if (alertOption(this, "Are you sure you would like to export all events? An export\n" +
+        		              "file will be placed in the exports directory on the server.")) {
+            setWorking("Exporting events...", true);
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
+                private String exportPath = null;
+                
                 public Void doInBackground() {
                     try {
-                        mirthClient.removeAllEvents();
+                        exportPath = mirthClient.exportAllEvents();
                     } catch (ClientException e) {
                         alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
@@ -3514,7 +3560,10 @@ public class Frame extends JXFrame {
                 }
 
                 public void done() {
-                    eventBrowser.refresh();
+                    if (exportPath != null) {
+                        alertInformation(PlatformUI.MIRTH_FRAME, "Events have been exported to the following server path:\n" + exportPath);
+                    }
+                    
                     setWorking("", false);
                 }
             };

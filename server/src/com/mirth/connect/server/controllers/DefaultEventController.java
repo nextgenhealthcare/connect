@@ -113,8 +113,6 @@ public class DefaultEventController extends EventController {
         try {
             String exportFilePath = exportAllEvents();
             removeAllEvents();
-            Event event = new Event("Sucessfully exported events.");
-            event.addAttribute("file", exportFilePath);
             return exportFilePath;
         } catch (ControllerException e) {
             throw e;
@@ -124,23 +122,28 @@ public class DefaultEventController extends EventController {
     public String exportAllEvents() throws ControllerException {
         logger.debug("exporting events");
 
-        String currentDateTime = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(System.currentTimeMillis());
+        long currentTimeMillis = System.currentTimeMillis();
+        String currentTimeMillisString = String.valueOf(currentTimeMillis);
+        String currentDateTime = new SimpleDateFormat("yyyy-MM-dd-HHmmss").format(currentTimeMillis);
         String appDataDir = ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir();
-        File exportFile = new File(new File(appDataDir, "exports"), currentDateTime + "-events.txt");
+        File exportDir = new File(appDataDir, "exports");
+        exportDir.mkdir();
+        File exportFile = new File(exportDir, currentDateTime + "-events.txt");
 
         try {
             FileWriter writer = new FileWriter(exportFile, true);
 
             // write the CSV headers to the file
             writer.write(Event.getExportHeader());
+            writer.write(System.getProperty("line.separator"));
 
             EventFilter filter = new EventFilter();
-            int size = createTempTable(filter, currentDateTime, true);
+            int size = createTempTable(filter, currentTimeMillisString, true);
             int page = 0;
             int interval = 10;
 
             while ((page * interval) < size) {
-                for (Event event : getEventsByPage(page, interval, size, currentDateTime)) {
+                for (Event event : getEventsByPage(page, interval, size, currentTimeMillisString)) {
                     writer.write(event.toExportString());
                 }
 
@@ -151,8 +154,9 @@ public class DefaultEventController extends EventController {
             logger.debug("events exported to file: " + exportFile.getAbsolutePath());
             removeFilterTable(currentDateTime);
 
-            Event event = new Event("Sucessfully exported events.");
+            Event event = new Event("Sucessfully exported events");
             event.addAttribute("file", exportFile.getAbsolutePath());
+            addEvent(event);
         } catch (IOException e) {
             throw new ControllerException("Error exporting events to file.", e);
         }

@@ -97,9 +97,9 @@ public class Operations {
     public static final Operation EVENT_REMOVE_FILTER_TABLES = new Operation("removeEventFilterTables", "Remove event filter tables", false);
     public static final Operation EVENT_GET_BY_PAGE = new Operation("getEventsByPage", "Get events by page", false);
     public static final Operation EVENT_GET_BY_PAGE_LIMIT = new Operation("getEventsByPageLimit", "Get events by page limit", false);
+    public static final Operation EVENT_EXPORT_ALL = new Operation("exportAllEvents", "Export all events", true);
     public static final Operation EVENT_REMOVE_ALL = new Operation("removeAllEvents", "Remove all events", true);
-    public static final Operation EVENT_EXPORT_AND_REMOVE_REMOVE_ALL = new Operation("exportAndRemoveAllEvents", "Export and remove all events.", false);
-    public static final Operation EVENT_EXPORT_ALL = new Operation("exportAllEvents", "Export all events.", true);
+    public static final Operation EVENT_EXPORT_AND_REMOVE_ALL = new Operation("exportAndRemoveAllEvents", "Export and remove all events", true);
 
     // Users
     public static final Operation USER_GET = new Operation("getUser", "Get user", false);
@@ -180,7 +180,9 @@ public class Operations {
         operationMap.put(EVENT_REMOVE_FILTER_TABLES.getName(), EVENT_REMOVE_FILTER_TABLES);
         operationMap.put(EVENT_GET_BY_PAGE.getName(), EVENT_GET_BY_PAGE);
         operationMap.put(EVENT_GET_BY_PAGE_LIMIT.getName(), EVENT_GET_BY_PAGE_LIMIT);
+        operationMap.put(EVENT_EXPORT_ALL.getName(), EVENT_EXPORT_ALL);
         operationMap.put(EVENT_REMOVE_ALL.getName(), EVENT_REMOVE_ALL);
+        operationMap.put(EVENT_EXPORT_AND_REMOVE_ALL.getName(), EVENT_EXPORT_AND_REMOVE_ALL);
         operationMap.put(USER_GET.getName(), USER_GET);
         operationMap.put(USER_UPDATE.getName(), USER_UPDATE);
         operationMap.put(USER_REMOVE.getName(), USER_REMOVE);

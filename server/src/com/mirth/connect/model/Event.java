@@ -43,7 +43,6 @@ public class Event implements Serializable, Exportable {
     private Level level = Level.INFORMATION;
     private String name;
     private Map<String, Object> attributes = new LinkedHashMap<String, Object>();
-    private String operation;
     private Outcome outcome = Outcome.SUCCESS;
     private int userId;
     private String ipAddress;
@@ -104,14 +103,6 @@ public class Event implements Serializable, Exportable {
         this.dateTime = dateTime;
     }
 
-    public String getOperation() {
-        return operation;
-    }
-
-    public void setOperation(String operation) {
-        this.operation = operation;
-    }
-
     public Outcome getOutcome() {
         return outcome;
     }
@@ -151,10 +142,9 @@ public class Event implements Serializable, Exportable {
     public String toExportString() {
         StringBuilder builder = new StringBuilder();
         builder.append(id + ", ");
-        builder.append(new SimpleDateFormat(Exportable.DATE_TIME_FORMAT).format(dateTime) + ", ");
+        builder.append(new SimpleDateFormat(Exportable.DATE_TIME_FORMAT).format(dateTime.getTime()) + ", ");
         builder.append(level + ", ");
         builder.append(outcome + ", ");
-        builder.append(operation + ", ");
         builder.append(name + ", ");
         builder.append(userId + ", ");
         builder.append(ipAddress + ", ");
@@ -166,7 +156,8 @@ public class Event implements Serializable, Exportable {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         MapUtils.verbosePrint(ps, "attributes", attributes);
-        builder.append(Base64.encodeBase64String(baos.toByteArray()));
+        builder.append(Base64.encodeBase64URLSafeString(baos.toByteArray()));
+        builder.append(System.getProperty("line.separator"));
         IOUtils.closeQuietly(ps);
 
         return builder.toString();

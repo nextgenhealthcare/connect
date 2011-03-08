@@ -100,6 +100,7 @@ public class TaskConstants {
     // Event Tasks
     public static final String EVENT_REFRESH = "doRefreshEvents";
     public static final String EVENT_REMOVE_ALL = "doRemoveAllEvents";
+    public static final String EVENT_EXPORT_ALL = "doExportAllEvents";
     
     // Message Tasks
     public static final String MESSAGE_REFRESH = "doRefreshMessages";

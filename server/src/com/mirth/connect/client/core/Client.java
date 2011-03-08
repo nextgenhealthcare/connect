@@ -638,7 +638,7 @@ public class Client {
     
     public String exportAndRemoveAllEvents() throws ClientException {
         logger.debug("exporting and removing all events");
-        NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_EXPORT_AND_REMOVE_REMOVE_ALL.getName()) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_EXPORT_AND_REMOVE_ALL.getName()) };
         return (String) serverConnection.executePostMethod(EVENT_SERVLET, params);
     }
     

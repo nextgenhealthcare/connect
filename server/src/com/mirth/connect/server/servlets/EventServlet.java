@@ -96,6 +96,9 @@ public class EventServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         eventController.removeAllEvents();
+                        
+                        // Audit after removal
+                        isUserAuthorized(request, null);
                     }
                 } else if (operation.equals(Operations.EVENT_EXPORT_ALL)) {
                     if (!isUserAuthorized(request, null)) {
@@ -104,12 +107,18 @@ public class EventServlet extends MirthServlet {
                         response.setContentType(TEXT_PLAIN);
                         out.println(eventController.exportAllEvents());
                     }
-                } else if (operation.equals(Operations.EVENT_EXPORT_AND_REMOVE_REMOVE_ALL)) {
+                } else if (operation.equals(Operations.EVENT_EXPORT_AND_REMOVE_ALL)) {
                     if (!isUserAuthorized(request, null)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         response.setContentType(TEXT_PLAIN);
-                        out.println(eventController.exportAndRemoveAllEvents());
+                        
+                        // Add file path of export and audit after removal
+                        String exportPath = eventController.exportAndRemoveAllEvents();
+                        parameterMap.put("file", exportPath);
+                        isUserAuthorized(request, parameterMap);
+                        
+                        out.println(exportPath);
                     }
                 }
             } catch (Throwable t) {

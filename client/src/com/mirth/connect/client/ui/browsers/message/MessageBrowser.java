@@ -372,7 +372,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             File file = exportFileChooser.getSelectedFile();
 
             if (file.exists()) {
-                if (!parent.alertOption(this, "The file " + file.getName() + " already exists. Would you like to overwrite it?")) {
+                if (!parent.alertOption(parent, "The file " + file.getName() + " already exists. Would you like to overwrite it?")) {
                     return;
                 }
             }
@@ -385,10 +385,10 @@ public class MessageBrowser extends javax.swing.JPanel {
                 int count = parent.mirthClient.exportMessages(formatResponse, plainTextResponse, messageListHandler.getFilter(), pageSize, file, UIConstants.CHARSET);
                 
                 if (count > 0) {
-                    parent.alertInformation(this, count + " messages were sucessfully exported to " + file.getPath());    
+                    parent.alertInformation(parent, count + " messages were sucessfully exported to " + file.getPath());    
                 }
             } catch (Exception e) {
-                parent.alertException(this, e.getStackTrace(), "Error exporting messages.");
+                parent.alertException(parent, e.getStackTrace(), "Error exporting messages.");
             }
         }
     }
