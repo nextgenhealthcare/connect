@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/xstream-1.3.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://xstream.codehaus.org/javadoc/"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="lib" path="/Server/setup/client-lib/mirth-client-core.jar"/>
+	<classpathentry kind="lib" path="/Server/setup/client-lib/xstream-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/cli/api-release/"/>
@@ -17,7 +15,6 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api-2.4/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Server/setup/client-lib/mirth-client-core.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/codec/api-release/"/>
