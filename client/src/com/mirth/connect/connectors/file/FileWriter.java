@@ -304,7 +304,7 @@ public class FileWriter extends ConnectorClass {
             }
         }
 
-        String scheme = (String) schemeComboBox.getSelectedItem();
+        Object scheme = props.get(FileWriterProperties.FILE_SCHEME);
         if (scheme.equals(FileReaderProperties.SCHEME_FTP) || scheme.equals(FileReaderProperties.SCHEME_SFTP)) {
             if (((String) props.get(FileWriterProperties.FILE_TIMEOUT)).length() == 0) {
                 valid = false;

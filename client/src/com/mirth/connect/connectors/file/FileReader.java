@@ -408,7 +408,7 @@ public class FileReader extends ConnectorClass {
             }
         }
 
-        String scheme = (String) schemeComboBox.getSelectedItem();
+        Object scheme = props.get(FileReaderProperties.FILE_SCHEME);
         if (scheme.equals(FileReaderProperties.SCHEME_FTP) || scheme.equals(FileReaderProperties.SCHEME_SFTP)) {
             if (((String) props.get(FileReaderProperties.FILE_TIMEOUT)).length() == 0) {
                 valid = false;
