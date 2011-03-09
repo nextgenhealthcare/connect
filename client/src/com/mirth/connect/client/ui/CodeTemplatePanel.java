@@ -26,6 +26,7 @@ import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
@@ -55,6 +56,8 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
         lastModelRow = -1;
         blankPanel = new JPanel();
         initComponents();
+        
+        description.setDocument(new MirthFieldConstraints(255));
 
         ContextType[] contexts = ContextType.values();
         String[] contextNames = new String[contexts.length];

@@ -17,7 +17,7 @@
 		<result property="name" column="NAME" />
 		<result property="scope" column="CODE_SCOPE" />		
 		<result property="type" column="CODE_TYPE" />
-		<result property="tooltip" column="TOOLTIP" />
+		<result property="tooltip" column="TOOLTIP" nullValue="" />
 		<result property="code" column="CODE" />
 	</resultMap>
 	
