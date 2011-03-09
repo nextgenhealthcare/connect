@@ -44,7 +44,7 @@ public class Event implements Serializable, Exportable {
     private String name;
     private Map<String, Object> attributes = new LinkedHashMap<String, Object>();
     private Outcome outcome = Outcome.SUCCESS;
-    private int userId;
+    private int userId = 0;
     private String ipAddress;
 
     public Event() {

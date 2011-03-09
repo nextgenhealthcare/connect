@@ -15,7 +15,7 @@
 	<resultMap class="com.mirth.connect.model.Event" id="get-event-result">
 		<result property="id" column="ID" />
 		<result property="dateTime" column="DATE_CREATED" />
-		<result property="level" column="LEVEL"/>
+		<result property="level" column="EVENT_LEVEL"/>
 		<result property="outcome" column="OUTCOME" />
 		<result property="name" column="NAME" />
 		<result property="attributes" column="ATTRIBUTES" />
@@ -32,7 +32,7 @@
 				LOWER(NAME) LIKE LOWER('%$name$%')
 			</isNotNull>
 			<isNotNull prepend="AND" property="level">
-				LEVEL = '$level$'
+				EVENT_LEVEL = '$level$'
 			</isNotNull>
 			<isNotNull prepend="AND" property="startDate">
 				DATE_CREATED <![CDATA[ >= ]]> '$startDate$'
@@ -111,7 +111,7 @@
 
 	<insert id="insertEvent" parameterMap="insert-event-param">
 		INSERT INTO
-		EVENT (NAME, LEVEL, OUTCOME, ATTRIBUTES, USER_ID, IP_ADDRESS)
+		EVENT (NAME, EVENT_LEVEL, OUTCOME, ATTRIBUTES, USER_ID, IP_ADDRESS)
 		VALUES (?, ?, ?, ?, ?, ?)
 	</insert>
 
