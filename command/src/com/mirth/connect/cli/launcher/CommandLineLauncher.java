@@ -20,7 +20,9 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 public class CommandLineLauncher {
@@ -28,7 +30,13 @@ public class CommandLineLauncher {
 
     public static void main(String[] args) {
         try {
-            String[] manifest = new String[] { "mirth-cli.jar", "cli-lib" };
+            ManifestFile mirthCliJar = new ManifestFile("mirth-cli.jar");
+            ManifestFile mirthClientCoreJar = new ManifestFile("cli-lib/mirth-client-core.jar");
+            ManifestDirectory cliLibDir = new ManifestDirectory("cli-lib");
+            cliLibDir.setExcludes("mirth-client-core.jar");
+            
+            ManifestEntry[] manifest = new ManifestEntry[] { mirthCliJar, mirthClientCoreJar, cliLibDir };
+
             List<URL> classpathUrls = new ArrayList<URL>();
             addManifestToClasspath(manifest, classpathUrls);
             addSharedLibsToClasspath(classpathUrls);
@@ -49,15 +57,15 @@ public class CommandLineLauncher {
         }
     }
 
-    private static void addManifestToClasspath(String[] manifestEntries, List<URL> urls) throws Exception {
-        IOFileFilter fileFileFilter = FileFilterUtils.fileFileFilter();
-
-        for (String manifestEntry : manifestEntries) {
-            File manifestEntryFile = new File(manifestEntry);
+    private static void addManifestToClasspath(ManifestEntry[] manifestEntries, List<URL> urls) throws Exception {
+        for (ManifestEntry manifestEntry : manifestEntries) {
+            File manifestEntryFile = new File(manifestEntry.getName());
 
             if (manifestEntryFile.exists()) {
                 if (manifestEntryFile.isDirectory()) {
-                    Collection<File> pathFiles = FileUtils.listFiles(manifestEntryFile, fileFileFilter, FileFilterUtils.trueFileFilter());
+                    String[] excludes = StringUtils.split(((ManifestDirectory) manifestEntry).getExcludes(), ",");
+                    IOFileFilter andFileFilter = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.notFileFilter(new NameFileFilter(excludes)));
+                    Collection<File> pathFiles = FileUtils.listFiles(manifestEntryFile, andFileFilter, FileFilterUtils.trueFileFilter());
 
                     for (File pathFile : pathFiles) {
                         logger.trace("adding library to classpath: " + pathFile.getAbsolutePath());
