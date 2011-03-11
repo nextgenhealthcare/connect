@@ -537,10 +537,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             Map<String, String> result = SqlConfig.getSqlMapClient().queryForMap("Configuration.selectPropertiesForCategory", category, "name", "value");
 
             if (!result.isEmpty()) {
-                // Use safeAddToMap because Oracle returns NULL for ""
-                for (Entry<String, String> entry : result.entrySet()) {
-                    MapUtils.safeAddToMap(properties, entry.getKey(), entry.getValue());
-                }
+                properties.putAll(result);
             }
         } catch (Exception e) {
             logger.error("Could not retrieve properties: category=" + category, e);
