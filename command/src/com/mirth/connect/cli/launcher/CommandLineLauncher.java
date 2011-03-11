@@ -63,9 +63,17 @@ public class CommandLineLauncher {
 
             if (manifestEntryFile.exists()) {
                 if (manifestEntryFile.isDirectory()) {
-                    String[] excludes = StringUtils.split(((ManifestDirectory) manifestEntry).getExcludes(), ",");
-                    IOFileFilter andFileFilter = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.notFileFilter(new NameFileFilter(excludes)));
-                    Collection<File> pathFiles = FileUtils.listFiles(manifestEntryFile, andFileFilter, FileFilterUtils.trueFileFilter());
+                    ManifestDirectory manifestDir = (ManifestDirectory) manifestEntry;
+                    IOFileFilter fileFilter = null;
+                    
+                    if (StringUtils.isNotBlank(manifestDir.getExcludes())) {
+                        String[] excludes = StringUtils.split(manifestDir.getExcludes(), ",");
+                        fileFilter = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.notFileFilter(new NameFileFilter(excludes)));
+                    } else {
+                        fileFilter = FileFilterUtils.fileFileFilter();
+                    }
+
+                    Collection<File> pathFiles = FileUtils.listFiles(manifestEntryFile, fileFilter, FileFilterUtils.trueFileFilter());
 
                     for (File pathFile : pathFiles) {
                         logger.trace("adding library to classpath: " + pathFile.getAbsolutePath());
