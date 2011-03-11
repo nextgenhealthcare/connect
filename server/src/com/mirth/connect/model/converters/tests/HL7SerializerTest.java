@@ -71,6 +71,20 @@ public class HL7SerializerTest {
     }
 
     @Test
+    public void testFromXmlWithSubcomponents() throws Exception {
+        Properties properties = new Properties();
+        properties.put("useStrictParser", "false");
+        properties.put("handleRepetitions", "false");
+        properties.put("handleSubcomponents", "true");
+        properties.put("convertLFtoCR", "false");
+
+        String input = FileUtils.readFileToString(new File("tests/test-hl7-subcomponents-output.xml"));
+        String output = FileUtils.readFileToString(new File("tests/test-hl7-subcomponents-input.txt"));
+        ER7Serializer serializer = new ER7Serializer(properties);
+        Assert.assertEquals(output, TestUtil.convertCRToCRLF(serializer.fromXML(input)));
+    }
+
+    @Test
     public void testToXmlWithRepetitions() throws Exception {
         Properties properties = new Properties();
         properties.put("useStrictParser", "false");

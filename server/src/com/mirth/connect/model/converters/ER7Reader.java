@@ -241,7 +241,7 @@ public class ER7Reader extends SAXParser {
     }
 
     private void handleField(ContentHandler contentHandler, String componentSeparator, String subcomponentSeparator, String segmentId, int fieldId, String field) throws SAXException {
-        if (field.indexOf(componentSeparator) > -1) {
+        if ((field.indexOf(componentSeparator) > -1) || (handleSubcomponents && (field.indexOf(subcomponentSeparator) > -1))) {
             contentHandler.startElement("", segmentId + "." + fieldId, "", null);
             StringTokenizer componentTokenizer = new StringTokenizer(field, componentSeparator, true);
             handleComponents(contentHandler, componentSeparator, subcomponentSeparator, segmentId, fieldId, 1, componentTokenizer);
