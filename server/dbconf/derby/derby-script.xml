@@ -3,7 +3,11 @@
 <!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 
 <sqlMap namespace="Script">
-	<select id="getScript" parameterClass="java.util.Map" resultClass="java.lang.String">
+	<resultMap class="java.lang.String" id="get-script-result">
+		<result property="script" column="SCRIPT" nullValue="" />
+	</resultMap>
+	
+	<select id="getScript" parameterClass="java.util.Map" resultMap="get-script-result">
 		SELECT SCRIPT
 		FROM SCRIPT
 		WHERE GROUP_ID = #groupId# AND ID = #id#
