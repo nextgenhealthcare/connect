@@ -89,6 +89,7 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
     private String template;
     private String redeliveryHandler = DefaultRedeliveryHandler.class.getName();
     private String channelId;
+    private String selector;
     private int frequency = 10000;
     private boolean recoverJmsConnections = true;
 
@@ -549,6 +550,14 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 
     public void setJndiContext(Context jndiContext) {
         this.jndiContext = jndiContext;
+    }
+    
+    public void setSelector(String selector) {
+        this.selector = selector;
+    }
+    
+    public String getSelector() {
+        return this.selector;
     }
 
     protected RedeliveryHandler createRedeliveryHandler() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException, ClassNotFoundException {

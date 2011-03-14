@@ -161,6 +161,8 @@ public class JmsMessageReceiver extends AbstractMessageReceiver implements Messa
             String selector = null;
             if (endpoint.getFilter() != null && endpoint.getFilter() instanceof JmsSelectorFilter) {
                 selector = ((JmsSelectorFilter) endpoint.getFilter()).getExpression();
+            } else if (this.connector.getSelector() != null) {
+                selector = this.connector.getSelector();
             } else if (endpoint.getProperties() != null) {
                 // still allow the selector to be set as a property on the
                 // endpoint
