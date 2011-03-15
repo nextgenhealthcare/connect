@@ -116,7 +116,7 @@ public class MuleEngineController implements EngineController {
         // list of all properties which should not be appended to the
         // connector
         nonConnectorProperties = Arrays.asList(new String[] { "host", "port", "DataType" });
-        keysOfValuesThatAreBeans = Arrays.asList(new String[] { "connectionFactoryProperties", "requestVariables", "headerVariables", "envelopeProperties", "attachmentNames", "attachmentContents", "attachmentTypes", "traits", "dispatcherAttachmentNames", "dispatcherAttachmentContents", "dispatcherAttachmentTypes", "requestParamsName", "requestParamsKey", "requestParamsValue", "assertionParamsKey", "assertionParamsValue", "receiverUsernames", "receiverPasswords", "dispatcherHeaders", "dispatcherParameters" });
+        keysOfValuesThatAreBeans = Arrays.asList(new String[] { "connectionFactoryProperties", "requestVariables", "headerVariables", "envelopeProperties", "attachmentNames", "attachmentContents", "attachmentTypes", "traits", "dispatcherAttachmentNames", "dispatcherAttachmentContents", "dispatcherAttachmentTypes", "requestParamsName", "requestParamsKey", "requestParamsValue", "assertionParamsKey", "assertionParamsValue", "receiverUsernames", "receiverPasswords", "dispatcherHeaders", "dispatcherParameters", "documentMetaData", "assertionParameters" });
 
         // add default transformers
         defaultTransformers = new HashMap<String, String>();
