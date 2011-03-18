@@ -9,6 +9,7 @@
 
 package com.mirth.connect.model.converters;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -39,7 +40,9 @@ import com.thoughtworks.xstream.io.xml.XppDriver;
 
 public class ObjectXMLSerializer {
     private XStream xstream;
-    private static final Map<String, String> stringCache = new WeakHashMap<String, String>();
+    
+    // http://jira.codehaus.org/browse/XSTR-395
+    private static final Map<String, WeakReference<String>> stringCache = new WeakHashMap<String, WeakReference<String>>();
     
     private static final Class<?>[] annotatedClasses = new Class<?>[] {
         Alert.class,
