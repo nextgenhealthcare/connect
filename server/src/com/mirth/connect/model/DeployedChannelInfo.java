@@ -12,10 +12,9 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.Calendar;
 
-/**
- * A ChannelStatus represents the status of a deployed Channel.
- * 
- */
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("deployedChannelInfo")
 public class DeployedChannelInfo implements Serializable {
 
     private int deployedRevision;

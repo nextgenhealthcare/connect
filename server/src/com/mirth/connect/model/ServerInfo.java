@@ -11,6 +11,9 @@ package com.mirth.connect.model;
 
 import java.util.Map;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("serverInfo")
 public class ServerInfo {
     private Map<String, String> usageData;
     private Map<String, String> components;

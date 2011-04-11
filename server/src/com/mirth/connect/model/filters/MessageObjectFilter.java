@@ -18,11 +18,13 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import com.mirth.connect.model.CalendarToStringStyle;
 import com.mirth.connect.model.MessageObject.Protocol;
 import com.mirth.connect.model.MessageObject.Status;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * A MessageObjectFilter is used to search the message store.
  * 
  */
+@XStreamAlias("messageObjectFilter")
 public class MessageObjectFilter implements Serializable {
     /*
      * Note that any filter criteria that is an int must be represented using

@@ -11,6 +11,9 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("passwordRequirements")
 public class PasswordRequirements implements Serializable {
 
     private static final long serialVersionUID = 1L;

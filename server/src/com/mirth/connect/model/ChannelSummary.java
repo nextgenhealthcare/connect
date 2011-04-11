@@ -12,6 +12,9 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.Calendar;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("channelSummary")
 public class ChannelSummary implements Serializable {
 	private String id;
 	private boolean added;

@@ -9,6 +9,9 @@
 
 package com.mirth.connect.model;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("usageData")
 public class UsageData {
     private int key;
     private String value;

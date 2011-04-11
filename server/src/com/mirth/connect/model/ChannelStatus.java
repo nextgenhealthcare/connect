@@ -15,10 +15,13 @@ import java.util.Calendar;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 /**
  * A ChannelStatus represents the status of a deployed Channel.
  * 
  */
+@XStreamAlias("channelStatus")
 public class ChannelStatus implements Serializable {
     public enum State {
         STARTED, STOPPED, PAUSED

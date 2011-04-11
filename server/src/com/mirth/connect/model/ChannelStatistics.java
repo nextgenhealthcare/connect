@@ -14,6 +14,9 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("channelStatistics")
 public class ChannelStatistics implements Serializable {
     private String serverId;
     private String channelId;

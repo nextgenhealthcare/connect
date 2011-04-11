@@ -9,6 +9,9 @@
 
 package com.mirth.connect.model;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("updateInfo")
 public class UpdateInfo {
     public enum Type {
         SERVER, CONNECTOR, PLUGIN

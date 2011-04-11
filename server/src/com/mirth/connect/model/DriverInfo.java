@@ -11,6 +11,9 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("driverInfo")
 public class DriverInfo implements Serializable {
 	private String className;
 	private String name;

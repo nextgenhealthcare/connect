@@ -16,10 +16,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import com.mirth.connect.model.CalendarToStringStyle;
 import com.mirth.connect.model.Event.Level;
 import com.mirth.connect.model.Event.Outcome;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * A EventFilter is used to search the event log.
  */
+@XStreamAlias("eventFilter")
 public class EventFilter {
     /*
      * Note that any filter criteria that is an int must be represented using
