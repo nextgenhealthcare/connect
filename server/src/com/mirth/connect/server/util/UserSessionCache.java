@@ -50,7 +50,13 @@ public class UserSessionCache {
 
             if (entryUser.getId().equals(user.getId())) {
                 logger.debug("invalidating session: user=" + entryUser.getId() + ", session=" + entrySession.getId());
-                entrySession.removeAttribute("authorized");
+                
+                try {
+                    entrySession.removeAttribute("authorized");
+                } catch (IllegalStateException e) {
+                    logger.debug("tried to invalidate session, but user was already logged out");
+                }
+                
                 userSessionMap.remove(entrySession);
             }
         }
