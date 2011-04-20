@@ -188,7 +188,7 @@ public class TemplateValueReplacer {
         context.put("UUID", new UUID().getUUID());
         context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
         context.put("ORIGINALNAME", originalFilename);
-        context.put("encoder", Entities.getInstance(false));  // TODO: Remove in 2.1
+        context.put("encoder", Entities.getInstance(false));  // TODO: Remove in 2.2
         context.put("XmlUtil", XmlUtil.class);
     }
 }

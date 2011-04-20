@@ -25,13 +25,13 @@ public class Entities {
     private static Logger logger = Logger.getLogger(Entities.class);
 
     @Deprecated
-    // TODO: Remove in 2.1
+    // TODO: Remove in 2.2
     public static Entities getInstance() {
         return getInstance(true);
     }
 
     @Deprecated
-    // TODO: Remove in 2.1
+    // TODO: Remove in 2.2
     public static Entities getInstance(boolean logError) {
         if (logError) {
             logger.error("The Entities class is deprecated and will soon be removed. Please use XmlUtil. If you are calling ${encoder.encode()} from a template please use ${XmlUtil.encode()}.");

@@ -51,7 +51,7 @@ public class VMRouter {
     }
 
     @Deprecated
-    // TODO: Remove in 2.1
+    // TODO: Remove in 2.2
     public VMResponse routeMessage(String channelName, String message, boolean useQueue, boolean synchronised) {
         logger.error("The routeMessage(channelName, message, useQueue, synchronised) method is deprecated and will soon be removed. Please use routeMessage(channelName, message, useQueue)");
         return routeMessage(channelName, message, useQueue);
@@ -92,7 +92,7 @@ public class VMRouter {
     }
 
     @Deprecated
-    // TODO: Remove in 2.1
+    // TODO: Remove in 2.2
     public VMResponse routeMessageByChannelId(String channelId, Object message, boolean useQueue, boolean synchronised) {
         logger.error("The routeMessageByChannelId(channelId, message, useQueue, synchronised) method is deprecated and will soon be removed. Please use routeMessageByChannelId(channelId, message, useQueue)");
         return routeMessageByChannelId(channelId, message, useQueue);
