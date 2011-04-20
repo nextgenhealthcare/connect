@@ -822,6 +822,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         ErrorsTextPane.setText("Select a message to view any errors.");
         messageIdField.setText("");
         correlationIdField.setText("");
+        serverIdField.setText("");
         updateMappingsTable(new String[0][0], true);
         updateAttachmentsTable(null, true);
         descriptionTabbedPane.remove(attachmentsPane);
@@ -859,6 +860,8 @@ public class MessageBrowser extends javax.swing.JPanel {
                 } else {
                     correlationIdField.setText(currentMessage.getCorrelationId());
                 }
+
+                serverIdField.setText(currentMessage.getServerId());
                 
                 if (currentMessage.isAttachment()) {
                     if (descriptionTabbedPane.indexOfTab("Attachments") == -1) {
@@ -1062,9 +1065,11 @@ public class MessageBrowser extends javax.swing.JPanel {
         metaDataPane = new javax.swing.JScrollPane();
         metaDataPanel = new javax.swing.JPanel();
         messageIdField = new javax.swing.JTextField();
-        messageIdLabel1 = new javax.swing.JLabel();
+        messageIdLabel = new javax.swing.JLabel();
         correlationIdField = new javax.swing.JTextField();
         correlationIdLabel = new javax.swing.JLabel();
+        serverIdField = new javax.swing.JTextField();
+        serverIdLabel = new javax.swing.JLabel();
         attachmentsPane = new javax.swing.JScrollPane();
         attachmentTable = null;
         messagePane = new javax.swing.JScrollPane();
@@ -1269,7 +1274,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             RawMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(RawMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(RawMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+                .addComponent(RawMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(formatXmlRawCheckBox)
                 .addContainerGap())
@@ -1307,7 +1312,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             TransformedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(TransformedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(TransformedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+                .addComponent(TransformedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(formatXmlTransformedCheckBox)
                 .addContainerGap())
@@ -1345,7 +1350,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             EncodedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(EncodedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(EncodedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+                .addComponent(EncodedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(formatXmlEncodedCheckBox)
                 .addContainerGap())
@@ -1376,7 +1381,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ErrorsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
+                .addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -1387,12 +1392,17 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageIdField.setEditable(false);
         messageIdField.setToolTipText("The GUID of the message in the Mirth Connect database.");
 
-        messageIdLabel1.setText("Message ID:");
+        messageIdLabel.setText("Message ID:");
 
         correlationIdField.setEditable(false);
-        correlationIdField.setToolTipText("The correlation GUID of the group of messages in the Mirth Connect database");
+        correlationIdField.setToolTipText("The correlation GUID of the group of messages in the Mirth Connect database.");
 
         correlationIdLabel.setText("Correlation ID:");
+
+        serverIdField.setEditable(false);
+        serverIdField.setToolTipText("The ID of the Mirth Connect server that processed this message.");
+
+        serverIdLabel.setText("Server ID:");
 
         javax.swing.GroupLayout metaDataPanelLayout = new javax.swing.GroupLayout(metaDataPanel);
         metaDataPanel.setLayout(metaDataPanelLayout);
@@ -1400,11 +1410,13 @@ public class MessageBrowser extends javax.swing.JPanel {
             metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(metaDataPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(messageIdLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(correlationIdLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(messageIdLabel)
+                    .addComponent(correlationIdLabel)
+                    .addComponent(serverIdLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(serverIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(correlationIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(messageIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(461, Short.MAX_VALUE))
@@ -1414,13 +1426,17 @@ public class MessageBrowser extends javax.swing.JPanel {
             .addGroup(metaDataPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(messageIdLabel1)
+                    .addComponent(messageIdLabel)
                     .addComponent(messageIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(correlationIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(correlationIdLabel))
-                .addContainerGap(113, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(serverIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(serverIdLabel))
+                .addContainerGap(87, Short.MAX_VALUE))
         );
 
         metaDataPane.setViewportView(metaDataPanel);
@@ -1750,7 +1766,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JScrollPane mappingsPane;
     private com.mirth.connect.client.ui.components.MirthTable mappingsTable;
     private javax.swing.JTextField messageIdField;
-    private javax.swing.JLabel messageIdLabel1;
+    private javax.swing.JLabel messageIdLabel;
     private javax.swing.JScrollPane messagePane;
     private com.mirth.connect.client.ui.components.MirthTable messageTable;
     private javax.swing.JScrollPane metaDataPane;
@@ -1765,6 +1781,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JTextField quickSearchField;
     private javax.swing.JLabel quickSearchLabel;
     private javax.swing.JLabel resultsLabel;
+    private javax.swing.JTextField serverIdField;
+    private javax.swing.JLabel serverIdLabel;
     private javax.swing.JComboBox statusComboBox;
     // End of variables declaration//GEN-END:variables
 }

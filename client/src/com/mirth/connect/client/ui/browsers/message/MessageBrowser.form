@@ -365,7 +365,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="RawMessageTextPane" pref="146" max="32767" attributes="0"/>
+                          <Component id="RawMessageTextPane" pref="145" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="formatXmlRawCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -430,7 +430,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="TransformedMessageTextPane" pref="146" max="32767" attributes="0"/>
+                          <Component id="TransformedMessageTextPane" pref="145" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="formatXmlTransformedCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -495,7 +495,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="EncodedMessageTextPane" pref="146" max="32767" attributes="0"/>
+                          <Component id="EncodedMessageTextPane" pref="145" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="formatXmlEncodedCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -578,7 +578,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="ErrorsTextPane" pref="167" max="32767" attributes="0"/>
+                          <Component id="ErrorsTextPane" pref="166" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -620,12 +620,14 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="messageIdLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="messageIdLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                                   <Component id="correlationIdLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                                  <Component id="serverIdLabel" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="serverIdField" alignment="0" min="-2" pref="225" max="-2" attributes="0"/>
                                   <Component id="correlationIdField" alignment="0" min="-2" pref="225" max="-2" attributes="0"/>
                                   <Component id="messageIdField" alignment="0" min="-2" pref="225" max="-2" attributes="0"/>
                               </Group>
@@ -638,7 +640,7 @@
                           <Group type="102" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="messageIdLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="messageIdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="messageIdField" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
@@ -646,7 +648,12 @@
                                   <Component id="correlationIdField" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="correlationIdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace pref="113" max="32767" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="serverIdField" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="serverIdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace pref="87" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -658,7 +665,7 @@
                         <Property name="toolTipText" type="java.lang.String" value="The GUID of the message in the Mirth Connect database."/>
                       </Properties>
                     </Component>
-                    <Component class="javax.swing.JLabel" name="messageIdLabel1">
+                    <Component class="javax.swing.JLabel" name="messageIdLabel">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Message ID:"/>
                       </Properties>
@@ -666,12 +673,23 @@
                     <Component class="javax.swing.JTextField" name="correlationIdField">
                       <Properties>
                         <Property name="editable" type="boolean" value="false"/>
-                        <Property name="toolTipText" type="java.lang.String" value="The correlation GUID of the group of messages in the Mirth Connect database"/>
+                        <Property name="toolTipText" type="java.lang.String" value="The correlation GUID of the group of messages in the Mirth Connect database."/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="correlationIdLabel">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Correlation ID:"/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JTextField" name="serverIdField">
+                      <Properties>
+                        <Property name="editable" type="boolean" value="false"/>
+                        <Property name="toolTipText" type="java.lang.String" value="The ID of the Mirth Connect server that processed this message."/>
+                      </Properties>
+                    </Component>
+                    <Component class="javax.swing.JLabel" name="serverIdLabel">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Server ID:"/>
                       </Properties>
                     </Component>
                   </SubComponents>

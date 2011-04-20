@@ -29,7 +29,6 @@ import com.mirth.connect.util.QueueUtil;
 
 public class DefaultChannelController extends ChannelController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
     private ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 
@@ -189,11 +188,6 @@ public class DefaultChannelController extends ChannelController {
             } else {
                 logger.debug("updating channel");
                 SqlConfig.getSqlMapClient().update("Channel.updateChannel", channel);
-            }
-
-            // Create statistics for this channel if they don't already exist
-            if (!statisticsController.checkIfStatisticsExist(channel.getId())) {
-                statisticsController.createStatistics(channel.getId());
             }
 
             // Update the channel in the channelCache

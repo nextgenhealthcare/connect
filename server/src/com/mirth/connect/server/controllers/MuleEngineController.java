@@ -82,6 +82,7 @@ public class MuleEngineController implements EngineController {
 
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+    private ChannelStatisticsController channelStatisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
@@ -204,6 +205,12 @@ public class MuleEngineController implements EngineController {
                         if (!registerChannel(channel)) {
                             failedChannelIds.add(channel.getId());
                         } else {
+                            // Create statistics for this channel if they don't already exist
+                            // Note that each server with a unique server id has its own stats
+                            if (!channelStatisticsController.checkIfStatisticsExist(channel.getId())) {
+                                channelStatisticsController.createStatistics(channel.getId());
+                            }
+                            
                             channelController.putDeployedChannelInCache(channel);
                             deployedChannelCount++;
                         }
