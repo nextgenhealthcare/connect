@@ -193,7 +193,15 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                     PlatformUI.MIRTH_FRAME.setWorking("Parsing...", true);
                     String message = pasteBox.getText();
                     currentMessage = message;
-                    treePanel.setMessage(dataProperties, (String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
+                    
+                    // Some invalid message templates cause this method to throw a NullPointer.
+                    // Catch it so that we can still stop the "Parsing..." working status.
+                    // TODO: Fix the possible null pointers inside of the setMessage method.
+                    try {
+                        treePanel.setMessage(dataProperties, (String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     PlatformUI.MIRTH_FRAME.setWorking("", false);
                 }
             }
