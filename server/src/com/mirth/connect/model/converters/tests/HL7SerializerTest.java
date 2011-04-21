@@ -97,4 +97,12 @@ public class HL7SerializerTest {
         ER7Serializer serializer = new ER7Serializer(properties);
         Assert.assertEquals(output, TestUtil.prettyPrintXml(serializer.toXML(input)));
     }
+    
+    @Test
+    public void testIssue1820() throws Exception {
+        String input = FileUtils.readFileToString(new File("tests/test-1820-input.xml"));
+        String output = FileUtils.readFileToString(new File("tests/test-1820-output.txt"));
+        ER7Serializer serializer = new ER7Serializer(defaultProperties);
+        Assert.assertEquals(output, TestUtil.convertCRToCRLF(serializer.fromXML(input)));
+    }
 }
