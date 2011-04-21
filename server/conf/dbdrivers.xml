@@ -8,7 +8,7 @@
 <drivers>
 	<driver class="sun.jdbc.odbc.JdbcOdbcDriver" name="Sun JDBC-ODBC Bridge" template="jdbc:odbc:DSN" selectLimit="" />
 	<driver class="com.mysql.jdbc.Driver" name="MySQL" template="jdbc:mysql://host:port/dbname" selectLimit="SELECT * FROM ? LIMIT 1" />
-	<driver class="oracle.jdbc.driver.OracleDriver" name="Oracle 10g Release 2" template="jdbc:oracle:thin:@host:port:dbname" selectLimit="SELECT * FROM ? WHERE ROWNUM &lt; 2" />
+	<driver class="oracle.jdbc.driver.OracleDriver" name="Oracle" template="jdbc:oracle:thin:@host:port:dbname" selectLimit="SELECT * FROM ? WHERE ROWNUM &lt; 2" />
 	<driver class="org.postgresql.Driver" name="PostgreSQL" template="jdbc:postgresql://host:port/dbname" selectLimit="SELECT * FROM ? LIMIT 1" />
 	<driver class="net.sourceforge.jtds.jdbc.Driver" name="SQL Server/Sybase" template="jdbc:jtds:sqlserver://host:port/dbname" selectLimit="SELECT TOP 1 * FROM ?" />
 	<driver class="org.sqlite.JDBC" name="SQLite" template="jdbc:sqlite:dbfile.db" selectLimit="SELECT * FROM ? LIMIT 1" />
