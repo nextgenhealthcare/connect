@@ -30,6 +30,7 @@ import org.mule.impl.endpoint.MuleEndpoint;
 import org.mule.impl.internal.events.ModelEvent;
 import org.mule.model.DynamicEntryPointResolver;
 import org.mule.providers.QueueEnabledConnector;
+import org.mule.routing.outbound.AbstractOutboundRouter;
 import org.mule.routing.outbound.FilteringMulticastingRouter;
 import org.mule.transaction.TransactionCoordination;
 import org.mule.umo.UMOComponent;
@@ -438,7 +439,7 @@ public abstract class AbstractModel implements UMOModel {
 	public void stopDispatchers(UMOComponent component) throws UMOException{ 
 		List<UMORouter> routers = component.getDescriptor().getOutboundRouter().getRouters(); 
 		for(UMORouter router : routers) {				
-			for (Iterator it = ((FilteringMulticastingRouter)router).getEndpoints().iterator(); it.hasNext();) {
+			for (Iterator it = ((AbstractOutboundRouter)router).getEndpoints().iterator(); it.hasNext();) {
 				UMOEndpoint endpoint = (UMOEndpoint) it.next();
 				try {
 					endpoint.getConnector().stopDispatchers(component, endpoint);

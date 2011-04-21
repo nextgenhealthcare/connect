@@ -494,7 +494,14 @@ public class MuleEngineController implements EngineController {
 
             if (connector.isEnabled()) {
                 MuleEndpoint endpoint = new MuleEndpoint();
-                endpoint.setEndpointURI(new MuleEndpointURI(getEndpointUri(connector), channel.getId()));
+                
+                // Don't throw an exception if a malformed URI was passed
+                // in for one of the destinations.
+                try {
+                    endpoint.setEndpointURI(new MuleEndpointURI(getEndpointUri(connector), channel.getId()));
+                } catch (Exception e) {
+                    exceptionRegisteringOutboundRouter = e;
+                }
 
                 // if there are multiple endpoints, make them all
                 // synchronous to
