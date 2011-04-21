@@ -65,10 +65,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         if ((localNameArray.length == 1) && (localNameArray[0].equals(ER7Reader.MESSAGE_ROOT_ID))) {
             return;
         } else if (localNameArray.length == 2) {
-            /*
-             * This awesome piece of code returns if it is an [M|S|H].[1|2]
-             */
-            if ((localNameArray[0].length() == 3) && (localNameArray[0].charAt(1) == 'S') && (localNameArray[0].charAt(2) == 'H') && ((localNameArray[0].charAt(0) == 'M') || (localNameArray[0].charAt(0) == 'B') || (localNameArray[0].charAt(0) == 'F'))) {
+            if (isHeaderSegment(localNameArray[0])) {
                 if ((localNameArray[1].length() == 1) && (localNameArray[1].charAt(0) == '1' || localNameArray[1].charAt(0) == '2')) {
                     previousFieldNameArray = localNameArray;
                     return;
@@ -166,7 +163,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         if ((localNameArray.length == 1) && (localNameArray[0].equals(ER7Reader.MESSAGE_ROOT_ID))) {
             return;
         } else if (localNameArray.length == 2) {
-            if ((localNameArray[0].length() == 3) && (localNameArray[0].charAt(1) == 'S') && (localNameArray[0].charAt(2) == 'H') && ((localNameArray[0].charAt(0) == 'M') || (localNameArray[0].charAt(0) == 'B') || (localNameArray[0].charAt(0) == 'F'))) {
+            if (isHeaderSegment(localNameArray[0])) {
                 if ((localNameArray[1].length() == 1) && (localNameArray[1].charAt(0) == '1')) {
                     fieldSeparator = String.valueOf(output.charAt(output.length() - 1));
                     return;
@@ -235,5 +232,21 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
     public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
         // Receive notification of ignorable whitespace in element content.
         logger.trace("found ignorable whitespace: length=" + length);
+    }
+    
+    /**
+     * This awesome piece of code returns true if the string is MSH|[B|F]HS
+     * 
+     * @param segmentName
+     * @return
+     */
+    private boolean isHeaderSegment(String segmentName) {
+        if (segmentName.length() == 3) {
+            if (((segmentName.charAt(0) == 'M') && (segmentName.charAt(1) == 'S') && (segmentName.charAt(2) == 'H')) || ((segmentName.charAt(1) == 'H') && (segmentName.charAt(2) == 'S') && ((segmentName.charAt(0) == 'B') || (segmentName.charAt(0) == 'F')))) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
