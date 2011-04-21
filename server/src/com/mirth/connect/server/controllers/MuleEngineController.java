@@ -26,6 +26,7 @@ import javax.management.InstanceNotFoundException;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.mule.MuleManager;
@@ -721,7 +722,7 @@ public class MuleEngineController implements EngineController {
     // The format is: protocol://host|hostname|emtpy:port
     private String getEndpointUri(Connector connector) {
         // TODO: This is a hack.
-        if (connector.getProperties().getProperty("host") != null && connector.getProperties().getProperty("host").startsWith("http")) {
+        if (StringUtils.isNotBlank(connector.getProperties().getProperty("host")) && connector.getProperties().getProperty("host").startsWith("http")) {
             return connector.getProperties().getProperty("host");
         }
 
@@ -729,13 +730,15 @@ public class MuleEngineController implements EngineController {
         builder.append(transports.get(connector.getTransportName()).getProtocol());
         builder.append("://");
 
-        if (connector.getProperties().getProperty("host") != null) {
+        if (StringUtils.isNotBlank(connector.getProperties().getProperty("host"))) {
             builder.append(connector.getProperties().getProperty("host"));
-        } else if (connector.getProperties().getProperty("hostname") != null) {
+        } else if (StringUtils.isNotBlank(connector.getProperties().getProperty("hostname"))) {
             builder.append(connector.getProperties().getProperty("hostname"));
+        } else {
+            builder.append("sink");
         }
 
-        if (connector.getProperties().getProperty("port") != null) {
+        if (StringUtils.isNotBlank(connector.getProperties().getProperty("port"))) {
             builder.append(":");
             builder.append(connector.getProperties().getProperty("port"));
         }
