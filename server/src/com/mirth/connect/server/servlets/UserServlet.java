@@ -101,8 +101,10 @@ public class UserServlet extends MirthServlet {
                     parameterMap.put("user", user);
 
                     if (isUserAuthorized(request, parameterMap)) {
-                        UserSessionCache.getInstance().invalidateAllSessionsForUser(user);
+                        // Try to remove the user and then invalidate the
+                        // session if it succeeded
                         userController.removeUser(user, (Integer) request.getSession().getAttribute(SESSION_USER));
+                        UserSessionCache.getInstance().invalidateAllSessionsForUser(user);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
