@@ -439,7 +439,6 @@ public class CommandLineInterface {
         out.println("user add username \"password\" \"firstName\" \"lastName\" \"organization\" \"email\"\n\tAdds the specified user\n");
         out.println("user remove id|username\n\tRemoves the specified user\n");
         out.println("user changepw id|username \"newpassword\"\n\tChanges the specified user's password\n");
-        out.println("shutdown\n\tShuts down the server\n");
         out.println("quit\n\tQuits Mirth Connect Shell");
     }
 
