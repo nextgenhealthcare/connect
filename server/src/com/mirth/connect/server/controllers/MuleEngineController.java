@@ -741,8 +741,13 @@ public class MuleEngineController implements EngineController {
             builder.append(connector.getProperties().getProperty("host"));
         } else if (StringUtils.isNotBlank(connector.getProperties().getProperty("hostname"))) {
             builder.append(connector.getProperties().getProperty("hostname"));
-        } else {
-            builder.append("sink");
+        } else if (!builder.toString().equals("vm://")) {
+            /*
+             * MIRTH-1828 - Don't append anything to vm:// because we append the
+             * channel id in MuleEngineController#configureInboundRouter.
+             * MIRTH-1817 - Append noop to differentiate from sink.
+             */
+            builder.append("noop");
         }
 
         if (StringUtils.isNotBlank(connector.getProperties().getProperty("port"))) {
