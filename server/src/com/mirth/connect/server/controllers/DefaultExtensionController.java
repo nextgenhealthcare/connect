@@ -145,19 +145,26 @@ public class DefaultExtensionController extends ExtensionController {
                                     logger.debug("sucessfully loaded server plugin: " + pluginName);
                                     break;
                                 case SERVER_CONNECTOR_STATUS:
+                                    /*
+                                     * This is needed in case you add a second
+                                     * constructor to your plugin. Java is not
+                                     * able to find the default one for the
+                                     * plugin.
+                                     */
                                     Constructor<?>[] constructors = Class.forName(extensionPoint.getClassName()).getDeclaredConstructors();
-                                    
+
                                     for (int i = 0; i < constructors.length; i++) {
                                         Class<?> parameters[] = constructors[i].getParameterTypes();
-                                        
-                                        // load plugin if the number of parameters is 0
+
+                                        // load plugin if the number of
+                                        // parameters is 0
                                         if (parameters.length == 0) {
                                             ConnectorStatusPlugin connectorStatusPlugin = (ConnectorStatusPlugin) constructors[i].newInstance(new Object[] {});
                                             connectorStatusPlugins.put(pluginName, connectorStatusPlugin);
                                             i = constructors.length;
                                         }
                                     }
-                                    
+
                                     logger.debug("sucessfully loaded connector status plugin: " + pluginName);
                                     break;
                                 case SERVER_CHANNEL:
@@ -186,7 +193,7 @@ public class DefaultExtensionController extends ExtensionController {
     public Map<String, ConnectorStatusPlugin> getConnectorStatusPlugins() {
         return connectorStatusPlugins;
     }
-    
+
     public Map<String, ChannelPlugin> getChannelPlugins() {
         return channelPlugins;
     }
@@ -211,7 +218,7 @@ public class DefaultExtensionController extends ExtensionController {
         for (ServerPlugin serverPlugin : getServerPlugins().values()) {
             serverPlugin.start();
         }
-        
+
         for (ConnectorStatusPlugin connectorStatusPlugin : getConnectorStatusPlugins().values()) {
             connectorStatusPlugin.start();
         }
@@ -243,7 +250,7 @@ public class DefaultExtensionController extends ExtensionController {
         for (ServerPlugin serverPlugin : serverPlugins.values()) {
             serverPlugin.stop();
         }
-        
+
         for (ConnectorStatusPlugin connectorStatusPlugin : connectorStatusPlugins.values()) {
             connectorStatusPlugin.stop();
         }
