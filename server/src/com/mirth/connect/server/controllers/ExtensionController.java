@@ -20,6 +20,8 @@ import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.ExtensionPoint;
 import com.mirth.connect.model.ExtensionPointDefinition;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.plugins.ChannelPlugin;
+import com.mirth.connect.plugins.ConnectorStatusPlugin;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.server.tools.ClassPathResource;
 
@@ -118,18 +120,15 @@ public abstract class ExtensionController extends Controller {
     public abstract void triggerDeploy();
 
     /**
-     * Returns a map of all loaded server plugins ekeyed by plugin name.
-     */
-    public abstract Map<String, ServerPlugin> getLoadedServerPlugins();
-
-    /**
      * Returns a list of paths to extension libraries needed to WebStart the
      * administrator.
      */
     public abstract List<String> getClientExtensionLibraries();
 
-    // plugins
-
+    // ************************************************************
+    // Plugins
+    // ************************************************************
+    
     /**
      * Returns the metadata for all plugins.
      */
@@ -188,8 +187,10 @@ public abstract class ExtensionController extends Controller {
      */
     public abstract Object invokePluginService(String name, String method, Object object, String sessionId) throws Exception;
 
-    // connectors
-
+    // ************************************************************
+    // Connectors
+    // ************************************************************
+    
     public abstract Map<String, ConnectorMetaData> getConnectorMetaData();
 
     /**
@@ -221,8 +222,10 @@ public abstract class ExtensionController extends Controller {
      */
     public abstract Object invokeConnectorService(String name, String method, Object object, String sessionId) throws Exception;
 
-    // installation and unistallation
-
+    // ************************************************************
+    // Extension installation and unistallation
+    // ************************************************************
+    
     /**
      * Extracts the contents of the uploaded zip file into the installation temp
      * directory to be picked up by MirthLauncher on next restart.
@@ -244,9 +247,21 @@ public abstract class ExtensionController extends Controller {
      */
     public abstract void uninstallExtensions();
 
-    // metadata
+    // ************************************************************
+    // Extension metadata
+    // ************************************************************
 
     // public abstract void enableExtension(String name);
 
     // public abstract void disableExtension(String name);
+    
+    // ************************************************************
+    // Maps for different plugins
+    // ************************************************************
+    
+    public abstract Map<String, ServerPlugin> getServerPlugins();
+    
+    public abstract Map<String, ConnectorStatusPlugin> getConnectorStatusPlugins();
+    
+    public abstract Map<String, ChannelPlugin> getChannelPlugins();
 }

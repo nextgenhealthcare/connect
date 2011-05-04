@@ -100,6 +100,7 @@ public class DatabaseUtil {
 
         try {
             conn = sqlMap.getDataSource().getConnection();
+            conn.setAutoCommit(false);
             statement = conn.createStatement();
 
             for (String statementString : script) {

@@ -78,7 +78,7 @@ public class ChannelControllerTest extends TestCase {
 
     public void testUpdateChannel() throws ControllerException {
         Channel sampleChannel = sampleChannelList.get(0);
-        channelController.updateChannel(sampleChannel, true);
+        channelController.updateChannel(sampleChannel, null, true);
         List<Channel> testChannelList = channelController.getChannel(sampleChannel);
         Channel testChannel = testChannelList.get(0);
 
@@ -101,7 +101,7 @@ public class ChannelControllerTest extends TestCase {
         insertSampleChannels();
 
         Channel sampleChannel = sampleChannelList.get(0);
-        channelController.removeChannel(sampleChannel);
+        channelController.removeChannel(sampleChannel, null);
         List<Channel> testChannelList = channelController.getChannel(null);
 
         Assert.assertFalse(testChannelList.contains(sampleChannel));
@@ -110,7 +110,7 @@ public class ChannelControllerTest extends TestCase {
     public void testRemoveAllChannels() throws ControllerException {
         insertSampleChannels();
 
-        channelController.removeChannel(null);
+        channelController.removeChannel(null, null);
         List<Channel> testChannelList = channelController.getChannel(null);
 
         Assert.assertTrue(testChannelList.isEmpty());
@@ -119,7 +119,7 @@ public class ChannelControllerTest extends TestCase {
     public void insertSampleChannels() throws ControllerException {
         for (Iterator<Channel> iter = sampleChannelList.iterator(); iter.hasNext();) {
             Channel sampleChannel = iter.next();
-            channelController.updateChannel(sampleChannel, true);
+            channelController.updateChannel(sampleChannel, null, true);
         }
     }
 

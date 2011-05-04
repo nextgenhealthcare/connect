@@ -35,6 +35,7 @@ import org.w3c.dom.NodeList;
 
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.util.ImportConverter;
@@ -157,7 +158,9 @@ public class DefaultMigrationController extends MigrationController {
                     PropertyVerifier.checkChannelProperties(updatedChannel);
                     PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
                     updatedChannel.setVersion(configurationController.getServerVersion());
-                    channelController.updateChannel(updatedChannel, true);
+                    ServerEventContext context = new ServerEventContext();
+                    context.setUserId(ServerEventContext.SYSTEM_USER_ID);
+                    channelController.updateChannel(updatedChannel, context, true);
                 }
             }
         } catch (Exception e) {

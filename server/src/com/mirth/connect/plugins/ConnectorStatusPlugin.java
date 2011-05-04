@@ -15,5 +15,9 @@ import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
 
 public interface ConnectorStatusPlugin {
-    public abstract void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket);
+    public void start();
+
+    public void stop();
+
+    public void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket);
 }

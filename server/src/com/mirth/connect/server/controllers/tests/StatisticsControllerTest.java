@@ -48,7 +48,7 @@ public class StatisticsControllerTest extends TestCase {
         sampleProperties.setProperty("testProperty", "true");
         sampleChannel.setProperties(sampleProperties);
 
-        channelController.updateChannel(sampleChannel, true);
+        channelController.updateChannel(sampleChannel, null, true);
     }
 
     protected void tearDown() throws Exception {

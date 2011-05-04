@@ -20,12 +20,15 @@ public class DashboardConnectorStatusMonitorLogger implements ConnectorStatusPlu
     private static final String SERVER_PLUGIN_NAME = "Dashboard Connector Status Monitor";
     private DashboardConnectorStatusMonitor monitor;
 
-    public DashboardConnectorStatusMonitorLogger() {
-        monitor = (DashboardConnectorStatusMonitor) ControllerFactory.getFactory().createExtensionController().getLoadedServerPlugins().get(SERVER_PLUGIN_NAME);
+    public void start() {
+        monitor = (DashboardConnectorStatusMonitor) ControllerFactory.getFactory().createExtensionController().getServerPlugins().get(SERVER_PLUGIN_NAME);
     }
 
     public void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket) {
         monitor.updateStatus(connectorName, type, event, socket);
     }
 
+    public void stop() {
+
+    }
 }

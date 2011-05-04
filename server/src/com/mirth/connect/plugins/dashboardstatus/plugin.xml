@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>2.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
-	<description>This plugin provides a real-time connection status column on the Mirth client</description>
+	<description>This plugin provides a real-time connection status column on the Mirth Connect client.</description>
 	<enabled>true</enabled>
 	<extensionPoint>
 		<name>Dashboard Status Logger</name>

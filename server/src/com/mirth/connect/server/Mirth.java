@@ -49,7 +49,6 @@ import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.MessageObjectController;
 import com.mirth.connect.server.controllers.MigrationController;
-import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.servlets.AlertServlet;
@@ -86,7 +85,6 @@ public class Mirth extends Thread {
     private ChannelStatisticsController channelStatisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private MigrationController migrationController = ControllerFactory.getFactory().createMigrationController();
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 
@@ -201,7 +199,6 @@ public class Mirth extends Thread {
         migrationController.migrateChannels();
         configurationController.loadEncryptionKey();
         userController.resetUserStatus();
-        monitoringController.initPlugins();
         extensionController.startPlugins();
         scriptController.compileGlobalScripts();
 

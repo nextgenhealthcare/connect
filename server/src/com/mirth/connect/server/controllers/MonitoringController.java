@@ -13,9 +13,6 @@ import java.net.Socket;
 
 import org.mule.umo.provider.UMOConnector;
 
-import com.mirth.connect.model.ExtensionPoint;
-import com.mirth.connect.model.ExtensionPointDefinition;
-
 public abstract class MonitoringController extends Controller {
     public enum Event {
         CONNECTED, DISCONNECTED, INITIALIZED, BUSY, DONE, ATTEMPTING
@@ -34,8 +31,4 @@ public abstract class MonitoringController extends Controller {
     public abstract void updateStatus(UMOConnector connector, ConnectorType type, Event event);
 
     public abstract void updateStatus(UMOConnector connector, ConnectorType type, Event event, Socket socket);
-
-    // Extension point for ExtensionPoint.Type.SERVER_PLUGIN
-    @ExtensionPointDefinition(mode = ExtensionPoint.Mode.SERVER, type = ExtensionPoint.Type.SERVER_CONNECTOR_STATUS)
-    public abstract void initPlugins();
 }

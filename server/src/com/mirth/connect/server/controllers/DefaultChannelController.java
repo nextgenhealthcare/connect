@@ -23,6 +23,8 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.DeployedChannelInfo;
+import com.mirth.connect.model.ServerEventContext;
+import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.QueueUtil;
@@ -136,7 +138,7 @@ public class DefaultChannelController extends ChannelController {
         }
     }
 
-    public boolean updateChannel(Channel channel, boolean override) throws ControllerException {
+    public boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
         // if it's not a new channel, and its version is different from the one
         // in the database, and override is not enabled
         if ((channel.getRevision() > 0) && !getChannel(channel).isEmpty() && (getChannel(channel).get(0).getRevision() != channel.getRevision()) && !override) {
@@ -166,8 +168,8 @@ public class DefaultChannelController extends ChannelController {
         try {
             Channel channelFilter = new Channel();
             channelFilter.setId(channel.getId());
+            
             if (getChannel(channelFilter).isEmpty()) {
-
                 // If we are adding, then make sure the name isnt being used
                 channelFilter = new Channel();
                 channelFilter.setName(channel.getName());
@@ -193,8 +195,13 @@ public class DefaultChannelController extends ChannelController {
             // Update the channel in the channelCache
             putChannelInCache(channel);
 
+            // invoke the channel plugins
+            for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+                channelPlugin.save(channel, context);
+            }
+            
             return true;
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new ControllerException(e);
         }
     }
@@ -205,7 +212,7 @@ public class DefaultChannelController extends ChannelController {
      * @param channel
      * @throws ControllerException
      */
-    public void removeChannel(Channel channel) throws ControllerException {
+    public void removeChannel(Channel channel, ServerEventContext context) throws ControllerException {
         logger.debug("removing channel");
 
         if ((channel != null) && channelStatusController.getDeployedIds().contains(channel.getId())) {
@@ -228,6 +235,10 @@ public class DefaultChannelController extends ChannelController {
                 SqlConfig.getSqlMapClient().update("Channel.vacuumChannelTable");
             }
 
+            // invoke the channel plugins
+            for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+                channelPlugin.remove(channel, context);
+            }
         } catch (Exception e) {
             throw new ControllerException(e);
         }

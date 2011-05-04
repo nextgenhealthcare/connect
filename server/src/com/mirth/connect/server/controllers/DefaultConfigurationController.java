@@ -59,6 +59,7 @@ import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -443,6 +444,9 @@ public class DefaultConfigurationController extends ConfigurationController {
         ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
 
         if (serverConfiguration.getChannels() != null) {
+            ServerEventContext context = new ServerEventContext();
+            context.setUserId(ServerEventContext.SYSTEM_USER_ID);
+            
             // Undeploy all channels before updating or removing them
             engineController.undeployChannels(channelStatusController.getDeployedIds());
 
@@ -457,7 +461,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 }
 
                 if (!found) {
-                    channelController.removeChannel(channel);
+                    channelController.removeChannel(channel, context);
                 }
             }
 
@@ -465,7 +469,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             for (Channel channel : serverConfiguration.getChannels()) {
                 PropertyVerifier.checkChannelProperties(channel);
                 PropertyVerifier.checkConnectorProperties(channel, ControllerFactory.getFactory().createExtensionController().getConnectorMetaData());
-                channelController.updateChannel(channel, true);
+                channelController.updateChannel(channel, context, true);
             }
         }
 

@@ -109,7 +109,7 @@ public class MessageObjectControllerTest extends TestCase {
         sampleProperties.setProperty("testProperty", "true");
         sampleChannel.setProperties(sampleProperties);
 
-        channelController.updateChannel(sampleChannel, true);
+        channelController.updateChannel(sampleChannel, null, true);
 
         for (int i = 0; i < 10; i++) {
             MessageObject sampleMessageObject = new MessageObject();
