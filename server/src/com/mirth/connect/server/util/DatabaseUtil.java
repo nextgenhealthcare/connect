@@ -42,8 +42,10 @@ public class DatabaseUtil {
         try {
             conn = sqlMap.getDataSource().getConnection();
 
-            // Set auto commit to false or an exception will be thrown when
-            // trying to rollback
+            /*
+             * Set auto commit to false or an exception will be thrown when
+             * trying to rollback
+             */
             conn.setAutoCommit(false);
 
             statement = conn.createStatement();
@@ -100,6 +102,10 @@ public class DatabaseUtil {
 
         try {
             conn = sqlMap.getDataSource().getConnection();
+            /*
+             * Set auto commit to false or an exception will be thrown when
+             * trying to rollback
+             */
             conn.setAutoCommit(false);
             statement = conn.createStatement();
 
@@ -132,7 +138,8 @@ public class DatabaseUtil {
     /**
      * Returns true if the statement exists in the SqlMap, false otherwise.
      * 
-     * @param statement the statement, including the namespace
+     * @param statement
+     *            the statement, including the namespace
      * @return
      */
     public static boolean statementExists(String statement) {
@@ -150,8 +157,10 @@ public class DatabaseUtil {
     /**
      * Returns true if the statement exists in the SqlMap, false otherwise.
      * 
-     * @param statement the statement, including the namespace
-     * @param session the SqlMapSession to use
+     * @param statement
+     *            the statement, including the namespace
+     * @param session
+     *            the SqlMapSession to use
      * @return
      */
     public static boolean statementExists(String statement, SqlMapSession session) {
