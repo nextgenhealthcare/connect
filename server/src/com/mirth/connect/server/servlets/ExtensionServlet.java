@@ -30,8 +30,6 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.ConnectorMetaData;
-import com.mirth.connect.model.ExtensionLibrary;
-import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
