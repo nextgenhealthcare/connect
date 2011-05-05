@@ -93,10 +93,22 @@ public class SqlConfig {
                             PluginMetaData pmd = plugins.get(pluginName);
 
                             if (pmd.getSqlMapConfigs() != null) {
-                                if (pmd.getSqlMapConfigs().get(database) != null) {
-                                    String sqlMapConfigPath = ExtensionController.getExtensionsPath() + pmd.getPath() + File.separator + pmd.getSqlMapConfigs().get(database);
+                                /* get the SQL map for the current database */
+                                String pluginSqlMapName = pmd.getSqlMapConfigs().get(database);
+
+                                if (StringUtils.isBlank(pluginSqlMapName)) {
+                                    /*
+                                     * if we couldn't find one for the current
+                                     * database, check for one that works with
+                                     * all databases
+                                     */
+                                    pluginSqlMapName = pmd.getSqlMapConfigs().get("all");
+                                }
+
+                                if (StringUtils.isNotBlank(pluginSqlMapName)) {
+                                    File sqlMapConfigFile = new File(ExtensionController.getExtensionsPath() + pmd.getPath(), pluginSqlMapName);
                                     Element sqlMapElement = document.createElement("sqlMap");
-                                    sqlMapElement.setAttribute("url", new File(sqlMapConfigPath).toURI().toURL().toString());
+                                    sqlMapElement.setAttribute("url", sqlMapConfigFile.toURI().toURL().toString());
                                     sqlMapConfigElement.appendChild(sqlMapElement);
                                 } else {
                                     throw new RuntimeException("SQL map file not found for database: " + database);
@@ -109,13 +121,14 @@ public class SqlConfig {
                     Reader reader = new StringReader(docSerializer.toXML(document));
 
                     // if a database driver is not being set, use the default
-                    
                     if (!properties.containsKey("database.driver") || StringUtils.isBlank(properties.getString("database.driver"))) {
                         properties.setProperty("database.driver", MapUtils.getString(databaseDriverMap, database));
                     }
-                    
-                    // MIRTH-1749: in case someone comments out the username and password properties
-                    
+
+                    /*
+                     * MIRTH-1749: in case someone comments out the username and
+                     * password properties
+                     */
                     if (!properties.containsKey("database.username")) {
                         properties.setProperty("database.username", StringUtils.EMPTY);
                     }
