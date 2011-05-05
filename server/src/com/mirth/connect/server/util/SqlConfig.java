@@ -83,39 +83,8 @@ public class SqlConfig {
                     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                     factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
                     Document document = factory.newDocumentBuilder().parse(new InputSource(br));
-                    Element sqlMapConfigElement = document.getDocumentElement();
-
-                    Map<String, PluginMetaData> plugins = ControllerFactory.getFactory().createExtensionController().getPluginMetaData();
-
-                    // add custom mappings from plugins
-                    if (MapUtils.isNotEmpty(plugins)) {
-                        for (String pluginName : plugins.keySet()) {
-                            PluginMetaData pmd = plugins.get(pluginName);
-
-                            if (pmd.getSqlMapConfigs() != null) {
-                                /* get the SQL map for the current database */
-                                String pluginSqlMapName = pmd.getSqlMapConfigs().get(database);
-
-                                if (StringUtils.isBlank(pluginSqlMapName)) {
-                                    /*
-                                     * if we couldn't find one for the current
-                                     * database, check for one that works with
-                                     * all databases
-                                     */
-                                    pluginSqlMapName = pmd.getSqlMapConfigs().get("all");
-                                }
-
-                                if (StringUtils.isNotBlank(pluginSqlMapName)) {
-                                    File sqlMapConfigFile = new File(ExtensionController.getExtensionsPath() + pmd.getPath(), pluginSqlMapName);
-                                    Element sqlMapElement = document.createElement("sqlMap");
-                                    sqlMapElement.setAttribute("url", sqlMapConfigFile.toURI().toURL().toString());
-                                    sqlMapConfigElement.appendChild(sqlMapElement);
-                                } else {
-                                    throw new RuntimeException("SQL map file not found for database: " + database);
-                                }
-                            }
-                        }
-                    }
+                    
+                    addPluginSqlMaps(database, document);
 
                     DocumentSerializer docSerializer = new DocumentSerializer();
                     Reader reader = new StringReader(docSerializer.toXML(document));
@@ -145,6 +114,40 @@ public class SqlConfig {
             }
 
             return sqlMapClient;
+        }
+    }
+
+    private static void addPluginSqlMaps(String database, Document document) throws Exception {
+        Element sqlMapConfigElement = document.getDocumentElement();
+        Map<String, PluginMetaData> plugins = ControllerFactory.getFactory().createExtensionController().getPluginMetaData();
+
+        if (MapUtils.isNotEmpty(plugins)) {
+            for (String pluginName : plugins.keySet()) {
+                PluginMetaData pmd = plugins.get(pluginName);
+
+                if (pmd.getSqlMapConfigs() != null) {
+                    /* get the SQL map for the current database */
+                    String pluginSqlMapName = pmd.getSqlMapConfigs().get(database);
+
+                    if (StringUtils.isBlank(pluginSqlMapName)) {
+                        /*
+                         * if we couldn't find one for the current
+                         * database, check for one that works with
+                         * all databases
+                         */
+                        pluginSqlMapName = pmd.getSqlMapConfigs().get("all");
+                    }
+
+                    if (StringUtils.isNotBlank(pluginSqlMapName)) {
+                        File sqlMapConfigFile = new File(ExtensionController.getExtensionsPath() + pmd.getPath(), pluginSqlMapName);
+                        Element sqlMapElement = document.createElement("sqlMap");
+                        sqlMapElement.setAttribute("url", sqlMapConfigFile.toURI().toURL().toString());
+                        sqlMapConfigElement.appendChild(sqlMapElement);
+                    } else {
+                        throw new RuntimeException("SQL map file not found for database: " + database);
+                    }
+                }
+            }
         }
     }
 }
