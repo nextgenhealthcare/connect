@@ -14,8 +14,10 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.ConnectException;
+import java.net.URL;
 import java.util.List;
 
+import javax.xml.namespace.QName;
 import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.OutputKeys;
@@ -28,6 +30,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
+import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.commons.lang.StringUtils;
@@ -62,6 +65,17 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private ConnectorType connectorType = ConnectorType.WRITER;
 
+    /*
+     * Dispatch object used for pooling the soap connection, and the current
+     * properties used to create the dispatch object
+     */
+    private Dispatch<SOAPMessage> dispatch = null;
+    private String currentWsdlUrl = null;
+    private String currentUsername = null;
+    private String currentPassword = null;
+    private String currentServiceName = null;
+    private String currentPortName = null;
+
     public WebServiceMessageDispatcher(WebServiceConnector connector) {
         super(connector);
         this.connector = connector;
@@ -92,20 +106,26 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
     }
 
     private void processMessage(MessageObject mo) throws Exception {
-        // Get the dispatch from the pool;
-        Dispatch<SOAPMessage> dispatch = connector.getDispatch();
+        /*
+         * Initialize the dispatch object if it hasn't been initialized yet, or
+         * create a new one if the connector properties have changed due to
+         * variables.
+         */
+        createDispatch(mo);
 
         SOAPBinding soapBinding = (SOAPBinding) dispatch.getBinding();
 
         if (connector.isDispatcherUseAuthentication()) {
-            dispatch.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, connector.getDispatcherUsername());
-            dispatch.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, connector.getDispatcherPassword());
-            logger.debug("Using authentication: username=" + connector.getDispatcherUsername() + ", password length=" + connector.getDispatcherPassword().length());
+            dispatch.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, currentUsername);
+            dispatch.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, currentPassword);
+            logger.debug("Using authentication: username=" + currentUsername + ", password length=" + currentPassword.length());
         }
 
         // See: http://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383528
-        if (StringUtils.isNotEmpty(connector.getDispatcherSoapAction())) {
-            dispatch.getRequestContext().put(BindingProvider.SOAPACTION_URI_PROPERTY, connector.getDispatcherSoapAction());
+        String soapAction = replacer.replaceValues(connector.getDispatcherSoapAction(), mo);
+
+        if (StringUtils.isNotEmpty(soapAction)) {
+            dispatch.getRequestContext().put(BindingProvider.SOAPACTION_URI_PROPERTY, soapAction);
         }
 
         // build the message
@@ -124,7 +144,7 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
 
             for (int i = 0; i < attachmentIds.size(); i++) {
                 String attachmentContentId = replacer.replaceValues(attachmentIds.get(i), mo);
-                String attachmentContentType = attachmentTypes.get(i);
+                String attachmentContentType = replacer.replaceValues(attachmentTypes.get(i), mo);
                 String attachmentContent = replacer.replaceValues(attachmentContents.get(i), mo);
 
                 AttachmentPart attachment = message.createAttachmentPart();
@@ -211,4 +231,35 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
         return true;
     }
 
+    private void createDispatch(MessageObject mo) throws Exception {
+        String wsdlUrl = replacer.replaceValues(connector.getDispatcherWsdlUrl(), mo);
+        String username = replacer.replaceValues(connector.getDispatcherUsername(), mo);
+        String password = replacer.replaceValues(connector.getDispatcherPassword(), mo);
+        String serviceName = replacer.replaceValues(connector.getDispatcherService(), mo);
+        String portName = replacer.replaceValues(connector.getDispatcherPort(), mo);
+
+        /*
+         * The dispatch needs to be created if it hasn't been created yet
+         * (null). It needs to be recreated if any of the above variables are
+         * different than what were used to create the current dispatch object.
+         * This could happen if variables are being used for these properties.
+         */
+        if (dispatch == null || !StringUtils.equals(wsdlUrl, currentWsdlUrl) || !StringUtils.equals(username, currentUsername) || !StringUtils.equals(password, currentPassword) || !StringUtils.equals(serviceName, currentServiceName) || !StringUtils.equals(portName, currentPortName)) {
+            currentWsdlUrl = wsdlUrl;
+            currentUsername = username;
+            currentPassword = password;
+            currentServiceName = serviceName;
+            currentPortName = portName;
+
+            URL endpointUrl = WebServiceUtil.getWsdlUrl(wsdlUrl, username, password);
+            QName serviceQName = QName.valueOf(serviceName);
+            QName portQName = QName.valueOf(portName);
+
+            // create the service and dispatch
+            logger.debug("Creating web service: url=" + endpointUrl.toString() + ", service=" + serviceQName + ", port=" + portQName);
+            Service service = Service.create(endpointUrl, serviceQName);
+
+            dispatch = service.createDispatch(portQName, SOAPMessage.class, Service.Mode.MESSAGE);
+        }
+    }
 }

@@ -9,13 +9,7 @@
 
 package com.mirth.connect.connectors.ws;
 
-import java.net.URL;
 import java.util.List;
-
-import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.Dispatch;
-import javax.xml.ws.Service;
 
 import org.mule.providers.QueueEnabledConnector;
 import org.mule.umo.lifecycle.InitialisationException;
@@ -45,9 +39,6 @@ public class WebServiceConnector extends QueueEnabledConnector {
     private List<String> dispatcherAttachmentContents;
     private List<String> dispatcherAttachmentTypes;
     private String dispatcherSoapAction;
-
-    // Dispatch object used for pooling the soap connection
-    private Dispatch<SOAPMessage> dispatch = null;
 
     @Override
     public void doInitialise() throws InitialisationException {
@@ -210,7 +201,7 @@ public class WebServiceConnector extends QueueEnabledConnector {
     public void setDispatcherAttachmentTypes(List<String> dispatcherAttachmentTypes) {
         this.dispatcherAttachmentTypes = dispatcherAttachmentTypes;
     }
-    
+
     public String getDispatcherSoapAction() {
         return dispatcherSoapAction;
     }
@@ -221,21 +212,5 @@ public class WebServiceConnector extends QueueEnabledConnector {
 
     public String getProtocol() {
         return "WS";
-    }
-
-    public Dispatch<SOAPMessage> getDispatch() throws Exception {
-        if (dispatch == null) {
-            URL endpointUrl = WebServiceUtil.getWsdlUrl(this.getDispatcherWsdlUrl(), this.getDispatcherUsername(), this.getDispatcherPassword());
-            QName serviceName = QName.valueOf(this.getDispatcherService());
-            QName portName = QName.valueOf(this.getDispatcherPort());
-
-            // create the service and dispatch
-            logger.debug("Creating web service: url=" + endpointUrl.toString() + ", service=" + serviceName + ", port=" + portName);
-            Service service = Service.create(endpointUrl, serviceName);
-
-            dispatch = service.createDispatch(portName, SOAPMessage.class, Service.Mode.MESSAGE);
-        }
-
-        return dispatch;
     }
 }
