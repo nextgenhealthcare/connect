@@ -21,35 +21,35 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 public class DateConverter implements Converter {
+    private String pattern;
 
-	private String pattern;
+    public DateConverter(String pattern) {
+        super();
+        this.pattern = pattern;
+    }
 
-	public DateConverter(String pattern) {
-		super();
-		this.pattern = pattern;
-	}
+    @SuppressWarnings("rawtypes")
+    public boolean canConvert(Class clazz) {
+        return Date.class.isAssignableFrom(clazz);
+    }
 
-	public boolean canConvert(Class clazz) {
-		return Date.class.isAssignableFrom(clazz);
-	}
+    public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
+        Date date = (Date) value;
+        SimpleDateFormat formatter = new SimpleDateFormat(pattern);
+        writer.setValue(formatter.format(date));
+    }
 
-	public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
-		Date date = (Date) value;
-		SimpleDateFormat formatter = new SimpleDateFormat(pattern);
-		writer.setValue(formatter.format(date));
-	}
+    public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+        SimpleDateFormat formatter = new SimpleDateFormat(pattern);
+        Date date = new Date();
 
-	public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-		SimpleDateFormat formatter = new SimpleDateFormat(pattern);
-		Date date = new Date();
-		
-		 try {
-             date = formatter.parse(reader.getValue());
-	     } catch (ParseException e) {
-             throw new ConversionException(e.getMessage(), e);
-	     }
-		
-		return date;
-	}
+        try {
+            date = formatter.parse(reader.getValue());
+        } catch (ParseException e) {
+            throw new ConversionException(e);
+        }
+
+        return date;
+    }
 
 }

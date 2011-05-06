@@ -17,20 +17,19 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 public class Base64StringConverter implements Converter {
-
     private static final Base64Encoder base64 = new Base64Encoder();
 
-    public boolean canConvert(Class type) {
-        return type.getName().equals("java.lang.String");
+    @SuppressWarnings("rawtypes")
+    public boolean canConvert(Class clazz) {
+        return clazz.equals(String.class);
     }
 
-    public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
+    public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
         writer.addAttribute("encoding", "base64");
-        writer.setValue(base64.encode(((String) source).getBytes()));
+        writer.setValue(base64.encode(((String) value).getBytes()));
     }
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-
         String encoding = reader.getAttribute("encoding");
         String data = reader.getValue();
 
