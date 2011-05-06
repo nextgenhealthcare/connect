@@ -43,7 +43,7 @@ public class DefaultChannelController extends ChannelController {
     private static Map<String, Channel> deployedChannelCacheByName = new HashMap<String, Channel>();
 
     private static Map<String, DeployedChannelInfo> deployedChannelInfoCache = new HashMap<String, DeployedChannelInfo>();
-    
+
     private static DefaultChannelController instance = null;
 
     private DefaultChannelController() {
@@ -139,12 +139,27 @@ public class DefaultChannelController extends ChannelController {
     }
 
     public boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
-        // if it's not a new channel, and its version is different from the one
-        // in the database, and override is not enabled
-        if ((channel.getRevision() > 0) && !getChannel(channel).isEmpty() && (getChannel(channel).get(0).getRevision() != channel.getRevision()) && !override) {
+        int newRevision = channel.getRevision();
+        int currentRevision = newRevision;
+
+        // If the channel exists, set the currentRevision
+        Channel filterChannel = new Channel();
+        filterChannel.setId(channel.getId());
+        List<Channel> matchingChannels = getChannel(filterChannel);
+
+        if (!matchingChannels.isEmpty()) {
+            currentRevision = matchingChannels.get(0).getRevision();
+        }
+
+        /*
+         * If it's not a new channel, and its version is different from the one
+         * in the database (in case it has been changed on the server since the
+         * client started modifying it), and override is not enabled
+         */
+        if ((newRevision > 0) && (currentRevision != newRevision) && !override) {
             return false;
         } else {
-            channel.setRevision(channel.getRevision() + 1);
+            channel.setRevision(currentRevision + 1);
         }
 
         ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -168,9 +183,9 @@ public class DefaultChannelController extends ChannelController {
         try {
             Channel channelFilter = new Channel();
             channelFilter.setId(channel.getId());
-            
+
             if (getChannel(channelFilter).isEmpty()) {
-                // If we are adding, then make sure the name isnt being used
+                // If we are adding, then make sure the name isn't being used
                 channelFilter = new Channel();
                 channelFilter.setName(channel.getName());
 
@@ -199,7 +214,7 @@ public class DefaultChannelController extends ChannelController {
             for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
                 channelPlugin.save(channel, context);
             }
-            
+
             return true;
         } catch (Exception e) {
             throw new ControllerException(e);
@@ -287,14 +302,14 @@ public class DefaultChannelController extends ChannelController {
         deployedChannelInfo.setDeployedDate(Calendar.getInstance());
         deployedChannelInfo.setDeployedRevision(channel.getRevision());
         deployedChannelInfoCache.put(channel.getId(), deployedChannelInfo);
-        
+
         deployedChannelCacheById.put(channel.getId(), channel);
         deployedChannelCacheByName.put(channel.getName(), channel);
     }
 
     public void removeDeployedChannelFromCache(String channelId) {
         deployedChannelInfoCache.remove(channelId);
-        
+
         String channelName = getDeployedChannelById(channelId).getName();
         deployedChannelCacheById.remove(channelId);
         deployedChannelCacheByName.remove(channelName);
@@ -307,12 +322,11 @@ public class DefaultChannelController extends ChannelController {
     public Channel getDeployedChannelByName(String channelName) {
         return deployedChannelCacheByName.get(channelName);
     }
-    
 
     public DeployedChannelInfo getDeployedChannelInfoById(String channelId) {
         return deployedChannelInfoCache.get(channelId);
     }
-    
+
     public String getDeployedDestinationName(String id) {
         // String format: channelid_destination_index
         String destinationName = id;
