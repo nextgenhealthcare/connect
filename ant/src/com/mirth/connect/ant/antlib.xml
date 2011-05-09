@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<antlib>
+    <typedef name="status"          classname="com.mirth.connect.ant.StatusTask"/>
+    <typedef name="start"           classname="com.mirth.connect.ant.StartTask"/>
+    <typedef name="stop"            classname="com.mirth.connect.ant.StopTask"/>
+    <typedef name="pause"           classname="com.mirth.connect.ant.PauseTask"/>
+    <typedef name="resume"          classname="com.mirth.connect.ant.ResumeTask"/>
+    <typedef name="list"            classname="com.mirth.connect.ant.ListTask"/>
+    <typedef name="deploy"          classname="com.mirth.connect.ant.DeployTask"/>
+    <typedef name="clear"           classname="com.mirth.connect.ant.ClearTask"/>
+    <typedef name="reset"           classname="com.mirth.connect.ant.ResetStatsTask"/>
+    <typedef name="dump"            classname="com.mirth.connect.ant.DumpTask"/>
+    <typedef name="import"          classname="com.mirth.connect.ant.ImportTask"/>
+    <typedef name="export"          classname="com.mirth.connect.ant.ExportTask"/>
+    <typedef name="channel-action"  classname="com.mirth.connect.ant.ChannelActionTask"/>
+    <typedef name="user-list"       classname="com.mirth.connect.ant.UserListTask"/>
+    <typedef name="user-add"        classname="com.mirth.connect.ant.UserAddTask"/>
+    <typedef name="user-remove"     classname="com.mirth.connect.ant.UserRemoveTask"/>
+    <typedef name="user-changepw"   classname="com.mirth.connect.ant.UserChangePasswordTask"/>
+</antlib>
+
