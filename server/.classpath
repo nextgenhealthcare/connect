@@ -19,8 +19,6 @@
 	<classpathentry kind="lib" path="lib/mule/oro.jar"/>
 	<classpathentry kind="lib" path="lib/ibmjcefips.jar"/>
 	<classpathentry kind="lib" path="lib/ibmpkcs.jar"/>
-	<classpathentry kind="lib" path="lib/ant.jar"/>
-	<classpathentry kind="lib" path="lib/ant-contrib.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/jai_imageio.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/core-renderer.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/file/jcifs-1.2.22.jar"/>
