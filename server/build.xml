@@ -77,11 +77,6 @@
 			<fileset file="mirth-client.jnlp" />
 		</copy>
 
-		<!-- copy xml file for ant task -->
-		<copy todir="${classes}/com/mirth/connect/ant">
-			<fileset file="${src}/com/mirth/connect/ant/antlib.xml" />
-		</copy>
-
 		<!-- copy the xml files so they will be included in jar -->
 		<copy todir="${classes}/com/mirth/connect/model/x12/xml">
 			<fileset dir="${src}/com/mirth/connect/model/x12/xml" />
