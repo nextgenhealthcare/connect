@@ -65,13 +65,15 @@ import com.mirth.connect.server.util.UUIDGenerator;
 
 public class DefaultExtensionController extends ExtensionController {
     private Logger logger = Logger.getLogger(this.getClass());
+    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
+    // these maps store the metadata for all extensions
     private Map<String, PluginMetaData> pluginMetaDataMap = null;
     private Map<String, ConnectorMetaData> connectorMetaDataMap = null;
     private Map<String, ConnectorMetaData> connectorProtocolsMap = null;
 
-    // these are plugins for specific extension points
+    // these are plugins for specific extension points, keyed by plugin name (not path)
     private Map<String, ServerPlugin> serverPlugins = new HashMap<String, ServerPlugin>();
     private Map<String, ConnectorStatusPlugin> connectorStatusPlugins = new HashMap<String, ConnectorStatusPlugin>();
     private Map<String, ChannelPlugin> channelPlugins = new HashMap<String, ChannelPlugin>();
@@ -353,6 +355,14 @@ public class DefaultExtensionController extends ExtensionController {
         }
     }
 
+    /**
+     * Adds the specified plugin path to a list of plugins that should be
+     * deleted on next server startup. Also deletes the schema version property
+     * from the database. If this function fails to add the extension path to
+     * the uninstall file, it will still continue to remove add the database
+     * uninstall scripts, and the folder must be deleted manually.
+     * 
+     */
     public void prepareExtensionForUninstallation(String pluginPath) throws ControllerException {
         try {
             addExtensionToUninstallFile(pluginPath);
@@ -416,11 +426,18 @@ public class DefaultExtensionController extends ExtensionController {
      * append the extension path name to a list of extensions that should be
      * deleted on next startup by MirthLauncher
      */
-    private void addExtensionToUninstallFile(String pluginPath) throws IOException {
+    private void addExtensionToUninstallFile(String pluginPath) {
         File uninstallFile = new File(getExtensionsPath(), EXTENSIONS_UNINSTALL_FILE);
-        FileWriter writer = new FileWriter(uninstallFile, true);
-        writer.write(pluginPath + System.getProperty("line.separator"));
-        writer.close();
+        FileWriter writer = null;
+
+        try {
+            writer = new FileWriter(uninstallFile, true);
+            writer.write(pluginPath + System.getProperty("line.separator"));
+        } catch (IOException e) {
+            logger.error("Error adding extension to uninstall file: " + pluginPath, e);
+        } finally {
+            IOUtils.closeQuietly(writer);
+        }
     }
 
     private String getUninstallScriptForCurrentDatabase(String pluginSqlScripts) throws Exception {
@@ -463,26 +480,17 @@ public class DefaultExtensionController extends ExtensionController {
 
     private void loadConnectorMetaData() throws ControllerException {
         logger.debug("loading connector metadata");
+        connectorMetaDataMap = (Map<String, ConnectorMetaData>) getMetaDataForExtensionType(ExtensionType.CONNECTOR);
+        connectorProtocolsMap = new HashMap<String, ConnectorMetaData>();
 
-        try {
-            connectorMetaDataMap = (Map<String, ConnectorMetaData>) getMetaDataForExtensionType(ExtensionType.CONNECTOR);
-            connectorProtocolsMap = new HashMap<String, ConnectorMetaData>();
-
-            for (ConnectorMetaData connectorMetaData : connectorMetaDataMap.values()) {
-                String protocol = connectorMetaData.getProtocol();
-
-                if (protocol.indexOf(':') > -1) {
-                    String[] protocolStrings = protocol.split(":");
-
-                    for (int i = 0; i < protocolStrings.length; i++) {
-                        connectorProtocolsMap.put(protocolStrings[i], connectorMetaData);
-                    }
-                } else {
-                    connectorProtocolsMap.put(connectorMetaData.getProtocol(), connectorMetaData);
+        for (ConnectorMetaData connectorMetaData : connectorMetaDataMap.values()) {
+            if (StringUtils.contains(connectorMetaData.getProtocol(), ":")) {
+                for (String protocol : connectorMetaData.getProtocol().split(":")) {
+                    connectorProtocolsMap.put(protocol, connectorMetaData);
                 }
+            } else {
+                connectorProtocolsMap.put(connectorMetaData.getProtocol(), connectorMetaData);
             }
-        } catch (IOException e) {
-            throw new ControllerException("Error loading connector metadata.");
         }
     }
 
@@ -531,11 +539,7 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     private void loadPluginMetaData() throws ControllerException {
-        try {
-            pluginMetaDataMap = (Map<String, PluginMetaData>) getMetaDataForExtensionType(ExtensionType.PLUGIN);
-        } catch (IOException e) {
-            throw new ControllerException("Error loading plugin metadata.");
-        }
+        pluginMetaDataMap = (Map<String, PluginMetaData>) getMetaDataForExtensionType(ExtensionType.PLUGIN);
     }
 
     public ConnectorMetaData getConnectorMetaDataByProtocol(String protocol) {
@@ -546,6 +550,13 @@ public class DefaultExtensionController extends ExtensionController {
         return connectorMetaDataMap.get(transportName);
     }
 
+    /**
+     * Executes the script that removes that database tables for plugins that
+     * are marked for removal. The actual removal of the plguin directory
+     * happens in MirthLauncher.java, before they can be added to the server
+     * classpath.
+     * 
+     */
     public void uninstallExtensions() {
         try {
             DatabaseUtil.executeScript(readUninstallScript(), true);
@@ -559,7 +570,6 @@ public class DefaultExtensionController extends ExtensionController {
 
     private void writeUninstallScript(List<String> uninstallScripts) throws IOException {
         File uninstallScriptsFile = new File(getExtensionsPath(), EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         FileUtils.writeStringToFile(uninstallScriptsFile, serializer.toXML(uninstallScripts));
     }
 
@@ -568,7 +578,6 @@ public class DefaultExtensionController extends ExtensionController {
      */
     private List<String> readUninstallScript() throws IOException {
         File uninstallScriptsFile = new File(getExtensionsPath(), EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         List<String> scripts = new ArrayList<String>();
 
         if (uninstallScriptsFile.exists()) {
@@ -580,13 +589,14 @@ public class DefaultExtensionController extends ExtensionController {
 
     /**
      * Returns the metadata files (plugin.xml, source.xml, destination.xml) for
-     * all extensions of the specified type.
+     * all extensions of the specified type. If this function fails to parse the
+     * metadata file for an extension, it will skip it and continue.
      * 
      * @param extensionType
      * @return
      * @throws ControllerException
      */
-    private Map<String, ? extends MetaData> getMetaDataForExtensionType(ExtensionType extensionType) throws IOException {
+    private Map<String, ? extends MetaData> getMetaDataForExtensionType(ExtensionType extensionType) {
         // match all of the file names for the extension (plugin.xml,
         // source.xml, destination.xml)
         IOFileFilter nameFileFilter = new NameFileFilter(extensionType.getFileNames());
@@ -599,11 +609,14 @@ public class DefaultExtensionController extends ExtensionController {
         Collection<File> extensionFiles = FileUtils.listFiles(extensionPath, andFileFilter, FileFilterUtils.trueFileFilter());
 
         Map<String, MetaData> extensionMetaDataMap = new HashMap<String, MetaData>();
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
         for (File extensionFile : extensionFiles) {
-            MetaData extensionMetaData = (MetaData) serializer.fromXML(FileUtils.readFileToString(extensionFile));
-            extensionMetaDataMap.put(extensionMetaData.getName(), extensionMetaData);
+            try {
+                MetaData extensionMetaData = (MetaData) serializer.fromXML(FileUtils.readFileToString(extensionFile));
+                extensionMetaDataMap.put(extensionMetaData.getName(), extensionMetaData);
+            } catch (Exception e) {
+                logger.error("Error reading or parsing extension metadata file: " + extensionFile.getName(), e);
+            }
         }
 
         return extensionMetaDataMap;
@@ -616,8 +629,6 @@ public class DefaultExtensionController extends ExtensionController {
      * @throws ControllerException
      */
     private void saveExtensionMetaData(Map<String, ? extends MetaData> metaData) throws IOException {
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-
         for (Entry<String, ? extends MetaData> entry : metaData.entrySet()) {
             MetaData extensionMetaData = entry.getValue();
             String fileName = ExtensionType.PLUGIN.getFileNames()[0];

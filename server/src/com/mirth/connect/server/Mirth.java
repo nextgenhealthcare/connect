@@ -158,22 +158,28 @@ public class Mirth extends Thread {
      *         successfully loaded
      */
     public boolean initResources() {
+        InputStream mirthPropertiesStream = null;
+        
         try {
-            InputStream mirthPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "mirth.properties");
+            mirthPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "mirth.properties");
             mirthProperties.setDelimiterParsingDisabled(true);
             mirthProperties.load(mirthPropertiesStream);
-            IOUtils.closeQuietly(mirthPropertiesStream);
         } catch (Exception e) {
             logger.error("could not load mirth.properties", e);
+        } finally {
+            IOUtils.closeQuietly(mirthPropertiesStream);
         }
 
+        InputStream versionPropertiesStream = null;
+        
         try {
-            InputStream versionPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
+            versionPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
             versionProperties.setDelimiterParsingDisabled(true);
             versionProperties.load(versionPropertiesStream);
-            IOUtils.closeQuietly(versionPropertiesStream);
         } catch (Exception e) {
             logger.error("could not load version.properties", e);
+        } finally {
+            IOUtils.closeQuietly(versionPropertiesStream);
         }
 
         return (!mirthProperties.isEmpty());

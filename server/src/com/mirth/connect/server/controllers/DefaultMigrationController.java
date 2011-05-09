@@ -169,8 +169,8 @@ public class DefaultMigrationController extends MigrationController {
     }
 
     public void migrateExtensions() {
-        try {
-            for (PluginMetaData plugin : extensionController.getPluginMetaData().values()) {
+        for (PluginMetaData plugin : extensionController.getPluginMetaData().values()) {
+            try {
                 Properties pluginProperties = extensionController.getPluginProperties(plugin.getName());
                 int baseSchemaVersion = -1;
 
@@ -184,8 +184,11 @@ public class DefaultMigrationController extends MigrationController {
                     TreeMap<Integer, String> scripts = getDeltaScriptsForVersion(baseSchemaVersion, document);
                     List<String> scriptList = DatabaseUtil.joinSqlStatements(scripts.values());
 
-                    // if there were no scripts, don't update the schema
-                    // version
+                    /*
+                     * If there are no scripts, that means that the database
+                     * schema hasn't changed, so we won't update the schema
+                     * version property.
+                     */
                     if (!scriptList.isEmpty()) {
                         DatabaseUtil.executeScript(scriptList, false);
                         int maxSchemaVersion = -1;
@@ -202,9 +205,9 @@ public class DefaultMigrationController extends MigrationController {
                         extensionController.setPluginProperties(plugin.getName(), pluginProperties);
                     }
                 }
+            } catch (Exception e) {
+                logger.error("Error migrating extension: " + plugin.getName(), e);
             }
-        } catch (Exception e) {
-            logger.error("Could not initialize migration controller.", e);
         }
     }
 
@@ -298,14 +301,14 @@ public class DefaultMigrationController extends MigrationController {
 
             try {
                 conn = SqlConfig.getSqlMapClient().getDataSource().getConnection();
-                
+
                 /*
                  * MIRTH-1667: Derby fails if autoCommit is set to true and
                  * there are a large number of results. The following error
                  * occurs: "ERROR 40XD0: Container has been closed"
                  */
                 conn.setAutoCommit(false);
-                
+
                 statement = conn.createStatement();
                 results = statement.executeQuery("SELECT ID, SOURCE_CONNECTOR, DESTINATION_CONNECTORS FROM CHANNEL");
 
