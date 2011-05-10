@@ -305,8 +305,6 @@ public class DefaultExtensionController extends ExtensionController {
                 String entryName = entry.getName();
 
                 if (entryName.endsWith(pluginFilename) || entryName.endsWith(destinationFilename) || entryName.endsWith(sourceFilename)) {
-                    ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-
                     // parse the extension metadata xml file
                     MetaData extensionMetaData = (MetaData) serializer.fromXML(IOUtils.toString(zipFile.getInputStream(entry)));
 
