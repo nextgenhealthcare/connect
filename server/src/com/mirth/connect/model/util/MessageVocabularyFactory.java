@@ -14,11 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mirth.connect.client.core.Client;
-import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.model.ExtensionPoint;
-import com.mirth.connect.model.ExtensionPointDefinition;
 import com.mirth.connect.model.MessageObject.Protocol;
-import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.dicom.DICOMVocabulary;
 import com.mirth.connect.model.hl7v2.HL7v2Vocabulary;
 import com.mirth.connect.model.ncpdp.NCPDPVocabulary;
@@ -38,23 +34,7 @@ public class MessageVocabularyFactory {
         }
     }
 
-    public MessageVocabularyFactory(Client mirthClient) {
-        try {
-            setupBuiltInVocab();
-            loadPlugins(mirthClient.getPluginMetaData());
-        } catch (ClientException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public MessageVocabularyFactory(Map<String, PluginMetaData> plugins) {
-        setupBuiltInVocab();
-        loadPlugins(plugins);
-    }
-
-    private void setupBuiltInVocab() {
-        // Load the default Mirth vocabs
-        // TODO: Possibly make these plugins in 1.6.1?
+    private MessageVocabularyFactory(Client mirthClient) {
         loadedPlugins.put(Protocol.HL7V2, HL7v2Vocabulary.class);
         loadedPlugins.put(Protocol.X12, X12Vocabulary.class);
         loadedPlugins.put(Protocol.NCPDP, NCPDPVocabulary.class);
@@ -62,7 +42,6 @@ public class MessageVocabularyFactory {
     }
 
     public MessageVocabulary getVocabulary(Protocol protocol, String version, String type) {
-
         Class<? extends MessageVocabulary> vocabulary = loadedPlugins.get(protocol);
         MessageVocabulary vocab = null;
         if (vocabulary != null) {
@@ -95,29 +74,5 @@ public class MessageVocabularyFactory {
             return new DefaultVocabulary(version, type);
         }
 
-    }
-
-    // Extension point for ExtensionPoint.Type.CLIENT_VOCABULARY
-    @ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.CLIENT_VOCABULARY)
-    public void loadPlugins(Map<String, PluginMetaData> plugins) {
-        try {
-            for (PluginMetaData metaData : plugins.values()) {
-                if (metaData.isEnabled()) {
-                    for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
-                        try {
-                            if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.CLIENT_VOCABULARY) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
-                                String pluginName = extensionPoint.getName();
-                                loadedPlugins.put(Protocol.valueOf(pluginName), Class.forName(extensionPoint.getClassName()).asSubclass(MessageVocabulary.class));
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
 }
