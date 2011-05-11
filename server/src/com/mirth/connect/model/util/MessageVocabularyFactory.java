@@ -22,7 +22,7 @@ import com.mirth.connect.model.x12.X12Vocabulary;
 
 public class MessageVocabularyFactory {
     private static MessageVocabularyFactory instance = null;
-    private Map<Protocol, Class<? extends MessageVocabulary>> loadedPlugins = new HashMap<Protocol, Class<? extends MessageVocabulary>>();
+    private Map<Protocol, Class<? extends MessageVocabulary>> vocabs = new HashMap<Protocol, Class<? extends MessageVocabulary>>();
 
     public static MessageVocabularyFactory getInstance(Client mirthClient) {
         synchronized (MessageVocabularyFactory.class) {
@@ -35,19 +35,20 @@ public class MessageVocabularyFactory {
     }
 
     private MessageVocabularyFactory(Client mirthClient) {
-        loadedPlugins.put(Protocol.HL7V2, HL7v2Vocabulary.class);
-        loadedPlugins.put(Protocol.X12, X12Vocabulary.class);
-        loadedPlugins.put(Protocol.NCPDP, NCPDPVocabulary.class);
-        loadedPlugins.put(Protocol.DICOM, DICOMVocabulary.class);
+        vocabs.put(Protocol.HL7V2, HL7v2Vocabulary.class);
+        vocabs.put(Protocol.X12, X12Vocabulary.class);
+        vocabs.put(Protocol.NCPDP, NCPDPVocabulary.class);
+        vocabs.put(Protocol.DICOM, DICOMVocabulary.class);
     }
 
     public MessageVocabulary getVocabulary(Protocol protocol, String version, String type) {
-        Class<? extends MessageVocabulary> vocabulary = loadedPlugins.get(protocol);
+        Class<? extends MessageVocabulary> vocabulary = vocabs.get(protocol);
         MessageVocabulary vocab = null;
+        
         if (vocabulary != null) {
             try {
-
                 Constructor<?>[] constructors = vocabulary.getDeclaredConstructors();
+                
                 for (int i = 0; i < constructors.length; i++) {
                     Class<?> parameters[];
                     parameters = constructors[i].getParameterTypes();
@@ -69,10 +70,8 @@ public class MessageVocabularyFactory {
                 e.printStackTrace();
                 return new DefaultVocabulary(version, type);
             }
-
         } else {
             return new DefaultVocabulary(version, type);
         }
-
     }
 }
