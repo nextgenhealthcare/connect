@@ -37,12 +37,12 @@ import com.mirth.connect.connectors.ws.WebServiceSenderProperties;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ExtensionPermission;
-import com.mirth.connect.plugins.ServerPlugin;
+import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
 
-public class DashboardConnectorStatusMonitor implements ServerPlugin {
+public class DashboardConnectorStatusMonitor implements ServicePlugin {
     private Logger logger = Logger.getLogger(this.getClass());
 
     private static final String PLUGIN_NAME = "Dashboard Connector Status Monitor";
@@ -83,6 +83,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin {
     // is used to signal clients to clear out all the Dashboard Monitoring Logs.
     private ConcurrentHashMap<String, Boolean> channelsDeployedFlagForEachClient = new ConcurrentHashMap<String, Boolean>();
 
+    @Override
     public void init(Properties properties) {
         socketSetMap = new HashMap<String, Set<Socket>>();
         connectorStateMap = new HashMap<String, String[]>();
@@ -92,18 +93,22 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin {
         channelsDeployedFlagForEachClient.clear();
     }
 
+    @Override
     public void onDeploy() {
 
     }
 
+    @Override
     public void start() {
 
     }
 
+    @Override
     public void stop() {
 
     }
 
+    @Override
     public void update(Properties properties) {
 
     }
