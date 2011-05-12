@@ -6,13 +6,8 @@
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides RTF attachment viewing capability in message browser.</description>
 	<enabled>true</enabled>
-	<extensionPoint>
-		<name>RTF Viewer</name>
-		<type>ATTACHMENT_VIEWER</type>
-		<className>com.mirth.connect.plugins.rtfviewer.RTFViewer</className>
-		<mode>CLIENT</mode>
-	</extensionPoint>
-	<library path="rtfviewer-client.jar">
-		<type>CLIENT</type>	
-	</library>
+	<clientClasses>
+		<class>com.mirth.connect.plugins.rtfviewer.RTFViewer</class>
+	</clientClasses>
+	<library type="CLIENT" path="rtfviewer-client.jar" />
 </pluginMetaData>

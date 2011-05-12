@@ -4,15 +4,10 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>2.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
-	<description>This plugin provides a Message Builder step-type for Mirth transformers</description>
+	<description>This plugin provides a Message Builder step-type for Mirth Connect transformers</description>
 	<enabled>true</enabled>
-	<extensionPoint>
-		<name>Message Builder</name>
-		<type>CLIENT_TRANSFORMER_STEP</type>
-		<className>com.mirth.connect.plugins.messagebuilder.MessageBuilderPlugin</className>
-		<mode>CLIENT</mode>
-	</extensionPoint>
-	<library path="messagebuilder-client.jar">
-		<type>CLIENT</type>	
-	</library>
+	<clientClasses>
+		<class>com.mirth.connect.plugins.messagebuilder.MessageBuilderPlugin</class>
+	</clientClasses>
+	<library type="CLIENT" path="messagebuilder-client.jar" />
 </pluginMetaData>

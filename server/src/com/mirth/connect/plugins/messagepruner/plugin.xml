@@ -4,24 +4,14 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>2.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
-	<description>This plugin provides a message pruning function for messages stored in Mirth</description>
+	<description>This plugin provides a message pruning function for messages stored in Mirth Connect</description>
 	<enabled>true</enabled>
-	<extensionPoint>
-		<name>Message Pruner</name>
-		<type>CLIENT_SETTINGS_PANEL</type>
-		<className>com.mirth.connect.plugins.messagepruner.MessagePrunerClient</className>
-		<mode>CLIENT</mode>
-	</extensionPoint>
-	<extensionPoint>
-		<name>Message Pruner</name>
-		<type>SERVER_PLUGIN</type>
-		<className>com.mirth.connect.plugins.messagepruner.MessagePrunerService</className>
-		<mode>SERVER</mode>
-	</extensionPoint>
-	<library path="messagepruner-client.jar">
-		<type>CLIENT</type>	
-	</library>
-	<library path="messagepruner-server.jar">
-		<type>SERVER</type>	
-	</library>
+	<serverClasses>
+		<class>com.mirth.connect.plugins.messagepruner.MessagePrunerService</class>
+	</serverClasses>
+	<clientClasses>
+		<class>com.mirth.connect.plugins.messagepruner.MessagePrunerClient</class>
+	</clientClasses>
+	<library type="CLIENT" path="messagepruner-client.jar" />
+	<library type="SERVER" path="messagepruner-server.jar" />
 </pluginMetaData>

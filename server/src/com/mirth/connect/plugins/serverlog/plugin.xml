@@ -4,24 +4,14 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>2.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
-	<description>This plugin allows you to view the server log on the Mirth administrator.</description>
+	<description>This plugin allows you to view the server log on the Mirth Connect administrator.</description>
 	<enabled>true</enabled>
-	<extensionPoint>
-		<name>Server Log</name>
-		<type>SERVER_PLUGIN</type>
-		<className>com.mirth.connect.plugins.serverlog.ServerLogProvider</className>
-		<mode>SERVER</mode>
-	</extensionPoint>
-	<extensionPoint>
-		<name>Server Log</name>
-		<type>CLIENT_DASHBOARD_PANE</type>
-		<className>com.mirth.connect.plugins.serverlog.ServerLogClient</className>
-		<mode>CLIENT</mode>
-	</extensionPoint>
-	<library path="serverlog-client.jar">
-		<type>CLIENT</type>	
-	</library>
-	<library path="serverlog-server.jar">
-		<type>SERVER</type>	
-	</library>
+	<serverClasses>
+		<class>com.mirth.connect.plugins.serverlog.ServerLogProvider</class>
+	</serverClasses>
+	<clientClasses>
+		<class>com.mirth.connect.plugins.serverlog.ServerLogClient</class>
+	</clientClasses>
+	<library type="CLIENT" path="serverlog-client.jar" />
+	<library type="SERVER" path="serverlog-server.jar" />
 </pluginMetaData>

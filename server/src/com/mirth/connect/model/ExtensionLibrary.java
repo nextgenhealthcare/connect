@@ -23,6 +23,7 @@ public class ExtensionLibrary implements Serializable {
     @XStreamAsAttribute
     private String path;
 
+    @XStreamAsAttribute
     private Type type;
 
     public Type getType() {

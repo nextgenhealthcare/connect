@@ -17,12 +17,10 @@ import java.util.Properties;
 import org.apache.commons.fileupload.FileItem;
 
 import com.mirth.connect.model.ConnectorMetaData;
-import com.mirth.connect.model.ExtensionPoint;
-import com.mirth.connect.model.ExtensionPointDefinition;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.ConnectorStatusPlugin;
-import com.mirth.connect.plugins.ServerPlugin;
+import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.tools.ClassPathResource;
 
 public abstract class ExtensionController extends Controller {
@@ -85,8 +83,6 @@ public abstract class ExtensionController extends Controller {
         return ControllerFactory.getFactory().createExtensionController();
     }
 
-    // Extension point for ExtensionPoint.Type.SERVER_PLUGIN
-    @ExtensionPointDefinition(mode = ExtensionPoint.Mode.SERVER, type = ExtensionPoint.Type.SERVER_PLUGIN)
     public abstract void initPlugins();
 
     /**
@@ -259,7 +255,7 @@ public abstract class ExtensionController extends Controller {
     // Maps for different plugins
     // ************************************************************
     
-    public abstract Map<String, ServerPlugin> getServerPlugins();
+    public abstract Map<String, ServicePlugin> getServerPlugins();
     
     public abstract Map<String, ConnectorStatusPlugin> getConnectorStatusPlugins();
     

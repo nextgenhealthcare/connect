@@ -4,15 +4,10 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>2.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
-	<description>This plugin provides a XSLT support step-type for Mirth transformers</description>
+	<description>This plugin provides a XSLT support step-type for Mirth Connect transformers</description>
 	<enabled>true</enabled>
-	<extensionPoint>
-		<name>XSLT Step</name>
-		<type>CLIENT_TRANSFORMER_STEP</type>
-		<className>com.mirth.connect.plugins.xsltstep.XsltStepPlugin</className>
-		<mode>CLIENT</mode>
-	</extensionPoint>
-	<library path="xsltstep-client.jar">
-		<type>CLIENT</type>
-	</library>
+	<clientClasses>
+		<class>com.mirth.connect.plugins.xsltstep.XsltStepPlugin</class>
+	</clientClasses>
+	<library type="CLIENT" path="xsltstep-client.jar" />
 </pluginMetaData>

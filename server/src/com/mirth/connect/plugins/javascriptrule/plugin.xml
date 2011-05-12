@@ -4,15 +4,10 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>2.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
-	<description>This plugin provides a JavaScript rule-type for Mirth filters</description>
+	<description>This plugin provides a JavaScript rule-type for Mirth Connect filters</description>
 	<enabled>true</enabled>
-	<extensionPoint>
-		<name>JavaScript</name>
-		<type>CLIENT_FILTER_RULE</type>
-		<className>com.mirth.connect.plugins.javascriptrule.JavascriptRulePlugin</className>
-		<mode>CLIENT</mode>
-	</extensionPoint>
-	<library path="javascriptrule-client.jar">
-		<type>CLIENT</type>	
-	</library>
+	<clientClasses>
+		<class>com.mirth.connect.plugins.javascriptrule.JavascriptRulePlugin</class>
+	</clientClasses>
+	<library type="CLIENT" path="javascriptrule-client.jar" />
 </pluginMetaData>

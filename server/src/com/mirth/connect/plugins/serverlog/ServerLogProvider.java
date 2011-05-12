@@ -21,9 +21,9 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
 import com.mirth.connect.model.ExtensionPermission;
-import com.mirth.connect.plugins.ServerPlugin;
+import com.mirth.connect.plugins.ServicePlugin;
 
-public class ServerLogProvider implements ServerPlugin {
+public class ServerLogProvider implements ServicePlugin {
     private Logger logger = Logger.getLogger(this.getClass());
 
     private static final String PLUGIN_NAME = "Server Log";

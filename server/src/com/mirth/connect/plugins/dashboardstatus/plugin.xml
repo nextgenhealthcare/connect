@@ -4,33 +4,15 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>2.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
-	<description>This plugin provides a real-time connection status column on the Mirth Connect client.</description>
+	<description>This plugin provides a real-time connection status column on the Mirth Connect client</description>
 	<enabled>true</enabled>
-	<extensionPoint>
-		<name>Dashboard Status Logger</name>
-		<type>SERVER_CONNECTOR_STATUS</type>
-		<className>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusMonitorLogger</className>
-		<mode>SERVER</mode>
-	</extensionPoint>
-	<extensionPoint>
-		<name>Dashboard Connector Status Monitor</name>
-		<type>SERVER_PLUGIN</type>
-		<className>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusMonitor</className>
-		<mode>SERVER</mode>
-	</extensionPoint>
-	<extensionPoint>
-		<name>Dashboard Status Column</name>
-		<type>CLIENT_DASHBOARD_COLUMN</type>
-		<className>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusColumn</className>
-		<mode>CLIENT</mode>
-	</extensionPoint>
-	<extensionPoint>
-		<name>Dashboard Status Panel</name>
-		<type>CLIENT_DASHBOARD_PANE</type>
-		<className>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusClient</className>
-		<mode>CLIENT</mode>
-	</extensionPoint>
-	<library path="dashboardstatus-server.jar">
-		<type>SERVER</type>
-	</library>
+	<serverClasses>
+		<class>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusMonitorLogger</class>
+		<class>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusMonitor</class>
+	</serverClasses>
+	<clientClasses>
+		<class>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusColumn</class>
+		<class>com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusClient</class>
+	</clientClasses>
+	<library type="SERVER" path="dashboardstatus-server.jar" />
 </pluginMetaData>

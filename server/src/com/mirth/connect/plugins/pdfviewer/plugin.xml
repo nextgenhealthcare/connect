@@ -6,16 +6,9 @@
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides PDF attachment viewing capability in message browser.</description>
 	<enabled>true</enabled>
-	<extensionPoint>
-		<name>PDF Viewer</name>
-		<type>ATTACHMENT_VIEWER</type>
-		<className>com.mirth.connect.plugins.pdfviewer.PDFViewer</className>
-		<mode>CLIENT</mode>
-	</extensionPoint>
-	<library path="pdfviewer-client.jar">
-		<type>CLIENT</type>	
-	</library>
-	<library path="lib/PDFRenderer.jar">
-		<type>CLIENT</type>	
-	</library>
+	<clientClasses>
+		<class>com.mirth.connect.plugins.pdfviewer.PDFViewer</class>
+	</clientClasses>
+	<library type="CLIENT" path="pdfviewer-client.jar" />
+	<library type="CLIENT" path="lib/PDFRenderer.jar" />
 </pluginMetaData>

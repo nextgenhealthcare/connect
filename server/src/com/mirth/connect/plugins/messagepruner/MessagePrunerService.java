@@ -39,12 +39,12 @@ import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.filters.MessageObjectFilter;
-import com.mirth.connect.plugins.ServerPlugin;
+import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.util.PropertyLoader;
 
-public class MessagePrunerService implements ServerPlugin, Job {
+public class MessagePrunerService implements ServicePlugin, Job {
     private Logger logger = Logger.getLogger(this.getClass());
 	private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
 	private Scheduler sched = null;

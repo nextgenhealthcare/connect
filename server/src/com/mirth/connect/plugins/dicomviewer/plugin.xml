@@ -4,18 +4,11 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>2.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
-	<description>This plugin provides DICOM attachment viewing capability in message browser.</description>
+	<description>This plugin provides DICOM attachment viewing capability in message browser</description>
 	<enabled>true</enabled>
-	<extensionPoint>
-		<name>DICOM Viewer</name>
-		<type>ATTACHMENT_VIEWER</type>
-		<className>com.mirth.connect.plugins.dicomviewer.DICOMViewer</className>
-		<mode>CLIENT</mode>
-	</extensionPoint>
-	<library path="dicomviewer-client.jar">
-		<type>CLIENT</type>
-	</library>
-	<library path="lib/ij.jar">
-		<type>SHARED</type>
-	</library>
+	<clientClasses>
+		<class>com.mirth.connect.plugins.dicomviewer.DICOMViewer</class>
+	</clientClasses>
+	<library type="CLIENT" path="dicomviewer-client.jar" />
+	<library type="SHARED" path="lib/ij.jar" />
 </pluginMetaData>
