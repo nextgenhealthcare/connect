@@ -82,7 +82,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     }
 
     @Override
-    public boolean showBeforeStatusColumn() {
+    public boolean isDisplayFirst() {
         return false;
     }
 

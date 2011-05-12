@@ -21,6 +21,8 @@ import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.ExtensionPoint;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.plugins.AttachmentViewer;
+import com.mirth.connect.plugins.ChannelColumnPlugin;
+import com.mirth.connect.plugins.ChannelPanelPlugin;
 import com.mirth.connect.plugins.ChannelWizardPlugin;
 import com.mirth.connect.plugins.ClientPlugin;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
@@ -33,8 +35,10 @@ public class LoadedExtensions {
     private Map<String, ClientPlugin> clientPlugins = new HashMap<String, ClientPlugin>();
 
     private Map<String, SettingsPanelPlugin> settingsPanelPlugins = new HashMap<String, SettingsPanelPlugin>();
+    private Map<String, ChannelPanelPlugin> channelPanelPlugins = new HashMap<String, ChannelPanelPlugin>();
     private Map<String, DashboardPanelPlugin> dashboardPanelPlugins = new HashMap<String, DashboardPanelPlugin>();
     private Map<String, ChannelWizardPlugin> channelWizardPlugins = new HashMap<String, ChannelWizardPlugin>();
+    private Map<String, ChannelColumnPlugin> channelColumnPlugins = new HashMap<String, ChannelColumnPlugin>();
     private Map<String, DashboardColumnPlugin> dashboardColumnPlugins = new HashMap<String, DashboardColumnPlugin>();
     private Map<String, AttachmentViewer> attachmentViewerPlugins = new HashMap<String, AttachmentViewer>();
     private Map<String, FilterRulePlugin> filterRulePlugins = new HashMap<String, FilterRulePlugin>();
@@ -74,24 +78,17 @@ public class LoadedExtensions {
                         if (extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && StringUtils.isNotBlank(extensionPoint.getClassName())) {
                             String pluginName = extensionPoint.getName();
 
-                            /*
-                             * Load all client plugins besides client vocabulary
-                             * plugins, since those are loaded in the model by
-                             * MessageVocabularyFactory
-                             */
-                            if (extensionPoint.getType() != ExtensionPoint.Type.CLIENT_VOCABULARY) {
-                                Class<?> clazz = Class.forName(extensionPoint.getClassName());
-                                Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-                                for (int i = 0; i < constructors.length; i++) {
-                                    Class<?> parameters[];
-                                    parameters = constructors[i].getParameterTypes();
-                                    // load plugin if the number of parameters
-                                    // in the constructor is 1.
-                                    if (parameters.length == 1) {
-                                        ClientPlugin clientPlugin = (ClientPlugin) constructors[i].newInstance(new Object[] { pluginName });
-                                        addPlugin(clientPlugin);
-                                        i = constructors.length;
-                                    }
+                            Class<?> clazz = Class.forName(extensionPoint.getClassName());
+                            Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+                            for (int i = 0; i < constructors.length; i++) {
+                                Class<?> parameters[];
+                                parameters = constructors[i].getParameterTypes();
+                                // load plugin if the number of parameters
+                                // in the constructor is 1.
+                                if (parameters.length == 1) {
+                                    ClientPlugin clientPlugin = (ClientPlugin) constructors[i].newInstance(new Object[] { pluginName });
+                                    addPlugin(clientPlugin);
+                                    i = constructors.length;
                                 }
                             }
                         }
@@ -143,25 +140,43 @@ public class LoadedExtensions {
         }
     }
 
-    private void addPlugin(ClientPlugin plugin) throws Exception {
+    private void addPlugin(ClientPlugin plugin) {
         clientPlugins.put(plugin.getName(), plugin);
 
         if (plugin instanceof SettingsPanelPlugin) {
             settingsPanelPlugins.put(plugin.getName(), (SettingsPanelPlugin) plugin);
-        } else if (plugin instanceof DashboardPanelPlugin) {
+        }
+
+        if (plugin instanceof DashboardPanelPlugin) {
             dashboardPanelPlugins.put(plugin.getName(), (DashboardPanelPlugin) plugin);
-        } else if (plugin instanceof ChannelWizardPlugin) {
+        }
+
+        if (plugin instanceof ChannelPanelPlugin) {
+            channelPanelPlugins.put(plugin.getName(), (ChannelPanelPlugin) plugin);
+        }
+
+        if (plugin instanceof ChannelWizardPlugin) {
             channelWizardPlugins.put(plugin.getName(), (ChannelWizardPlugin) plugin);
-        } else if (plugin instanceof DashboardColumnPlugin) {
+        }
+
+        if (plugin instanceof DashboardColumnPlugin) {
             dashboardColumnPlugins.put(plugin.getName(), (DashboardColumnPlugin) plugin);
-        } else if (plugin instanceof AttachmentViewer) {
+        }
+
+        if (plugin instanceof ChannelColumnPlugin) {
+            channelColumnPlugins.put(plugin.getName(), (ChannelColumnPlugin) plugin);
+        }
+
+        if (plugin instanceof AttachmentViewer) {
             attachmentViewerPlugins.put(plugin.getName(), (AttachmentViewer) plugin);
-        } else if (plugin instanceof FilterRulePlugin) {
+        }
+
+        if (plugin instanceof FilterRulePlugin) {
             filterRulePlugins.put(plugin.getName(), (FilterRulePlugin) plugin);
-        } else if (plugin instanceof TransformerStepPlugin) {
+        }
+
+        if (plugin instanceof TransformerStepPlugin) {
             transformerStepPlugins.put(plugin.getName(), (TransformerStepPlugin) plugin);
-        } else {
-            throw new Exception("Client plugin is not a recognized plugin class.");
         }
     }
 
@@ -170,8 +185,10 @@ public class LoadedExtensions {
 
         settingsPanelPlugins.clear();
         dashboardPanelPlugins.clear();
+        channelPanelPlugins.clear();
         channelWizardPlugins.clear();
         dashboardColumnPlugins.clear();
+        channelColumnPlugins.clear();
         attachmentViewerPlugins.clear();
         filterRulePlugins.clear();
         transformerStepPlugins.clear();
@@ -193,12 +210,20 @@ public class LoadedExtensions {
         return dashboardPanelPlugins;
     }
 
+    public Map<String, ChannelPanelPlugin> getChannelPanelPlugins() {
+        return channelPanelPlugins;
+    }
+
     public Map<String, ChannelWizardPlugin> getChannelWizardPlugins() {
         return channelWizardPlugins;
     }
 
     public Map<String, DashboardColumnPlugin> getDashboardColumnPlugins() {
         return dashboardColumnPlugins;
+    }
+
+    public Map<String, ChannelColumnPlugin> getChannelColumnPlugins() {
+        return channelColumnPlugins;
     }
 
     public Map<String, AttachmentViewer> getAttachmentViewerPlugins() {

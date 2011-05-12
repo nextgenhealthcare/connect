@@ -1784,7 +1784,7 @@ public class Frame extends JXFrame {
 
         List<Channel> selectedChannels = channelPanel.getSelectedChannels();
         if (selectedChannels.size() > 1) {
-            JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single Channel.");
+            JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
         } else if (selectedChannels.size() == 0) {
             JOptionPane.showMessageDialog(Frame.this, "Channel no longer exists.");
         } else {
@@ -2176,7 +2176,7 @@ public class Frame extends JXFrame {
                                 ChannelStatistics tempStats = mirthClient.getStatistics(tempStatus.getChannelId());
                                 int j = 0;
                                 for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
-                                    if (plugin.showBeforeStatusColumn()){
+                                    if (plugin.isDisplayFirst()){
                                         tableData[i][j] = plugin.getTableData(tempStatus);
                                         j++;
                                     }
@@ -2194,7 +2194,7 @@ public class Frame extends JXFrame {
                                 tableData[i][++j] = tempStats.getAlerted();
                                 j++;
                                 for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
-                                    if (!plugin.showBeforeStatusColumn()) {
+                                    if (!plugin.isDisplayFirst()) {
                                         tableData[i][j] = plugin.getTableData(tempStatus);
                                         j++;
                                     }
@@ -2751,7 +2751,7 @@ public class Frame extends JXFrame {
         }
 
         if (selectedChannelStatuses.size() > 1) {
-            JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single Channel.");
+            JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
             return;
         }
 
@@ -2946,7 +2946,7 @@ public class Frame extends JXFrame {
         } else {
             List<Channel> selectedChannels = channelPanel.getSelectedChannels();
             if (selectedChannels.size() > 1) {
-                JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single Channel.");
+                JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
                 return false;
             }
             channel = selectedChannels.get(0);
@@ -3124,7 +3124,7 @@ public class Frame extends JXFrame {
     public void doCloneChannel() {
         List<Channel> selectedChannels = channelPanel.getSelectedChannels();
         if (selectedChannels.size() > 1) {
-            JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single Channel.");
+            JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
             return;
         }
 
@@ -3187,7 +3187,7 @@ public class Frame extends JXFrame {
             }
 
             if (selectedChannelStatuses.size() > 1) {
-                JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single Channel.");
+                JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
                 return;
             }
 

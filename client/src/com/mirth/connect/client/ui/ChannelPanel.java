@@ -30,8 +30,11 @@ import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
+import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -44,6 +47,8 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.plugins.ChannelColumnPlugin;
+import com.mirth.connect.plugins.ChannelPanelPlugin;
 
 public class ChannelPanel extends javax.swing.JPanel implements DropTargetListener {
 
@@ -56,7 +61,7 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
     private final String DEPLOYED_REVISION_DELTA_COLUMN_NAME = "Rev \u0394";
     private final String ENABLED_STATUS = "Enabled";
     
-    private final int NAME_COLUMN_NUMBER = 2;
+    private final String[] DEFAULT_COLUMNS = new String[] { STATUS_COLUMN_NAME, DATA_TYPE_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, DESCRIPTION_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME };
     
     private Frame parent;
     private DropTarget dropTarget;
@@ -65,16 +70,70 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
     public ChannelPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+
+        split.setBottomComponent(null);
+        split.setDividerSize(0);
+        split.setOneTouchExpandable(true);
+        loadPanelPlugins();
+        ChangeListener changeListener = new ChangeListener() {
+
+            public void stateChanged(ChangeEvent changeEvent) {
+                JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+                int index = sourceTabbedPane.getSelectedIndex();
+                loadPanelPlugin(sourceTabbedPane.getTitleAt(index));
+            }
+        };
+        tabs.addChangeListener(changeListener);
+
         dropTarget = new DropTarget(this, this);
         makeChannelTable();
 
         channelPane.setComponentPopupMenu(parent.channelPopupMenu);
+    }
+    
+    public void loadPanelPlugins() {
+        if (LoadedExtensions.getInstance().getChannelPanelPlugins().size() > 0) {
+            for (ChannelPanelPlugin plugin : LoadedExtensions.getInstance().getChannelPanelPlugins().values()) {
+                if (plugin.getComponent() != null) {
+                    tabs.addTab(plugin.getName(), plugin.getComponent());
+                }
+            }
+
+            split.setBottomComponent(tabs);
+            split.setDividerSize(6);
+            split.setDividerLocation(3 * Preferences.userNodeForPackage(Mirth.class).getInt("height", UIConstants.MIRTH_HEIGHT) / 5);
+            split.setResizeWeight(0.5);
+        }
+    }
+    
+    public void loadPanelPlugin(String pluginName) {
+        ChannelPanelPlugin plugin = LoadedExtensions.getInstance().getChannelPanelPlugins().get(pluginName);
+        if (plugin != null && getSelectedChannels().size() != 0) {
+            plugin.update(getSelectedChannels());
+        } else {
+            plugin.update();
+        }
+    }
+
+    public synchronized void updateCurrentPluginPanel() {
+        if (LoadedExtensions.getInstance().getChannelPanelPlugins().size() > 0) {
+            loadPanelPlugin(tabs.getTitleAt(tabs.getSelectedIndex()));
+        }
     }
 
     /** Creates the channel table */
     public void makeChannelTable() {
         updateChannelTable();
         channelTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        
+        for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
+            if (plugin.isDisplayFirst()) {
+                String columnName = plugin.getColumnHeader();
+                channelTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());
+                channelTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
+                channelTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
+            }
+        }
         
         // Must set the maximum width on columns that should be packed.
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
@@ -110,6 +169,15 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setResizable(false);
         channelTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setToolTipText("<html><body>The time this channel was last deployed.<br>This value will be highlighted if it is within the last two minutes.</body></html>");
 
+        for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
+            if (!plugin.isDisplayFirst()) {
+                String columnName = plugin.getColumnHeader();
+                channelTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());
+                channelTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
+                channelTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
+            }
+        }        
+        
         channelTable.setRowHeight(UIConstants.ROW_HEIGHT);
         channelTable.setOpaque(true);
         channelTable.setRowSelectionAllowed(true);
@@ -117,7 +185,7 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         channelTable.setSortable(true);
         
         // Sort by Channel Name column
-        channelTable.getRowSorter().toggleSortOrder(NAME_COLUMN_NUMBER);
+        channelTable.getRowSorter().toggleSortOrder(channelTable.getColumnModelIndex(NAME_COLUMN_NAME));
 
         channelPane.setViewportView(channelTable);
 
@@ -174,29 +242,50 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         Object[][] tableData = null;
         
         if (parent.channels != null) {
-            tableData = new Object[parent.channels.size()][7];
+            for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
+                plugin.tableUpdate(new ArrayList<Channel>(parent.channels.values()));
+            }
+            
+            tableData = new Object[parent.channels.size()][LoadedExtensions.getInstance().getChannelColumnPlugins().size() + DEFAULT_COLUMNS.length];
 
             int i = 0;
             for (Channel channel : parent.channels.values()) {
-                if (channel.isEnabled()) {
-                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
-                } else {
-                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
+                int j = 0;
+                
+                for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
+                    if (plugin.isDisplayFirst()){
+                        tableData[i][j++] = plugin.getTableData(channel);
+                    }
                 }
-                tableData[i][1] = parent.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol());
-                tableData[i][2] = channel.getName();
-                tableData[i][3] = channel.getId();
-                tableData[i][4] = channel.getDescription();
+                
+                if (channel.isEnabled()) {
+                    tableData[i][j++] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
+                } else {
+                    tableData[i][j++] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
+                }
+                tableData[i][j++] = parent.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol());
+                tableData[i][j++] = channel.getName();
+                tableData[i][j++] = channel.getId();
+                tableData[i][j++] = channel.getDescription();
 
-                tableData[i][5] = null;
-                tableData[i][6] = null;
+                tableData[i][j] = null;
+                tableData[i][j+1] = null;
                 
                 for (ChannelStatus status : parent.status.toArray(new ChannelStatus[]{})) {
                     if (status.getChannelId().equals(channel.getId())) {
-                        tableData[i][5] = status.getDeployedRevisionDelta();
-                        tableData[i][6] = status.getDeployedDate();
+                        tableData[i][j] = status.getDeployedRevisionDelta();
+                        tableData[i][j+1] = status.getDeployedDate();
                     }
                 }
+                
+                j += 2;
+                
+                for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
+                    if (!plugin.isDisplayFirst()){
+                        tableData[i][j++] = plugin.getTableData(channel);
+                    }
+                }
+                
                 i++;
             }
         }
@@ -206,12 +295,26 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
             model.refreshDataVector(tableData);
         } else {
             channelTable = new MirthTable();
-            channelTable.setModel(new RefreshTableModel(tableData, new String[]{STATUS_COLUMN_NAME, DATA_TYPE_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, DESCRIPTION_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME}) {
-
-                boolean[] canEdit = new boolean[]{false, false, false, false, false, false, false};
+            
+            ArrayList<String> columns = new ArrayList<String>();
+            for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
+                if (plugin.isDisplayFirst()) {
+                    columns.add(plugin.getColumnHeader());
+                }
+            }
+            for (int i = 0; i < DEFAULT_COLUMNS.length; i++) {
+                columns.add(DEFAULT_COLUMNS[i]);
+            }
+            for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
+                if (!plugin.isDisplayFirst()) {
+                    columns.add(plugin.getColumnHeader());
+                }
+            }
+            
+            channelTable.setModel(new RefreshTableModel(tableData, columns.toArray(new String[0])) {
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
-                    return canEdit[columnIndex];
+                    return false;
                 }
             });
         }
@@ -251,10 +354,10 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         channelTable.addHighlighter(new ColorHighlighter(lastDeployedHighlighterPredicate, new Color(240, 230, 140), Color.BLACK, new Color(240, 230, 140), Color.BLACK));
         
         // Packs the name column
-        channelTable.packColumn(2, UIConstants.COL_MARGIN);
+        channelTable.packColumn(channelTable.getColumnModelIndex(NAME_COLUMN_NAME), UIConstants.COL_MARGIN);
         
         // packs the ID column
-        channelTable.packColumn(3, UIConstants.COL_MARGIN);
+        channelTable.packColumn(channelTable.getColumnModelIndex(ID_COLUMN_NAME), UIConstants.COL_MARGIN);
     }
 
     /**
@@ -307,6 +410,8 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
                     parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 12, 12, true);
                 }
             }
+            
+            updateCurrentPluginPanel();
         }
     }
 
@@ -338,12 +443,18 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
                 }
             }
         }
+        
+        // The plugin panel will be updated if any rows were selected above. If not, update it now.
+        if (channelIds.size() == 0) {
+            updateCurrentPluginPanel();
+        }
     }
 
     public void deselectRows() {
         channelTable.clearSelection();
         parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 2, 2, false);
         parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 8, -1, false);
+        updateCurrentPluginPanel();
     }
 
     public void dragEnter(DropTargetDragEvent dtde) {
@@ -413,25 +524,35 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        split = new javax.swing.JSplitPane();
         channelPane = new javax.swing.JScrollPane();
         channelTable = null;
+        tabs = new javax.swing.JTabbedPane();
+
+        split.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        split.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
         channelPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         channelPane.setViewportView(channelTable);
+
+        split.setLeftComponent(channelPane);
+        split.setRightComponent(tabs);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(channelPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(split, javax.swing.GroupLayout.DEFAULT_SIZE, 409, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(channelPane, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+            .addComponent(split, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane channelPane;
     private com.mirth.connect.client.ui.components.MirthTable channelTable;
+    private javax.swing.JSplitPane split;
+    private javax.swing.JTabbedPane tabs;
     // End of variables declaration//GEN-END:variables
 }

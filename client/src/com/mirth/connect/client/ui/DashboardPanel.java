@@ -49,8 +49,6 @@ public class DashboardPanel extends javax.swing.JPanel {
     private final String LAST_DEPLOYED_COLUMN_NAME = "Last Deployed";
     private final String DEPLOYED_REVISION_DELTA_COLUMN_NAME = "Rev \u0394";
     
-    private final int NAME_COLUMN_NUMBER = 1;
-    
     private Frame parent;
 
     /** Creates new form DashboardPanel */
@@ -92,12 +90,6 @@ public class DashboardPanel extends javax.swing.JPanel {
         }
     }
 
-    public void loadDefaultPanel() {
-        if (LoadedExtensions.getInstance().getDashboardPanelPlugins().keySet().iterator().hasNext()) {
-            loadPanelPlugin(LoadedExtensions.getInstance().getDashboardPanelPlugins().keySet().iterator().next());
-        }
-    }
-
     public void loadPanelPlugin(String pluginName) {
         DashboardPanelPlugin plugin = LoadedExtensions.getInstance().getDashboardPanelPlugins().get(pluginName);
         if (plugin != null && getSelectedStatuses().size() != 0) {
@@ -124,7 +116,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
-            if (plugin.showBeforeStatusColumn()) {
+            if (plugin.isDisplayFirst()) {
                 String columnName = plugin.getColumnHeader();
                 statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());
                 statusTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
@@ -183,7 +175,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setComparator(new NumberCellComparator());
         
         for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
-            if (!plugin.showBeforeStatusColumn()) {
+            if (!plugin.isDisplayFirst()) {
                 String columnName = plugin.getColumnHeader();
                 statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());
                 statusTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
@@ -200,7 +192,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.setSortable(true);
         
         // Sort by Channel Name column
-        statusTable.getRowSorter().toggleSortOrder(NAME_COLUMN_NUMBER);
+        statusTable.getRowSorter().toggleSortOrder(statusTable.getColumnModelIndex(NAME_COLUMN_NAME));
 
         statusPane.setViewportView(statusTable);
 
@@ -252,7 +244,7 @@ public class DashboardPanel extends javax.swing.JPanel {
                 SENT_COLUMN_NAME, ERROR_COLUMN_NAME, ALERTED_COLUMN_NAME};
             ArrayList<String> columns = new ArrayList<String>();
             for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
-                if (plugin.showBeforeStatusColumn()) {
+                if (plugin.isDisplayFirst()) {
                     columns.add(plugin.getColumnHeader());
                 }
             }
@@ -260,7 +252,7 @@ public class DashboardPanel extends javax.swing.JPanel {
                 columns.add(defaultColumns[i]);
             }
             for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
-                if (!plugin.showBeforeStatusColumn()) {
+                if (!plugin.isDisplayFirst()) {
                     columns.add(plugin.getColumnHeader());
                 }
             }

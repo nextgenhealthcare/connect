@@ -13,17 +13,17 @@ import java.util.List;
 
 import javax.swing.table.TableCellRenderer;
 
-import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.model.Channel;
 
-public abstract class DashboardColumnPlugin extends ClientPlugin {
+public abstract class ChannelColumnPlugin extends ClientPlugin {
 
-    public DashboardColumnPlugin(String name) {
+    public ChannelColumnPlugin(String name) {
         super(name);
     }
 
     public abstract String getColumnHeader();
 
-    public abstract Object getTableData(ChannelStatus status);
+    public abstract Object getTableData(Channel channel);
 
     public abstract TableCellRenderer getCellRenderer();
 
@@ -33,5 +33,5 @@ public abstract class DashboardColumnPlugin extends ClientPlugin {
 
     public abstract boolean isDisplayFirst();
 
-    public abstract void tableUpdate(List<ChannelStatus> status);
+    public abstract void tableUpdate(List<Channel> channels);
 }
