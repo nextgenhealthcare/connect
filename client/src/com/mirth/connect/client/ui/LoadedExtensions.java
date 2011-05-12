@@ -14,11 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.mirth.connect.connectors.ConnectorClass;
 import com.mirth.connect.model.ConnectorMetaData;
-import com.mirth.connect.model.ExtensionPoint;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.plugins.AttachmentViewer;
 import com.mirth.connect.plugins.ChannelColumnPlugin;
@@ -74,24 +71,21 @@ public class LoadedExtensions {
         for (PluginMetaData metaData : parent.getPluginMetaData().values()) {
             try {
                 if (metaData.isEnabled()) {
-                    for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
-                        if (extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && StringUtils.isNotBlank(extensionPoint.getClassName())) {
-                            String pluginName = extensionPoint.getName();
-
-                            Class<?> clazz = Class.forName(extensionPoint.getClassName());
+                    for (String clazzName : metaData.getClientClasses()) {
+                            Class<?> clazz = Class.forName(clazzName);
                             Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+                            
                             for (int i = 0; i < constructors.length; i++) {
                                 Class<?> parameters[];
                                 parameters = constructors[i].getParameterTypes();
                                 // load plugin if the number of parameters
                                 // in the constructor is 1.
                                 if (parameters.length == 1) {
-                                    ClientPlugin clientPlugin = (ClientPlugin) constructors[i].newInstance(new Object[] { pluginName });
+                                    ClientPlugin clientPlugin = (ClientPlugin) constructors[i].newInstance(new Object[] { metaData.getName() });
                                     addPlugin(clientPlugin);
                                     i = constructors.length;
                                 }
                             }
-                        }
                     }
                 }
             } catch (Exception e) {
