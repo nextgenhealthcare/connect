@@ -7,7 +7,7 @@
 	<description>This plugin provides an External Script step-type for Mirth Connect transformers</description>
 	<enabled>true</enabled>
 	<clientClasses>
-		<class>com.mirth.connect.plugins.scriptfilestep.ExternalScriptStepPlugin</class>
+		<string>com.mirth.connect.plugins.scriptfilestep.ExternalScriptStepPlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="scriptfilestep-client.jar" />
 </pluginMetaData>

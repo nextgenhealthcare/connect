@@ -7,7 +7,7 @@
 	<description>This plugin provides a Message Builder step-type for Mirth Connect transformers</description>
 	<enabled>true</enabled>
 	<clientClasses>
-		<class>com.mirth.connect.plugins.messagebuilder.MessageBuilderPlugin</class>
+		<string>com.mirth.connect.plugins.messagebuilder.MessageBuilderPlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="messagebuilder-client.jar" />
 </pluginMetaData>

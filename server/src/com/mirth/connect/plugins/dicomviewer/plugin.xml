@@ -7,7 +7,7 @@
 	<description>This plugin provides DICOM attachment viewing capability in message browser</description>
 	<enabled>true</enabled>
 	<clientClasses>
-		<class>com.mirth.connect.plugins.dicomviewer.DICOMViewer</class>
+		<string>com.mirth.connect.plugins.dicomviewer.DICOMViewer</string>
 	</clientClasses>
 	<library type="CLIENT" path="dicomviewer-client.jar" />
 	<library type="SHARED" path="lib/ij.jar" />

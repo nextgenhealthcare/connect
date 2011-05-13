@@ -7,7 +7,7 @@
 	<description>This plugin provides a Mapping step type for Mirth Connect transformers</description>
 	<enabled>true</enabled>
 	<clientClasses>
-		<class>com.mirth.connect.plugins.mapper.MapperStepPlugin</class>
+		<string>com.mirth.connect.plugins.mapper.MapperStepPlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="mapper-client.jar" />
 </pluginMetaData>

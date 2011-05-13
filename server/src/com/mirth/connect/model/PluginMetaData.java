@@ -18,18 +18,15 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
 @XStreamAlias("pluginMetaData")
 public class PluginMetaData extends MetaData implements Serializable {
     @XStreamAlias("serverClasses")
-    @XStreamImplicit(itemFieldName = "class")
     private List<String> serverClasses;
-
+    
     @XStreamAlias("clientClasses")
-    @XStreamImplicit(itemFieldName = "class")
     private List<String> clientClasses;
-
+    
     private String sqlScript;
 
     @XStreamAlias("sqlMapConfigs")

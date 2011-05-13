@@ -7,7 +7,7 @@
 	<description>This plugin provides a Rule Builder type for Mirth Connect filters</description>
 	<enabled>true</enabled>
 	<clientClasses>
-		<class>com.mirth.connect.plugins.rulebuilder.RuleBuilderPlugin</class>
+		<string>com.mirth.connect.plugins.rulebuilder.RuleBuilderPlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="rulebuilder-client.jar" />
 </pluginMetaData>

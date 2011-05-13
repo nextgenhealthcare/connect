@@ -157,4 +157,14 @@ public class ServerLogProvider implements ServicePlugin {
         ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_NAME, "View Server Log", "Displays the contents of the Server Log on the Dashboard.", new String[] { GET_SERVER_LOGS }, new String[] { });
         return new ExtensionPermission[] { viewPermission };
     }
+
+    @Override
+    public Object exportData() {
+        return null;
+    }
+
+    @Override
+    public void importData(Object object) {
+        
+    }
 }

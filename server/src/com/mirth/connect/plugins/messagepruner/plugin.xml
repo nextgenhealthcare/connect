@@ -7,10 +7,10 @@
 	<description>This plugin provides a message pruning function for messages stored in Mirth Connect</description>
 	<enabled>true</enabled>
 	<serverClasses>
-		<class>com.mirth.connect.plugins.messagepruner.MessagePrunerService</class>
+		<string>com.mirth.connect.plugins.messagepruner.MessagePrunerService</string>
 	</serverClasses>
 	<clientClasses>
-		<class>com.mirth.connect.plugins.messagepruner.MessagePrunerClient</class>
+		<string>com.mirth.connect.plugins.messagepruner.MessagePrunerClient</string>
 	</clientClasses>
 	<library type="CLIENT" path="messagepruner-client.jar" />
 	<library type="SERVER" path="messagepruner-server.jar" />

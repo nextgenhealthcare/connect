@@ -7,7 +7,7 @@
 	<description>This plugin provides image attachment viewing capability in message browser.</description>
 	<enabled>true</enabled>
 	<clientClasses>
-		<class>com.mirth.connect.plugins.imageviewer.ImageViewer</class>
+		<string>com.mirth.connect.plugins.imageviewer.ImageViewer</string>
 	</clientClasses>
 	<library type="CLIENT" path="imageviewer-client.jar" />
 </pluginMetaData>

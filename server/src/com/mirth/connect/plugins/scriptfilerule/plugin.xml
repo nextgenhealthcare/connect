@@ -7,7 +7,7 @@
 	<description>This plugin provides an External Script step-type for Mirth Connect filters</description>
 	<enabled>true</enabled>
 	<clientClasses>
-		<class>com.mirth.connect.plugins.scriptfilerule.ExternalScriptRulePlugin</class>
+		<string>com.mirth.connect.plugins.scriptfilerule.ExternalScriptRulePlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="scriptfilerule-client.jar" />
 </pluginMetaData>

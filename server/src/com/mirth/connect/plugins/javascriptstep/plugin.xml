@@ -7,7 +7,7 @@
 	<description>This plugin provides a JavaScript step-type for Mirth Connect transformers</description>
 	<enabled>true</enabled>
 	<clientClasses>
-		<class>com.mirth.connect.plugins.javascriptstep.JavascriptStepPlugin</class>
+		<string>com.mirth.connect.plugins.javascriptstep.JavascriptStepPlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="javascriptstep-client.jar" />
 </pluginMetaData>

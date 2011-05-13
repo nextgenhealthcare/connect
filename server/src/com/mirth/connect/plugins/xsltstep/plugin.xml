@@ -7,7 +7,7 @@
 	<description>This plugin provides a XSLT support step-type for Mirth Connect transformers</description>
 	<enabled>true</enabled>
 	<clientClasses>
-		<class>com.mirth.connect.plugins.xsltstep.XsltStepPlugin</class>
+		<string>com.mirth.connect.plugins.xsltstep.XsltStepPlugin</string>
 	</clientClasses>
 	<library type="CLIENT" path="xsltstep-client.jar" />
 </pluginMetaData>
