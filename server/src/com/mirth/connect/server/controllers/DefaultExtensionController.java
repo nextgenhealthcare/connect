@@ -142,6 +142,7 @@ public class DefaultExtensionController extends ExtensionController {
                              */
                             servicePlugin.init(currentProperties);
                             servicePlugins.put(pmd.getName(), servicePlugin);
+                            serverPlugins.add(servicePlugin);
                             logger.debug("sucessfully loaded server plugin: " + pmd.getName());
                         }
 
@@ -161,6 +162,7 @@ public class DefaultExtensionController extends ExtensionController {
                                 if (parameters.length == 0) {
                                     ConnectorStatusPlugin connectorStatusPlugin = (ConnectorStatusPlugin) constructors[i].newInstance(new Object[] {});
                                     connectorStatusPlugins.put(pmd.getName(), connectorStatusPlugin);
+                                    serverPlugins.add(connectorStatusPlugin);
                                     i = constructors.length;
                                 }
                             }
@@ -169,11 +171,11 @@ public class DefaultExtensionController extends ExtensionController {
                         }
 
                         if (serverPlugin instanceof ChannelPlugin) {
-                            channelPlugins.put(pmd.getName(), (ChannelPlugin) serverPlugin);
+                            ChannelPlugin channelPlugin = (ChannelPlugin) serverPlugin;
+                            channelPlugins.put(pmd.getName(), channelPlugin);
+                            serverPlugins.add(channelPlugin);
                             logger.debug("sucessfully loaded server channel plugin: " + pmd.getName());
                         }
-
-                        serverPlugins.add(serverPlugin);
                     } catch (Exception e) {
                         logger.error("Error initializing plugin \"" + pmd.getName() + "\" with properties.", e);
                     }
