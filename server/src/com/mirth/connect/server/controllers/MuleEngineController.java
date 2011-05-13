@@ -292,10 +292,9 @@ public class MuleEngineController implements EngineController {
     }
 
     public void redeployAllChannels() throws ControllerException {
-        clearGlobalMap();
-
         try {
             undeployChannels(getDeployedChannelIds());
+            clearGlobalMap();
             deployChannels(channelController.getChannel(null));
         } catch (Exception e) {
             logger.error("Error redeploying channels.", e);
