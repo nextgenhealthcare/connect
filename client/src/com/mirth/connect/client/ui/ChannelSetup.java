@@ -713,7 +713,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         // Set the channel to enabled or disabled after it has been validated
         currentChannel.setEnabled(enabled);
 
-        boolean updated = true;
+        boolean updated = false;
 
         try {
             if (!parent.channels.containsKey(currentChannel.getId())) {
