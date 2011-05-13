@@ -38,4 +38,9 @@ public class MessagePrunerClient extends SettingsPanelPlugin {
     @Override
     public void reset() {
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "Message Pruner";
+    }
 }

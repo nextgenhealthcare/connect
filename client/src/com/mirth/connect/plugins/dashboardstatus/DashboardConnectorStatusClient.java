@@ -213,4 +213,9 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "Connection Log";
+    }
 }

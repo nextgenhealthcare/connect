@@ -104,4 +104,9 @@ public class JavascriptRulePlugin extends FilterRulePlugin {
     @Override
     public void reset() {
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "JavaScript";
+    }
 }

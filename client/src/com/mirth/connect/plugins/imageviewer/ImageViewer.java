@@ -133,4 +133,9 @@ public class ImageViewer extends AttachmentViewer {
     @Override
     public void reset() {
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "Image Viewer";
+    }
 }

@@ -157,4 +157,9 @@ public class MapperStepPlugin extends TransformerStepPlugin {
     @Override
     public void reset() {
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "Mapper";
+    }
 }

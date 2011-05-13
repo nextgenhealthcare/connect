@@ -113,4 +113,9 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     @Override
     public void reset() {
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "Dashboard Status Column";
+    }
 }

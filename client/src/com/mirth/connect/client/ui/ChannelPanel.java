@@ -95,7 +95,7 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         if (LoadedExtensions.getInstance().getChannelPanelPlugins().size() > 0) {
             for (ChannelPanelPlugin plugin : LoadedExtensions.getInstance().getChannelPanelPlugins().values()) {
                 if (plugin.getComponent() != null) {
-                    tabs.addTab(plugin.getName(), plugin.getComponent());
+                    tabs.addTab(plugin.getPluginPointName(), plugin.getComponent());
                 }
             }
 

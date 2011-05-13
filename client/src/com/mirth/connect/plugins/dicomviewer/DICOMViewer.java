@@ -72,4 +72,9 @@ public class DICOMViewer extends AttachmentViewer {
     @Override
     public void reset() {
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "DICOM Viewer";
+    }
 }

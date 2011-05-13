@@ -65,4 +65,9 @@ public class PDFViewer extends AttachmentViewer {
     @Override
     public void reset() {
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "PDF Viewer";
+    }
 }

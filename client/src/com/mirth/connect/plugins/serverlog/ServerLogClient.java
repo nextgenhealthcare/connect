@@ -139,4 +139,9 @@ public class ServerLogClient extends DashboardPanelPlugin {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "Server Log";
+    }
 }

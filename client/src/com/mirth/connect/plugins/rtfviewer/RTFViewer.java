@@ -100,4 +100,9 @@ public class RTFViewer extends AttachmentViewer {
     @Override
     public void reset() {
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "RTF Viewer";
+    }
 }

@@ -234,4 +234,9 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
     @Override
     public void reset() {
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "Rule Builder";
+    }
 }

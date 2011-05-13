@@ -90,4 +90,9 @@ public class ExternalScriptRulePlugin extends FilterRulePlugin {
     @Override
     public void reset() {
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "External Script";
+    }
 }

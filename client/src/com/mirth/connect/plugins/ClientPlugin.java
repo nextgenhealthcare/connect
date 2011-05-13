@@ -9,46 +9,45 @@
 
 package com.mirth.connect.plugins;
 
-import java.util.ArrayList;
 import java.util.Properties;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.model.CodeTemplate;
 
 public abstract class ClientPlugin {
 
-    protected String name;
+    protected String pluginName;
     protected Frame parent = PlatformUI.MIRTH_FRAME;
 
-    public ClientPlugin() {
+    public ClientPlugin(String pluginName) {
+        this.pluginName = pluginName;
     }
 
-    public ClientPlugin(String name) {
-        this.name = name;
+    /**
+     * The name of the plugin, which could contain many plugin points.
+     * 
+     * @return
+     */
+    public String getPluginName() {
+        return pluginName;
     }
 
-    public ArrayList<CodeTemplate> getReferenceItems() {
-        return new ArrayList<CodeTemplate>();
-    }
-
-    public String getName() {
-        return name;
-    }
-    
     public Properties getPropertiesFromServer() throws ClientException {
-        return parent.mirthClient.getPluginProperties(name);
+        return parent.mirthClient.getPluginProperties(pluginName);
     }
 
     public void setPropertiesToServer(Properties properties) throws ClientException {
-        parent.mirthClient.setPluginProperties(name, properties);
+        parent.mirthClient.setPluginProperties(pluginName, properties);
     }
-    
+
     public Object invoke(String method, Object object) throws ClientException {
-        return parent.mirthClient.invokePluginMethod(name, method, object);
+        return parent.mirthClient.invokePluginMethod(pluginName, method, object);
     }
-    
+
+    // Each plugin point a plugin implements should define its own name
+    public abstract String getPluginPointName();
+
     // used for starting processes in the plugin when the program is started
     public abstract void start();
 

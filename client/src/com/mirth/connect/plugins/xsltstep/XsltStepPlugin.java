@@ -116,4 +116,9 @@ public class XsltStepPlugin extends TransformerStepPlugin {
     @Override
     public void reset() {
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "XSLT Step";
+    }
 }

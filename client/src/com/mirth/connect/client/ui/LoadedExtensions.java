@@ -10,7 +10,9 @@
 package com.mirth.connect.client.ui;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -22,6 +24,7 @@ import com.mirth.connect.plugins.ChannelColumnPlugin;
 import com.mirth.connect.plugins.ChannelPanelPlugin;
 import com.mirth.connect.plugins.ChannelWizardPlugin;
 import com.mirth.connect.plugins.ClientPlugin;
+import com.mirth.connect.plugins.CodeTemplatePlugin;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
 import com.mirth.connect.plugins.FilterRulePlugin;
@@ -29,7 +32,7 @@ import com.mirth.connect.plugins.SettingsPanelPlugin;
 import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class LoadedExtensions {
-    private Map<String, ClientPlugin> clientPlugins = new HashMap<String, ClientPlugin>();
+    private List<ClientPlugin> clientPlugins = new ArrayList<ClientPlugin>();
 
     private Map<String, SettingsPanelPlugin> settingsPanelPlugins = new HashMap<String, SettingsPanelPlugin>();
     private Map<String, ChannelPanelPlugin> channelPanelPlugins = new HashMap<String, ChannelPanelPlugin>();
@@ -40,6 +43,7 @@ public class LoadedExtensions {
     private Map<String, AttachmentViewer> attachmentViewerPlugins = new HashMap<String, AttachmentViewer>();
     private Map<String, FilterRulePlugin> filterRulePlugins = new HashMap<String, FilterRulePlugin>();
     private Map<String, TransformerStepPlugin> transformerStepPlugins = new HashMap<String, TransformerStepPlugin>();
+    private Map<String, CodeTemplatePlugin> codeTemplatePlugins = new HashMap<String, CodeTemplatePlugin>();
 
     private Map<String, ConnectorClass> connectors = new TreeMap<String, ConnectorClass>();
     private Map<String, ConnectorClass> sourceConnectors = new TreeMap<String, ConnectorClass>();
@@ -72,20 +76,20 @@ public class LoadedExtensions {
             try {
                 if (metaData.isEnabled()) {
                     for (String clazzName : metaData.getClientClasses()) {
-                            Class<?> clazz = Class.forName(clazzName);
-                            Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-                            
-                            for (int i = 0; i < constructors.length; i++) {
-                                Class<?> parameters[];
-                                parameters = constructors[i].getParameterTypes();
-                                // load plugin if the number of parameters
-                                // in the constructor is 1.
-                                if (parameters.length == 1) {
-                                    ClientPlugin clientPlugin = (ClientPlugin) constructors[i].newInstance(new Object[] { metaData.getName() });
-                                    addPlugin(clientPlugin);
-                                    i = constructors.length;
-                                }
+                        Class<?> clazz = Class.forName(clazzName);
+                        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+
+                        for (int i = 0; i < constructors.length; i++) {
+                            Class<?> parameters[];
+                            parameters = constructors[i].getParameterTypes();
+                            // load plugin if the number of parameters
+                            // in the constructor is 1.
+                            if (parameters.length == 1) {
+                                ClientPlugin clientPlugin = (ClientPlugin) constructors[i].newInstance(new Object[] { metaData.getName() });
+                                addPluginPoints(clientPlugin);
+                                i = constructors.length;
                             }
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -117,60 +121,70 @@ public class LoadedExtensions {
     }
 
     public void startPlugins() {
-        for (ClientPlugin clientPlugin : clientPlugins.values()) {
+        for (ClientPlugin clientPlugin : clientPlugins) {
             clientPlugin.start();
         }
     }
 
     public void stopPlugins() {
-        for (ClientPlugin clientPlugin : clientPlugins.values()) {
+        for (ClientPlugin clientPlugin : clientPlugins) {
             clientPlugin.stop();
         }
     }
 
     public void resetPlugins() {
-        for (ClientPlugin clientPlugin : clientPlugins.values()) {
+        for (ClientPlugin clientPlugin : clientPlugins) {
             clientPlugin.reset();
         }
     }
 
-    private void addPlugin(ClientPlugin plugin) {
-        clientPlugins.put(plugin.getName(), plugin);
+    /**
+     * Add all plugin points in the given ClientPlugin class. A single class
+     * could implement multiple plugin points.
+     * 
+     * @param plugin
+     */
+    private void addPluginPoints(ClientPlugin plugin) {
+        clientPlugins.add(plugin);
 
         if (plugin instanceof SettingsPanelPlugin) {
-            settingsPanelPlugins.put(plugin.getName(), (SettingsPanelPlugin) plugin);
+            settingsPanelPlugins.put(plugin.getPluginPointName(), (SettingsPanelPlugin) plugin);
         }
 
         if (plugin instanceof DashboardPanelPlugin) {
-            dashboardPanelPlugins.put(plugin.getName(), (DashboardPanelPlugin) plugin);
+            dashboardPanelPlugins.put(plugin.getPluginPointName(), (DashboardPanelPlugin) plugin);
         }
 
         if (plugin instanceof ChannelPanelPlugin) {
-            channelPanelPlugins.put(plugin.getName(), (ChannelPanelPlugin) plugin);
+            channelPanelPlugins.put(plugin.getPluginPointName(), (ChannelPanelPlugin) plugin);
         }
 
         if (plugin instanceof ChannelWizardPlugin) {
-            channelWizardPlugins.put(plugin.getName(), (ChannelWizardPlugin) plugin);
+            channelWizardPlugins.put(plugin.getPluginPointName(), (ChannelWizardPlugin) plugin);
         }
 
         if (plugin instanceof DashboardColumnPlugin) {
-            dashboardColumnPlugins.put(plugin.getName(), (DashboardColumnPlugin) plugin);
+            dashboardColumnPlugins.put(plugin.getPluginPointName(), (DashboardColumnPlugin) plugin);
         }
 
         if (plugin instanceof ChannelColumnPlugin) {
-            channelColumnPlugins.put(plugin.getName(), (ChannelColumnPlugin) plugin);
+            channelColumnPlugins.put(plugin.getPluginPointName(), (ChannelColumnPlugin) plugin);
         }
 
         if (plugin instanceof AttachmentViewer) {
-            attachmentViewerPlugins.put(plugin.getName(), (AttachmentViewer) plugin);
+            attachmentViewerPlugins.put(plugin.getPluginPointName(), (AttachmentViewer) plugin);
         }
 
         if (plugin instanceof FilterRulePlugin) {
-            filterRulePlugins.put(plugin.getName(), (FilterRulePlugin) plugin);
+            filterRulePlugins.put(plugin.getPluginPointName(), (FilterRulePlugin) plugin);
         }
 
         if (plugin instanceof TransformerStepPlugin) {
-            transformerStepPlugins.put(plugin.getName(), (TransformerStepPlugin) plugin);
+            transformerStepPlugins.put(plugin.getPluginPointName(), (TransformerStepPlugin) plugin);
+        }
+        
+        if (plugin instanceof CodeTemplatePlugin) {
+            codeTemplatePlugins.put(plugin.getPluginPointName(), (CodeTemplatePlugin) plugin);
         }
     }
 
@@ -186,13 +200,14 @@ public class LoadedExtensions {
         attachmentViewerPlugins.clear();
         filterRulePlugins.clear();
         transformerStepPlugins.clear();
+        codeTemplatePlugins.clear();
 
         connectors.clear();
         sourceConnectors.clear();
         destinationConnectors.clear();
     }
 
-    public Map<String, ClientPlugin> getClientPlugins() {
+    public List<ClientPlugin> getClientPlugins() {
         return clientPlugins;
     }
 
@@ -230,6 +245,10 @@ public class LoadedExtensions {
 
     public Map<String, TransformerStepPlugin> getTransformerStepPlugins() {
         return transformerStepPlugins;
+    }
+    
+    public Map<String, CodeTemplatePlugin> getCodeTemplatePlugins() {
+        return codeTemplatePlugins;
     }
 
     public Map<String, ConnectorClass> getConnectors() {

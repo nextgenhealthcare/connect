@@ -136,4 +136,9 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
     @Override
     public void reset() {
     }
+
+    @Override
+    public String getPluginPointName() {
+        return "Message Builder";
+    }
 }

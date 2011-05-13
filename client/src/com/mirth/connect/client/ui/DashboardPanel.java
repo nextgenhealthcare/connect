@@ -79,7 +79,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         if (LoadedExtensions.getInstance().getDashboardPanelPlugins().size() > 0) {
             for (DashboardPanelPlugin plugin : LoadedExtensions.getInstance().getDashboardPanelPlugins().values()) {
                 if (plugin.getComponent() != null) {
-                    tabs.addTab(plugin.getName(), plugin.getComponent());
+                    tabs.addTab(plugin.getPluginPointName(), plugin.getComponent());
                 }
             }
 

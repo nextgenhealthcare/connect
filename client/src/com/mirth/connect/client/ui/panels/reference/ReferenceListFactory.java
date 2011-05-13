@@ -20,7 +20,7 @@ import com.mirth.connect.connectors.ConnectorClass;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.CodeTemplate.ContextType;
-import com.mirth.connect.plugins.ClientPlugin;
+import com.mirth.connect.plugins.CodeTemplatePlugin;
 
 public class ReferenceListFactory {
 
@@ -83,10 +83,10 @@ public class ReferenceListFactory {
             }
         }
         
-        for (Entry<String, ClientPlugin> clientPluginEntry : LoadedExtensions.getInstance().getClientPlugins().entrySet()) {
-            ArrayList<CodeTemplate> items = clientPluginEntry.getValue().getReferenceItems();
+        for (Entry<String, CodeTemplatePlugin> codeTemplatePluginEntry : LoadedExtensions.getInstance().getCodeTemplatePlugins().entrySet()) {
+            ArrayList<CodeTemplate> items = codeTemplatePluginEntry.getValue().getReferenceItems();
             if (items.size() > 0) {
-                references.put(clientPluginEntry.getKey() + " Functions", items);
+                references.put(codeTemplatePluginEntry.getKey() + " Functions", items);
             }
         }
 
