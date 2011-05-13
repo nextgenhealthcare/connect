@@ -13,33 +13,15 @@
 	<protocol>ws</protocol>
 	<type>DESTINATION</type>
 	<enabled>true</enabled>
-	<library path="ws-server.jar">
-		<type>SERVER</type>
-	</library>
-	<library path="ws-client.jar">
-		<type>CLIENT</type>
-	</library>
-	<library path="ws-shared.jar">
-		<type>SHARED</type>
-	</library>
-	<library path="lib/soapui-3.6.1.jar">
-		<type>SERVER</type>
-	</library>
-	<library path="lib/wsdl4j-1.6.2-fixed.jar">
-		<type>SERVER</type>
-	</library>
-	<library path="lib/xbean-fixed-2.4.0.jar">
-		<type>SERVER</type>
-	</library>
-	<library path="lib/soapui-xmlbeans-3.6.1.jar">
-		<type>SERVER</type>
-	</library>
-	<library path="lib/not-yet-commons-ssl-0.3.11.jar">
-		<type>SERVER</type>
-	</library>
-	<library path="lib/policy-xmlbeans-1.5.jar">
-		<type>SERVER</type>
-	</library>
+	<library type="SERVER" path="ws-server.jar" />
+	<library type="CLIENT" path="ws-client.jar" />
+	<library type="SHARED" path="ws-shared.jar" />
+	<library type="SERVER" path="lib/soapui-3.6.1.jar" />
+	<library type="SERVER" path="lib/wsdl4j-1.6.2-fixed.jar" />
+	<library type="SERVER" path="lib/xbean-fixed-2.4.0.jar" />
+	<library type="SERVER" path="lib/soapui-xmlbeans-3.6.1.jar" />
+	<library type="SERVER" path="lib/not-yet-commons-ssl-0.3.11.jar" />
+	<library type="SERVER" path="lib/policy-xmlbeans-1.5.jar" />
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.ws.WebServiceConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.ws.WebServiceMessageDispatcherFactory</property>

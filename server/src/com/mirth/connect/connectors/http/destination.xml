@@ -9,15 +9,9 @@
 	<serverClassName>com.mirth.connect.connectors.http.HttpConnector</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.http.HttpSenderProperties</sharedClassName>
 	<serviceClassName>com.mirth.connect.connectors.http.HttpConnectorService</serviceClassName>
-	<library path="http-client.jar">
-		<type>CLIENT</type>
-	</library>
-	<library path="http-shared.jar">
-		<type>SHARED</type>
-	</library>
-	<library path="http-server.jar">
-		<type>SERVER</type>
-	</library>
+	<library type="CLIENT" path="http-client.jar" />
+	<library type="SHARED" path="http-shared.jar" />
+	<library type="SERVER" path="http-server.jar" />
 	<transformers></transformers>
 	<protocol>http</protocol>
 	<type>DESTINATION</type>

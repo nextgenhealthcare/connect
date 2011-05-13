@@ -8,15 +8,9 @@
 	<clientClassName>com.mirth.connect.connectors.js.JavaScriptWriter</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.js.JavaScriptConnector</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.js.JavaScriptWriterProperties</sharedClassName>
-	<library path="js-client.jar">
-		<type>CLIENT</type>
-	</library>
-	<library path="js-shared.jar">
-		<type>SHARED</type>
-	</library>
-	<library path="js-server.jar">
-		<type>SERVER</type>
-	</library>
+	<library type="CLIENT" path="js-client.jar" />
+	<library type="SHARED" path="js-shared.jar" />
+	<library type="SERVER" path="js-server.jar" />
 	<transformers></transformers>
 	<protocol>js</protocol>
 	<type>DESTINATION</type>

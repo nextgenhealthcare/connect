@@ -9,15 +9,9 @@
 	<serverClassName>com.mirth.connect.connectors.jdbc.JdbcConnector</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.jdbc.DatabaseReaderProperties</sharedClassName>
 	<serviceClassName>com.mirth.connect.connectors.jdbc.JdbcConnectorService</serviceClassName>
-	<library path="jdbc-client.jar">
-		<type>CLIENT</type>
-	</library>
-	<library path="jdbc-shared.jar">
-		<type>SHARED</type>
-	</library>
-	<library path="jdbc-server.jar">
-		<type>SERVER</type>
-	</library>
+	<library type="CLIENT" path="jdbc-client.jar" />
+	<library type="SHARED" path="jdbc-shared.jar" />
+	<library type="SERVER" path="jdbc-server.jar" />
 	<transformers>ResultMapToXML</transformers>
 	<protocol>jdbc</protocol>
 	<type>SOURCE</type>

@@ -8,15 +8,9 @@
 	<clientClassName>com.mirth.connect.connectors.jms.JMSReader</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.jms.JmsConnector</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.jms.JMSReaderProperties</sharedClassName>
-	<library path="jms-client.jar">
-		<type>CLIENT</type>
-	</library>
-	<library path="jms-shared.jar">
-		<type>SHARED</type>
-	</library>
-	<library path="jms-server.jar">
-		<type>SERVER</type>
-	</library>
+	<library type="CLIENT" path="jms-client.jar" />
+	<library type="SHARED" path="jms-shared.jar" />
+	<library type="SERVER" path="jms-server.jar" />
 	<transformers>JMSMessageToObject ObjectToString</transformers>
 	<protocol>jms</protocol>
 	<type>SOURCE</type>

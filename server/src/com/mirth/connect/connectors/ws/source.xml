@@ -13,15 +13,9 @@
 	<protocol>ws</protocol>
 	<type>SOURCE</type>
 	<enabled>true</enabled>
-	<library path="ws-server.jar">
-		<type>SERVER</type>
-	</library>
-	<library path="ws-client.jar">
-		<type>CLIENT</type>
-	</library>
-	<library path="ws-shared.jar">
-		<type>SHARED</type>
-	</library>
+	<library type="SERVER" path="ws-server.jar" />
+	<library type="CLIENT" path="ws-client.jar" />
+	<library type="SHARED" path="ws-shared.jar" />
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.ws.WebServiceConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.ws.WebServiceMessageDispatcherFactory</property>

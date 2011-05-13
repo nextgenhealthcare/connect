@@ -9,15 +9,9 @@
 	<serverClassName>com.mirth.connect.connectors.mllp.MllpConnector</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.mllp.LLPSenderProperties</sharedClassName>
 	<serviceClassName>com.mirth.connect.connectors.mllp.LLPSenderConnectorService</serviceClassName>
-	<library path="mllp-client.jar">
-		<type>CLIENT</type>
-	</library>
-	<library path="mllp-shared.jar">
-		<type>SHARED</type>
-	</library>
-	<library path="mllp-server.jar">
-		<type>SERVER</type>
-	</library>
+	<library type="CLIENT" path="mllp-client.jar" />
+	<library type="SHARED" path="mllp-shared.jar" />
+	<library type="SERVER" path="mllp-server.jar" />
 	<transformers></transformers>
 	<protocol>mllp</protocol>
 	<type>DESTINATION</type>

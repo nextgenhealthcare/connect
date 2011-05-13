@@ -9,21 +9,11 @@
 	<serverClassName>com.mirth.connect.connectors.file.FileConnector</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.file.FileWriterProperties</sharedClassName>
 	<serviceClassName>com.mirth.connect.connectors.file.FileWriterService</serviceClassName>
-	<library path="file-client.jar">
-		<type>CLIENT</type>
-	</library>
-	<library path="file-shared.jar">
-		<type>SHARED</type>
-	</library>
-	<library path="file-server.jar">
-		<type>SERVER</type>
-	</library>
-	<library path="lib/jcifs-1.2.22.jar">
-		<type>SERVER</type>
-	</library>
-	<library path="lib/webdavclient4j-core-0.92.jar">
-		<type>SERVER</type>
-	</library>
+	<library type="CLIENT" path="file-client.jar" />
+	<library type="SHARED" path="file-shared.jar" />
+	<library type="SERVER" path="file-server.jar" />
+	<library type="SERVER" path="lib/jcifs-1.2.22.jar" />
+	<library type="SERVER" path="lib/webdavclient4j-core-0.92.jar" />
 	<transformers></transformers>
 	<protocol>file</protocol>
 	<type>DESTINATION</type>
