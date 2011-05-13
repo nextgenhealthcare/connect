@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
@@ -40,12 +41,14 @@ public class EngineServlet extends MirthServlet {
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 Operation operation = Operations.getOperation(request.getParameter("op"));
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
-                
+                ServerEventContext context = new ServerEventContext();
+                context.setUserId(getCurrentUserId(request));
+
                 if (operation.equals(Operations.CHANNEL_REDEPLOY)) {
                     if (!isUserAuthorized(request, null)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        engineController.redeployAllChannels();
+                        engineController.redeployAllChannels(context);
                     }
                 } else if (operation.equals(Operations.CHANNEL_DEPLOY)) {
                     List<Channel> channels = (List<Channel>) serializer.fromXML(request.getParameter("channels"));
@@ -54,7 +57,7 @@ public class EngineServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        engineController.deployChannels(channels);
+                        engineController.deployChannels(channels, context);
                     }
                 } else if (operation.equals(Operations.CHANNEL_UNDEPLOY)) {
                     List<String> channelIds = (List<String>) serializer.fromXML(request.getParameter("channelIds"));
@@ -63,7 +66,7 @@ public class EngineServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        engineController.undeployChannels(channelIds);
+                        engineController.undeployChannels(channelIds, context);
                     }
                 }
             } catch (Throwable t) {

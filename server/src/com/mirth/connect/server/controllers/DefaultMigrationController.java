@@ -158,9 +158,7 @@ public class DefaultMigrationController extends MigrationController {
                     PropertyVerifier.checkChannelProperties(updatedChannel);
                     PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
                     updatedChannel.setVersion(configurationController.getServerVersion());
-                    ServerEventContext context = new ServerEventContext();
-                    context.setUserId(ServerEventContext.SYSTEM_USER_ID);
-                    channelController.updateChannel(updatedChannel, context, true);
+                    channelController.updateChannel(updatedChannel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
                 }
             }
         } catch (Exception e) {

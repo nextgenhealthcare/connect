@@ -12,15 +12,16 @@ package com.mirth.connect.server.controllers;
 import java.util.List;
 
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ServerEventContext;
 
 public interface EngineController {
     public void startEngine() throws ControllerException;
 
     public void stopEngine() throws ControllerException;
 
-    public void deployChannels(List<Channel> channels) throws ControllerException;
+    public void deployChannels(List<Channel> channels, ServerEventContext context) throws ControllerException;
     
-    public void undeployChannels(List<String> channelIds) throws ControllerException;
+    public void undeployChannels(List<String> channelIds, ServerEventContext context) throws ControllerException;
 
-    public void redeployAllChannels() throws ControllerException;
+    public void redeployAllChannels(ServerEventContext context) throws ControllerException;
 }

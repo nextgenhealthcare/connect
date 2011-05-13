@@ -444,11 +444,8 @@ public class DefaultConfigurationController extends ConfigurationController {
         ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
 
         if (serverConfiguration.getChannels() != null) {
-            ServerEventContext context = new ServerEventContext();
-            context.setUserId(ServerEventContext.SYSTEM_USER_ID);
-            
             // Undeploy all channels before updating or removing them
-            engineController.undeployChannels(channelStatusController.getDeployedIds());
+            engineController.undeployChannels(channelStatusController.getDeployedIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
 
             // Remove channels that don't exist in the new configuration
             for (Channel channel : channelController.getChannel(null)) {
@@ -461,7 +458,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 }
 
                 if (!found) {
-                    channelController.removeChannel(channel, context);
+                    channelController.removeChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
                 }
             }
 
@@ -469,7 +466,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             for (Channel channel : serverConfiguration.getChannels()) {
                 PropertyVerifier.checkChannelProperties(channel);
                 PropertyVerifier.checkConnectorProperties(channel, ControllerFactory.getFactory().createExtensionController().getConnectorMetaData());
-                channelController.updateChannel(channel, context, true);
+                channelController.updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
             }
         }
 
@@ -506,7 +503,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
 
         // Redeploy all channels
-        engineController.redeployAllChannels();
+        engineController.redeployAllChannels(ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
     }
 
     public boolean isEngineStarting() {

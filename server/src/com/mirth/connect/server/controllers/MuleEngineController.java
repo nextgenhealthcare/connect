@@ -62,10 +62,12 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.Event;
 import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.mule.ExceptionStrategy;
 import com.mirth.connect.server.mule.adaptors.AdaptorFactory;
@@ -145,14 +147,15 @@ public class MuleEngineController implements EngineController {
             transports = extensionController.getConnectorMetaData();
             resetEngine();
             muleManager.start();
-            redeployAllChannels();
+            
+            redeployAllChannels(ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
         } catch (Exception e) {
             logger.error("Error starting engine.", e);
         }
     }
 
     public void stopEngine() throws ControllerException {
-        undeployChannels(getDeployedChannelIds());
+        undeployChannels(getDeployedChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
 
         if (muleManager != null) {
             try {
@@ -169,7 +172,7 @@ public class MuleEngineController implements EngineController {
         }
     }
 
-    public void deployChannels(List<Channel> channels) throws ControllerException {
+    public void deployChannels(List<Channel> channels, ServerEventContext context) throws ControllerException {
         if (channels == null) {
             throw new ControllerException("Invalid channel list.");
         }
@@ -185,7 +188,7 @@ public class MuleEngineController implements EngineController {
                 }
             }
 
-            undeployChannels(registeredChannelIds);
+            undeployChannels(registeredChannelIds, context);
 
             // Execute global deploy script before channel deploy script
             scriptController.executeGlobalDeployScript();
@@ -214,6 +217,11 @@ public class MuleEngineController implements EngineController {
                             
                             channelController.putDeployedChannelInCache(channel);
                             deployedChannelCount++;
+                            
+                            // invoke the channel plugins
+                            for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+                                channelPlugin.deploy(channel, context);
+                            }
                         }
                     } catch (Exception e) {
                         logger.error("Error registering channel.", e);
@@ -248,7 +256,7 @@ public class MuleEngineController implements EngineController {
         }
     }
 
-    public void undeployChannels(List<String> channelIds) throws ControllerException {
+    public void undeployChannels(List<String> channelIds, ServerEventContext context) throws ControllerException {
         List<String> registeredChannelIds = new ArrayList<String>();
 
         // Only allow undeployment of channels that are currently deployed.
@@ -282,6 +290,11 @@ public class MuleEngineController implements EngineController {
             for (String registeredChannelId : registeredChannelIds) {
                 channelController.removeDeployedChannelFromCache(registeredChannelId);
                 unregisterChannel(registeredChannelId);
+                
+                // invoke the channel plugins
+                for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+                    channelPlugin.undeploy(registeredChannelId, context);
+                }
             }
         } catch (Exception e) {
             logger.error("Error undeploying channels.", e);
@@ -291,11 +304,11 @@ public class MuleEngineController implements EngineController {
         eventController.addEvent(new Event(undeployedMessage));
     }
 
-    public void redeployAllChannels() throws ControllerException {
+    public void redeployAllChannels(ServerEventContext context) throws ControllerException {
         try {
-            undeployChannels(getDeployedChannelIds());
+            undeployChannels(getDeployedChannelIds(), context);
             clearGlobalMap();
-            deployChannels(channelController.getChannel(null));
+            deployChannels(channelController.getChannel(null), context);
         } catch (Exception e) {
             logger.error("Error redeploying channels.", e);
         }

@@ -9,4 +9,6 @@ public interface ChannelPlugin extends ServerPlugin {
     public void remove(Channel channel, ServerEventContext context) throws Exception;
 
     public void deploy(Channel channel, ServerEventContext context) throws Exception;
+    
+    public void undeploy(String channelId, ServerEventContext context) throws Exception;
 }
