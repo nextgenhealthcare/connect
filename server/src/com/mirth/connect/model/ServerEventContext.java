@@ -10,9 +10,17 @@
 package com.mirth.connect.model;
 
 public class ServerEventContext {
-    public static final Integer SYSTEM_USER_ID = 0;
+    public static final ServerEventContext SYSTEM_USER_EVENT_CONTEXT = new ServerEventContext(0);
     private Integer userId;
 
+    public ServerEventContext() {
+        
+    }
+    
+    public ServerEventContext(Integer userId) {
+        this.userId = userId;
+    }
+    
     public Integer getUserId() {
         return userId;
     }
