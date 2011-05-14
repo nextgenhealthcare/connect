@@ -10,7 +10,6 @@
 package com.mirth.connect.connectors.http;
 
 import java.io.IOException;
-import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -56,37 +55,33 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
 
     private class RequestHandler extends AbstractHandler {
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException {
+        public void handle(String target, Request baseRequest, HttpServletRequest servletRequest, HttpServletResponse serveltResponse) throws IOException, ServletException {
             logger.debug("received HTTP request");
             monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
 
             try {
-                servletResponse.setContentType(connector.getReceiverResponseContentType());
+                serveltResponse.setContentType(connector.getReceiverResponseContentType());
                 Response response = processData(baseRequest);
 
                 if (response != null) {
-                    servletResponse.getOutputStream().write(response.getMessage().getBytes(connector.getReceiverCharset()));
-                    
-                    for (Entry<String, String> entry : connector.getReceiverHeaders().entrySet()) {
-                        servletResponse.setHeader(entry.getKey(), entry.getValue());
-                    }
+                    serveltResponse.getOutputStream().write(response.getMessage().getBytes(connector.getReceiverCharset()));
 
                     /*
                      * If the destination sends a failure response, the listener
                      * should return a 500 error, otherwise 200.
                      */
                     if (response.getStatus().equals(Response.Status.FAILURE)) {
-                        servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                        serveltResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                     } else {
-                        servletResponse.setStatus(HttpStatus.SC_OK);
+                        serveltResponse.setStatus(HttpStatus.SC_OK);
                     }
                 } else {
-                    servletResponse.setStatus(HttpStatus.SC_OK);
+                    serveltResponse.setStatus(HttpStatus.SC_OK);
                 }
             } catch (Exception e) {
-                servletResponse.setContentType("text/plain");
-                servletResponse.getOutputStream().write(ExceptionUtils.getFullStackTrace(e).getBytes());
-                servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                serveltResponse.setContentType("text/plain");
+                serveltResponse.getOutputStream().write(ExceptionUtils.getFullStackTrace(e).getBytes());
+                serveltResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 monitoringController.updateStatus(connector, connectorType, Event.DONE);
             }

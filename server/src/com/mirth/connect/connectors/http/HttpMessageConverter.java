@@ -47,7 +47,7 @@ public class HttpMessageConverter {
                             addElement(parametersElement, name, value);
                         }
                     } else {
-                        addElement(parametersElement, entry.getKey(), (String) entry.getValue());
+                        addElement(parametersElement, entry.getKey(), entry.getValue().toString());
                     }
                 }
 
