@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Channel;
@@ -142,12 +143,18 @@ public class DefaultChannelController extends ChannelController {
         int newRevision = channel.getRevision();
         int currentRevision = newRevision;
 
-        // If the channel exists, set the currentRevision
         Channel filterChannel = new Channel();
         filterChannel.setId(channel.getId());
         List<Channel> matchingChannels = getChannel(filterChannel);
 
+        // If the channel exists, set the currentRevision
         if (!matchingChannels.isEmpty()) {
+            // If the channel in the database is the same as what's being passed
+            // in, don't bother saving it
+            if (EqualsBuilder.reflectionEquals(channel, matchingChannels.get(0), new String[] { "lastModified" })) {
+                return true;
+            }
+
             currentRevision = matchingChannels.get(0).getRevision();
         }
 
