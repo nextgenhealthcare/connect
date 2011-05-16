@@ -10,6 +10,9 @@
 package com.mirth.connect.connectors.http;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -55,37 +58,37 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
 
     private class RequestHandler extends AbstractHandler {
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest servletRequest, HttpServletResponse serveltResponse) throws IOException, ServletException {
+        public void handle(String target, Request baseRequest, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException {
             logger.debug("received HTTP request");
             monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
 
             try {
-                serveltResponse.setContentType(connector.getReceiverResponseContentType());
+                servletResponse.setContentType(connector.getReceiverResponseContentType());
                 Response response = processData(baseRequest);
 
                 if (response != null) {
-                    serveltResponse.getOutputStream().write(response.getMessage().getBytes(connector.getReceiverCharset()));
+                    servletResponse.getOutputStream().write(response.getMessage().getBytes(connector.getReceiverCharset()));
 
                     /*
                      * If the destination sends a failure response, the listener
                      * should return a 500 error, otherwise 200.
                      */
                     if (response.getStatus().equals(Response.Status.FAILURE)) {
-                        serveltResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                        servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                     } else {
-                        serveltResponse.setStatus(HttpStatus.SC_OK);
+                        servletResponse.setStatus(HttpStatus.SC_OK);
                     }
                 } else {
-                    serveltResponse.setStatus(HttpStatus.SC_OK);
+                    servletResponse.setStatus(HttpStatus.SC_OK);
                 }
             } catch (Exception e) {
-                serveltResponse.setContentType("text/plain");
-                serveltResponse.getOutputStream().write(ExceptionUtils.getFullStackTrace(e).getBytes());
-                serveltResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                servletResponse.setContentType("text/plain");
+                servletResponse.getOutputStream().write(ExceptionUtils.getFullStackTrace(e).getBytes());
+                servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 monitoringController.updateStatus(connector, connectorType, Event.DONE);
             }
-            
+
             baseRequest.setHandled(true);
         }
     };
@@ -118,12 +121,19 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
         HttpRequestMessage message = new HttpRequestMessage();
         message.setMethod(request.getMethod());
         message.setHeaders(converter.convertFieldEnumerationToMap(request));
+
         /*
-         * XXX: The HttpRequest#getParameters should be the first method to be
-         * called to avoid problems with the treatement of the input stream in
-         * Jetty
+         * XXX: extractParameters must be called before the parameters are
+         * accessed, otherwise the map will be null.
          */
-        message.setParameters(request.getParameterMap());
+        request.extractParameters();
+        Map<String, Object> parameters = new HashMap<String, Object>();
+
+        for (Entry<String, Object> entry : request.getParameters().entrySet()) {
+            parameters.put(entry.getKey(), entry.getValue());
+        }
+
+        message.setParameters(parameters);
         message.setContent(IOUtils.toString(request.getInputStream(), converter.getDefaultHttpCharset(request.getCharacterEncoding())));
         message.setIncludeHeaders(!connector.isReceiverBodyOnly());
         message.setContentType(request.getContentType());
