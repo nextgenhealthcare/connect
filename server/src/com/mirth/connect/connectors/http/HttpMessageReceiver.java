@@ -121,19 +121,14 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
         HttpRequestMessage message = new HttpRequestMessage();
         message.setMethod(request.getMethod());
         message.setHeaders(converter.convertFieldEnumerationToMap(request));
-
+        
         /*
          * XXX: extractParameters must be called before the parameters are
          * accessed, otherwise the map will be null.
          */
         request.extractParameters();
-        Map<String, Object> parameters = new HashMap<String, Object>();
-
-        for (Entry<String, Object> entry : request.getParameters().entrySet()) {
-            parameters.put(entry.getKey(), entry.getValue());
-        }
-
-        message.setParameters(parameters);
+        message.setParameters(request.getParameters());
+        
         message.setContent(IOUtils.toString(request.getInputStream(), converter.getDefaultHttpCharset(request.getCharacterEncoding())));
         message.setIncludeHeaders(!connector.isReceiverBodyOnly());
         message.setContentType(request.getContentType());
