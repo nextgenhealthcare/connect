@@ -18,7 +18,7 @@ public class DefaultControllerFactory extends ControllerFactory {
     public AuthorizationController createAuthorizationController() {
         if (authorizationController == null) {
             ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-            if (extensionController.getPluginMetaData().containsKey("User Authorization Plugin")) {
+            if (extensionController.getPluginMetaData().containsKey("User Authorization")) {
                 try {
                     String serverAuthorizationController = "com.mirth.connect.plugins.auth.server.SecureAuthorizationController";
                     authorizationController = (AuthorizationController) Class.forName(serverAuthorizationController).newInstance();

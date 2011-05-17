@@ -195,7 +195,6 @@ public class MessagePrunerService implements ServicePlugin, Job {
 
 	public Properties getDefaultProperties() {
 		Properties properties = new Properties();
-		properties.put("name", PLUGINPOINT);
 		properties.put("interval", "daily");
 		properties.put("time", "12:00 AM");
 		properties.put("allowBatchPruning", "1");

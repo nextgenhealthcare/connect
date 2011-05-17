@@ -15,7 +15,7 @@ public class AuthorizationControllerFactory {
     public static AuthorizationController getAuthorizationController() {
         if (authorizationController == null) {
 
-            if (PlatformUI.MIRTH_FRAME.getPluginMetaData().containsKey("User Authorization Plugin")) {
+            if (PlatformUI.MIRTH_FRAME.getPluginMetaData().containsKey("User Authorization")) {
                 try {
                     authorizationController = (AuthorizationController) Class.forName("com.mirth.connect.plugins.auth.client.SecureAuthorizationController").newInstance();
                 } catch (Exception e) {

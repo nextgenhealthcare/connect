@@ -556,7 +556,7 @@ public class DefaultExtensionController extends ExtensionController {
 
     /**
      * Executes the script that removes that database tables for plugins that
-     * are marked for removal. The actual removal of the plguin directory
+     * are marked for removal. The actual removal of the plugin directory
      * happens in MirthLauncher.java, before they can be added to the server
      * classpath.
      * 
