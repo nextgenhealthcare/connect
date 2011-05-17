@@ -111,11 +111,6 @@ public abstract class ExtensionController extends Controller {
     public abstract void stopPlugins();
 
     /**
-     * Invokes the onDeploy method on all loaded server plugins.
-     */
-    public abstract void triggerDeploy();
-
-    /**
      * Returns a list of paths to extension libraries needed to WebStart the
      * administrator.
      */
@@ -255,7 +250,7 @@ public abstract class ExtensionController extends Controller {
     // Maps for different plugins
     // ************************************************************
     
-    public abstract Map<String, ServicePlugin> getServerPlugins();
+    public abstract Map<String, ServicePlugin> getServicePlugins();
     
     public abstract Map<String, ConnectorStatusPlugin> getConnectorStatusPlugins();
     

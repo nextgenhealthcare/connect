@@ -16,8 +16,6 @@ import com.mirth.connect.model.ExtensionPermission;
 public interface ServicePlugin extends ServerPlugin {
     public void update(Properties properties);
 
-    public void onDeploy();
-
     public Object invoke(String method, Object object, String sessionId) throws Exception;
 
     /**

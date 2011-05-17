@@ -178,8 +178,6 @@ public class MuleEngineController implements EngineController {
         }
 
         try {
-            extensionController.triggerDeploy();
-
             List<String> registeredChannelIds = new ArrayList<String>();
 
             for (Channel channel : channels) {
@@ -189,6 +187,11 @@ public class MuleEngineController implements EngineController {
             }
 
             undeployChannels(registeredChannelIds, context);
+            
+            // invoke the channel plugins
+            for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+                channelPlugin.deploy(context);
+            }
 
             // Execute global deploy script before channel deploy script
             scriptController.executeGlobalDeployScript();
@@ -277,7 +280,11 @@ public class MuleEngineController implements EngineController {
         }
 
         try {
-
+            // invoke the channel plugins
+            for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+                channelPlugin.undeploy(context);
+            }
+            
             // Execute channel shutdown scripts
             for (String registeredChannelId : registeredChannelIds) {
                 scriptController.executeChannelShutdownScript(registeredChannelId);

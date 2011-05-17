@@ -45,7 +45,7 @@ import com.mirth.connect.server.controllers.MonitoringController.Event;
 public class DashboardConnectorStatusMonitor implements ServicePlugin {
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private static final String PLUGIN_NAME = "Dashboard Connector Status Monitor";
+    public static final String PLUGINPOINT = "Dashboard Connector Service";
 
     private static final String COLOR_BLACK = "black";
     private static final String COLOR_YELLOW = "yellow";
@@ -84,6 +84,11 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
     private ConcurrentHashMap<String, Boolean> channelsDeployedFlagForEachClient = new ConcurrentHashMap<String, Boolean>();
 
     @Override
+    public String getPluginPointName() {
+        return PLUGINPOINT;
+    }
+    
+    @Override
     public void init(Properties properties) {
         socketSetMap = new HashMap<String, Set<Socket>>();
         connectorStateMap = new HashMap<String, String[]>();
@@ -91,11 +96,6 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
         entireConnectorInfoLogs = new LinkedList<String[]>();
 
         channelsDeployedFlagForEachClient.clear();
-    }
-
-    @Override
-    public void onDeploy() {
-
     }
 
     @Override
@@ -560,7 +560,7 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
 
     @Override
     public ExtensionPermission[] getExtensionPermissions() {
-        ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_NAME, "View Connection Status", "Displays the connection status and history of the selected channel on the Dashboard.", new String[] { METHOD_GET_STATES, METHOD_GET_CONNECTION_INFO_LOGS }, new String[] { });
+        ExtensionPermission viewPermission = new ExtensionPermission(PLUGINPOINT, "View Connection Status", "Displays the connection status and history of the selected channel on the Dashboard.", new String[] { METHOD_GET_STATES, METHOD_GET_CONNECTION_INFO_LOGS }, new String[] { });
         
         return new ExtensionPermission[] { viewPermission };
     }

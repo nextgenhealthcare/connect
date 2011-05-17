@@ -106,6 +106,10 @@ public class DefaultExtensionController extends ExtensionController {
         }
     }
 
+    /**
+     * This method iterates through all of the plugin metadata that was loaded on startup, 
+     * 
+     */
     public void initPlugins() {
         for (PluginMetaData pmd : pluginMetaDataMap.values()) {
             if (pmd.isEnabled() && isExtensionCompatible(pmd) && (pmd.getServerClasses() != null)) {
@@ -141,9 +145,9 @@ public class DefaultExtensionController extends ExtensionController {
                              * add it to the list of loaded plugins
                              */
                             servicePlugin.init(currentProperties);
-                            servicePlugins.put(pmd.getName(), servicePlugin);
+                            servicePlugins.put(servicePlugin.getPluginPointName(), servicePlugin);
                             serverPlugins.add(servicePlugin);
-                            logger.debug("sucessfully loaded server plugin: " + pmd.getName());
+                            logger.debug("sucessfully loaded server plugin: " + serverPlugin.getPluginPointName());
                         }
 
                         if (serverPlugin instanceof ConnectorStatusPlugin) {
@@ -161,23 +165,23 @@ public class DefaultExtensionController extends ExtensionController {
                                 // parameters is 0
                                 if (parameters.length == 0) {
                                     ConnectorStatusPlugin connectorStatusPlugin = (ConnectorStatusPlugin) constructors[i].newInstance(new Object[] {});
-                                    connectorStatusPlugins.put(pmd.getName(), connectorStatusPlugin);
+                                    connectorStatusPlugins.put(connectorStatusPlugin.getPluginPointName(), connectorStatusPlugin);
                                     serverPlugins.add(connectorStatusPlugin);
                                     i = constructors.length;
                                 }
                             }
 
-                            logger.debug("sucessfully loaded connector status plugin: " + pmd.getName());
+                            logger.debug("sucessfully loaded connector status plugin: " + serverPlugin.getPluginPointName());
                         }
 
                         if (serverPlugin instanceof ChannelPlugin) {
                             ChannelPlugin channelPlugin = (ChannelPlugin) serverPlugin;
-                            channelPlugins.put(pmd.getName(), channelPlugin);
+                            channelPlugins.put(channelPlugin.getPluginPointName(), channelPlugin);
                             serverPlugins.add(channelPlugin);
-                            logger.debug("sucessfully loaded server channel plugin: " + pmd.getName());
+                            logger.debug("sucessfully loaded server channel plugin: " + serverPlugin.getPluginPointName());
                         }
                     } catch (Exception e) {
-                        logger.error("Error initializing plugin \"" + pmd.getName() + "\" with properties.", e);
+                        logger.error("Error instantiating plugin: " + pmd.getName(), e);
                     }
                 }
             } else {
@@ -186,7 +190,10 @@ public class DefaultExtensionController extends ExtensionController {
         }
     }
 
-    public Map<String, ServicePlugin> getServerPlugins() {
+    /* These are the maps for the different types of plugins */
+    /* ********************************************************************** */
+    
+    public Map<String, ServicePlugin> getServicePlugins() {
         return servicePlugins;
     }
 
@@ -198,6 +205,8 @@ public class DefaultExtensionController extends ExtensionController {
         return channelPlugins;
     }
 
+    /* ********************************************************************** */
+    
     public boolean isExtensionEnabled(String name) {
         for (PluginMetaData plugin : pluginMetaDataMap.values()) {
             if (plugin.isEnabled() && plugin.getName().equals(name)) {
@@ -239,17 +248,24 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     public void updatePluginProperties(String name, Properties properties) {
-        servicePlugins.get(name).update(properties);
-    }
-
-    public void triggerDeploy() {
-        for (ServicePlugin plugin : servicePlugins.values()) {
-            plugin.onDeploy();
+        ServicePlugin servicePlugin = servicePlugins.get(name);
+        
+        if (servicePlugin != null) {
+            servicePlugin.update(properties);    
+        } else {
+            logger.error("Error setting properties for service plugin that has not been loaded: name=" + name);
         }
     }
 
     public Object invokePluginService(String name, String method, Object object, String sessionId) throws Exception {
-        return servicePlugins.get(name).invoke(method, object, sessionId);
+        ServicePlugin servicePlugin = servicePlugins.get(name);
+        
+        if (servicePlugin != null) {
+            return servicePlugins.get(name).invoke(method, object, sessionId);    
+        } else {
+            logger.error("Error invoking service plugin that has not been loaded: name=" + name + ", method=" + method);
+            return null;
+        }
     }
 
     public Object invokeConnectorService(String name, String method, Object object, String sessionsId) throws Exception {

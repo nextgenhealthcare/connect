@@ -56,9 +56,14 @@ public class MessagePrunerService implements ServicePlugin, Job {
 	private static boolean allowBatchPruning;
 	private static int pruningBlockSize;
 	
-	private static final String PLUGIN_NAME = "Message Pruner";
+	public static final String PLUGINPOINT = "Message Pruner";
 	private static final String GET_LOG = "getLog";
 	
+    @Override
+    public String getPluginPointName() {
+        return PLUGINPOINT;
+    }
+
 	public void init(Properties properties) {
 		jobDetail = new JobDetail("prunerJob", Scheduler.DEFAULT_GROUP, MessagePrunerService.class);
 
@@ -190,7 +195,7 @@ public class MessagePrunerService implements ServicePlugin, Job {
 
 	public Properties getDefaultProperties() {
 		Properties properties = new Properties();
-		properties.put("name", PLUGIN_NAME);
+		properties.put("name", PLUGINPOINT);
 		properties.put("interval", "daily");
 		properties.put("time", "12:00 AM");
 		properties.put("allowBatchPruning", "1");
@@ -295,8 +300,8 @@ public class MessagePrunerService implements ServicePlugin, Job {
 
     @Override
     public ExtensionPermission[] getExtensionPermissions() {
-        ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_NAME, "View Settings", "Displays the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_GET.getName(), GET_LOG }, new String[] { TaskConstants.SETTINGS_REFRESH });
-        ExtensionPermission savePermission = new ExtensionPermission(PLUGIN_NAME, "Save Settings", "Allows changing the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_SET.getName() }, new String[] { TaskConstants.SETTINGS_SAVE });
+        ExtensionPermission viewPermission = new ExtensionPermission(PLUGINPOINT, "View Settings", "Displays the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_GET.getName(), GET_LOG }, new String[] { TaskConstants.SETTINGS_REFRESH });
+        ExtensionPermission savePermission = new ExtensionPermission(PLUGINPOINT, "Save Settings", "Allows changing the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_SET.getName() }, new String[] { TaskConstants.SETTINGS_SAVE });
         
         return new ExtensionPermission[] { viewPermission, savePermission };
     }

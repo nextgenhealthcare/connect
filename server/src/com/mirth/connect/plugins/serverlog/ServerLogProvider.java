@@ -24,10 +24,8 @@ import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.plugins.ServicePlugin;
 
 public class ServerLogProvider implements ServicePlugin {
+    public static final String PLUGINPOINT = "Server Log";
     private Logger logger = Logger.getLogger(this.getClass());
-
-    private static final String PLUGIN_NAME = "Server Log";
-
     private static final String GET_SERVER_LOGS = "getMirthServerLogs";
     private static final String REMOVE_SESSIONID = "removeSessionId";
     private static LinkedList<String[]> serverLogs = new LinkedList<String[]>();
@@ -35,6 +33,11 @@ public class ServerLogProvider implements ServicePlugin {
                                        // number of lines.
     private static long logId = 1;
     private ConcurrentHashMap<String, Long> lastDisplayedServerLogIdBySessionId;
+
+    @Override
+    public String getPluginPointName() {
+        return PLUGINPOINT;
+    }
 
     private void initialize() {
         // add the new appender
@@ -154,7 +157,7 @@ public class ServerLogProvider implements ServicePlugin {
 
     @Override
     public ExtensionPermission[] getExtensionPermissions() {
-        ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_NAME, "View Server Log", "Displays the contents of the Server Log on the Dashboard.", new String[] { GET_SERVER_LOGS }, new String[] { });
+        ExtensionPermission viewPermission = new ExtensionPermission(PLUGINPOINT, "View Server Log", "Displays the contents of the Server Log on the Dashboard.", new String[] { GET_SERVER_LOGS }, new String[] { });
         return new ExtensionPermission[] { viewPermission };
     }
 }

@@ -18,12 +18,16 @@ import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
 
 public class DashboardConnectorStatusMonitorLogger implements ConnectorStatusPlugin {
-    private static final String SERVER_PLUGIN_NAME = "Dashboard Connector Status Monitor";
     private DashboardConnectorStatusMonitor monitor;
+    
+    @Override
+    public String getPluginPointName() {
+        return "Dashboard Connector Status";
+    }
 
     @Override
     public void start() {
-        monitor = (DashboardConnectorStatusMonitor) ControllerFactory.getFactory().createExtensionController().getServerPlugins().get(SERVER_PLUGIN_NAME);
+        monitor = (DashboardConnectorStatusMonitor) ControllerFactory.getFactory().createExtensionController().getServicePlugins().get(DashboardConnectorStatusMonitor.PLUGINPOINT);
     }
 
     @Override
