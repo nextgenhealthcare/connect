@@ -21,13 +21,12 @@ import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
 
 public class ServerLogClient extends DashboardPanelPlugin {
-
+    private static final String SERVER_LOG_SERVICE_PLUGINPOINT = "Server Log";
     private ServerLogPanel serverLogPanel;
     private LinkedList<String[]> serverLogs;
     private static final String[] unauthorizedLog = new String[] { "0", "You are not authorized to view the server log." };
     private static final String GET_SERVER_LOGS = "getMirthServerLogs";
     private static final String REMOVE_SESSIONID = "removeSessionId";
-    private static final String SERVER_PLUGIN_NAME = "Server Log";
     private int currentServerLogSize;
 
     public ServerLogClient(String name) {
@@ -69,7 +68,7 @@ public class ServerLogClient extends DashboardPanelPlugin {
             LinkedList<String[]> serverLogReceived = new LinkedList<String[]>();
             //get logs from server
             try {
-                serverLogReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_SERVER_LOGS, null);
+                serverLogReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_LOG_SERVICE_PLUGINPOINT, GET_SERVER_LOGS, null);
             } catch (ClientException e) {
                 if (e.getCause() instanceof UnauthorizedException) {
                     LinkedList<String[]> unauthorizedLogs = new LinkedList<String[]>();
@@ -134,7 +133,7 @@ public class ServerLogClient extends DashboardPanelPlugin {
             // returned 'true' - sessionId found and removed.
             // returned 'false' - sessionId not found. - should never be this case.
             // either way, the sessionId is gone.
-            PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, REMOVE_SESSIONID, null);
+            PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_LOG_SERVICE_PLUGINPOINT, REMOVE_SESSIONID, null);
         } catch (ClientException e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }

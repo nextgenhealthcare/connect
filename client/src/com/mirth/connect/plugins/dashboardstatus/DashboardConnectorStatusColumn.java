@@ -30,7 +30,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 
     private static final String _SOURCE_CONNECTOR = "_source_connector";
     private static final String GET_STATES = "getStates";
-    private static final String SERVER_PLUGIN_NAME = "Dashboard Connector Status Monitor";
+    private static final String DASHBOARD_SERVICE_PLUGINPOINT = "Dashboard Connector Service";
     private HashMap<String, String[]> currentStates;
     private ImageIcon greenBullet;
     private ImageIcon yellowBullet;
@@ -90,7 +90,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     public void tableUpdate(List<ChannelStatus> status) {
         // get states from server
         try {
-            currentStates = (HashMap<String, String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_STATES, null);
+            currentStates = (HashMap<String, String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(DASHBOARD_SERVICE_PLUGINPOINT, GET_STATES, null);
         } catch (ClientException e) {
             if (e.getCause() instanceof UnauthorizedException) {
                 currentStates = null;

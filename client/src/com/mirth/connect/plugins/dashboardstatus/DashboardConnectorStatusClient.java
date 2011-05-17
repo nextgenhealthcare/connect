@@ -23,12 +23,11 @@ import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
 
 public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
-
+    private static final String DASHBOARD_SERVICE_PLUGINPOINT = "Dashboard Connector Service";
     private DashboardConnectorStatusPanel dcsp;
     private static final String REMOVE_SESSIONID = "removeSessionId";
     private static final String GET_CONNECTION_INFO_LOGS = "getConnectionInfoLogs";
     private static final String CHANNELS_DEPLOYED = "channelsDeployed";
-    private static final String SERVER_PLUGIN_NAME = "Dashboard Connector Status Monitor";
     private static final String NO_CHANNEL_SELECTED = "No Channel Selected";
     private ConcurrentHashMap<String, LinkedList<String[]>> connectorInfoLogs;
     private int currentDashboardLogSize;
@@ -102,7 +101,7 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
 
         boolean channelsDeployed = false;
         try {
-            channelsDeployed = (Boolean) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, CHANNELS_DEPLOYED, null);
+            channelsDeployed = (Boolean) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(DASHBOARD_SERVICE_PLUGINPOINT, CHANNELS_DEPLOYED, null);
         } catch (ClientException e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
@@ -150,9 +149,9 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
             LinkedList<String[]> connectionInfoLogsReceived = new LinkedList<String[]>();
             try {
                 if (status == null) {
-                    connectionInfoLogsReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_CONNECTION_INFO_LOGS, null);
+                    connectionInfoLogsReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(DASHBOARD_SERVICE_PLUGINPOINT, GET_CONNECTION_INFO_LOGS, null);
                 } else {
-                    connectionInfoLogsReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_CONNECTION_INFO_LOGS, selectedChannel);
+                    connectionInfoLogsReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(DASHBOARD_SERVICE_PLUGINPOINT, GET_CONNECTION_INFO_LOGS, selectedChannel);
                 }
             } catch (ClientException e) {
                 if (e.getCause() instanceof UnauthorizedException) {
@@ -208,7 +207,7 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
         
         // invoke method to remove everything involving this client's sessionId.
         try {
-            PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, REMOVE_SESSIONID, null);
+            PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(DASHBOARD_SERVICE_PLUGINPOINT, REMOVE_SESSIONID, null);
         } catch (ClientException e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
