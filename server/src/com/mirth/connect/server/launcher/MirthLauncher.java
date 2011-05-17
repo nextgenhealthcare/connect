@@ -170,7 +170,7 @@ public class MirthLauncher {
 
                             for (int i = 0; i < libraries.getLength(); i++) {
                                 Element libraryElement = (Element) libraries.item(i);
-                                String type = libraryElement.getElementsByTagName("type").item(0).getTextContent();
+                                String type = libraryElement.getAttribute("type");
 
                                 if (type.equalsIgnoreCase("server") || type.equalsIgnoreCase("shared")) {
                                     File pathFile = new File(directory, libraryElement.getAttribute("path"));
