@@ -56,7 +56,6 @@
 	<classpathentry kind="lib" path="lib/mirth-vocab-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-configuration-1.6.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/doc/bcprov-jdk16-144.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/file/webdavclient4j-core-0.92.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/database/jtds-1.2.jar"/>
@@ -83,6 +82,7 @@
 	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/policy-xmlbeans-1.5.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-jdk16-144.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-3.6.1.jar"/>
