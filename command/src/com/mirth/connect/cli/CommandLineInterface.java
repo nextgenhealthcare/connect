@@ -870,11 +870,11 @@ public class CommandLineInterface {
     private void commandAllChannelStats(Token[] arguments) throws ClientException {
         out.println("Received\tFiltered\tQueued\t\tSent\t\tErrored\t\tAlerted\t\tName");
 
-        List<Channel> channels = client.getChannel(null);
+        List<ChannelStatus> channelStatuses = client.getChannelStatusList();
 
-        for (Channel channel : channels) {
-            ChannelStatistics stats = client.getStatistics(channel.getId());
-            out.println(stats.getReceived() + "\t\t" + stats.getFiltered() + "\t\t" + stats.getQueued() + "\t\t" + stats.getSent() + "\t\t" + stats.getError() + "\t\t" + stats.getAlerted() + "\t\t" + channel.getName());
+        for (ChannelStatus channelStatus : channelStatuses) {
+            ChannelStatistics stats = client.getStatistics(channelStatus.getChannelId());
+            out.println(stats.getReceived() + "\t\t" + stats.getFiltered() + "\t\t" + stats.getQueued() + "\t\t" + stats.getSent() + "\t\t" + stats.getError() + "\t\t" + stats.getAlerted() + "\t\t" + channelStatus.getName());
         }
     }
 
@@ -1146,11 +1146,11 @@ public class CommandLineInterface {
         builder.append("Mirth Channel Statistics Dump: " + (new Date()).toString() + "\n");
         builder.append("Name, Received, Filtered, Queued, Sent, Errored, Alerted\n");
 
-        List<Channel> channels = client.getChannel(null);
+        List<ChannelStatus> channelStatuses = client.getChannelStatusList();
 
-        for (Channel channel : channels) {
-            ChannelStatistics stats = client.getStatistics(channel.getId());
-            builder.append(channel.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + stats.getQueued() + ", " + stats.getSent() + ", " + stats.getError() + ", " + stats.getAlerted() + "\n");
+        for (ChannelStatus channelStatus : channelStatuses) {
+            ChannelStatistics stats = client.getStatistics(channelStatus.getChannelId());
+            builder.append(channelStatus.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + stats.getQueued() + ", " + stats.getSent() + ", " + stats.getError() + ", " + stats.getAlerted() + "\n");
         }
 
         File dumpFile = new File(dumpFilename);
