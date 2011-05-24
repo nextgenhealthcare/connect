@@ -202,12 +202,14 @@ public class ChannelSetup extends javax.swing.JPanel {
 
                 // Set the default inbound and outbound protocol and properties
                 Protocol protocol = currentChannel.getSourceConnector().getTransformer().getOutboundProtocol();
-                Properties defaultProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
+                // Use a different properties object for the inbound and outbound
+                Properties defaultInboundProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
+                Properties defaultOutboundProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
 
                 connector.getTransformer().setInboundProtocol(protocol);
-                connector.getTransformer().setInboundProperties(defaultProperties);
+                connector.getTransformer().setInboundProperties(defaultInboundProperties);
                 connector.getTransformer().setOutboundProtocol(protocol);
-                connector.getTransformer().setOutboundProperties(defaultProperties);
+                connector.getTransformer().setOutboundProperties(defaultOutboundProperties);
 
                 connector.setName(getNewDestinationName(tableSize));
                 connector.setTransportName(DESTINATION_DEFAULT);
@@ -438,12 +440,14 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         // Set the default inbound and outbound protocol and properties
         Protocol defaultProtocol = Protocol.HL7V2;
-        Properties defaultProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(defaultProtocol));
+        // Use a different properties object for the inbound and outbound
+        Properties defaultInboundProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(defaultProtocol));
+        Properties defaultOutboundProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(defaultProtocol));
 
         sourceTransformer.setInboundProtocol(defaultProtocol);
-        sourceTransformer.setInboundProperties(defaultProperties);
+        sourceTransformer.setInboundProperties(defaultInboundProperties);
         sourceTransformer.setOutboundProtocol(defaultProtocol);
-        sourceTransformer.setOutboundProperties(defaultProperties);
+        sourceTransformer.setOutboundProperties(defaultOutboundProperties);
 
         sourceConnector.setTransformer(sourceTransformer);
 
