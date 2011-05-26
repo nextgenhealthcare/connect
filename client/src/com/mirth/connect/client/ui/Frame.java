@@ -3272,12 +3272,13 @@ public class Frame extends JXFrame {
                     }
 
                     public void done() {
+                        if (clearStats) {
+                            List<ChannelStatus> channelStatuses = new ArrayList<ChannelStatus>();
+                            channelStatuses.add(channelStatus);
+                            clearStats(channelStatuses, true, true, true, true, true, true);
+                        }
+
                         if (currentContentPage == dashboardPanel) {
-                            if (clearStats) {
-                                List<ChannelStatus> channelStatuses = new ArrayList<ChannelStatus>();
-                                channelStatuses.add(channelStatus);
-                                clearStats(channelStatuses, true, true, true, true, true, true);
-                            }
                             doRefreshStatuses();
                         } else if (currentContentPage == messageBrowser) {
                             messageBrowser.refresh();
