@@ -2,7 +2,7 @@ package com.mirth.connect.server.launcher;
 
 public class ManifestDirectory implements ManifestEntry {
     private String dir;
-    private String excludes;
+    private String[] excludes = new String[0];
 
     public ManifestDirectory(String dir) {
         this.dir = dir;
@@ -12,11 +12,11 @@ public class ManifestDirectory implements ManifestEntry {
         return dir;
     }
 
-    public String getExcludes() {
+    public String[] getExcludes() {
         return excludes;
     }
 
-    public void setExcludes(String excludes) {
+    public void setExcludes(String[] excludes) {
         this.excludes = excludes;
     }
 }

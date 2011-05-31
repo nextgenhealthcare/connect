@@ -24,7 +24,6 @@ import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,7 +46,7 @@ public class MirthLauncher {
             ManifestFile mirthServerJar = new ManifestFile("mirth-server.jar");
             ManifestFile mirthClientCoreJar = new ManifestFile("lib/mirth-client-core.jar");
             ManifestDirectory libDir = new ManifestDirectory("lib");
-            libDir.setExcludes("mirth-client-core.jar");
+            libDir.setExcludes(new String[] { "mirth-client-core.jar" });
             ManifestDirectory customLibDir = new ManifestDirectory("custom-lib");
             ManifestEntry[] manifest = new ManifestEntry[] { mirthServerJar, mirthClientCoreJar, libDir, customLibDir };
 
@@ -124,9 +123,8 @@ public class MirthLauncher {
                     ManifestDirectory manifestDir = (ManifestDirectory) manifestEntry;
                     IOFileFilter fileFilter = null;
                     
-                    if (StringUtils.isNotBlank(manifestDir.getExcludes())) {
-                        String[] excludes = StringUtils.split(manifestDir.getExcludes(), ",");
-                        fileFilter = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.notFileFilter(new NameFileFilter(excludes)));
+                    if (manifestDir.getExcludes().length > 0) {
+                        fileFilter = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.notFileFilter(new NameFileFilter(manifestDir.getExcludes())));
                     } else {
                         fileFilter = FileFilterUtils.fileFileFilter();
                     }
