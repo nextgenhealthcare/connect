@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Node;
 import org.dom4j.io.DOMReader;
 import org.mule.providers.TemplateValueReplacer;
@@ -89,23 +90,20 @@ public abstract class JdbcUtils {
      * - If the line contains a comment marker, remove everything after the comment marker
      */
     public static String stripSqlComments(String statement) {
-        if (statement != null) {
+        if (StringUtils.isNotBlank(statement)) {
             List<String> lines = Arrays.asList(statement.split("\n"));
             StringBuilder result = new StringBuilder();
             
             for (String line : lines) {
-                String subStatement = null;
-                
                 if (line.trim().startsWith("--")) {
-                    subStatement = "";
+                    // ignore it
                 } else if (line.contains("--")) {
-                    subStatement = line.substring(0, line.indexOf("--")).trim();
+                    result.append(line.substring(0, line.indexOf("--")).trim());
+                    result.append("\n");
                 } else {
-                    subStatement = line;
+                    result.append(line);
+                    result.append("\n");
                 }
-                
-                result.append(subStatement);
-                result.append("\n");
             }
             
             return result.toString();
