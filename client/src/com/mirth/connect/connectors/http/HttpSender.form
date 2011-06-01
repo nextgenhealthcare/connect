@@ -1,0 +1,866 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <NonVisualComponents>
+    <Component class="javax.swing.ButtonGroup" name="methodButtonGroup">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="responseHeadersButtonGroup">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="usePersistantQueuesButtonGroup">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="multipartButtonGroup">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="authenticationButtonGroup">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="authenticationTypeButtonGroup">
+    </Component>
+  </NonVisualComponents>
+  <Properties>
+    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+      <Color blue="ff" green="ff" red="ff" type="rgb"/>
+    </Property>
+    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+      <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+        <EmptyBorder/>
+      </Border>
+    </Property>
+  </Properties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="multipartLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="methodLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="URL1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="queryParametersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="urlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentTypeLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseHeadersLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="sendTimeoutLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationTypeLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel36" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="queuePollIntervalLabel" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="queuePollIntervalField" min="-2" pref="75" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="103" alignment="0" groupAlignment="0" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="usePersistentQueuesNoRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="rotateMessagesCheckBox" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="103" alignment="0" groupAlignment="0" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Component id="usernameField" min="-2" pref="125" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="103" alignment="0" groupAlignment="0" attributes="0">
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="authenticationTypeBasicRadio" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="authenticationTypeDigestRadio" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="103" alignment="0" groupAlignment="0" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="authenticationYesRadio" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="authenticationNoRadio" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                      </Group>
+                                      <Group type="103" alignment="0" groupAlignment="0" attributes="0">
+                                          <Group type="102" alignment="0" attributes="0">
+                                              <Component id="sendTimeoutField" min="-2" pref="75" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                          </Group>
+                                          <Group type="103" alignment="0" groupAlignment="0" attributes="0">
+                                              <Group type="102" alignment="0" attributes="0">
+                                                  <Component id="includeResponseHeadersYesButton" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="includeResponseHeadersNoButton" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                              </Group>
+                                              <Group type="102" attributes="0">
+                                                  <Component id="contentTextArea" pref="443" max="32767" attributes="2"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                              </Group>
+                                              <Group type="102" attributes="0">
+                                                  <Component id="multipartYesButton" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="multipartNoButton" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                              </Group>
+                                              <Group type="102" alignment="0" attributes="0">
+                                                  <Group type="103" groupAlignment="0" attributes="0">
+                                                      <Group type="102" alignment="0" attributes="0">
+                                                          <Component id="urlField" min="-2" pref="300" max="-2" attributes="1"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="testConnection" min="-2" max="-2" attributes="0"/>
+                                                      </Group>
+                                                      <Group type="102" alignment="0" attributes="0">
+                                                          <Component id="postButton" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="getButton" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="putButton" min="-2" max="-2" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
+                                                      </Group>
+                                                      <Component id="channelNames" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
+                                                      <Component id="reconnectIntervalField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                                                  </Group>
+                                                  <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+                                              </Group>
+                                              <Group type="102" alignment="0" attributes="0">
+                                                  <Group type="103" groupAlignment="0" attributes="0">
+                                                      <Group type="102" alignment="0" attributes="0">
+                                                          <Group type="103" groupAlignment="0" attributes="0">
+                                                              <Component id="contentTypeField" min="-2" pref="125" max="-2" attributes="0"/>
+                                                              <Component id="headersPane" pref="374" max="32767" attributes="0"/>
+                                                          </Group>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                                              <Component id="headersNewButton" max="32767" attributes="1"/>
+                                                              <Component id="headersDeleteButton" alignment="0" min="-2" max="-2" attributes="1"/>
+                                                          </Group>
+                                                      </Group>
+                                                      <Group type="102" alignment="1" attributes="0">
+                                                          <Component id="queryParametersPane" pref="374" max="32767" attributes="0"/>
+                                                          <EmptySpace max="-2" attributes="0"/>
+                                                          <Group type="103" groupAlignment="0" attributes="0">
+                                                              <Component id="queryParametersDeleteButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                                                              <Component id="queryParametersNewButton" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                          </Group>
+                                                      </Group>
+                                                      <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                  </Group>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                              </Group>
+                                          </Group>
+                                      </Group>
+                                  </Group>
+                              </Group>
+                          </Group>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="passwordField" min="-2" pref="125" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+              </Group>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="urlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="urlField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="testConnection" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="methodLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="postButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="getButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="putButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="deleteButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="multipartLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="multipartYesButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="multipartNoButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="sendTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sendTimeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="URL1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="channelNames" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="includeResponseHeadersYesButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="includeResponseHeadersNoButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseHeadersLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="authenticationYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="authenticationTypeBasicRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationTypeDigestRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="usePersistentQueuesYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="usePersistentQueuesNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="rotateMessagesCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="queuePollIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="queuePollIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="reconnectIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="reconnectIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="queryParametersLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="queryParametersNewButton" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="queryParametersDeleteButton" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="queryParametersPane" pref="73" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="headersLabel" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="headersNewButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="headersDeleteButton" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Component id="headersPane" pref="70" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="contentTypeField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="contentTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentTextArea" pref="80" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="urlLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="URL:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="urlField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the URL of the HTTP server to send each message to."/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="queryParametersNewButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="New"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="queryParametersNewButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="queryParametersDeleteButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Delete"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="queryParametersDeleteButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="queryParametersPane">
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="queryParametersTable">
+          <Properties>
+            <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+              <Table columnCount="2" rowCount="0">
+                <Column editable="true" title="Name" type="java.lang.Object"/>
+                <Column editable="true" title="Value" type="java.lang.Object"/>
+              </Table>
+            </Property>
+            <Property name="toolTipText" type="java.lang.String" value="Query parameters are encoded as x=y pairs as part of the request URL, separated from it by a &apos;?&apos; and from each other by an &apos;&amp;&apos;."/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Component class="javax.swing.JLabel" name="queryParametersLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Query Parameters:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="methodLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Method:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="postButton">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="methodButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="POST"/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects the HTTP operation used to send each message."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="postButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="getButton">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="methodButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="GET"/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects the HTTP operation used to send each message."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="getButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="channelNames">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="4">
+            <StringItem index="0" value="Item 1"/>
+            <StringItem index="1" value="Item 2"/>
+            <StringItem index="2" value="Item 3"/>
+            <StringItem index="3" value="Item 4"/>
+          </StringArray>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Selects a channel to send the response from the HTTP server as a new inbound message&lt;br&gt; or None to ignore the response from the HTTP server.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="URL1">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Send Response to:"/>
+      </Properties>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="headersPane">
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="headersTable">
+          <Properties>
+            <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+              <Table columnCount="2" rowCount="0">
+                <Column editable="true" title="Name" type="java.lang.Object"/>
+                <Column editable="true" title="Value" type="java.lang.Object"/>
+              </Table>
+            </Property>
+            <Property name="toolTipText" type="java.lang.String" value="Header parameters are encoded as HTTP headers in the HTTP request sent to the server."/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Component class="javax.swing.JLabel" name="headersLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Headers:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="headersNewButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="New"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="headersNewButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="headersDeleteButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Delete"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="headersDeleteButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="responseHeadersLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Include Response Headers:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="includeResponseHeadersYesButton">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="responseHeadersButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If yes is selected, the HTTP headers of the response received are included as part of the response.&lt;br&gt;If no is selected, the HTTP headers are not included.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="includeResponseHeadersNoButton">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="responseHeadersButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If yes is selected, the HTTP headers of the response received are included as part of the response.&lt;br&gt;If no is selected, the HTTP headers are not included.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="rotateMessagesCheckBox">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Rotate Messages in Queue"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, upon unsuccessful re-try, it will rotate and put the queued message to the back of the queue&lt;br&gt; in order to prevent it from clogging the queue and to let the other subsequent messages in queue be processed.&lt;br&gt;If the order of messages processed is important, this should be unchecked.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="usePersistentQueuesNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="usePersistantQueuesButtonGroup"/>
+        </Property>
+        <Property name="selected" type="boolean" value="true"/>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="usePersistentQueuesNoRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="usePersistentQueuesYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="usePersistantQueuesButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will store any messages that are unable to be successfully processed in a file-based queue.&lt;br&gt;Messages will be automatically resent until the queue is manually cleared or the message is successfully sent.&lt;br&gt;The default queue location is (Mirth Directory)/.mule/queuestore/(ChannelID),&lt;br&gt; where (Mirth Directory) is the main Mirth install root and (ChannelID) is the unique id of the current channel.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="usePersistentQueuesYesRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel36">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Use Persistent Queues:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="reconnectIntervalLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Reconnect Interval (ms):"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectIntervalField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The amount of time that should elapse between retry attempts to send messages in the queue.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="putButton">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="methodButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="PUT"/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects the HTTP operation used to send each message."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="putButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="deleteButton">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="methodButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="DELETE"/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects the HTTP operation used to send each message."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="testConnection">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Test Connection"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="testConnectionActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="multipartLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Multipart:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="multipartYesButton">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="multipartButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="Set to use multipart in the Content-Type header. Multipart can only be used with POST."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="multipartNoButton">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="multipartButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="Set not to use multipart in the Content-Type header."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="contentTextArea">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="The HTTP message body."/>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="contentLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Content:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="contentTypeField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The HTTP message body MIME type."/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="contentTypeLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Content Type:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="authenticationLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Authentication:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="authenticationYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="authenticationButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password to communicate with the HTTP server.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="authenticationYesRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="authenticationNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="authenticationButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password to communicate with the HTTP server.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="authenticationNoRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="usernameField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The username used to connect to the HTTP server."/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="usernameLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Username:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="passwordLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Password:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthPasswordField" name="passwordField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The password used to connect to the HTTP server."/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="authenticationTypeDigestRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="authenticationTypeButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Digest"/>
+        <Property name="toolTipText" type="java.lang.String" value="Use the digest authentication scheme."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="authenticationTypeBasicRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="authenticationTypeButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Basic"/>
+        <Property name="toolTipText" type="java.lang.String" value="Use the basic authentication scheme."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="authenticationTypeLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Authentication Type:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="charsetEncodingLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Charset Encoding:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="7">
+            <StringItem index="0" value="default"/>
+            <StringItem index="1" value="utf-8"/>
+            <StringItem index="2" value="iso-8859-1"/>
+            <StringItem index="3" value="utf-16 (le)"/>
+            <StringItem index="4" value="utf-16 (be)"/>
+            <StringItem index="5" value="utf-16 (bom)"/>
+            <StringItem index="6" value="us-ascii"/>
+          </StringArray>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the character set encoding used by the sender of the message,&lt;br&gt; or Default to assume the default character set encoding for the JVM running Mirth.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="sendTimeoutField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Sets the socket timeout (SO_TIMEOUT) in milliseconds to be used when executing the method.&lt;br&gt;A timeout value of zero is interpreted as an infinite timeout.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="sendTimeoutLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Send Timeout (ms):"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="queuePollIntervalField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The amount of time that should elapse between polls of an empty queue to check for queued messages.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="queuePollIntervalLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Queue Poll Interval (ms):"/>
+      </Properties>
+    </Component>
+  </SubComponents>
+</Form>
