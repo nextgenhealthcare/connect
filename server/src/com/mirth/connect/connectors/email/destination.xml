@@ -1,0 +1,32 @@
+<connectorMetaData path="email">
+	<name>Email Sender</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>2.1.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth to send Email messages via SMTP. The velocity template engine is available to dynamically create messages.</description>
+	<clientClassName>com.mirth.connect.connectors.email.EmailSender</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.email.SmtpConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.email.EmailSenderProperties</sharedClassName>
+	<library path="email-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="email-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="email-server.jar">
+		<type>SERVER</type>
+	</library>
+	<transformers></transformers>
+	<protocol>smtp</protocol>
+	<type>DESTINATION</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.mirth.connect.connectors.email.SmtpConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.email.SmtpMessageDispatcherFactory</property>
+		<property name="message.adapter">com.mirth.connect.connectors.email.MailMessageAdapter</property>
+		<property name="inbound.transformer">com.mirth.connect.connectors.email.transformers.EmailMessageToString</property>
+		<property name="outbound.transformer">com.mirth.connect.connectors.email.transformers.MessageObjectToEmailMessage</property>
+		<property name="endpoint.builder">org.mule.impl.endpoint.UrlEndpointBuilder</property>
+	</mule-properties>
+</connectorMetaData>

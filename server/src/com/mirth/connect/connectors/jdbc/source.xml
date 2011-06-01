@@ -1,0 +1,32 @@
+<connectorMetaData path="jdbc">
+	<name>Database Reader</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>2.1.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth to poll any supported JDBC-compatabile database for data. Rows are returned as XML and JavaScript can be used for advanced logic.</description>
+	<clientClassName>com.mirth.connect.connectors.jdbc.DatabaseReader</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.jdbc.JdbcConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.jdbc.DatabaseReaderProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.jdbc.JdbcConnectorService</serviceClassName>
+	<library path="jdbc-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="jdbc-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="jdbc-server.jar">
+		<type>SERVER</type>
+	</library>
+	<transformers>ResultMapToXML</transformers>
+	<protocol>jdbc</protocol>
+	<type>SOURCE</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.mirth.connect.connectors.jdbc.JdbcConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.jdbc.JdbcMessageDispatcherFactory</property>
+		<property name="message.receiver">com.mirth.connect.connectors.jdbc.JdbcMessageReceiver</property>
+		<property name="message.adapter">com.mirth.connect.connectors.jdbc.JdbcMessageAdapter</property>
+		<property name="endpoint.builder">com.mirth.connect.connectors.jdbc.JdbcEndpointBuilder</property>
+	</mule-properties>
+</connectorMetaData>

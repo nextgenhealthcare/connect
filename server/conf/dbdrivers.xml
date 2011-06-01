@@ -1,0 +1,15 @@
+<!-- 
+	Database driver information
+	class = the driver class name, cannot be empty
+	name = database driver name to be displayed as, cannot be empty
+	template = the template for creating the database connection, cannot be empty
+	selectLimit = defines the select statement used for retrieving column information, empty means use the generic query (which could be slow)	
+-->
+<drivers>
+	<driver class="sun.jdbc.odbc.JdbcOdbcDriver" name="Sun JDBC-ODBC Bridge" template="jdbc:odbc:DSN" selectLimit="" />
+	<driver class="com.mysql.jdbc.Driver" name="MySQL" template="jdbc:mysql://host:port/dbname" selectLimit="SELECT * FROM ? LIMIT 1" />
+	<driver class="oracle.jdbc.driver.OracleDriver" name="Oracle" template="jdbc:oracle:thin:@host:port:dbname" selectLimit="SELECT * FROM ? WHERE ROWNUM &lt; 2" />
+	<driver class="org.postgresql.Driver" name="PostgreSQL" template="jdbc:postgresql://host:port/dbname" selectLimit="SELECT * FROM ? LIMIT 1" />
+	<driver class="net.sourceforge.jtds.jdbc.Driver" name="SQL Server/Sybase" template="jdbc:jtds:sqlserver://host:port/dbname" selectLimit="SELECT TOP 1 * FROM ?" />
+	<driver class="org.sqlite.JDBC" name="SQLite" template="jdbc:sqlite:dbfile.db" selectLimit="SELECT * FROM ? LIMIT 1" />
+</drivers>

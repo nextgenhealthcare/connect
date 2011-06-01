@@ -1,0 +1,39 @@
+<connectorMetaData path="file">
+	<name>File Writer</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>2.1.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth to write files to a local or network file system. A velocity template is available to dynamically generate files.</description>
+	<clientClassName>com.mirth.connect.connectors.file.FileWriter</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.file.FileConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.file.FileWriterProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.file.FileWriterService</serviceClassName>
+	<library path="file-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="file-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="file-server.jar">
+		<type>SERVER</type>
+	</library>
+	<library path="lib/jcifs-1.2.22.jar">
+		<type>SERVER</type>
+	</library>
+	<library path="lib/webdavclient4j-core-0.92.jar">
+		<type>SERVER</type>
+	</library>
+	<transformers></transformers>
+	<protocol>file</protocol>
+	<type>DESTINATION</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.mirth.connect.connectors.file.FileConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.file.FileMessageDispatcherFactory</property>
+		<property name="message.receiver">com.mirth.connect.connectors.file.FileMessageReceiver</property>
+		<property name="message.adapter">com.mirth.connect.connectors.file.FileContentsMessageAdapter</property>
+		<property name="endpoint.builder">com.mirth.connect.connectors.file.FileEndpointBuilder</property>
+		<property name="inbound.transformer">com.mirth.connect.connectors.file.transformers.FileToString</property>
+	</mule-properties>
+</connectorMetaData>

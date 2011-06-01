@@ -1,0 +1,30 @@
+<connectorMetaData path="js">
+	<name>JavaScript Writer</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>2.1.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth to execute JavaScript to connect to an arbitrary destination.</description>
+	<clientClassName>com.mirth.connect.connectors.js.JavaScriptWriter</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.js.JavaScriptConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.js.JavaScriptWriterProperties</sharedClassName>
+	<library path="js-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="js-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="js-server.jar">
+		<type>SERVER</type>
+	</library>
+	<transformers></transformers>
+	<protocol>js</protocol>
+	<type>DESTINATION</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.mirth.connect.connectors.js.JavaScriptConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.js.JavaScriptMessageDispatcherFactory</property>
+		<property name="message.receiver">com.mirth.connect.connectors.js.JavaScriptMessageReceiver</property>
+		<property name="message.adapter">com.mirth.connect.connectors.js.JavaScriptMessageAdapter</property>
+	</mule-properties>
+</connectorMetaData>

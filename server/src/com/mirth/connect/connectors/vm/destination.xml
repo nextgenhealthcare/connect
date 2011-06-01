@@ -1,0 +1,31 @@
+<connectorMetaData path="vm">
+	<name>Channel Writer</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>2.1.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth to send events to other channels in the same Mirth instance.</description>
+	<clientClassName>com.mirth.connect.connectors.vm.ChannelWriter</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.vm.VMConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.vm.ChannelWriterProperties</sharedClassName>
+	<library path="vm-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="vm-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="vm-server.jar">
+		<type>SERVER</type>
+	</library>
+	<transformers></transformers>
+	<protocol>vm</protocol>
+	<type>DESTINATION</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.mirth.connect.connectors.vm.VMConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.vm.VMMessageDispatcherFactory</property>
+		<property name="message.receiver">com.mirth.connect.connectors.vm.VMMessageReceiver</property>
+		<property name="message.adapter">com.mirth.connect.connectors.vm.VMMessageAdapter</property>
+		<property name="endpoint.builder">org.mule.impl.endpoint.ResourceNameEndpointBuilder</property>
+	</mule-properties>
+</connectorMetaData>
