@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>OM7</name>
+    <description>Additional Basic Attributes</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OM7.1</name>
+            <description>Sequence Number - Test/Observation Master File</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OM7.2</name>
+            <description>Universal Service Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OM7.3</name>
+            <description>Category Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.4</name>
+            <description>Category Description</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OM7.5</name>
+            <description>Category Synonym</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.6</name>
+            <description>Effective Test/Service Start Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.7</name>
+            <description>Effective Test/Service End Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.8</name>
+            <description>Test/Service Default Duration Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.9</name>
+            <description>Test/Service Default Duration Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.10</name>
+            <description>Test/Service Default Frequency</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.11</name>
+            <description>Consent Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.12</name>
+            <description>Consent Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.13</name>
+            <description>Consent Effective Start Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.14</name>
+            <description>Consent Effective End Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.15</name>
+            <description>Consent Interval Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.16</name>
+            <description>Consent Interval Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.17</name>
+            <description>Consent Waiting Period Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.18</name>
+            <description>Consent Waiting Period Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.19</name>
+            <description>Effective Date/Time of Change</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.20</name>
+            <description>Entered By</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OM7.21</name>
+            <description>Orderable-at Location</description>
+            <datatype>PL</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.22</name>
+            <description>Formulary Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM7.23</name>
+            <description>Special Order Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OM7.24</name>
+            <description>Primary Key Value</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

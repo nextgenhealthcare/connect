@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>GP1</name>
+    <description>Grouping/Reimbursement - Visit</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>GP1.1</name>
+            <description>Type of Bill Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GP1.2</name>
+            <description>Revenue Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GP1.3</name>
+            <description>Overall Claim Disposition Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GP1.4</name>
+            <description>OCE Edits per Visit Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>GP1.5</name>
+            <description>Outlier Cost</description>
+            <datatype>CP</datatype>
+        </field>
+    </elements>
+</segment>

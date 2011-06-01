@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ADTA37</name>
+    <description>Unlink Patient Information</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EVN</segment>
+        <segment>PID</segment>
+        <segment minOccurs="0">PD1</segment>
+        <segment minOccurs="0">PV1</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">DB1</segment>
+        <segment>PID</segment>
+        <segment minOccurs="0">PD1</segment>
+        <segment minOccurs="0">PV1</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">DB1</segment>
+    </segments>
+</message>

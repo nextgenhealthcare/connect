@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>SCV</name>
+    <description>Scheduling Class Value Pair</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SCV.1</name>
+            <description>Parameter Class</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SCV.2</name>
+            <description>Parameter Value</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

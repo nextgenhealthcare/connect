@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PV2</name>
+    <description>Patient Visit - Additional Information</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.1</name>
+            <description>Prior Pending Location</description>
+            <datatype>PL</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.2</name>
+            <description>Accommodation Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.3</name>
+            <description>Admit Reason</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.4</name>
+            <description>Transfer Reason</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.5</name>
+            <description>Patient Valuables</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.6</name>
+            <description>Patient Valuables Location</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.7</name>
+            <description>Visit User Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.8</name>
+            <description>Expected Admit Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.9</name>
+            <description>Expected Discharge Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.10</name>
+            <description>Estimated Length of Inpatient Stay</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.11</name>
+            <description>Actual Length of Inpatient Stay</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.12</name>
+            <description>Visit Description</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.13</name>
+            <description>Referral Source Code</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.14</name>
+            <description>Previous Service Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.15</name>
+            <description>Employment Illness Related Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.16</name>
+            <description>Purge Status Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.17</name>
+            <description>Purge Status Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.18</name>
+            <description>Special Program Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.19</name>
+            <description>Retention Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.20</name>
+            <description>Expected Number of Insurance Plans</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.21</name>
+            <description>Visit Publicity Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.22</name>
+            <description>Visit Protection Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.23</name>
+            <description>Clinic Organization Name</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.24</name>
+            <description>Patient Status Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.25</name>
+            <description>Visit Priority Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.26</name>
+            <description>Previous Treatment Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.27</name>
+            <description>Expected Discharge Disposition</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.28</name>
+            <description>Signature On File Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.29</name>
+            <description>First Similar Illness Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.30</name>
+            <description>Patient Charge Adjustment Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.31</name>
+            <description>Recurring Service Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.32</name>
+            <description>Billing Media Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.33</name>
+            <description>Expected Surgery Date &amp; Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.34</name>
+            <description>Military Partnership Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.35</name>
+            <description>Military Non-availability Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.36</name>
+            <description>Newborn Baby Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PV2.37</name>
+            <description>Baby Detained Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

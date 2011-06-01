@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CM2</name>
+    <description>Clinical Study Schedule Master</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM2.1</name>
+            <description>Set ID- CM2</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>CM2.2</name>
+            <description>Scheduled Time Point</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM2.3</name>
+            <description>Description of Time Point</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="200">
+            <name>CM2.4</name>
+            <description>Events Scheduled This Time Point</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>BARP01</name>
+    <description>Add and Update Patient Account</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EVN</segment>
+        <segment>PID</segment>
+        <group maxOccurs="unbounded">
+            <segment minOccurs="0">PV1</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">DG1</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">PR1</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">GT1</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NK1</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">IN1</segment>
+            <segment minOccurs="0">ACC</segment>
+            <segment minOccurs="0">UB1</segment>
+        </group>
+    </segments>
+</message>

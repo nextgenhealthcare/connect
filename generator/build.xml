@@ -1,0 +1,55 @@
+<project name="mirth-vocab-generator" basedir="." default="dist-vocab">
+	<target name="init">
+		<property file="build.properties" />
+
+		<path id="build.classpath">
+			<fileset dir="${generator.lib}" includes="*.jar" />
+		</path>
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="${generator.classes}" />
+		<delete dir="${generator.dist}" />
+		<delete dir="${vocab}" />
+	</target>
+
+	<target name="compile-generator" depends="clean">
+		<mkdir dir="${generator.classes}" />
+		<javac srcdir="${generator.src}" destdir="${generator.classes}" classpathref="build.classpath" excludes="**/test/*" />
+	</target>
+
+	<target name="dist-generator" depends="compile-generator">
+		<mkdir dir="${generator.dist}" />
+		<jar destfile="${generator.dist}/${generator.jar}" basedir="${generator.classes}" />
+	</target>
+
+	<target name="generate-vocab-source" depends="dist-generator">
+		<mkdir dir="${vocab.src}" />
+		<java classname="com.mirth.connect.model.generator.HL7ModelGenerator" dir="${basedir}" fork="true" failonerror="true">
+			<classpath>
+				<path refid="build.classpath" />
+				<fileset dir="${generator.dist}" includes="*.jar" />
+			</classpath>
+			<arg value="reference" />
+			<arg value="${vocab.src}" />
+			<arg value="templates" />
+		</java>
+	</target>
+
+	<target name="compile-vocab" depends="generate-vocab-source">
+		<mkdir dir="${vocab.classes}" />
+		<javac srcdir="${vocab.src}" destdir="${vocab.classes}">
+			<classpath>
+				<fileset dir="${generator.dist}" includes="*.jar" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="dist-vocab" depends="compile-vocab">
+		<mkdir dir="${vocab.dist}" />
+		<jar destfile="${vocab.dist}/${vocab.jar}">
+			<fileset dir="${vocab.classes}" />
+			<fileset dir="${generator.classes}" includes="**/hl7v2/**/*.class" />
+		</jar>
+	</target>
+</project>
