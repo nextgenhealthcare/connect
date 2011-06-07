@@ -224,14 +224,22 @@ public class ImportTask extends AbstractMirthTask {
 			} else {
 				for (Channel channel : client.getChannel(null)) {
 					if (channel.getName().equalsIgnoreCase(channelName)) {
+					    // If overwriting, use the old revision number and id
+                        importChannel.setRevision(channel.getRevision());
 						importChannel.setId(channel.getId());
 					}
 				}
 			}
-		}
-		// If the channel name didn't already exist, make sure the id doesn't exist either.
-        else if (!checkChannelId(importChannel.getId())) {
-        	importChannel.setId(tempId);
+		} else {
+            // Start the revision number over for a new channel
+            importChannel.setRevision(0);
+            
+            // If the channel name didn't already exist, make sure
+            // the id doesn't exist either.
+            if (!checkChannelId(importChannel.getId())) {
+                importChannel.setId(tempId);
+            }
+            
         }
 
 		importChannel.setVersion(client.getVersion());

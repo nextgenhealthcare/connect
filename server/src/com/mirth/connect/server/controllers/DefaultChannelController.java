@@ -141,7 +141,7 @@ public class DefaultChannelController extends ChannelController {
 
     public boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
         int newRevision = channel.getRevision();
-        int currentRevision = newRevision;
+        int currentRevision = 0;
 
         Channel filterChannel = new Channel();
         filterChannel.setId(channel.getId());
@@ -163,7 +163,7 @@ public class DefaultChannelController extends ChannelController {
          * in the database (in case it has been changed on the server since the
          * client started modifying it), and override is not enabled
          */
-        if ((newRevision > 0) && (currentRevision != newRevision) && !override) {
+        if ((currentRevision > 0) && (currentRevision != newRevision) && !override) {
             return false;
         } else {
             channel.setRevision(currentRevision + 1);

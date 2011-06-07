@@ -1260,7 +1260,7 @@ public class Frame extends JXFrame {
      */
     public boolean updateChannel(Channel curr, boolean override) throws ClientException {
         if (!mirthClient.updateChannel(curr, override)) {
-            if (alertOption(this, "This channel has been modified since you first opened it, or you have imported\nan older version of the channel.  Would you like to overwrite it?")) {
+            if (alertOption(this, "This channel has been modified since you first opened it.\nWould you like to overwrite it?")) {
                 mirthClient.updateChannel(curr, true);
             } else {
                 return false;
@@ -2887,14 +2887,22 @@ public class Frame extends JXFrame {
 
                     for (Channel channel : channels.values()) {
                         if (channel.getName().equalsIgnoreCase(channelName)) {
+                            // If overwriting, use the old revision number and id
+                            importChannel.setRevision(channel.getRevision());
                             importChannel.setId(channel.getId());
                         }
                     }
                 }
-            } // If the channel name didn't already exist, make sure the id
-            // doesn't exist either.
-            else if (!checkChannelId(importChannel.getId())) {
-                importChannel.setId(tempId);
+            } else {
+                // Start the revision number over for a new channel
+                importChannel.setRevision(0);
+                
+                // If the channel name didn't already exist, make sure
+                // the id doesn't exist either.
+                if (!checkChannelId(importChannel.getId())) {
+                    importChannel.setId(tempId);
+                }
+                
             }
 
             importChannel.setVersion(mirthClient.getVersion());
