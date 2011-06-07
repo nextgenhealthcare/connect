@@ -23,7 +23,7 @@ public class ManagerConstants {
     // Log4j
     public static final String LOG4J_MIRTH_LOG_LEVEL = "log4j.rootCategory";
     public static final String LOG4J_DATABASE_LOG_LEVEL = "log4j.logger.java.sql";
-    public static final String[] LOG4J_ERROR_CODES = new String[]{"ERROR", "WARN", "DEBUG", "INFO"};
+    public static final String[] LOG4J_ERROR_CODES = new String[]{"ERROR", "WARN", "INFO", "DEBUG", "TRACE"};
 
     // Database
     public static final String DATABASE_TYPE = "database";
