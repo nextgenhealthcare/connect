@@ -123,14 +123,17 @@ public class DashboardPanel extends javax.swing.JPanel {
                 statusTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
             }
         }
+        
+        statusTable.setHorizontalScrollEnabled(true);
 
-        statusTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        statusTable.getColumnExt(SENT_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        statusTable.getColumnExt(ERROR_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        statusTable.getColumnExt(FILTERED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        statusTable.getColumnExt(QUEUED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        statusTable.getColumnExt(ALERTED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        statusTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(SENT_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(ERROR_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(FILTERED_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(QUEUED_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(ALERTED_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(NAME_COLUMN_NAME).setMaxWidth(325);
         statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMaxWidth(95);
         statusTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setMaxWidth(50);
 
@@ -141,7 +144,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
-        statusTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(150);
         statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMinWidth(95);
         statusTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setMinWidth(50);
 
@@ -311,8 +314,6 @@ public class DashboardPanel extends javax.swing.JPanel {
             }
         };
         statusTable.addHighlighter(new ColorHighlighter(lastDeployedHighlighterPredicate, new Color(240, 230, 140), Color.BLACK, new Color(240, 230, 140), Color.BLACK));
-        
-        statusTable.packTable(UIConstants.COL_MARGIN);
         
     }
 

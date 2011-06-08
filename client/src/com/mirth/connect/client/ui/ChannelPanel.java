@@ -135,13 +135,15 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
             }
         }
         
+        channelTable.setHorizontalScrollEnabled(true);
+        
         // Must set the maximum width on columns that should be packed.
-        channelTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        channelTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setToolTipText("<html><body>The status of this channel. Possible values are enabled and disabled.<br>Only enabled channels can be deployed.</body></html>");
 
-        channelTable.getColumnExt(DATA_TYPE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        channelTable.getColumnExt(DATA_TYPE_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
         channelTable.getColumnExt(DATA_TYPE_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         channelTable.getColumnExt(DATA_TYPE_COLUMN_NAME).setToolTipText("<html><body>The inbound data type of this channel's source connector.</body></html>");
 
@@ -149,7 +151,7 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         channelTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(150);
         channelTable.getColumnExt(NAME_COLUMN_NAME).setToolTipText("<html><body>The name of this channel.</body></html>");
 
-        channelTable.getColumnExt(ID_COLUMN_NAME).setMinWidth(150);
+        channelTable.getColumnExt(ID_COLUMN_NAME).setMinWidth(215);
         channelTable.getColumnExt(ID_COLUMN_NAME).setMaxWidth(215);
         channelTable.getColumnExt(ID_COLUMN_NAME).setToolTipText("<html><body>The unique id of this channel.</body></html>");
 
@@ -176,7 +178,9 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
                 channelTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
                 channelTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
             }
-        }        
+        }
+        
+        channelTable.packTable(UIConstants.COL_MARGIN);
         
         channelTable.setRowHeight(UIConstants.ROW_HEIGHT);
         channelTable.setOpaque(true);
@@ -352,12 +356,7 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
             }
         };
         channelTable.addHighlighter(new ColorHighlighter(lastDeployedHighlighterPredicate, new Color(240, 230, 140), Color.BLACK, new Color(240, 230, 140), Color.BLACK));
-        
-        // Packs the name column
-        channelTable.packColumn(channelTable.getColumnModelIndex(NAME_COLUMN_NAME), UIConstants.COL_MARGIN);
-        
-        // packs the ID column
-        channelTable.packColumn(channelTable.getColumnModelIndex(ID_COLUMN_NAME), UIConstants.COL_MARGIN);
+
     }
 
     /**

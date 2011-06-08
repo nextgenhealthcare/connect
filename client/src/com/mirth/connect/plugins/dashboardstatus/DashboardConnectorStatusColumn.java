@@ -62,7 +62,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 
     @Override
     public int getMaxWidth() {
-        return UIConstants.MAX_WIDTH;
+        return 100;
     }
 
     @Override
