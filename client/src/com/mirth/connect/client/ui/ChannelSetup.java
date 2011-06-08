@@ -1765,10 +1765,10 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
 
             // if the selected destination is still the same (same index and
-            // not deleting) AND the default properties/transformer/filter
-            // have not been changed from defaults then ask if the user would
-            // like to really change connector type.
-            if (lastModelIndex == destinationTable.getSelectedModelIndex() && (!PropertyVerifier.compareProps(destinationConnectorClass.getProperties(), destinationConnectorClass.getDefaults()) || currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getFilter().getRules().size() > 0 || currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).getTransformer().getSteps().size() > 0)) {
+            // not deleting) AND the connector properties have not been 
+            // changed from defaults then ask if the user would really like 
+            // to change the connector type.
+            if (lastModelIndex == destinationTable.getSelectedModelIndex() && !PropertyVerifier.compareProps(destinationConnectorClass.getProperties(), destinationConnectorClass.getDefaults())) {
                 boolean changeType = parent.alertOption(this.parent, "Are you sure you would like to change this connector type and lose all of the current connector data?");
                 if (!changeType) {
                     destinationSourceDropdown.setSelectedItem(destinationConnectorClass.getProperties().get(DATA_TYPE_KEY));
