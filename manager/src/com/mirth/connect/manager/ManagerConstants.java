@@ -21,7 +21,7 @@ public class ManagerConstants {
     public static final String DIR_LOGS = "dir.logs";
 
     // Log4j
-    public static final String LOG4J_MIRTH_LOG_LEVEL = "log4j.rootCategory";
+    public static final String LOG4J_MIRTH_LOG_LEVEL = "log4j.rootLogger";
     public static final String LOG4J_DATABASE_LOG_LEVEL = "log4j.logger.java.sql";
     public static final String[] LOG4J_ERROR_CODES = new String[]{"ERROR", "WARN", "INFO", "DEBUG", "TRACE"};
 
@@ -42,7 +42,7 @@ public class ManagerConstants {
     public static final String PATH_LOG4J_PROPERTIES = "conf" + System.getProperty("file.separator") + "log4j.properties";
     public static final String PATH_VERSION_FILE = "version.properties";
     public static final String PATH_SERVER_ID_FILE = "server.id";
-    public static final String PATH_SERVICE_VMOPTIONS = "mirthconnect_service.vmoptions";
+    public static final String PATH_SERVICE_VMOPTIONS = "mcservice.vmoptions";
     
     // Webstart commands
     public static final String CMD_WEBSTART_PREFIX = "javaws http://localhost:";
