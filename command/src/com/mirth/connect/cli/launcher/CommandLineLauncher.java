@@ -22,7 +22,6 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 public class CommandLineLauncher {
@@ -33,7 +32,7 @@ public class CommandLineLauncher {
             ManifestFile mirthCliJar = new ManifestFile("mirth-cli.jar");
             ManifestFile mirthClientCoreJar = new ManifestFile("cli-lib/mirth-client-core.jar");
             ManifestDirectory cliLibDir = new ManifestDirectory("cli-lib");
-            cliLibDir.setExcludes("mirth-client-core.jar");
+            cliLibDir.setExcludes(new String[] { "mirth-client-core.jar" });
             
             ManifestEntry[] manifest = new ManifestEntry[] { mirthCliJar, mirthClientCoreJar, cliLibDir };
 
@@ -66,9 +65,8 @@ public class CommandLineLauncher {
                     ManifestDirectory manifestDir = (ManifestDirectory) manifestEntry;
                     IOFileFilter fileFilter = null;
                     
-                    if (StringUtils.isNotBlank(manifestDir.getExcludes())) {
-                        String[] excludes = StringUtils.split(manifestDir.getExcludes(), ",");
-                        fileFilter = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.notFileFilter(new NameFileFilter(excludes)));
+                    if (manifestDir.getExcludes().length > 0) {
+                        fileFilter = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.notFileFilter(new NameFileFilter(manifestDir.getExcludes())));
                     } else {
                         fileFilter = FileFilterUtils.fileFileFilter();
                     }
