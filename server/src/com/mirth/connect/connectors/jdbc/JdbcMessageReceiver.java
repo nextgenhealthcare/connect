@@ -53,7 +53,7 @@ import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
 
 public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
-    private Logger scriptLogger = Logger.getLogger("jdbc-receiver");
+    private Logger scriptLogger = Logger.getLogger("db-connector");
     private JdbcConnector connector;
     private String readStmt;
     private String ackStmt;

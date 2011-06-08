@@ -40,7 +40,7 @@ import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
 
 public class JavaScriptMessageReceiver extends PollingMessageReceiver {
-    Logger scriptLogger = Logger.getLogger("js-receiver");
+    Logger scriptLogger = Logger.getLogger("js-connector");
     private JavaScriptConnector connector;
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();

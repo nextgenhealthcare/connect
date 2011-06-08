@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.js;
 
+import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
@@ -38,7 +39,8 @@ public class JavaScriptMessageDispatcher extends AbstractMessageDispatcher {
     private JavaScriptConnector connector;
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private ConnectorType connectorType = ConnectorType.WRITER;
-
+    private Logger scriptLogger = Logger.getLogger("js-connector");
+    
     public JavaScriptMessageDispatcher(JavaScriptConnector connector) {
         super(connector);
         this.connector = connector;
@@ -63,7 +65,7 @@ public class JavaScriptMessageDispatcher extends AbstractMessageDispatcher {
         try {
             Context context = Context.enter();
             Scriptable scope = new ImporterTopLevel(context);
-            JavaScriptScopeUtil.buildScope(scope, messageObject, logger);
+            JavaScriptScopeUtil.buildScope(scope, messageObject, scriptLogger);
             Script compiledScript = compiledScriptCache.getCompiledScript(this.connector.getScriptId());
 
             if (compiledScript == null) {

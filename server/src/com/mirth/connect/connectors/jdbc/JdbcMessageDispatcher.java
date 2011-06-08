@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapHandler;
+import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
@@ -50,7 +51,8 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
     private JdbcConnector connector;
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private ConnectorType connectorType = ConnectorType.WRITER;
-
+    private Logger scriptLogger = Logger.getLogger("db-connector");
+    
     public JdbcMessageDispatcher(JdbcConnector connector) {
         super(connector);
         this.connector = connector;
@@ -82,7 +84,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
                 Scriptable scope = new ImporterTopLevel(context);
 
                 // load variables in JavaScript scope
-                JavaScriptScopeUtil.buildScope(scope, messageObject, logger);
+                JavaScriptScopeUtil.buildScope(scope, messageObject, scriptLogger);
 
                 // get the script from the cache and execute it
                 Script compiledScript = compiledScriptCache.getCompiledScript(this.connector.getScriptId());
