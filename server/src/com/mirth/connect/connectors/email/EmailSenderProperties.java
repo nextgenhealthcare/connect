@@ -42,7 +42,7 @@ public class EmailSenderProperties implements ComponentProperties {
         properties.put(EMAIL_ADDRESS, "");
         properties.put(EMAIL_PORT, "");
         properties.put(EMAIL_SECURE, "none");
-        properties.put(EMAIL_USE_AUTHENTICATION, "1");
+        properties.put(EMAIL_USE_AUTHENTICATION, "0");
         properties.put(EMAIL_USE_SERVER_SETTINGS, "0");
         properties.put(EMAIL_USERNAME, "");
         properties.put(EMAIL_PASSWORD, "");
