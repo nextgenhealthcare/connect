@@ -133,7 +133,6 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
-        statusTable.getColumnExt(NAME_COLUMN_NAME).setMaxWidth(325);
         statusTable.getColumnExt(LAST_DEPLOYED_COLUMN_NAME).setMaxWidth(95);
         statusTable.getColumnExt(DEPLOYED_REVISION_DELTA_COLUMN_NAME).setMaxWidth(50);
 
