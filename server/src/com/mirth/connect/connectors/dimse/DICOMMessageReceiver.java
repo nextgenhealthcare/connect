@@ -9,34 +9,20 @@
 
 package com.mirth.connect.connectors.dimse;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 
-import org.apache.commons.codec.binary.Base64;
-import org.dcm4che2.data.BasicDicomObject;
-import org.dcm4che2.data.DicomObject;
-import org.dcm4che2.data.Tag;
 import org.dcm4che2.data.UID;
-import org.dcm4che2.io.DicomOutputStream;
-import org.dcm4che2.net.Association;
-import org.dcm4che2.net.CommandUtils;
-import org.dcm4che2.net.DicomServiceException;
-import org.dcm4che2.net.PDVInputStream;
-import org.dcm4che2.net.service.StorageService;
 import org.dcm4che2.tool.dcmrcv.DcmRcv;
+import org.dcm4che2.tool.dcmrcv.MirthDcmRcv;
 import org.mule.config.i18n.Message;
-import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
 import org.mule.umo.UMOComponent;
-import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 
-import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
@@ -45,17 +31,19 @@ import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
 
 public class DICOMMessageReceiver extends AbstractMessageReceiver {
     // --- DICOM Specific Variables ---
-    DcmRcv dcmrcv = new DcmRcv("DCMRCV");
 
     protected DICOMConnector connector;
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
     private ConnectorType connectorType = ConnectorType.LISTENER;
+    
+    DcmRcv dcmrcv;
 
     public DICOMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
         super(connector, component, endpoint);
         DICOMConnector tcpConnector = (DICOMConnector) connector;
         this.connector = tcpConnector;
+        this.dcmrcv = new MirthDcmRcv(this, postProcessor, endpoint);
     }
 
     @Override
@@ -168,51 +156,4 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
         }
         logger.info("Closed DICOM port");
     }
-
-    public class MirthStorageSCP extends StorageService {
-        
-        public MirthStorageSCP(DcmRcv dcmrcv, String[] sopClasses) {
-            super(sopClasses);
-        }
-
-        @Override
-        public void onCStoreRQ(Association as, int pcid, DicomObject rq, PDVInputStream dataStream, String tsuid, DicomObject rsp) throws IOException, DicomServiceException {
-            UMOMessage returnMessage = null;
-            try {
-                String cuid = rq.getString(Tag.AffectedSOPClassUID);
-                String iuid = rq.getString(Tag.AffectedSOPInstanceUID);
-                BasicDicomObject fmi = new BasicDicomObject();
-                fmi.initFileMetaInformation(cuid, iuid, tsuid);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                BufferedOutputStream bos = new BufferedOutputStream(baos);
-                DicomOutputStream dos = new DicomOutputStream(bos);
-                dos.writeFileMetaInformation(fmi);
-                dataStream.copyTo(dos);
-                dos.close();
-                String dcmString = new String(new Base64().encode(baos.toByteArray()));
-                returnMessage = routeMessage(new MuleMessage(dcmString), endpoint.isSynchronous());
-                // We need to check the message status
-                if (returnMessage != null && returnMessage instanceof MuleMessage) {
-                    Object payload = returnMessage.getPayload();
-                    if (payload instanceof MessageObject) {
-                        MessageObject messageObjectResponse = (MessageObject) payload;
-                        postProcessor.doPostProcess(messageObjectResponse);
-                    }
-                }
-            } catch (Exception e) {
-            } finally {
-                // Let the dispose take care of closing the socket
-            }
-        }
-
-        @Override
-        public void cstore(final Association as, final int pcid, DicomObject rq, PDVInputStream dataStream, String tsuid) throws DicomServiceException, IOException {
-            final DicomObject rsp = CommandUtils.mkRSP(rq, CommandUtils.SUCCESS);
-            onCStoreRQ(as, pcid, rq, dataStream, tsuid, rsp);
-            as.writeDimseRSP(pcid, rsp);
-            onCStoreRSP(as, pcid, rq, dataStream, tsuid, rsp);
-        }
-
-    }
-
 }
