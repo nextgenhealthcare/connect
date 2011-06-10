@@ -60,7 +60,6 @@
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/database/jtds-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.0.8-bin.jar"/>
-	<classpathentry kind="lib" path="lib/hapi-1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/database/sqlitejdbc-v056.jar"/>
 	<classpathentry kind="lib" path="lib/database/postgresql-9.0-801.jdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/xom-1.2.6.jar"/>
@@ -83,6 +82,7 @@
 	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/policy-xmlbeans-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk16-144.jar"/>
+	<classpathentry kind="lib" path="lib/hapi-1.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-3.6.1.jar"/>
