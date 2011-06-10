@@ -247,12 +247,12 @@
                   <Component id="rotateMessagesCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="queuePollIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="queuePollIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="reconnectIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="reconnectIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -272,7 +272,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="queryParametersDeleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="queryParametersPane" pref="73" max="32767" attributes="0"/>
+                  <Component id="queryParametersPane" pref="83" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -283,7 +283,7 @@
                       <Component id="headersDeleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="headersPane" pref="70" max="32767" attributes="0"/>
+                      <Component id="headersPane" pref="78" max="32767" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="contentTypeField" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -294,7 +294,7 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="contentTextArea" pref="80" max="32767" attributes="0"/>
+                  <Component id="contentTextArea" pref="125" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>

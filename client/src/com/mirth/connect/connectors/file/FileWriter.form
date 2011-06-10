@@ -102,13 +102,13 @@
                       <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="charsetEncodingCombobox" min="-2" pref="125" max="-2" attributes="0"/>
-                  <Component id="fileContentsTextPane" pref="430" max="32767" attributes="0"/>
                   <Component id="directoryField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="fileContentsTextPane" pref="430" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -122,83 +122,83 @@
                   <Component id="schemeComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="testConnection" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="directoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="directoryField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="hostLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="hostField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="pathLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="pathField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="fileNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="fileNameField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="anonymousLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="anonymousYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="anonymousNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="timeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="timeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="secureModeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="secureModeYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="secureModeNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="passiveModeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="passiveModeYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="passiveModeNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="validateConnectionLabel" alignment="3" min="-2" pref="14" max="-2" attributes="0"/>
                   <Component id="validateConnectionYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="validateConnectionNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="appendToFileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="appendToFileYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="appendToFileNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="fileTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="fileTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="templateLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileContentsTextPane" pref="72" max="32767" attributes="0"/>
+                  <Component id="fileContentsTextPane" pref="125" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>

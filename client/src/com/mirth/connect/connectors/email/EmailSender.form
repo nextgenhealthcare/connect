@@ -72,9 +72,9 @@
                   <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                   <Component id="SMTPServerPortField" alignment="0" min="-2" pref="50" max="-2" attributes="1"/>
                   <Component id="SMTPServerHostField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
                       <Component id="attachmentsPane" pref="233" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" max="-2" attributes="0">
                           <Component id="newButton" max="32767" attributes="1"/>
                           <Component id="deleteButton" alignment="1" min="-2" max="-2" attributes="1"/>
@@ -106,7 +106,7 @@
                   <Component id="useServerSettingsYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="useServerSettingsNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="SMTPServerHostLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="SMTPServerHostField" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -116,20 +116,20 @@
                   <Component id="SMTPServerPortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="SMTPServerPortField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="secureConnectionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="secureConnectionNone" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="secureConnectionTLS" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="secureConnectionSSL" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="useAuthenticationYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="useAuthenticationNo" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="useAuthenticationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -163,19 +163,19 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                  <Component id="emailBodyTextPane" pref="71" max="32767" attributes="0"/>
+                  <Component id="emailBodyTextPane" pref="125" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
                   <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
-                  <Component id="attachmentsPane" pref="85" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Component id="newButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="attachmentsPane" alignment="0" pref="105" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
