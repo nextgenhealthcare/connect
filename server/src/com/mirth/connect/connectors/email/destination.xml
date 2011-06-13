@@ -2,7 +2,7 @@
 	<name>Email Sender</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.1.0</mirthVersion>
+	<mirthVersion>2.1.1</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send Email messages via SMTP. The velocity template engine is available to dynamically create messages.</description>
 	<clientClassName>com.mirth.connect.connectors.email.EmailSender</clientClassName>
