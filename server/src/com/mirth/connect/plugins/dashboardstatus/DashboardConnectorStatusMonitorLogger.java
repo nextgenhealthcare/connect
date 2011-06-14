@@ -10,7 +10,6 @@
 package com.mirth.connect.plugins.dashboardstatus;
 
 import java.net.Socket;
-import java.util.Properties;
 
 import com.mirth.connect.plugins.ConnectorStatusPlugin;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -38,10 +37,5 @@ public class DashboardConnectorStatusMonitorLogger implements ConnectorStatusPlu
     @Override
     public void stop() {
 
-    }
-
-    @Override
-    public void init(Properties properties) {
-        
     }
 }
