@@ -83,9 +83,9 @@
                               </Group>
                               <Component id="databaseSQLTextPane" alignment="0" pref="386" max="32767" attributes="0"/>
                               <Group type="102" attributes="0">
-                                  <Component id="databaseUpdateSQLTextPane" pref="285" max="32767" attributes="0"/>
+                                  <Component id="databaseUpdateSQLTextPane" pref="223" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="jScrollPane1" min="-2" pref="95" max="-2" attributes="0"/>
+                                  <Component id="jScrollPane1" min="-2" pref="157" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -202,9 +202,9 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jScrollPane1" pref="88" max="32767" attributes="0"/>
                   <Component id="databaseUpdateSQLTextPane" pref="88" max="32767" attributes="0"/>
                   <Component id="onUpdateLabel" min="-2" pref="14" max="-2" attributes="0"/>
-                  <Component id="jScrollPane1" pref="88" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
