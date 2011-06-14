@@ -18,7 +18,7 @@ public interface ChannelPlugin extends ServerPlugin {
     public void deploy(Channel channel, ServerEventContext context) throws Exception;
     
     /**
-     * This is inokved once per deploy.
+     * This is invoked once per deploy.
      * 
      * @param context
      * @throws Exception
