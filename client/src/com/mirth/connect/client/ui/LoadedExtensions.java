@@ -74,7 +74,7 @@ public class LoadedExtensions {
 
         for (PluginMetaData metaData : parent.getPluginMetaData().values()) {
             try {
-                if (metaData.isEnabled()) {
+                if (metaData.isEnabled() && (metaData.getClientClasses() != null)) {
                     for (String clazzName : metaData.getClientClasses()) {
                         Class<?> clazz = Class.forName(clazzName);
                         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
