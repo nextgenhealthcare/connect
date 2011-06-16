@@ -125,7 +125,8 @@ public class SqlConfig {
             for (String pluginName : plugins.keySet()) {
                 PluginMetaData pmd = plugins.get(pluginName);
 
-                if (pmd.getSqlMapConfigs() != null) {
+                // only add configs for plugins that are enabled and have some configs defined
+                if (pmd.isEnabled() && (pmd.getSqlMapConfigs() != null)) {
                     /* get the SQL map for the current database */
                     String pluginSqlMapName = pmd.getSqlMapConfigs().get(database);
 
