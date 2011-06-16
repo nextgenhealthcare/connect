@@ -82,6 +82,11 @@ public final class ServerConnection {
             post.addResponseFooter(new Header("Accept-Encoding", "gzip,deflate"));
             post.setRequestBody(params);
 
+            // MIRTH-1872
+            HttpClientParams clientParams = new HttpClientParams();
+            clientParams.setContentCharset("UTF-8");
+            client.setParams(clientParams);
+
             int statusCode = client.executeMethod(post);
 
             if (statusCode == HttpStatus.SC_NOT_ACCEPTABLE) {
