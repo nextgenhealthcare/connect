@@ -281,6 +281,10 @@ public class Mirth extends Thread {
         logger.debug("starting jetty web server");
 
         try {
+            // this disables a "form too large" error for occuring by setting
+            // form size to infinite
+            System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize", "0");
+
             webServer = new Server();
 
             // add HTTP listener
