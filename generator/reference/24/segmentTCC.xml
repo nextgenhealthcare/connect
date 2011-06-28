@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>TCC</name>
+    <description>Test Code Configuration</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>TCC.1</name>
+            <description>Universal Service Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>TCC.2</name>
+            <description>Test Application Identifier</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TCC.3</name>
+            <description>Specimen Source</description>
+            <datatype>SPS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TCC.4</name>
+            <description>Auto-Dilution Factor Default</description>
+            <datatype>SN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TCC.5</name>
+            <description>Rerun Dilution Factor Default</description>
+            <datatype>SN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TCC.6</name>
+            <description>Pre-Dilution Factor Default</description>
+            <datatype>SN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TCC.7</name>
+            <description>Endogenous Content of Pre-Dilution Diluent</description>
+            <datatype>SN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TCC.8</name>
+            <description>Inventory Limits Warning Level</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TCC.9</name>
+            <description>Automatic Rerun Allowed</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TCC.10</name>
+            <description>Automatic Repeat Allowed</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TCC.11</name>
+            <description>Automatic Reflex Allowed</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TCC.12</name>
+            <description>Equipment Dynamic Range</description>
+            <datatype>SN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TCC.13</name>
+            <description>Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TCC.14</name>
+            <description>Processing Type</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

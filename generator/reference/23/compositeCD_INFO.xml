@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CD_INFO</name>
+    <description>Channel Info - Used As Part of CD Composite</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CD_INFO.1</name>
+            <description>Channel Number</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CD_INFO.2</name>
+            <description>Channel Name</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

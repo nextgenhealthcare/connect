@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PCW</name>
+    <description>Work History Information Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCW.1</name>
+            <description>Organization</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCW.2</name>
+            <description>Organization ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCW.3</name>
+            <description>Position</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCW.4</name>
+            <description>Dates</description>
+            <datatype>DR</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCW.5</name>
+            <description>Practicing</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCW.6</name>
+            <description>Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCW.7</name>
+            <description>Phone</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCW.8</name>
+            <description>Revised By</description>
+            <datatype>PPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCW.9</name>
+            <description>Comment</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCW.10</name>
+            <description>Standing</description>
+            <datatype>IS</datatype>
+        </field>
+    </elements>
+</segment>

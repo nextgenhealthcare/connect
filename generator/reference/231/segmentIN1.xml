@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>IN1</name>
+    <description>Insurance</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>IN1.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>IN1.2</name>
+            <description>Insurance Plan ID</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>IN1.3</name>
+            <description>Insurance Company ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.4</name>
+            <description>Insurance Company Name</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.5</name>
+            <description>Insurance Company Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.6</name>
+            <description>Insurance Co Contact Person</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.7</name>
+            <description>Insurance Co Phone Number</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.8</name>
+            <description>Group Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.9</name>
+            <description>Group Name</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.10</name>
+            <description>Insured's Group Emp ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.11</name>
+            <description>Insured's Group Emp Name</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.12</name>
+            <description>Plan Effective Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.13</name>
+            <description>Plan Expiration Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.14</name>
+            <description>Authorization Information</description>
+            <datatype>AUI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.15</name>
+            <description>Plan Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.16</name>
+            <description>Name of Insured</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.17</name>
+            <description>Insured's Relationship to Patient</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.18</name>
+            <description>Insured's Date of Birth</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.19</name>
+            <description>Insured's Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.20</name>
+            <description>Assignment of Benefits</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.21</name>
+            <description>Coordination of Benefits</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.22</name>
+            <description>Coord of Ben. Priority</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.23</name>
+            <description>Notice of Admission Flag</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.24</name>
+            <description>Notice of Admission Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.25</name>
+            <description>Report of Eligibility Flag</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.26</name>
+            <description>Report of Eligibility Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.27</name>
+            <description>Release Information Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.28</name>
+            <description>Pre-Admit Cert (pac)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.29</name>
+            <description>Verification Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.30</name>
+            <description>Verification By</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.31</name>
+            <description>Type of Agreement Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.32</name>
+            <description>Billing Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.33</name>
+            <description>Lifetime Reserve Days</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.34</name>
+            <description>Delay Before L.r. Day</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.35</name>
+            <description>Company Plan Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.36</name>
+            <description>Policy Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.37</name>
+            <description>Policy Deductible</description>
+            <datatype>CP</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.38</name>
+            <description>Policy Limit - Amount</description>
+            <datatype>CP</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.39</name>
+            <description>Policy Limit - Days</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.40</name>
+            <description>Room Rate - Semi-private</description>
+            <datatype>CP</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.41</name>
+            <description>Room Rate - Private</description>
+            <datatype>CP</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.42</name>
+            <description>Insured's Employment Status</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.43</name>
+            <description>Insured's Sex</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.44</name>
+            <description>Insured's Employer's Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.45</name>
+            <description>Verification Status</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.46</name>
+            <description>Prior Insurance Plan ID</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.47</name>
+            <description>Coverage Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.48</name>
+            <description>Handicap</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN1.49</name>
+            <description>Insured's ID Number</description>
+            <datatype>CX</datatype>
+        </field>
+    </elements>
+</segment>

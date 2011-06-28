@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>ERR</name>
+    <description>Error</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>ERR.1</name>
+            <description>Error Code and Location</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

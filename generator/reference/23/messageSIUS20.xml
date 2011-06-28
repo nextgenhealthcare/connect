@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>SIUS20</name>
+    <description>Notification of Cancellation of Service/Resource On Appointment</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>SCH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+        <group maxOccurs="unbounded" minOccurs="0">
+            <segment>PID</segment>
+            <segment minOccurs="0">PV1</segment>
+            <segment minOccurs="0">PV2</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">OBX</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">DG1</segment>
+        </group>
+        <group maxOccurs="unbounded">
+            <segment>RGS</segment>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>AIS</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>AIG</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>AIL</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>AIP</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+        </group>
+    </segments>
+</message>

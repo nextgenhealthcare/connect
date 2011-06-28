@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>QRYQ01</name>
+    <description>Query For Immediate Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>QRD</segment>
+        <segment minOccurs="0">QRF</segment>
+        <segment>DSC</segment>
+    </segments>
+</message>

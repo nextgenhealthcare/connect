@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ADTA18</name>
+    <description>Merge Patient Information (Backwards Compatibility Only)</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EVN</segment>
+        <segment>PID</segment>
+        <segment>MRG</segment>
+        <segment minOccurs="0">PV1</segment>
+    </segments>
+</message>
