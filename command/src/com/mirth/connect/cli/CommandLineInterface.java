@@ -306,8 +306,8 @@ public class CommandLineInterface {
                     } else {
                         error("unknown channel command " + comm, null);
                     }
-                } else if (arg1 == Token.CLEAR) {
-                    commandClear(arguments);
+                } else if (arg1 == Token.CLEARALLMESSAGES) {
+                    commandClearAllMessages(arguments);
                 } else if (arg1 == Token.RESETSTATS) {
                     commandResetstats(arguments);
                 } else if (arg1 == Token.DUMP) {
@@ -432,7 +432,7 @@ public class CommandLineInterface {
         out.println("channel undeploy|deploy|start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
         out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
         out.println("channel list\n\tLists all Channels\n");
-        out.println("clear\n\tRemoves all messages from all Channels\n");
+        out.println("clearallmessages\n\tRemoves all messages from all Channels\n");
         out.println("resetstats\n\tRemoves all stats from all Channels\n");
         out.println("dump stats|events \"path\"\n\tDumps stats or events to specified file\n");
         out.println("user list\n\tReturns a list of the current users\n");
@@ -1090,7 +1090,7 @@ public class CommandLineInterface {
         return skey.equalsIgnoreCase(name) || skey.equalsIgnoreCase(id);
     }
 
-    private void commandClear(Token[] arguments) throws ClientException {
+    private void commandClearAllMessages(Token[] arguments) throws ClientException {
         List<Channel> channels = client.getChannel(null);
 
         for (Channel channel : channels) {
@@ -1099,10 +1099,10 @@ public class CommandLineInterface {
     }
 
     private void commandResetstats(Token[] arguments) throws ClientException {
-        List<Channel> channels = client.getChannel(null);
+        List<ChannelStatus> channelStatuses = client.getChannelStatusList();
 
-        for (Channel channel : channels) {
-            client.clearStatistics(channel.getId(), true, true, true, true, true, true);
+        for (ChannelStatus channelStatus : channelStatuses) {
+            client.clearStatistics(channelStatus.getChannelId(), true, true, true, true, true, true);
         }
     }
 
