@@ -333,6 +333,7 @@
 		<jar destfile="${connectors.dicom}/dicom-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/dimse/**" />
+				<include name="org/dcm4che2/**" />
 				<exclude name="com/mirth/connect/connectors/dimse/DICOMListenerProperties.class" />
 				<exclude name="com/mirth/connect/connectors/dimse/DICOMSenderProperties.class" />
 			</fileset>
@@ -608,6 +609,7 @@
 
 			<exclude name="com/mirth/connect/server/launcher/**" />
 			<exclude name="com/mirth/connect/server/mbeans/**" />
+			<exclude name="org/dcm4che2/**" />
 		</jar>
 
 		<!-- create the dbconf jar -->
