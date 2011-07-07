@@ -19,19 +19,19 @@ public class EmailSenderProperties implements ComponentProperties {
     public static final String name = "Email Sender";
 
     public static final String DATATYPE = "DataType";
-    public static final String SMTP_HOST = "smtpHost";
-    public static final String SMTP_PORT = "smtpPort";
-    public static final String SMTP_SECURE = "encryption";
-    public static final String SMTP_AUTHENTICATION = "authentication";
-    public static final String SMTP_USERNAME = "username";
-    public static final String SMTP_PASSWORD = "password";
-    public static final String SMTP_TO = "to";
-    public static final String SMTP_REPLY_TO = "replyTo";
-    public static final String SMTP_FROM = "from";
-    public static final String SMTP_SUBJECT = "subject";
-    public static final String SMTP_BODY = "body";
-    public static final String SMTP_HTML = "html";
-    public static final String SMTP_ATTACHMENTS = "attachments";
+    public static final String SMTP_HOST = "dispatcherSmtpHost";
+    public static final String SMTP_PORT = "dispatcherSmtpPort";
+    public static final String SMTP_SECURE = "dispatcherEncryption";
+    public static final String SMTP_AUTHENTICATION = "dispatcherAuthentication";
+    public static final String SMTP_USERNAME = "dispatcherUsername";
+    public static final String SMTP_PASSWORD = "dispatcherPassword";
+    public static final String SMTP_TO = "dispatcherTo";
+    public static final String SMTP_REPLY_TO = "dispatcherReplyTo";
+    public static final String SMTP_FROM = "dispatcherFrom";
+    public static final String SMTP_SUBJECT = "dispatcherSubject";
+    public static final String SMTP_BODY = "dispatcherBody";
+    public static final String SMTP_HTML = "dispatcherHtml";
+    public static final String SMTP_ATTACHMENTS = "dispatcherAttachments";
 
     public Properties getDefaults() {
         Properties properties = new Properties();

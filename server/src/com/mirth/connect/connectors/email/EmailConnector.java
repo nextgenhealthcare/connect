@@ -23,22 +23,22 @@ import org.mule.providers.AbstractServiceEnabledConnector;
 public class EmailConnector extends AbstractServiceEnabledConnector {
     private String channelId;
 
-    private String smtpHost;
-    private int smtpPort = 25;
-    private int timeout = 5000;
-    private String encryption;
-    private boolean authentication = false;
-    private String username;
-    private String password;
-    private String to;
-    private String cc;
-    private String bcc;
-    private String replyTo;
-    private String from;
-    private String subject;
-    private String body;
-    private boolean html = false;
-    private List<Attachment> attachments;
+    private String dispatcherSmtpHost;
+    private int dispatcherSmtpPort = 25;
+    private int dispatcherTimeout = 5000;
+    private String dispatcherEncryption;
+    private boolean dispatcherAuthentication = false;
+    private String dispatcherUsername;
+    private String dispatcherPassword;
+    private String dispatcherTo;
+    private String dispatcherCc;
+    private String dispatcherBcc;
+    private String dispatcherReplyTo;
+    private String dispatcherFrom;
+    private String dispatcherSubject;
+    private String dispatcherBody;
+    private boolean dispatcherHtml = false;
+    private List<Attachment> dispatcherAttachments;
 
     @Override
     public String getProtocol() {
@@ -53,132 +53,132 @@ public class EmailConnector extends AbstractServiceEnabledConnector {
         this.channelId = channelId;
     }
 
-    public String getSmtpHost() {
-        return smtpHost;
+    public String getDispatcherSmtpHost() {
+        return dispatcherSmtpHost;
     }
 
-    public void setSmtpHost(String smtpHost) {
-        this.smtpHost = smtpHost;
+    public void setDispatcherSmtpHost(String dispatcherSmtpHost) {
+        this.dispatcherSmtpHost = dispatcherSmtpHost;
     }
 
-    public int getSmtpPort() {
-        return smtpPort;
+    public int getDispatcherSmtpPort() {
+        return dispatcherSmtpPort;
     }
 
-    public void setSmtpPort(int smtpPort) {
-        this.smtpPort = smtpPort;
+    public void setDispatcherSmtpPort(int dispatcherSmtpPort) {
+        this.dispatcherSmtpPort = dispatcherSmtpPort;
     }
     
-    public int getTimeout() {
-        return timeout;
+    public int getDispatcherTimeout() {
+        return dispatcherTimeout;
     }
 
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
+    public void setDispatcherTimeout(int dispatcherTimeout) {
+        this.dispatcherTimeout = dispatcherTimeout;
     }
 
-    public String getEncryption() {
-        return encryption;
+    public String getDispatcherEncryption() {
+        return dispatcherEncryption;
     }
 
-    public void setEncryption(String encryption) {
-        this.encryption = encryption;
+    public void setDispatcherEncryption(String dispatcherEncryption) {
+        this.dispatcherEncryption = dispatcherEncryption;
     }
 
-    public boolean isAuthentication() {
-        return authentication;
+    public boolean isDispatcherAuthentication() {
+        return dispatcherAuthentication;
     }
 
-    public void setAuthentication(boolean authentication) {
-        this.authentication = authentication;
+    public void setDispatcherAuthentication(boolean dispatcherAuthentication) {
+        this.dispatcherAuthentication = dispatcherAuthentication;
     }
 
-    public String getUsername() {
-        return username;
+    public String getDispatcherUsername() {
+        return dispatcherUsername;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setDispatcherUsername(String dispatcherUsername) {
+        this.dispatcherUsername = dispatcherUsername;
     }
 
-    public String getPassword() {
-        return password;
+    public String getDispatcherPassword() {
+        return dispatcherPassword;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setDispatcherPassword(String dispatcherPassword) {
+        this.dispatcherPassword = dispatcherPassword;
     }
 
-    public String getTo() {
-        return to;
+    public String getDispatcherTo() {
+        return dispatcherTo;
     }
 
-    public void setTo(String to) {
-        this.to = to;
+    public void setDispatcherTo(String dispatcherTo) {
+        this.dispatcherTo = dispatcherTo;
     }
 
-    public String getCc() {
-        return cc;
+    public String getDispatcherCc() {
+        return dispatcherCc;
     }
 
-    public void setCc(String cc) {
-        this.cc = cc;
+    public void setDispatcherCc(String dispatcherCc) {
+        this.dispatcherCc = dispatcherCc;
     }
 
-    public String getBcc() {
-        return bcc;
+    public String getDispatcherBcc() {
+        return dispatcherBcc;
     }
 
-    public void setBcc(String bcc) {
-        this.bcc = bcc;
+    public void setDispatcherBcc(String dispatcherBcc) {
+        this.dispatcherBcc = dispatcherBcc;
     }
 
-    public String getReplyTo() {
-        return replyTo;
+    public String getDispatcherReplyTo() {
+        return dispatcherReplyTo;
     }
 
-    public void setReplyTo(String replyTo) {
-        this.replyTo = replyTo;
+    public void setDispatcherReplyTo(String dispatcherReplyTo) {
+        this.dispatcherReplyTo = dispatcherReplyTo;
     }
 
-    public String getFrom() {
-        return from;
+    public String getDispatcherFrom() {
+        return dispatcherFrom;
     }
 
-    public void setFrom(String from) {
-        this.from = from;
+    public void setDispatcherFrom(String dispatcherFrom) {
+        this.dispatcherFrom = dispatcherFrom;
     }
 
-    public String getSubject() {
-        return subject;
+    public String getDispatcherSubject() {
+        return dispatcherSubject;
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
+    public void setDispatcherSubject(String dispatcherSubject) {
+        this.dispatcherSubject = dispatcherSubject;
     }
 
-    public String getBody() {
-        return body;
+    public String getDispatcherBody() {
+        return dispatcherBody;
     }
 
-    public void setBody(String body) {
-        this.body = body;
+    public void setDispatcherBody(String dispatcherBody) {
+        this.dispatcherBody = dispatcherBody;
     }
 
-    public boolean isHtml() {
-        return html;
+    public boolean isDispatcherHtml() {
+        return dispatcherHtml;
     }
 
-    public void setHtml(boolean html) {
-        this.html = html;
+    public void setDispatcherHtml(boolean dispatcherHtml) {
+        this.dispatcherHtml = dispatcherHtml;
     }
 
-    public List<Attachment> getAttachments() {
-        return attachments;
+    public List<Attachment> getDispatcherAttachments() {
+        return dispatcherAttachments;
     }
 
-    public void setAttachments(List<Attachment> attachments) {
-        this.attachments = attachments;
+    public void setDispatcherAttachments(List<Attachment> dispatcherAttachments) {
+        this.dispatcherAttachments = dispatcherAttachments;
     }
 
 }

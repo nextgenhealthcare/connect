@@ -57,25 +57,25 @@ public class EmailMessageDispatcher extends AbstractMessageDispatcher {
         try {
             Email email = null;
             
-            if (connector.isHtml()) {
+            if (connector.isDispatcherHtml()) {
                 email = new HtmlEmail();
             } else {
                 email = new MultiPartEmail();
             }
             
             email.setDebug(true);
-            email.setHostName(connector.getSmtpHost());
-            email.setSmtpPort(connector.getSmtpPort());
-            email.setSocketConnectionTimeout(connector.getTimeout());
+            email.setHostName(connector.getDispatcherSmtpHost());
+            email.setSmtpPort(connector.getDispatcherSmtpPort());
+            email.setSocketConnectionTimeout(connector.getDispatcherTimeout());
 
-            if ("SSL".equalsIgnoreCase(connector.getEncryption())) {
+            if ("SSL".equalsIgnoreCase(connector.getDispatcherEncryption())) {
                 email.setSSL(true);
-            } else if ("TLS".equalsIgnoreCase(connector.getEncryption())) {
+            } else if ("TLS".equalsIgnoreCase(connector.getDispatcherEncryption())) {
                 email.setTLS(true);
             }
 
-            if (connector.isAuthentication()) {
-                email.setAuthentication(connector.getUsername(), connector.getPassword());
+            if (connector.isDispatcherAuthentication()) {
+                email.setAuthentication(connector.getDispatcherUsername(), connector.getDispatcherPassword());
             }
 
             /*
@@ -84,28 +84,28 @@ public class EmailMessageDispatcher extends AbstractMessageDispatcher {
              * instead.
              */
 
-            for (String to : replaceValuesAndSplit(connector.getTo(), mo)) {
+            for (String to : replaceValuesAndSplit(connector.getDispatcherTo(), mo)) {
                 email.addTo(to);
             }
 
-            for (String cc : replaceValuesAndSplit(connector.getCc(), mo)) {
+            for (String cc : replaceValuesAndSplit(connector.getDispatcherCc(), mo)) {
                 email.addCc(cc);
             }
 
-            for (String bcc : replaceValuesAndSplit(connector.getBcc(), mo)) {
+            for (String bcc : replaceValuesAndSplit(connector.getDispatcherBcc(), mo)) {
                 email.addBcc(bcc);
             }
 
-            if (StringUtils.isNotBlank(connector.getReplyTo())) {
-                email.addReplyTo(connector.getReplyTo());
+            if (StringUtils.isNotBlank(connector.getDispatcherReplyTo())) {
+                email.addReplyTo(connector.getDispatcherReplyTo());
             }
 
-            email.setFrom(connector.getFrom());
-            email.setSubject(replacer.replaceValues(connector.getSubject(), mo));
+            email.setFrom(connector.getDispatcherFrom());
+            email.setSubject(replacer.replaceValues(connector.getDispatcherSubject(), mo));
             
-            String body = replacer.replaceValues(connector.getBody(), mo);
+            String body = replacer.replaceValues(connector.getDispatcherBody(), mo);
             
-            if (connector.isHtml()) {
+            if (connector.isDispatcherHtml()) {
                 ((HtmlEmail) email).setHtmlMsg(body);
             } else {
                 email.setMsg(body);    
@@ -117,7 +117,7 @@ public class EmailMessageDispatcher extends AbstractMessageDispatcher {
              * "text" or "application/xml", then we add the content. If it is
              * anything else, we assume it should be Base64 decoded first.
              */
-            for (Attachment attachment : connector.getAttachments()) {
+            for (Attachment attachment : connector.getDispatcherAttachments()) {
                 byte[] contentBytes;
 
                 if (StringUtils.indexOf(attachment.getMimeType(), "/") < 0) {
