@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<message>
-    <name>ACKN02</name>
-    <description>Application Management Data Message (unsolicited) - Response</description>
-    <segments>
-        <segment>MSH</segment>
-        <segment>MSA</segment>
-    </segments>
-</message>
