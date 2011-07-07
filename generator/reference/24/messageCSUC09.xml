@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>CSUC09</name>
+    <description>Automated Time Intervals For Reporting, Like Monthly</description>
+    <segments>
+        <segment>MSH</segment>
+        <group maxOccurs="unbounded">
+            <segment>PID</segment>
+            <segment minOccurs="0">PD1</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            <group minOccurs="0">
+                <segment>PV1</segment>
+                <segment minOccurs="0">PV2</segment>
+            </group>
+            <segment>CSR</segment>
+            <group maxOccurs="unbounded">
+                <segment minOccurs="0">CSP</segment>
+                <group maxOccurs="unbounded">
+                    <segment minOccurs="0">CSS</segment>
+                    <group maxOccurs="unbounded">
+                        <segment minOccurs="0">ORC</segment>
+                        <segment>OBR</segment>
+                        <segment maxOccurs="unbounded">OBX</segment>
+                    </group>
+                    <group maxOccurs="unbounded">
+                        <segment minOccurs="0">ORC</segment>
+                        <group maxOccurs="unbounded">
+                            <segment>RXA</segment>
+                            <segment>RXR</segment>
+                        </group>
+                    </group>
+                </group>
+            </group>
+        </group>
+    </segments>
+</message>

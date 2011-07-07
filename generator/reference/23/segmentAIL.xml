@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>AIL</name>
+    <description>Appointment Information - Location Resource</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>AIL.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIL.2</name>
+            <description>Segment Action Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIL.3</name>
+            <description>Location Resource ID</description>
+            <datatype>PL</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>AIL.4</name>
+            <description>Location Type</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIL.5</name>
+            <description>Location Group</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIL.6</name>
+            <description>Start Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIL.7</name>
+            <description>Start Date/Time Offset</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIL.8</name>
+            <description>Start Date/Time Offset Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIL.9</name>
+            <description>Duration</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIL.10</name>
+            <description>Duration Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIL.11</name>
+            <description>Allow Substitution Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIL.12</name>
+            <description>Filler Status Code</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

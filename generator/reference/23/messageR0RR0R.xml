@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>R0RR0R</name>
+    <description>Pharmacy Prescription Order Query Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <group maxOccurs="unbounded">
+            <segment>QRD</segment>
+            <segment minOccurs="0">QRF</segment>
+            <group minOccurs="0">
+                <segment>PID</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded">
+                <segment>ORC</segment>
+                <segment>RXO</segment>
+                <segment maxOccurs="unbounded">RXR</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">RXC</segment>
+            </group>
+        </group>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

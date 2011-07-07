@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>ADD</name>
+    <description>Addendum</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ADD.1</name>
+            <description>1</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

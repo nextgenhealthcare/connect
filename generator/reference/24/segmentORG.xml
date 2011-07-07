@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>ORG</name>
+    <description>Practitioner Organization Unit</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>ORG.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORG.2</name>
+            <description>Organization Unit Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORG.3</name>
+            <description>Organization Unit Type Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORG.4</name>
+            <description>Primary Org Unit Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORG.5</name>
+            <description>Practitioner Org Unit Identifier</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORG.6</name>
+            <description>Health Care Provider Type Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORG.7</name>
+            <description>Health Care Provider Classification Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORG.8</name>
+            <description>Health Care Provider Area of Specialization Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORG.9</name>
+            <description>Effective Date Range</description>
+            <datatype>DR</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORG.10</name>
+            <description>Employment Status Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORG.11</name>
+            <description>Board Approval Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ORG.12</name>
+            <description>Primary Care Physician Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

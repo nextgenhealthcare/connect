@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>AIP</name>
+    <description>Appointment Information - Personnel Resource</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>AIP.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIP.2</name>
+            <description>Segment Action Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIP.3</name>
+            <description>Personnel Resource ID</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>AIP.4</name>
+            <description>Resource Role</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIP.5</name>
+            <description>Resource Group</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIP.6</name>
+            <description>Start Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIP.7</name>
+            <description>Start Date/Time Offset</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIP.8</name>
+            <description>Start Date/Time Offset Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIP.9</name>
+            <description>Duration</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIP.10</name>
+            <description>Duration Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIP.11</name>
+            <description>Allow Substitution Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIP.12</name>
+            <description>Filler Status Code</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

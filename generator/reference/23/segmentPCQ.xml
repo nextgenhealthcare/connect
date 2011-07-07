@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PCQ</name>
+    <description>Questionnaire Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCQ.1</name>
+            <description>Question Description</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCQ.2</name>
+            <description>Response</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCQ.3</name>
+            <description>Have Documentation</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCQ.4</name>
+            <description>Comment</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCQ.5</name>
+            <description>Standing</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCQ.6</name>
+            <description>Revised By</description>
+            <datatype>PPN</datatype>
+        </field>
+    </elements>
+</segment>

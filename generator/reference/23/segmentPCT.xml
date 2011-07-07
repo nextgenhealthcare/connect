@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PCT</name>
+    <description>Training Information Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCT.1</name>
+            <description>School</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCT.2</name>
+            <description>External ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCT.3</name>
+            <description>Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>PCT.4</name>
+            <description>Phone</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>PCT.5</name>
+            <description>Fax</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCT.6</name>
+            <description>Contact</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCT.7</name>
+            <description>AMA School Code</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCT.8</name>
+            <description>Education Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCT.9</name>
+            <description>Education Category</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCT.10</name>
+            <description>Enter Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCT.11</name>
+            <description>Graduation Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCT.12</name>
+            <description>ECFMG Code</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCT.13</name>
+            <description>ECFMG Effective Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCT.14</name>
+            <description>ECFMG Expiration Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCT.15</name>
+            <description>Revised By</description>
+            <datatype>PPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCT.16</name>
+            <description>Comment</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCT.17</name>
+            <description>Standing</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCT.18</name>
+            <description>Completed</description>
+            <datatype>NM</datatype>
+        </field>
+    </elements>
+</segment>

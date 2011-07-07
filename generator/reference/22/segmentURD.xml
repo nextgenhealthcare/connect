@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>URD</name>
+    <description>Results/Update Definition</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>URD.1</name>
+            <description>R/U Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>URD.2</name>
+            <description>Report Priority</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="unbounded">
+            <name>URD.3</name>
+            <description>R/U Who Subject Definition</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>URD.4</name>
+            <description>R/U What Subject Definition</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>URD.5</name>
+            <description>R/U What Department Code</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>URD.6</name>
+            <description>R/U Display/Print Locations</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>URD.7</name>
+            <description>R/U Results Level</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ADTA06</name>
+    <description>Transfer An Outpatient to Inpatient</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EVN</segment>
+        <segment>PID</segment>
+        <segment>PV1</segment>
+    </segments>
+</message>

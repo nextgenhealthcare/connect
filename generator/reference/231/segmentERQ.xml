@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>ERQ</name>
+    <description>Event Replay Query</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ERQ.1</name>
+            <description>Query Tag</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>ERQ.2</name>
+            <description>Event Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ERQ.3</name>
+            <description>Input Parameter List</description>
+            <datatype>QIP</datatype>
+        </field>
+    </elements>
+</segment>

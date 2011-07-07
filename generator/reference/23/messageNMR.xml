@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>NMR</name>
+    <description>Network Management Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <segment minOccurs="0">QRD</segment>
+        <group maxOccurs="unbounded">
+            <segment minOccurs="0">NCK</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            <segment minOccurs="0">NST</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            <segment minOccurs="0">NSC</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+        </group>
+    </segments>
+</message>

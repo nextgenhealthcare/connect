@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>UB1</name>
+    <description>UB82 Data</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.2</name>
+            <description>Blood Deductible</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.3</name>
+            <description>Blood Furn.-Pints of (40)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.4</name>
+            <description>Blook Replaced-Pints (41)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.5</name>
+            <description>Blood not Rplcd-Pints(42)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.6</name>
+            <description>Co-Insurance Days (25)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="5">
+            <name>UB1.7</name>
+            <description>Condition Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.8</name>
+            <description>Covered Days (23)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.9</name>
+            <description>Non-Covered Days (24)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="8">
+            <name>UB1.10</name>
+            <description>Value Amount &amp; Code</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.11</name>
+            <description>Number of Grace Days (90)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.12</name>
+            <description>Spec. Prog. Indicator(44)</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.13</name>
+            <description>Psro/Ur Approvl Ind. (87)</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.14</name>
+            <description>Psro/Ur Aprvd Stay-Fm(88)</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.15</name>
+            <description>Psro/Ur Aprvd Stay-To(89)</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="5">
+            <name>UB1.16</name>
+            <description>Occurrence (28-32)</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.17</name>
+            <description>Occurrence Span (33)</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.18</name>
+            <description>Occur Span Start Date(33)</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.19</name>
+            <description>Occur Span End Date (33)</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.20</name>
+            <description>UB-82 Locator 2</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.21</name>
+            <description>UB-82 Locator 9</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.22</name>
+            <description>UB-82 Locator 27</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB1.23</name>
+            <description>UB-82 Locator 45</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

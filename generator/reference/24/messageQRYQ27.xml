@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>QRYQ27</name>
+    <description>Pharmacy/Treatment Administration Information Query</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>QRD</segment>
+        <segment minOccurs="0">QRF</segment>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CSR</name>
+    <description>Clinical Study Registration</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>CSR.1</name>
+            <description>Sponsor Study ID</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CSR.2</name>
+            <description>Alternate Study ID</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CSR.3</name>
+            <description>Institution Registering the Patient</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>CSR.4</name>
+            <description>Sponsor Patient ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CSR.5</name>
+            <description>Alternate Patient ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>CSR.6</name>
+            <description>Date/Time of Patient Study Registration</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CSR.7</name>
+            <description>Person Performing Study Registration</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>CSR.8</name>
+            <description>Study Authorizing Provider</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CSR.9</name>
+            <description>Date/Time Patient Study Consent Signed</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CSR.10</name>
+            <description>Patient Study Eligibility Status</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="3">
+            <name>CSR.11</name>
+            <description>Study Randomization Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="3">
+            <name>CSR.12</name>
+            <description>Randomized Study Arm</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="3">
+            <name>CSR.13</name>
+            <description>Stratum for Study Randomization</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CSR.14</name>
+            <description>Patient Evaluability Status</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CSR.15</name>
+            <description>Date/Time Ended Study</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CSR.16</name>
+            <description>Reason Ended Study</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

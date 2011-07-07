@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>OMLO35</name>
+    <description>Laboratory Order For Multiple Orders Related to a Single Container of a Specimen</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+        <group minOccurs="0">
+            <segment>PID</segment>
+            <segment minOccurs="0">PD1</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NK1</segment>
+            <group minOccurs="0">
+                <segment>PV1</segment>
+                <segment minOccurs="0">PV2</segment>
+            </group>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>IN1</segment>
+                <segment minOccurs="0">IN2</segment>
+                <segment minOccurs="0">IN3</segment>
+            </group>
+            <segment minOccurs="0">GT1</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">AL1</segment>
+        </group>
+        <group maxOccurs="unbounded">
+            <segment>SPM</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">OBX</segment>
+            <group maxOccurs="unbounded">
+                <segment>SAC</segment>
+                <group maxOccurs="unbounded">
+                    <segment>ORC</segment>
+                    <group maxOccurs="unbounded" minOccurs="0">
+                        <segment>TQ1</segment>
+                        <segment minOccurs="0" maxOccurs="unbounded">TQ2</segment>
+                    </group>
+                    <group minOccurs="0">
+                        <segment>OBR</segment>
+                        <segment minOccurs="0">TCD</segment>
+                        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                        <segment minOccurs="0" maxOccurs="unbounded">DG1</segment>
+                        <group maxOccurs="unbounded" minOccurs="0">
+                            <segment>OBX</segment>
+                            <segment minOccurs="0">TCD</segment>
+                            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                        </group>
+                        <group maxOccurs="unbounded" minOccurs="0">
+                            <group minOccurs="0">
+                                <segment>PID</segment>
+                                <segment minOccurs="0">PD1</segment>
+                            </group>
+                            <group minOccurs="0">
+                                <segment>PV1</segment>
+                                <segment minOccurs="0">PV2</segment>
+                            </group>
+                            <segment minOccurs="0" maxOccurs="unbounded">AL1</segment>
+                            <group maxOccurs="unbounded">
+                                <segment minOccurs="0">ORC</segment>
+                                <segment>OBR</segment>
+                                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                                <group maxOccurs="unbounded" minOccurs="0">
+                                    <segment>TQ1</segment>
+                                    <segment minOccurs="0" maxOccurs="unbounded">TQ2</segment>
+                                </group>
+                                <group maxOccurs="unbounded">
+                                    <segment>OBX</segment>
+                                    <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                                </group>
+                            </group>
+                        </group>
+                    </group>
+                    <segment minOccurs="0" maxOccurs="unbounded">FT1</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">CTI</segment>
+                    <segment minOccurs="0">BLG</segment>
+                </group>
+            </group>
+        </group>
+    </segments>
+</message>

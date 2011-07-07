@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CK</name>
+    <description>Composite ID with Check Digit</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CK.1</name>
+            <description>ID Number</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CK.2</name>
+            <description>Check Digit</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CK.3</name>
+            <description>Code Identifying the Check Digit</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CK.4</name>
+            <description>Assigning Authority</description>
+            <datatype>HD</datatype>
+        </field>
+    </elements>
+</segment>
