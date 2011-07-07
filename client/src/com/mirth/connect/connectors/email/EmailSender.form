@@ -2,13 +2,11 @@
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup1">
+    <Component class="javax.swing.ButtonGroup" name="htmlButtonGroup">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup2">
+    <Component class="javax.swing.ButtonGroup" name="secureButtonGroup">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="useAuthenticationButtonGroup">
-    </Component>
-    <Component class="javax.swing.ButtonGroup" name="useServerSettingsButtonGroup">
     </Component>
   </NonVisualComponents>
   <Properties>
@@ -36,22 +34,21 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="useServerSettingsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="useAuthenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel8" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="contentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel9" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="secureConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="SMTPServerPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="SMTPServerHostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="toLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fromLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="subjectLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="htmlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="bodyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="encryptionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="smtpPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="smtpHostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -61,37 +58,32 @@
                       <Component id="useAuthenticationNo" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="contentTypeHTMLButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="htmlYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="contentTypePlainButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="htmlNo" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="emailSubjectField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                  <Component id="emailFromField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
-                  <Component id="emailToField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
+                  <Component id="subjectField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                  <Component id="fromField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
+                  <Component id="toField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
                   <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                   <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
-                  <Component id="SMTPServerPortField" alignment="0" min="-2" pref="50" max="-2" attributes="1"/>
-                  <Component id="SMTPServerHostField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
-                  <Group type="102" alignment="1" attributes="0">
+                  <Component id="smtpPortField" alignment="0" min="-2" pref="50" max="-2" attributes="1"/>
+                  <Component id="smtpHostField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="attachmentsPane" pref="233" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" max="-2" attributes="0">
                           <Component id="newButton" max="32767" attributes="1"/>
                           <Component id="deleteButton" alignment="1" min="-2" max="-2" attributes="1"/>
                       </Group>
                   </Group>
-                  <Component id="emailBodyTextPane" alignment="0" pref="302" max="32767" attributes="2"/>
-                  <Group type="102" attributes="0">
-                      <Component id="secureConnectionNone" min="-2" max="-2" attributes="0"/>
+                  <Component id="bodyTextPane" alignment="0" pref="302" max="32767" attributes="2"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="encryptionNone" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="secureConnectionTLS" min="-2" max="-2" attributes="0"/>
+                      <Component id="encryptionTls" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="secureConnectionSSL" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="useServerSettingsYesRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="useServerSettingsNoRadio" min="-2" max="-2" attributes="0"/>
+                      <Component id="encryptionSsl" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -102,34 +94,28 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="useServerSettingsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="useServerSettingsYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="useServerSettingsNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="smtpHostLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="smtpHostField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="SMTPServerHostLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="SMTPServerHostField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="smtpPortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="smtpPortField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="SMTPServerPortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="SMTPServerPortField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="encryptionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="encryptionNone" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="encryptionTls" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="encryptionSsl" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="secureConnectionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="secureConnectionNone" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="secureConnectionTLS" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="secureConnectionSSL" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="useAuthenticationYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="useAuthenticationNo" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="useAuthenticationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -141,54 +127,54 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="emailToField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="toLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="toField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="emailFromField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fromLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fromField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="emailSubjectField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="subjectLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="subjectField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="contentTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="contentTypeHTMLButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="contentTypePlainButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="htmlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="htmlYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="htmlNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                  <Component id="emailBodyTextPane" pref="125" max="32767" attributes="0"/>
+                  <Component id="bodyLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="bodyTextPane" pref="71" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="attachmentsLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="attachmentsPane" pref="85" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="newButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="attachmentsPane" alignment="0" pref="105" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="SMTPServerHostLabel">
+    <Component class="javax.swing.JLabel" name="smtpHostLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="SMTP Server Host:"/>
+        <Property name="text" type="java.lang.String" value="SMTP Host:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="SMTPServerPortLabel">
+    <Component class="javax.swing.JLabel" name="smtpPortLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="SMTP Server Port:"/>
+        <Property name="text" type="java.lang.String" value="SMTP Port:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="usernameLabel">
@@ -201,17 +187,17 @@
         <Property name="text" type="java.lang.String" value="Password:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel5">
+    <Component class="javax.swing.JLabel" name="toLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="To:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel6">
+    <Component class="javax.swing.JLabel" name="subjectLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Subject:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel7">
+    <Component class="javax.swing.JLabel" name="bodyLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Body:"/>
       </Properties>
@@ -221,25 +207,25 @@
         <Property name="toolTipText" type="java.lang.String" value="If the SMTP server requires authentication to send a message, enter the username here."/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="SMTPServerPortField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="smtpPortField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port number of the SMTP server to send the email message to.&lt;br&gt;Generally, the default port of 25 is used.&lt;/html&gt;"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="SMTPServerPortFieldActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="smtpPortFieldActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="SMTPServerHostField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="smtpHostField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the DNS domain name or IP address of the SMTP server to use to send the email messages.&lt;br&gt;Note that sending email to an SMTP server that is not expecting it may result in the IP of the box running Mirth being added to the server&apos;s &quot;blacklist.&quot;&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="emailToField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="toField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The name of the mailbox (person, usually) to which the email should be sent."/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="emailSubjectField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="subjectField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The text that should appear as the subject of the email, as seen by the receiver&apos;s email client."/>
       </Properties>
@@ -249,20 +235,20 @@
         <Property name="toolTipText" type="java.lang.String" value="If the SMTP server requires authentication to send a message, enter the password here."/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel8">
+    <Component class="javax.swing.JLabel" name="fromLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="From:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="emailFromField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="fromField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The name that should appear as the &quot;From address&quot; in the email."/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="emailFromFieldActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fromFieldActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="emailBodyTextPane">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="bodyTextPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -271,32 +257,12 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="contentTypeLabel">
+    <Component class="javax.swing.JLabel" name="htmlLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Content Type:"/>
+        <Property name="text" type="java.lang.String" value="HTML Body:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="contentTypeHTMLButton">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup1"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="HTML"/>
-        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="contentTypePlainButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="htmlYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -307,16 +273,36 @@
           </Border>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup1"/>
+          <ComponentRef name="htmlButtonGroup"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Plain"/>
+        <Property name="text" type="java.lang.String" value="Yes"/>
         <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel9">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="htmlNo">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="htmlButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="attachmentsLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Attachments:"/>
       </Properties>
@@ -358,12 +344,12 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="secureConnectionLabel">
+    <Component class="javax.swing.JLabel" name="encryptionLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Secure Connection:"/>
+        <Property name="text" type="java.lang.String" value="Encryption:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="secureConnectionNone">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="encryptionNone">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -374,7 +360,7 @@
           </Border>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup2"/>
+          <ComponentRef name="secureButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="None"/>
         <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
@@ -383,7 +369,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="secureConnectionTLS">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="encryptionTls">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -394,16 +380,16 @@
           </Border>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup2"/>
+          <ComponentRef name="secureButtonGroup"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="TLS"/>
+        <Property name="text" type="java.lang.String" value="TLS/STARTTLS"/>
         <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="secureConnectionSSL">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="encryptionSsl">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -414,7 +400,7 @@
           </Border>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup2"/>
+          <ComponentRef name="secureButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="SSL"/>
         <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
@@ -472,58 +458,6 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useAuthenticationNoActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="useServerSettingsLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Use Server Settings:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useServerSettingsYesRadio">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="useServerSettingsButtonGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Use the SMTP server settings from Settings page."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useServerSettingsYesRadioActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useServerSettingsNoRadio">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="useServerSettingsButtonGroup"/>
-        </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Use the SMTP server settings below."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useServerSettingsNoRadioActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>
