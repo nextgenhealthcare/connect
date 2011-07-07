@@ -16,7 +16,7 @@ import com.mirth.connect.model.ComponentProperties;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class EmailSenderProperties implements ComponentProperties {
-    public static final String name = "SMTP Sender";
+    public static final String name = "Email Sender";
 
     public static final String DATATYPE = "DataType";
     public static final String SMTP_HOST = "smtpHost";
