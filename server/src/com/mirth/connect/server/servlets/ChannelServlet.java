@@ -56,6 +56,8 @@ public class ChannelServlet extends MirthServlet {
 
                     if (!isUserAuthorized(request, parameterMap)) {
                         channels = new ArrayList<Channel>();
+                    } else if (doesUserHaveChannelRestrictions(request)) {
+                        channels = redactChannels(request, channelController.getChannel(channel));
                     } else {
                         channels = channelController.getChannel(channel);
                     }
@@ -86,17 +88,19 @@ public class ChannelServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.CHANNEL_GET_SUMMARY)) {
                     response.setContentType(APPLICATION_XML);
-                    List<ChannelSummary> channels = null;
+                    List<ChannelSummary> channelSummaries = null;
                     Map<String, Integer> cachedChannels = (Map<String, Integer>) serializer.fromXML(request.getParameter("cachedChannels"));
                     parameterMap.put("cachedChannels", cachedChannels);
 
                     if (!isUserAuthorized(request, parameterMap)) {
-                        channels = new ArrayList<ChannelSummary>();
+                        channelSummaries = new ArrayList<ChannelSummary>();
+                    } else if (doesUserHaveChannelRestrictions(request)) {
+                        channelSummaries = redactChannelSummaries(request, channelController.getChannelSummary(cachedChannels));
                     } else {
-                        channels = channelController.getChannelSummary(cachedChannels);
+                        channelSummaries = channelController.getChannelSummary(cachedChannels);
                     }
 
-                    out.println(serializer.toXML(channels));
+                    out.println(serializer.toXML(channelSummaries));
                 }
             } catch (Throwable t) {
                 logger.error(ExceptionUtils.getStackTrace(t));
@@ -104,5 +108,30 @@ public class ChannelServlet extends MirthServlet {
             }
         }
     }
-
+    
+    private List<Channel> redactChannels(HttpServletRequest request, List<Channel> channels) throws ServletException {
+        List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
+        List<Channel> authorizedChannels = new ArrayList<Channel>();
+        
+        for (Channel channel : channels) {
+            if (authorizedChannelIds.contains(channel.getId())) {
+                authorizedChannels.add(channel);
+            }
+        }
+        
+        return authorizedChannels;
+    }
+    
+    private List<ChannelSummary> redactChannelSummaries(HttpServletRequest request, List<ChannelSummary> channelSummaries) throws ServletException {
+        List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
+        List<ChannelSummary> authorizedChannelSummaries = new ArrayList<ChannelSummary>();
+        
+        for (ChannelSummary channelSummary : channelSummaries) {
+            if (authorizedChannelIds.contains(channelSummary.getId())) {
+                authorizedChannelSummaries.add(channelSummary);
+            }
+        }
+        
+        return authorizedChannelSummaries;
+    }
 }

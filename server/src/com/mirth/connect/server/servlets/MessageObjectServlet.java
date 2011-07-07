@@ -57,6 +57,7 @@ public class MessageObjectServlet extends MirthServlet {
 
                 if (operation.equals(Operations.MESSAGE_CREATE_TEMP_TABLE)) {
                     MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
+                    redactMessageObjectFilter(request, filter);
                     parameterMap.put("messageFilter", filter);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -84,6 +85,7 @@ public class MessageObjectServlet extends MirthServlet {
 
                 } else if (operation.equals(Operations.MESSAGE_GET_BY_PAGE_LIMIT)) {
                     MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
+                    redactMessageObjectFilter(request, filter);
                     parameterMap.put("filter", filter);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -97,6 +99,7 @@ public class MessageObjectServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.MESSAGE_REMOVE)) {
                     MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
+                    redactMessageObjectFilter(request, filter);
                     parameterMap.put("filter", filter);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -115,6 +118,7 @@ public class MessageObjectServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.MESSAGE_REPROCESS)) {
                     MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
+                    redactMessageObjectFilter(request, filter);
                     boolean replace = Boolean.valueOf(request.getParameter("replace"));
                     List<String> destinations = (List<String>) serializer.fromXML(request.getParameter("destinations"));
                     parameterMap.put("filter", filter);
@@ -192,6 +196,18 @@ public class MessageObjectServlet extends MirthServlet {
                 logger.error(ExceptionUtils.getStackTrace(t));
                 throw new ServletException(t);
             }
+        }
+    }
+    
+    public void redactMessageObjectFilter(HttpServletRequest request, MessageObjectFilter filter) throws ServletException {
+        List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
+
+        if (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(filter.getChannelId())) {
+            /*
+             * TODO: This should remove the channel ID from the list of channel
+             * IDs once that is used.
+             */
+            filter.setChannelId("NONE");
         }
     }
 }

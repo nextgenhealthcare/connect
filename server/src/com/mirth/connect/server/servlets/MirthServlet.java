@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.servlets;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -23,7 +24,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 public abstract class MirthServlet extends HttpServlet {
     public static final String TEXT_PLAIN = "text/plain";
     public static final String APPLICATION_XML = "application/xml";
-    
+
     private AuthorizationController authorizationController = ControllerFactory.getFactory().createAuthorizationController();
 
     public boolean isUserLoggedIn(HttpServletRequest request) {
@@ -32,20 +33,32 @@ public abstract class MirthServlet extends HttpServlet {
     }
 
     public boolean isUserAuthorized(HttpServletRequest request, Map<String, Object> parameterMap) throws ServletException {
-        HttpSession session = request.getSession();
-        
         try {
-            return authorizationController.isUserAuthorized((Integer) session.getAttribute(UserServlet.SESSION_USER), request.getParameter("op"), parameterMap, getRequestIpAddress(request));
+            return authorizationController.isUserAuthorized(getCurrentUserId(request), request.getParameter("op"), parameterMap, getRequestIpAddress(request));
         } catch (ControllerException e) {
             throw new ServletException(e);
         }
     }
 
     public boolean isUserAuthorizedForExtension(HttpServletRequest request, String extensionName, String operation, Map<String, Object> parameterMap) throws ServletException {
-        HttpSession session = request.getSession();
-
         try {
-            return authorizationController.isUserAuthorizedForExtension((Integer) session.getAttribute(UserServlet.SESSION_USER), extensionName, operation, parameterMap, getRequestIpAddress(request));
+            return authorizationController.isUserAuthorizedForExtension(getCurrentUserId(request), extensionName, operation, parameterMap, getRequestIpAddress(request));
+        } catch (ControllerException e) {
+            throw new ServletException(e);
+        }
+    }
+
+    public boolean doesUserHaveChannelRestrictions(HttpServletRequest request) throws ServletException {
+        try {
+            return authorizationController.doesUserHaveChannelRestrictions(getCurrentUserId(request));
+        } catch (ControllerException e) {
+            throw new ServletException(e);
+        }
+    }
+
+    public List<String> getAuthorizedChannelIds(HttpServletRequest request) throws ServletException {
+        try {
+            return authorizationController.getAuthorizedChannelIds(getCurrentUserId(request));
         } catch (ControllerException e) {
             throw new ServletException(e);
         }

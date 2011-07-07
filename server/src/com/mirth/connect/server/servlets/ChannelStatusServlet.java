@@ -72,15 +72,17 @@ public class ChannelStatusServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.CHANNEL_GET_STATUS)) {
                     response.setContentType(APPLICATION_XML);
-                    List<ChannelStatus> channels = null;
+                    List<ChannelStatus> channelStatuses = null;
 
                     if (!isUserAuthorized(request, null)) {
-                        channels = new ArrayList<ChannelStatus>();
+                        channelStatuses = new ArrayList<ChannelStatus>();
+                    } else if (doesUserHaveChannelRestrictions(request)) {
+                        channelStatuses = redactChannelStatuses(request, channelStatusController.getChannelStatusList());
                     } else {
-                        channels = channelStatusController.getChannelStatusList();
+                        channelStatuses = channelStatusController.getChannelStatusList();
                     }
 
-                    out.print(serializer.toXML(channels));
+                    out.print(serializer.toXML(channelStatuses));
                 }
             } catch (Throwable t) {
                 logger.error(ExceptionUtils.getStackTrace(t));
@@ -88,4 +90,18 @@ public class ChannelStatusServlet extends MirthServlet {
             }
         }
     }
+    
+    private List<ChannelStatus> redactChannelStatuses(HttpServletRequest request, List<ChannelStatus> channelStatuses) throws ServletException {
+        List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
+        List<ChannelStatus> authorizedChannelStatuses = new ArrayList<ChannelStatus>();
+        
+        for (ChannelStatus channelStatus : channelStatuses) {
+            if (authorizedChannelIds.contains(channelStatus.getChannelId())) {
+                authorizedChannelStatuses.add(channelStatus);
+            }
+        }
+        
+        return authorizedChannelStatuses;
+    }
+
 }

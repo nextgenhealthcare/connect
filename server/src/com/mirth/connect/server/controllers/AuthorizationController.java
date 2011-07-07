@@ -10,6 +10,7 @@
 package com.mirth.connect.server.controllers;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -31,6 +32,10 @@ public abstract class AuthorizationController {
     public abstract boolean isUserAuthorizedForExtension(Integer userId, String extensionName, String operation, Map<String, Object> parameterMap, String address) throws ControllerException;
 
     public abstract void addExtensionPermission(ExtensionPermission extensionPermission);
+    
+    public abstract boolean doesUserHaveChannelRestrictions(Integer userId) throws ControllerException;
+    
+    public abstract List<String> getAuthorizedChannelIds(Integer userId) throws ControllerException;
 
     public void auditAuthorizationRequest(Integer userId, String operationName, Map<String, Object> parameterMap, Event.Outcome outcome, String address) {
         Operation operation = null;
