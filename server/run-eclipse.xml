@@ -1,0 +1,21 @@
+<project name="Run Eclipse Ant" basedir="." default="run">
+	<target name="run" depends="-setclasspath">
+		<java classname="com.mirth.connect.server.Mirth" fork="true" spawn="false" dir=".">
+			<classpath refid="classpath" />
+			<jvmarg value="-Xmx1000M" />
+		</java>
+	</target>
+	
+	<target name="-setclasspath">
+		<path id="classpath">
+			<pathelement location="bin"/>
+			<pathelement location="src"/>
+			<pathelement location="conf"/>
+			<fileset dir="lib">
+				<include name="**/*.jar" />
+				<exclude name="mirth-client-core.jar" />
+			</fileset>
+		</path>
+	</target>
+	
+</project>

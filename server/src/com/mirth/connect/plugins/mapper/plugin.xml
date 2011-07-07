@@ -1,0 +1,13 @@
+<pluginMetaData path="mapper">
+	<name>Mapper Transformer Step</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>2.1.1</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides a Mapping step type for Mirth Connect transformers</description>
+	<enabled>true</enabled>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.mapper.MapperStepPlugin</string>
+	</clientClasses>
+	<library type="CLIENT" path="mapper-client.jar" />
+</pluginMetaData>
