@@ -42,7 +42,7 @@ public class EmailConnector extends AbstractServiceEnabledConnector {
 
     @Override
     public String getProtocol() {
-        return "smtp";
+        return "email";
     }
 
     public String getChannelId() {
