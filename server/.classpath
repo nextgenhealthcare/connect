@@ -23,7 +23,6 @@
 	<classpathentry kind="lib" path="lib/extensions/doc/core-renderer.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/file/jcifs-1.2.22.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/iText-2.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/velocity-tools-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/mule/axis14-commons-discovery-0.2.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7r3pre.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.8.2.jar"/>
@@ -43,7 +42,8 @@
 	<classpathentry kind="lib" path="lib/commons/commons-el-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-httpclient-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-email-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/velocity-1.6.3.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-tools-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/derby-10.5.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dicomviewer/ij.jar"/>
 	<classpathentry kind="lib" path="lib/derbytools-10.5.3.0.jar"/>
