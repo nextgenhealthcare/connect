@@ -18,7 +18,6 @@
 	<resultMap class="com.mirth.connect.model.Credentials" id="get-user-credentials">
 		<result property="username" column="USERNAME" />
 		<result property="password" column="PASSWORD" />
-		<result property="salt" column="SALT" />
 	</resultMap>
 
 	<select id="getUser" parameterClass="com.mirth.connect.model.User" resultMap="get-user-result">
@@ -35,22 +34,21 @@
 	</select>
 
 	<select id="getUserCredentials" parameterClass="com.mirth.connect.model.User" resultMap="get-user-credentials">
-		SELECT USERNAME, PASSWORD, SALT
+		SELECT USERNAME, PASSWORD
 		FROM PERSON
 		WHERE USERNAME = #username#
 	</select>
 	
 	<insert id="insertUser" parameterClass="java.util.Map">
 		INSERT INTO
-		PERSON (USERNAME, PASSWORD, SALT, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
-		VALUES (#username#, #password#, #salt#, #firstName:VARCHAR#, #lastName:VARCHAR#, #organization:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#, 0)
+		PERSON (USERNAME, PASSWORD, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
+		VALUES (#username#, #password#, #firstName:VARCHAR#, #lastName:VARCHAR#, #organization:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#, 0)
 	</insert>
 	
 	<update id="updateUser" parameterClass="java.util.Map">
 		UPDATE PERSON
 		SET USERNAME = #username#,
 			PASSWORD = #password#,
-			SALT = #salt#,
 			FIRSTNAME = #firstName:VARCHAR#,
 			LASTNAME = #lastName:VARCHAR#,
 			ORGANIZATION = #organization:VARCHAR#,

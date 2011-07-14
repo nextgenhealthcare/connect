@@ -16,24 +16,26 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.jasypt.util.password.ConfigurablePasswordEncryptor;
 
+import com.ibm.crypto.fips.provider.IBMJCEFIPS;
 import com.mirth.connect.model.Credentials;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.Pre22PasswordChecker;
 import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.EncryptionException;
-import com.mirth.connect.util.FIPSEncrypter;
 
 public class DefaultUserController extends UserController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private FIPSEncrypter encrypter = FIPSEncrypter.getInstance();
+    private ConfigurablePasswordEncryptor encrypter = new ConfigurablePasswordEncryptor();
 
     private static DefaultUserController instance = null;
 
     private DefaultUserController() {
-
+        encrypter.setProvider(new IBMJCEFIPS());
+        encrypter.setAlgorithm("SHA256");
     }
 
     public static UserController create() {
@@ -118,13 +120,19 @@ public class DefaultUserController extends UserController {
         }
     }
 
-    public boolean authorizeUser(User user, String plainTextPassword) throws ControllerException {
+    public boolean authorizeUser(User user, String plainPassword) throws ControllerException {
         try {
             Credentials credentials = (Credentials) SqlConfig.getSqlMapClient().queryForObject("User.getUserCredentials", user);
 
             if (credentials != null) {
-                String checkPasswordHash = encrypter.getHash(plainTextPassword, credentials.getSalt());
-                return checkPasswordHash.equals(credentials.getPassword());
+                if (Pre22PasswordChecker.isPre22Hash(credentials.getPassword())) {
+                    if (Pre22PasswordChecker.checkPassword(plainPassword, credentials.getPassword())) {
+                        updateUser(user, plainPassword);
+                        return true;
+                    }
+                }
+
+                return encrypter.checkPassword(plainPassword, credentials.getPassword());
             }
 
             return false;
@@ -158,7 +166,7 @@ public class DefaultUserController extends UserController {
         }
     }
 
-    private Map<String, Object> getUserMap(User user, String plainTextPassword) {
+    private Map<String, Object> getUserMap(User user, String plainPassword) {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
 
         if (user.getId() != null) {
@@ -172,16 +180,7 @@ public class DefaultUserController extends UserController {
         parameterMap.put("email", user.getEmail());
         parameterMap.put("phoneNumber", user.getPhoneNumber());
         parameterMap.put("description", user.getDescription());
-
-        // hash the user's password before storing it in the database
-        try {
-            String salt = encrypter.getSalt();
-            parameterMap.put("password", encrypter.getHash(plainTextPassword, salt));
-            parameterMap.put("salt", salt);
-        } catch (EncryptionException ee) {
-            // ignore this
-        }
-
+        parameterMap.put("password", encrypter.encryptPassword(plainPassword));
         return parameterMap;
     }
 

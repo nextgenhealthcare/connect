@@ -2,7 +2,7 @@
 	<name>Database Reader</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.1.1</mirthVersion>
+	<mirthVersion>2.2.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to poll any supported JDBC-compatabile database for data. Rows are returned as XML and JavaScript can be used for advanced logic.</description>
 	<clientClassName>com.mirth.connect.connectors.jdbc.DatabaseReader</clientClassName>

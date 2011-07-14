@@ -2,7 +2,7 @@
 	<name>Image Viewer</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.1.1</mirthVersion>
+	<mirthVersion>2.2.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides image attachment viewing capability in message browser.</description>
 	<enabled>true</enabled>

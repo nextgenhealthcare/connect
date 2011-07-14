@@ -2,7 +2,7 @@
 	<name>Javascript Filter Rule</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.1.1</mirthVersion>
+	<mirthVersion>2.2.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides a JavaScript rule-type for Mirth Connect filters</description>
 	<enabled>true</enabled>
