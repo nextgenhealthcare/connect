@@ -23,10 +23,10 @@ public class SMTPConnection {
     private String password;
     private String from;
 
-    public SMTPConnection(String host, String port, boolean auth, String secure, String username, String password, String from) {
+    public SMTPConnection(String host, String port, boolean useAuthentication, String secure, String username, String password, String from) {
         this.host = host;
         this.port = port;
-        this.useAuthentication = auth;
+        this.useAuthentication = useAuthentication;
         this.secure = secure;
         this.username = username;
         this.password = password;
