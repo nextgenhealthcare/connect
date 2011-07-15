@@ -39,11 +39,11 @@ public class SMTPConnection {
         email.setSmtpPort(Integer.parseInt(port));
         email.setSocketConnectionTimeout(5000);
         email.setDebug(true);
-        
+
         if (useAuthentication) {
             email.setAuthentication(username, password);
         }
-        
+
         if (StringUtils.equalsIgnoreCase(secure, "TLS")) {
             email.setTLS(true);
         } else if (StringUtils.equalsIgnoreCase(secure, "SSL")) {
@@ -65,7 +65,7 @@ public class SMTPConnection {
         email.setMsg(body);
         email.send();
     }
-    
+
     public void send(String toList, String ccList, String subject, String body) throws EmailException {
         send(toList, ccList, from, subject, body);
     }
