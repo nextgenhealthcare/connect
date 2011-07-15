@@ -39,6 +39,8 @@ public class HttpConnector extends QueueEnabledConnector {
     private boolean receiverBodyOnly;
     private boolean dispatcherIncludeHeadersInResponse;
     private String receiverResponse;
+    private Map<String, String> receiverResponseHeaders;
+    private int receiverResponseStatusCode;
     private String receiverCharset;
     private int dispatcherSocketTimeout;
     private String receiverContextPath;
@@ -229,6 +231,22 @@ public class HttpConnector extends QueueEnabledConnector {
 
     public void setReceiverContextPath(String receiverContextPath) {
         this.receiverContextPath = receiverContextPath;
+    }
+    
+    public Map<String, String> getReceiverResponseHeaders() {
+        return receiverResponseHeaders;
+    }
+
+    public void setReceiverResponseHeaders(Map<String, String> receiverResponseHeaders) {
+        this.receiverResponseHeaders = receiverResponseHeaders;
+    }
+
+    public int getReceiverResponseStatusCode() {
+        return receiverResponseStatusCode;
+    }
+
+    public void setReceiverResponseStatusCode(int receiverResponseStatusCode) {
+        this.receiverResponseStatusCode = receiverResponseStatusCode;
     }
 
     @Override

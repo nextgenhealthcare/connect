@@ -10,6 +10,7 @@
 package com.mirth.connect.connectors.http;
 
 import java.io.IOException;
+import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -66,14 +67,23 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
                 if (response != null) {
                     servletResponse.getOutputStream().write(response.getMessage().getBytes(connector.getReceiverCharset()));
 
-                    /*
-                     * If the destination sends a failure response, the listener
-                     * should return a 500 error, otherwise 200.
-                     */
-                    if (response.getStatus().equals(Response.Status.FAILURE)) {
-                        servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                    for (Entry<String, String> entry : connector.getReceiverResponseHeaders().entrySet()) {
+                        servletResponse.setHeader(entry.getKey(), entry.getValue());
+                    }
+
+                    if (connector.getReceiverResponseStatusCode() != 0) {
+                        /*
+                         * If the destination sends a failure response, the
+                         * listener should return a 500 error, otherwise 200.
+                         */
+
+                        if (response.getStatus().equals(Response.Status.FAILURE)) {
+                            servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                        } else {
+                            servletResponse.setStatus(HttpStatus.SC_OK);
+                        }
                     } else {
-                        servletResponse.setStatus(HttpStatus.SC_OK);
+                        servletResponse.setStatus(connector.getReceiverResponseStatusCode());
                     }
                 } else {
                     servletResponse.setStatus(HttpStatus.SC_OK);

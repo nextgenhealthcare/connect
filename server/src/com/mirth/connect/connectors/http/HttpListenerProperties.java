@@ -9,9 +9,11 @@
 
 package com.mirth.connect.connectors.http;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 import com.mirth.connect.model.ComponentProperties;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 
 public class HttpListenerProperties implements ComponentProperties {
@@ -22,11 +24,14 @@ public class HttpListenerProperties implements ComponentProperties {
     public static final String HTTP_RESPONSE = "receiverResponse";
     public static final String HTTP_BODY_ONLY = "receiverBodyOnly";
     public static final String HTTP_RESPONSE_CONTENT_TYPE = "receiverResponseContentType";
+    public static final String HTTP_RESPONSE_STATUS_CODE = "receiverResponseStatusCode";
+    public static final String HTTP_RESPONSE_HEADERS = "receiverResponseHeaders";
     public static final String HTTP_CHARSET = "receiverCharset";
     public static final String HTTP_CONTEXT_PATH = "receiverContextPath";
     
     public Properties getDefaults() {
         Properties properties = new Properties();
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         
         properties.put(DATATYPE, name);
         
@@ -37,6 +42,8 @@ public class HttpListenerProperties implements ComponentProperties {
         properties.put(HTTP_RESPONSE_CONTENT_TYPE, "text/plain");
         properties.put(HTTP_CHARSET, "UTF-8");
         properties.put(HTTP_CONTEXT_PATH, "/");
+        properties.put(HTTP_RESPONSE_STATUS_CODE, 0);
+        properties.put(HTTP_RESPONSE_HEADERS, serializer.toXML(new HashMap<String, String>()));
         return properties;
     }
 
