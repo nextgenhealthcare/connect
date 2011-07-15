@@ -13,10 +13,10 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.mail.EmailException;
 import org.apache.log4j.Logger;
 import org.apache.velocity.tools.generic.DateTool;
 import org.mule.providers.TemplateValueReplacer;
@@ -25,10 +25,8 @@ import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.util.DatabaseUtil;
-import com.mirth.connect.server.util.SMTPConnection;
 import com.mirth.connect.server.util.SMTPConnectionFactory;
 import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.PropertyLoader;
 
 public class DefaultAlertController extends AlertController {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -51,6 +49,7 @@ public class DefaultAlertController extends AlertController {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public List<Alert> getAlert(Alert alert) throws ControllerException {
         logger.debug("getting alert: " + alert);
 
@@ -71,6 +70,7 @@ public class DefaultAlertController extends AlertController {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public List<Alert> getAlertByChannelId(String channelId) throws ControllerException {
         logger.debug("getting alert by channel id: " + channelId);
 
@@ -177,11 +177,8 @@ public class DefaultAlertController extends AlertController {
         }
     }
 
-    private void sendAlertEmails(String subject, List<String> emails, String template, String fullErrorMessage, String shortErrorMessage, String channelId) throws ControllerException {
+    private void sendAlertEmails(String subject, final List<String> emails, String template, String fullErrorMessage, String shortErrorMessage, String channelId) throws ControllerException {
         TemplateValueReplacer replacer = new TemplateValueReplacer();
-        final String fromAddress = ControllerFactory.getFactory().createConfigurationController().getServerSettings().getSmtpFrom();
-        final String toAddresses = generateEmailList(emails);
-
         Map<String, Object> context = new HashMap<String, Object>();
         
         String channelName = "";
@@ -209,7 +206,7 @@ public class DefaultAlertController extends AlertController {
         }
         
         // if there is no subject, set it to the default value
-        if ((subject == null) || (subject.length() == 0)) {
+        if (StringUtils.isEmpty(subject)) {
             subject = "Mirth Connect Alert";
         }
 
@@ -225,22 +222,13 @@ public class DefaultAlertController extends AlertController {
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    SMTPConnection connection = SMTPConnectionFactory.createSMTPConnection();
-                    connection.send(toAddresses, null, fromAddress, finalSubject, finalBody);
-                } catch (Exception e) {
-                    logger.error("Could not send alert email.", e);
+                    SMTPConnectionFactory.createSMTPConnection().send(StringUtils.join(emails, ","), null, finalSubject, finalBody);
+                } catch (ControllerException e) {
+                    logger.error("Could not load default SMTP settings.", e);
+                } catch (EmailException e) {
+                    logger.error("Error sending alert email.", e);
                 }
             }
         }).start();
-    }
-
-    private String generateEmailList(List<String> emails) {
-        StringBuilder builder = new StringBuilder();
-
-        for (String email : emails) {
-            builder.append(email + ",");
-        }
-
-        return builder.toString();
     }
 }

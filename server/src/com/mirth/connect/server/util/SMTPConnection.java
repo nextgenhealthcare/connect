@@ -9,143 +9,64 @@
 
 package com.mirth.connect.server.util;
 
-import java.util.Date;
-import java.util.Properties;
-
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.event.ConnectionEvent;
-import javax.mail.event.ConnectionListener;
-import javax.mail.event.TransportEvent;
-import javax.mail.event.TransportListener;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.mail.Email;
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.SimpleEmail;
 
 public class SMTPConnection {
-    private Logger logger = Logger.getLogger(this.getClass());
-    
-    public static final String SECURE_SSL = "ssl";
-    public static final String SECURE_TLS = "tls";
-
-    private static final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
-    private static final String PROTOCOL_SMTP = "smtp";
-    private static final String PROTOCOL_SMTPS = "smtps";
-
     private String host;
     private String port;
-    private boolean auth;
+    private boolean useAuthentication;
     private String secure;
     private String username;
     private String password;
+    private String from;
 
-    public SMTPConnection(String host, String port, boolean auth, String secure, String username, String password) {
+    public SMTPConnection(String host, String port, boolean auth, String secure, String username, String password, String from) {
         this.host = host;
         this.port = port;
-        this.auth = auth;
+        this.useAuthentication = auth;
         this.secure = secure;
         this.username = username;
         this.password = password;
+        this.from = from;
     }
 
-    public void send(String toAddresses, String ccAddresses, String fromAddress, String subject, String body) throws Exception {
-        Properties properties = new Properties();
-        properties.setProperty("mail.smtp.timeout", "5000");
-
-        if (secure.equalsIgnoreCase(SECURE_SSL)) {
-            if (auth) {
-                properties.put("mail.smtps.auth", "true");
-            }
-
-            properties.put("mail.smtps.host", host);
-            properties.put("mail.smtps.socketFactory.port", port);
-            properties.put("mail.smtps.socketFactory.class", SSL_FACTORY);
-            properties.put("mail.smtps.socketFactory.fallback", "false");
-        } else {
-            if (auth) {
-                properties.put("mail.smtp.auth", "true");
-            }
-
-            if (secure.equalsIgnoreCase(SECURE_TLS)) {
-                properties.put("mail.smtp.starttls.enable", "true");
-            }
-
-            properties.put("mail.smtp.host", host);
-            properties.put("mail.smtp.port", port);
-        }
-
-        Session session = Session.getInstance(properties);
-        Message message = new MimeMessage(session);
-
-        if ((fromAddress != null) && (fromAddress.length() > 0)) {
-            message.setFrom(new InternetAddress(fromAddress));
-        } else {
-            throw new Exception("FROM address not specified.");
-        }
-
-        if ((toAddresses != null) && (toAddresses.length() > 0)) {
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toAddresses, false));
-        } else {
-            throw new Exception("TO address(es) not specified.");
-        }
-
-        if ((ccAddresses != null) && (ccAddresses.length() > 0)) {
-            message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(ccAddresses, false));
-        }
-
-        message.setSubject(subject);
-        message.setText(body);
-        message.setSentDate(new Date());
-
-        Transport transport = null;
-
-        if (secure.equalsIgnoreCase(SECURE_SSL)) {
-            transport = session.getTransport(PROTOCOL_SMTPS);
-        } else {
-            transport = session.getTransport(PROTOCOL_SMTP);
-        }
-
-        transport.addConnectionListener(new SMTPConnectionListener());
-        transport.addTransportListener(new SMTPTransportListener());
+    public void send(String toList, String ccList, String from, String subject, String body) throws EmailException {
+        Email email = new SimpleEmail();
+        email.setHostName(host);
+        email.setSmtpPort(Integer.parseInt(port));
+        email.setSocketConnectionTimeout(5000);
+        email.setDebug(true);
         
-        if (auth) {
-            transport.connect(username, password);
-        } else {
-            transport.connect();
+        if (useAuthentication) {
+            email.setAuthentication(username, password);
+        }
+        
+        if (StringUtils.equalsIgnoreCase(secure, "TLS")) {
+            email.setTLS(true);
+        } else if (StringUtils.equalsIgnoreCase(secure, "SSL")) {
+            email.setSSL(true);
         }
 
-        transport.sendMessage(message, message.getAllRecipients());
-        transport.close();
+        for (String to : StringUtils.split(toList, ",")) {
+            email.addTo(to);
+        }
+
+        if (StringUtils.isNotEmpty(ccList)) {
+            for (String cc : StringUtils.split(ccList, ",")) {
+                email.addCc(cc);
+            }
+        }
+
+        email.setFrom(from);
+        email.setSubject(subject);
+        email.setMsg(body);
+        email.send();
     }
-
-    private class SMTPConnectionListener implements ConnectionListener {
-        public void closed(ConnectionEvent e) {
-            logger.info("SMTP connection opened.");
-        }
-
-        public void disconnected(ConnectionEvent e) {
-            logger.error("SMTP connection disconnected.");
-        }
-
-        public void opened(ConnectionEvent e) {
-            logger.info("SMTP connection opened.");
-        }
-    }
-
-    private class SMTPTransportListener implements TransportListener {
-
-        public void messageDelivered(TransportEvent e) {
-            logger.info("SMTP message delievered.");
-        }
-
-        public void messageNotDelivered(TransportEvent e) {
-            logger.error("SMTP message not delievered.");
-        }
-
-        public void messagePartiallyDelivered(TransportEvent e) {
-            logger.error("SMTP message partially delievered.");
-        }
+    
+    public void send(String toList, String ccList, String subject, String body) throws EmailException {
+        send(toList, ccList, from, subject, body);
     }
 }
