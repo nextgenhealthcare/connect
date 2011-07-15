@@ -30,6 +30,7 @@
 		<jar download="eager" href="webstart/client-lib/mirth-client.jar" main="true"/>
 		<jar download="eager" href="webstart/client-lib/mirth-client-core.jar"/>
 		<jar download="eager" href="webstart/client-lib/commons-codec-1.4.jar"/>
+		<jar download="eager" href="webstart/client-lib/commons-collections-3.2.1.jar"/>
 		<jar download="eager" href="webstart/client-lib/commons-httpclient-3.0.1.jar"/>
 		<jar download="eager" href="webstart/client-lib/commons-io-2.0.jar"/>
 		<jar download="eager" href="webstart/client-lib/commons-lang-2.5.jar"/>
