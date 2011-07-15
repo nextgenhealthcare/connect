@@ -29,6 +29,7 @@ import java.util.TimerTask;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.EDITokenMarker;
@@ -45,7 +46,6 @@ import com.mirth.connect.client.ui.beans.X12Properties;
 import com.mirth.connect.client.ui.beans.XMLProperties;
 import com.mirth.connect.client.ui.editors.BoundPropertiesSheetDialog;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
-import com.mirth.connect.client.ui.util.PropertiesUtil;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.converters.DICOMSerializer;
 import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
@@ -442,7 +442,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             // Set the default properties for the data type selected
             for (MessageObject.Protocol protocol : MessageObject.Protocol.values()) {
                 if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(dataType.getSelectedItem())) {
-                    dataProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
+                    dataProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
                 }
             }
         }

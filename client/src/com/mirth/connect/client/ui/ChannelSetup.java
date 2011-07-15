@@ -31,6 +31,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.SerializationUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -41,7 +42,6 @@ import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.editors.filter.FilterPane;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
-import com.mirth.connect.client.ui.util.PropertiesUtil;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.connectors.ConnectorClass;
 import com.mirth.connect.model.Channel;
@@ -203,8 +203,8 @@ public class ChannelSetup extends javax.swing.JPanel {
                 // Set the default inbound and outbound protocol and properties
                 Protocol protocol = currentChannel.getSourceConnector().getTransformer().getOutboundProtocol();
                 // Use a different properties object for the inbound and outbound
-                Properties defaultInboundProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
-                Properties defaultOutboundProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
+                Properties defaultInboundProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
+                Properties defaultOutboundProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
 
                 connector.getTransformer().setInboundProtocol(protocol);
                 connector.getTransformer().setInboundProperties(defaultInboundProperties);
@@ -441,8 +441,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         // Set the default inbound and outbound protocol and properties
         Protocol defaultProtocol = Protocol.HL7V2;
         // Use a different properties object for the inbound and outbound
-        Properties defaultInboundProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(defaultProtocol));
-        Properties defaultOutboundProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(defaultProtocol));
+        Properties defaultInboundProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(defaultProtocol));
+        Properties defaultOutboundProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(defaultProtocol));
 
         sourceTransformer.setInboundProtocol(defaultProtocol);
         sourceTransformer.setInboundProperties(defaultInboundProperties);
@@ -773,7 +773,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
 
         if (sourceTransformer.getInboundProperties() == null) {
-            Properties defaultProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(sourceTransformer.getInboundProtocol()));
+            Properties defaultProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(sourceTransformer.getInboundProtocol()));
             sourceTransformer.setInboundProperties(defaultProperties);
         }
 
@@ -782,7 +782,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
 
         if (sourceTransformer.getOutboundProperties() == null) {
-            Properties defaultProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(sourceTransformer.getOutboundProtocol()));
+            Properties defaultProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(sourceTransformer.getOutboundProtocol()));
             sourceTransformer.setOutboundProperties(defaultProperties);
         }
 
@@ -802,7 +802,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
 
             if (destinationTransformer.getOutboundProperties() == null) {
-                Properties defaultProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(destinationTransformer.getOutboundProtocol()));
+                Properties defaultProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(destinationTransformer.getOutboundProtocol()));
                 destinationTransformer.setOutboundProperties(defaultProperties);
             }
         }
@@ -1960,7 +1960,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     public void checkAndSetXmlDataType() {
         Protocol xml = Protocol.XML;
         if (requiresXmlDataType() && !currentChannel.getSourceConnector().getTransformer().getInboundProtocol().equals(xml)) {
-            Properties defaultProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(xml));
+            Properties defaultProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(xml));
 
             currentChannel.getSourceConnector().getTransformer().setInboundProtocol(xml);
             currentChannel.getSourceConnector().getTransformer().setInboundProperties(defaultProperties);

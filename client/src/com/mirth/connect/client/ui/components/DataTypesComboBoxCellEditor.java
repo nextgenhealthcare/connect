@@ -17,8 +17,9 @@ import java.util.Properties;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 
+import org.apache.commons.collections.MapUtils;
+
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.client.ui.util.PropertiesUtil;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.MessageObject;
@@ -40,7 +41,7 @@ public class DataTypesComboBoxCellEditor extends MirthComboBoxCellEditor {
             String dataType = (String)((JComboBox)super.getComponent()).getSelectedItem();
             Channel currentChannel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
             MessageObject.Protocol protocol = getProtocol(dataType);
-            Properties defaultProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
+            Properties defaultProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
             
             // Set the new data type and default properties for that data type
             if (source) {
