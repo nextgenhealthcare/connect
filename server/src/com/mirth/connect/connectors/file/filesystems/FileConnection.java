@@ -110,7 +110,6 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
         }
 
         File readDirectory = null;
-        
         try {
             readDirectory = new File(fromDir);
         } catch (Exception e) {
@@ -119,18 +118,17 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
 
         try {
             File[] todoFiles = readDirectory.listFiles(filenameFilter);
-            
             if (todoFiles == null) {
+
                 return new ArrayList<FileInfo>();
             } else {
                 List<FileInfo> result = new ArrayList<FileInfo>(todoFiles.length);
-                
                 for (File f : todoFiles) {
-                    if (!f.getName().endsWith(IGNORE) && !isFileIgnored(f) && (f.length() > 0)) {
+
+                    if (!f.getName().endsWith(IGNORE) && !isFileIgnored(f)) {
                         result.add(new FileFileInfo(f));
                     }
                 }
-                
                 return result;
             }
         } catch (Exception e) {
