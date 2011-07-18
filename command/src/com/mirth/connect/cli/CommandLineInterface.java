@@ -50,6 +50,7 @@ import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelStatus.State;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.Event;
+import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -144,7 +145,7 @@ public class CommandLineInterface {
             client = new Client(server);
             this.debug = debug;
 
-            if (!client.login(user, password, version)) {
+            if (client.login(user, password, version).getStatus() != LoginStatus.Status.SUCCESS) {
                 error("Could not login to server.", null);
                 return;
             }

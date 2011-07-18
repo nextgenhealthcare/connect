@@ -27,6 +27,7 @@ import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.model.Event;
 import com.mirth.connect.model.Event.Level;
 import com.mirth.connect.model.Event.Outcome;
+import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -54,19 +55,14 @@ public class UserServlet extends MirthServlet {
             String password = request.getParameter("password");
             String version = request.getParameter("version");
             response.setContentType(TEXT_PLAIN);
-            out.print(login(request, response, userController, eventController, username, password, version));
+            out.println(serializer.toXML(login(request, response, userController, eventController, username, password, version)));
         } else if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
             try {
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-                if (operation.equals(Operations.USER_AUTHORIZE)) {
-                    response.setContentType(TEXT_PLAIN);
-                    User user = (User) serializer.fromXML(request.getParameter("user"));
-                    String password = request.getParameter("password");
-                    out.print(userController.authorizeUser(user, password));
-                } else if (operation.equals(Operations.USER_LOGOUT)) {
+                if (operation.equals(Operations.USER_LOGOUT)) {
                     // Audit the logout request but don't block it
                     isUserAuthorized(request, null);
 
@@ -151,24 +147,25 @@ public class UserServlet extends MirthServlet {
         }
     }
 
-    private boolean login(HttpServletRequest request, HttpServletResponse response, UserController userController, EventController eventController, String username, String password, String version) throws ServletException {
+    private LoginStatus login(HttpServletRequest request, HttpServletResponse response, UserController userController, EventController eventController, String username, String password, String version) throws ServletException {
         try {
-            boolean success = true;
+            LoginStatus loginStatus = null;
 
             ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
             // if the version of the client in is not the same as the server and
             // the version is not 0.0.0 (bypass)
             if (!version.equals(configurationController.getServerVersion()) && !version.equals("0.0.0")) {
-                response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
-                success = false;
+                loginStatus = new LoginStatus(LoginStatus.Status.FAIL_VERSION_MISMATCH, "Mirth Connect Server version " + configurationController.getServerVersion() + " cannot be connected to from Administrator version " + version + ". Please clear your Java cache and relaunch the Administrator from the Server webpage.");
             } else {
                 HttpSession session = request.getSession();
 
                 User user = new User();
                 user.setUsername(username);
 
-                if (userController.authorizeUser(user, password)) {
+                loginStatus = userController.authorizeUser(user, password);
+                
+                if (loginStatus.getStatus() == LoginStatus.Status.SUCCESS) {
                     User validUser = userController.getUser(user).get(0);
 
                     // set the sessions attributes
@@ -183,12 +180,6 @@ public class UserServlet extends MirthServlet {
 
                     // add the user's session to to session map
                     UserSessionCache.getInstance().registerSessionForUser(session, validUser);
-
-                    success = true;
-                } else {
-                    // failed to login
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
-                    success = false;
                 }
             }
 
@@ -200,7 +191,7 @@ public class UserServlet extends MirthServlet {
             event.setName(Operations.USER_LOGIN.getDisplayName());
 
             // Set the outcome to the result of the login attempt
-            event.setOutcome(success ? Outcome.SUCCESS : Outcome.FAILURE);
+            event.setOutcome((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) ? Outcome.SUCCESS : Outcome.FAILURE);
 
             Map<String, Object> attributes = new HashMap<String, Object>();
             attributes.put("username", username);
@@ -208,7 +199,7 @@ public class UserServlet extends MirthServlet {
 
             eventController.addEvent(event);
 
-            return success;
+            return loginStatus;
         } catch (Exception e) {
             throw new ServletException(e);
         }

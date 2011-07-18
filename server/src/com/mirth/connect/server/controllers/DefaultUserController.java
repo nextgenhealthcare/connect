@@ -17,13 +17,17 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.jasypt.util.password.ConfigurablePasswordEncryptor;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import com.ibm.crypto.fips.provider.IBMJCEFIPS;
 import com.mirth.connect.model.Credentials;
+import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.LoginRequirementsChecker;
 import com.mirth.connect.server.util.Pre22PasswordChecker;
 import com.mirth.connect.server.util.SqlConfig;
 
@@ -120,22 +124,45 @@ public class DefaultUserController extends UserController {
         }
     }
 
-    public boolean authorizeUser(User user, String plainPassword) throws ControllerException {
+    public LoginStatus authorizeUser(User user, String plainPassword) throws ControllerException {
         try {
+            LoginRequirementsChecker loginRequirementsChecker = new LoginRequirementsChecker(user.getUsername());
+            if (loginRequirementsChecker.isUserLockedOut()) {
+                return new LoginStatus(LoginStatus.Status.FAIL_LOCKED_OUT, "User account \"" + user.getUsername() + "\" has been locked. You may attempt to login again in " + loginRequirementsChecker.getPrintableStrikeTimeRemaining() + ".");
+            }
+            
+            loginRequirementsChecker.resetExpiredStrikes();
+            
             Credentials credentials = (Credentials) SqlConfig.getSqlMapClient().queryForObject("User.getUserCredentials", user);
 
+            boolean authorized = false;
             if (credentials != null) {
                 if (Pre22PasswordChecker.isPre22Hash(credentials.getPassword())) {
                     if (Pre22PasswordChecker.checkPassword(plainPassword, credentials.getPassword())) {
                         updateUser(user, plainPassword);
-                        return true;
+                        authorized = true;
                     }
+                } else {
+                    authorized = encrypter.checkPassword(plainPassword, credentials.getPassword());
                 }
+            }
+            
+            LoginStatus loginStatus = null;
 
-                return encrypter.checkPassword(plainPassword, credentials.getPassword());
+            if (authorized) {
+                loginRequirementsChecker.resetStrikes();
+                loginStatus = new LoginStatus(LoginStatus.Status.SUCCESS, "");
+            } else {
+                loginRequirementsChecker.incrementStrikes();
+                String failMessage = "Incorrect username or password.";
+                if (loginRequirementsChecker.isLockoutEnabled()) {
+                    String lockoutPeriod = PeriodFormat.getDefault().print(Period.hours(ControllerFactory.getFactory().createConfigurationController().getPasswordRequirements().getLockoutPeriod()));
+                    failMessage += " " + loginRequirementsChecker.getStrikesRemaining() + " login attempt(s) remaining for \"" + user.getUsername() + "\" until the account is locked for " + lockoutPeriod + ".";
+                }
+                loginStatus = new LoginStatus(LoginStatus.Status.FAIL, failMessage);
             }
 
-            return false;
+            return loginStatus;
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -199,5 +226,4 @@ public class DefaultUserController extends UserController {
             throw new ControllerException(e);
         }
     }
-
 }

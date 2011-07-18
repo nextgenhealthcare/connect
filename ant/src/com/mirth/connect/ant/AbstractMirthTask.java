@@ -16,6 +16,7 @@ import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.model.LoginStatus;
 
 /**
  * @author andrzej@coalese.com
@@ -92,7 +93,7 @@ public abstract class AbstractMirthTask extends Task {
 	protected void connectClient() throws ClientException {
 		client = new Client(server);
 
-		if (!client.login(user, password, version)) {
+		if (client.login(user, password, version).getStatus() != LoginStatus.Status.SUCCESS) {
 			throw (new ClientException("Could not login to server."));
 		}
 	}

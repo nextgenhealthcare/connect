@@ -38,11 +38,15 @@ public class PasswordRequirementsChecker implements Serializable {
     private static final String PASSWORD_MUST_CONTAIN_AN_UPPERCASE_LETTER = "Password must contain %d uppercase letter(s)";
     private static final String PASSWORD_MUST_NOT_CONTAIN_AN_UPPERCASE_LETTER = "Password not must contain an uppercase letter";
 
+    private static final String PASSWORD_MINLENGTH = "password.minlength";
     private static final String PASSWORD_MIN_NUMERIC = "password.minnumeric";
     private static final String PASSWORD_MIN_LOWER = "password.minlower";
     private static final String PASSWORD_MIN_UPPER = "password.minupper";
     private static final String PASSWORD_MIN_SPECIAL = "password.minspecial";
-    private static final String PASSWORD_MINLENGTH = "password.minlength";
+    private static final String PASSWORD_EXPIRATION = "password.expiration";
+    private static final String PASSWORD_GRACE_PERIOD = "password.graceperiod";
+    private static final String PASSWORD_RETRY_LIMIT = "password.retrylimit";
+    private static final String PASSWORD_LOCKOUT_PERIOD = "password.lockoutperiod";
 
     private static PasswordRequirementsChecker instance = null;
 
@@ -62,11 +66,17 @@ public class PasswordRequirementsChecker implements Serializable {
 
     public PasswordRequirements loadPasswordRequirements(PropertiesConfiguration securityProperties) {
         PasswordRequirements passwordRequirements = new PasswordRequirements();
+        
+        passwordRequirements.setMinLength(securityProperties.getInt(PASSWORD_MINLENGTH, 0));
         passwordRequirements.setMinUpper(securityProperties.getInt(PASSWORD_MIN_UPPER, 0));
         passwordRequirements.setMinLower(securityProperties.getInt(PASSWORD_MIN_LOWER, 0));
         passwordRequirements.setMinNumeric(securityProperties.getInt(PASSWORD_MIN_NUMERIC, 0));
         passwordRequirements.setMinSpecial(securityProperties.getInt(PASSWORD_MIN_SPECIAL, 0));
-        passwordRequirements.setMinLength(securityProperties.getInt(PASSWORD_MINLENGTH, 0));
+        passwordRequirements.setExpiration(securityProperties.getInt(PASSWORD_EXPIRATION, 0));
+        passwordRequirements.setGracePeriod(securityProperties.getInt(PASSWORD_GRACE_PERIOD, 0));
+        passwordRequirements.setRetryLimit(securityProperties.getInt(PASSWORD_RETRY_LIMIT, 0));
+        passwordRequirements.setLockoutPeriod(securityProperties.getInt(PASSWORD_LOCKOUT_PERIOD, 0));
+        
         return passwordRequirements;
     }
 

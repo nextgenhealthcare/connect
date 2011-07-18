@@ -18,27 +18,38 @@ public class PasswordRequirements implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private int minLength;
     private int minUpper;
     private int minLower;
     private int minNumeric;
     private int minSpecial;
-    private int minLength;
+    private int expiration;
+    private int gracePeriod;
+    private int retryLimit;
+    private int lockoutPeriod;
 
     public PasswordRequirements() {
+        this.minLength = 0;
         this.minUpper = 0;
         this.minLower = 0;
         this.minNumeric = 0;
         this.minSpecial = 0;
-
-        this.minLength = 0;
+        this.expiration = 0;
+        this.gracePeriod = 0;
+        this.retryLimit = 0;
+        this.lockoutPeriod = 0;
     }
 
-    public PasswordRequirements(int minUpper, int minLower, int minNumeric, int minSpecial, int minLength) {
+    public PasswordRequirements(int minLength, int minUpper, int minLower, int minNumeric, int minSpecial, int expiration, int gracePeriod, int retryLimit, int lockoutPeriod) {
+        this.minLength = minLength;
         this.minUpper = minUpper;
         this.minLower = minLower;
         this.minNumeric = minNumeric;
         this.minSpecial = minSpecial;
-        this.minLength = minLength;
+        this.expiration = expiration;
+        this.gracePeriod = gracePeriod;
+        this.retryLimit = retryLimit;
+        this.lockoutPeriod = lockoutPeriod;
     }
 
     public int getMinLength() {
@@ -47,6 +58,14 @@ public class PasswordRequirements implements Serializable {
 
     public void setMinLength(int minLength) {
         this.minLength = minLength;
+    }
+    
+    public int getMinUpper() {
+        return minUpper;
+    }
+
+    public void setMinUpper(int minUpper) {
+        this.minUpper = minUpper;
     }
 
     public int getMinLower() {
@@ -73,11 +92,35 @@ public class PasswordRequirements implements Serializable {
         this.minSpecial = minSpecial;
     }
 
-    public int getMinUpper() {
-        return minUpper;
+    public int getExpiration() {
+        return expiration;
     }
 
-    public void setMinUpper(int minUpper) {
-        this.minUpper = minUpper;
+    public void setExpiration(int expiration) {
+        this.expiration = expiration;
+    }
+
+    public int getGracePeriod() {
+        return gracePeriod;
+    }
+
+    public void setGracePeriod(int gracePeriod) {
+        this.gracePeriod = gracePeriod;
+    }
+
+    public int getRetryLimit() {
+        return retryLimit;
+    }
+
+    public void setRetryLimit(int retryLimit) {
+        this.retryLimit = retryLimit;
+    }
+
+    public int getLockoutPeriod() {
+        return lockoutPeriod;
+    }
+
+    public void setLockoutPeriod(int lockoutPeriod) {
+        this.lockoutPeriod = lockoutPeriod;
     }
 }

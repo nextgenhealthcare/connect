@@ -9,6 +9,7 @@
 
 package com.mirth.connect.client.ui;
 
+import java.awt.Color;
 import java.awt.Cursor;
 
 import javax.swing.ImageIcon;
@@ -16,7 +17,7 @@ import javax.swing.SwingWorker;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.core.VersionMismatchException;
+import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
 
 public class LoginPanel extends javax.swing.JFrame {
@@ -38,6 +39,8 @@ public class LoginPanel extends javax.swing.JFrame {
         username.setText(user);
         password.setText(pass);
         errorPane.setVisible(false);
+        errorTextArea.setBackground(Color.WHITE);
+        errorTextArea.setDisabledTextColor(Color.RED);
 
         mirthCorpImage.setIcon(UIConstants.MIRTHCORP_LOGO);
         mirthCorpImage.setText("");
@@ -62,6 +65,8 @@ public class LoginPanel extends javax.swing.JFrame {
                 BareBonesBrowserLaunch.openURL(UIConstants.MIRTHCORP_URL);
             }
         });
+        
+        placeholderButton.setVisible(false);
 
         if (user.length() > 0 && pass.length() > 0) {
             loginButtonActionPerformed(null);
@@ -77,11 +82,7 @@ public class LoginPanel extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        buttonGroup2 = new javax.swing.ButtonGroup();
         loginMain = new javax.swing.JPanel();
-        errorPane = new javax.swing.JScrollPane();
-        error = new javax.swing.JTextArea();
         closeButton = new javax.swing.JButton();
         loginButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
@@ -94,6 +95,8 @@ public class LoginPanel extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         password = new javax.swing.JPasswordField();
         mirthCorpImage = new javax.swing.JLabel();
+        errorPane = new javax.swing.JScrollPane();
+        errorTextArea = new javax.swing.JTextArea();
         loggingIn = new javax.swing.JPanel();
         mirthHeadingPanel1 = new com.mirth.connect.client.ui.MirthHeadingPanel();
         jLabel5 = new javax.swing.JLabel();
@@ -101,6 +104,7 @@ public class LoginPanel extends javax.swing.JFrame {
         status = new javax.swing.JLabel();
         jSeparator2 = new javax.swing.JSeparator();
         mirthCorpImage1 = new javax.swing.JLabel();
+        placeholderButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Mirth Connect Administrator Login");
@@ -108,19 +112,6 @@ public class LoginPanel extends javax.swing.JFrame {
 
         loginMain.setBackground(new java.awt.Color(255, 255, 255));
         loginMain.setName(""); // NOI18N
-
-        errorPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        errorPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-
-        error.setBackground(java.awt.Color.pink);
-        error.setColumns(20);
-        error.setEditable(false);
-        error.setFont(new java.awt.Font("Tahoma", 0, 11));
-        error.setRows(3);
-        error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");
-        error.setAutoscrolls(false);
-        error.setFocusable(false);
-        errorPane.setViewportView(error);
 
         closeButton.setText("Exit");
         closeButton.addActionListener(new java.awt.event.ActionListener() {
@@ -146,7 +137,7 @@ public class LoginPanel extends javax.swing.JFrame {
 
         jLabel3.setText("Username:");
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18));
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Mirth Connect Administrator Login");
 
@@ -183,6 +174,19 @@ public class LoginPanel extends javax.swing.JFrame {
 
         mirthCorpImage.setText(" ");
 
+        errorPane.setBorder(null);
+        errorPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        errorPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+
+        errorTextArea.setColumns(20);
+        errorTextArea.setEditable(false);
+        errorTextArea.setFont(new java.awt.Font("Tahoma", 0, 11));
+        errorTextArea.setLineWrap(true);
+        errorTextArea.setText("There was an error connecting to the specified server address. Please verify that the server is up and running.");
+        errorTextArea.setWrapStyleWord(true);
+        errorTextArea.setEnabled(false);
+        errorPane.setViewportView(errorTextArea);
+
         javax.swing.GroupLayout loginMainLayout = new javax.swing.GroupLayout(loginMain);
         loginMain.setLayout(loginMainLayout);
         loginMainLayout.setHorizontalGroup(
@@ -191,22 +195,6 @@ public class LoginPanel extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
                 .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, loginMainLayout.createSequentialGroup()
-                .addGap(49, 49, 49)
-                .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(errorPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 277, Short.MAX_VALUE)
-                    .addGroup(loginMainLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 2, Short.MAX_VALUE)
-                        .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(serverName, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
-                            .addComponent(username, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
-                            .addComponent(password, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE))))
-                .addGap(52, 52, 52))
             .addComponent(mirthHeadingPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, loginMainLayout.createSequentialGroup()
                 .addContainerGap()
@@ -216,6 +204,22 @@ public class LoginPanel extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(closeButton)
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, loginMainLayout.createSequentialGroup()
+                .addGap(51, 51, 51)
+                .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(serverName, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(password, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(username, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(51, 51, 51))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, loginMainLayout.createSequentialGroup()
+                .addContainerGap(57, Short.MAX_VALUE)
+                .addComponent(errorPane, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(57, 57, 57))
         );
 
         loginMainLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {closeButton, loginButton});
@@ -236,9 +240,9 @@ public class LoginPanel extends javax.swing.JFrame {
                 .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(errorPane, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(errorPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -277,6 +281,8 @@ public class LoginPanel extends javax.swing.JFrame {
 
         mirthCorpImage1.setText(" ");
 
+        placeholderButton.setText("Placeholder");
+
         javax.swing.GroupLayout loggingInLayout = new javax.swing.GroupLayout(loggingIn);
         loggingIn.setLayout(loggingInLayout);
         loggingInLayout.setHorizontalGroup(
@@ -292,12 +298,14 @@ public class LoginPanel extends javax.swing.JFrame {
                 .addContainerGap(247, Short.MAX_VALUE))
             .addGroup(loggingInLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jSeparator2, javax.swing.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
+                .addComponent(mirthCorpImage1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 268, Short.MAX_VALUE)
+                .addComponent(placeholderButton)
                 .addContainerGap())
             .addGroup(loggingInLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(mirthCorpImage1)
-                .addContainerGap(365, Short.MAX_VALUE))
+                .addComponent(jSeparator2, javax.swing.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
+                .addContainerGap())
         );
         loggingInLayout.setVerticalGroup(
             loggingInLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -307,10 +315,12 @@ public class LoginPanel extends javax.swing.JFrame {
                 .addComponent(status)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(loginProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(66, 66, 66)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 82, Short.MAX_VALUE)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
-                .addComponent(mirthCorpImage1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(loggingInLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(mirthCorpImage1)
+                    .addComponent(placeholderButton))
                 .addContainerGap())
         );
 
@@ -412,18 +422,16 @@ public class LoginPanel extends javax.swing.JFrame {
             String server = serverName.getText();
             client = new Client(server);
             PlatformUI.SERVER_NAME = server;
-            if (client.login(username.getText(), String.valueOf(password.getPassword()), PlatformUI.CLIENT_VERSION)) {
+            
+            LoginStatus loginStatus = client.login(username.getText(), String.valueOf(password.getPassword()), PlatformUI.CLIENT_VERSION);
+            if (loginStatus.getStatus() == LoginStatus.Status.SUCCESS) {
                 PlatformUI.USER_NAME = username.getText();
                 return true;
             } else {
-                error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");
+                errorTextArea.setText(loginStatus.getMessage());
             }
         } catch (ClientException ex) {
-            if (ex.getCause() instanceof VersionMismatchException) {
-                error.setText("The version of this client does not match the version\nof the server.  Please clear your Java cache and\nrelaunch the client from the server webpage.");
-            } else {
-                error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");
-            }
+            errorTextArea.setText("There was an error connecting to the specified server address. Please verify that the server is up and running.");
         }
         return false;
     }
@@ -432,11 +440,9 @@ public class LoginPanel extends javax.swing.JFrame {
         this.status.setText("Please wait: " + status);
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JButton closeButton;
-    private javax.swing.JTextArea error;
     private javax.swing.JScrollPane errorPane;
+    private javax.swing.JTextArea errorTextArea;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -453,6 +459,7 @@ public class LoginPanel extends javax.swing.JFrame {
     private com.mirth.connect.client.ui.MirthHeadingPanel mirthHeadingPanel1;
     private com.mirth.connect.client.ui.MirthHeadingPanel mirthHeadingPanel2;
     private javax.swing.JPasswordField password;
+    private javax.swing.JButton placeholderButton;
     private javax.swing.JTextField serverName;
     private javax.swing.JLabel status;
     private javax.swing.JTextField username;

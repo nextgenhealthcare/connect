@@ -34,6 +34,7 @@ import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DriverInfo;
+import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
@@ -108,10 +109,10 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public synchronized boolean login(String username, String password, String version) throws ClientException {
+    public synchronized LoginStatus login(String username, String password, String version) throws ClientException {
         logger.debug("attempting to login user: username=" + username);
         NameValuePair[] params = { new NameValuePair("op", Operations.USER_LOGIN.getName()), new NameValuePair("username", username), new NameValuePair("password", password), new NameValuePair("version", version) };
-        return Boolean.valueOf(serverConnection.executePostMethod(USER_SERVLET, params)).booleanValue();
+        return (LoginStatus) serializer.fromXML(serverConnection.executePostMethod(USER_SERVLET, params));
     }
 
     /**
@@ -361,19 +362,6 @@ public class Client {
         logger.debug("removing user: " + user);
         NameValuePair[] params = { new NameValuePair("op", Operations.USER_REMOVE.getName()), new NameValuePair("user", serializer.toXML(user)) };
         serverConnection.executePostMethod(USER_SERVLET, params);
-    }
-
-    /**
-     * Returns a true if the password matches the pasword stored in the database
-     * for the specified user.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public boolean authenticateUser(User user, String password) throws ClientException {
-        logger.debug("authorizing user: " + user);
-        NameValuePair[] params = { new NameValuePair("op", Operations.USER_AUTHORIZE.getName()), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("password", password) };
-        return Boolean.valueOf(serverConnection.executePostMethod(USER_SERVLET, params));
     }
 
     /**

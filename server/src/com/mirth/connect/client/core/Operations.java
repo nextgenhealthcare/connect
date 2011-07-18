@@ -186,7 +186,6 @@ public class Operations {
         operationMap.put(USER_GET.getName(), USER_GET);
         operationMap.put(USER_UPDATE.getName(), USER_UPDATE);
         operationMap.put(USER_REMOVE.getName(), USER_REMOVE);
-        operationMap.put(USER_AUTHORIZE.getName(), USER_AUTHORIZE);
         operationMap.put(USER_LOGIN.getName(), USER_LOGIN);
         operationMap.put(USER_LOGOUT.getName(), USER_LOGOUT);
         operationMap.put(USER_IS_USER_LOGGED_IN.getName(), USER_IS_USER_LOGGED_IN);

@@ -9,7 +9,6 @@
 
 package com.mirth.connect.model.util.tests;
 
-import static junit.framework.Assert.*;
 import junit.framework.TestCase;
 
 import com.mirth.connect.model.PasswordRequirements;
@@ -27,58 +26,58 @@ public class PasswordRequirementsTest extends TestCase {
     }
 
     public void testMinLength() throws ControllerException {
-        PasswordRequirements req = new PasswordRequirements(0, 0, 0, 0, 10);
+        PasswordRequirements req = new PasswordRequirements(10, 0, 0, 0, 0, 0, 0, 0, 0);
         assertNotNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("test", req));
         assertNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("testtesttest", req));
         
     }
 
     public void testMinUpper() throws ControllerException {
-        PasswordRequirements req = new PasswordRequirements(1, 0, 0, 0, 0);
+        PasswordRequirements req = new PasswordRequirements(0, 1, 0, 0, 0, 0, 0, 0, 0);
         assertNotNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("test", req));
         assertNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("aTest", req));
         
 
-        PasswordRequirements req2 = new PasswordRequirements(-1, 0, 0, 0, 0);
+        PasswordRequirements req2 = new PasswordRequirements(0, -1, 0, 0, 0, 0, 0, 0, 0);
         assertNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("test", req2));
         assertNotNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("TESt", req2));
     }
 
     public void testMinLower() throws ControllerException {
-        PasswordRequirements req = new PasswordRequirements(0, 1, 0, 0, 0);
+        PasswordRequirements req = new PasswordRequirements(0, 0, 1, 0, 0, 0, 0, 0, 0);
         assertNotNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("TEST", req));
         assertNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("TESt", req));
         
-        PasswordRequirements req2 = new PasswordRequirements(0, -1, 0, 0, 0);
+        PasswordRequirements req2 = new PasswordRequirements(0, 0, -1, 0, 0, 0, 0, 0, 0);
         assertNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("TEST", req2));
         assertNotNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("TESt", req2));
         
-        assertNotNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("testBLAH", new PasswordRequirements(0, 5, 0, 0, 0)));
-        assertNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("testtBLAH", new PasswordRequirements(0, 5, 0, 0, 0)));
+        assertNotNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("testBLAH", new PasswordRequirements(0, 0, 5, 0, 0, 0, 0, 0, 0)));
+        assertNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("testtBLAH", new PasswordRequirements(0, 0, 5, 0, 0, 0, 0, 0, 0)));
     }
 
     public void testMinNumeric() throws ControllerException {
-        PasswordRequirements req = new PasswordRequirements(0, 0, 1, 0, 0);
+        PasswordRequirements req = new PasswordRequirements(0, 0, 0, 1, 0, 0, 0, 0, 0);
         assertNotNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("TEST", req));
         assertNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("TEST9", req));
         
-        PasswordRequirements req2 = new PasswordRequirements(0, 0, -1, 0, 0);
+        PasswordRequirements req2 = new PasswordRequirements(0, 0, 0, -1, 0, 0, 0, 0, 0);
         assertNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("TEST", req2));
         assertNotNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("TESt9", req2));
     }
 
     public void testMinSpecial() throws ControllerException {
-        PasswordRequirements req = new PasswordRequirements(0, 0, 0, 1, 0);
+        PasswordRequirements req = new PasswordRequirements(0, 0, 0, 0, 1, 0, 0, 0, 0);
         assertNotNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("TEST", req));
         assertNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("TEST$TEST", req));
         
-        PasswordRequirements req2 = new PasswordRequirements(0, 0, 0, -1, 0);
+        PasswordRequirements req2 = new PasswordRequirements(0, 0, 0, 0, -1, 0, 0, 0, 0);
         assertNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("TEST", req2));
         assertNotNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("TESt$", req2));
     }
 
     public void testAllConditions() throws ControllerException {
-        PasswordRequirements req = new PasswordRequirements(1, 1, 1, 1, 15);
+        PasswordRequirements req = new PasswordRequirements(15, 1, 1, 1, 1, 0, 0, 0, 0);
         assertNotNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("test", req));
         assertNull(PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements("Th1$isAtestTEST*#", req));
     }

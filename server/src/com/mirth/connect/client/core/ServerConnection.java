@@ -95,9 +95,7 @@ public final class ServerConnection {
 
             int statusCode = client.executeMethod(post);
 
-            if (statusCode == HttpStatus.SC_NOT_ACCEPTABLE) {
-                throw new VersionMismatchException(post.getStatusLine().toString());
-            } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
+            if (statusCode == HttpStatus.SC_FORBIDDEN) {
                 throw new InvalidLoginException(post.getStatusLine().toString());
             } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
                 throw new UnauthorizedException(post.getStatusLine().toString());
@@ -135,9 +133,7 @@ public final class ServerConnection {
 
             int statusCode = client.executeMethod(post);
 
-            if (statusCode == HttpStatus.SC_NOT_ACCEPTABLE) {
-                throw new VersionMismatchException(post.getStatusLine().toString());
-            } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
+            if (statusCode == HttpStatus.SC_FORBIDDEN) {
                 throw new InvalidLoginException(post.getStatusLine().toString());
             } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
                 throw new UnauthorizedException(post.getStatusLine().toString());

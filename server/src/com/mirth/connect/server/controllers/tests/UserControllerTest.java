@@ -18,6 +18,7 @@ import java.util.Properties;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -83,7 +84,7 @@ public class UserControllerTest extends TestCase {
 
         User user = new User();
         user.setUsername("user0");
-        assertTrue(userController.authorizeUser(user, "password"));
+        assertTrue((userController.authorizeUser(user, "password").getStatus() == LoginStatus.Status.SUCCESS));
     }
 
     public void testLoginUser() throws ControllerException {

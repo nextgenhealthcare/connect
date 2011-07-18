@@ -12,6 +12,7 @@ package com.mirth.connect.server.controllers;
 import java.util.List;
 import java.util.Properties;
 
+import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
 
 public abstract class UserController extends Controller {
@@ -61,7 +62,7 @@ public abstract class UserController extends Controller {
      * @return <code>true</code> if the specified password matches the user's password, <code>false</code> otherwise
      * @throws ControllerException if the user's password could not be retrieved or verified
      */
-    public abstract boolean authorizeUser(User user, String plainTextPassword) throws ControllerException;
+    public abstract LoginStatus authorizeUser(User user, String plainTextPassword) throws ControllerException;
 
     /**
      * Sets the user's status to logged in.
