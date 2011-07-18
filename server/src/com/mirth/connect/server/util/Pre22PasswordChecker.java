@@ -11,38 +11,43 @@ public class Pre22PasswordChecker {
     private static final int SALT_LENGTH = 12;
     private static final String SALT_PREFIX = "SALT_";
 
-    public static void main(String[] args) throws Exception {
-        String hash = "NdgB6ojoGb/uFa5amMEyBNG16mE=";
-        String salt = "Np+FZYzu4M0=";
-        System.out.println(checkPassword("admin", SALT_PREFIX + salt + hash));
-    }
-
-    /*
+    /**
      * The pre-2.2 password has been migrated to the following
      * format:
      * 
-     * SALT + 8-bit salt + base64(sha(salt + password))
+     * SALT_ + 8-bit salt + base64(sha(salt + password))
      * 
      * To compare:
      * 
-     * 1. Strip the SALT prefix
+     * 1. Strip the known pre-2.2 prefix
      * 2. Get the first 8-bits and Base64 decode it, this the salt
      * 3. Get the remaining bits and Base64 decode it, this is the hash
-     * 4. Pass it into the old password checker algorithm
+     * 4. Pass it into the pre-2.2 password checker algorithm
+     * 
+     * @param plainPassword The plain text password to check against the hash
+     * @param encodedPassword The hashed password
+     * @return true if the password matches the hash using the pre-2.2 algorithm, false otherwise
      */
     public static boolean checkPassword(String plainPassword, String encodedPassword) throws Exception {
         String saltHash = StringUtils.substringAfter(encodedPassword, SALT_PREFIX);
         String encodedSalt = StringUtils.substring(saltHash, 0, SALT_LENGTH);
         byte[] decodedSalt = Base64.decodeBase64(encodedSalt);
         byte[] decodedHash = Base64.decodeBase64(StringUtils.substring(saltHash, encodedSalt.length()));
-        
+
         if (Arrays.equals(decodedHash, DigestUtils.sha(ArrayUtils.addAll(decodedSalt, plainPassword.getBytes())))) {
             return true;
         }
 
         return false;
     }
-    
+
+    /**
+     * Returns true if the provided hash was generated using the pre-2.2
+     * algorithm, false otherwise.
+     * 
+     * @param hash
+     * @return
+     */
     public static boolean isPre22Hash(String hash) {
         return StringUtils.startsWith(hash, SALT_PREFIX);
     }
