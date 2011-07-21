@@ -112,76 +112,78 @@ public class DefaultExtensionController extends ExtensionController {
      */
     public void initPlugins() {
         for (PluginMetaData pmd : pluginMetaDataMap.values()) {
-            if (pmd.isEnabled() && isExtensionCompatible(pmd) && (pmd.getServerClasses() != null)) {
-                for (String clazzName : pmd.getServerClasses()) {
-                    try {
-                        ServerPlugin serverPlugin = (ServerPlugin) Class.forName(clazzName).newInstance();
+            if (pmd.isEnabled() && isExtensionCompatible(pmd)) {
+                if (pmd.getServerClasses() != null) {
+                    for (String clazzName : pmd.getServerClasses()) {
+                        try {
+                            ServerPlugin serverPlugin = (ServerPlugin) Class.forName(clazzName).newInstance();
 
-                        if (serverPlugin instanceof ServicePlugin) {
-                            ServicePlugin servicePlugin = (ServicePlugin) serverPlugin;
-                            /*
-                             * load any properties that may currently be in the
-                             * database
-                             */
-                            Properties currentProperties = getPluginProperties(pmd.getName());
-                            /* get the default properties for the plugin */
-                            Properties defaultProperties = servicePlugin.getDefaultProperties();
+                            if (serverPlugin instanceof ServicePlugin) {
+                                ServicePlugin servicePlugin = (ServicePlugin) serverPlugin;
+                                /*
+                                 * load any properties that may currently be in the
+                                 * database
+                                 */
+                                Properties currentProperties = getPluginProperties(pmd.getName());
+                                /* get the default properties for the plugin */
+                                Properties defaultProperties = servicePlugin.getDefaultProperties();
 
-                            /*
-                             * if there are any properties that not currently
-                             * set, set them to the the default
-                             */
-                            for (Object key : defaultProperties.keySet()) {
-                                if (!currentProperties.containsKey(key)) {
-                                    currentProperties.put(key, defaultProperties.get(key));
+                                /*
+                                 * if there are any properties that not currently
+                                 * set, set them to the the default
+                                 */
+                                for (Object key : defaultProperties.keySet()) {
+                                    if (!currentProperties.containsKey(key)) {
+                                        currentProperties.put(key, defaultProperties.get(key));
+                                    }
                                 }
+
+                                /* save the properties to the database */
+                                setPluginProperties(pmd.getName(), currentProperties);
+
+                                /*
+                                 * initialize the plugin with those properties and
+                                 * add it to the list of loaded plugins
+                                 */
+                                servicePlugin.init(currentProperties);
+                                servicePlugins.put(servicePlugin.getPluginPointName(), servicePlugin);
+                                serverPlugins.add(servicePlugin);
+                                logger.debug("sucessfully loaded server plugin: " + serverPlugin.getPluginPointName());
                             }
 
-                            /* save the properties to the database */
-                            setPluginProperties(pmd.getName(), currentProperties);
+                            if (serverPlugin instanceof ConnectorStatusPlugin) {
+                                /*
+                                 * This is needed in case you add a second
+                                 * constructor to your plugin. Java is not able to
+                                 * find the default one for the plugin.
+                                 */
+                                Constructor<?>[] constructors = Class.forName(clazzName).getDeclaredConstructors();
 
-                            /*
-                             * initialize the plugin with those properties and
-                             * add it to the list of loaded plugins
-                             */
-                            servicePlugin.init(currentProperties);
-                            servicePlugins.put(servicePlugin.getPluginPointName(), servicePlugin);
-                            serverPlugins.add(servicePlugin);
-                            logger.debug("sucessfully loaded server plugin: " + serverPlugin.getPluginPointName());
-                        }
+                                for (int i = 0; i < constructors.length; i++) {
+                                    Class<?> parameters[] = constructors[i].getParameterTypes();
 
-                        if (serverPlugin instanceof ConnectorStatusPlugin) {
-                            /*
-                             * This is needed in case you add a second
-                             * constructor to your plugin. Java is not able to
-                             * find the default one for the plugin.
-                             */
-                            Constructor<?>[] constructors = Class.forName(clazzName).getDeclaredConstructors();
-
-                            for (int i = 0; i < constructors.length; i++) {
-                                Class<?> parameters[] = constructors[i].getParameterTypes();
-
-                                // load plugin if the number of
-                                // parameters is 0
-                                if (parameters.length == 0) {
-                                    ConnectorStatusPlugin connectorStatusPlugin = (ConnectorStatusPlugin) constructors[i].newInstance(new Object[] {});
-                                    connectorStatusPlugins.put(connectorStatusPlugin.getPluginPointName(), connectorStatusPlugin);
-                                    serverPlugins.add(connectorStatusPlugin);
-                                    i = constructors.length;
+                                    // load plugin if the number of
+                                    // parameters is 0
+                                    if (parameters.length == 0) {
+                                        ConnectorStatusPlugin connectorStatusPlugin = (ConnectorStatusPlugin) constructors[i].newInstance(new Object[] {});
+                                        connectorStatusPlugins.put(connectorStatusPlugin.getPluginPointName(), connectorStatusPlugin);
+                                        serverPlugins.add(connectorStatusPlugin);
+                                        i = constructors.length;
+                                    }
                                 }
+
+                                logger.debug("sucessfully loaded connector status plugin: " + serverPlugin.getPluginPointName());
                             }
 
-                            logger.debug("sucessfully loaded connector status plugin: " + serverPlugin.getPluginPointName());
+                            if (serverPlugin instanceof ChannelPlugin) {
+                                ChannelPlugin channelPlugin = (ChannelPlugin) serverPlugin;
+                                channelPlugins.put(channelPlugin.getPluginPointName(), channelPlugin);
+                                serverPlugins.add(channelPlugin);
+                                logger.debug("sucessfully loaded server channel plugin: " + serverPlugin.getPluginPointName());
+                            }
+                        } catch (Exception e) {
+                            logger.error("Error instantiating plugin: " + pmd.getName(), e);
                         }
-
-                        if (serverPlugin instanceof ChannelPlugin) {
-                            ChannelPlugin channelPlugin = (ChannelPlugin) serverPlugin;
-                            channelPlugins.put(channelPlugin.getPluginPointName(), channelPlugin);
-                            serverPlugins.add(channelPlugin);
-                            logger.debug("sucessfully loaded server channel plugin: " + serverPlugin.getPluginPointName());
-                        }
-                    } catch (Exception e) {
-                        logger.error("Error instantiating plugin: " + pmd.getName(), e);
                     }
                 }
             } else {
