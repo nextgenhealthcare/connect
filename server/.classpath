@@ -42,6 +42,7 @@
 	<classpathentry kind="lib" path="lib/commons/commons-el-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-httpclient-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-email-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-tools-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/derby-10.5.3.0.jar"/>
@@ -87,7 +88,6 @@
 	<classpathentry kind="lib" path="lib/jasypt-1.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-1.6.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/extensions/ws/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-3.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-3.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/wsdl4j-1.6.2-fixed.jar"/>
