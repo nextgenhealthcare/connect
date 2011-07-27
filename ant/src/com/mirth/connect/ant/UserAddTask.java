@@ -112,7 +112,8 @@ public class UserAddTask extends AbstractMirthTask {
 		}
 
 		try {
-			client.updateUser(newUser, pswd);
+			client.updateUser(newUser);
+			client.updateUserPassword(newUser, pswd);
 			System.out.println("User \"" + userid + "\" added successfully.");
 		} catch (Exception e) {
 			throw (new BuildException("Unable to add user \"" + userid + "\": " + e));
