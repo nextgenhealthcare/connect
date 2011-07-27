@@ -485,7 +485,8 @@ public class CommandLineInterface {
         }
 
         try {
-            client.updateUser(user, password);
+            client.updateUser(user);
+            client.updateUserPassword(user, password);
             out.println("User \"" + username + "\" added successfully.");
         } catch (Exception e) {
             error("unable to add user \"" + username + "\": " + e, e);
@@ -524,7 +525,7 @@ public class CommandLineInterface {
         for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
             User user = iter.next();
             if (user.getId().toString().equalsIgnoreCase(key) || user.getUsername().equalsIgnoreCase(key)) {
-                client.updateUser(user, newPassword);
+                client.updateUserPassword(user, newPassword);
                 out.println("User \"" + user.getUsername() + "\" password updated.");
                 return;
             }
