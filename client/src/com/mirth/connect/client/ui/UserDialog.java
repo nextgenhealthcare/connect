@@ -12,6 +12,8 @@ package com.mirth.connect.client.ui;
 import java.awt.Dimension;
 import java.awt.Point;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.mirth.connect.model.User;
 
 /**
@@ -20,7 +22,7 @@ import com.mirth.connect.model.User;
 public class UserDialog extends javax.swing.JDialog implements UserDialogInterface {
 
     private Frame parent;
-    private boolean editingLoggedInUser;
+    private boolean editingLoggedInUser = false;
 
     /** Creates new form UserDialog */
     public UserDialog(User currentUser) {
@@ -29,21 +31,18 @@ public class UserDialog extends javax.swing.JDialog implements UserDialogInterfa
         initComponents();
         finishButton.setEnabled(false);
 
+        boolean passwordRequired = false;
         if (currentUser != null) {
-            if (currentUser.getUsername().equals(PlatformUI.USER_NAME)) {
-                editingLoggedInUser = true;
-            } else {
-                editingLoggedInUser = false;
-            }
-
+            editingLoggedInUser = currentUser.getUsername().equals(PlatformUI.USER_NAME);
             jLabel2.setText("Edit User");
         } else {
             currentUser = new User();
+            passwordRequired = true;
             jLabel2.setText("New User");
         }
 
         userEditPanel.setUser(this, currentUser);
-        userEditPanel.setRequiredFields(false, false, false, false);
+        userEditPanel.setRequiredFields(false, false, false, false, passwordRequired);
 
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setModal(true);
@@ -187,13 +186,22 @@ public class UserDialog extends javax.swing.JDialog implements UserDialogInterfa
      */
 private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishButtonActionPerformed
     finishButton.requestFocus();
-    String validateUserMessage = userEditPanel.validateUser(true);
+    String validateUserMessage = userEditPanel.validateUser();
     if (validateUserMessage != null) {
         parent.alertWarning(this, validateUserMessage);
     } else {
         User user = userEditPanel.getUser();
-        if (editingLoggedInUser) {
-            parent.updateAndSwitchUser(this, user, user.getUsername(), userEditPanel.getPassword());
+        
+        // If the username is being changed, update and switch user
+        if (editingLoggedInUser && !user.getUsername().equals(PlatformUI.USER_NAME)) {
+            String newPassword = userEditPanel.getPassword();
+            
+            if (StringUtils.isEmpty(newPassword)) {
+                parent.alertWarning(this, "If you are changing your username, you must also update your password.");
+                return;
+            }
+            
+            parent.updateAndSwitchUser(this, user, user.getUsername(), newPassword);
         } else {
             parent.updateUser(this, user, userEditPanel.getPassword());
         }

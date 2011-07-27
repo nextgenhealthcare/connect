@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.6" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <Properties>
@@ -36,14 +36,14 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="confirmPassword" alignment="0" pref="200" max="32767" attributes="1"/>
-                  <Component id="username" alignment="0" pref="200" max="32767" attributes="1"/>
-                  <Component id="password" alignment="0" pref="200" max="32767" attributes="1"/>
-                  <Component id="lastName" alignment="0" pref="200" max="32767" attributes="1"/>
-                  <Component id="organization" alignment="0" pref="200" max="32767" attributes="1"/>
-                  <Component id="email" alignment="0" pref="200" max="32767" attributes="1"/>
-                  <Component id="phone" alignment="0" pref="200" max="32767" attributes="1"/>
-                  <Component id="firstName" alignment="0" pref="200" max="32767" attributes="1"/>
+                  <Component id="confirmPassword" alignment="0" pref="175" max="32767" attributes="1"/>
+                  <Component id="username" alignment="0" pref="175" max="32767" attributes="1"/>
+                  <Component id="password" alignment="0" pref="175" max="32767" attributes="1"/>
+                  <Component id="lastName" alignment="0" pref="175" max="32767" attributes="1"/>
+                  <Component id="organization" alignment="0" pref="175" max="32767" attributes="1"/>
+                  <Component id="email" alignment="0" pref="175" max="32767" attributes="1"/>
+                  <Component id="phone" alignment="0" pref="175" max="32767" attributes="1"/>
+                  <Component id="firstName" alignment="0" pref="175" max="32767" attributes="1"/>
                   <Component id="jScrollPane1" alignment="0" max="32767" attributes="3"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -241,12 +241,12 @@
     </Component>
     <Component class="javax.swing.JLabel" name="passwordLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Password:"/>
+        <Property name="text" type="java.lang.String" value="New Password:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="confirmPasswordLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Confirm Password:"/>
+        <Property name="text" type="java.lang.String" value="Confirm New Password:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JPasswordField" name="confirmPassword">

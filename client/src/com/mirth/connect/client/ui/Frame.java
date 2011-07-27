@@ -54,6 +54,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.LineBorder;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.SerializationUtils;
@@ -92,7 +93,6 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateInfo;
@@ -1274,14 +1274,21 @@ public class Frame extends JXFrame {
     /**
      * Sends the passed in user to the server, updating it or adding it.
      */
-    public void updateUser(final Component parentComponent, final User curr, final String password) {
+    public boolean updateUser(final Component parentComponent, final User currentUser, final String newPassword) {
         setWorking("Saving user...", true);
+        
+        if (StringUtils.isNotEmpty(newPassword)) {
+            if (!updateUserPassword(parentComponent, currentUser, newPassword)) {
+                setWorking("", false);
+                return false;
+            }
+        }
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
-                    mirthClient.updateUser(curr, password);
+                    mirthClient.updateUser(currentUser);
                     retrieveUsers();
                 } catch (ClientException e) {
                     alertException(parentComponent, e.getStackTrace(), e.getMessage());
@@ -1290,19 +1297,30 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                userPanel.updateUserTable();
+                // The userPanel will be null if the user panel has not been viewed (i.e. registration).
+                if (userPanel != null) {
+                    userPanel.updateUserTable();
+                }
+                
                 setWorking("", false);
             }
         };
 
         worker.execute();
+        
+        return true;
     }
 
-    public void updateAndSwitchUser(Component parentComponent, final User curr, String newUsername, String newPassword) {
+    public boolean updateAndSwitchUser(Component parentComponent, final User currentUser, String newUsername, String newPassword) {
         setWorking("Saving user...", true);
-
+        
+        if (!updateUserPassword(parentComponent, currentUser, newPassword)) {
+            setWorking("", false);
+            return false;
+        }
+        
         try {
-            mirthClient.updateUser(curr, newPassword);
+            mirthClient.updateUser(currentUser);
             retrieveUsers();
         } catch (ClientException e) {
             alertException(parentComponent, e.getStackTrace(), e.getMessage());
@@ -1328,6 +1346,27 @@ public class Frame extends JXFrame {
         } finally {
             setWorking("", false);
         }
+        
+        return true;
+    }
+    
+    public boolean updateUserPassword(Component parentComponent, final User currentUser, String newPassword) {
+        try {
+            List<String> responses = mirthClient.updateUserPassword(currentUser, newPassword);
+            if (CollectionUtils.isNotEmpty(responses)) {
+                String responseString = "Your password is not valid. Please fix the following:\n";
+                for (String response : responses) {
+                    responseString += (" - " + response + "\n");
+                }
+                alertError(this, responseString);
+                return false;
+            }
+        } catch (ClientException e) {
+            alertException(this, e.getStackTrace(), e.getMessage());
+            return false;
+        }
+        
+        return true;
     }
 
     public User getCurrentUser(Component parentComponent) {
@@ -4157,10 +4196,6 @@ public class Frame extends JXFrame {
     public Channel getSelectedChannelFromDashboard() {
         retrieveChannels();
         return channels.get(getSelectedChannelIdFromDashboard());
-    }
-
-    public PasswordRequirements getPasswordRequirements() throws ClientException {
-        return mirthClient.getPasswordRequirements();
     }
 
     public void retrieveUsers() throws ClientException {

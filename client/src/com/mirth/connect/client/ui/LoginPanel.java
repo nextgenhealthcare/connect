@@ -365,7 +365,21 @@ public class LoginPanel extends javax.swing.JFrame {
 
             public Void doInBackground() {
                 try {
-                    if (login()) {
+                    String server = serverName.getText();
+                    client = new Client(server);
+                    PlatformUI.SERVER_NAME = server;
+                    
+                    // Attempt to login
+                    LoginStatus loginStatus = null;
+                    try {
+                        loginStatus = client.login(username.getText(), String.valueOf(password.getPassword()), PlatformUI.CLIENT_VERSION);
+                    } catch (ClientException ex) {
+                        errorTextArea.setText("There was an error connecting to the specified server address. Please verify that the server is up and running.");
+                    }
+                    
+                    // If SUCCESS or SUCCESS_GRACE_PERIOD
+                    if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
+                        PlatformUI.USER_NAME = username.getText();
                         setStatus("Authenticated...");
                         new Mirth(client);
                         thisPanel.dispose();
@@ -373,10 +387,10 @@ public class LoginPanel extends javax.swing.JFrame {
                         try {
                             if (client.getUpdateSettings().getFirstLogin()) {
                                 User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(PlatformUI.MIRTH_FRAME);
-
-                                if (currentUser != null) {
-                                    new FirstLoginDialog(currentUser);
-                                }
+                                new FirstLoginDialog(currentUser);
+                            } else if (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD) {
+                                User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(PlatformUI.MIRTH_FRAME);
+                                new ChangePasswordDialog(currentUser, loginStatus.getMessage());
                             }
                         } catch (ClientException e) {
                             PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
@@ -385,6 +399,7 @@ public class LoginPanel extends javax.swing.JFrame {
                         PlatformUI.MIRTH_FRAME.checkForUpdates();
                         PlatformUI.MIRTH_FRAME.sendUsageStatistics();
                     } else {
+                        errorTextArea.setText(loginStatus.getMessage());
                         errorPane.setVisible(true);
                         loggingIn.setVisible(false);
                         loginMain.setVisible(true);
@@ -416,25 +431,6 @@ public class LoginPanel extends javax.swing.JFrame {
         this.dispose();
         System.exit(0);
     }// GEN-LAST:event_closeButtonActionPerformed
-
-    private boolean login() {
-        try {
-            String server = serverName.getText();
-            client = new Client(server);
-            PlatformUI.SERVER_NAME = server;
-            
-            LoginStatus loginStatus = client.login(username.getText(), String.valueOf(password.getPassword()), PlatformUI.CLIENT_VERSION);
-            if (loginStatus.getStatus() == LoginStatus.Status.SUCCESS) {
-                PlatformUI.USER_NAME = username.getText();
-                return true;
-            } else {
-                errorTextArea.setText(loginStatus.getMessage());
-            }
-        } catch (ClientException ex) {
-            errorTextArea.setText("There was an error connecting to the specified server address. Please verify that the server is up and running.");
-        }
-        return false;
-    }
 
     public void setStatus(String status) {
         this.status.setText("Please wait: " + status);

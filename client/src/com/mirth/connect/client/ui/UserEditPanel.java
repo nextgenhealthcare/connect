@@ -9,13 +9,10 @@
 
 package com.mirth.connect.client.ui;
 
-import java.util.List;
+import org.apache.commons.lang.StringUtils;
 
-import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
-import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.User;
-import com.mirth.connect.model.util.PasswordRequirementsChecker;
 
 public class UserEditPanel extends javax.swing.JPanel {
 
@@ -73,39 +70,36 @@ public class UserEditPanel extends javax.swing.JPanel {
     /**
      * This method checks if the finish button can now be enabled
      */
-    public boolean checkIfAbleToFinish(boolean checkPasswords) {
-        if (firstNameAsteriskLabel.isVisible() && firstName.getText().trim().equals("")) {
-            dialog.setFinishButtonEnabled(false);
-            return false;
-        } else if (lastNameAsteriskLabel.isVisible() && lastName.getText().trim().equals("")) {
-            dialog.setFinishButtonEnabled(false);
-            return false;
-        } else if (emailAsteriskLabel.isVisible() && email.getText().trim().equals("")) {
-            dialog.setFinishButtonEnabled(false);
-            return false;
-        } else if (organizationAsteriskLabel.isVisible() && organization.getText().trim().equals("")) {
-            dialog.setFinishButtonEnabled(false);
-            return false;
-        } else if (checkPasswords && (String.valueOf(password.getPassword()).trim().equals("") || String.valueOf(confirmPassword.getPassword()).trim().equals("") || username.getText().trim().equals(""))) {
-            dialog.setFinishButtonEnabled(false);
-            return false;
-        } else {
-            dialog.setFinishButtonEnabled(true);
-            return true;
+    public boolean checkIfAbleToFinish() {
+        boolean finishEnabled = true;
+        // Any of the following clauses cause the finish button to be disabled
+        if ((StringUtils.isBlank(username.getText())) ||
+            (firstNameAsteriskLabel.isVisible() && StringUtils.isBlank(firstName.getText())) || 
+            (lastNameAsteriskLabel.isVisible() && StringUtils.isBlank(lastName.getText())) ||
+            (emailAsteriskLabel.isVisible() && StringUtils.isBlank(email.getText())) ||
+            (organizationAsteriskLabel.isVisible() && StringUtils.isBlank(organization.getText())) ||
+            (passwordAsteriskLabel.isVisible() && (StringUtils.isBlank(String.valueOf(password.getPassword())) || StringUtils.isBlank(String.valueOf(confirmPassword.getPassword())))))
+        {
+            finishEnabled = false;
         }
+        
+        dialog.setFinishButtonEnabled(finishEnabled);
+        return finishEnabled;
     }
 
-    public void setRequiredFields(boolean firstName, boolean lastName, boolean email, boolean organization) {
+    public void setRequiredFields(boolean firstName, boolean lastName, boolean email, boolean organization, boolean password) {
         firstNameAsteriskLabel.setVisible(firstName);
         lastNameAsteriskLabel.setVisible(lastName);
         emailAsteriskLabel.setVisible(email);
         organizationAsteriskLabel.setVisible(organization);
+        passwordAsteriskLabel.setVisible(password);
+        confirmPasswordAsteriskLabel.setVisible(password);
 
-        checkIfAbleToFinish(true);
+        checkIfAbleToFinish();
     }
 
-    public String validateUser(boolean checkPasswords) {
-        if (!checkIfAbleToFinish(checkPasswords)) {
+    public String validateUser() {
+        if (!checkIfAbleToFinish()) {
             return "Please fill in all required information.";
         }
 
@@ -118,31 +112,15 @@ public class UserEditPanel extends javax.swing.JPanel {
             }
         }
 
-        if (checkPasswords && !String.valueOf(password.getPassword()).equals(String.valueOf(confirmPassword.getPassword()))) {
+        if (!String.valueOf(password.getPassword()).equals(String.valueOf(confirmPassword.getPassword()))) {
             return "Passwords must be the same.";
-        }
-
-        try {
-            PasswordRequirements requirements = parent.getPasswordRequirements();
-            List<String> passwordProblems = PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements(String.valueOf(password.getPassword()), requirements);
-            if (passwordProblems != null) {
-                String retString = "";
-                for (String problem : passwordProblems) {
-                    retString += problem + "\n";
-                }
-                return retString;
-            }
-        } catch (ClientException e) {
-            return "Unable to retrieve password policy";
         }
 
         return null;
     }
 
     private void checkAndTriggerFinishButton(java.awt.event.KeyEvent evt) {
-        if (!checkIfAbleToFinish(true)) {
-            return;
-        } else if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+        if (checkIfAbleToFinish() && (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER)) {
             dialog.triggerFinishButton();
         }
     }
@@ -262,9 +240,9 @@ public class UserEditPanel extends javax.swing.JPanel {
             }
         });
 
-        passwordLabel.setText("Password:");
+        passwordLabel.setText("New Password:");
 
-        confirmPasswordLabel.setText("Confirm Password:");
+        confirmPasswordLabel.setText("Confirm New Password:");
 
         confirmPassword.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -302,14 +280,14 @@ public class UserEditPanel extends javax.swing.JPanel {
                     .addComponent(descriptionLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(confirmPassword, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .addComponent(username, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .addComponent(password, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .addComponent(lastName, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .addComponent(organization, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .addComponent(email, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .addComponent(phone, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .addComponent(firstName, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                    .addComponent(confirmPassword, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
+                    .addComponent(username, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
+                    .addComponent(password, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
+                    .addComponent(lastName, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
+                    .addComponent(organization, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
+                    .addComponent(email, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
+                    .addComponent(phone, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
+                    .addComponent(firstName, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
                     .addComponent(jScrollPane1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)

@@ -228,12 +228,18 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
      */
 private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishButtonActionPerformed
     finishButton.requestFocus();
-    String validateUserMessage = userEditPanel.validateUser(true);
+    String validateUserMessage = userEditPanel.validateUser();
     if (validateUserMessage != null) {
         parent.alertWarning(this, validateUserMessage);
     } else {
         User user = userEditPanel.getUser();
-        parent.updateAndSwitchUser(this, user, user.getUsername(), userEditPanel.getPassword());
+        
+        // If the current user's username is being changed, update and switch user
+        if (!user.getUsername().equals(PlatformUI.USER_NAME)) {
+            parent.updateAndSwitchUser(this, user, user.getUsername(), userEditPanel.getPassword());
+        } else {
+            parent.updateUser(this, user, userEditPanel.getPassword());
+        }
 
         if (registerCheckBox.isSelected()) {
             parent.registerUser(user);
@@ -256,7 +262,7 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 
 private void registerCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerCheckBoxActionPerformed
     boolean selected = registerCheckBox.isSelected();
-    userEditPanel.setRequiredFields(selected, selected, selected, selected);
+    userEditPanel.setRequiredFields(selected, selected, selected, selected, true);
 }//GEN-LAST:event_registerCheckBoxActionPerformed
 
 private void usageStatsMoreInfoLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usageStatsMoreInfoLabelMouseClicked
