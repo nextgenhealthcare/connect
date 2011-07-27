@@ -12,16 +12,17 @@
 		<result property="email" column="EMAIL" />
 		<result property="phoneNumber" column="PHONENUMBER" />
 		<result property="lastLogin" column="LAST_LOGIN" />
+		<result property="gracePeriodStart" column="GRACE_PERIOD_START" />
 		<result property="description" column="DESCRIPTION" />
 	</resultMap>
 	
 	<resultMap class="com.mirth.connect.model.Credentials" id="get-user-credentials">
-		<result property="username" column="USERNAME" />
 		<result property="password" column="PASSWORD" />
+		<result property="passwordDate" column="PASSWORD_DATE" />
 	</resultMap>
 
 	<select id="getUser" parameterClass="com.mirth.connect.model.User" resultMap="get-user-result">
-		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, LAST_LOGIN, DESCRIPTION
+		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, DESCRIPTION
 		FROM PERSON
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
@@ -33,22 +34,36 @@
 		</dynamic>
 	</select>
 
-	<select id="getUserCredentials" parameterClass="com.mirth.connect.model.User" resultMap="get-user-credentials">
-		SELECT USERNAME, PASSWORD
-		FROM PERSON
-		WHERE USERNAME = #username#
+	<select id="getUserCredentials" parameterClass="java.lang.Integer" resultMap="get-user-credentials">
+		SELECT PASSWORD, PASSWORD_DATE
+		FROM PERSON_PASSWORD
+		WHERE PERSON_ID = #id#
+		ORDER BY PASSWORD_DATE DESC
 	</select>
+	
+	<select id="getLatestUserCredentials" parameterClass="java.lang.Integer" resultMap="get-user-credentials">
+		SELECT PASSWORD, PASSWORD_DATE
+		FROM PERSON_PASSWORD
+		WHERE PERSON_ID = #id#
+		ORDER BY PASSWORD_DATE DESC
+		LIMIT 1
+	</select>
+	
+	<delete id="prunePasswords" parameterClass="java.util.Map">
+		DELETE FROM PERSON_PASSWORD
+		WHERE PERSON_ID = #id#
+		AND PASSWORD_DATE <![CDATA[ <= ]]> '$pruneDate$'
+	</delete>
 	
 	<insert id="insertUser" parameterClass="java.util.Map">
 		INSERT INTO
-		PERSON (USERNAME, PASSWORD, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
-		VALUES (#username#, #password#, #firstName:VARCHAR#, #lastName:VARCHAR#, #organization:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#, 0)
+		PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
+		VALUES (#username#, #firstName:VARCHAR#, #lastName:VARCHAR#, #organization:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#, 0)
 	</insert>
 	
 	<update id="updateUser" parameterClass="java.util.Map">
 		UPDATE PERSON
 		SET USERNAME = #username#,
-			PASSWORD = #password#,
 			FIRSTNAME = #firstName:VARCHAR#,
 			LASTNAME = #lastName:VARCHAR#,
 			ORGANIZATION = #organization:VARCHAR#,
@@ -58,6 +73,12 @@
 		WHERE ID = #id#
 	</update>
 	
+	<insert id="updateUserPassword" parameterClass="java.util.Map">
+		INSERT INTO
+		PERSON_PASSWORD (PERSON_ID, PASSWORD)
+		VALUES (#id#, #password#)
+	</insert>
+	
 	<delete id="deleteUser" parameterClass="com.mirth.connect.model.User">
 		DELETE FROM PERSON
 		<dynamic prepend="WHERE">
@@ -66,7 +87,19 @@
 			</isNotNull>
 		</dynamic>
 	</delete>
-
+	
+	<update id="startGracePeriod" parameterClass="java.lang.Integer">
+		UPDATE PERSON
+		SET GRACE_PERIOD_START = CURRENT_TIMESTAMP
+		WHERE ID = #id#
+	</update>
+	
+	<update id="clearGracePeriod" parameterClass="java.lang.Integer">
+		UPDATE PERSON
+		SET GRACE_PERIOD_START = NULL
+		WHERE ID = #id#
+	</update>
+	
 	<!-- Login/Logout Procedures -->
 
 	<update id="loginUser" parameterClass="java.lang.Integer">

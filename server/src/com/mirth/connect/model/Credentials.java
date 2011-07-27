@@ -9,23 +9,25 @@
 
 package com.mirth.connect.model;
 
+import java.util.Calendar;
+
 public class Credentials {
-	private String username;
-	private String password;
+    private String password;
+    private Calendar passwordDate;
 
-	public String getPassword() {
-		return password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public Calendar getPasswordDate() {
+        return passwordDate;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public void setPasswordDate(Calendar passwordDate) {
+        this.passwordDate = passwordDate;
+    }
 }

@@ -15,21 +15,27 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.joda.time.Duration;
 import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
 import com.mirth.connect.model.LoginStrike;
+import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class LoginRequirementsChecker {
 
     private String username;
+    private PasswordRequirements passwordRequirements;
     private static Map<String, LoginStrike> userLoginStrikes = new ConcurrentHashMap<String, LoginStrike>();
 
     public LoginRequirementsChecker(String username) {
         this.username = username;
+        this.passwordRequirements = ControllerFactory.getFactory().createConfigurationController().getPasswordRequirements();
     }
 
+    // --- Login Strikes --- //
+    
     public int getStrikeCount() {
         synchronized (userLoginStrikes) {
             return (userLoginStrikes.get(username) == null) ? 0 : userLoginStrikes.get(username).getLastStrikeCount();
@@ -67,11 +73,11 @@ public class LoginRequirementsChecker {
     }
 
     public boolean isLockoutEnabled() {
-        return (ControllerFactory.getFactory().createConfigurationController().getPasswordRequirements().getRetryLimit() > 0);
+        return (passwordRequirements.getRetryLimit() > 0);
     }
 
     public int getStrikesRemaining() {
-        int retryLimit = ControllerFactory.getFactory().createConfigurationController().getPasswordRequirements().getRetryLimit();
+        int retryLimit = passwordRequirements.getRetryLimit();
 
         synchronized (userLoginStrikes) {
             return (retryLimit - getStrikeCount());
@@ -79,7 +85,7 @@ public class LoginRequirementsChecker {
     }
 
     public long getStrikeTimeRemaining() {
-        Duration lockoutPeriod = Duration.standardHours(ControllerFactory.getFactory().createConfigurationController().getPasswordRequirements().getLockoutPeriod());
+        Duration lockoutPeriod = Duration.standardHours(passwordRequirements.getLockoutPeriod());
 
         synchronized (userLoginStrikes) {
             Duration strikeDuration = new Duration(userLoginStrikes.get(username).getLastStrikeTime().getTimeInMillis(), System.currentTimeMillis());
@@ -101,6 +107,32 @@ public class LoginRequirementsChecker {
         }
 
         return periodFormatter.print(period);
+    }
+    
+    public String getPrintableLockoutPeriod() {
+        return PeriodFormat.getDefault().print(Period.hours(passwordRequirements.getLockoutPeriod()));
+    }
+    
+    // --- Login Expiration --- //
+    
+    public boolean isPasswordExpired(long passwordTime, long currentTime) {
+        return (getDurationRemainingFromDays(passwordTime, currentTime, passwordRequirements.getExpiration()).getMillis() < 0);
+    }
+    
+    public long getGraceTimeRemaining(long gracePeriodStartTime, long currentTime) {
+        return getDurationRemainingFromDays(gracePeriodStartTime, currentTime, passwordRequirements.getGracePeriod()).getMillis();
+    }
+    
+    public String getPrintableGraceTimeRemaining(long graceTimeRemaining) {
+        PeriodFormatter periodFormatter = new PeriodFormatterBuilder().printZeroRarelyFirst().appendDays().appendSuffix(" day", " days").appendSeparator(" and ").appendHours().appendSuffix(" hour", " hours").toFormatter();
+        return periodFormatter.print(new Period(graceTimeRemaining));
+    }
+    
+    private Duration getDurationRemainingFromDays(long passwordTime, long currentTime, int durationDays) {
+        Duration expirationDuration = Duration.standardDays(durationDays);
+        Duration passwordDuration = new Duration(passwordTime, currentTime);
+        
+        return expirationDuration.minus(passwordDuration);
     }
 
 }

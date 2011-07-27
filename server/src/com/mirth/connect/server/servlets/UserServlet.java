@@ -87,8 +87,17 @@ public class UserServlet extends MirthServlet {
                     parameterMap.put("user", user);
 
                     if (isUserAuthorized(request, parameterMap) || isCurrentUser(request, user)) {
-                        String password = request.getParameter("password");
-                        userController.updateUser(user, password);
+                        userController.updateUser(user);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
+                } else if (operation.equals(Operations.USER_UPDATE_PASSWORD)) {
+                    User user = (User) serializer.fromXML(request.getParameter("user"));
+                    parameterMap.put("user", user);
+
+                    if (isUserAuthorized(request, parameterMap) || isCurrentUser(request, user)) {
+                        String plainPassword = request.getParameter("plainPassword");
+                        out.println(serializer.toXML(userController.updateUserPassword(user, plainPassword)));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -160,12 +169,12 @@ public class UserServlet extends MirthServlet {
             } else {
                 HttpSession session = request.getSession();
 
-                User user = new User();
-                user.setUsername(username);
-
-                loginStatus = userController.authorizeUser(user, password);
+                loginStatus = userController.authorizeUser(username, password);
                 
-                if (loginStatus.getStatus() == LoginStatus.Status.SUCCESS) {
+                if ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD)) {
+                    User user = new User();
+                    user.setUsername(username);
+                    
                     User validUser = userController.getUser(user).get(0);
 
                     // set the sessions attributes
@@ -191,7 +200,7 @@ public class UserServlet extends MirthServlet {
             event.setName(Operations.USER_LOGIN.getDisplayName());
 
             // Set the outcome to the result of the login attempt
-            event.setOutcome((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) ? Outcome.SUCCESS : Outcome.FAILURE);
+            event.setOutcome(((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD)) ? Outcome.SUCCESS : Outcome.FAILURE);
 
             Map<String, Object> attributes = new HashMap<String, Object>();
             attributes.put("username", username);

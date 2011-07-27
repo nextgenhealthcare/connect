@@ -23,10 +23,12 @@ public class PasswordRequirements implements Serializable {
     private int minLower;
     private int minNumeric;
     private int minSpecial;
-    private int expiration;
-    private int gracePeriod;
     private int retryLimit;
     private int lockoutPeriod;
+    private int expiration;
+    private int gracePeriod;
+    private int reusePeriod;
+    private int reuseLimit;
 
     public PasswordRequirements() {
         this.minLength = 0;
@@ -34,22 +36,26 @@ public class PasswordRequirements implements Serializable {
         this.minLower = 0;
         this.minNumeric = 0;
         this.minSpecial = 0;
-        this.expiration = 0;
-        this.gracePeriod = 0;
         this.retryLimit = 0;
         this.lockoutPeriod = 0;
+        this.expiration = 0;
+        this.gracePeriod = 0;
+        this.reusePeriod = 0;
+        this.reuseLimit = 0;
     }
 
-    public PasswordRequirements(int minLength, int minUpper, int minLower, int minNumeric, int minSpecial, int expiration, int gracePeriod, int retryLimit, int lockoutPeriod) {
+    public PasswordRequirements(int minLength, int minUpper, int minLower, int minNumeric, int minSpecial, int retryLimit, int lockoutPeriod, int expiration, int gracePeriod, int reusePeriod, int reuseLimit) {
         this.minLength = minLength;
         this.minUpper = minUpper;
         this.minLower = minLower;
         this.minNumeric = minNumeric;
         this.minSpecial = minSpecial;
-        this.expiration = expiration;
-        this.gracePeriod = gracePeriod;
         this.retryLimit = retryLimit;
         this.lockoutPeriod = lockoutPeriod;
+        this.expiration = expiration;
+        this.gracePeriod = gracePeriod;
+        this.reusePeriod = reusePeriod;
+        this.reuseLimit = reuseLimit;
     }
 
     public int getMinLength() {
@@ -59,7 +65,7 @@ public class PasswordRequirements implements Serializable {
     public void setMinLength(int minLength) {
         this.minLength = minLength;
     }
-    
+
     public int getMinUpper() {
         return minUpper;
     }
@@ -92,6 +98,22 @@ public class PasswordRequirements implements Serializable {
         this.minSpecial = minSpecial;
     }
 
+    public int getRetryLimit() {
+        return retryLimit;
+    }
+
+    public void setRetryLimit(int retryLimit) {
+        this.retryLimit = retryLimit;
+    }
+
+    public int getLockoutPeriod() {
+        return lockoutPeriod;
+    }
+
+    public void setLockoutPeriod(int lockoutPeriod) {
+        this.lockoutPeriod = lockoutPeriod;
+    }
+    
     public int getExpiration() {
         return expiration;
     }
@@ -108,19 +130,19 @@ public class PasswordRequirements implements Serializable {
         this.gracePeriod = gracePeriod;
     }
 
-    public int getRetryLimit() {
-        return retryLimit;
+    public int getReusePeriod() {
+        return reusePeriod;
     }
 
-    public void setRetryLimit(int retryLimit) {
-        this.retryLimit = retryLimit;
+    public void setReusePeriod(int reusePeriod) {
+        this.reusePeriod = reusePeriod;
     }
 
-    public int getLockoutPeriod() {
-        return lockoutPeriod;
+    public int getReuseLimit() {
+        return reuseLimit;
     }
 
-    public void setLockoutPeriod(int lockoutPeriod) {
-        this.lockoutPeriod = lockoutPeriod;
+    public void setReuseLimit(int reuseLimit) {
+        this.reuseLimit = reuseLimit;
     }
 }

@@ -12,6 +12,7 @@ package com.mirth.connect.server.controllers;
 import java.util.List;
 import java.util.Properties;
 
+import com.mirth.connect.model.Credentials;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
 
@@ -40,10 +41,20 @@ public abstract class UserController extends Controller {
      * Updates the specified user.
      * 
      * @param user
-     * @param plainTextPassword
+     * @param plainPassword
      * @throws ControllerException
      */
-    public abstract void updateUser(User user, String plainTextPassword) throws ControllerException;
+    public abstract void updateUser(User user) throws ControllerException;
+    
+    /**
+     * Updates the specified user's password
+     * 
+     * @param user
+     * @param plainPassword
+     * @return
+     * @throws ControllerException
+     */
+    public abstract List<String> updateUserPassword(User user, String plainPassword) throws ControllerException;
 
     /**
      * Deletes the specified user.
@@ -57,13 +68,21 @@ public abstract class UserController extends Controller {
     /**
      * Authorizes the specified user.
      * 
-     * @param user the user to authorize
-     * @param plainTextPassword the user's password.
+     * @param username the username to authorize
+     * @param plainPassword the user's password.
      * @return <code>true</code> if the specified password matches the user's password, <code>false</code> otherwise
      * @throws ControllerException if the user's password could not be retrieved or verified
      */
-    public abstract LoginStatus authorizeUser(User user, String plainTextPassword) throws ControllerException;
-
+    public abstract LoginStatus authorizeUser(String username, String plainPassword) throws ControllerException;
+    
+    /**
+     * Checks a password against an encrypted password using the User encrypter.
+     * @param plainPassword
+     * @param encryptedPassword
+     * @return
+     */
+    public abstract boolean checkPassword(String plainPassword, String encryptedPassword);
+    
     /**
      * Sets the user's status to logged in.
      * 
@@ -107,4 +126,6 @@ public abstract class UserController extends Controller {
      * @throws ControllerException if the preference could not be set
      */
     public abstract void setUserPreference(User user, String name, String value) throws ControllerException;
+    
+    public abstract List<Credentials> getUserCredentials(User user) throws ControllerException;
 }

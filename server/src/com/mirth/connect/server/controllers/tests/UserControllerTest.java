@@ -51,7 +51,7 @@ public class UserControllerTest extends TestCase {
 
     public void testUpdateUser() throws ControllerException {
         User sampleUser = sampleUserList.get(0);
-        userController.updateUser(sampleUser, "password");
+        userController.updateUser(sampleUser);
         List<User> testUserList = userController.getUser(sampleUser);
         User testUser = testUserList.get(0);
 
@@ -82,9 +82,7 @@ public class UserControllerTest extends TestCase {
     public void testAuthorizeUser() throws ControllerException {
         insertSampleUsers();
 
-        User user = new User();
-        user.setUsername("user0");
-        assertTrue((userController.authorizeUser(user, "password").getStatus() == LoginStatus.Status.SUCCESS));
+        assertTrue((userController.authorizeUser("user0", "password").getStatus() == LoginStatus.Status.SUCCESS));
     }
 
     public void testLoginUser() throws ControllerException {
@@ -106,7 +104,8 @@ public class UserControllerTest extends TestCase {
     public void insertSampleUsers() throws ControllerException {
         for (Iterator iter = sampleUserList.iterator(); iter.hasNext();) {
             User sampleUser = (User) iter.next();
-            userController.updateUser(sampleUser, "password");
+            userController.updateUser(sampleUser);
+            userController.updateUserPassword(sampleUser, "password");
         }
     }
 

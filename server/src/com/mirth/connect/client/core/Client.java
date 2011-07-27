@@ -346,10 +346,16 @@ public class Client {
      * @param user
      * @throws ClientException
      */
-    public synchronized void updateUser(User user, String password) throws ClientException {
+    public synchronized void updateUser(User user) throws ClientException {
         logger.debug("updating user: " + user);
-        NameValuePair[] params = { new NameValuePair("op", Operations.USER_UPDATE.getName()), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("password", password) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.USER_UPDATE.getName()), new NameValuePair("user", serializer.toXML(user)) };
         serverConnection.executePostMethod(USER_SERVLET, params);
+    }
+    
+    public synchronized List<String> updateUserPassword(User user, String plainPassword) throws ClientException {
+        logger.debug("updating password for user: " + user);
+        NameValuePair[] params = { new NameValuePair("op", Operations.USER_UPDATE_PASSWORD.getName()), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("plainPassword", plainPassword) };
+        return (List<String>) serializer.fromXML(serverConnection.executePostMethod(USER_SERVLET, params));
     }
 
     /**

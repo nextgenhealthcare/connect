@@ -18,20 +18,32 @@ import com.ibatis.sqlmap.client.extensions.ResultGetter;
 import com.ibatis.sqlmap.client.extensions.TypeHandlerCallback;
 
 public class CalendarTypeHandler implements TypeHandlerCallback {
-	public void setParameter(ParameterSetter setter, Object parameter) throws SQLException {
-		Calendar calendar = (Calendar) parameter;
-		setter.setTimestamp(new Timestamp(calendar.getTimeInMillis()));
-	}
+    public void setParameter(ParameterSetter setter, Object parameter) throws SQLException {
+        if (parameter == null) {
+            setter.setTimestamp(null);
+        } else {
+            Calendar calendar = (Calendar) parameter;
+            setter.setTimestamp(new Timestamp(calendar.getTimeInMillis()));
+        }
+    }
 
-	public Object getResult(ResultGetter getter) throws SQLException {
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(getter.getTimestamp().getTime());
-		return calendar;
-	}
+    public Object getResult(ResultGetter getter) throws SQLException {
+        if (getter.getTimestamp() == null) {
+            return null;
+        }
 
-	public Object valueOf(String source) {
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(Long.valueOf(source));
-		return calendar;
-	}	
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(getter.getTimestamp().getTime());
+        return calendar;
+    }
+
+    public Object valueOf(String source) {
+        if (source == null) {
+            return null;
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(Long.valueOf(source));
+        return calendar;
+    }
 }
