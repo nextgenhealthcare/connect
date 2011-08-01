@@ -23,6 +23,7 @@ import com.mirth.connect.model.User;
 public class LoginPanel extends javax.swing.JFrame {
 
     private Client client;
+    private static final String ERROR_MESSAGE = "There was an error connecting to the specified server address. Please verify that the server is up and running.";
 
     public LoginPanel(String mirthServer, String version, String user, String pass) {
         PlatformUI.CLIENT_VERSION = version;
@@ -374,7 +375,7 @@ public class LoginPanel extends javax.swing.JFrame {
                     try {
                         loginStatus = client.login(username.getText(), String.valueOf(password.getPassword()), PlatformUI.CLIENT_VERSION);
                     } catch (ClientException ex) {
-                        errorTextArea.setText("There was an error connecting to the specified server address. Please verify that the server is up and running.");
+                        // Leave loginStatus null, the error message will be set to the default
                     }
                     
                     // If SUCCESS or SUCCESS_GRACE_PERIOD
@@ -399,7 +400,11 @@ public class LoginPanel extends javax.swing.JFrame {
                         PlatformUI.MIRTH_FRAME.checkForUpdates();
                         PlatformUI.MIRTH_FRAME.sendUsageStatistics();
                     } else {
-                        errorTextArea.setText(loginStatus.getMessage());
+                        if (loginStatus != null) {
+                            errorTextArea.setText(loginStatus.getMessage());
+                        } else {
+                            errorTextArea.setText(ERROR_MESSAGE);
+                        }
                         errorPane.setVisible(true);
                         loggingIn.setVisible(false);
                         loginMain.setVisible(true);
