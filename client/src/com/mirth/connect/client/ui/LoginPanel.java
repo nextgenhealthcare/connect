@@ -23,7 +23,7 @@ import com.mirth.connect.model.User;
 public class LoginPanel extends javax.swing.JFrame {
 
     private Client client;
-    private static final String ERROR_MESSAGE = "There was an error connecting to the specified server address. Please verify that the server is up and running.";
+    private static final String ERROR_MESSAGE = "There was an error connecting to the server at the specified address. Please verify that the server is up and running.";
 
     public LoginPanel(String mirthServer, String version, String user, String pass) {
         PlatformUI.CLIENT_VERSION = version;
@@ -181,9 +181,9 @@ public class LoginPanel extends javax.swing.JFrame {
 
         errorTextArea.setColumns(20);
         errorTextArea.setEditable(false);
-        errorTextArea.setFont(new java.awt.Font("Tahoma", 0, 11));
+        errorTextArea.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         errorTextArea.setLineWrap(true);
-        errorTextArea.setText("There was an error connecting to the specified server address. Please verify that the server is up and running.");
+        errorTextArea.setText("There was an error connecting to the server at the specified address. Please verify that the server is up and running.");
         errorTextArea.setWrapStyleWord(true);
         errorTextArea.setEnabled(false);
         errorPane.setViewportView(errorTextArea);
