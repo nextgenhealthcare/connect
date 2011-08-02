@@ -42,7 +42,11 @@ public class SftpConnection implements FileSystemConnection {
 		}
 
 		public long getLastModified() {
-			return theFile.getAttrs().getMTime();
+            /*
+             * The time returned in in seconds, so we need to convert it to
+             * milliseconds. See MIRTH-1913.
+             */
+            return Long.valueOf(theFile.getAttrs().getMTime()) * 1000L;
 		}
 
 		public String getName() {

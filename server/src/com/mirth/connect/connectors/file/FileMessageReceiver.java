@@ -174,7 +174,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
         if (checkFileAge) {
             long fileAge = fileConnector.getFileAge();
             long lastMod = file.getLastModified();
-            long now = (new java.util.Date()).getTime();
+            long now = System.currentTimeMillis();
             if ((now - lastMod) < fileAge)
                 return;
         }
