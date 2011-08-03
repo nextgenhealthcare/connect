@@ -56,55 +56,55 @@ public class EmailSender extends ConnectorClass {
     public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(EmailSenderProperties.DATATYPE, name);
-        properties.put(EmailSenderProperties.SMTP_HOST, smtpHostField.getText());
-        properties.put(EmailSenderProperties.SMTP_PORT, smtpPortField.getText());
+        properties.put(EmailSenderProperties.EMAIL_HOST, smtpHostField.getText());
+        properties.put(EmailSenderProperties.EMAIL_PORT, smtpPortField.getText());
 
         if (encryptionTls.isSelected()) {
-            properties.put(EmailSenderProperties.SMTP_SECURE, "TLS");
+            properties.put(EmailSenderProperties.EMAIL_SECURE, "TLS");
         } else if (encryptionSsl.isSelected()) {
-            properties.put(EmailSenderProperties.SMTP_SECURE, "SSL");
+            properties.put(EmailSenderProperties.EMAIL_SECURE, "SSL");
         } else {
-            properties.put(EmailSenderProperties.SMTP_SECURE, "none");
+            properties.put(EmailSenderProperties.EMAIL_SECURE, "none");
         }
 
         if (useAuthenticationYes.isSelected()) {
-            properties.put(EmailSenderProperties.SMTP_AUTHENTICATION, UIConstants.YES_OPTION);
+            properties.put(EmailSenderProperties.EMAIL_AUTHENTICATION, UIConstants.YES_OPTION);
         } else {
-            properties.put(EmailSenderProperties.SMTP_AUTHENTICATION, UIConstants.NO_OPTION);
+            properties.put(EmailSenderProperties.EMAIL_AUTHENTICATION, UIConstants.NO_OPTION);
         }
 
-        properties.put(EmailSenderProperties.SMTP_USERNAME, usernameField.getText());
-        properties.put(EmailSenderProperties.SMTP_PASSWORD, new String(passwordField.getPassword()));
-        properties.put(EmailSenderProperties.SMTP_TO, toField.getText());
-        properties.put(EmailSenderProperties.SMTP_FROM, fromField.getText());
-        properties.put(EmailSenderProperties.SMTP_SUBJECT, subjectField.getText());
+        properties.put(EmailSenderProperties.EMAIL_USERNAME, usernameField.getText());
+        properties.put(EmailSenderProperties.EMAIL_PASSWORD, new String(passwordField.getPassword()));
+        properties.put(EmailSenderProperties.EMAIL_TO, toField.getText());
+        properties.put(EmailSenderProperties.EMAIL_FROM, fromField.getText());
+        properties.put(EmailSenderProperties.EMAIL_SUBJECT, subjectField.getText());
 
         if (htmlYes.isSelected()) {
-            properties.put(EmailSenderProperties.SMTP_HTML, UIConstants.YES_OPTION);
+            properties.put(EmailSenderProperties.EMAIL_HTML, UIConstants.YES_OPTION);
         } else {
-            properties.put(EmailSenderProperties.SMTP_HTML, UIConstants.NO_OPTION);
+            properties.put(EmailSenderProperties.EMAIL_HTML, UIConstants.NO_OPTION);
         }
 
-        properties.put(EmailSenderProperties.SMTP_BODY, bodyTextPane.getText());
-        properties.put(EmailSenderProperties.SMTP_ATTACHMENTS, serializer.toXML(getAttachments()));
+        properties.put(EmailSenderProperties.EMAIL_BODY, bodyTextPane.getText());
+        properties.put(EmailSenderProperties.EMAIL_ATTACHMENTS, serializer.toXML(getAttachments()));
         return properties;
     }
 
     public void setProperties(Properties props) {
         resetInvalidProperties();
 
-        smtpHostField.setText((String) props.get(EmailSenderProperties.SMTP_HOST));
-        smtpPortField.setText((String) props.get(EmailSenderProperties.SMTP_PORT));
+        smtpHostField.setText((String) props.get(EmailSenderProperties.EMAIL_HOST));
+        smtpPortField.setText((String) props.get(EmailSenderProperties.EMAIL_PORT));
 
-        if (((String) props.getProperty(EmailSenderProperties.SMTP_SECURE)).equalsIgnoreCase("TLS")) {
+        if (((String) props.getProperty(EmailSenderProperties.EMAIL_SECURE)).equalsIgnoreCase("TLS")) {
             encryptionTls.setSelected(true);
-        } else if (((String) props.getProperty(EmailSenderProperties.SMTP_SECURE)).equalsIgnoreCase("SSL")) {
+        } else if (((String) props.getProperty(EmailSenderProperties.EMAIL_SECURE)).equalsIgnoreCase("SSL")) {
             encryptionSsl.setSelected(true);
         } else {
             encryptionNone.setSelected(true);
         }
 
-        if (((String) props.get(EmailSenderProperties.SMTP_AUTHENTICATION)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+        if (((String) props.get(EmailSenderProperties.EMAIL_AUTHENTICATION)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             useAuthenticationYesActionPerformed(null);
             useAuthenticationYes.setSelected(true);
         } else {
@@ -112,21 +112,21 @@ public class EmailSender extends ConnectorClass {
             useAuthenticationNo.setSelected(true);
         }
 
-        usernameField.setText((String) props.get(EmailSenderProperties.SMTP_USERNAME));
-        passwordField.setText((String) props.get(EmailSenderProperties.SMTP_PASSWORD));
-        toField.setText((String) props.get(EmailSenderProperties.SMTP_TO));
-        fromField.setText((String) props.get(EmailSenderProperties.SMTP_FROM));
-        subjectField.setText((String) props.get(EmailSenderProperties.SMTP_SUBJECT));
+        usernameField.setText((String) props.get(EmailSenderProperties.EMAIL_USERNAME));
+        passwordField.setText((String) props.get(EmailSenderProperties.EMAIL_PASSWORD));
+        toField.setText((String) props.get(EmailSenderProperties.EMAIL_TO));
+        fromField.setText((String) props.get(EmailSenderProperties.EMAIL_FROM));
+        subjectField.setText((String) props.get(EmailSenderProperties.EMAIL_SUBJECT));
 
-        if (((String) props.get(EmailSenderProperties.SMTP_HTML)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+        if (((String) props.get(EmailSenderProperties.EMAIL_HTML)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             htmlYes.setSelected(true);
         } else {
             htmlNo.setSelected(true);
         }
 
-        bodyTextPane.setText((String) props.get(EmailSenderProperties.SMTP_BODY));
+        bodyTextPane.setText((String) props.get(EmailSenderProperties.EMAIL_BODY));
         
-        List<Attachment> attachments = (List<Attachment>) serializer.fromXML((String) props.get(EmailSenderProperties.SMTP_ATTACHMENTS));
+        List<Attachment> attachments = (List<Attachment>) serializer.fromXML((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENTS));
         setAttachments(attachments);
     }
 
@@ -138,20 +138,20 @@ public class EmailSender extends ConnectorClass {
         resetInvalidProperties();
         boolean valid = true;
 
-        if (((String) props.get(EmailSenderProperties.SMTP_HOST)).length() == 0) {
+        if (((String) props.get(EmailSenderProperties.EMAIL_HOST)).length() == 0) {
             valid = false;
             if (highlight) {
                 smtpHostField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (((String) props.get(EmailSenderProperties.SMTP_PORT)).length() == 0) {
+        if (((String) props.get(EmailSenderProperties.EMAIL_PORT)).length() == 0) {
             valid = false;
             if (highlight) {
                 smtpPortField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         
-        if (((String) props.get(EmailSenderProperties.SMTP_TO)).length() == 0) {
+        if (((String) props.get(EmailSenderProperties.EMAIL_TO)).length() == 0) {
             valid = false;
             if (highlight) {
                 toField.setBackground(UIConstants.INVALID_COLOR);
