@@ -19,41 +19,41 @@ public class EmailSenderProperties implements ComponentProperties {
     public static final String name = "Email Sender";
 
     public static final String DATATYPE = "DataType";
-    public static final String SMTP_HOST = "dispatcherSmtpHost";
-    public static final String SMTP_PORT = "dispatcherSmtpPort";
-    public static final String SMTP_SECURE = "dispatcherEncryption";
-    public static final String SMTP_AUTHENTICATION = "dispatcherAuthentication";
-    public static final String SMTP_USERNAME = "dispatcherUsername";
-    public static final String SMTP_PASSWORD = "dispatcherPassword";
-    public static final String SMTP_TO = "dispatcherTo";
-    public static final String SMTP_REPLY_TO = "dispatcherReplyTo";
-    public static final String SMTP_FROM = "dispatcherFrom";
-    public static final String SMTP_SUBJECT = "dispatcherSubject";
-    public static final String SMTP_BODY = "dispatcherBody";
-    public static final String SMTP_HTML = "dispatcherHtml";
-    public static final String SMTP_ATTACHMENTS = "dispatcherAttachments";
+    public static final String EMAIL_HOST = "dispatcherSmtpHost";
+    public static final String EMAIL_PORT = "dispatcherSmtpPort";
+    public static final String EMAIL_SECURE = "dispatcherEncryption";
+    public static final String EMAIL_AUTHENTICATION = "dispatcherAuthentication";
+    public static final String EMAIL_USERNAME = "dispatcherUsername";
+    public static final String EMAIL_PASSWORD = "dispatcherPassword";
+    public static final String EMAIL_TO = "dispatcherTo";
+    public static final String EMAIL_REPLY_TO = "dispatcherReplyTo";
+    public static final String EMAIL_FROM = "dispatcherFrom";
+    public static final String EMAIL_SUBJECT = "dispatcherSubject";
+    public static final String EMAIL_BODY = "dispatcherBody";
+    public static final String EMAIL_HTML = "dispatcherHtml";
+    public static final String EMAIL_ATTACHMENTS = "dispatcherAttachments";
 
     public Properties getDefaults() {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(SMTP_HOST, "");
-        properties.put(SMTP_PORT, "25");
-        properties.put(SMTP_SECURE, "none");
-        properties.put(SMTP_AUTHENTICATION, "0");
-        properties.put(SMTP_USERNAME, "");
-        properties.put(SMTP_PASSWORD, "");
-        properties.put(SMTP_TO, "");
-        properties.put(SMTP_FROM, "");
-        properties.put(SMTP_SUBJECT, "");
-        properties.put(SMTP_BODY, "");
-        properties.put(SMTP_HTML, "0");
+        properties.put(EMAIL_HOST, "");
+        properties.put(EMAIL_PORT, "25");
+        properties.put(EMAIL_SECURE, "none");
+        properties.put(EMAIL_AUTHENTICATION, "0");
+        properties.put(EMAIL_USERNAME, "");
+        properties.put(EMAIL_PASSWORD, "");
+        properties.put(EMAIL_TO, "");
+        properties.put(EMAIL_FROM, "");
+        properties.put(EMAIL_SUBJECT, "");
+        properties.put(EMAIL_BODY, "");
+        properties.put(EMAIL_HTML, "0");
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        properties.put(SMTP_ATTACHMENTS, serializer.toXML(new ArrayList<Attachment>()));
+        properties.put(EMAIL_ATTACHMENTS, serializer.toXML(new ArrayList<Attachment>()));
         return properties;
     }
 
     public static String getInformation(Properties properties) {
-        return "From: " + properties.getProperty(SMTP_FROM) + " To: " + properties.getProperty(SMTP_TO) + " SMTP Info: " + properties.getProperty(SMTP_HOST) + ":" + properties.getProperty(SMTP_PORT);
+        return "From: " + properties.getProperty(EMAIL_FROM) + " To: " + properties.getProperty(EMAIL_TO) + " SMTP Info: " + properties.getProperty(EMAIL_HOST) + ":" + properties.getProperty(EMAIL_PORT);
     }
 
 }

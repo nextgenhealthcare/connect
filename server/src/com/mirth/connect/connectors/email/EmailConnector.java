@@ -14,8 +14,8 @@ import java.util.List;
 import org.mule.providers.AbstractServiceEnabledConnector;
 
 /**
- * The SMTP connector is used to send email messages using a designated SMTP
- * server.
+ * The Email connector is used to send and receive email messages using a
+ * designated SMTP/IMAP/POP3 server.
  * 
  * @author GeraldB
  * 
@@ -23,6 +23,7 @@ import org.mule.providers.AbstractServiceEnabledConnector;
 public class EmailConnector extends AbstractServiceEnabledConnector {
     private String channelId;
 
+    // dispatcher properties
     private String dispatcherSmtpHost;
     private int dispatcherSmtpPort = 25;
     private int dispatcherTimeout = 5000;
@@ -39,6 +40,15 @@ public class EmailConnector extends AbstractServiceEnabledConnector {
     private String dispatcherBody;
     private boolean dispatcherHtml = false;
     private List<Attachment> dispatcherAttachments;
+
+    // receiver properties
+    private String receiverProtocol;
+    private String receiverHost;
+    private int receiverPort;
+    private String receiverEncryption;
+    private Long receiverFrequency;
+    private String receiverUsername;
+    private String receiverPassword;
 
     @Override
     public String getProtocol() {
@@ -68,7 +78,7 @@ public class EmailConnector extends AbstractServiceEnabledConnector {
     public void setDispatcherSmtpPort(int dispatcherSmtpPort) {
         this.dispatcherSmtpPort = dispatcherSmtpPort;
     }
-    
+
     public int getDispatcherTimeout() {
         return dispatcherTimeout;
     }
@@ -179,6 +189,62 @@ public class EmailConnector extends AbstractServiceEnabledConnector {
 
     public void setDispatcherAttachments(List<Attachment> dispatcherAttachments) {
         this.dispatcherAttachments = dispatcherAttachments;
+    }
+
+    public String getReceiverProtocol() {
+        return receiverProtocol;
+    }
+
+    public void setReceiverProtocol(String receiverProtocol) {
+        this.receiverProtocol = receiverProtocol;
+    }
+
+    public String getReceiverHost() {
+        return receiverHost;
+    }
+
+    public void setReceiverHost(String receiverHost) {
+        this.receiverHost = receiverHost;
+    }
+
+    public int getReceiverPort() {
+        return receiverPort;
+    }
+
+    public void setReceiverPort(int receiverPort) {
+        this.receiverPort = receiverPort;
+    }
+
+    public String getReceiverEncryption() {
+        return receiverEncryption;
+    }
+
+    public void setReceiverEncryption(String receiverEncryption) {
+        this.receiverEncryption = receiverEncryption;
+    }
+
+    public Long getReceiverFrequency() {
+        return receiverFrequency;
+    }
+
+    public void setReceiverFrequency(Long receiverFrequency) {
+        this.receiverFrequency = receiverFrequency;
+    }
+
+    public String getReceiverUsername() {
+        return receiverUsername;
+    }
+
+    public void setReceiverUsername(String receiverUsername) {
+        this.receiverUsername = receiverUsername;
+    }
+
+    public String getReceiverPassword() {
+        return receiverPassword;
+    }
+
+    public void setReceiverPassword(String receiverPassword) {
+        this.receiverPassword = receiverPassword;
     }
 
 }
