@@ -9,10 +9,10 @@
 	<typeHandler javaType="com.mirth.connect.model.CodeTemplate$CodeSnippetType" callback="com.mirth.connect.server.sqlmap.extensions.CodeSnippetTypeHandler" />
 	<typeHandler javaType="com.mirth.connect.model.Event$Level" callback="com.mirth.connect.server.sqlmap.extensions.EventLevelTypeHandler" />
 	<typeHandler javaType="com.mirth.connect.model.Event$Outcome" callback="com.mirth.connect.server.sqlmap.extensions.EventOutcomeTypeHandler" />
-	<typeHandler javaType="com.mirth.connect.model.Connector" callback="com.mirth.connect.server.sqlmap.extensions.ConnectorTypeHandler" />
-	<typeHandler javaType="java.util.List" callback="com.mirth.connect.server.sqlmap.extensions.ListTypeHandler" />
-	<typeHandler javaType="java.util.Properties" callback="com.mirth.connect.server.sqlmap.extensions.PropertiesTypeHandler" />
-	<typeHandler javaType="java.util.Map" callback="com.mirth.connect.server.sqlmap.extensions.MapTypeHandler" />
+	<typeHandler javaType="com.mirth.connect.model.Connector" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
+	<typeHandler javaType="java.util.List" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
+	<typeHandler javaType="java.util.Properties" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
+	<typeHandler javaType="java.util.Map" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
 	<typeHandler javaType="java.util.Calendar" callback="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />
 	
 	<transactionManager type="JDBC">

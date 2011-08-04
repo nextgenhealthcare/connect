@@ -10,26 +10,24 @@
 package com.mirth.connect.server.sqlmap.extensions;
 
 import java.sql.SQLException;
-import java.util.List;
 
 import com.ibatis.sqlmap.client.extensions.ParameterSetter;
 import com.ibatis.sqlmap.client.extensions.ResultGetter;
 import com.ibatis.sqlmap.client.extensions.TypeHandlerCallback;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
-public class ListTypeHandler implements TypeHandlerCallback {
-	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+public class SerializedObjectTypeHandler implements TypeHandlerCallback {
+    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
-	public void setParameter(ParameterSetter setter, Object parameter) throws SQLException {
-		List list = (List) parameter;
-		setter.setString(serializer.toXML(list));
-	}
+    public void setParameter(ParameterSetter setter, Object parameter) throws SQLException {
+        setter.setString(serializer.toXML(parameter));
+    }
 
-	public Object getResult(ResultGetter getter) throws SQLException {
-		return (List) serializer.fromXML(getter.getString());
-	}
+    public Object getResult(ResultGetter getter) throws SQLException {
+        return serializer.fromXML(getter.getString());
+    }
 
-	public Object valueOf(String source) {
-		return source;
-	}
+    public Object valueOf(String source) {
+        return source;
+    }
 }
