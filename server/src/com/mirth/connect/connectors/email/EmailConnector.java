@@ -46,9 +46,22 @@ public class EmailConnector extends AbstractServiceEnabledConnector {
     private String receiverHost;
     private int receiverPort;
     private String receiverEncryption;
-    private Long receiverFrequency;
     private String receiverUsername;
     private String receiverPassword;
+
+    private String pollingType;
+    private long pollingFrequency;
+    private String pollingTime;
+
+    private String receiverContent;
+    private String receiverFilterExpression;
+
+    private String receiverFolder;
+    private boolean receiverProcessUnread;
+    private String receiverOnProcess;
+    private String receiverMoveFolder;
+    private boolean receiverMarkRead;
+    private String receiverMoveError;
 
     @Override
     public String getProtocol() {
@@ -223,14 +236,6 @@ public class EmailConnector extends AbstractServiceEnabledConnector {
         this.receiverEncryption = receiverEncryption;
     }
 
-    public Long getReceiverFrequency() {
-        return receiverFrequency;
-    }
-
-    public void setReceiverFrequency(Long receiverFrequency) {
-        this.receiverFrequency = receiverFrequency;
-    }
-
     public String getReceiverUsername() {
         return receiverUsername;
     }
@@ -247,4 +252,91 @@ public class EmailConnector extends AbstractServiceEnabledConnector {
         this.receiverPassword = receiverPassword;
     }
 
+    public String getPollingType() {
+        return pollingType;
+    }
+
+    public void setPollingType(String pollingType) {
+        this.pollingType = pollingType;
+    }
+
+    public long getPollingFrequency() {
+        return pollingFrequency;
+    }
+
+    public void setPollingFrequency(long pollingFrequency) {
+        this.pollingFrequency = pollingFrequency;
+    }
+
+    public String getPollingTime() {
+        return pollingTime;
+    }
+
+    public void setPollingTime(String pollingTime) {
+        this.pollingTime = pollingTime;
+    }
+
+    public String getReceiverContent() {
+        return receiverContent;
+    }
+
+    public void setReceiverContent(String receiverContent) {
+        this.receiverContent = receiverContent;
+    }
+
+    public String getReceiverFilterExpression() {
+        return receiverFilterExpression;
+    }
+
+    public void setReceiverFilterExpression(String receiverFilterExpression) {
+        this.receiverFilterExpression = receiverFilterExpression;
+    }
+
+    public String getReceiverFolder() {
+        return receiverFolder;
+    }
+
+    public void setReceiverFolder(String receiverFolder) {
+        this.receiverFolder = receiverFolder;
+    }
+
+    public boolean isReceiverProcessUnread() {
+        return receiverProcessUnread;
+    }
+
+    public void setReceiverProcessUnread(boolean receiverProcessUnread) {
+        this.receiverProcessUnread = receiverProcessUnread;
+    }
+
+    public String getReceiverOnProcess() {
+        return receiverOnProcess;
+    }
+
+    public void setReceiverOnProcess(String receiverOnProcess) {
+        this.receiverOnProcess = receiverOnProcess;
+    }
+
+    public String getReceiverMoveFolder() {
+        return receiverMoveFolder;
+    }
+
+    public void setReceiverMoveFolder(String receiverMoveFolder) {
+        this.receiverMoveFolder = receiverMoveFolder;
+    }
+
+    public boolean isReceiverMarkRead() {
+        return receiverMarkRead;
+    }
+
+    public void setReceiverMarkRead(boolean receiverMarkRead) {
+        this.receiverMarkRead = receiverMarkRead;
+    }
+
+    public String getReceiverMoveError() {
+        return receiverMoveError;
+    }
+
+    public void setReceiverMoveError(String receiverMoveError) {
+        this.receiverMoveError = receiverMoveError;
+    }
 }
