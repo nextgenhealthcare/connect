@@ -31,6 +31,7 @@ import org.mule.umo.UMOEvent;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.ibatis.sqlmap.client.SqlMapSession;
+import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.MessageObject;
@@ -44,8 +45,6 @@ import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.UUIDGenerator;
 import com.mirth.connect.server.util.VMRouter;
-import com.mirth.connect.util.Encrypter;
-import com.mirth.connect.util.EncryptionException;
 import com.mirth.connect.util.QueueUtil;
 
 public class DefaultMessageObjectController extends MessageObjectController {
@@ -174,11 +173,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
                 logger.debug("message is not stored");
                 return;
             } else if (channel.getProperties().getProperty("encryptData").equals("true")) {
-                try {
-                    encryptMessageData(messageObject);
-                } catch (EncryptionException e) {
-                    logger.error("message logging halted. could not encrypt message. id=" + messageObject.getId(), e);
-                }
+                encryptMessageData(messageObject);
             }
         }
 
@@ -249,43 +244,43 @@ public class DefaultMessageObjectController extends MessageObjectController {
         }
     }
 
-    private void encryptMessageData(MessageObject messageObject) throws EncryptionException {
-        Encrypter encrypter = new Encrypter(configurationController.getEncryptionKey());
+    private void encryptMessageData(MessageObject messageObject) {
+        Encryptor encryptor = configurationController.getEncryptor();
 
         if (messageObject.getRawData() != null) {
-            String encryptedRawData = encrypter.encrypt(messageObject.getRawData());
+            String encryptedRawData = encryptor.encrypt(messageObject.getRawData());
             messageObject.setRawData(encryptedRawData);
         }
 
         if (messageObject.getTransformedData() != null) {
-            String encryptedTransformedData = encrypter.encrypt(messageObject.getTransformedData());
+            String encryptedTransformedData = encryptor.encrypt(messageObject.getTransformedData());
             messageObject.setTransformedData(encryptedTransformedData);
         }
 
         if (messageObject.getEncodedData() != null) {
-            String encryptedEncodedData = encrypter.encrypt(messageObject.getEncodedData());
+            String encryptedEncodedData = encryptor.encrypt(messageObject.getEncodedData());
             messageObject.setEncodedData(encryptedEncodedData);
         }
 
         messageObject.setEncrypted(true);
     }
 
-    private void decryptMessageData(MessageObject messageObject) throws EncryptionException {
+    private void decryptMessageData(MessageObject messageObject) {
         if (messageObject.isEncrypted()) {
-            Encrypter encrypter = new Encrypter(configurationController.getEncryptionKey());
-
+            Encryptor encryptor = configurationController.getEncryptor();
+            
             if (messageObject.getRawData() != null) {
-                String decryptedRawData = encrypter.decrypt(messageObject.getRawData());
+                String decryptedRawData = encryptor.decrypt(messageObject.getRawData());
                 messageObject.setRawData(decryptedRawData);
             }
 
             if (messageObject.getTransformedData() != null) {
-                String decryptedTransformedData = encrypter.decrypt(messageObject.getTransformedData());
+                String decryptedTransformedData = encryptor.decrypt(messageObject.getTransformedData());
                 messageObject.setTransformedData(decryptedTransformedData);
             }
 
             if (messageObject.getEncodedData() != null) {
-                String decryptedEncodedData = encrypter.decrypt(messageObject.getEncodedData());
+                String decryptedEncodedData = encryptor.decrypt(messageObject.getEncodedData());
                 messageObject.setEncodedData(decryptedEncodedData);
             }
         }

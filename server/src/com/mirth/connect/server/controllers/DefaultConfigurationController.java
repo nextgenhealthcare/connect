@@ -18,7 +18,7 @@ import java.nio.charset.Charset;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
-import java.security.Security;
+import java.security.Provider;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
@@ -54,6 +54,9 @@ import org.bouncycastle.x509.X509V1CertificateGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.mirth.commons.encryption.Digester;
+import com.mirth.commons.encryption.Encryptor;
+import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.PasswordRequirements;
@@ -62,7 +65,6 @@ import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.JMXConnection;
@@ -70,7 +72,6 @@ import com.mirth.connect.server.util.JMXConnectionFactory;
 import com.mirth.connect.server.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.Encrypter;
 import com.mirth.connect.util.PropertyVerifier;
 
 /**
@@ -83,13 +84,15 @@ public class DefaultConfigurationController extends ConfigurationController {
     private Logger logger = Logger.getLogger(this.getClass());
     private String appDataDir = null;
     private String baseDir = null;
-    private static SecretKey encryptionKey = null;
     private static String serverId = null;
     private boolean isEngineStarting = true;
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private PasswordRequirements passwordRequirements;
     private static PropertiesConfiguration versionConfig = new PropertiesConfiguration();
     private static PropertiesConfiguration mirthConfig = new PropertiesConfiguration();
+
+    private static KeyEncryptor encryptor = null;
+    private static Digester digester = null;
 
     private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
     private static final String PROPERTY_TEMP_DIR = "dir.tempdata";
@@ -188,6 +191,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     /*
      * Return the server GUID
      */
+    @Override
     public String getServerId() {
         return serverId;
     }
@@ -195,6 +199,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     /*
      * Return the server timezone in the following format: PDT (UTC -7)
      */
+    @Override
     public String getServerTimezone(Locale locale) {
         TimeZone timeZone = TimeZone.getDefault();
         boolean daylight = timeZone.inDaylightTime(new Date());
@@ -213,6 +218,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     // ast: Get the list of all avaiable encodings for this JVM
+    @Override
     public List<String> getAvaiableCharsetEncodings() throws ControllerException {
         logger.debug("Retrieving avaiable character encodings");
 
@@ -240,10 +246,12 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
+    @Override
     public ServerSettings getServerSettings() throws ControllerException {
         return new ServerSettings(getPropertiesForGroup(PROPERTIES_CORE));
     }
 
+    @Override
     public void setServerSettings(ServerSettings settings) throws ControllerException {
         Properties properties = settings.getProperties();
         for (Object name : properties.keySet()) {
@@ -251,10 +259,12 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
+    @Override
     public UpdateSettings getUpdateSettings() throws ControllerException {
         return new UpdateSettings(getPropertiesForGroup(PROPERTIES_CORE));
     }
 
+    @Override
     public void setUpdateSettings(UpdateSettings settings) throws ControllerException {
         Properties properties = settings.getProperties();
         for (Object name : properties.keySet()) {
@@ -262,42 +272,27 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
+    @Override
     public String generateGuid() {
         return UUID.randomUUID().toString();
     }
 
+    @Override
     public String getDatabaseType() {
         return mirthConfig.getString("database");
     }
 
-    public SecretKey getEncryptionKey() {
-        return encryptionKey;
+    @Override
+    public Encryptor getEncryptor() {
+        return encryptor;
     }
 
-    public void loadEncryptionKey() {
-        logger.debug("loading encryption key");
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-
-        try {
-            String data = (String) SqlConfig.getSqlMapClient().queryForObject("Configuration.getKey");
-            boolean isKeyFound = false;
-
-            if (data != null) {
-                logger.debug("encryption key found");
-                encryptionKey = (SecretKey) serializer.fromXML(data);
-                isKeyFound = true;
-            }
-
-            if (!isKeyFound) {
-                logger.debug("no key found, creating new encryption key");
-                encryptionKey = KeyGenerator.getInstance(Encrypter.DES_ALGORITHM).generateKey();
-                SqlConfig.getSqlMapClient().insert("Configuration.insertKey", serializer.toXML(encryptionKey));
-            }
-        } catch (Exception e) {
-            logger.error("error loading encryption key", e);
-        }
+    @Override
+    public Digester getDigester() {
+        return digester;
     }
 
+    @Override
     public List<DriverInfo> getDatabaseDrivers() throws ControllerException {
         logger.debug("retrieving database driver list");
         File driversFile = new File(ClassPathResource.getResourceURI("dbdrivers.xml"));
@@ -324,18 +319,22 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
+    @Override
     public String getServerVersion() {
         return versionConfig.getString("mirth.version");
     }
 
+    @Override
     public int getSchemaVersion() {
         return versionConfig.getInt("schema.version", -1);
     }
 
+    @Override
     public String getBuildDate() {
         return versionConfig.getString("mirth.date");
     }
 
+    @Override
     public int getStatus() {
         logger.debug("getting Mirth status");
 
@@ -405,6 +404,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
+    @Override
     public ServerConfiguration getServerConfiguration() throws ControllerException {
         ChannelController channelController = ControllerFactory.getFactory().createChannelController();
         AlertController alertController = ControllerFactory.getFactory().createAlertController();
@@ -436,6 +436,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         return serverConfiguration;
     }
 
+    @Override
     public void setServerConfiguration(ServerConfiguration serverConfiguration) throws ControllerException {
         ChannelController channelController = ControllerFactory.getFactory().createChannelController();
         AlertController alertController = ControllerFactory.getFactory().createAlertController();
@@ -483,7 +484,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         if (serverConfiguration.getServerSettings() != null) {
             setServerSettings(serverConfiguration.getServerSettings());
         }
-        
+
         if (serverConfiguration.getUpdateSettings() != null) {
             setUpdateSettings(serverConfiguration.getUpdateSettings());
         }
@@ -506,30 +507,37 @@ public class DefaultConfigurationController extends ConfigurationController {
         engineController.redeployAllChannels(ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
     }
 
+    @Override
     public boolean isEngineStarting() {
         return isEngineStarting;
     }
 
+    @Override
     public void setEngineStarting(boolean isEngineStarting) {
         this.isEngineStarting = isEngineStarting;
     }
 
+    @Override
     public String getBaseDir() {
         return baseDir;
     }
 
+    @Override
     public String getApplicationDataDir() {
         return appDataDir;
     }
 
+    @Override
     public String getConfigurationDir() {
         return baseDir + File.separator + "conf";
     }
 
+    @Override
     public PasswordRequirements getPasswordRequirements() {
         return passwordRequirements;
     }
 
+    @Override
     public Properties getPropertiesForGroup(String category) {
         logger.debug("retrieving properties: category=" + category);
         Properties properties = new Properties();
@@ -574,6 +582,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         return null;
     }
 
+    @Override
     public void saveProperty(String category, String name, String value) {
         logger.debug("storing property: category=" + category + ", name=" + name);
 
@@ -597,6 +606,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
+    @Override
     public void removeProperty(String category, String name) {
         logger.debug("deleting property: category=" + category + ", name=" + name);
 
@@ -610,89 +620,140 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
-    public void generateKeyPair() {
+    @Override
+    public void initializeSecuritySettings() {
+        PropertiesConfiguration properties = new PropertiesConfiguration();
+        properties.setDelimiterParsingDisabled(true);
+
         try {
-            // load keystore properties
-            PropertiesConfiguration properties = new PropertiesConfiguration();
-            properties.setDelimiterParsingDisabled(true);
             properties.load(ResourceUtil.getResourceStream(this.getClass(), "mirth.properties"));
 
-            String alias = properties.getString("keystore.alias");
             File keyStoreFile = new File(properties.getString("keystore.path"));
             String keyStoreType = properties.getString("keystore.storetype");
             char[] keyStorePassword = properties.getString("keystore.storepass").toCharArray();
             char[] keyPassword = properties.getString("keystore.keypass").toCharArray();
+
+            Provider provider = (Provider) Class.forName(properties.getString("security.provider", BouncyCastleProvider.class.getName())).newInstance();
 
             // load the keystore if it exists, otherwise create a new one
             KeyStore keyStore = KeyStore.getInstance(keyStoreType);
 
             if (keyStoreFile.exists()) {
                 keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
+                logger.debug("found and loaded keystore: " + keyStoreFile.getAbsolutePath());
             } else {
                 keyStore.load(null, keyStorePassword);
+                logger.debug("keystore file not found, created new one");
             }
 
-            if (keyStore.getCertificate(alias) == null) {
-                // add the BC provider that is used for generating keys and
-                // certificates
-                Security.addProvider(new BouncyCastleProvider());
+            configureEncryption(properties, provider, keyStore, keyPassword);
+            generateDefaultCertificate(properties, provider, keyStore, keyPassword);
+            keyStore.store(new FileOutputStream(keyStoreFile), keyStorePassword);
 
-                // initialize the certificate attributes
-                Date startDate = new Date();
-                Date expiryDate = DateUtils.addYears(startDate, 50);
-                BigInteger serialNumber = new BigInteger(50, new Random());
-                KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
-                keyPairGenerator.initialize(1024);
-                KeyPair keyPair = keyPairGenerator.generateKeyPair();
-
-                // set the certificate attributes
-                X509V1CertificateGenerator certificateGenerator = new X509V1CertificateGenerator();
-                X500Principal dnName = new X500Principal("CN=Mirth Connect");
-                certificateGenerator.setSerialNumber(serialNumber);
-                certificateGenerator.setIssuerDN(dnName);
-                certificateGenerator.setNotBefore(startDate);
-                certificateGenerator.setNotAfter(expiryDate);
-                certificateGenerator.setSubjectDN(dnName); // note: same as
-                                                           // issuer
-                certificateGenerator.setPublicKey(keyPair.getPublic());
-                certificateGenerator.setSignatureAlgorithm("SHA1withDSA");
-
-                // generate the new certificate
-                X509Certificate certificate = certificateGenerator.generate(keyPair.getPrivate(), "BC");
-                logger.debug("generated new certificate with serial number: " + certificate.getSerialNumber());
-
-                // add the generated certificate and save the keystore
-                keyStore.setKeyEntry(alias, keyPair.getPrivate(), keyPassword, new Certificate[] { certificate });
-                keyStore.store(new FileOutputStream(keyStoreFile), keyStorePassword);
-            } else {
-                logger.debug("found certificate in keystore");
-            }
+            generateDefaultTrustStore(properties);
         } catch (Exception e) {
-            logger.error("Could not generate certificate.", e);
+            logger.error("Could not initialize security settings.", e);
         }
     }
 
-    public void generateDefaultTrustStore() {
-        try {
-            PropertiesConfiguration properties = new PropertiesConfiguration();
-            properties.setDelimiterParsingDisabled(true);
-            properties.load(ResourceUtil.getResourceStream(this.getClass(), "mirth.properties"));
+    /**
+     * Instantiates the encryptor and digester using the configuration
+     * properties. If the properties are not found, reasonable defaults are
+     * used.
+     * 
+     * @param properties The server properties
+     * @param provider The provider to use (ex. BC)
+     * @param keyStore The keystore from which to load the secret encryption key
+     * @param keyPassword The secret key password
+     * @throws Exception
+     */
+    private void configureEncryption(PropertiesConfiguration properties, Provider provider, KeyStore keyStore, char[] keyPassword) throws Exception {
+        String secretKeyAlias = "encryption";
+        String encryptionAlgorithm = properties.getString("encryption.algorithm", "AES");
+        String digestAlgorithm = properties.getString("digest.algorithm", "SHA256");
+        SecretKey secretKey = null;
 
-            File trustStoreFile = new File(properties.getString("truststore.path"));
-            String trustStoreType = properties.getString("truststore.storetype");
-            char[] trustStorePassword = properties.getString("truststore.storepass").toCharArray();
-            KeyStore keyStore = KeyStore.getInstance(trustStoreType);
+        if (!keyStore.containsAlias(secretKeyAlias)) {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionAlgorithm, provider);
+            secretKey = keyGenerator.generateKey();
+            logger.debug("generated new encryption key using provider: " + provider.getName());
 
-            if (!trustStoreFile.exists()) {
-                logger.debug("no truststore found, creating new one");
-                keyStore.load(null, trustStorePassword);
-                keyStore.store(new FileOutputStream(trustStoreFile), trustStorePassword);
-            } else {
-                logger.debug("truststore found: " + trustStoreFile.getAbsolutePath());
-            }
+            // generate new secret key
+            KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(secretKey);
+            keyStore.setEntry(secretKeyAlias, entry, new KeyStore.PasswordProtection(keyPassword));
+        } else {
+            logger.debug("found encryption key in keystore");
+            secretKey = (SecretKey) keyStore.getKey(secretKeyAlias, keyPassword);
+        }
 
-        } catch (Exception e) {
-            logger.error("Could not generate new truststore.", e);
+        encryptor = new KeyEncryptor();
+        encryptor.setProvider(provider);
+        encryptor.setAlgorithm(encryptionAlgorithm);
+        encryptor.setKey(secretKey);
+
+        digester = new Digester();
+        digester.setProvider(provider);
+        digester.setAlgorithm(digestAlgorithm);
+    }
+
+    /**
+     * Checks for an existing certificate to use for secure communication
+     * between the server and client. If no certficate exists, this will
+     * generate a new one.
+     * 
+     */
+    private void generateDefaultCertificate(PropertiesConfiguration properties, Provider provider, KeyStore keyStore, char[] keyPassword) throws Exception {
+        String certificateAlias = properties.getString("keystore.alias");
+
+        if (!keyStore.containsAlias(certificateAlias)) {
+            // initialize the certificate attributes
+            Date startDate = new Date();
+            Date expiryDate = DateUtils.addYears(startDate, 50);
+            BigInteger serialNumber = new BigInteger(50, new Random());
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA", provider);
+            keyPairGenerator.initialize(1024);
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+            logger.debug("generated new key pair using probider: " + provider.getName());
+
+            // set the certificate attributes
+            X509V1CertificateGenerator certificateGenerator = new X509V1CertificateGenerator();
+            X500Principal dnName = new X500Principal("CN=Mirth Connect");
+            certificateGenerator.setSerialNumber(serialNumber);
+            certificateGenerator.setIssuerDN(dnName);
+            certificateGenerator.setNotBefore(startDate);
+            certificateGenerator.setNotAfter(expiryDate);
+            certificateGenerator.setSubjectDN(dnName); // note: same as issuer
+            certificateGenerator.setPublicKey(keyPair.getPublic());
+            certificateGenerator.setSignatureAlgorithm("SHA1withDSA");
+
+            // generate the new certificate
+            X509Certificate certificate = certificateGenerator.generate(keyPair.getPrivate());
+            logger.debug("generated new certificate with serial number: " + certificate.getSerialNumber());
+
+            // add the generated certificate and save the keystore
+            keyStore.setKeyEntry(certificateAlias, keyPair.getPrivate(), keyPassword, new Certificate[] { certificate });
+        } else {
+            logger.debug("found certificate in keystore");
+        }
+    }
+
+    /**
+     * Checks for the existance of a trust store. If one does not exist, it will
+     * create a new one.
+     * 
+     */
+    private void generateDefaultTrustStore(PropertiesConfiguration properties) throws Exception {
+        File trustStoreFile = new File(properties.getString("truststore.path"));
+        String trustStoreType = properties.getString("truststore.storetype");
+        char[] trustStorePassword = properties.getString("truststore.storepass").toCharArray();
+        KeyStore trustStore = KeyStore.getInstance(trustStoreType);
+
+        if (!trustStoreFile.exists()) {
+            trustStore.load(null, trustStorePassword);
+            trustStore.store(new FileOutputStream(trustStoreFile), trustStorePassword);
+            logger.debug("truststore file not found, creating new one");
+        } else {
+            logger.debug("truststore file found: " + trustStoreFile.getAbsolutePath());
         }
     }
 }

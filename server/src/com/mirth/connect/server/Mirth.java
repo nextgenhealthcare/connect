@@ -190,8 +190,7 @@ public class Mirth extends Thread {
      * 
      */
     public void startup() {
-        configurationController.generateKeyPair();
-        configurationController.generateDefaultTrustStore();
+        configurationController.initializeSecuritySettings();
         extensionController.loadExtensions();
         migrationController.migrate();
         messageObjectController.removeAllFilterTables();
@@ -203,7 +202,6 @@ public class Mirth extends Thread {
         channelStatisticsController.startUpdaterThread();
         channelController.loadCache();
         migrationController.migrateChannels();
-        configurationController.loadEncryptionKey();
         userController.resetUserStatus();
         extensionController.startPlugins();
         scriptController.compileGlobalScripts();

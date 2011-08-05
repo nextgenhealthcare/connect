@@ -18,9 +18,8 @@ import java.util.Properties;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
-import org.jasypt.util.password.ConfigurablePasswordEncryptor;
 
-import com.ibm.crypto.fips.provider.IBMJCEFIPS;
+import com.mirth.commons.encryption.Digester;
 import com.mirth.connect.model.Credentials;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.PasswordRequirements;
@@ -33,13 +32,10 @@ import com.mirth.connect.server.util.SqlConfig;
 
 public class DefaultUserController extends UserController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private ConfigurablePasswordEncryptor encrypter = new ConfigurablePasswordEncryptor();
-
     private static DefaultUserController instance = null;
 
     private DefaultUserController() {
-        encrypter.setProvider(new IBMJCEFIPS());
-        encrypter.setAlgorithm("SHA256");
+
     }
 
     public static UserController create() {
@@ -94,6 +90,7 @@ public class DefaultUserController extends UserController {
 
     public List<String> updateUserPassword(User user, String plainPassword) throws ControllerException {
         try {
+            Digester digester = ControllerFactory.getFactory().createConfigurationController().getDigester();
             PasswordRequirements passwordRequirements = ControllerFactory.getFactory().createConfigurationController().getPasswordRequirements();
             List<String> responses = PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements(user, plainPassword, passwordRequirements);
             if (responses != null) {
@@ -103,13 +100,13 @@ public class DefaultUserController extends UserController {
             logger.debug("updating password for user id: " + user.getId());
 
             Calendar pruneDate = PasswordRequirementsChecker.getInstance().getLastExpirationDate(passwordRequirements);
-            
+
             // If a null prune date is returned, do not prune
             if (pruneDate != null) {
                 Map<String, Object> userDateMap = new HashMap<String, Object>();
                 userDateMap.put("id", user.getId());
                 userDateMap.put("pruneDate", String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", pruneDate));
-            
+
                 try {
                     SqlConfig.getSqlMapClient().delete("User.prunePasswords", userDateMap);
                 } catch (Exception e) {
@@ -120,7 +117,7 @@ public class DefaultUserController extends UserController {
 
             Map<String, Object> userPasswordMap = new HashMap<String, Object>();
             userPasswordMap.put("id", user.getId());
-            userPasswordMap.put("password", encrypter.encryptPassword(plainPassword));
+            userPasswordMap.put("password", digester.digest(plainPassword));
             SqlConfig.getSqlMapClient().insert("User.updateUserPassword", userPasswordMap);
 
             return null;
@@ -153,6 +150,7 @@ public class DefaultUserController extends UserController {
 
     public LoginStatus authorizeUser(String username, String plainPassword) throws ControllerException {
         try {
+            Digester digester = ControllerFactory.getFactory().createConfigurationController().getDigester();
             LoginRequirementsChecker loginRequirementsChecker = new LoginRequirementsChecker(username);
             if (loginRequirementsChecker.isUserLockedOut()) {
                 return new LoginStatus(LoginStatus.Status.FAIL_LOCKED_OUT, "User account \"" + username + "\" has been locked. You may attempt to login again in " + loginRequirementsChecker.getPrintableStrikeTimeRemaining() + ".");
@@ -179,7 +177,7 @@ public class DefaultUserController extends UserController {
                             authorized = true;
                         }
                     } else {
-                        authorized = encrypter.checkPassword(plainPassword, credentials.getPassword());
+                        authorized = digester.matches(plainPassword, credentials.getPassword());
                     }
                 }
             }
@@ -220,7 +218,7 @@ public class DefaultUserController extends UserController {
                         if (loginStatus == null) {
                             loginStatus = new LoginStatus(LoginStatus.Status.FAIL_EXPIRED, "Your password has expired. Please contact an administrator to have your password reset.");
                         }
-                        
+
                         /*
                          * Reset the user's grace period if it isn't being used
                          * but one was previously set. This should only happen
@@ -257,9 +255,10 @@ public class DefaultUserController extends UserController {
             throw new ControllerException(e);
         }
     }
-    
+
     public boolean checkPassword(String plainPassword, String encryptedPassword) {
-        return encrypter.checkPassword(plainPassword, encryptedPassword);
+        Digester digester = ControllerFactory.getFactory().createConfigurationController().getDigester();
+        return digester.matches(plainPassword, encryptedPassword);
     }
 
     public void loginUser(User user) throws ControllerException {

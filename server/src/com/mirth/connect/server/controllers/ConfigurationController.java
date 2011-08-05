@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
-import javax.crypto.SecretKey;
-
+import com.mirth.commons.encryption.Digester;
+import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.ServerConfiguration;
@@ -37,24 +37,30 @@ public abstract class ConfigurationController extends Controller {
     }
 
     /**
-     * Checks for an existing certificate to user for secure communication
-     * between the server and client. If no certficate exists, this will
-     * generate a new one.
+     * Initializes several items relates to security. Specifically:
+     * 
+     * <ol>
+     * <li>Instantiates the default encryptor and digester</li>
+     * <li>Loads or generates the default keystore and certificate</li>
+     * <li>Loads or generates the default truststore</li>
+     * </ol>
      * 
      */
-    public abstract void generateKeyPair();
+    public abstract void initializeSecuritySettings();
     
     /**
-     * Generates a new empty truststore if one does not exist.
+     * Returns the default encryptor.
      * 
+     * @return the default encryptor
      */
-    public abstract void generateDefaultTrustStore();
-
+    public abstract Encryptor getEncryptor();
+    
     /**
-     * Loads the encryption key from the database and stores it in memory.
+     * Returns the default digester.
      * 
+     * @return the default digester
      */
-    public abstract void loadEncryptionKey();
+    public abstract Digester getDigester();
 
     /**
      * Returns the database type (ex. derby)
@@ -79,13 +85,6 @@ public abstract class ConfigurationController extends Controller {
      * @throws ControllerException
      */
     public abstract List<String> getAvaiableCharsetEncodings() throws ControllerException;
-
-    /**
-     * Returns the encryption key.
-     * 
-     * @return a <code>SecretKey</code> object
-     */
-    public abstract SecretKey getEncryptionKey();
 
     /**
      * Returns the base directory for the server.
