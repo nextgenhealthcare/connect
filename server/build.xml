@@ -127,14 +127,12 @@
 			<fileset dir="${lib.extensions}/email" />
 		</copy>
 		<jar destfile="${connectors.email}/email-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/email/EmailReaderProperties.class" />
 			<include name="com/mirth/connect/connectors/email/EmailSenderProperties.class" />
 			<include name="com/mirth/connect/connectors/email/Attachment.class" />
 		</jar>
 		<jar destfile="${connectors.email}/email-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/email/**" />
-				<exclude name="com/mirth/connect/connectors/email/EmailReaderProperties.class" />
 				<exclude name="com/mirth/connect/connectors/email/EmailSenderProperties.class" />
 				<exclude name="com/mirth/connect/connectors/email/Attachment.class" />
 			</fileset>
