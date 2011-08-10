@@ -19,7 +19,7 @@
 
 		<!-- connectors -->
 		<property name="connectors.doc" value="${extensions}/doc" />
-		<property name="connectors.email" value="${extensions}/email" />
+		<property name="connectors.smtp" value="${extensions}/smtp" />
 		<property name="connectors.file" value="${extensions}/file" />
 		<property name="connectors.http" value="${extensions}/http" />
 		<property name="connectors.dicom" value="${extensions}/dicom" />
@@ -87,9 +87,9 @@
 			<include name="com/mirth/connect/connectors/doc/**" />
 		</jar>
 
-		<mkdir dir="${connectors.email}" />
-		<jar destfile="${connectors.email}/email-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/email/**" />
+		<mkdir dir="${connectors.smtp}" />
+		<jar destfile="${connectors.smtp}/smtp-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/connectors/smtp/**" />
 		</jar>
 
 		<mkdir dir="${connectors.file}" />
