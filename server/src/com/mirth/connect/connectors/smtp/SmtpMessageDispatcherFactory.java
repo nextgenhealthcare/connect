@@ -7,15 +7,15 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.email;
+package com.mirth.connect.connectors.smtp;
 
 import org.mule.umo.UMOException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageDispatcher;
 import org.mule.umo.provider.UMOMessageDispatcherFactory;
 
-public class EmailMessageDispatcherFactory implements UMOMessageDispatcherFactory {
+public class SmtpMessageDispatcherFactory implements UMOMessageDispatcherFactory {
     public UMOMessageDispatcher create(UMOConnector connector) throws UMOException {
-        return new EmailMessageDispatcher((EmailConnector) connector);
+        return new SmtpMessageDispatcher((SmtpConnector) connector);
     }
 }

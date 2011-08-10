@@ -7,14 +7,8 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.email;
+package com.mirth.connect.connectors.smtp;
 
-/**
- * Represents an email attachment on the connector configuration panel.
- * 
- * @author GeraldB
- *
- */
 public class Attachment {
     private String name;
     private String content;

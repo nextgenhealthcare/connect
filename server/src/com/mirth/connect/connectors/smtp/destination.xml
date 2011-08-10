@@ -1,0 +1,22 @@
+<connectorMetaData path="smtp">
+	<name>SMTP Sender</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>2.2.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth Connecto to send email messages via SMTP. A template is available to dynamically create messages.</description>
+	<clientClassName>com.mirth.connect.connectors.smtp.SmtpSender</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.smtp.SmtpConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.smtp.SmtpSenderProperties</sharedClassName>
+	<library type="CLIENT" path="smtp-client.jar" />
+	<library type="SHARED" path="smtp-shared.jar" />
+	<library type="SERVER" path="smtp-server.jar" />
+	<transformers></transformers>
+	<protocol>smtp</protocol>
+	<type>DESTINATION</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.mirth.connect.connectors.smtp.SmtpConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.smtp.SmtpMessageDispatcherFactory</property>
+	</mule-properties>
+</connectorMetaData>

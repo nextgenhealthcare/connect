@@ -25,12 +25,12 @@ import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.connectors.doc.DocumentWriterProperties;
-import com.mirth.connect.connectors.email.EmailSenderProperties;
 import com.mirth.connect.connectors.file.FileWriterProperties;
 import com.mirth.connect.connectors.http.HttpSenderProperties;
 import com.mirth.connect.connectors.jdbc.DatabaseWriterProperties;
 import com.mirth.connect.connectors.jms.JMSWriterProperties;
 import com.mirth.connect.connectors.mllp.LLPSenderProperties;
+import com.mirth.connect.connectors.smtp.SmtpSenderProperties;
 import com.mirth.connect.connectors.tcp.TCPSenderProperties;
 import com.mirth.connect.connectors.vm.ChannelWriterProperties;
 import com.mirth.connect.connectors.ws.WebServiceSenderProperties;
@@ -324,9 +324,9 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
                             } else {
                                 information = "Target Channel: " + targetChannel.getName();
                             }
-                        } else if (connector.getTransportName().equals(EmailSenderProperties.name)) {
-                            // Destination - Email Sender.
-                            information = EmailSenderProperties.getInformation(connector.getProperties());
+                        } else if (connector.getTransportName().equals(SmtpSenderProperties.name)) {
+                            // Destination - SMTP Sender.
+                            information = SmtpSenderProperties.getInformation(connector.getProperties());
                         } else if (connector.getTransportName().equals(TCPSenderProperties.name)) {
                             // Destination - TCP Sender.
                             // The useful info for TCP Sender - host:port will

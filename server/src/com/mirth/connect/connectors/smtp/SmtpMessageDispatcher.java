@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.email;
+package com.mirth.connect.connectors.smtp;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -32,15 +32,15 @@ import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
 
-public class EmailMessageDispatcher extends AbstractMessageDispatcher {
-    protected EmailConnector connector;
+public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
+    protected SmtpConnector connector;
     private final MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
     private final MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private final AlertController alertController = ControllerFactory.getFactory().createAlertController();
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
     private final ConnectorType connectorType = ConnectorType.WRITER;
 
-    public EmailMessageDispatcher(EmailConnector connector) {
+    public SmtpMessageDispatcher(SmtpConnector connector) {
         super(connector);
         this.connector = connector;
     }
@@ -57,25 +57,25 @@ public class EmailMessageDispatcher extends AbstractMessageDispatcher {
         try {
             Email email = null;
             
-            if (connector.isDispatcherHtml()) {
+            if (connector.isHtml()) {
                 email = new HtmlEmail();
             } else {
                 email = new MultiPartEmail();
             }
             
             email.setDebug(true);
-            email.setHostName(connector.getDispatcherSmtpHost());
-            email.setSmtpPort(connector.getDispatcherSmtpPort());
-            email.setSocketConnectionTimeout(connector.getDispatcherTimeout());
+            email.setHostName(connector.getSmtpHost());
+            email.setSmtpPort(connector.getSmtpPort());
+            email.setSocketConnectionTimeout(connector.getTimeout());
 
-            if ("SSL".equalsIgnoreCase(connector.getDispatcherEncryption())) {
+            if ("SSL".equalsIgnoreCase(connector.getEncryption())) {
                 email.setSSL(true);
-            } else if ("TLS".equalsIgnoreCase(connector.getDispatcherEncryption())) {
+            } else if ("TLS".equalsIgnoreCase(connector.getEncryption())) {
                 email.setTLS(true);
             }
 
-            if (connector.isDispatcherAuthentication()) {
-                email.setAuthentication(connector.getDispatcherUsername(), connector.getDispatcherPassword());
+            if (connector.isAuthentication()) {
+                email.setAuthentication(connector.getUsername(), connector.getPassword());
             }
 
             /*
@@ -84,28 +84,28 @@ public class EmailMessageDispatcher extends AbstractMessageDispatcher {
              * instead.
              */
 
-            for (String to : replaceValuesAndSplit(connector.getDispatcherTo(), mo)) {
+            for (String to : replaceValuesAndSplit(connector.getTo(), mo)) {
                 email.addTo(to);
             }
 
-            for (String cc : replaceValuesAndSplit(connector.getDispatcherCc(), mo)) {
+            for (String cc : replaceValuesAndSplit(connector.cc(), mo)) {
                 email.addCc(cc);
             }
 
-            for (String bcc : replaceValuesAndSplit(connector.getDispatcherBcc(), mo)) {
+            for (String bcc : replaceValuesAndSplit(connector.getBcc(), mo)) {
                 email.addBcc(bcc);
             }
 
-            if (StringUtils.isNotBlank(connector.getDispatcherReplyTo())) {
-                email.addReplyTo(connector.getDispatcherReplyTo());
+            if (StringUtils.isNotBlank(connector.getReplyTo())) {
+                email.addReplyTo(connector.getReplyTo());
             }
 
-            email.setFrom(connector.getDispatcherFrom());
-            email.setSubject(replacer.replaceValues(connector.getDispatcherSubject(), mo));
+            email.setFrom(connector.getFrom());
+            email.setSubject(replacer.replaceValues(connector.getSubject(), mo));
             
-            String body = replacer.replaceValues(connector.getDispatcherBody(), mo);
+            String body = replacer.replaceValues(connector.getBody(), mo);
             
-            if (connector.isDispatcherHtml()) {
+            if (connector.isHtml()) {
                 ((HtmlEmail) email).setHtmlMsg(body);
             } else {
                 email.setMsg(body);    
@@ -117,7 +117,7 @@ public class EmailMessageDispatcher extends AbstractMessageDispatcher {
              * "text" or "application/xml", then we add the content. If it is
              * anything else, we assume it should be Base64 decoded first.
              */
-            for (Attachment attachment : connector.getDispatcherAttachments()) {
+            for (Attachment attachment : connector.getAttachments()) {
                 byte[] contentBytes;
 
                 if (StringUtils.indexOf(attachment.getMimeType(), "/") < 0) {
