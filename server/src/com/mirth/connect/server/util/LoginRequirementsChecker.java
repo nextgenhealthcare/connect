@@ -101,7 +101,7 @@ public class LoginRequirementsChecker {
 
         PeriodFormatter periodFormatter;
         if (period.toStandardMinutes().getMinutes() > 0) {
-            periodFormatter = new PeriodFormatterBuilder().printZeroNever().appendHours().appendSuffix(" hour", " hours").appendSeparator(" and ").appendMinutes().appendSuffix(" minute", " minutes").toFormatter();
+            periodFormatter = new PeriodFormatterBuilder().printZeroNever().appendHours().appendSuffix(" hour", " hours").appendSeparator(" and ").printZeroAlways().appendMinutes().appendSuffix(" minute", " minutes").toFormatter();
         } else {
             periodFormatter = new PeriodFormatterBuilder().printZeroAlways().appendSeconds().appendSuffix(" second", " seconds").toFormatter();
         }
@@ -124,8 +124,16 @@ public class LoginRequirementsChecker {
     }
     
     public String getPrintableGraceTimeRemaining(long graceTimeRemaining) {
-        PeriodFormatter periodFormatter = new PeriodFormatterBuilder().printZeroRarelyFirst().appendDays().appendSuffix(" day", " days").appendSeparator(" and ").appendHours().appendSuffix(" hour", " hours").toFormatter();
-        return periodFormatter.print(new Period(graceTimeRemaining));
+        Period period = new Period(graceTimeRemaining);
+        
+        PeriodFormatter periodFormatter;
+        if (period.toStandardHours().getHours() > 0) {
+            periodFormatter = new PeriodFormatterBuilder().printZeroRarelyFirst().appendDays().appendSuffix(" day", " days").appendSeparator(" and ").printZeroAlways().appendHours().appendSuffix(" hour", " hours").toFormatter();
+        } else {
+            periodFormatter = new PeriodFormatterBuilder().printZeroNever().appendMinutes().appendSuffix(" minute", " minutes").appendSeparator(" and ").printZeroAlways().appendSeconds().appendSuffix(" second", " seconds").toFormatter();
+        }
+        
+        return periodFormatter.print(period);
     }
     
     private Duration getDurationRemainingFromDays(long passwordTime, long currentTime, int durationDays) {

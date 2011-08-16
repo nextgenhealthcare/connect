@@ -14,14 +14,11 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.List;
 
 import javax.swing.JDialog;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.model.User;
 
 public class ChangePasswordDialog extends javax.swing.JDialog {
