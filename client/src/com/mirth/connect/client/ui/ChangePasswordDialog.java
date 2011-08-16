@@ -257,20 +257,8 @@ public class ChangePasswordDialog extends javax.swing.JDialog {
         if (!String.valueOf(password.getPassword()).equals(String.valueOf(confirmPassword.getPassword()))) {
             parent.alertError(this, "The passwords you entered do not match.");
             return;
-        } else {
-            try {
-                List<String> responses = parent.mirthClient.updateUserPassword(currentUser, String.valueOf(password.getPassword()));
-                if (CollectionUtils.isNotEmpty(responses)) {
-                    String responseString = "Your password is not valid. Please fix the following:\n";
-                    for (String response : responses) {
-                        responseString += (" - " + response + "\n");
-                    }
-                    parent.alertError(this, responseString);
-                    return;
-                }
-            } catch (ClientException e) {
-                parent.alertException(this, e.getStackTrace(), e.getMessage());
-            }
+        } else if (!parent.updateUserPassword(this, currentUser, String.valueOf(password.getPassword()))) {
+            return;
         }
     
         this.dispose();

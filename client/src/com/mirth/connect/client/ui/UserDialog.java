@@ -191,6 +191,7 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         parent.alertWarning(this, validateUserMessage);
     } else {
         User user = userEditPanel.getUser();
+        boolean success = false;
         
         // If the username is being changed, update and switch user
         if (editingLoggedInUser && !user.getUsername().equals(PlatformUI.USER_NAME)) {
@@ -201,11 +202,14 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
                 return;
             }
             
-            parent.updateAndSwitchUser(this, user, user.getUsername(), newPassword);
+            success = parent.updateAndSwitchUser(this, user, user.getUsername(), newPassword);
         } else {
-            parent.updateUser(this, user, userEditPanel.getPassword());
+            success = parent.updateUser(this, user, userEditPanel.getPassword());
         }
-        this.dispose();
+        
+        if (success) {
+            this.dispose();
+        }
     }
 }//GEN-LAST:event_finishButtonActionPerformed
 

@@ -233,12 +233,17 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         parent.alertWarning(this, validateUserMessage);
     } else {
         User user = userEditPanel.getUser();
+        boolean success = false;
         
         // If the current user's username is being changed, update and switch user
         if (!user.getUsername().equals(PlatformUI.USER_NAME)) {
-            parent.updateAndSwitchUser(this, user, user.getUsername(), userEditPanel.getPassword());
+            success = parent.updateAndSwitchUser(this, user, user.getUsername(), userEditPanel.getPassword());
         } else {
-            parent.updateUser(this, user, userEditPanel.getPassword());
+            success = parent.updateUser(this, user, userEditPanel.getPassword());
+        }
+        
+        if (!success) {
+            return;
         }
 
         if (registerCheckBox.isSelected()) {

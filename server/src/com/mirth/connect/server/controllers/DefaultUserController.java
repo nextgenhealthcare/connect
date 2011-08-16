@@ -322,7 +322,7 @@ public class DefaultUserController extends UserController {
     @Override
     public List<Credentials> getUserCredentials(User user) throws ControllerException {
         try {
-            return SqlConfig.getSqlMapClient().queryForList("User.getLatestUserCredentials", user.getId());
+            return SqlConfig.getSqlMapClient().queryForList("User.getUserCredentials", user.getId());
         } catch (Exception e) {
             throw new ControllerException(e);
         }

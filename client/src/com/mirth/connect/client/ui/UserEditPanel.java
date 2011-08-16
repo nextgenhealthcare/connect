@@ -220,16 +220,11 @@ public class UserEditPanel extends javax.swing.JPanel {
         usernameLabel.setText("Username:");
 
         description.setColumns(20);
-        description.setFont(new java.awt.Font("Tahoma", 0, 11));
+        description.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         description.setLineWrap(true);
         description.setRows(4);
         description.setWrapStyleWord(true);
         description.setAutoscrolls(false);
-        description.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                descriptionKeyReleased(evt);
-            }
-        });
         jScrollPane1.setViewportView(description);
 
         descriptionLabel.setText("Description:");
@@ -382,9 +377,6 @@ private void phoneKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ph
     checkAndTriggerFinishButton(evt);
 }//GEN-LAST:event_phoneKeyReleased
 
-private void descriptionKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_descriptionKeyReleased
-    checkAndTriggerFinishButton(evt);
-}//GEN-LAST:event_descriptionKeyReleased
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPasswordField confirmPassword;
     private javax.swing.JLabel confirmPasswordAsteriskLabel;
