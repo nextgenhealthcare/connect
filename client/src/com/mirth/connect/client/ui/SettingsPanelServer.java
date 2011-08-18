@@ -283,18 +283,11 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             doSave();
         }
 
-        File backupFile = getFrame().importFile("XML");
+        String content = getFrame().browseForFileString("XML");
 
-        if (backupFile != null) {
-            String backupXML = null;
+        if (content != null) {
             try {
-                backupXML = FileUtils.readFileToString(backupFile, UIConstants.CHARSET);
-            } catch (IOException ex) {
-                getFrame().alertError(this, "File could not be read.");
-                return;
-            }
-            try {
-                ServerConfiguration configuration = ImportConverter.convertServerConfiguration(backupXML);
+                ServerConfiguration configuration = ImportConverter.convertServerConfiguration(content);
 
                 if (getFrame().alertOption(this, "Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels,\nalerts, server properties, and plugin properties.")) {
                     try {

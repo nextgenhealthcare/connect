@@ -11,61 +11,39 @@ package com.mirth.connect.client.ui;
 
 import java.io.File;
 
+import org.apache.commons.io.FilenameUtils;
+
 public class MirthFileFilter extends javax.swing.filechooser.FileFilter {
-    // abstract method
+    private String fileExtension;
 
-    String type;
-
-    public MirthFileFilter(String type) {
-        super();
-        this.type = type;
+    public MirthFileFilter(String fileExtension) {
+        this.fileExtension = fileExtension;
     }
 
-    public boolean accept(File f) {
-        // if it is a directory -- we want to show it so return true.
-        if (f.isDirectory()) {
-            return true;
-        }
-
-        // get the extension of the file
-        String extension = getExtension(f);
-
-        // check to see if the extension is equal to "xml"
-        if (extension.equalsIgnoreCase(type)) {
-            return true;
-        }
-
-        // default -- fall through. False is return on all
-        // occasions except:
-        // a) the file is a directory
-        // b) the file's extension is what we are looking for.
-        return false;
+    /**
+     * Returns true if the file is a directory, or the extension matches the one
+     * specified in the filter.
+     * 
+     */
+    @Override
+    public boolean accept(File file) {
+        return (file.isDirectory() || FilenameUtils.getExtension(file.getName()).equalsIgnoreCase(fileExtension));
     }
 
-    // abstract method
+    @Override
     public String getDescription() {
-        if (type.equalsIgnoreCase("xml")) {
+        if (fileExtension.equalsIgnoreCase("xml")) {
             return "XML files";
-        } else if (type.equalsIgnoreCase("html")) {
+        } else if (fileExtension.equalsIgnoreCase("html")) {
             return "HTML files";
-        } else if (type.equalsIgnoreCase("txt")) {
+        } else if (fileExtension.equalsIgnoreCase("txt")) {
             return "Text files";
-        } else if (type.equalsIgnoreCase("zip")) {
+        } else if (fileExtension.equalsIgnoreCase("zip")) {
             return "ZIP files";
-        } else if (type.equalsIgnoreCase("wsdl")) {
+        } else if (fileExtension.equalsIgnoreCase("wsdl")) {
             return "WSDL files";
         } else {
             return "ERROR";
         }
-    }
-
-    // Method to get the extension of the file, in lowercase
-    private String getExtension(File f) {
-        String s = f.getName();
-        int i = s.lastIndexOf('.');
-        if (i > 0 && i < s.length() - 1) {
-            return s.substring(i + 1).toLowerCase();
-        }
-        return "";
     }
 }

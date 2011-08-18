@@ -365,21 +365,19 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
 
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_openFileButtonActionPerformed
     {//GEN-HEADEREND:event_openFileButtonActionPerformed
-        File file = PlatformUI.MIRTH_FRAME.importFile(null);
+        String content = PlatformUI.MIRTH_FRAME.browseForFileString(null);
 
-        if (file != null) {
+        if (content != null) {
             try {
                 if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM))) {
-                    //pasteBox.setText(file.getPath());
-                    pasteBox.setText(new DICOMSerializer().toXML(file));
+                    pasteBox.setText(new DICOMSerializer().toXML(content));
                 } else {
-                    pasteBox.setText(FileUtils.readFileToString(file, UIConstants.CHARSET));
+                    pasteBox.setText(content);
                 }
 
                 parent.modified = true;
             } catch (Exception e) {
                 PlatformUI.MIRTH_FRAME.alertException(this, e.getStackTrace(), "Invalid template file. " + e.getMessage());
-                return;
             }
         }
     }//GEN-LAST:event_openFileButtonActionPerformed

@@ -261,12 +261,12 @@ public class TransformerPane extends MirthEditorPane implements
             if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
                 dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
 
-                List fileList = (List) tr.getTransferData(DataFlavor.javaFileListFlavor);
-                Iterator iterator = fileList.iterator();
+                List<File> fileList = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator<File> iterator = fileList.iterator();
 
                 if (fileList.size() == 1) {
                     File file = (File) iterator.next();
-                    importTransformer(file);
+                    importTransformer(parent.readFileToString(file));
                 }
             } else if (tr.isDataFlavorSupported(TreeTransferable.MAPPER_DATA_FLAVOR) || tr.isDataFlavorSupported(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR)) {
                 dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
@@ -912,17 +912,16 @@ public class TransformerPane extends MirthEditorPane implements
      * Import the transfomer
      */
     public void doImport() {
-        File importFile = parent.importFile("XML");
+        String content = parent.browseForFileString("XML");
 
-        if (importFile != null) {
-            importTransformer(importFile);
+        if (content != null) {
+            importTransformer(content);
         }
     }
 
-    private void importTransformer(File importFile) {
-        String transformerXML = "";
-
-        MessageObject.Protocol incomingProtocol = null, outgoingProtocol = null;
+    private void importTransformer(String content) {
+        MessageObject.Protocol incomingProtocol = null;
+        MessageObject.Protocol outgoingProtocol = null;
 
         for (MessageObject.Protocol protocol : MessageObject.Protocol.values()) {
             if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getIncomingDataType())) {
@@ -944,8 +943,7 @@ public class TransformerPane extends MirthEditorPane implements
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         try {
-            transformerXML = ImportConverter.convertTransformer(FileUtils.readFileToString(importFile, UIConstants.CHARSET), incomingProtocol, outgoingProtocol);
-            Transformer importTransformer = (Transformer) serializer.fromXML(transformerXML);
+            Transformer importTransformer = (Transformer) serializer.fromXML(ImportConverter.convertTransformer(content, incomingProtocol, outgoingProtocol));
             prevSelRow = -1;
             modified = true;
             invalidVar = false;

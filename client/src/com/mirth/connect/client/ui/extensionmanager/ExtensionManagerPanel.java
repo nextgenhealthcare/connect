@@ -13,8 +13,6 @@ import java.awt.Point;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -643,7 +641,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
 
     private void browseButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_browseButtonActionPerformed
     {//GEN-HEADEREND:event_browseButtonActionPerformed
-        File pluginFile = PlatformUI.MIRTH_FRAME.importFile("ZIP");
+        File pluginFile = PlatformUI.MIRTH_FRAME.browseForFile("ZIP");
 
         if (pluginFile != null) {
             fileText.setText(pluginFile.getAbsolutePath());
@@ -662,13 +660,4 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane loadedPluginsScrollPane;
     private com.mirth.connect.client.ui.components.MirthTable loadedPluginsTable;
     // End of variables declaration//GEN-END:variables
-
-    public static String slurp(InputStream in) throws IOException {
-        StringBuffer out = new StringBuffer();
-        byte[] b = new byte[1024];
-        for (int n; (n = in.read(b)) != -1;) {
-            out.append(new String(b, 0, n));
-        }
-        return out.toString();
-    }
 }

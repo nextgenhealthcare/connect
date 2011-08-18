@@ -311,14 +311,15 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     public void importMessages() {
-        File file = parent.importFile("XML");
+        File file = parent.browseForFile("XML");
         String channelId = parent.getSelectedChannelIdFromDashboard();
         
         try {
             int count = parent.mirthClient.importMessages(channelId, file, UIConstants.CHARSET);
             
             if (count > 0) {
-                parent.alertInformation(this, count + " messages have been successfully imported.");    
+                parent.alertInformation(this, count + " messages have been successfully imported.");
+                refresh();
             } else {
                 parent.alertError(this, "No messages were found in the file.");
             }

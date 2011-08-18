@@ -56,6 +56,7 @@ import javax.swing.border.LineBorder;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
@@ -1926,20 +1927,15 @@ public class Frame extends JXFrame {
     }
 
     public void doImportGlobalScripts() {
-        File importFile = importFile("XML");
+        String content = browseForFileString("XML");
 
-        if (importFile != null) {
+        if (content != null) {
             try {
-                String scriptsXml = FileUtils.readFileToString(importFile, UIConstants.CHARSET);
-                scriptsXml = ImportConverter.convertGlobalScripts(scriptsXml);
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                
-                Map<String, String> importScripts = (Map<String, String>) serializer.fromXML(scriptsXml);
-
+                Map<String, String> importScripts = (Map<String, String>) serializer.fromXML(ImportConverter.convertGlobalScripts(content));
                 globalScriptsPanel.importAllScripts(importScripts);
             } catch (Exception e) {
                 alertException(this, e.getStackTrace(), "Invalid scripts file. " + e.getMessage());
-                return;
             }
         }
     }
@@ -2853,22 +2849,22 @@ public class Frame extends JXFrame {
     }
 
     public void doImport() {
-        File importFile = importFile("XML");
+        String content = browseForFileString("XML");
 
-        if (importFile != null) {
-            importChannel(importFile, true);
+        if (content != null) {
+            importChannel(content, true);
         }
     }
 
-    public void importChannel(File importFile, boolean showAlerts) {
+    public void importChannel(String content, boolean showAlerts) {
         String channelXML = "";
         boolean overwrite = false;
 
         try {
-            channelXML = ImportConverter.convertChannelFile(importFile);
-        } catch (Exception e1) {
+            channelXML = ImportConverter.convertChannelString(content);
+        } catch (Exception e) {
             if (showAlerts) {
-                alertException(this, e1.getStackTrace(), "Invalid channel file. " + e1.getMessage());
+                alertException(this, e.getStackTrace(), "Invalid channel file. " + e.getMessage());
             }
         }
 
@@ -2889,9 +2885,8 @@ public class Frame extends JXFrame {
          * prompts the user if it is not.
          */
         if (showAlerts) {
-            int option;
-
-            option = JOptionPane.YES_OPTION;
+            int option = JOptionPane.YES_OPTION;
+            
             if (importChannel.getVersion() == null) {
                 option = JOptionPane.showConfirmDialog(this, "The channel being imported is from an unknown version of Mirth." + "\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
             } else if (!importChannel.getVersion().equals(PlatformUI.SERVER_VERSION)) {
@@ -2974,6 +2969,7 @@ public class Frame extends JXFrame {
         }
     }
 
+    // TODO: This should be doExportChannel
     public boolean doExport() {
         if (changesHaveBeenMade()) {
             if (alertOption(this, "This channel has been modified. You must save the channel changes before you can export. Would you like to save them now?")) {
@@ -3047,62 +3043,90 @@ public class Frame extends JXFrame {
 
     /**
      * Import a file with the default defined file filter type.
+     * 
      * @return
      */
-    public File importFile(String type) {
+    public String browseForFileString(String fileExtension) {
+        File file = browseForFile(fileExtension);
+
+        if (file != null) {
+            try {
+                return FileUtils.readFileToString(file);
+            } catch (IOException e) {
+                alertError(this, "Unable to read file.");
+            }
+        }
+
+        return null;
+    }
+
+    public String readFileToString(File file) {
+        try {
+            String content = FileUtils.readFileToString(file, UIConstants.CHARSET);
+
+            if (mirthClient.isEncryptExport()) {
+                return mirthClient.getEncryptor().decrypt(content);
+            } else {
+                return content;
+            }
+        } catch (IOException e) {
+            alertError(this, "Unable to read file.");
+        }
+
+        return null;
+    }
+    
+    public File browseForFile(String fileExtension) {
         JFileChooser importFileChooser = new JFileChooser();
-        if (type != null) {
-            importFileChooser.setFileFilter(new MirthFileFilter(type));
+        
+        if (fileExtension != null) {
+            importFileChooser.setFileFilter(new MirthFileFilter(fileExtension));
         }
 
         File currentDir = new File(userPreferences.get("currentDirectory", ""));
+        
         if (currentDir.exists()) {
             importFileChooser.setCurrentDirectory(currentDir);
         }
 
-        int returnVal = importFileChooser.showOpenDialog(this);
-        File importFile = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
+        if (importFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
-            importFile = importFileChooser.getSelectedFile();
+            return importFileChooser.getSelectedFile();
         }
 
-        return importFile;
+        return null;
     }
-
+    
     /**
      * Export a file with the default defined file filter type.
+     * 
      * @param fileContents
      * @param fileName
      * @return
      */
-    public boolean exportFile(String fileContents, String defaultFileName, String type, String name) {
+    public boolean exportFile(String fileContents, String defaultFileName, String fileExtension, String name) {
         JFileChooser exportFileChooser = new JFileChooser();
 
         if (defaultFileName != null) {
             exportFileChooser.setSelectedFile(new File(defaultFileName));
         }
-        if (type != null) {
-            exportFileChooser.setFileFilter(new MirthFileFilter(type));
+        
+        if (fileExtension != null) {
+            exportFileChooser.setFileFilter(new MirthFileFilter(fileExtension));
         }
 
         File currentDir = new File(userPreferences.get("currentDirectory", ""));
+        
         if (currentDir.exists()) {
             exportFileChooser.setCurrentDirectory(currentDir);
         }
 
-        int returnVal = exportFileChooser.showSaveDialog(this);
-        File exportFile = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
+        if (exportFileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             userPreferences.put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
-            exportFile = exportFileChooser.getSelectedFile();
+            File exportFile = exportFileChooser.getSelectedFile();
 
-            int length = exportFile.getName().length();
-
-            if (length < 4 || !exportFile.getName().substring(length - 4, length).equalsIgnoreCase("." + type.toLowerCase())) {
-                exportFile = new File(exportFile.getAbsolutePath() + "." + type.toLowerCase());
+            if ((exportFile.getName().length() < 4) || !FilenameUtils.getExtension(exportFile.getName()).equalsIgnoreCase(fileExtension)) {
+                exportFile = new File(exportFile.getAbsolutePath() + "." + fileExtension.toLowerCase());
             }
 
             if (exportFile.exists()) {
@@ -3112,12 +3136,21 @@ public class Frame extends JXFrame {
             }
 
             try {
-                FileUtils.writeStringToFile(exportFile, fileContents, UIConstants.CHARSET);
+                String contentToWrite = null;
+                
+                if (mirthClient.isEncryptExport()) {
+                    contentToWrite = mirthClient.getEncryptor().encrypt(fileContents);    
+                } else {
+                    contentToWrite = fileContents;
+                }
+                
+                FileUtils.writeStringToFile(exportFile, contentToWrite, UIConstants.CHARSET);
                 alertInformation(this, name + " was written to " + exportFile.getPath() + ".");
             } catch (IOException ex) {
                 alertError(this, "File could not be written.");
                 return false;
             }
+            
             return true;
         } else {
             return false;
@@ -3125,13 +3158,12 @@ public class Frame extends JXFrame {
     }
 
     public void doImportConnector() {
-        File connectorFile = importFile("XML");
+        String content = browseForFileString("XML");
 
-        if (connectorFile != null) {
+        if (content != null) {
             try {
-                String connectorXML = ImportConverter.convertConnector(FileUtils.readFileToString(connectorFile, UIConstants.CHARSET));
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                Connector connector = (Connector) serializer.fromXML(connectorXML);
+                Connector connector = (Connector) serializer.fromXML(ImportConverter.convertConnector(content));
                 PropertyVerifier.checkConnectorProperties(connector, getConnectorMetaData());
                 channelEditPanel.importConnector(connector);
             } catch (Exception e) {
@@ -3720,17 +3752,14 @@ public class Frame extends JXFrame {
     }
 
     public void doImportAlerts() {
-        File importFile = importFile("XML");
+        String content = browseForFileString("XML");
 
-        if (importFile != null) {
+        if (content != null) {
             try {
-                String alertsXml = FileUtils.readFileToString(importFile, UIConstants.CHARSET);
-                alertsXml = ImportConverter.convertAlerts(alertsXml);
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                
                 boolean append = false;
 
-                List<Alert> newAlerts = (List<Alert>) serializer.fromXML(alertsXml);
+                List<Alert> newAlerts = (List<Alert>) serializer.fromXML(ImportConverter.convertAlerts(content));
                 if (alerts != null && alerts.size() > 0) {
                     if (alertOption(this, "Would you like to append these alerts to the existing alerts?")) {
                         append = true;
@@ -3893,17 +3922,14 @@ public class Frame extends JXFrame {
     }
 
     public void doImportCodeTemplates() {
-        File importFile = importFile("XML");
+        String content = browseForFileString("XML");
 
-        if (importFile != null) {
+        if (content != null) {
             try {
-                String codeTemplatesXML = FileUtils.readFileToString(importFile, UIConstants.CHARSET);
-                codeTemplatesXML = ImportConverter.convertCodeTemplates(codeTemplatesXML);
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-
                 boolean append = false;
 
-                List<CodeTemplate> newCodeTemplates = (List<CodeTemplate>) serializer.fromXML(codeTemplatesXML);
+                List<CodeTemplate> newCodeTemplates = (List<CodeTemplate>) serializer.fromXML(ImportConverter.convertCodeTemplates(content));
                 if (codeTemplates != null && codeTemplates.size() > 0) {
                     if (alertOption(this, "Would you like to append these code templates to the existing code templates?")) {
                         append = true;

@@ -51,7 +51,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.action.ActionFactory;
@@ -253,12 +252,12 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             Transferable tr = dtde.getTransferable();
 
             if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-                List fileList = (List) tr.getTransferData(DataFlavor.javaFileListFlavor);
-                Iterator iterator = fileList.iterator();
+                List<File> fileList = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator<File> iterator = fileList.iterator();
 
                 if (fileList.size() == 1) {
                     File file = (File) iterator.next();
-                    importFilter(file);
+                    importFilter(parent.readFileToString(file));
                 }
             } else if (tr.isDataFlavorSupported(TreeTransferable.RULE_DATA_FLAVOR)) {
                 Object transferData = tr.getTransferData(TreeTransferable.RULE_DATA_FLAVOR);
@@ -882,16 +881,14 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
      * Import a filter.
      */
     public void doImport() {
-        File importFile = parent.importFile("XML");
+        String content = parent.browseForFileString("XML");
 
-        if (importFile != null) {
-            importFilter(importFile);
+        if (content != null) {
+            importFilter(content);
         }
     }
 
-    public void importFilter(File importFile) {
-        String filterXML = "";
-
+    public void importFilter(String content) {
         Filter previousFilter = connector.getFilter();
 
         boolean append = false;
@@ -904,8 +901,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         try {
-            filterXML = ImportConverter.convertFilter(FileUtils.readFileToString(importFile, UIConstants.CHARSET));
-            Filter importFilter = (Filter) serializer.fromXML(filterXML);
+            Filter importFilter = (Filter) serializer.fromXML(ImportConverter.convertFilter(content));
             prevSelRow = -1;
             modified = true;
 

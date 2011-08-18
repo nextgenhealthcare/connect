@@ -23,7 +23,6 @@ import java.awt.dnd.DropTargetListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
 
 import javax.swing.JDialog;
@@ -253,14 +252,10 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
 
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
 // TODO add your handling code here:
-        File importFile = parent.importFile(null);
+        String content = parent.browseForFileString(null);
 
-        if (importFile != null) {
-            try {
-                scriptContent.setText(FileUtils.readFileToString(importFile, UIConstants.CHARSET));
-            } catch (IOException e) {
-                parent.alertError(this, "Unable to read file.");
-            }
+        if (content != null) {
+            scriptContent.setText(content);
         }
     }//GEN-LAST:event_openFileButtonActionPerformed
 

@@ -20,7 +20,6 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -249,30 +248,20 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
 
     private void processBinaryFileButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_processBinaryFileButtonActionPerformed
     {//GEN-HEADEREND:event_processBinaryFileButtonActionPerformed
-        File importFile = parent.importFile(null);
+        String content = parent.browseForFileString(null);
 
-        if (importFile != null) {
-            try {
-                String rawBase64Data = new String(new Base64().encode(FileUtils.readFileToByteArray(importFile)));
-                message.setRawData(rawBase64Data);
-                parent.processMessage(message);
-                this.dispose();
-            } catch (IOException e) {
-                parent.alertError(this, "Unable to read file.");
-            }
+        if (content != null) {
+            message.setRawData(Base64.encodeBase64String(content.getBytes()));
+            parent.processMessage(message);
+            this.dispose();
         }
     }//GEN-LAST:event_processBinaryFileButtonActionPerformed
 
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
-// TODO add your handling code here:
-        File importFile = parent.importFile(null);
+        String content = parent.browseForFileString(null);
 
-        if (importFile != null) {
-            try {
-                messageContent.setText(FileUtils.readFileToString(importFile, UIConstants.CHARSET));
-            } catch (IOException e) {
-                parent.alertError(this, "Unable to read file.");
-            }
+        if (content != null) {
+            messageContent.setText(content);
         }
     }//GEN-LAST:event_openFileButtonActionPerformed
 

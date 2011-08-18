@@ -501,11 +501,11 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
 
                 if (fileList.size() == 1) {
                     File file = iterator.next();
-                    parent.importChannel(file, true);
+                    parent.importChannel(parent.readFileToString(file), true);
                 } else {
                     while (iterator.hasNext()) {
                         File file = iterator.next();
-                        parent.importChannel(file, false);
+                        parent.importChannel(parent.readFileToString(file), false);
                     }
                 }
             }
