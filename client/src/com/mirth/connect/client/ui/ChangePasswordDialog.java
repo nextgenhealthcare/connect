@@ -254,7 +254,7 @@ public class ChangePasswordDialog extends javax.swing.JDialog {
         if (!String.valueOf(password.getPassword()).equals(String.valueOf(confirmPassword.getPassword()))) {
             parent.alertError(this, "The passwords you entered do not match.");
             return;
-        } else if (!parent.updateUserPassword(this, currentUser, String.valueOf(password.getPassword()))) {
+        } else if (!parent.checkOrUpdateUserPassword(this, currentUser, String.valueOf(password.getPassword()))) {
             return;
         }
     

@@ -105,7 +105,8 @@ public class UserControllerTest extends TestCase {
         for (Iterator iter = sampleUserList.iterator(); iter.hasNext();) {
             User sampleUser = (User) iter.next();
             userController.updateUser(sampleUser);
-            userController.updateUserPassword(sampleUser, "password");
+            User validUser = userController.getUser(sampleUser).get(0);
+            userController.checkOrUpdateUserPassword(validUser.getId(), "password");
         }
     }
 

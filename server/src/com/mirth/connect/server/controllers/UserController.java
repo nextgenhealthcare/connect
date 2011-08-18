@@ -47,14 +47,15 @@ public abstract class UserController extends Controller {
     public abstract void updateUser(User user) throws ControllerException;
     
     /**
-     * Updates the specified user's password
+     * Checks the password against the configured password policies if a null
+     * user is passed in. If a user id is passed in their password is also updated.
      * 
-     * @param user
+     * @param userId
      * @param plainPassword
-     * @return
+     * @return A list of errors that occurred with the password
      * @throws ControllerException
      */
-    public abstract List<String> updateUserPassword(User user, String plainPassword) throws ControllerException;
+    public abstract List<String> checkOrUpdateUserPassword(Integer userId, String plainPassword) throws ControllerException;
 
     /**
      * Deletes the specified user.
@@ -127,5 +128,5 @@ public abstract class UserController extends Controller {
      */
     public abstract void setUserPreference(User user, String name, String value) throws ControllerException;
     
-    public abstract List<Credentials> getUserCredentials(User user) throws ControllerException;
+    public abstract List<Credentials> getUserCredentials(Integer userId) throws ControllerException;
 }

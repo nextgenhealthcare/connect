@@ -1279,7 +1279,11 @@ public class Frame extends JXFrame {
         setWorking("Saving user...", true);
         
         if (StringUtils.isNotEmpty(newPassword)) {
-            if (!updateUserPassword(parentComponent, currentUser, newPassword)) {
+            /*
+             * If a new user is being passed in (null user id), the password
+             * will only be checked right now.
+             */
+            if (!checkOrUpdateUserPassword(parentComponent, currentUser, newPassword)) {
                 setWorking("", false);
                 return false;
             }
@@ -1291,6 +1295,21 @@ public class Frame extends JXFrame {
                 try {
                     mirthClient.updateUser(currentUser);
                     retrieveUsers();
+                    
+                    /*
+                     * If the user id was null, a new user was being created and
+                     * the password was only checked. Get the created user with
+                     * the id and then update the password.
+                     */
+                    if (currentUser.getId() == null) {
+                        User newUser = null;
+                        for (User user : users) {
+                            if (user.getUsername().equals(currentUser.getUsername())) {
+                                newUser = user;
+                            }
+                        }
+                        checkOrUpdateUserPassword(parentComponent, newUser, newPassword);
+                    }
                 } catch (ClientException e) {
                     alertException(parentComponent, e.getStackTrace(), e.getMessage());
                 }
@@ -1315,7 +1334,7 @@ public class Frame extends JXFrame {
     public boolean updateAndSwitchUser(Component parentComponent, final User currentUser, String newUsername, String newPassword) {
         setWorking("Saving user...", true);
         
-        if (!updateUserPassword(parentComponent, currentUser, newPassword)) {
+        if (!checkOrUpdateUserPassword(parentComponent, currentUser, newPassword)) {
             setWorking("", false);
             return false;
         }
@@ -1351,9 +1370,9 @@ public class Frame extends JXFrame {
         return true;
     }
     
-    public boolean updateUserPassword(Component parentComponent, final User currentUser, String newPassword) {
+    public boolean checkOrUpdateUserPassword(Component parentComponent, final User currentUser, String newPassword) {
         try {
-            List<String> responses = mirthClient.updateUserPassword(currentUser, newPassword);
+            List<String> responses = mirthClient.checkOrUpdateUserPassword(currentUser, newPassword);
             if (CollectionUtils.isNotEmpty(responses)) {
                 String responseString = "Your password is not valid. Please fix the following:\n";
                 for (String response : responses) {

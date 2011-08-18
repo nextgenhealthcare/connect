@@ -105,7 +105,7 @@ public class Operations {
     // Users
     public static final Operation USER_GET = new Operation("getUser", "Get user", false);
     public static final Operation USER_UPDATE = new Operation("updateUser", "Update all users", true);
-    public static final Operation USER_UPDATE_PASSWORD = new Operation("updateUserPassword", "Update all user passwords", true);
+    public static final Operation USER_CHECK_OR_UPDATE_PASSWORD = new Operation("checkOrUpdateUserPassword", "Update all user passwords", true);
     public static final Operation USER_REMOVE = new Operation("removeUser", "Remove user", true);
     public static final Operation USER_AUTHORIZE = new Operation("authorizeUser", "Authorize user", true);
     public static final Operation USER_LOGIN = new Operation("login", "Login", true);
@@ -188,7 +188,7 @@ public class Operations {
         operationMap.put(EVENT_EXPORT_AND_REMOVE_ALL.getName(), EVENT_EXPORT_AND_REMOVE_ALL);
         operationMap.put(USER_GET.getName(), USER_GET);
         operationMap.put(USER_UPDATE.getName(), USER_UPDATE);
-        operationMap.put(USER_UPDATE_PASSWORD.getName(), USER_UPDATE_PASSWORD);
+        operationMap.put(USER_CHECK_OR_UPDATE_PASSWORD.getName(), USER_CHECK_OR_UPDATE_PASSWORD);
         operationMap.put(USER_REMOVE.getName(), USER_REMOVE);
         operationMap.put(USER_LOGIN.getName(), USER_LOGIN);
         operationMap.put(USER_LOGOUT.getName(), USER_LOGOUT);

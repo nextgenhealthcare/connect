@@ -91,13 +91,13 @@ public class UserServlet extends MirthServlet {
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
-                } else if (operation.equals(Operations.USER_UPDATE_PASSWORD)) {
+                } else if (operation.equals(Operations.USER_CHECK_OR_UPDATE_PASSWORD)) {
                     User user = (User) serializer.fromXML(request.getParameter("user"));
                     parameterMap.put("user", user);
 
                     if (isUserAuthorized(request, parameterMap) || isCurrentUser(request, user)) {
                         String plainPassword = request.getParameter("plainPassword");
-                        out.println(serializer.toXML(userController.updateUserPassword(user, plainPassword)));
+                        out.println(serializer.toXML(userController.checkOrUpdateUserPassword(user.getId(), plainPassword)));
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }

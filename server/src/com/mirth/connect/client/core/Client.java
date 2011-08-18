@@ -360,9 +360,18 @@ public class Client {
         serverConnection.executePostMethod(USER_SERVLET, params);
     }
     
-    public synchronized List<String> updateUserPassword(User user, String plainPassword) throws ClientException {
+    /**
+     * Checks the password against the configured password policies if a null
+     * user id is passed in. If a user with an id is passed in their password is also updated.
+     * 
+     * @param userId
+     * @param plainPassword
+     * @return A list of errors that occurred with the password
+     * @throws ClientException
+     */
+    public synchronized List<String> checkOrUpdateUserPassword(User user, String plainPassword) throws ClientException {
         logger.debug("updating password for user: " + user);
-        NameValuePair[] params = { new NameValuePair("op", Operations.USER_UPDATE_PASSWORD.getName()), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("plainPassword", plainPassword) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.USER_CHECK_OR_UPDATE_PASSWORD.getName()), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("plainPassword", plainPassword) };
         return (List<String>) serializer.fromXML(serverConnection.executePostMethod(USER_SERVLET, params));
     }
 

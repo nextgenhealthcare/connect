@@ -88,35 +88,43 @@ public class DefaultUserController extends UserController {
         }
     }
 
-    public List<String> updateUserPassword(User user, String plainPassword) throws ControllerException {
+    public List<String> checkOrUpdateUserPassword(Integer userId, String plainPassword) throws ControllerException {
         try {
             Digester digester = ControllerFactory.getFactory().createConfigurationController().getDigester();
             PasswordRequirements passwordRequirements = ControllerFactory.getFactory().createConfigurationController().getPasswordRequirements();
-            List<String> responses = PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements(user, plainPassword, passwordRequirements);
+            List<String> responses = PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements(userId, plainPassword, passwordRequirements);
             if (responses != null) {
                 return responses;
             }
 
-            logger.debug("updating password for user id: " + user.getId());
+            /*
+             * If no userId was passed in, stop here and don't try to add the
+             * password.
+             */
+            if (userId == null) {
+                return null;
+            }
+
+            logger.debug("updating password for user id: " + userId);
 
             Calendar pruneDate = PasswordRequirementsChecker.getInstance().getLastExpirationDate(passwordRequirements);
 
             // If a null prune date is returned, do not prune
             if (pruneDate != null) {
                 Map<String, Object> userDateMap = new HashMap<String, Object>();
-                userDateMap.put("id", user.getId());
+                userDateMap.put("id", userId);
                 userDateMap.put("pruneDate", String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", pruneDate));
 
                 try {
                     SqlConfig.getSqlMapClient().delete("User.prunePasswords", userDateMap);
                 } catch (Exception e) {
                     // Don't abort changing the password if pruning fails.
-                    logger.error("There was an error pruning passwords for user: " + user.getUsername(), e);
+                    logger.error("There was an error pruning passwords for user id: " + userId, e);
                 }
             }
 
             Map<String, Object> userPasswordMap = new HashMap<String, Object>();
-            userPasswordMap.put("id", user.getId());
+            userPasswordMap.put("id", userId);
             userPasswordMap.put("password", digester.digest(plainPassword));
             SqlConfig.getSqlMapClient().insert("User.updateUserPassword", userPasswordMap);
 
@@ -173,7 +181,7 @@ public class DefaultUserController extends UserController {
                 if (credentials != null) {
                     if (Pre22PasswordChecker.isPre22Hash(credentials.getPassword())) {
                         if (Pre22PasswordChecker.checkPassword(plainPassword, credentials.getPassword())) {
-                            updateUserPassword(validUser, plainPassword);
+                            checkOrUpdateUserPassword(validUser.getId(), plainPassword);
                             authorized = true;
                         }
                     } else {
@@ -320,9 +328,9 @@ public class DefaultUserController extends UserController {
     }
 
     @Override
-    public List<Credentials> getUserCredentials(User user) throws ControllerException {
+    public List<Credentials> getUserCredentials(Integer userId) throws ControllerException {
         try {
-            return SqlConfig.getSqlMapClient().queryForList("User.getUserCredentials", user.getId());
+            return SqlConfig.getSqlMapClient().queryForList("User.getUserCredentials", userId);
         } catch (Exception e) {
             throw new ControllerException(e);
         }

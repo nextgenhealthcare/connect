@@ -102,7 +102,7 @@ public class PasswordRequirementsChecker implements Serializable {
      * @param passwordRequirements
      * @return
      */
-    public List<String> doesPasswordMeetRequirements(User user, String plainPassword, PasswordRequirements passwordRequirements) {
+    public List<String> doesPasswordMeetRequirements(Integer userId, String plainPassword, PasswordRequirements passwordRequirements) {
         List<String> resultList = new ArrayList<String>();
         addResult(resultList, checkMinLower(plainPassword, passwordRequirements.getMinLower()));
         addResult(resultList, checkMinUpper(plainPassword, passwordRequirements.getMinUpper()));
@@ -115,10 +115,13 @@ public class PasswordRequirementsChecker implements Serializable {
             }
         }
 
-        // Continue without checking if the reuse policies are off
-        if ((passwordRequirements.getReusePeriod() != 0) || (passwordRequirements.getReuseLimit() != 0)) {
+        /*
+         * If no user/user id was passed in (new user), then don't do previous password
+         * checks. Continue without checking if the reuse policies are off.
+         */
+        if ((userId != null) && ((passwordRequirements.getReusePeriod() != 0) || (passwordRequirements.getReuseLimit() != 0))) {
             try {
-                List<Credentials> previousCredentials = ControllerFactory.getFactory().createUserController().getUserCredentials(user);
+                List<Credentials> previousCredentials = ControllerFactory.getFactory().createUserController().getUserCredentials(userId);
                 addResult(resultList, checkReusePeriod(previousCredentials, plainPassword, passwordRequirements.getReusePeriod()));
                 addResult(resultList, checkReuseLimit(previousCredentials, plainPassword, passwordRequirements.getReuseLimit()));
             } catch (ControllerException e) {
