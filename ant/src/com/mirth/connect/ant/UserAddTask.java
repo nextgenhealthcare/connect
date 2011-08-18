@@ -107,14 +107,31 @@ public class UserAddTask extends AbstractMirthTask {
 		for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
 			User luser = iter.next();
 			if (luser.getUsername().equalsIgnoreCase(userid)) {
-				throw (new BuildException("Unable to add user: userid already in use: " + userid));
+				throw (new BuildException("Unable to add user, username already in use: " + userid));
 			}
 		}
 
 		try {
+		    List<String> responses = client.checkOrUpdateUserPassword(newUser, pswd);
+		    if (responses != null) {
+		        for (String response : responses) {
+		            System.out.println(response);
+		        }
+		        return;
+		    }
 			client.updateUser(newUser);
-			client.updateUserPassword(newUser, pswd);
-			System.out.println("User \"" + userid + "\" added successfully.");
+			// Get the new user object that contains the user id
+            User validNewUser = client.getUser(newUser).get(0);
+            responses = client.checkOrUpdateUserPassword(validNewUser, pswd);
+            
+            if (responses != null) {
+                System.out.println("User \"" + userid + "\" has been created but the password could not be set:");
+                for (String response : responses) {
+                    System.out.println(response);
+                }
+            } else {
+                System.out.println("User \"" + userid + "\" added successfully.");
+            }
 		} catch (Exception e) {
 			throw (new BuildException("Unable to add user \"" + userid + "\": " + e));
 		}

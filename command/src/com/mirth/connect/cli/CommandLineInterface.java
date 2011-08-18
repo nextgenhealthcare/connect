@@ -485,9 +485,26 @@ public class CommandLineInterface {
         }
 
         try {
+            List<String> responses = client.checkOrUpdateUserPassword(user, password);
+            if (responses != null) {
+                for (String response : responses) {
+                    out.println(response);
+                }
+                return;
+            }
             client.updateUser(user);
-            client.updateUserPassword(user, password);
-            out.println("User \"" + username + "\" added successfully.");
+            // Get the new user object that contains the user id
+            User newUser = client.getUser(user).get(0);
+            responses = client.checkOrUpdateUserPassword(newUser, password);
+            
+            if (responses != null) {
+                System.out.println("User \"" + username + "\" has been created but the password could not be set:");
+                for (String response : responses) {
+                    out.println(response);
+                }
+            } else {
+                out.println("User \"" + username + "\" added successfully.");
+            }
         } catch (Exception e) {
             error("unable to add user \"" + username + "\": " + e, e);
         }
@@ -525,8 +542,14 @@ public class CommandLineInterface {
         for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
             User user = iter.next();
             if (user.getId().toString().equalsIgnoreCase(key) || user.getUsername().equalsIgnoreCase(key)) {
-                client.updateUserPassword(user, newPassword);
-                out.println("User \"" + user.getUsername() + "\" password updated.");
+                List<String> responses = client.checkOrUpdateUserPassword(user, newPassword);
+                if (responses != null) {
+                    for (String response : responses) {
+                        out.println(response);
+                    }
+                } else {
+                    out.println("User \"" + user.getUsername() + "\" password updated.");
+                }
                 return;
             }
         }

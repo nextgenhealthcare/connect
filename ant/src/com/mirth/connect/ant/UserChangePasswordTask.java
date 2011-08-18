@@ -67,8 +67,14 @@ public class UserChangePasswordTask extends AbstractMirthTask {
 		for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
 			User u = iter.next();
 			if (u.getId().toString().equalsIgnoreCase(userid) || u.getUsername().equalsIgnoreCase(userid)) {
-				client.updateUserPassword(u, pswd);
-				System.out.println("User \"" + u.getUsername() + "\" password changed.");
+				List<String> responses = client.checkOrUpdateUserPassword(u, pswd);
+	            if (responses != null) {
+	                for (String response : responses) {
+	                    System.out.println(response);
+	                }
+	            } else {
+	                System.out.println("User \"" + u.getUsername() + "\" password changed.");
+	            }
 				break;
 			}
 		}
