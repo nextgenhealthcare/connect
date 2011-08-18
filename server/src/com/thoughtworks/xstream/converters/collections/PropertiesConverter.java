@@ -19,6 +19,7 @@ public class PropertiesConverter implements Converter {
         }
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
     public boolean canConvert(Class clazz) {
         return clazz.equals(Properties.class);
@@ -27,6 +28,7 @@ public class PropertiesConverter implements Converter {
     /**
      * Sorts the Properties set by key and converts it to XML.
      */
+    @Override
     public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
         Properties properties = (Properties) value;
 
@@ -41,6 +43,7 @@ public class PropertiesConverter implements Converter {
         }
     }
 
+    @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         Properties properties = new Properties();
 

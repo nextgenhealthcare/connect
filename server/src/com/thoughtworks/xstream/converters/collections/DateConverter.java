@@ -28,17 +28,20 @@ public class DateConverter implements Converter {
         this.pattern = pattern;
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
     public boolean canConvert(Class clazz) {
         return Date.class.isAssignableFrom(clazz);
     }
 
+    @Override
     public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
         Date date = (Date) value;
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         writer.setValue(formatter.format(date));
     }
 
+    @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         Date date = new Date();
