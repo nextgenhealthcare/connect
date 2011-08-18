@@ -48,6 +48,7 @@ public class Operations {
     public static final Operation CONFIGURATION_SERVER_SETTINGS_SET = new Operation("setServerSettings", "Set server settings", true);
     public static final Operation CONFIGURATION_UPDATE_SETTINGS_GET = new Operation("getUpdateSettings", "Get update settings", false);
     public static final Operation CONFIGURATION_UPDATE_SETTINGS_SET = new Operation("setUpdateSettings", "Set update settings", true);
+    public static final Operation CONFIGURATION_ENCRYPTION_SETTINGS_GET = new Operation("getEncryptionSettings", "Get encryption settings", true);
     public static final Operation CONFIGURATION_GUID_GET = new Operation("getGuid", "Get GUID", false);
     public static final Operation CONFIGURATION_DATABASE_DRIVERS_GET = new Operation("getDatabaseDrivers", "Get database drivers", false);
     public static final Operation CONFIGURATION_VERSION_GET = new Operation("getVersion", "Get version", false);
@@ -140,6 +141,7 @@ public class Operations {
         operationMap.put(CONFIGURATION_SERVER_SETTINGS_SET.getName(), CONFIGURATION_SERVER_SETTINGS_SET);
         operationMap.put(CONFIGURATION_UPDATE_SETTINGS_GET.getName(), CONFIGURATION_UPDATE_SETTINGS_GET);
         operationMap.put(CONFIGURATION_UPDATE_SETTINGS_SET.getName(), CONFIGURATION_UPDATE_SETTINGS_SET);
+        operationMap.put(CONFIGURATION_ENCRYPTION_SETTINGS_GET.getName(), CONFIGURATION_ENCRYPTION_SETTINGS_GET);
         operationMap.put(CONFIGURATION_GUID_GET.getName(), CONFIGURATION_GUID_GET);
         operationMap.put(CONFIGURATION_DATABASE_DRIVERS_GET.getName(), CONFIGURATION_DATABASE_DRIVERS_GET);
         operationMap.put(CONFIGURATION_VERSION_GET.getName(), CONFIGURATION_VERSION_GET);

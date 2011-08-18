@@ -203,10 +203,6 @@ public class ImportConverter {
         return (Channel) serializer.fromXML(convertChannelString(serializer.toXML(channel)));
     }
 
-    public static String convertChannelFile(File channel) throws Exception {
-        return convertChannelString(read(channel));
-    }
-
     public static String convertChannelString(String channel) throws Exception {
         channel = convertPackageNames(channel);
         channel = runStringConversions(channel);

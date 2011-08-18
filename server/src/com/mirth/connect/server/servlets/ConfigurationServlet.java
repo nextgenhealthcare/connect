@@ -91,6 +91,14 @@ public class ConfigurationServlet extends MirthServlet {
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
+                } else if (operation.equals(Operations.CONFIGURATION_ENCRYPTION_SETTINGS_GET)) {
+                    response.setContentType(APPLICATION_XML);
+
+                    if (isUserAuthorized(request, null)) {
+                        out.println(serializer.toXML(configurationController.getEncryptionSettings()));
+                    } else {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    }
                 } else if (operation.equals(Operations.CONFIGURATION_GUID_GET)) {
                     if (isUserAuthorized(request, null)) {
                         response.setContentType(TEXT_PLAIN);

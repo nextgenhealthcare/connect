@@ -43,13 +43,13 @@ import javax.security.auth.x500.X500Principal;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.configuration.ConfigurationConverter;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V1CertificateGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -59,6 +59,7 @@ import com.mirth.commons.encryption.Encryptor;
 import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.DriverInfo;
+import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerConfiguration;
@@ -90,6 +91,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private PasswordRequirements passwordRequirements;
     private static PropertiesConfiguration versionConfig = new PropertiesConfiguration();
     private static PropertiesConfiguration mirthConfig = new PropertiesConfiguration();
+    private static EncryptionSettings encryptionConfig;
 
     private static KeyEncryptor encryptor = null;
     private static Digester digester = null;
@@ -249,6 +251,11 @@ public class DefaultConfigurationController extends ConfigurationController {
     @Override
     public ServerSettings getServerSettings() throws ControllerException {
         return new ServerSettings(getPropertiesForGroup(PROPERTIES_CORE));
+    }
+
+    @Override
+    public EncryptionSettings getEncryptionSettings() throws ControllerException {
+        return encryptionConfig;
     }
 
     @Override
@@ -543,6 +550,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         Properties properties = new Properties();
 
         try {
+            @SuppressWarnings("unchecked")
             Map<String, String> result = SqlConfig.getSqlMapClient().queryForMap("Configuration.selectPropertiesForCategory", category, "name", "value");
 
             if (!result.isEmpty()) {
@@ -628,12 +636,18 @@ public class DefaultConfigurationController extends ConfigurationController {
         try {
             properties.load(ResourceUtil.getResourceStream(this.getClass(), "mirth.properties"));
 
+            /*
+             * Load the encryption settings so that they can be references
+             * client side.
+             */
+            encryptionConfig = new EncryptionSettings(ConfigurationConverter.getProperties(mirthConfig));
+            
             File keyStoreFile = new File(properties.getString("keystore.path"));
             String keyStoreType = properties.getString("keystore.storetype");
             char[] keyStorePassword = properties.getString("keystore.storepass").toCharArray();
             char[] keyPassword = properties.getString("keystore.keypass").toCharArray();
 
-            Provider provider = (Provider) Class.forName(properties.getString("security.provider", BouncyCastleProvider.class.getName())).newInstance();
+            Provider provider = (Provider) Class.forName(encryptionConfig.getSecurityProvider()).newInstance();
 
             // load the keystore if it exists, otherwise create a new one
             KeyStore keyStore = KeyStore.getInstance(keyStoreType);
@@ -669,12 +683,10 @@ public class DefaultConfigurationController extends ConfigurationController {
      */
     private void configureEncryption(PropertiesConfiguration properties, Provider provider, KeyStore keyStore, char[] keyPassword) throws Exception {
         String secretKeyAlias = "encryption";
-        String encryptionAlgorithm = properties.getString("encryption.algorithm", "AES");
-        String digestAlgorithm = properties.getString("digest.algorithm", "SHA256");
         SecretKey secretKey = null;
 
         if (!keyStore.containsAlias(secretKeyAlias)) {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionAlgorithm, provider);
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionConfig.getEncryptionAlgorithm(), provider);
             secretKey = keyGenerator.generateKey();
             logger.debug("generated new encryption key using provider: " + provider.getName());
 
@@ -686,14 +698,20 @@ public class DefaultConfigurationController extends ConfigurationController {
             secretKey = (SecretKey) keyStore.getKey(secretKeyAlias, keyPassword);
         }
 
+        /*
+         * Now that we have a secret key, store it in the encryption settings so
+         * that we can use it to encryption things client side.
+         */
+        encryptionConfig.setSecretKey(secretKey.getEncoded());
+
         encryptor = new KeyEncryptor();
         encryptor.setProvider(provider);
-        encryptor.setAlgorithm(encryptionAlgorithm);
+        encryptor.setAlgorithm(encryptionConfig.getEncryptionAlgorithm());
         encryptor.setKey(secretKey);
 
         digester = new Digester();
         digester.setProvider(provider);
-        digester.setAlgorithm(digestAlgorithm);
+        digester.setAlgorithm(encryptionConfig.getDigestAlgorithm());
     }
 
     /**

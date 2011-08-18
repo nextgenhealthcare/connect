@@ -16,6 +16,7 @@ import java.util.Properties;
 import com.mirth.commons.encryption.Digester;
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.model.DriverInfo;
+import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerSettings;
@@ -116,6 +117,14 @@ public abstract class ConfigurationController extends Controller {
      * @throws ControllerException
      */
     public abstract ServerSettings getServerSettings() throws ControllerException;
+
+    /**
+     * Returns all encryption settings.
+     * 
+     * @return encryption settings
+     * @throws ControllerException
+     */
+    public abstract EncryptionSettings getEncryptionSettings() throws ControllerException;
 
     /**
      * Sets all server settings.

@@ -15,16 +15,23 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.security.Provider;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.commons.encryption.EncryptionException;
+import com.mirth.commons.encryption.Encryptor;
+import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.Channel;
@@ -34,6 +41,7 @@ import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DriverInfo;
+import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.PasswordRequirements;
@@ -468,6 +476,18 @@ public class Client {
     }
 
     /**
+     * Returns an EncryptionSettings object with all encrpytion settings.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public EncryptionSettings getEncryptionSettings() throws ClientException {
+        logger.debug("retrieving encryption settings");
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_ENCRYPTION_SETTINGS_GET.getName()) };
+        return (EncryptionSettings) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
+    }
+
+    /**
      * Updates the server configuration settings.
      * 
      * @param settings
@@ -654,20 +674,47 @@ public class Client {
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
+    public Encryptor getEncryptor() {
+        KeyEncryptor encryptor = null;
+        
+        try {
+            EncryptionSettings encryptionSettings = getEncryptionSettings();
+            encryptor = new KeyEncryptor();
+            encryptor.setAlgorithm(encryptionSettings.getEncryptionAlgorithm());
+            encryptor.setProvider((Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance());
+            SecretKey secretKey = new SecretKeySpec(encryptionSettings.getSecretKey(), encryptionSettings.getDigestAlgorithm());
+            encryptor.setKey(secretKey);
+        } catch (Exception e) {
+            logger.error("Unable to load encryption settings.", e);
+        }
+
+        return encryptor;
+    }
+    
+    public boolean isEncryptExport() {
+        try {
+            return getEncryptionSettings().getEncryptExport();
+        } catch (Exception e) {
+            logger.error("Unable to load encryption settings.");
+        }
+
+        return false;
+    }
+    
     public int importMessages(String channelId, File file, String charset) throws ClientException {
         int messageCount = 0;
         BufferedReader reader = null;
 
         try {
-            String deprecatedOpenElement2 = "<com.webreach.mirth.model.MessageObject>";
-            String deprecatedCloseElement2 = "</com.webreach.mirth.model.MessageObject>";
-            String deprecatedOpenElement = "<com.mirth.connect.model.MessageObject>";
-            String deprecatedCloseElement = "</com.mirth.connect.model.MessageObject>";
-            String openElement = "<messageObject>";
-            String closeElement = "</messageObject>";
+            final String deprecatedOpenElement2 = "<com.webreach.mirth.model.MessageObject>";
+            final String deprecatedCloseElement2 = "</com.webreach.mirth.model.MessageObject>";
+            final String deprecatedOpenElement = "<com.mirth.connect.model.MessageObject>";
+            final String deprecatedCloseElement = "</com.mirth.connect.model.MessageObject>";
+            final String openElement = "<messageObject>";
+            final String closeElement = "</messageObject>";
 
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder output = new StringBuilder();
             String line = null;
             boolean enteredMessage = false;
 
@@ -677,12 +724,18 @@ public class Client {
                 }
 
                 if (enteredMessage) {
-                    buffer.append(line);
+                    output.append(line);
 
                     if (line.equals(closeElement) || line.equals(deprecatedCloseElement) || line.equals(deprecatedCloseElement2)) {
-                        MessageObject messageObject = (MessageObject) serializer.fromXML(ImportConverter.convertMessage(buffer.toString()));
+                        MessageObject messageObject = (MessageObject) serializer.fromXML(ImportConverter.convertMessage(output.toString()));
                         messageObject.setChannelId(channelId);
                         messageObject.setId(getGuid());
+                        
+                        if (isEncryptExport()) {
+                            messageObject.setRawData(getEncryptor().decrypt(messageObject.getRawData()));
+                            messageObject.setTransformedData(getEncryptor().decrypt(messageObject.getTransformedData()));
+                            messageObject.setEncodedData(getEncryptor().decrypt(messageObject.getEncodedData()));
+                        }
 
                         try {
                             importMessage(messageObject);
@@ -691,7 +744,7 @@ public class Client {
                             throw new ClientException("Unable to connect to server. Stopping message import.", e);
                         }
 
-                        buffer.delete(0, buffer.length());
+                        output.delete(0, output.length());
                         enteredMessage = false;
                     }
                 }
@@ -710,7 +763,7 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_IMPORT.getName()), new NameValuePair("message", serializer.toXML(message)) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
-
+    
     public int exportMessages(int exportMode, int plainTextMode, MessageObjectFilter filter, int pageSize, File file, String charset) throws ClientException {
         MessageListHandler messageListHandler = null;
         int messageCount = 0;
@@ -718,27 +771,34 @@ public class Client {
         try {
             messageListHandler = getMessageListHandler(filter, pageSize, true);
             List<MessageObject> messageObjectList = messageListHandler.getFirstPage();
-            StringBuffer messageBuffer = new StringBuffer();
+            StringBuilder output = new StringBuilder();
 
             while (messageObjectList.size() > 0) {
                 for (MessageObject messageObject : messageObjectList) {
+                    
+                    if (isEncryptExport()) {
+                        messageObject.setRawData(getEncryptor().encrypt(messageObject.getRawData()));
+                        messageObject.setTransformedData(getEncryptor().encrypt(messageObject.getTransformedData()));
+                        messageObject.setEncodedData(getEncryptor().encrypt(messageObject.getEncodedData()));
+                    }
+                    
                     if (exportMode == 1) {
                         switch (plainTextMode) {
                             case 0:
                                 if (StringUtils.isNotBlank(messageObject.getRawData())) {
-                                    messageBuffer.append(messageObject.getRawData());
+                                    output.append(messageObject.getRawData());
                                 }
 
                                 break;
                             case 1:
                                 if (StringUtils.isNotBlank(messageObject.getTransformedData())) {
-                                    messageBuffer.append(messageObject.getTransformedData());
+                                    output.append(messageObject.getTransformedData());
                                 }
 
                                 break;
                             case 2:
                                 if (StringUtils.isNotBlank(messageObject.getEncodedData())) {
-                                    messageBuffer.append(messageObject.getEncodedData());
+                                    output.append(messageObject.getEncodedData());
                                 }
 
                                 break;
@@ -746,25 +806,25 @@ public class Client {
                                 break;
                         }
                         
-                        messageBuffer.append(IOUtils.LINE_SEPARATOR);
+                        output.append(IOUtils.LINE_SEPARATOR);
                     } else {
-                        messageBuffer.append(serializer.toXML(messageObject));
+                        output.append(serializer.toXML(messageObject));
                     }
 
                     messageCount++;
-                    messageBuffer.append(IOUtils.LINE_SEPARATOR);
+                    output.append(IOUtils.LINE_SEPARATOR);
                 }
 
                 OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file, true), charset);
 
                 try {
-                    writer.write(messageBuffer.toString());
+                    writer.write(output.toString());
                     writer.flush();
                 } finally {
                     IOUtils.closeQuietly(writer);
                 }
 
-                messageBuffer.delete(0, messageBuffer.length());
+                output.delete(0, output.length());
                 messageObjectList = messageListHandler.getNextPage();
             }
 
