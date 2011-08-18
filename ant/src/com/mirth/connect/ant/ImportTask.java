@@ -18,8 +18,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.util.FileUtils;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.model.Channel;
@@ -196,8 +196,8 @@ public class ImportTask extends AbstractMirthTask {
 		String channelXML = "";
 
 		try {
-			channelXML = ImportConverter.convertChannelString(FileUtils.readFileToString(importFile));
-		} catch (Exception e1) {
+			channelXML = ImportConverter.convertChannelString(FileUtils.readFully(new FileReader(importFile)));
+		} catch (Exception e) {
 			throw (new BuildException("Invalid channel file."));
 		}
 
