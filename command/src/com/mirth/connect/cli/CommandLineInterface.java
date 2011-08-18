@@ -1184,7 +1184,7 @@ public class CommandLineInterface {
         String channelXML = "";
 
         try {
-            channelXML = ImportConverter.convertChannelFile(importFile);
+            channelXML = ImportConverter.convertChannelString(FileUtils.readFileToString(importFile));
         } catch (Exception e1) {
             error("invalid channel file.", e1);
             return;
