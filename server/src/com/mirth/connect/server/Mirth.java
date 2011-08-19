@@ -301,6 +301,8 @@ public class Mirth extends Thread {
             sslConnector.setSslKeyManagerFactoryAlgorithm(mirthProperties.getString("keystore.algorithm"));
             sslConnector.setKeystoreType(mirthProperties.getString("keystore.storetype"));
             sslConnector.setName("sslconnector");
+            // Disabling low and medium strength cipers (see MIRTH-1924)
+            sslConnector.setExcludeCipherSuites(new String[] { "EXP-EDH-DSS-DES-CBC-SHA", "EDH-DSS-DES-CBC-SHA" });
 
             HandlerList handlers = new HandlerList();
             String contextPath = mirthProperties.getString("http.contextpath");
