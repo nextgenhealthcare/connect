@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -37,27 +36,29 @@ import org.quartz.impl.StdSchedulerFactory;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Event;
+import com.mirth.connect.model.Event.Level;
+import com.mirth.connect.model.Event.Outcome;
 import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.filters.MessageObjectFilter;
 import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.util.PropertyLoader;
 
 public class MessagePrunerService implements ServicePlugin, Job {
     private Logger logger = Logger.getLogger(this.getClass());
 	private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+	private EventController eventController = ControllerFactory.getFactory().createEventController();
 	private Scheduler sched = null;
 	private SchedulerFactory schedFact = null;
 	private JobDetail jobDetail = null;
-	private static LinkedList<String[]> log;
 	private static final int DEFAULT_PRUNING_BLOCK_SIZE = 0;
-	private static final int LOG_SIZE = 250;
 	private static boolean allowBatchPruning;
 	private static int pruningBlockSize;
 	
 	public static final String PLUGINPOINT = "Message Pruner";
-	private static final String GET_LOG = "getLog";
 	
     @Override
     public String getPluginPointName() {
@@ -83,7 +84,6 @@ public class MessagePrunerService implements ServicePlugin, Job {
 			schedFact = new StdSchedulerFactory();
 			sched = schedFact.getScheduler();
 			sched.scheduleJob(jobDetail, createTrigger(properties));
-			log = new LinkedList<String[]>();
 		} catch (Exception e) {
 			logger.error("error encountered in database pruner initialization", e);
 		}
@@ -135,6 +135,7 @@ public class MessagePrunerService implements ServicePlugin, Job {
 		return trigger;
 	}
 
+	@Override
 	public void start() {
 		try {
 			sched.start();
@@ -143,6 +144,7 @@ public class MessagePrunerService implements ServicePlugin, Job {
 		}
 	}
 
+	@Override
 	public void update(Properties properties) {
 		try {
 			if (properties.getProperty("allowBatchPruning") != null && properties.getProperty("allowBatchPruning").equals("1")) {
@@ -168,11 +170,7 @@ public class MessagePrunerService implements ServicePlugin, Job {
 		}
 	}
 
-	public void onDeploy() {
-	// TODO Auto-generated method stub
-
-	}
-
+	@Override
 	public void stop() {
 		try {
 			sched.shutdown();
@@ -181,18 +179,12 @@ public class MessagePrunerService implements ServicePlugin, Job {
 		}
 	}
 
+	@Override
 	public Object invoke(String method, Object object, String sessionId) {
-		if (method.equals(GET_LOG)) {
-			return getLog();
-		}
-
 		return null;
 	}
 
-	private List<String[]> getLog() {
-		return log;
-	}
-
+	@Override
 	public Properties getDefaultProperties() {
 		Properties properties = new Properties();
 		properties.put("interval", "daily");
@@ -202,7 +194,7 @@ public class MessagePrunerService implements ServicePlugin, Job {
 		return properties;
 	}
 
-	public Map<String, List<Channel>> getBatchedChannelMap() throws Exception {
+	private Map<String, List<Channel>> getBatchedChannelMap() throws Exception {
 		Map<String, List<Channel>> batchedChannelMap = new HashMap<String, List<Channel>>();
 
 		for (Channel channel : channelController.getChannel(null)) {
@@ -222,7 +214,7 @@ public class MessagePrunerService implements ServicePlugin, Job {
 	}
 
 	// just get a map with one key and the list of all the channels
-	public Map<String, List<Channel>> getChannelMap() throws Exception {
+	private Map<String, List<Channel>> getChannelMap() throws Exception {
 		Map<String, List<Channel>> channelMap = new HashMap<String, List<Channel>>();
 
 		for (Channel channel : channelController.getChannel(null)) {
@@ -278,19 +270,18 @@ public class MessagePrunerService implements ServicePlugin, Job {
 				filter.setEndDate(endDate);
 				filter.setIgnoreQueued(true);
 
-				int result = ControllerFactory.getFactory().createMessageObjectController().pruneMessages(filter, pruningBlockSize);
+				int numMessagesPruned = ControllerFactory.getFactory().createMessageObjectController().pruneMessages(filter, pruningBlockSize);
 
-				Calendar calendar = Calendar.getInstance();
-				calendar.setTime(calendar.getTime());
-
-				String date = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", calendar);
-				String numberRemoved = String.valueOf(result);
-
-				if (log.size() == LOG_SIZE) {
-					log.removeLast();
-				}
-
-				log.addFirst(new String[] { channelName, date, numberRemoved });
+				Event event = new Event();
+				event.setLevel(Level.INFORMATION);
+				event.setOutcome(Outcome.SUCCESS);
+				event.setName(PLUGINPOINT);
+				
+	            Map<String, Object> attributes = new HashMap<String, Object>();
+	            attributes.put("channel", channelName);
+	            attributes.put("messages pruned", numMessagesPruned);
+	            event.setAttributes(attributes);
+	            eventController.addEvent(event);
 			}
 		} catch (Exception e) {
 			logger.warn("could not prune message database", e);
@@ -299,7 +290,7 @@ public class MessagePrunerService implements ServicePlugin, Job {
 
     @Override
     public ExtensionPermission[] getExtensionPermissions() {
-        ExtensionPermission viewPermission = new ExtensionPermission(PLUGINPOINT, "View Settings", "Displays the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_GET.getName(), GET_LOG }, new String[] { TaskConstants.SETTINGS_REFRESH });
+        ExtensionPermission viewPermission = new ExtensionPermission(PLUGINPOINT, "View Settings", "Displays the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_GET.getName() }, new String[] { TaskConstants.SETTINGS_REFRESH });
         ExtensionPermission savePermission = new ExtensionPermission(PLUGINPOINT, "Save Settings", "Allows changing the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_SET.getName() }, new String[] { TaskConstants.SETTINGS_SAVE });
         
         return new ExtensionPermission[] { viewPermission, savePermission };
