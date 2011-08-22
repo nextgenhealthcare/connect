@@ -11,7 +11,9 @@ package com.mirth.connect.server.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashMap;
@@ -32,12 +34,16 @@ import com.ibatis.common.logging.LogFactory;
 import com.ibatis.common.resources.Resources;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.ibatis.sqlmap.client.SqlMapClientBuilder;
+import com.mirth.commons.encryption.Encryptor;
+import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
 
 public class SqlConfig {
+    private static final String ENCRYPTION_PREFIX = "{enc}";
     private static SqlMapClient sqlMapClient = null;
     private static Map<String, String> databaseDriverMap = null;
 
@@ -70,44 +76,74 @@ public class SqlConfig {
                     System.setProperty("derby.stream.error.method", "com.mirth.connect.server.Mirth.getNullOutputStream");
 
                     // load the database properties
-                    PropertiesConfiguration properties = new PropertiesConfiguration();
+                    PropertiesConfiguration mirthProperties = new PropertiesConfiguration();
                     InputStream is = ResourceUtil.getResourceStream(SqlMapClient.class, "mirth.properties");
-                    properties.setDelimiterParsingDisabled(true);
-                    properties.load(is);
+                    mirthProperties.setDelimiterParsingDisabled(true);
+                    mirthProperties.load(is);
                     IOUtils.closeQuietly(is);
 
-                    String database = properties.getString("database");
+                    String database = mirthProperties.getString("database");
                     BufferedReader br = new BufferedReader(Resources.getResourceAsReader("SqlMapConfig.xml"));
 
                     // parse the SqlMapConfig (ignoring the DTD)
                     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                     factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
                     Document document = factory.newDocumentBuilder().parse(new InputSource(br));
-                    
+
                     addPluginSqlMaps(database, document);
 
                     DocumentSerializer docSerializer = new DocumentSerializer();
                     Reader reader = new StringReader(docSerializer.toXML(document));
 
+                    PropertiesConfiguration databaseProperties = new PropertiesConfiguration();
+                    databaseProperties.setProperty("dir.base", ControllerFactory.getFactory().createConfigurationController().getBaseDir());
+                    databaseProperties.setProperty("database", database);
+                    databaseProperties.setProperty("database.url", mirthProperties.getString("database.url"));
+
                     // if a database driver is not being set, use the default
-                    if (!properties.containsKey("database.driver") || StringUtils.isBlank(properties.getString("database.driver"))) {
-                        properties.setProperty("database.driver", MapUtils.getString(databaseDriverMap, database));
-                    }
+                    databaseProperties.setProperty("database.driver", mirthProperties.getString("database.driver", MapUtils.getString(databaseDriverMap, database)));
 
                     /*
                      * MIRTH-1749: in case someone comments out the username and
                      * password properties
                      */
-                    if (!properties.containsKey("database.username")) {
-                        properties.setProperty("database.username", StringUtils.EMPTY);
+                    databaseProperties.setProperty("database.username", mirthProperties.getString("database.usernane", StringUtils.EMPTY));
+
+                    if (!mirthProperties.containsKey("database.password")) {
+                        databaseProperties.setProperty("database.password", StringUtils.EMPTY);
+                    } else {
+                        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+                        EncryptionSettings encryptionSettings = configurationController.getEncryptionSettings();
+                        Encryptor encryptor = configurationController.getEncryptor();
+
+                        if (encryptionSettings.getEncryptProperties()) {
+                            if (StringUtils.startsWith(mirthProperties.getString("database.password"), ENCRYPTION_PREFIX)) {
+                                String encryptedPassword = StringUtils.removeStart(mirthProperties.getString("database.password"), ENCRYPTION_PREFIX);
+                                String decryptedPassword = encryptor.decrypt(encryptedPassword);
+                                databaseProperties.setProperty("database.password", decryptedPassword);
+                            } else {
+                                // first we need to encrypt the plaintext password
+                                String decryptedPassword = mirthProperties.getString("database.password");
+                                databaseProperties.setProperty("database.password", decryptedPassword);
+
+                                // now encrypt the password and write it back to the file
+                                String encryptedPassword = ENCRYPTION_PREFIX + encryptor.encrypt(decryptedPassword);
+                                mirthProperties.setProperty("database.password", encryptedPassword);
+                                File confDir = new File(ControllerFactory.getFactory().createConfigurationController().getConfigurationDir());
+                                OutputStream os = new FileOutputStream(new File(confDir, "mirth.properties"));
+
+                                try {
+                                    mirthProperties.save(os);
+                                } finally {
+                                    IOUtils.closeQuietly(os);
+                                }
+                            }
+                        } else {
+                            databaseProperties.setProperty("database.password", mirthProperties.getString("database.password"));
+                        }
                     }
 
-                    if (!properties.containsKey("database.password")) {
-                        properties.setProperty("database.password", StringUtils.EMPTY);
-                    }
-
-                    properties.setProperty("dir.base", ControllerFactory.getFactory().createConfigurationController().getBaseDir());
-                    sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader, ConfigurationConverter.getProperties(properties));
+                    sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader, ConfigurationConverter.getProperties(databaseProperties));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

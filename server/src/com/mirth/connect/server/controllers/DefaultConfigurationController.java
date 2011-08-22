@@ -57,6 +57,7 @@ import org.w3c.dom.Element;
 import com.mirth.commons.encryption.Digester;
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.commons.encryption.KeyEncryptor;
+import com.mirth.commons.encryption.Output;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
@@ -80,7 +81,7 @@ import com.mirth.connect.util.PropertyVerifier;
  * 
  */
 public class DefaultConfigurationController extends ConfigurationController {
-    private static final String PROPERTIES_CORE = "core";
+    public static final String PROPERTIES_CORE = "core";
 
     private Logger logger = Logger.getLogger(this.getClass());
     private String appDataDir = null;
@@ -708,10 +709,12 @@ public class DefaultConfigurationController extends ConfigurationController {
         encryptor.setProvider(provider);
         encryptor.setAlgorithm(encryptionConfig.getEncryptionAlgorithm());
         encryptor.setKey(secretKey);
+        encryptor.setFormat(Output.BASE64);
 
         digester = new Digester();
         digester.setProvider(provider);
         digester.setAlgorithm(encryptionConfig.getDigestAlgorithm());
+        digester.setFormat(Output.BASE64);
     }
 
     /**

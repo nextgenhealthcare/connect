@@ -15,11 +15,13 @@ public class EncryptionSettings extends AbstractSettings implements Auditable {
     public static final String DEFAULT_SECURTITY_PROVIDER = BouncyCastleProvider.class.getName();
 
     private static final String ENCRYPTION_EXPORT = "encryption.export";
+    private static final String ENCRYPTION_PROPERTIES = "encryption.properties";
     private static final String ENCRYPTION_ALGORITHM = "encryption.algorithm";
     private static final String DIGEST_ALGORITHM = "digest.algorithm";
     private static final String SECURITY_PROVIDER = "security.provider";
 
     private Boolean encryptExport;
+    private Boolean encryptProperties;
     private String encryptionAlgorithm;
     private String digestAlgorithm;
     private String securityProvider;
@@ -39,6 +41,14 @@ public class EncryptionSettings extends AbstractSettings implements Auditable {
 
     public void setEncryptExport(Boolean encryptExport) {
         this.encryptExport = encryptExport;
+    }
+
+    public Boolean getEncryptProperties() {
+        return encryptProperties;
+    }
+
+    public void setEncryptProperties(Boolean encryptProperties) {
+        this.encryptProperties = encryptProperties;
     }
 
     public String getEncryptionAlgorithm() {
@@ -76,6 +86,7 @@ public class EncryptionSettings extends AbstractSettings implements Auditable {
     @Override
     public void setProperties(Properties properties) {
         setEncryptExport(intToBooleanObject(properties.getProperty(ENCRYPTION_EXPORT, "0")));
+        setEncryptProperties(intToBooleanObject(properties.getProperty(ENCRYPTION_PROPERTIES, "0")));
         setEncryptionAlgorithm((String) properties.getProperty(ENCRYPTION_ALGORITHM, DEFAULT_ENCRYPTION_ALGORITHM));
         setDigestAlgorithm((String) properties.getProperty(DIGEST_ALGORITHM, DEFAULT_DIGEST_ALGORITHM));
         setSecurityProvider((String) properties.getProperty(SECURITY_PROVIDER, DEFAULT_SECURTITY_PROVIDER));
@@ -87,6 +98,10 @@ public class EncryptionSettings extends AbstractSettings implements Auditable {
 
         if (getEncryptExport() != null) {
             properties.put(ENCRYPTION_EXPORT, getEncryptExport());
+        }
+
+        if (getEncryptProperties() != null) {
+            properties.put(ENCRYPTION_PROPERTIES, getEncryptProperties());
         }
 
         if (getEncryptionAlgorithm() != null) {
