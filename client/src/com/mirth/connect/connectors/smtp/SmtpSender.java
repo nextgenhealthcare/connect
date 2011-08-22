@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.smtp;
 
+import com.mirth.connect.client.core.ClientException;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.connectors.ConnectorClass;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.util.ConnectionTestResponse;
+import javax.swing.SwingWorker;
 
 public class SmtpSender extends ConnectorClass {
 
@@ -393,6 +396,7 @@ public class SmtpSender extends ConnectorClass {
         useAuthenticationYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         useAuthenticationLabel = new javax.swing.JLabel();
         useAuthenticationNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        sendTestEmailButton = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -539,25 +543,32 @@ public class SmtpSender extends ConnectorClass {
             }
         });
 
+        sendTestEmailButton.setText("Send Test Email");
+        sendTestEmailButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sendTestEmailButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(35, 35, 35)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(useAuthenticationLabel)
-                    .addComponent(usernameLabel)
-                    .addComponent(passwordLabel)
-                    .addComponent(toLabel)
-                    .addComponent(fromLabel)
-                    .addComponent(subjectLabel)
-                    .addComponent(htmlLabel)
-                    .addComponent(bodyLabel)
-                    .addComponent(attachmentsLabel)
-                    .addComponent(encryptionLabel)
-                    .addComponent(smtpPortLabel)
-                    .addComponent(smtpHostLabel))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(fromLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(useAuthenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(bodyLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(encryptionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(subjectLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(smtpPortLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(toLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(htmlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(smtpHostLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(attachmentsLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -574,14 +585,17 @@ public class SmtpSender extends ConnectorClass {
                     .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
+                        .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(sendTestEmailButton))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(deleteButton)))
-                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE)
+                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(encryptionNone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -595,7 +609,8 @@ public class SmtpSender extends ConnectorClass {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(smtpHostLabel)
-                    .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sendTestEmailButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(smtpPortLabel)
@@ -648,7 +663,7 @@ public class SmtpSender extends ConnectorClass {
                         .addComponent(newButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteButton)))
-                .addGap(32, 32, 32))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -700,6 +715,39 @@ private void useAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt) 
     passwordField.setEnabled(false);
 }//GEN-LAST:event_useAuthenticationNoActionPerformed
 
+private void sendTestEmailButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendTestEmailButtonActionPerformed
+    parent.setWorking("Sending test email...", true);
+    
+    SwingWorker worker = new SwingWorker<Void, Void>() {
+        
+        public Void doInBackground() {
+            
+            try {
+                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "sendTestEmail", getProperties());
+                
+                if (response == null) {
+                    throw new ClientException("Failed to send email.");
+                } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
+                    parent.alertInformation(parent, response.getMessage());
+                } else {
+                    parent.alertWarning(parent, response.getMessage());
+                }
+                
+                return null;
+            } catch (ClientException e) {
+                parent.alertError(parent, e.getMessage());
+                return null;
+            }
+        }
+        
+        public void done() {
+            parent.setWorking("", false);
+        }
+    };
+    
+    worker.execute();
+}//GEN-LAST:event_sendTestEmailButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel attachmentsLabel;
     private javax.swing.JScrollPane attachmentsPane;
@@ -721,6 +769,7 @@ private void useAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt) 
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.ButtonGroup secureButtonGroup;
+    private javax.swing.JButton sendTestEmailButton;
     private com.mirth.connect.client.ui.components.MirthTextField smtpHostField;
     private javax.swing.JLabel smtpHostLabel;
     private com.mirth.connect.client.ui.components.MirthTextField smtpPortField;

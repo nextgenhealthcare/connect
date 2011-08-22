@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
@@ -34,21 +34,21 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="1" attributes="0">
-              <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="useAuthenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="toLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="fromLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="subjectLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="htmlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="useAuthenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="bodyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="encryptionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="subjectLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="smtpPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="toLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="htmlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="smtpHostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -68,16 +68,20 @@
                   <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                   <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                   <Component id="smtpPortField" alignment="0" min="-2" pref="50" max="-2" attributes="1"/>
-                  <Component id="smtpHostField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="attachmentsPane" pref="233" max="32767" attributes="0"/>
+                      <Component id="smtpHostField" min="-2" pref="200" max="-2" attributes="1"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="sendTestEmailButton" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="attachmentsPane" pref="248" max="32767" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" max="-2" attributes="0">
                           <Component id="newButton" max="32767" attributes="1"/>
                           <Component id="deleteButton" alignment="1" min="-2" max="-2" attributes="1"/>
                       </Group>
                   </Group>
-                  <Component id="bodyTextPane" alignment="0" pref="302" max="32767" attributes="2"/>
+                  <Component id="bodyTextPane" alignment="0" pref="317" max="32767" attributes="2"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="encryptionNone" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -86,7 +90,7 @@
                       <Component id="encryptionSsl" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -96,6 +100,7 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="smtpHostLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="smtpHostField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sendTestEmailButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -161,7 +166,7 @@
                       <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -458,6 +463,14 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useAuthenticationNoActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="sendTestEmailButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Send Test Email"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendTestEmailButtonActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>
