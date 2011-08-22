@@ -343,6 +343,7 @@ public class Mirth extends Thread {
             ServletContextHandler servletContextHandler = new ServletContextHandler();
             servletContextHandler.setContextPath(contextPath);
             servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart.jnlp");
+            servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/extensions.jnlp");
             servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart");
             servletContextHandler.setConnectorNames(new String[] { "connector" });
             handlers.addHandler(servletContextHandler);

@@ -49,6 +49,7 @@
 		<jar download="eager" href="webstart/client-lib/xercesImpl-2.9.1.jar"/>
 		<jar download="eager" href="webstart/client-lib/xpp3_min-1.1.4c.jar"/>
 		<jar download="eager" href="webstart/client-lib/xstream-1.3.jar"/>
+		<extension href="extensions.jnlp"/>
 	</resources>
 	
 	<application-desc main-class="com.mirth.connect.client.ui.Mirth"/>
