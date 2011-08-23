@@ -8,6 +8,7 @@
 	<clientClassName>com.mirth.connect.connectors.smtp.SmtpSender</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.smtp.SmtpConnector</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.smtp.SmtpSenderProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.smtp.SmtpConnectorService</serviceClassName>
 	<library type="CLIENT" path="smtp-client.jar" />
 	<library type="SHARED" path="smtp-shared.jar" />
 	<library type="SERVER" path="smtp-server.jar" />
