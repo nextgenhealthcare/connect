@@ -10,8 +10,6 @@
 package com.mirth.connect.server.controllers.tests;
 
 import java.io.File;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
@@ -46,14 +44,5 @@ public class PluginControllerTest extends TestCase {
         Map<String, ConnectorMetaData> testTransportList = pluginController.getConnectorMetaData();
 
         Assert.assertTrue(testTransportList.containsValue(sampleConnector));
-    }
-
-    public void testGetConnectorLibraries() throws ControllerException {
-        List<String> libraries = pluginController.getClientExtensionLibraries();
-
-        for (Iterator<String> iter = libraries.iterator(); iter.hasNext();) {
-            String library = iter.next();
-            System.out.println(library);
-        }
     }
 }

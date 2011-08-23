@@ -110,12 +110,6 @@ public abstract class ExtensionController extends Controller {
      */
     public abstract void stopPlugins();
 
-    /**
-     * Returns a list of paths to extension libraries needed to WebStart the
-     * administrator.
-     */
-    public abstract List<String> getClientExtensionLibraries();
-
     // ************************************************************
     // Plugins
     // ************************************************************

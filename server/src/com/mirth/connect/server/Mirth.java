@@ -325,7 +325,7 @@ public class Mirth extends Thread {
 
             // Create the extensions context
             ContextHandler extensionsContextHandler = new ContextHandler();
-            extensionsContextHandler.setContextPath(contextPath + "webstart/extensions");
+            extensionsContextHandler.setContextPath(contextPath + "webstart/extensions/libs");
             String extensionsPath = new File(ExtensionController.getExtensionsPath()).getPath();
             extensionsContextHandler.setResourceBase(extensionsPath);
             extensionsContextHandler.setHandler(new ResourceHandler());
@@ -343,8 +343,8 @@ public class Mirth extends Thread {
             ServletContextHandler servletContextHandler = new ServletContextHandler();
             servletContextHandler.setContextPath(contextPath);
             servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart.jnlp");
-            servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/extensions.jnlp");
             servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart");
+            servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart/extensions/*");
             servletContextHandler.setConnectorNames(new String[] { "connector" });
             handlers.addHandler(servletContextHandler);
             

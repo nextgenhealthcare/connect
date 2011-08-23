@@ -12,6 +12,7 @@ package com.mirth.connect.server.servlets;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -28,6 +29,8 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.mirth.connect.model.ExtensionLibrary;
+import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.ResourceUtil;
@@ -52,10 +55,11 @@ public class WebStartServlet extends HttpServlet {
             PrintWriter out = response.getWriter();
             Document jnlpDocument = null;
 
-            if (request.getServletPath().equals("/webstart.jnlp")) {
+            if (request.getServletPath().equals("/webstart.jnlp") || request.getServletPath().equals("/webstart")) {
                 jnlpDocument = getAdministratorJnlp(request);
-            } else {
-                jnlpDocument = getExtensionJnlp();
+            } else if (request.getServletPath().equals("/webstart/extensions")) {
+                String extensionPath = StringUtils.removeEnd(StringUtils.removeStart(request.getPathInfo(), "/"), ".jnlp");
+                jnlpDocument = getExtensionJnlp(extensionPath);
             }
 
             DocumentSerializer docSerializer = new DocumentSerializer(true);
@@ -110,6 +114,22 @@ public class WebStartServlet extends HttpServlet {
         }
 
         jnlpElement.setAttribute("codebase", codebase);
+
+        Element resourcesElement = (Element) jnlpElement.getElementsByTagName("resources").item(0);
+
+        List<MetaData> extensionMetaData = new ArrayList<MetaData>();
+        extensionMetaData.addAll(ControllerFactory.getFactory().createExtensionController().getConnectorMetaData().values());
+        extensionMetaData.addAll(ControllerFactory.getFactory().createExtensionController().getPluginMetaData().values());
+
+        for (MetaData extension : extensionMetaData) {
+            if (doesExtensionHaveClientLibrary(extension)) {
+                Element extensionElement = document.createElement("extension");
+                extensionElement.setAttribute("name", extension.getName());
+                extensionElement.setAttribute("href", "webstart/extensions/" + extension.getPath() + ".jnlp");
+                resourcesElement.appendChild(extensionElement);
+            }
+        }
+
         Element applicationDescElement = (Element) jnlpElement.getElementsByTagName("application-desc").item(0);
         Element serverArgumentElement = document.createElement("argument");
         serverArgumentElement.setTextContent(server);
@@ -119,22 +139,47 @@ public class WebStartServlet extends HttpServlet {
         applicationDescElement.appendChild(versionArgumentElement);
         return document;
     }
-    
-    private Document getExtensionJnlp() throws Exception {
+
+    private boolean doesExtensionHaveClientLibrary(MetaData extension) {
+        for (ExtensionLibrary lib : extension.getLibraries()) {
+            if (lib.getType().equals(ExtensionLibrary.Type.CLIENT) || lib.getType().equals(ExtensionLibrary.Type.SHARED)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Document getExtensionJnlp(String extensionPath) throws Exception {
+        List<MetaData> extensions = new ArrayList<MetaData>();
+        extensions.addAll(ControllerFactory.getFactory().createExtensionController().getConnectorMetaData().values());
+        extensions.addAll(ControllerFactory.getFactory().createExtensionController().getPluginMetaData().values());
+
+        MetaData metaData = null;
+
+        for (MetaData extension : extensions) {
+            if (extension.getPath().equals(extensionPath)) {
+                metaData = extension;
+            }
+        }
+
+        if (metaData == null) {
+            throw new Exception("Extension metadata could not be located: " + extensionPath);
+        }
+
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element jnlpElement = document.createElement("jnlp");
-        jnlpElement.setAttribute("href", "extensions.jnlp");
-        
+
         Element informationElement = document.createElement("information");
-        
+
         Element titleElement = document.createElement("title");
-        titleElement.setTextContent("Mirth Connect Extensions");
+        titleElement.setTextContent("Mirth Connect Extension - " + metaData.getName());
         informationElement.appendChild(titleElement);
-        
+
         Element vendorElement = document.createElement("vendor");
-        vendorElement.setTextContent("Mirth Connect");
+        vendorElement.setTextContent("Mirth Corporation");
         informationElement.appendChild(vendorElement);
-        
+
         jnlpElement.appendChild(informationElement);
 
         Element securityElement = document.createElement("security");
@@ -142,15 +187,18 @@ public class WebStartServlet extends HttpServlet {
         jnlpElement.appendChild(securityElement);
 
         Element resourcesElement = document.createElement("resources");
-        List<String> clientLibraries = ControllerFactory.getFactory().createExtensionController().getClientExtensionLibraries();
+        List<ExtensionLibrary> libraries = metaData.getLibraries();
 
-        for (String lib : clientLibraries) {
-            Element jarElement = document.createElement("jar");
-            jarElement.setAttribute("download", "eager");
-            jarElement.setAttribute("href", "webstart/extensions/" + lib);
-            resourcesElement.appendChild(jarElement);
+        for (ExtensionLibrary lib : libraries) {
+            if (lib.getType().equals(ExtensionLibrary.Type.CLIENT) || lib.getType().equals(ExtensionLibrary.Type.SHARED)) {
+                Element jarElement = document.createElement("jar");
+                jarElement.setAttribute("download", "eager");
+                // this path is relative to the servlet path
+                jarElement.setAttribute("href", "libs/" + metaData.getPath() + "/" + lib.getPath());
+                resourcesElement.appendChild(jarElement);
+            }
         }
-        
+
         jnlpElement.appendChild(resourcesElement);
         jnlpElement.appendChild(document.createElement("component-desc"));
         document.appendChild(jnlpElement);

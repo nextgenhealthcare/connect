@@ -51,7 +51,6 @@ import org.xml.sax.InputSource;
 import com.mirth.connect.client.core.VersionMismatchException;
 import com.mirth.connect.connectors.ConnectorService;
 import com.mirth.connect.model.ConnectorMetaData;
-import com.mirth.connect.model.ExtensionLibrary;
 import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PluginMetaData;
@@ -508,26 +507,6 @@ public class DefaultExtensionController extends ExtensionController {
         } catch (IOException e) {
             throw new ControllerException("Error saving connector metadata.", e);
         }
-    }
-
-    public List<String> getClientExtensionLibraries() {
-        List<String> clientLibraries = new ArrayList<String>();
-        List<MetaData> extensionMetaData = new ArrayList<MetaData>();
-        extensionMetaData.addAll(pluginMetaDataMap.values());
-        extensionMetaData.addAll(connectorMetaDataMap.values());
-
-        for (MetaData metaData : extensionMetaData) {
-            // Only add enabled extension libraries to the classpath
-            if (metaData.isEnabled()) {
-                for (ExtensionLibrary library : metaData.getLibraries()) {
-                    if (library.getType().equals(ExtensionLibrary.Type.CLIENT) || library.getType().equals(ExtensionLibrary.Type.SHARED)) {
-                        clientLibraries.add(metaData.getPath() + "/" + library.getPath());
-                    }
-                }
-            }
-        }
-
-        return clientLibraries;
     }
 
     public Map<String, PluginMetaData> getPluginMetaData() {
