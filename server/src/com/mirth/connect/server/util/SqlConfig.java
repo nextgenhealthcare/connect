@@ -107,7 +107,7 @@ public class SqlConfig {
                      * MIRTH-1749: in case someone comments out the username and
                      * password properties
                      */
-                    databaseProperties.setProperty("database.username", mirthProperties.getString("database.usernane", StringUtils.EMPTY));
+                    databaseProperties.setProperty("database.username", mirthProperties.getString("database.username", StringUtils.EMPTY));
 
                     if (!mirthProperties.containsKey("database.password")) {
                         databaseProperties.setProperty("database.password", StringUtils.EMPTY);
