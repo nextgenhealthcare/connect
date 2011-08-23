@@ -192,6 +192,21 @@
 		ORDER BY TEMP_TABLE.DATE_CREATED $order$ WITH UR
 	</select>
 
+<!-- Uncomment to enable paging by limit. However, this is not usually faster than temp tables in derby. 
+
+	<select id="getMessageByPageLimit" parameterClass="java.util.Map" resultMap="get-message-result">
+		SELECT
+			MESSAGE.*
+		FROM
+			MESSAGE
+		<include refid="messageFilterCriteria" />
+		ORDER BY DATE_CREATED DESC
+		OFFSET $offset$ ROWS
+		FETCH NEXT $limit$ ROWS ONLY
+	</select>
+
+-->
+
 	<statement id="dropTempMessageTable" parameterClass="java.lang.String">
 		DROP TABLE MSG_TMP_$uid$
 	</statement>
