@@ -42,7 +42,7 @@ public class Event implements Serializable, Exportable {
     private Calendar dateTime;
     private Level level = Level.INFORMATION;
     private String name;
-    private Map<String, Object> attributes = new LinkedHashMap<String, Object>();
+    private Map<String, String> attributes = new LinkedHashMap<String, String>();
     private Outcome outcome = Outcome.SUCCESS;
     private int userId = 0;
     private String ipAddress;
@@ -71,17 +71,17 @@ public class Event implements Serializable, Exportable {
         this.level = level;
     }
 
-    public Map<String, Object> getAttributes() {
+    public Map<String, String> getAttributes() {
         return this.attributes;
     }
 
-    public void setAttributes(Map<String, Object> attributes) {
+    public void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
     }
 
-    public void addAttribute(String name, Object value) {
+    public void addAttribute(String name, String value) {
         if (attributes == null) {
-            attributes = new HashMap<String, Object>();
+            attributes = new HashMap<String, String>();
         }
 
         attributes.put(name, value);

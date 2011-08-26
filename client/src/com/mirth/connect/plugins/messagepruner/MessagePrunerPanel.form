@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup1">
+    <Component class="javax.swing.ButtonGroup" name="scheduleButtonGroup">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup2">
+    <Component class="javax.swing.ButtonGroup" name="batchPruningButtonGroup">
     </Component>
   </NonVisualComponents>
   <Properties>
@@ -29,60 +29,8 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="whenToPruneLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="hourButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="dayButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="weekButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="monthButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="17" pref="17" max="17" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="dayOfMonthLabel" alignment="0" min="-2" max="-2" attributes="1"/>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                          <Component id="timeOfDay" alignment="0" min="0" pref="75" max="32767" attributes="1"/>
-                                          <Component id="dayOfMonth" alignment="0" min="0" pref="75" max="32767" attributes="1"/>
-                                          <Component id="dayOfWeek" alignment="1" min="-2" pref="75" max="-2" attributes="0"/>
-                                      </Group>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="monthlyAtLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="weeklyAtLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      </Group>
-                                  </Group>
-                                  <Component id="dayOfWeekLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="timeOfDayWeeklyLabel" min="-2" max="-2" attributes="0"/>
-                                  <Component id="timeOfDayWeekly" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                                  <Component id="timeOfDayMonthlyLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="timeOfDayMonthly" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <Component id="timeOfDayLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="pruningBlockSizeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="enableBatchPruningLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="batchYes" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="batchNo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="pruningBlockSizeField" min="-2" pref="75" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-              </Group>
-              <EmptySpace pref="406" max="32767" attributes="0"/>
+              <Component id="pruningSchedulePanel" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -90,265 +38,305 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="whenToPruneLabel" min="-2" max="-2" attributes="0"/>
+              <Component id="pruningSchedulePanel" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="hourButton" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="dayButton" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="timeOfDayLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="timeOfDay" min="-2" pref="23" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-              <Component id="weekButton" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="timeOfDayWeeklyLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="dayOfWeekLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="weeklyAtLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="timeOfDayWeekly" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
-                  <Component id="dayOfWeek" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="monthButton" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="dayOfMonthLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="timeOfDayMonthlyLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="monthlyAtLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="timeOfDayMonthly" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
-                  <Component id="dayOfMonth" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="enableBatchPruningLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="batchYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="batchNo" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="pruningBlockSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="pruningBlockSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace pref="170" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="dayButton">
+    <Container class="javax.swing.JPanel" name="pruningSchedulePanel">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+            <TitledBorder title="Pruning Schedule">
+              <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
+                <MatteColorBorder bottom="0" left="0" right="0" top="1">
+                  <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
+                </MatteColorBorder>
+              </Border>
+              <Font PropertyName="font" name="Tahoma" size="11" style="1"/>
+            </TitledBorder>
           </Border>
         </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup1"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Daily"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dayButtonActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="weekButton">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup1"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Weekly"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="weekButtonActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="monthButton">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup1"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Monthly"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="monthButtonActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="hourButton">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup1"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Hourly"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="hourButtonActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="whenToPruneLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="When to prune:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="dayOfWeekLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Day of Week:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="dayOfMonthLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Day of Month:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="timeOfDay">
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;hh:mm aa&quot;, Calendar.MINUTE);"/>
-      </AuxValues>
-    </Component>
-    <Component class="javax.swing.JLabel" name="timeOfDayLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Time of Day:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="dayOfMonth">
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;dd&quot;, Calendar.MONTH);"/>
-      </AuxValues>
-    </Component>
-    <Component class="javax.swing.JLabel" name="timeOfDayWeeklyLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Time of Day:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="timeOfDayWeekly">
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;hh:mm aa&quot;, Calendar.MINUTE);"/>
-      </AuxValues>
-    </Component>
-    <Component class="javax.swing.JLabel" name="timeOfDayMonthlyLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Time of Day:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="timeOfDayMonthly">
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;hh:mm aa&quot;, Calendar.MINUTE);"/>
-      </AuxValues>
-    </Component>
-    <Component class="javax.swing.JLabel" name="weeklyAtLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="at"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="monthlyAtLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="at"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="dayOfWeek">
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;EEEEEEEE&quot;, Calendar.DAY_OF_WEEK);"/>
-      </AuxValues>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="batchYes">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup2"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Turning batch pruning on increases message pruning performance by allowing channels with the same pruning settings to be pruned in one delete."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="enableBatchPruningLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Enable Batch Pruning:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="batchNo">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup2"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Turning batch pruning off decreases message pruning performance, but displays how many messages are pruned from each individual channel."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="pruningBlockSizeLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Pruning Block Size:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="pruningBlockSizeField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If this number is 0, all messages are pruned in a single query. If the single query is slowing down&lt;br&gt;the system for too long, messages can be pruned in blocks of the specified size. Block pruning can&lt;br&gt;be a much longer process, but it will not slow down the system as much as a single query.&lt;/html&gt;"/>
-      </Properties>
-    </Component>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" attributes="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" attributes="0">
+                          <EmptySpace min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="hourlyRadio" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="dailyRadio" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="weeklyRadio" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="monthlyRadio" alignment="0" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="dayOfWeek" pref="75" max="32767" attributes="1"/>
+                              <Component id="dayOfMonth" alignment="0" pref="75" max="32767" attributes="1"/>
+                              <Component id="timeOfDay" alignment="0" pref="75" max="32767" attributes="1"/>
+                          </Group>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="monthlyAtLabel" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="timeOfDayMonthly" min="-2" pref="75" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="1" attributes="0">
+                                  <Component id="weeklyAtLabel" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="timeOfDayWeekly" min="-2" pref="75" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace min="10" pref="10" max="10" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="blockSizeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                              <Component id="batchPruningLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Component id="batchPruningYesRadio" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="batchPruningNoRadio" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <Component id="blockSizeField" min="-2" pref="75" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                  </Group>
+                  <EmptySpace pref="21" max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <Component id="hourlyRadio" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="dailyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="timeOfDay" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="weeklyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="weeklyAtLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="timeOfDayWeekly" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
+                      <Component id="dayOfWeek" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="monthlyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="monthlyAtLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="timeOfDayMonthly" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
+                      <Component id="dayOfMonth" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="batchPruningLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="batchPruningYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="batchPruningNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="blockSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="blockSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace pref="20" max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="hourlyRadio">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+              </Border>
+            </Property>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="scheduleButtonGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Hourly"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="hourlyRadioActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="dailyRadio">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+              </Border>
+            </Property>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="scheduleButtonGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Daily"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dailyRadioActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="timeOfDay">
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;hh:mm aa&quot;, Calendar.MINUTE);"/>
+          </AuxValues>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="weeklyRadio">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+              </Border>
+            </Property>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="scheduleButtonGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Weekly"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="weeklyRadioActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="dayOfWeek">
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;EEEEEEEE&quot;, Calendar.DAY_OF_WEEK);"/>
+          </AuxValues>
+        </Component>
+        <Component class="javax.swing.JLabel" name="weeklyAtLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="at"/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="timeOfDayWeekly">
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;hh:mm aa&quot;, Calendar.MINUTE);"/>
+          </AuxValues>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="monthlyRadio">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+              </Border>
+            </Property>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="scheduleButtonGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Monthly"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="monthlyRadioActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="dayOfMonth">
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;dd&quot;, Calendar.MONTH);"/>
+          </AuxValues>
+        </Component>
+        <Component class="javax.swing.JLabel" name="monthlyAtLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="at"/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="timeOfDayMonthly">
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;hh:mm aa&quot;, Calendar.MINUTE);"/>
+          </AuxValues>
+        </Component>
+        <Component class="javax.swing.JLabel" name="batchPruningLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Batch Pruning:"/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="batchPruningYesRadio">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+              </Border>
+            </Property>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="batchPruningButtonGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Yes"/>
+            <Property name="toolTipText" type="java.lang.String" value="Turning batch pruning on increases message pruning performance by allowing channels with the same pruning settings to be pruned in one delete."/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="batchPruningNoRadio">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+              </Border>
+            </Property>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="batchPruningButtonGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="No"/>
+            <Property name="toolTipText" type="java.lang.String" value="Turning batch pruning off decreases message pruning performance, but displays how many messages are pruned from each individual channel."/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="blockSizeLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Block Size:"/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="blockSizeField">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If this number is 0, all messages are pruned in a single query. If the single query is slowing down&lt;br&gt;the system for too long, messages can be pruned in blocks of the specified size. Block pruning can&lt;br&gt;be a much longer process, but it will not slow down the system as much as a single query.&lt;/html&gt;"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
   </SubComponents>
 </Form>

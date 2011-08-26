@@ -24,7 +24,6 @@ import org.joda.time.Duration;
 
 import com.mirth.connect.model.Credentials;
 import com.mirth.connect.model.PasswordRequirements;
-import com.mirth.connect.model.User;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.UserController;

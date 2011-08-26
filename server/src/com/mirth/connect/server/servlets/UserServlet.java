@@ -202,7 +202,7 @@ public class UserServlet extends MirthServlet {
             // Set the outcome to the result of the login attempt
             event.setOutcome(((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD)) ? Outcome.SUCCESS : Outcome.FAILURE);
 
-            Map<String, Object> attributes = new HashMap<String, Object>();
+            Map<String, String> attributes = new HashMap<String, String>();
             attributes.put("username", username);
             event.setAttributes(attributes);
 

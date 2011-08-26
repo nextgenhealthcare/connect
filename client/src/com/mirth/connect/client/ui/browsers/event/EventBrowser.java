@@ -118,7 +118,7 @@ public class EventBrowser extends javax.swing.JPanel {
     /**
      * Loads up a clean message browser as if a new one was constructed.
      */
-    public void loadNew() {
+    public void loadNew(String eventNameFilter) {
         // Set the default page size
         pageSize = Preferences.userNodeForPackage(Mirth.class).getInt("eventBrowserPageSize", 100);
         pageSizeField.setText(pageSize + "");
@@ -126,7 +126,12 @@ public class EventBrowser extends javax.swing.JPanel {
         // use the start filters and make the table.
         eventListHandler = null;
 
-        nameField.setText("");
+        if (eventNameFilter != null) {
+            nameField.setText(eventNameFilter);
+        } else {
+            nameField.setText("");
+        }
+        
         levelComboBox.setSelectedIndex(0);
         
         Calendar calendar = Calendar.getInstance();
@@ -461,7 +466,7 @@ public class EventBrowser extends javax.swing.JPanel {
         eventAttributesPane.setViewportView(eventAttributesTable);
     }
 
-    private void setEventAttributes(Map<String, Object> attributes, boolean cleared) {
+    private void setEventAttributes(Map<String, String> attributes, boolean cleared) {
 
         Object[][] tableData;
 
@@ -477,7 +482,7 @@ public class EventBrowser extends javax.swing.JPanel {
             tableData = new String[attributes.size()][2];
 
             int i = 0;
-            for (Entry<String, Object> entry : attributes.entrySet()) {
+            for (Entry<String, String> entry : attributes.entrySet()) {
                 tableData[i][0] = entry.getKey();
                 tableData[i][1] = entry.getValue();
                 i++;

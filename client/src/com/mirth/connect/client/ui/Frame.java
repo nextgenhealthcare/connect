@@ -2818,6 +2818,10 @@ public class Frame extends JXFrame {
     }
 
     public void doShowEvents() {
+        doShowEvents(null);
+    }
+    
+    public void doShowEvents(String eventNameFilter) {
         if (!confirmLeave()) {
             return;
         }
@@ -2831,7 +2835,7 @@ public class Frame extends JXFrame {
         setCurrentContentPage(eventBrowser);
         setFocus(eventTasks);
 
-        eventBrowser.loadNew();
+        eventBrowser.loadNew(eventNameFilter);
     }
 
     public void doEditTransformer() {

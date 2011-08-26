@@ -9,8 +9,6 @@
 package com.mirth.connect.client.ui;
 
 import java.awt.Cursor;
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -18,7 +16,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import com.mirth.connect.client.core.ClientException;

@@ -277,9 +277,9 @@ public class MessagePrunerService implements ServicePlugin, Job {
 				event.setOutcome(Outcome.SUCCESS);
 				event.setName(PLUGINPOINT);
 				
-	            Map<String, Object> attributes = new HashMap<String, Object>();
+	            Map<String, String> attributes = new HashMap<String, String>();
 	            attributes.put("channel", channelName);
-	            attributes.put("messages pruned", numMessagesPruned);
+	            attributes.put("messages pruned", Integer.toString(numMessagesPruned));
 	            event.setAttributes(attributes);
 	            eventController.addEvent(event);
 			}
