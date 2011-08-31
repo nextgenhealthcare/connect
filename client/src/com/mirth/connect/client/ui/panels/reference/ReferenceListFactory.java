@@ -240,17 +240,17 @@ public class ReferenceListFactory {
     private ArrayList<CodeTemplate> setupMapItems() {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         variablelistItems.add(new CodeTemplate("Lookup Value in All Maps", "Returns the value of the key if it exists in any map.", "$('key')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Get Global Variable Map", "The variable map that persists values between channels.", "globalMap.get('')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Put Global Variable Map", "The variable map that persists values between channels.", "globalMap.put(key,'')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Get Global Channel Variable Map", "The variable map that persists values between messages in a single channel.", "globalChannelMap.get('')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Put Global Channel Variable Map", "The variable map that persists values between messages in a single channel.", "globalChannelMap.put(key,'')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Get Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.get('')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Put Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.put(key,'')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Get Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.get('')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Put Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.put(key,'')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Get Response Variable Map", "The variable map that stores responses.", "responseMap.get('')", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Put Success Response Variable", "The variable map that stores responses.", "responseMap.put(connector, ResponseFactory.getSuccessResponse('message'))", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Put Error Response Variable", "The variable map that stores responses.", "responseMap.put(connector, ResponseFactory.getFailureResponse('message'))", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Global Variable Map", "The variable map that persists values between channels.", "globalMap.get('key')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Global Variable Map", "The variable map that persists values between channels.", "globalMap.put('key','value')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Global Channel Variable Map", "The variable map that persists values between messages in a single channel.", "globalChannelMap.get('key')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Global Channel Variable Map", "The variable map that persists values between messages in a single channel.", "globalChannelMap.put('key','value')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.get('key')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.put('key','value')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.get('key')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.put('key','value')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Response Variable Map", "The variable map that stores responses.", "responseMap.get('key')", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Success Response Variable", "The variable map that stores responses.", "responseMap.put('key', ResponseFactory.getSuccessResponse('message'))", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Error Response Variable", "The variable map that stores responses.", "responseMap.put('key', ResponseFactory.getFailureResponse('message'))", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
 
         return variablelistItems;
     }
