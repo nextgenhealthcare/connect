@@ -688,6 +688,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         if (!keyStore.containsAlias(secretKeyAlias)) {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionConfig.getEncryptionAlgorithm(), provider);
+            keyGenerator.init(encryptionConfig.getEncryptionKeyLength());
             secretKey = keyGenerator.generateKey();
             logger.debug("generated new encryption key using provider: " + provider.getName());
 

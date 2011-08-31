@@ -13,19 +13,22 @@ public class EncryptionSettings extends AbstractSettings implements Auditable {
     public static final String DEFAULT_ENCRYPTION_ALGORITHM = "AES";
     public static final String DEFAULT_DIGEST_ALGORITHM = "SHA256";
     public static final String DEFAULT_SECURTITY_PROVIDER = BouncyCastleProvider.class.getName();
+    public static final String DEFAULT_ENCRYPTION_KEY_LENGTH = "128";
 
     private static final String ENCRYPTION_EXPORT = "encryption.export";
     private static final String ENCRYPTION_PROPERTIES = "encryption.properties";
     private static final String ENCRYPTION_ALGORITHM = "encryption.algorithm";
+    private static final String ENCRYPTION_KEY_LENGTH = "encryption.keylength";
     private static final String DIGEST_ALGORITHM = "digest.algorithm";
     private static final String SECURITY_PROVIDER = "security.provider";
 
-    private Boolean encryptExport;
-    private Boolean encryptProperties;
-    private String encryptionAlgorithm;
-    private String digestAlgorithm;
-    private String securityProvider;
-    private byte[] secretKey;
+    private Boolean encryptExport = false;
+    private Boolean encryptProperties = false;
+    private String encryptionAlgorithm = null;
+    private int encryptionKeyLength = -1;
+    private String digestAlgorithm = null;
+    private String securityProvider = null;
+    private byte[] secretKey = null;
 
     public EncryptionSettings() {
 
@@ -59,6 +62,14 @@ public class EncryptionSettings extends AbstractSettings implements Auditable {
         this.encryptionAlgorithm = encryptionAlgorithm;
     }
 
+    public int getEncryptionKeyLength() {
+        return encryptionKeyLength;
+    }
+
+    public void setEncryptionKeyLength(int encryptionKeyLength) {
+        this.encryptionKeyLength = encryptionKeyLength;
+    }
+
     public String getDigestAlgorithm() {
         return digestAlgorithm;
     }
@@ -88,6 +99,7 @@ public class EncryptionSettings extends AbstractSettings implements Auditable {
         setEncryptExport(intToBooleanObject(properties.getProperty(ENCRYPTION_EXPORT, "0")));
         setEncryptProperties(intToBooleanObject(properties.getProperty(ENCRYPTION_PROPERTIES, "0")));
         setEncryptionAlgorithm((String) properties.getProperty(ENCRYPTION_ALGORITHM, DEFAULT_ENCRYPTION_ALGORITHM));
+        setEncryptionKeyLength(Integer.parseInt((String) properties.getProperty(ENCRYPTION_KEY_LENGTH, DEFAULT_ENCRYPTION_KEY_LENGTH)));
         setDigestAlgorithm((String) properties.getProperty(DIGEST_ALGORITHM, DEFAULT_DIGEST_ALGORITHM));
         setSecurityProvider((String) properties.getProperty(SECURITY_PROVIDER, DEFAULT_SECURTITY_PROVIDER));
     }
@@ -106,6 +118,10 @@ public class EncryptionSettings extends AbstractSettings implements Auditable {
 
         if (getEncryptionAlgorithm() != null) {
             properties.put(ENCRYPTION_ALGORITHM, getEncryptionAlgorithm());
+        }
+
+        if (getEncryptionKeyLength() != -1) {
+            properties.put(ENCRYPTION_KEY_LENGTH, getEncryptionKeyLength());
         }
 
         if (getDigestAlgorithm() != null) {
