@@ -10,6 +10,7 @@
 package com.mirth.connect.connectors.smtp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Properties;
 
 import com.mirth.connect.model.ComponentProperties;
@@ -27,6 +28,7 @@ public class SmtpSenderProperties implements ComponentProperties {
     public static final String SMTP_PASSWORD = "password";
     public static final String SMTP_TO = "to";
     public static final String SMTP_REPLYTO = "replyTo";
+    public static final String SMTP_HEADERS = "headers";
     public static final String SMTP_FROM = "from";
     public static final String SMTP_SUBJECT = "subject";
     public static final String SMTP_BODY = "body";
@@ -34,6 +36,8 @@ public class SmtpSenderProperties implements ComponentProperties {
     public static final String SMTP_ATTACHMENTS = "attachments";
 
     public Properties getDefaults() {
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(SMTP_HOST, "");
@@ -44,10 +48,10 @@ public class SmtpSenderProperties implements ComponentProperties {
         properties.put(SMTP_PASSWORD, "");
         properties.put(SMTP_TO, "");
         properties.put(SMTP_FROM, "");
+        properties.put(SMTP_HEADERS, serializer.toXML(new HashMap<String, String>()));
         properties.put(SMTP_SUBJECT, "");
         properties.put(SMTP_BODY, "");
         properties.put(SMTP_HTML, "0");
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         properties.put(SMTP_ATTACHMENTS, serializer.toXML(new ArrayList<Attachment>()));
         return properties;
     }
