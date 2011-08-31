@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.smtp;
 
+import java.util.Map.Entry;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.ByteArrayDataSource;
@@ -98,6 +100,10 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 
             if (StringUtils.isNotBlank(connector.getReplyTo())) {
                 email.addReplyTo(connector.getReplyTo());
+            }
+
+            for (Entry<String, String> header : connector.getHeaders().entrySet()) {
+                email.addHeader(header.getKey(), header.getValue());
             }
 
             email.setFrom(connector.getFrom());
