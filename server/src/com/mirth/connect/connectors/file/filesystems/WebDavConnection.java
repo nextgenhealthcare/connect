@@ -98,7 +98,8 @@ public class WebDavConnection implements FileSystemConnection {
         client = new WebdavResource(url);
     }
 
-    public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex) throws Exception {
+    @Override
+    public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
         FilenameFilter filenameFilter;
 
         if (isRegex) {
@@ -139,7 +140,7 @@ public class WebDavConnection implements FileSystemConnection {
             }
 
             if (file.isFile()) {
-                if (filenameFilter.accept(null, file.getName())) {
+                if (filenameFilter.accept(null, file.getName()) && !(ignoreDot && file.getName().startsWith("."))) {
                     fileInfoList.add(new WebDavFileInfo(fromDir, file));
                 }
             }
@@ -147,6 +148,7 @@ public class WebDavConnection implements FileSystemConnection {
         return fileInfoList;
     }
 
+    @Override
     public InputStream readFile(String file, String fromDir) throws Exception {
 
         String fullPath = ("/" + fromDir + "/" + file).replaceAll("//", "/");
@@ -160,14 +162,17 @@ public class WebDavConnection implements FileSystemConnection {
         return client.getMethodData();
     }
 
+    @Override
     public void closeReadFile() throws Exception {
         // irrelevant
     }
 
+    @Override
     public boolean canAppend() {
         return false;
     }
 
+    @Override
     public void writeFile(String file, String toDir, boolean append, byte[] message) throws Exception {
 
         String fullPath = ("/" + toDir + "/" + file).replaceAll("//", "/");
@@ -199,6 +204,7 @@ public class WebDavConnection implements FileSystemConnection {
         }
     }
 
+    @Override
     public void delete(String file, String fromDir, boolean mayNotExist) throws Exception {
 
         String fullPath = ("/" + fromDir + "/" + file).replaceAll("//", "/");
@@ -210,6 +216,7 @@ public class WebDavConnection implements FileSystemConnection {
         }
     }
 
+    @Override
     public void move(String fromName, String fromDir, String toName, String toDir) throws Exception {
 
         String sourcePath = ("/" + fromDir + "/" + fromName).replaceAll("//", "/");
@@ -242,18 +249,22 @@ public class WebDavConnection implements FileSystemConnection {
         }
     }
 
+    @Override
     public boolean isConnected() {
         return client != null && client.exists();
     }
 
+    @Override
     public void activate() {
         // irrelevant
     }
 
+    @Override
     public void passivate() {
         // irrelevant
     }
 
+    @Override
     public void destroy() {
         try {
             if (client != null) {
@@ -264,10 +275,12 @@ public class WebDavConnection implements FileSystemConnection {
         }
     }
 
+    @Override
     public boolean isValid() {
         return client != null && client.exists();
     }
 
+    @Override
     public boolean canRead(String readDir) {
         try {
             client.setPath(readDir);
@@ -278,6 +291,7 @@ public class WebDavConnection implements FileSystemConnection {
         }
     }
 
+    @Override
     public boolean canWrite(String writeDir) {
         try {
             client.setPath(writeDir);

@@ -118,7 +118,8 @@ public class FtpConnection implements FileSystemConnection {
 		}
 	}
 
-	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex)
+	@Override
+	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot)
 		throws Exception
 	{
         FilenameFilter filenameFilter;
@@ -145,16 +146,18 @@ public class FtpConnection implements FileSystemConnection {
 		}
 		
 		List<FileInfo> v = new ArrayList<FileInfo>(files.length);
+		
 		for (int i = 0; i < files.length; i++) {
 			if ((files[i] != null) && files[i].isFile()) {
-				if (filenameFilter == null || filenameFilter.accept(null, files[i].getName())) {
-					v.add(new FtpFileInfo(fromDir, files[i]));
+				if ((filenameFilter == null || filenameFilter.accept(null, files[i].getName())) && !(ignoreDot && files[i].getName().startsWith("."))) {
+				        v.add(new FtpFileInfo(fromDir, files[i]));    
 				}
 			}
 		}
 		return v;
 	}
 
+	@Override
 	public boolean canRead(String readDir) {
 	    try {
 	        return client.changeWorkingDirectory(readDir);
@@ -163,6 +166,7 @@ public class FtpConnection implements FileSystemConnection {
 	    }
 	}
 	
+	@Override
 	public boolean canWrite(String writeDir) {
         try {
             return client.changeWorkingDirectory(writeDir);
@@ -171,6 +175,7 @@ public class FtpConnection implements FileSystemConnection {
         }
 	}
 	
+	@Override
 	public InputStream readFile(String file, String fromDir)
 		throws Exception
 	{
@@ -183,6 +188,7 @@ public class FtpConnection implements FileSystemConnection {
 	}
 
 	/** Must be called after readFile when reading is complete */
+	@Override
 	public void closeReadFile() throws Exception {
 		if (!client.completePendingCommand()) {
 			logger.error("closeReadFile.completePendingCommand: " + client.getReplyCode() + "-" + client.getReplyString());
@@ -190,11 +196,13 @@ public class FtpConnection implements FileSystemConnection {
 		}
 	}
 
+	@Override
 	public boolean canAppend() {
 
 		return true;
 	}
 	
+	@Override
 	public void writeFile(String file, String toDir, boolean append, byte[] message)
 		throws Exception
 	{
@@ -211,6 +219,7 @@ public class FtpConnection implements FileSystemConnection {
 		is.close();
 	}
 
+	@Override
 	public void delete(String file, String fromDir, boolean mayNotExist)
 		throws Exception
 	{
@@ -265,6 +274,7 @@ public class FtpConnection implements FileSystemConnection {
 		}
 	}
 
+	@Override
 	public void move(String fromName, String fromDir, String toName, String toDir) throws Exception {
 		client.changeWorkingDirectory(fromDir); // start in the read directory
 		cdmake(toDir);
@@ -286,6 +296,7 @@ public class FtpConnection implements FileSystemConnection {
 		}
 	}
 
+	@Override
 	public boolean isConnected() {
 		
 		if (client != null) {
@@ -299,14 +310,17 @@ public class FtpConnection implements FileSystemConnection {
 	// **************************************************
 	// Lifecycle methods
 	
+	@Override
 	public void activate() {
 
 	}
 
+	@Override
 	public void passivate() {
 
 	}
 
+	@Override
 	public void destroy() {
 		try{
 			client.logout();
@@ -316,6 +330,7 @@ public class FtpConnection implements FileSystemConnection {
 		}
 	}
 
+	@Override
 	public boolean isValid() {
 		try {
 			client.sendNoOp();

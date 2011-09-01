@@ -119,7 +119,8 @@ public class SmbFileConnection implements FileSystemConnection {
         return new SmbFile(context, name);
     }
 
-    public List<FileInfo> listFiles(String dir, String filenamePattern, boolean isRegex) throws Exception {
+    @Override
+    public List<FileInfo> listFiles(String dir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
         SmbFile readDirectory = null;
         SmbFilenameFilter filenameFilter = new SmbFilenameWildcardFilter(filenamePattern);
 
@@ -138,7 +139,9 @@ public class SmbFileConnection implements FileSystemConnection {
                 List<FileInfo> result = new ArrayList<FileInfo>(todoFiles.length);
 
                 for (SmbFile f : todoFiles) {
-                    result.add(new SmbFileFileInfo(f));
+                    if (!(ignoreDot && f.getName().startsWith("."))) {
+                        result.add(new SmbFileFileInfo(f));    
+                    }
                 }
 
                 return result;
@@ -148,6 +151,7 @@ public class SmbFileConnection implements FileSystemConnection {
         }
     }
 
+    @Override
     public boolean canRead(String readDir) {
         try {
             return getSmbFile(share, getPath(readDir, null)).canRead();
@@ -156,6 +160,7 @@ public class SmbFileConnection implements FileSystemConnection {
         }
     }
 
+    @Override
     public boolean canWrite(String writeDir) {
         try {
             return getSmbFile(share, getPath(writeDir, null)).canWrite();
@@ -164,6 +169,7 @@ public class SmbFileConnection implements FileSystemConnection {
         }
     }
 
+    @Override
     public InputStream readFile(String name, String dir) throws MuleException {
         SmbFile src = null;
 
@@ -176,14 +182,17 @@ public class SmbFileConnection implements FileSystemConnection {
     }
 
     /** Must be called after readFile when reading is complete */
+    @Override
     public void closeReadFile() throws Exception {
     // nothing
     }
 
+    @Override
     public boolean canAppend() {
         return true;
     }
 
+    @Override
     public void writeFile(String name, String dir, boolean append, byte[] message) throws Exception {
         OutputStream os = null;
         SmbFile dst = null;
@@ -206,6 +215,7 @@ public class SmbFileConnection implements FileSystemConnection {
         }
     }
 
+    @Override
     public void delete(String name, String dir, boolean mayNotExist) throws MuleException {
         SmbFile src = null;
 
@@ -223,6 +233,7 @@ public class SmbFileConnection implements FileSystemConnection {
         }
     }
 
+    @Override
     public void move(String fromName, String fromDir, String toName, String toDir) throws MuleException {
         SmbFile src = null;
         SmbFile dst = null;
@@ -250,16 +261,21 @@ public class SmbFileConnection implements FileSystemConnection {
         }
     }
 
+    @Override
     public boolean isConnected() {
         return true;
     }
 
+    @Override
     public void activate() {}
 
+    @Override
     public void passivate() {}
 
+    @Override
     public void destroy() {}
 
+    @Override
     public boolean isValid() {
         return true;
     }

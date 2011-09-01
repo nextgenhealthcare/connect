@@ -124,7 +124,8 @@ public class SftpConnection implements FileSystemConnection {
 		}
 	}
 
-	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex) throws Exception
+	@Override
+	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception
 	{
 	    lastDir = fromDir;
         FilenameFilter filenameFilter;
@@ -143,7 +144,7 @@ public class SftpConnection implements FileSystemConnection {
 			ChannelSftp.LsEntry entry = iter.next();
 
 			if (!entry.getAttrs().isDir() && !entry.getAttrs().isLink()) {
-				if ((filenameFilter == null) || (filenameFilter.accept(null, entry.getFilename()))) {
+				if (((filenameFilter == null) || filenameFilter.accept(null, entry.getFilename())) && !(ignoreDot && entry.getFilename().startsWith("."))) {
 					files.add(new SftpFileInfo(fromDir, entry));
 				}
 			}
@@ -152,6 +153,7 @@ public class SftpConnection implements FileSystemConnection {
 		return files;
 	}
 
+	@Override
 	public boolean canRead(String readDir) {
 	    try {
 	        lastDir = readDir;
@@ -162,6 +164,7 @@ public class SftpConnection implements FileSystemConnection {
 	    }
 	}
 	
+	@Override
 	public boolean canWrite(String writeDir) {
         try {
             lastDir = writeDir;
@@ -172,6 +175,7 @@ public class SftpConnection implements FileSystemConnection {
         }
 	}
 	
+	@Override
 	public InputStream readFile(String file, String fromDir) throws Exception {
 	    lastDir = fromDir;
 		client.cd(fromDir);
@@ -179,15 +183,18 @@ public class SftpConnection implements FileSystemConnection {
 	}
 
 	/** Must be called after readFile when reading is complete */
+	@Override
 	public void closeReadFile() throws Exception {
 		// nothing
 	}
 
+	@Override
 	public boolean canAppend() {
 
 		return true;
 	}
 	
+	@Override
 	public void writeFile(String file, String toDir, boolean append, byte[] message) throws Exception
 	{
 	    lastDir = toDir;
@@ -200,6 +207,7 @@ public class SftpConnection implements FileSystemConnection {
 		client.put(new ByteArrayInputStream(message), file, mode);
 	}
 
+	@Override
 	public void delete(String file, String fromDir, boolean mayNotExist) throws Exception
 	{
 		client.cd(fromDir);
@@ -239,6 +247,7 @@ public class SftpConnection implements FileSystemConnection {
 		}
 	}
 
+	@Override
 	public void move(String fromName, String fromDir, String toName, String toDir)
 		throws Exception
 	{
@@ -257,6 +266,7 @@ public class SftpConnection implements FileSystemConnection {
 		client.rename(fromName.replaceAll("//", "/"), (toDir + "/" + toName).replaceAll("//", "/"));
 	}
 
+	@Override
 	public boolean isConnected() {
 		return client.isConnected();
 	}
@@ -264,19 +274,23 @@ public class SftpConnection implements FileSystemConnection {
 	// **************************************************
 	// Lifecycle methods
 	
+	@Override
 	public void activate() {
 		// Nothing
 	}
 
+	@Override
 	public void passivate() {
 		// Nothing
 	}
 
+	@Override
 	public void destroy() {
 		client.quit();
 		client.disconnect();
 	}
 
+	@Override
 	public boolean isValid() {
 	    if (lastDir == null) {
 	        return client.isConnected();

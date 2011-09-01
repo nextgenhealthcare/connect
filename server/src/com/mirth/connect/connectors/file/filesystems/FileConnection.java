@@ -100,7 +100,8 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
         // That was easy
     }
 
-    public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex) throws Exception {
+    @Override
+    public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot) throws Exception {
         FilenameFilter filenameFilter;
 
         if (isRegex) {
@@ -125,7 +126,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
                 List<FileInfo> result = new ArrayList<FileInfo>(todoFiles.length);
                 for (File f : todoFiles) {
 
-                    if (!f.getName().endsWith(IGNORE) && !isFileIgnored(f)) {
+                    if (!f.getName().endsWith(IGNORE) && !isFileIgnored(f) && !(ignoreDot && f.getName().startsWith("."))) {
                         result.add(new FileFileInfo(f));
                     }
                 }
@@ -136,16 +137,19 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
         }
     }
 
+    @Override
     public boolean canRead(String readDir) {
         File readDirectory = new File(readDir);
         return readDirectory.isDirectory() && readDirectory.canRead();
     }
 
+    @Override
     public boolean canWrite(String writeDir) {
         File writeDirectory = new File(writeDir);
         return writeDirectory.isDirectory() && writeDirectory.canWrite();
     }
 
+    @Override
     public InputStream readFile(String file, String fromDir) throws MuleException {
         try {
             File src = new File(fromDir, file);
@@ -156,15 +160,18 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
     }
 
     /** Must be called after readFile when reading is complete */
+    @Override
     public void closeReadFile() throws Exception {
         // nothing
     }
 
+    @Override
     public boolean canAppend() {
 
         return true;
     }
 
+    @Override
     public void writeFile(String file, String toDir, boolean append, byte[] message) throws Exception {
         OutputStream os = null;
         File dstDir = new File(toDir);
@@ -185,6 +192,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
         }
     }
 
+    @Override
     public void delete(String file, String fromDir, boolean mayNotExist) throws MuleException {
         File src = new File(fromDir, file);
 
@@ -196,6 +204,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
         }
     }
 
+    @Override
     public void move(String fromName, String fromDir, String toName, String toDir) throws MuleException {
         File src = new File(fromDir, fromName);
         File dst = new File(toDir, toName);
@@ -223,27 +232,34 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
         }
     }
 
+    @Override
     public boolean isConnected() {
         return true;
     }
 
+    @Override
     public void activate() {}
 
+    @Override
     public void passivate() {}
 
+    @Override
     public void destroy() {}
 
+    @Override
     public boolean isValid() {
         return true;
     }
 
     // ///// Ignoring stuff
 
+    @Override
     public boolean isFileIgnored(File file) {
         File f = new File(file.getAbsolutePath() + IGNORE);
         return f.exists();
     }
 
+    @Override
     public void ignoreFile(File file) {
         try {
             File f = new File(file.getAbsolutePath() + IGNORE);

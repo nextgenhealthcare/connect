@@ -48,7 +48,7 @@ public class FileConnectionTest
 			testFileNames.add(temp.getName());
 		}
 		
-		List<FileInfo> retFiles = fc.listFiles(someFolder.getAbsolutePath(), "ListFile.+", true);
+		List<FileInfo> retFiles = fc.listFiles(someFolder.getAbsolutePath(), "ListFile.+", true, true);
 		
 		
 		for(int i=0;i<retFiles.size();i++)

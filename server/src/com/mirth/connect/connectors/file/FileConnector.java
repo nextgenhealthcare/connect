@@ -76,6 +76,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     public static final String PROPERTY_PASSIVE_MODE = "passive";
     public static final String PROPERTY_SECURE_MODE = "secure";
     public static final String PROPERTY_REGEX = "regex";
+    public static final String PROPERTY_IGNORE_DOR = "ignoreDot";
     public static final String PROPERTY_TIMEOUT = "timeout";
 
     public static final String SORT_NAME = "name";
@@ -135,6 +136,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     private boolean passive = false;
     private boolean secure = false;
     private boolean regex = false;
+    private boolean ignoreDot = true;
     private int timeout;
 
     public FileConnector() {
@@ -720,6 +722,14 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 
     public void setRegex(boolean regex) {
         this.regex = regex;
+    }
+
+    public boolean isIgnoreDot() {
+        return ignoreDot;
+    }
+
+    public void setIgnoreDot(boolean ignoreDot) {
+        this.ignoreDot = ignoreDot;
     }
 
     public int getTimeout() {

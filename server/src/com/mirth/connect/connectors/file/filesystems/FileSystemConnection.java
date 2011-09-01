@@ -24,11 +24,12 @@ public interface FileSystemConnection {
 	 * @param filenamePattern The pattern file names must match to be included.
 	 * The exact syntax of a namePattern may vary between FileSystems.
 	 * @param isRegex If the pattern should be interpreted as a regular expression.
+	 * @param ignoreDot If files starting with . should be ignored
 	 * @return A List of FileInfo for the files located in the specified
 	 * folder with names matching the specified pattern.
 	 * @throws Exception
 	 */
-	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex)
+	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot)
 		throws Exception;
 	
 	/** Constructs and returns an InputStream to read the contents of the

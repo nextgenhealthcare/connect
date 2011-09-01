@@ -413,7 +413,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
         FileSystemConnection con = fileConnector.getConnection(uri, null);
 
         try {
-            return con.listFiles(readDir, filenamePattern, fileConnector.isRegex()).toArray(new FileInfo[0]);
+            return con.listFiles(readDir, filenamePattern, fileConnector.isRegex(), fileConnector.isIgnoreDot()).toArray(new FileInfo[0]);
         } finally {
             fileConnector.releaseConnection(uri, con, null);
         }

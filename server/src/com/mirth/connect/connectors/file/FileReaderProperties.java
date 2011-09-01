@@ -24,6 +24,7 @@ public class FileReaderProperties implements ComponentProperties {
     public static final String FILE_PASSWORD = "password";
     public static final String FILE_SECURE_MODE = "secure";
     public static final String FILE_REGEX = "regex";
+    public static final String FILE_IGNORE_DOT = "ignoreDot";
     public static final String FILE_PASSIVE_MODE = "passive";
     public static final String FILE_VALIDATE_CONNECTION = "validateConnections";
     public static final String FILE_POLLING_TYPE = "pollingType";
@@ -63,6 +64,7 @@ public class FileReaderProperties implements ComponentProperties {
         properties.put(FILE_PASSWORD, "anonymous");
         properties.put(FILE_SECURE_MODE, "1");
         properties.put(FILE_REGEX, "0");
+        properties.put(FILE_IGNORE_DOT, "1");
         properties.put(FILE_PASSIVE_MODE, "1");
         properties.put(FILE_VALIDATE_CONNECTION, "1");
         properties.put(FILE_POLLING_TYPE, "interval");
