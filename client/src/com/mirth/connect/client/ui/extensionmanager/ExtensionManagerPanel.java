@@ -223,7 +223,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             if (extensionStatus.getText().equalsIgnoreCase("Disabled")) {
                 enabled = false;
             }
-            extensionData.get(extensionName).setEnabled(enabled);
+//            extensionData.get(extensionName).setEnabled(enabled);
         }
     }
 
@@ -237,7 +237,8 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
 
             int i = 0;
             for (ConnectorMetaData metaData : connectorData.values()) {
-                if (metaData.isEnabled()) {
+//                if (metaData.isEnabled()) {
+                if (true) {
                     tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
                 } else {
                     tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
@@ -404,7 +405,8 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
 
             int i = 0;
             for (PluginMetaData metaData : pluginData.values()) {
-                if (metaData.isEnabled()) {
+//                if (metaData.isEnabled()) {
+                if (true) {
                     tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
                 } else {
                     tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");

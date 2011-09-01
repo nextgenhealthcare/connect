@@ -4036,17 +4036,17 @@ public class Frame extends JXFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                try {
+//                try {
                     // Save the settings on the extensions panel
                     extensionsPanel.savePluginData();
                     extensionsPanel.saveConnectorData();
 
                     // Save the meta data to the server
-                    mirthClient.setPluginMetaData(getPluginMetaData());
-                    mirthClient.setConnectorMetaData(getConnectorMetaData());
-                } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                }
+//                    mirthClient.setPluginMetaData(getPluginMetaData());
+//                    mirthClient.setConnectorMetaData(getConnectorMetaData());
+//                } catch (ClientException e) {
+//                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+//                }
                 return null;
             }
 

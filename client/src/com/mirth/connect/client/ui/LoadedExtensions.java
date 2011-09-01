@@ -74,7 +74,7 @@ public class LoadedExtensions {
 
         for (PluginMetaData metaData : parent.getPluginMetaData().values()) {
             try {
-                if (metaData.isEnabled() && (metaData.getClientClasses() != null)) {
+                if (parent.mirthClient.isExtensionEnabled(metaData.getName()) && (metaData.getClientClasses() != null)) {
                     for (String clazzName : metaData.getClientClasses()) {
                         Class<?> clazz = Class.forName(clazzName);
                         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
@@ -98,8 +98,9 @@ public class LoadedExtensions {
         }
 
         for (ConnectorMetaData metaData : parent.getConnectorMetaData().values()) {
-            if (metaData.isEnabled()) {
-                try {
+            try {
+                if (parent.mirthClient.isExtensionEnabled(metaData.getName())) {
+
                     String connectorName = metaData.getName();
                     ConnectorClass connectorClass = (ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance();
 
@@ -113,9 +114,9 @@ public class LoadedExtensions {
                         // type must be SOURCE or DESTINATION
                         throw new Exception();
                     }
-                } catch (Exception e) {
-                    parent.alertError(this.parent, "Could not load connector class: " + metaData.getClientClassName());
                 }
+            } catch (Exception e) {
+                parent.alertError(this.parent, "Could not load connector class: " + metaData.getClientClassName());
             }
         }
     }
