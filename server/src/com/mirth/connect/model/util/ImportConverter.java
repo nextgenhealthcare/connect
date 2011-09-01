@@ -445,6 +445,14 @@ public class ImportConverter {
             convertChannelConnectorsFor2_0(document, channelRoot);
             updateFilterFor2_0(document);
         }
+        
+        // Run for all versions prior to 3.x
+        if (majorVersion < 3) {
+            // Run for all versions prior to 2.2
+            if (minorVersion < 2) {
+                convertChannelConnectorsFor2_2(document, channelRoot);
+            }
+        }
 
         DocumentSerializer docSerializer = new DocumentSerializer();
         channelXML = docSerializer.toXML(document);
@@ -895,6 +903,44 @@ public class ImportConverter {
             transportNode.setTextContent("HTTP Sender");
 
             updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
+        }
+    }
+    
+    public static void convertFileConnectorFor2_2(Document document, Element connectorRoot) throws Exception {
+
+        // convert HTTP Listener and HTTP writer to the new formats
+        Node transportNode = getConnectorTransportNode(connectorRoot);
+        String transportNameText = transportNode.getTextContent();
+        Element propertiesElement = getPropertiesElement(connectorRoot);
+
+        // Default Properties
+        Map<String, String> propertyDefaults = new HashMap<String, String>();
+
+        // Properties to be added if missing, or reset if present
+        Map<String, String> propertyChanges = new HashMap<String, String>();
+
+        // logic to deal with SOAP listener settings
+        if (transportNameText.equals("File Reader")) {
+            // set defaults
+            propertyDefaults.put("ignoreDot", "0");
+
+            // update properties
+            updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
+        }
+    }
+    
+    public static void convertChannelConnectorsFor2_2(Document document, Element channelRoot) throws Exception {
+        Element sourceConnectorRoot = (Element) channelRoot.getElementsByTagName("sourceConnector").item(0);
+        Element destinationConnectorRoot = (Element) channelRoot.getElementsByTagName("destinationConnectors").item(0);
+        NodeList destinationsConnectors = getElements(destinationConnectorRoot, "connector", "com.mirth.connect.model.Connector");
+
+        // Convert the source connector
+        convertFileConnectorFor2_2(document, sourceConnectorRoot);
+
+        // Convert all destination connectors
+        for (int i = 0; i < destinationsConnectors.getLength(); i++) {
+            Element destinationConnector = (Element) destinationsConnectors.item(i);
+            // TODO: convertEmailConnectorFor2_2(document, destinationConnector);
         }
     }
 

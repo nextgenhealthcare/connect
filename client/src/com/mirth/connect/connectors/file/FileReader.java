@@ -64,6 +64,12 @@ public class FileReader extends ConnectorClass {
         } else {
             properties.put(FileReaderProperties.FILE_HOST, hostField.getText() + "/" + pathField.getText());
         }
+        
+        if (ignoreDotFilesYesRadio.isSelected()) {
+            properties.put(FileReaderProperties.FILE_IGNORE_DOT, UIConstants.YES_OPTION);
+        } else {
+            properties.put(FileReaderProperties.FILE_IGNORE_DOT, UIConstants.NO_OPTION);
+        }
 
         if (anonymousYes.isSelected()) {
             properties.put(FileReaderProperties.FILE_ANONYMOUS, UIConstants.YES_OPTION);
@@ -243,6 +249,12 @@ public class FileReader extends ConnectorClass {
 
         setDirHostPath(props, true, false);
 
+        if (props.getProperty(FileReaderProperties.FILE_IGNORE_DOT).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+            ignoreDotFilesYesRadio.setSelected(true);
+        } else {
+            ignoreDotFilesNoRadio.setSelected(true);
+        }
+        
         if (((String) props.get(FileReaderProperties.FILE_ANONYMOUS)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             anonymousYes.setSelected(true);
             anonymousNo.setSelected(false);
@@ -472,6 +484,7 @@ public class FileReader extends ConnectorClass {
         buttonGroup7 = new javax.swing.ButtonGroup();
         buttonGroup8 = new javax.swing.ButtonGroup();
         buttonGroup9 = new javax.swing.ButtonGroup();
+        ignoreDotFilesButtonGroup = new javax.swing.ButtonGroup();
         schemeLabel = new javax.swing.JLabel();
         schemeComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
         directoryLabel = new javax.swing.JLabel();
@@ -527,13 +540,16 @@ public class FileReader extends ConnectorClass {
         secureModeLabel = new javax.swing.JLabel();
         secureModeYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         secureModeNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        testConnection = new javax.swing.JButton();
         passiveModeLabel = new javax.swing.JLabel();
+        testConnection = new javax.swing.JButton();
         passiveModeYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         passiveModeNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         filenameFilterRegexCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         timeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
         timeoutLabel = new javax.swing.JLabel();
+        ignoreDotFilesYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        ignoreDotFilesNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        ignoreDotFilesLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -791,7 +807,6 @@ public class FileReader extends ConnectorClass {
         validateConnectionNo.setBackground(new java.awt.Color(255, 255, 255));
         validateConnectionNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup3.add(validateConnectionNo);
-        validateConnectionNo.setSelected(true);
         validateConnectionNo.setText("No");
         validateConnectionNo.setToolTipText("Select No to skip testing the connection to the server before each operation.");
         validateConnectionNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -823,14 +838,14 @@ public class FileReader extends ConnectorClass {
             }
         });
 
+        passiveModeLabel.setText("Passive Mode:");
+
         testConnection.setText("Test Read");
         testConnection.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 testConnectionActionPerformed(evt);
             }
         });
-
-        passiveModeLabel.setText("Passive Mode:");
 
         passiveModeYes.setBackground(new java.awt.Color(255, 255, 255));
         passiveModeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -854,6 +869,23 @@ public class FileReader extends ConnectorClass {
         timeoutField.setToolTipText("The socket timeout (in ms) for connecting to the server.");
 
         timeoutLabel.setText("Timeout (ms):");
+
+        ignoreDotFilesYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        ignoreDotFilesYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        ignoreDotFilesButtonGroup.add(ignoreDotFilesYesRadio);
+        ignoreDotFilesYesRadio.setText("Yes");
+        ignoreDotFilesYesRadio.setToolTipText("Select Yes to ignore all files starting with a period.");
+        ignoreDotFilesYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        ignoreDotFilesNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        ignoreDotFilesNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        ignoreDotFilesButtonGroup.add(ignoreDotFilesNoRadio);
+        ignoreDotFilesNoRadio.setSelected(true);
+        ignoreDotFilesNoRadio.setText("No");
+        ignoreDotFilesNoRadio.setToolTipText("Select No to process files starting with a period.");
+        ignoreDotFilesNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        ignoreDotFilesLabel.setText("Ignore . files:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -885,9 +917,14 @@ public class FileReader extends ConnectorClass {
                     .addComponent(sortFilesByLabel)
                     .addComponent(fileTypeLabel)
                     .addComponent(encodingLabel)
-                    .addComponent(timeoutLabel))
+                    .addComponent(timeoutLabel)
+                    .addComponent(ignoreDotFilesLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(ignoreDotFilesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ignoreDotFilesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(fileAge, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -978,6 +1015,11 @@ public class FileReader extends ConnectorClass {
                     .addComponent(filenameFilterLabel)
                     .addComponent(fileNameFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(filenameFilterRegexCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ignoreDotFilesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ignoreDotFilesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ignoreDotFilesLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(anonymousLabel)
@@ -1368,6 +1410,10 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private com.mirth.connect.client.ui.components.MirthCheckBox filenameFilterRegexCheckBox;
     private com.mirth.connect.client.ui.components.MirthTextField hostField;
     private javax.swing.JLabel hostLabel;
+    private javax.swing.ButtonGroup ignoreDotFilesButtonGroup;
+    private javax.swing.JLabel ignoreDotFilesLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton ignoreDotFilesNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton ignoreDotFilesYesRadio;
     private com.mirth.connect.client.ui.components.MirthVariableList mirthVariableList1;
     private com.mirth.connect.client.ui.components.MirthTextField moveToDirectory;
     private javax.swing.JLabel moveToDirectoryLabel;
