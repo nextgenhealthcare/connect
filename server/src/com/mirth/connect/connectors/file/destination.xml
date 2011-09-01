@@ -17,7 +17,6 @@
 	<transformers></transformers>
 	<protocol>file</protocol>
 	<type>DESTINATION</type>
-	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.file.FileConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.file.FileMessageDispatcherFactory</property>

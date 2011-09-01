@@ -12,7 +12,6 @@
 	<transformers></transformers>
 	<protocol>ws</protocol>
 	<type>SOURCE</type>
-	<enabled>true</enabled>
 	<library type="SERVER" path="ws-server.jar" />
 	<library type="CLIENT" path="ws-client.jar" />
 	<library type="SHARED" path="ws-shared.jar" />

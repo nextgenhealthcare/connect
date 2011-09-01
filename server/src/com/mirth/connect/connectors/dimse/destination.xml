@@ -22,7 +22,6 @@
 	<transformers></transformers>
 	<protocol>dicom</protocol>
 	<type>DESTINATION</type>
-	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.dimse.DICOMConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.dimse.DICOMMessageDispatcherFactory</property>

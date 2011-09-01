@@ -15,7 +15,6 @@
 	<transformers></transformers>
 	<protocol>tcp</protocol>
 	<type>DESTINATION</type>
-	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.tcp.TcpConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.tcp.TcpMessageDispatcherFactory</property>

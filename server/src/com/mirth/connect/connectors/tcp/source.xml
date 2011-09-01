@@ -14,7 +14,6 @@
 	<transformers>ByteArrayToString</transformers>
 	<protocol>tcp</protocol>
 	<type>SOURCE</type>
-	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.tcp.TcpConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.tcp.TcpMessageDispatcherFactory</property>

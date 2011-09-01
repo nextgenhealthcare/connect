@@ -5,7 +5,6 @@
 	<mirthVersion>2.2.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin allows you to view the server log on the Mirth Connect administrator.</description>
-	<enabled>true</enabled>
 	<serverClasses>
 		<string>com.mirth.connect.plugins.serverlog.ServerLogProvider</string>
 	</serverClasses>

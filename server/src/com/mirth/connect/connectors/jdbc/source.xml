@@ -15,7 +15,6 @@
 	<transformers>ResultMapToXML</transformers>
 	<protocol>jdbc</protocol>
 	<type>SOURCE</type>
-	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.jdbc.JdbcConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.jdbc.JdbcMessageDispatcherFactory</property>

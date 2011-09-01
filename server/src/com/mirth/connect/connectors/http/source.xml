@@ -14,7 +14,6 @@
 	<transformers></transformers>
 	<protocol>http</protocol>
 	<type>SOURCE</type>
-	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.http.HttpConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.http.HttpMessageDispatcherFactory</property>

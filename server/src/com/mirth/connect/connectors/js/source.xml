@@ -14,7 +14,6 @@
 	<transformers>ResultMapToXML</transformers>
 	<protocol>js</protocol>
 	<type>SOURCE</type>
-	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.js.JavaScriptConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.js.JavaScriptMessageDispatcherFactory</property>

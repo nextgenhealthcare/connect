@@ -15,7 +15,6 @@
 	<transformers>ByteArrayToString</transformers>
 	<protocol>mllp</protocol>
 	<type>SOURCE</type>
-	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.mllp.MllpConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.mllp.MllpMessageDispatcherFactory</property>

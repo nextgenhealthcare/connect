@@ -17,7 +17,6 @@
 	<transformers></transformers>
 	<protocol>doc</protocol>
 	<type>DESTINATION</type>
-	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.doc.DocumentConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.doc.DocumentMessageDispatcherFactory</property>

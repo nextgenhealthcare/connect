@@ -15,7 +15,6 @@
 	<transformers></transformers>
 	<protocol>smtp</protocol>
 	<type>DESTINATION</type>
-	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.smtp.SmtpConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.smtp.SmtpMessageDispatcherFactory</property>

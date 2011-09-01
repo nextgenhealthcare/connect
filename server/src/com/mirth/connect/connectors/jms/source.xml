@@ -14,7 +14,6 @@
 	<transformers>JMSMessageToObject ObjectToString</transformers>
 	<protocol>jms</protocol>
 	<type>SOURCE</type>
-	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.jms.JmsConnector</property>
 		<property name="dispatcher.factory">com.mirth.connect.connectors.jms.JmsMessageDispatcherFactory</property>

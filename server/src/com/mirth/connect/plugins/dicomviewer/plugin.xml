@@ -5,7 +5,6 @@
 	<mirthVersion>2.2.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides DICOM attachment viewing capability in message browser</description>
-	<enabled>true</enabled>
 	<clientClasses>
 		<string>com.mirth.connect.plugins.dicomviewer.DICOMViewer</string>
 	</clientClasses>

@@ -5,7 +5,6 @@
 	<mirthVersion>2.2.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides an External Script step-type for Mirth Connect filters</description>
-	<enabled>true</enabled>
 	<clientClasses>
 		<string>com.mirth.connect.plugins.scriptfilerule.ExternalScriptRulePlugin</string>
 	</clientClasses>
