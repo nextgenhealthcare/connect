@@ -252,7 +252,7 @@ public class DefaultExtensionController extends ExtensionController {
             Properties properties = getPluginProperties(pluginName);
             
             if (properties.containsKey("enabled")) {
-                return BooleanUtils.toBoolean(properties.containsKey("enabled"));
+                return BooleanUtils.toBoolean(properties.getProperty("enabled"));
             }
         } catch (ControllerException e) {
             logger.warn("Unabled to retrieve extension status: " + pluginName, e);
