@@ -25,8 +25,6 @@ public abstract class MetaData {
     private String pluginVersion;
     private String url;
     private String description;
-    private boolean enabled;
-
     @XStreamAlias("libraries")
     @XStreamImplicit(itemFieldName = "library")
     private List<ExtensionLibrary> libraries;
@@ -85,14 +83,6 @@ public abstract class MetaData {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     public List<ExtensionLibrary> getLibraries() {

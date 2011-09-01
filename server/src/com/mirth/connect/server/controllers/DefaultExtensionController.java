@@ -24,7 +24,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.zip.ZipEntry;
@@ -40,6 +39,7 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -68,9 +68,9 @@ public class DefaultExtensionController extends ExtensionController {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
     // these maps store the metadata for all extensions
-    private Map<String, PluginMetaData> pluginMetaDataMap = null;
-    private Map<String, ConnectorMetaData> connectorMetaDataMap = null;
-    private Map<String, ConnectorMetaData> connectorProtocolsMap = null;
+    private Map<String, PluginMetaData> pluginMetaDataMap = new HashMap<String, PluginMetaData>();
+    private Map<String, ConnectorMetaData> connectorMetaDataMap = new HashMap<String, ConnectorMetaData>();
+    private Map<String, ConnectorMetaData> connectorProtocolsMap = new HashMap<String, ConnectorMetaData>();
 
     // these are plugins for specific extension points, keyed by plugin name
     // (not path)
@@ -96,22 +96,50 @@ public class DefaultExtensionController extends ExtensionController {
 
     }
 
+    @Override
     public void loadExtensions() {
         try {
-            loadConnectorMetaData();
-            loadPluginMetaData();
+            // match all of the file names for the extension
+            IOFileFilter nameFileFilter = new NameFileFilter(new String[] { "plugin.xml", "source.xml", "destination.xml" });
+            // this is probably not needed, but we dont want to pick up directories,
+            // so we AND the two filters
+            IOFileFilter andFileFilter = new AndFileFilter(nameFileFilter, FileFilterUtils.fileFileFilter());
+            // this is directory where extensions are located
+            File extensionPath = new File(ExtensionController.getExtensionsPath());
+            // do a recursive scan for extension files
+            Collection<File> extensionFiles = FileUtils.listFiles(extensionPath, andFileFilter, FileFilterUtils.trueFileFilter());
+
+            for (File extensionFile : extensionFiles) {
+                try {
+                    MetaData metaData = (MetaData) serializer.fromXML(FileUtils.readFileToString(extensionFile));
+                    
+                    if (metaData instanceof ConnectorMetaData) {
+                        ConnectorMetaData connectorMetaData = (ConnectorMetaData) metaData;
+                        connectorMetaDataMap.put(connectorMetaData.getName(), connectorMetaData);
+
+                        if (StringUtils.contains(connectorMetaData.getProtocol(), ":")) {
+                            for (String protocol : connectorMetaData.getProtocol().split(":")) {
+                                connectorProtocolsMap.put(protocol, connectorMetaData);
+                            }
+                        } else {
+                            connectorProtocolsMap.put(connectorMetaData.getProtocol(), connectorMetaData);
+                        }
+                    } else if (metaData instanceof PluginMetaData) {
+                        pluginMetaDataMap.put(metaData.getName(), (PluginMetaData) metaData);
+                    }
+                } catch (Exception e) {
+                    logger.error("Error reading or parsing extension metadata file: " + extensionFile.getName(), e);
+                }
+            }
         } catch (Exception e) {
             logger.error("Error loading extension metadata.", e);
         }
     }
 
-    /**
-     * This method iterates through all of the plugin metadata that was loaded on startup, 
-     * 
-     */
+    @Override
     public void initPlugins() {
         for (PluginMetaData pmd : pluginMetaDataMap.values()) {
-            if (pmd.isEnabled() && isExtensionCompatible(pmd)) {
+            if (isExtensionEnabled(pmd.getName()) && isExtensionCompatible(pmd)) {
                 if (pmd.getServerClasses() != null) {
                     for (String clazzName : pmd.getServerClasses()) {
                         try {
@@ -194,36 +222,46 @@ public class DefaultExtensionController extends ExtensionController {
     /* These are the maps for the different types of plugins */
     /* ********************************************************************** */
     
+    @Override
     public Map<String, ServicePlugin> getServicePlugins() {
         return servicePlugins;
     }
 
+    @Override
     public Map<String, ConnectorStatusPlugin> getConnectorStatusPlugins() {
         return connectorStatusPlugins;
     }
 
+    @Override
     public Map<String, ChannelPlugin> getChannelPlugins() {
         return channelPlugins;
     }
 
     /* ********************************************************************** */
     
-    public boolean isExtensionEnabled(String name) {
-        for (PluginMetaData plugin : pluginMetaDataMap.values()) {
-            if (plugin.isEnabled() && plugin.getName().equals(name)) {
-                return true;
+    @Override
+    public void setExtensionEnabled(String pluginName, boolean enabled) throws ControllerException {
+        Properties properties = getPluginProperties(pluginName);
+        properties.setProperty("enabled", BooleanUtils.toStringTrueFalse(enabled));
+        setPluginProperties(pluginName, properties);
+    }
+    
+    @Override
+    public boolean isExtensionEnabled(String pluginName) {
+        try {
+            Properties properties = getPluginProperties(pluginName);
+            
+            if (properties.containsKey("enabled")) {
+                return BooleanUtils.toBoolean(properties.containsKey("enabled"));
             }
+        } catch (ControllerException e) {
+            logger.warn("Unabled to retrieve extension status: " + pluginName, e);
         }
-
-        for (ConnectorMetaData connector : connectorMetaDataMap.values()) {
-            if (connector.isEnabled() && connector.getName().equals(name)) {
-                return true;
-            }
-        }
-
-        return false;
+        
+        return true;
     }
 
+    @Override
     public void startPlugins() {
         for (ServerPlugin serverPlugin : serverPlugins) {
             serverPlugin.start();
@@ -242,12 +280,14 @@ public class DefaultExtensionController extends ExtensionController {
         }
     }
 
+    @Override
     public void stopPlugins() {
         for (ServerPlugin serverPlugin : serverPlugins) {
             serverPlugin.stop();
         }
     }
 
+    @Override
     public void updatePluginProperties(String name, Properties properties) {
         ServicePlugin servicePlugin = servicePlugins.get(name);
         
@@ -258,6 +298,7 @@ public class DefaultExtensionController extends ExtensionController {
         }
     }
 
+    @Override
     public Object invokePluginService(String name, String method, Object object, String sessionId) throws Exception {
         ServicePlugin servicePlugin = servicePlugins.get(name);
         
@@ -269,6 +310,7 @@ public class DefaultExtensionController extends ExtensionController {
         }
     }
 
+    @Override
     public Object invokeConnectorService(String name, String method, Object object, String sessionsId) throws Exception {
         ConnectorMetaData connectorMetaData = connectorMetaDataMap.get(name);
 
@@ -280,11 +322,8 @@ public class DefaultExtensionController extends ExtensionController {
         return null;
     }
 
+    @Override
     public void extractExtension(FileItem fileItem) throws ControllerException {
-        String pluginFilename = ExtensionController.ExtensionType.PLUGIN.getFileNames()[0];
-        String destinationFilename = ExtensionController.ExtensionType.DESTINATION.getFileNames()[0];
-        String sourceFilename = ExtensionController.ExtensionType.SOURCE.getFileNames()[0];
-
         File installTempDir = new File(ExtensionController.getExtensionsPath(), "install_temp");
 
         if (!installTempDir.exists()) {
@@ -311,7 +350,7 @@ public class DefaultExtensionController extends ExtensionController {
                 ZipEntry entry = entries.nextElement();
                 String entryName = entry.getName();
 
-                if (entryName.endsWith(pluginFilename) || entryName.endsWith(destinationFilename) || entryName.endsWith(sourceFilename)) {
+                if (entryName.endsWith("plugin.xml") || entryName.endsWith("destination.xml") || entryName.endsWith("source.xml")) {
                     // parse the extension metadata xml file
                     MetaData extensionMetaData = (MetaData) serializer.fromXML(IOUtils.toString(zipFile.getInputStream(entry)));
 
@@ -368,6 +407,7 @@ public class DefaultExtensionController extends ExtensionController {
      * uninstall scripts, and the folder must be deleted manually.
      * 
      */
+    @Override
     public void prepareExtensionForUninstallation(String pluginPath) throws ControllerException {
         try {
             addExtensionToUninstallFile(pluginPath);
@@ -467,6 +507,7 @@ public class DefaultExtensionController extends ExtensionController {
         return script;
     }
 
+    @Override
     public void setPluginProperties(String pluginName, Properties properties) throws ControllerException {
         configurationController.removePropertiesForGroup(pluginName);
 
@@ -475,62 +516,27 @@ public class DefaultExtensionController extends ExtensionController {
         }
     }
 
+    @Override
     public Properties getPluginProperties(String pluginName) throws ControllerException {
         return ControllerFactory.getFactory().createConfigurationController().getPropertiesForGroup(pluginName);
     }
 
+    @Override
     public Map<String, ConnectorMetaData> getConnectorMetaData() {
         return connectorMetaDataMap;
     }
 
-    private void loadConnectorMetaData() throws ControllerException {
-        logger.debug("loading connector metadata");
-        connectorMetaDataMap = (Map<String, ConnectorMetaData>) getMetaDataForExtensionType(ExtensionType.CONNECTOR);
-        connectorProtocolsMap = new HashMap<String, ConnectorMetaData>();
-
-        for (ConnectorMetaData connectorMetaData : connectorMetaDataMap.values()) {
-            if (StringUtils.contains(connectorMetaData.getProtocol(), ":")) {
-                for (String protocol : connectorMetaData.getProtocol().split(":")) {
-                    connectorProtocolsMap.put(protocol, connectorMetaData);
-                }
-            } else {
-                connectorProtocolsMap.put(connectorMetaData.getProtocol(), connectorMetaData);
-            }
-        }
-    }
-
-    public void saveConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ControllerException {
-        connectorMetaDataMap = metaData;
-
-        try {
-            saveExtensionMetaData(metaData);
-        } catch (IOException e) {
-            throw new ControllerException("Error saving connector metadata.", e);
-        }
-    }
-
+    @Override
     public Map<String, PluginMetaData> getPluginMetaData() {
         return pluginMetaDataMap;
     }
 
-    public void savePluginMetaData(Map<String, PluginMetaData> metaData) throws ControllerException {
-        pluginMetaDataMap = metaData;
-
-        try {
-            saveExtensionMetaData(metaData);
-        } catch (IOException e) {
-            throw new ControllerException("Error saving plugin metadata.", e);
-        }
-    }
-
-    private void loadPluginMetaData() throws ControllerException {
-        pluginMetaDataMap = (Map<String, PluginMetaData>) getMetaDataForExtensionType(ExtensionType.PLUGIN);
-    }
-
+    @Override
     public ConnectorMetaData getConnectorMetaDataByProtocol(String protocol) {
         return connectorProtocolsMap.get(protocol);
     }
 
+    @Override
     public ConnectorMetaData getConnectorMetaDataByTransportName(String transportName) {
         return connectorMetaDataMap.get(transportName);
     }
@@ -542,6 +548,7 @@ public class DefaultExtensionController extends ExtensionController {
      * classpath.
      * 
      */
+    @Override
     public void uninstallExtensions() {
         try {
             DatabaseUtil.executeScript(readUninstallScript(), true);
@@ -561,6 +568,7 @@ public class DefaultExtensionController extends ExtensionController {
     /*
      * This MUST return an empty list if there is no uninstall file.
      */
+    @SuppressWarnings("unchecked")
     private List<String> readUninstallScript() throws IOException {
         File uninstallScriptsFile = new File(getExtensionsPath(), EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
         List<String> scripts = new ArrayList<String>();
@@ -570,65 +578,6 @@ public class DefaultExtensionController extends ExtensionController {
         }
 
         return scripts;
-    }
-
-    /**
-     * Returns the metadata files (plugin.xml, source.xml, destination.xml) for
-     * all extensions of the specified type. If this function fails to parse the
-     * metadata file for an extension, it will skip it and continue.
-     * 
-     * @param extensionType
-     * @return
-     * @throws ControllerException
-     */
-    private Map<String, ? extends MetaData> getMetaDataForExtensionType(ExtensionType extensionType) {
-        // match all of the file names for the extension (plugin.xml,
-        // source.xml, destination.xml)
-        IOFileFilter nameFileFilter = new NameFileFilter(extensionType.getFileNames());
-        // this is probably not needed, but we dont want to pick up directories,
-        // so we AND the two filters
-        IOFileFilter andFileFilter = new AndFileFilter(nameFileFilter, FileFilterUtils.fileFileFilter());
-        // this is directory where extensions are located
-        File extensionPath = new File(ExtensionController.getExtensionsPath());
-        // do a recursive scan for extension files
-        Collection<File> extensionFiles = FileUtils.listFiles(extensionPath, andFileFilter, FileFilterUtils.trueFileFilter());
-
-        Map<String, MetaData> extensionMetaDataMap = new HashMap<String, MetaData>();
-
-        for (File extensionFile : extensionFiles) {
-            try {
-                MetaData extensionMetaData = (MetaData) serializer.fromXML(FileUtils.readFileToString(extensionFile));
-                extensionMetaDataMap.put(extensionMetaData.getName(), extensionMetaData);
-            } catch (Exception e) {
-                logger.error("Error reading or parsing extension metadata file: " + extensionFile.getName(), e);
-            }
-        }
-
-        return extensionMetaDataMap;
-    }
-
-    /**
-     * Saves the extension metadata to the file system.
-     * 
-     * @param metaData
-     * @throws ControllerException
-     */
-    private void saveExtensionMetaData(Map<String, ? extends MetaData> metaData) throws IOException {
-        for (Entry<String, ? extends MetaData> entry : metaData.entrySet()) {
-            MetaData extensionMetaData = entry.getValue();
-            String fileName = ExtensionType.PLUGIN.getFileNames()[0];
-
-            if (extensionMetaData instanceof ConnectorMetaData) {
-                if (((ConnectorMetaData) extensionMetaData).getType().equals(ConnectorMetaData.Type.SOURCE)) {
-                    fileName = ExtensionType.SOURCE.getFileNames()[0];
-                } else {
-                    fileName = ExtensionType.DESTINATION.getFileNames()[0];
-                }
-            }
-
-            File metaDataFile = new File(ExtensionController.getExtensionsPath() + extensionMetaData.getPath() + File.separator + fileName);
-            FileUtils.writeStringToFile(metaDataFile, serializer.toXML(metaData.get(entry.getKey())));
-        }
     }
 
     private boolean isExtensionCompatible(MetaData metaData) {

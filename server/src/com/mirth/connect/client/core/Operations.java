@@ -69,14 +69,13 @@ public class Operations {
     public static final Operation PLUGIN_PROPERTIES_GET = new Operation("getPluginProperties", "Get plugin properties", true);
     public static final Operation PLUGIN_PROPERTIES_SET = new Operation("setPluginProperties", "Set plugin properties", true);
     public static final Operation PLUGIN_METADATA_GET = new Operation("getPluginMetaData", "Get plugin metadata", true);
-    public static final Operation PLUGIN_METADATA_SET = new Operation("setPluginMetaData", "Set plugin metadata", true);
     public static final Operation CONNECTOR_METADATA_GET = new Operation("getConnectorMetaData", "Get connector metadata", true);
-    public static final Operation CONNECTOR_METADATA_SET = new Operation("setConnectorMetaData", "Set connector metadata", true);
     public static final Operation PLUGIN_SERVICE_INVOKE = new Operation("invoke", "Invoke plugin service", true);
     public static final Operation CONNECTOR_SERVICE_INVOKE = new Operation("invokeConnectorService", "Invoke connector service", true);
     public static final Operation EXTENSION_INSTALL = new Operation("installExtension", "Install extension", true);
     public static final Operation EXTENSION_UNINSTALL = new Operation("uninstallExtension", "Uninstall extension", true);
     public static final Operation EXTENSION_IS_ENABLED = new Operation("isExtensionEnabled", "Check if extension is installed", true);
+    public static final Operation EXTENSION_SET_ENABLED = new Operation("setExtensionEnabled", "Enables an extension", true);
 
     // Messages
     public static final Operation MESSAGE_GET_BY_PAGE = new Operation("getMessagesByPage", "Get messages by page", false);
@@ -158,14 +157,13 @@ public class Operations {
         operationMap.put(PLUGIN_PROPERTIES_GET.getName(), PLUGIN_PROPERTIES_GET);
         operationMap.put(PLUGIN_PROPERTIES_SET.getName(), PLUGIN_PROPERTIES_SET);
         operationMap.put(PLUGIN_METADATA_GET.getName(), PLUGIN_METADATA_GET);
-        operationMap.put(PLUGIN_METADATA_SET.getName(), PLUGIN_METADATA_SET);
         operationMap.put(CONNECTOR_METADATA_GET.getName(), CONNECTOR_METADATA_GET);
-        operationMap.put(CONNECTOR_METADATA_SET.getName(), CONNECTOR_METADATA_SET);
         operationMap.put(PLUGIN_SERVICE_INVOKE.getName(), PLUGIN_SERVICE_INVOKE);
         operationMap.put(CONNECTOR_SERVICE_INVOKE.getName(), CONNECTOR_SERVICE_INVOKE);
         operationMap.put(EXTENSION_INSTALL.getName(), EXTENSION_INSTALL);
         operationMap.put(EXTENSION_UNINSTALL.getName(), EXTENSION_UNINSTALL);
         operationMap.put(EXTENSION_IS_ENABLED.getName(), EXTENSION_IS_ENABLED);
+        operationMap.put(EXTENSION_SET_ENABLED.getName(), EXTENSION_SET_ENABLED);
         operationMap.put(MESSAGE_GET_BY_PAGE.getName(), MESSAGE_GET_BY_PAGE);
         operationMap.put(MESSAGE_GET_BY_PAGE_LIMIT.getName(), MESSAGE_GET_BY_PAGE_LIMIT);
         operationMap.put(MESSAGE_REMOVE.getName(), MESSAGE_REMOVE);

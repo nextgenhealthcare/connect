@@ -155,14 +155,15 @@ public class SqlConfig {
 
     private static void addPluginSqlMaps(String database, Document document) throws Exception {
         Element sqlMapConfigElement = document.getDocumentElement();
-        Map<String, PluginMetaData> plugins = ControllerFactory.getFactory().createExtensionController().getPluginMetaData();
+        ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+        Map<String, PluginMetaData> plugins = extensionController.getPluginMetaData();
 
         if (MapUtils.isNotEmpty(plugins)) {
             for (String pluginName : plugins.keySet()) {
                 PluginMetaData pmd = plugins.get(pluginName);
 
                 // only add configs for plugins that are enabled and have some configs defined
-                if (pmd.isEnabled() && (pmd.getSqlMapConfigs() != null)) {
+                if (extensionController.isExtensionEnabled(pmd.getName()) && (pmd.getSqlMapConfigs() != null)) {
                     /* get the SQL map for the current database */
                     String pluginSqlMapName = pmd.getSqlMapConfigs().get(database);
 

@@ -24,13 +24,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
-import com.mirth.connect.model.ConnectorMetaData;
-import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
@@ -100,27 +99,18 @@ public class ExtensionServlet extends MirthServlet {
                 } else if (operation.equals(Operations.PLUGIN_METADATA_GET)) {
                     response.setContentType(APPLICATION_XML);
                     out.println(serializer.toXML(extensionController.getPluginMetaData()));
-                } else if (operation.equals(Operations.PLUGIN_METADATA_SET)) {
-                    Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"));
-                    parameterMap.put("metaData", metaData);
-
+                } else if (operation.equals(Operations.EXTENSION_SET_ENABLED)) {
+                    String pluginName = request.getParameter("name");
+                    boolean enabled = BooleanUtils.toBoolean(request.getParameter("enabled"));
+                    
                     if (isUserAuthorized(request, parameterMap)) {
-                        extensionController.savePluginMetaData(metaData);
+                        extensionController.setExtensionEnabled(pluginName, enabled);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
                 } else if (operation.equals(Operations.CONNECTOR_METADATA_GET)) {
                     response.setContentType(APPLICATION_XML);
                     out.println(serializer.toXML(extensionController.getConnectorMetaData()));
-                } else if (operation.equals(Operations.CONNECTOR_METADATA_SET)) {
-                    Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"));
-                    parameterMap.put("metaData", metaData);
-
-                    if (isUserAuthorized(request, parameterMap)) {
-                        extensionController.saveConnectorMetaData(metaData);
-                    } else {
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                    }
                 } else if (operation.equals(Operations.EXTENSION_IS_ENABLED)) {
                     String extensionName = request.getParameter("name");
                     response.setContentType(TEXT_PLAIN);

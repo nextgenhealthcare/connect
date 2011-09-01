@@ -26,6 +26,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -262,18 +263,6 @@ public class Client {
     }
 
     /**
-     * Saves connector properties.
-     * 
-     * @return
-     * @throws ClientException
-     */
-    public void setConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ClientException {
-        logger.debug("saving connector settings");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_METADATA_SET.getName()), new NameValuePair("metaData", serializer.toXML(metaData)) };
-        serverConnection.executePostMethod(EXTENSION_SERVLET, params);
-    }
-
-    /**
      * Returns a List of all plugins.
      * 
      * @return
@@ -286,14 +275,14 @@ public class Client {
     }
 
     /**
-     * Saves plugin properties.
+     * Sets an exension as enabled or disabled.
      * 
      * @return
      * @throws ClientException
      */
-    public void setPluginMetaData(Map<String, PluginMetaData> metaData) throws ClientException {
-        logger.debug("saving plugin settings");
-        NameValuePair[] params = { new NameValuePair("op", Operations.PLUGIN_METADATA_SET.getName()), new NameValuePair("metaData", serializer.toXML(metaData)) };
+    public void setExtensionEnabled(String extensionName, boolean enabled) throws ClientException {
+        logger.debug("setting extension enabled");
+        NameValuePair[] params = { new NameValuePair("op", Operations.EXTENSION_SET_ENABLED.getName()), new NameValuePair("name", extensionName), new NameValuePair("enabled", BooleanUtils.toStringTrueFalse(enabled)) };
         serverConnection.executePostMethod(EXTENSION_SERVLET, params);
     }
 

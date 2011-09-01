@@ -10,7 +10,6 @@
 package com.mirth.connect.server.controllers;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -24,42 +23,6 @@ import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.tools.ClassPathResource;
 
 public abstract class ExtensionController extends Controller {
-
-    public enum ExtensionType {
-        PLUGIN("plugin.xml"), SOURCE("source.xml"), DESTINATION(
-                "destination.xml"), CONNECTOR(
-                new ExtensionType[] { SOURCE, DESTINATION });
-
-        private String fileName = null;
-        private ExtensionType[] types = null;
-
-        ExtensionType(String fileName) {
-            this.fileName = fileName;
-        }
-
-        ExtensionType(ExtensionType[] types) {
-            this.types = types;
-        }
-
-        public String[] getFileNames() {
-            if (types == null) {
-                return new String[] { fileName };
-            } else {
-                String[] fileNames = new String[types.length];
-
-                for (int i = 0; i < fileNames.length; i++) {
-                    fileNames[i] = types[i].getFileName();
-                }
-
-                return fileNames;
-            }
-        }
-
-        private String getFileName() {
-            return fileName;
-        }
-    }
-
     /**
      * If in an IDE, extensions will be on the classpath as a resource. If
      * that's the case, use that directory. Otherwise, use the mirth home
@@ -83,7 +46,24 @@ public abstract class ExtensionController extends Controller {
         return ControllerFactory.getFactory().createExtensionController();
     }
 
+    /**
+     * Loads the metadata files (plugin.xml, source.xml, destination.xml) for
+     * all extensions of the specified type. If this function fails to parse the
+     * metadata file for an extension, it will skip it and continue.
+     */
+    public abstract void loadExtensions();
+
+    /**
+     * Iterates through all of the plugin metadata that was loaded on startup.
+     */
     public abstract void initPlugins();
+
+    /**
+     * Sets the status of an extension.
+     * 
+     * @throws ControllerException
+     */
+    public abstract void setExtensionEnabled(String name, boolean enabled) throws ControllerException;
 
     /**
      * Returns true if the extension (either plugin or connector) with the
@@ -93,12 +73,6 @@ public abstract class ExtensionController extends Controller {
      * @return
      */
     public abstract boolean isExtensionEnabled(String name);
-
-    /**
-     * Loads the metadata for all extensions (plugins and connectors) from the
-     * filesystem.
-     */
-    public abstract void loadExtensions();
 
     /**
      * Invokes the start method on all loaded server plugins.
@@ -119,15 +93,7 @@ public abstract class ExtensionController extends Controller {
      */
     public abstract Map<String, PluginMetaData> getPluginMetaData();
 
-    /**
-     * Stores all plugin metadata to the database.
-     * 
-     * @param metaData
-     * @throws ControllerException
-     */
-    public abstract void savePluginMetaData(Map<String, PluginMetaData> metaData) throws ControllerException;
-
-    // the following two should be combined
+    // TODO: the following two should be combined
 
     /**
      * Updates the properties for the specified server plugin. Note that this
@@ -178,14 +144,6 @@ public abstract class ExtensionController extends Controller {
     
     public abstract Map<String, ConnectorMetaData> getConnectorMetaData();
 
-    /**
-     * Stores all connector metadata to the database.
-     * 
-     * @param metaData
-     * @throws ControllerException
-     */
-    public abstract void saveConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ControllerException;
-
     public abstract ConnectorMetaData getConnectorMetaDataByProtocol(String protocol);
 
     public abstract ConnectorMetaData getConnectorMetaDataByTransportName(String transportName);
@@ -232,14 +190,6 @@ public abstract class ExtensionController extends Controller {
      */
     public abstract void uninstallExtensions();
 
-    // ************************************************************
-    // Extension metadata
-    // ************************************************************
-
-    // public abstract void enableExtension(String name);
-
-    // public abstract void disableExtension(String name);
-    
     // ************************************************************
     // Maps for different plugins
     // ************************************************************
