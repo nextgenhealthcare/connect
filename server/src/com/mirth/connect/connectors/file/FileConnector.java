@@ -138,7 +138,9 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     private boolean regex = false;
     private boolean ignoreDot = true;
     private int timeout;
-
+    private boolean temporary = true;
+    private boolean overwrite = true;
+    
     public FileConnector() {
         filenameParser = new VariableFilenameParser();
         setCharsetEncoding(DEFAULT_CHARSET_ENCODING);
@@ -739,4 +741,21 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     public void setTimeout(int timeout) {
         this.timeout = timeout;
     }
+
+    public boolean isTemporary() {
+        return temporary;
+    }
+
+    public void setTemporary(boolean temporary) {
+        this.temporary = temporary;
+    }
+
+    public boolean isOverwrite() {
+        return overwrite;
+    }
+
+    public void setOverwrite(boolean overwrite) {
+        this.overwrite = overwrite;
+    }
+    
 }

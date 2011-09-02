@@ -137,7 +137,8 @@ public class SftpConnection implements FileSystemConnection {
         }
 	    
 		client.cd(fromDir);
-		Vector<ChannelSftp.LsEntry> entries = client.ls(".");
+		@SuppressWarnings("unchecked")
+        Vector<ChannelSftp.LsEntry> entries = client.ls(".");
 		List<FileInfo> files = new ArrayList<FileInfo>(entries.size());
 
 		for (Iterator<ChannelSftp.LsEntry> iter = entries.iterator(); iter.hasNext();) {
@@ -152,6 +153,16 @@ public class SftpConnection implements FileSystemConnection {
 
 		return files;
 	}
+
+    @Override
+    public boolean exists(String file, String path) {
+        try {
+            client.cd(path);
+            return client.ls(".").contains(file);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
 	@Override
 	public boolean canRead(String readDir) {

@@ -138,6 +138,12 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
     }
 
     @Override
+    public boolean exists(String file, String path) {
+        File src = new File(path, file);
+        return src.exists();
+    }
+    
+    @Override
     public boolean canRead(String readDir) {
         File readDirectory = new File(readDir);
         return readDirectory.isDirectory() && readDirectory.canRead();

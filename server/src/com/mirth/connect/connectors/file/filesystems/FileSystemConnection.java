@@ -32,6 +32,13 @@ public interface FileSystemConnection {
 	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex, boolean ignoreDot)
 		throws Exception;
 	
+	/** Test if the file exists.
+	 * 
+	 * @param file The name of the file.
+	 * @param path The full path of the directory containing the file.
+	 */
+	public boolean exists(String file, String path);
+	
 	/** Constructs and returns an InputStream to read the contents of the
 	 * specified file in the specified directory.
 	 * @param file The name of the file to be read, with no path information.

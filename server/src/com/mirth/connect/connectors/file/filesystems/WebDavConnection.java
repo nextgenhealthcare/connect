@@ -119,7 +119,7 @@ public class WebDavConnection implements FileSystemConnection {
         for (int i = 0; i < resources.length; i++) {
 
             WebdavFile file = null;
-            String filePath = ("/" + fromDir + "/" + resources[i].getPath()).replaceAll("//", "/");
+            String filePath = getFullPath(fromDir, resources[i].getPath());
 
             if (secure) {
 
@@ -149,9 +149,18 @@ public class WebDavConnection implements FileSystemConnection {
     }
 
     @Override
-    public InputStream readFile(String file, String fromDir) throws Exception {
+    public boolean exists(String file, String path) {
+        try {
+            client.setPath(getFullPath(path, file));
+            return client.exists();
+        } catch (IOException e) {
+            return false;
+        }
+    }
 
-        String fullPath = ("/" + fromDir + "/" + file).replaceAll("//", "/");
+    @Override
+    public InputStream readFile(String file, String fromDir) throws Exception {
+        String fullPath = getFullPath(fromDir, file);
 
         client.setPath(fullPath);
         if (client.isCollection()) {
@@ -174,8 +183,7 @@ public class WebDavConnection implements FileSystemConnection {
 
     @Override
     public void writeFile(String file, String toDir, boolean append, byte[] message) throws Exception {
-
-        String fullPath = ("/" + toDir + "/" + file).replaceAll("//", "/");
+        String fullPath = getFullPath(toDir, file);
 
         // first check if the toDir exists.
         client.setPath(toDir);
@@ -206,8 +214,7 @@ public class WebDavConnection implements FileSystemConnection {
 
     @Override
     public void delete(String file, String fromDir, boolean mayNotExist) throws Exception {
-
-        String fullPath = ("/" + fromDir + "/" + file).replaceAll("//", "/");
+        String fullPath = getFullPath(fromDir, file);
 
         if (!client.deleteMethod(fullPath)) {
             if (!mayNotExist) {
@@ -218,9 +225,8 @@ public class WebDavConnection implements FileSystemConnection {
 
     @Override
     public void move(String fromName, String fromDir, String toName, String toDir) throws Exception {
-
-        String sourcePath = ("/" + fromDir + "/" + fromName).replaceAll("//", "/");
-        String targetPath = ("/" + toDir + "/" + toName).replaceAll("//", "/");
+        String sourcePath = getFullPath(fromDir, fromName);
+        String targetPath = getFullPath(toDir, toName);
 
         // first check if the toDir exists.
         client.setPath(toDir);
@@ -300,5 +306,9 @@ public class WebDavConnection implements FileSystemConnection {
             logger.debug(e);
             return false;
         }
+    }
+    
+    private String getFullPath(String dir, String file) {
+        return ("/" + dir + "/" + file).replaceAll("//", "/");
     }
 }

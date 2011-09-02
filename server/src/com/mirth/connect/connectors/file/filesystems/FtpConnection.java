@@ -156,6 +156,15 @@ public class FtpConnection implements FileSystemConnection {
 		}
 		return v;
 	}
+	
+    @Override
+    public boolean exists(String file, String path) {
+        try {
+            return client.listFiles(path + "/" + file).length == 1;
+        } catch (IOException e) {
+            return false;
+        }
+    }
 
 	@Override
 	public boolean canRead(String readDir) {

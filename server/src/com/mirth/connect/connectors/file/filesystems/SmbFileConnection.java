@@ -150,6 +150,15 @@ public class SmbFileConnection implements FileSystemConnection {
             throw new MuleException(new Message("file", 1), e);
         }
     }
+    
+    @Override
+    public boolean exists(String file, String path) {
+        try {
+            return getSmbFile(share, getPath(path, file)).exists();    
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     @Override
     public boolean canRead(String readDir) {

@@ -48,17 +48,17 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
     public void doDispatch(UMOEvent event) throws Exception {
         monitoringController.updateStatus(connector, connectorType, Event.BUSY);
         MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
-        
+
         if (messageObject == null) {
             return;
         }
 
         FileSystemConnection fileSystemConnection = null;
         UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
-        
+
         try {
             String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
-            
+
             if (filename == null) {
                 String pattern = (String) event.getProperty(FileConnector.PROPERTY_OUTPUT_PATTERN);
 
@@ -77,16 +77,27 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
             String path = generateFilename(event, connector.getPathPart(uri), messageObject);
             String template = replacer.replaceValues(connector.getTemplate(), messageObject);
 
-            byte[] buffer = null;
-            
+            byte[] bytes = null;
+
             if (connector.isBinary()) {
-                buffer = new Base64().decode(template.getBytes());
+                bytes = new Base64().decode(template.getBytes());
             } else {
-                buffer = template.getBytes(connector.getCharsetEncoding());
+                bytes = template.getBytes(connector.getCharsetEncoding());
             }
-            
+
             fileSystemConnection = connector.getConnection(uri, messageObject);
-            fileSystemConnection.writeFile(filename, path, connector.isOutputAppend(), buffer);
+
+            if (!connector.isOverwrite() && fileSystemConnection.exists(filename, path)) {
+                throw new IOException("Destination file already exists, will not overwrite.");
+            } else if (connector.isTemporary()) {
+                String tempFilename = filename + ".tmp";
+                logger.debug("writing temp file: " + tempFilename);
+                fileSystemConnection.writeFile(tempFilename, path, connector.isOutputAppend(), bytes);
+                logger.debug("renaming temp file: " + filename);
+                fileSystemConnection.move(tempFilename, path, filename, path);
+            } else {
+                fileSystemConnection.writeFile(filename, path, connector.isOutputAppend(), bytes);
+            }
 
             // update the message status to sent
             messageObjectController.setSuccess(messageObject, "File successfully written: " + filename, null);
@@ -98,7 +109,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
             if (fileSystemConnection != null) {
                 connector.releaseConnection(uri, fileSystemConnection, messageObject);
             }
-            
+
             monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
     }
@@ -134,7 +145,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
     }
 
     public void doDispose() {
-        
+
     }
 
     private String generateFilename(UMOEvent event, String pattern, MessageObject messageObject) {

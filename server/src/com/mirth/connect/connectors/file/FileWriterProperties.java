@@ -32,6 +32,8 @@ public class FileWriterProperties implements ComponentProperties {
     public static final String FILE_TYPE = "binary";
     public static final String FILE_TIMEOUT = "timeout";
     public static final String FILE_SCHEME = "scheme";
+    public static final String FILE_TEMPORARY = "temporary";
+    public static final String FILE_OVERWRITE = "overwrite";
 
     public static final String SCHEME_FILE = "file";
     public static final String SCHEME_FTP = "ftp";
@@ -57,6 +59,8 @@ public class FileWriterProperties implements ComponentProperties {
         properties.put(FILE_TYPE, "0");
         properties.put(FILE_TIMEOUT, "10000");
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
+        properties.put(FILE_TEMPORARY, "0");
+        properties.put(FILE_OVERWRITE, "1");
         return properties;
     }
 
