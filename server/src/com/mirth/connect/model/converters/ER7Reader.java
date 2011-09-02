@@ -80,30 +80,31 @@ public class ER7Reader extends SAXParser {
         String escapeCharacter = DEFAULT_ESCAPE_CHARACTER;
         String subcomponentSeparator = DEFAULT_SUBCOMPONENT_TERMINATOR;
 
-        // grab the actual separators from the message
+        // if we have a header, grab the actual separators from the message
+        if (message.substring(0, 3).equalsIgnoreCase("MSH")) {
+            fieldSeparator = new String(new char[] { message.charAt(3) });
 
-        fieldSeparator = new String(new char[] { message.charAt(3) });
+            int nextDelimeter = message.indexOf(message.charAt(3), 4);
 
-        int nextDelimeter = message.indexOf(message.charAt(3), 4);
+            if (nextDelimeter > 4) {
+                // usually ^
+                componentSeparator = new String(new char[] { message.charAt(4) });
+            }
 
-        if (nextDelimeter > 4) {
-            // usually ^
-            componentSeparator = new String(new char[] { message.charAt(4) });
-        }
+            if (nextDelimeter > 5) {
+                // usually ~
+                repetitionSeparator = new String(new char[] { message.charAt(5) });
+            }
 
-        if (nextDelimeter > 5) {
-            // usually ~
-            repetitionSeparator = new String(new char[] { message.charAt(5) });
-        }
+            if (nextDelimeter > 6) {
+                // usually \
+                escapeCharacter = new String(new char[] { message.charAt(6) });
+            }
 
-        if (nextDelimeter > 6) {
-            // usually \
-            escapeCharacter = new String(new char[] { message.charAt(6) });
-        }
-
-        if (nextDelimeter > 7) {
-            // usually &
-            subcomponentSeparator = new String(new char[] { message.charAt(7) });
+            if (nextDelimeter > 7) {
+                // usually &
+                subcomponentSeparator = new String(new char[] { message.charAt(7) });
+            }
         }
 
         // replace the special case of ^~& with ^~\& (MIRTH-1544)
