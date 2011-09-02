@@ -160,7 +160,8 @@ public class FtpConnection implements FileSystemConnection {
     @Override
     public boolean exists(String file, String path) {
         try {
-            return client.listFiles(path + "/" + file).length == 1;
+            FTPFile[] files = client.listFiles(path + "/" + file);
+            return ((files != null) && (files.length == 1));
         } catch (IOException e) {
             return false;
         }
