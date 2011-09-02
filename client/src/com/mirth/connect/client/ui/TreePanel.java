@@ -393,8 +393,19 @@ public class TreePanel extends javax.swing.JPanel {
 
                 if (xmlDoc != null) {
                     Map<String, String> metadata = serializer.getMetadataFromDocument(xmlDoc);
-                    version = metadata.get("version").trim();
-                    type = metadata.get("type").trim();
+                    
+                    if (metadata.get("version") != null) {
+                        version = metadata.get("version").trim();    
+                    } else {
+                        version = "Missing version";
+                    }
+                    
+                    if (metadata.get("type") != null) {
+                        type = metadata.get("type").trim();    
+                    } else {
+                        type = "Missing type";
+                    }
+                    
                     messageName = type + " (" + version + ")";
                     vocabulary = MessageVocabularyFactory.getInstance(PlatformUI.MIRTH_FRAME.mirthClient).getVocabulary(protocol, version, type);
                     messageDescription = vocabulary.getDescription(type.replaceAll("-", ""));
