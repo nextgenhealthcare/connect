@@ -242,12 +242,20 @@ public class FtpConnection implements FileSystemConnection {
 	}
 
 	private void cdmake(String dir) throws Exception {
-
+	    // See MIRTH-1873
+	    if (dir.equals("/")) {
+	        return;
+	    }
+	    
 		if (!client.changeWorkingDirectory(dir)) {
 			if (!client.makeDirectory(dir)) {
 				String tempDir = dir;
+				
 				if (tempDir.startsWith("/")) {
+				    // strip the first forward slash
 					tempDir = tempDir.substring(1);
+					
+					// cd into the base directory
 					if (!client.changeWorkingDirectory("/")) {
 						throw new Exception("Unable to change to destination directory: /");
 					}
@@ -259,9 +267,11 @@ public class FtpConnection implements FileSystemConnection {
 					for (int i = 0; i < dirs.length; i++) {
 						if (!client.changeWorkingDirectory(dirs[i])) {
 							logger.debug("Making directory: " + dirs[i]);
+							
 							if (!client.makeDirectory(dirs[i])) {
 								throw new Exception("Unable to make destination directory: " + dirs[i]);
 							}
+							
 							if (!client.changeWorkingDirectory(dirs[i])) {
 								throw new Exception("Unable to change to destination directory: " + dirs[i]);
 							}
