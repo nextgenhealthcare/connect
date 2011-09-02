@@ -51,7 +51,10 @@ public class JdbcConnectorService implements ConnectorService {
                 String schema = null;
 
                 Class.forName(driver);
+                int oldLoginTimeout = DriverManager.getLoginTimeout();
+                DriverManager.setLoginTimeout(30);
                 connection = DriverManager.getConnection(address, user, password);
+                DriverManager.setLoginTimeout(oldLoginTimeout);
                 DatabaseMetaData dbMetaData = connection.getMetaData();
                 
                 // the sorted set to hold the table information
