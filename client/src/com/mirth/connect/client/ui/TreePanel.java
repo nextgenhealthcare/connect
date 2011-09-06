@@ -397,13 +397,13 @@ public class TreePanel extends javax.swing.JPanel {
                     if (metadata.get("version") != null) {
                         version = metadata.get("version").trim();    
                     } else {
-                        version = "Missing version";
+                        version = "Unknown version";
                     }
                     
                     if (metadata.get("type") != null) {
                         type = metadata.get("type").trim();    
                     } else {
-                        type = "Missing type";
+                        type = "Unknown type";
                     }
                     
                     messageName = type + " (" + version + ")";
