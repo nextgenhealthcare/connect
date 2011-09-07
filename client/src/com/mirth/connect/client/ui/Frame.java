@@ -1862,7 +1862,7 @@ public class Frame extends JXFrame {
         }
 
         if (missingConnectors.size() > 0) {
-            String errorText = "Your Mirth installation is missing required connectors for this channel:\n";
+            String errorText = "Your Mirth Connect installation is missing required connectors for this channel:\n";
             for (String s : missingConnectors) {
                 errorText += s + "\n";
             }
