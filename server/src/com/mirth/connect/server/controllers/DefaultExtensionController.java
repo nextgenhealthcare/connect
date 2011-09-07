@@ -113,6 +113,10 @@ public class DefaultExtensionController extends ExtensionController {
                 try {
                     MetaData metaData = (MetaData) serializer.fromXML(FileUtils.readFileToString(extensionFile));
                     
+                    if (!getPluginProperties(metaData.getName()).contains("enabled")) {
+                        setExtensionEnabled(metaData.getName(), true);
+                    }
+                    
                     if (metaData instanceof ConnectorMetaData) {
                         ConnectorMetaData connectorMetaData = (ConnectorMetaData) metaData;
                         connectorMetaDataMap.put(connectorMetaData.getName(), connectorMetaData);
