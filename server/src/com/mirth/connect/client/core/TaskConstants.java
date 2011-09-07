@@ -137,7 +137,6 @@ public class TaskConstants {
     
     // Extensions Tasks
     public static final String EXTENSIONS_REFRESH = "doRefreshExtensions";
-    public static final String EXTENSIONS_SAVE = "doSaveExtensions";
     public static final String EXTENSIONS_CHECK_FOR_UPDATES = "doCheckForUpdates";
     public static final String EXTENSIONS_ENABLE = "doEnableExtension";
     public static final String EXTENSIONS_DISABLE = "doDisableExtension";

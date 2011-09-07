@@ -24,6 +24,7 @@ import javax.swing.event.ListSelectionListener;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.CellData;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.ImageCellRenderer;
@@ -56,6 +57,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
     public ExtensionManagerPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        setRestartRequired(false);
         makeLoadedConnectorsTable();
         makeLoadedPluginsTable();
     }
@@ -116,11 +118,11 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
         
         // Change the current task to reflect the new status
         if (enabled) {
-            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, 3, false);
-            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 4, 4, true);
-        } else {
+            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, 2, false);
             parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, 3, true);
-            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 4, 4, false);
+        } else {
+            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, 2, true);
+            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, 3, false);
         }
     }
 
@@ -209,24 +211,6 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
         updateLoadedConnectorsTable();
     }
 
-    public void saveConnectorData() {
-        saveExtensionData(loadedConnectorsTable, connectorData);
-    }
-
-    private void saveExtensionData(MirthTable pluginTable, Map<String, ? extends MetaData> extensionData) {
-        RefreshTableModel model = (RefreshTableModel) pluginTable.getModel();
-        for (int i = 0; i < model.getRowCount(); i++) {
-            String extensionName = (String) model.getValueAt(i, PLUGIN_NAME_COLUMN_NUMBER);
-            CellData extensionStatus = (CellData) model.getValueAt(i, PLUGIN_STATUS_COLUMN_NUMBER);
-
-            boolean enabled = true;
-            if (extensionStatus.getText().equalsIgnoreCase("Disabled")) {
-                enabled = false;
-            }
-//            extensionData.get(extensionName).setEnabled(enabled);
-        }
-    }
-
     public void updateLoadedConnectorsTable() {
         Object[][] tableData = null;
         int tableSize = 0;
@@ -237,8 +221,14 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
 
             int i = 0;
             for (ConnectorMetaData metaData : connectorData.values()) {
-//                if (metaData.isEnabled()) {
-                if (true) {
+                boolean enabled = false;
+                try {
+                    enabled = parent.mirthClient.isExtensionEnabled(metaData.getName());
+                } catch (ClientException e) {
+                    // Show a plugin as disabled if the status cannot be retrieved
+                }
+                
+                if (enabled) {
                     tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
                 } else {
                     tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
@@ -290,13 +280,13 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
         if (row >= 0 && row < loadedConnectorsTable.getRowCount()) {
             loadedPluginsTable.clearSelection();
 
-            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, -1, true);
+            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, -1, true);
 
             int columnNumber = loadedConnectorsTable.getColumnViewIndex(PLUGIN_STATUS_COLUMN_NAME);
             if (((CellData) loadedConnectorsTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS)) {
-                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, 3, false);
+                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, 2, false);
             } else {
-                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 4, 4, false);
+                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, 3, false);
             }
         }
     }
@@ -321,13 +311,9 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
 
     public void deselectConnectorRows() {
         loadedConnectorsTable.clearSelection();
-        parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, -1, false);
+        parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, -1, false);
     }
 
-    /**
-     * Makes the alert table with a parameter that is true if a new alert should
-     * be added as well.
-     */
     public void makeLoadedPluginsTable() {
         updateLoadedPluginsTable();
 
@@ -391,10 +377,6 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
         updateLoadedPluginsTable();
     }
 
-    public void savePluginData() {
-        saveExtensionData(loadedPluginsTable, pluginData);
-    }
-
     public void updateLoadedPluginsTable() {
         Object[][] tableData = null;
         int tableSize = 0;
@@ -405,8 +387,14 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
 
             int i = 0;
             for (PluginMetaData metaData : pluginData.values()) {
-//                if (metaData.isEnabled()) {
-                if (true) {
+                boolean enabled = false;
+                try {
+                    enabled = parent.mirthClient.isExtensionEnabled(metaData.getName());
+                } catch (ClientException e) {
+                    // Show a plugin as disabled if the status cannot be retrieved
+                }
+                
+                if (enabled) {
                     tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
                 } else {
                     tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
@@ -458,13 +446,13 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
         if (row >= 0 && row < loadedPluginsTable.getRowCount()) {
             loadedConnectorsTable.clearSelection();
 
-            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, -1, true);
+            parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, -1, true);
 
             int columnNumber = loadedPluginsTable.getColumnViewIndex(PLUGIN_STATUS_COLUMN_NAME);
             if (((CellData) loadedPluginsTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS)) {
-                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, 3, false);
+                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, 2, false);
             } else {
-                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 4, 4, false);
+                parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, 3, false);
             }
         }
     }
@@ -489,7 +477,11 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
 
     public void deselectPluginRows() {
         loadedPluginsTable.clearSelection();
-        parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 3, -1, false);
+        parent.setVisibleTasks(parent.extensionsTasks, parent.extensionsPopupMenu, 2, -1, false);
+    }
+    
+    public void setRestartRequired(boolean restartRequired) {
+        restartRequiredPanel.setVisible(restartRequired);
     }
 
     /** This method is called from within the constructor to
@@ -503,7 +495,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
         loadedPluginsPanel = new javax.swing.JPanel();
         loadedPluginsScrollPane = new javax.swing.JScrollPane();
         loadedPluginsTable = null;
-        jPanel1 = new javax.swing.JPanel();
+        installExtensionPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         fileText = new javax.swing.JTextField();
         browseButton = new javax.swing.JButton();
@@ -511,6 +503,8 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
         loadedConnectorsPanel = new javax.swing.JPanel();
         loadedConnectorsScrollPane = new javax.swing.JScrollPane();
         loadedConnectorsTable = null;
+        restartRequiredPanel = new javax.swing.JPanel();
+        restartRequiredLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -527,11 +521,11 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
         );
         loadedPluginsPanelLayout.setVerticalGroup(
             loadedPluginsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(loadedPluginsScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+            .addComponent(loadedPluginsScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE)
         );
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Install Extension from File System", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        installExtensionPanel.setBackground(new java.awt.Color(255, 255, 255));
+        installExtensionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Install Extension from File System", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
         jLabel1.setText("File:");
 
@@ -549,11 +543,11 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout installExtensionPanelLayout = new javax.swing.GroupLayout(installExtensionPanel);
+        installExtensionPanel.setLayout(installExtensionPanelLayout);
+        installExtensionPanelLayout.setHorizontalGroup(
+            installExtensionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(installExtensionPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -563,9 +557,9 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(installButton))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+        installExtensionPanelLayout.setVerticalGroup(
+            installExtensionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(installExtensionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                 .addComponent(jLabel1)
                 .addComponent(installButton)
                 .addComponent(browseButton)
@@ -585,7 +579,27 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
         );
         loadedConnectorsPanelLayout.setVerticalGroup(
             loadedConnectorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(loadedConnectorsScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
+            .addComponent(loadedConnectorsScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE)
+        );
+
+        restartRequiredPanel.setBackground(new java.awt.Color(255, 255, 204));
+
+        restartRequiredLabel.setForeground(new java.awt.Color(204, 0, 0));
+        restartRequiredLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        restartRequiredLabel.setText("The Mirth Connect Server and Administrator must be restarted before your changes will take effect.");
+
+        javax.swing.GroupLayout restartRequiredPanelLayout = new javax.swing.GroupLayout(restartRequiredPanel);
+        restartRequiredPanel.setLayout(restartRequiredPanelLayout);
+        restartRequiredPanelLayout.setHorizontalGroup(
+            restartRequiredPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(restartRequiredPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(restartRequiredLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        restartRequiredPanelLayout.setVerticalGroup(
+            restartRequiredPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(restartRequiredLabel)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -595,20 +609,23 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(restartRequiredPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(loadedConnectorsPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(loadedPluginsPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(installExtensionPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(loadedPluginsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(loadedConnectorsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(loadedPluginsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(restartRequiredPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(installExtensionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -630,7 +647,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
                 parent.setWorking("", false);
                 installButton.setEnabled(true);
                 if (retVal) {
-                    parent.finishExtensionInstall();
+                    setRestartRequired(true);
                     fileText.setText("");
                 }
             }
@@ -653,13 +670,15 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
     private javax.swing.JButton browseButton;
     private javax.swing.JTextField fileText;
     private javax.swing.JButton installButton;
+    private javax.swing.JPanel installExtensionPanel;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel loadedConnectorsPanel;
     private javax.swing.JScrollPane loadedConnectorsScrollPane;
     private com.mirth.connect.client.ui.components.MirthTable loadedConnectorsTable;
     private javax.swing.JPanel loadedPluginsPanel;
     private javax.swing.JScrollPane loadedPluginsScrollPane;
     private com.mirth.connect.client.ui.components.MirthTable loadedPluginsTable;
+    private javax.swing.JLabel restartRequiredLabel;
+    private javax.swing.JPanel restartRequiredPanel;
     // End of variables declaration//GEN-END:variables
 }

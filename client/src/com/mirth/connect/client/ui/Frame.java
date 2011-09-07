@@ -622,9 +622,8 @@ public class Frame extends JXFrame {
         
         // Extensions Pane
         setVisibleTasks(extensionsTasks, extensionsPopupMenu, 0, 0, true);
-        setVisibleTasks(extensionsTasks, extensionsPopupMenu, 1, 1, false);
-        setVisibleTasks(extensionsTasks, extensionsPopupMenu, 2, 2, true);
-        setVisibleTasks(extensionsTasks, extensionsPopupMenu, 3, -1, false);
+        setVisibleTasks(extensionsTasks, extensionsPopupMenu, 1, 1, true);
+        setVisibleTasks(extensionsTasks, extensionsPopupMenu, 2, -1, false);
         
         // Other Pane
         setVisibleTasks(otherPane, null, 0, -1, true);
@@ -884,7 +883,6 @@ public class Frame extends JXFrame {
         extensionsTasks.setFocusable(false);
 
         addTask(TaskConstants.EXTENSIONS_REFRESH, "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), extensionsTasks, extensionsPopupMenu);
-        addTask(TaskConstants.EXTENSIONS_SAVE, "Save", "Save plugin settings.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disk.png")), extensionsTasks, extensionsPopupMenu);
         addTask(TaskConstants.EXTENSIONS_CHECK_FOR_UPDATES, "Check for Updates", "Checks all extensions for updates.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/world_link.png")), extensionsTasks, extensionsPopupMenu);
         addTask(TaskConstants.EXTENSIONS_ENABLE, "Enable Extension", "Enable the currently selected extension.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png")), extensionsTasks, extensionsPopupMenu);
         addTask(TaskConstants.EXTENSIONS_DISABLE, "Disable Extension", "Disable the currently selected extension.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_stop_blue.png")), extensionsTasks, extensionsPopupMenu);
@@ -1241,14 +1239,6 @@ public class Frame extends JXFrame {
             } else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
                 return false;
             }
-        } else if (currentContentPage == extensionsPanel && isSaveEnabled()) {
-            int option = JOptionPane.showConfirmDialog(this, "Would you like to save the extensions?");
-
-            if (option == JOptionPane.YES_OPTION) {
-                doSaveExtensions();
-            } else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
-                return false;
-            }
         }
 
         setSaveEnabled(false);
@@ -1577,8 +1567,6 @@ public class Frame extends JXFrame {
             setVisibleTasks(globalScriptsTasks, globalScriptsPopupMenu, 0, 0, enabled);
         } else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel) {
             setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 1, 1, enabled);
-        } else if (extensionsPanel != null && currentContentPage == extensionsPanel) {
-            setVisibleTasks(extensionsTasks, extensionsPopupMenu, 1, 1, enabled);
         }
     }
     
@@ -1602,8 +1590,6 @@ public class Frame extends JXFrame {
             enabled = globalScriptsTasks.getContentPane().getComponent(0).isVisible();
         } else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel) {
             enabled = codeTemplateTasks.getContentPane().getComponent(1).isVisible();
-        } else if (extensionsPanel != null && currentContentPage == extensionsPanel) {
-            enabled = extensionsTasks.getContentPane().getComponent(1).isVisible();
         }
         
         return enabled;
@@ -4030,36 +4016,6 @@ public class Frame extends JXFrame {
         extensionsPanel.setConnectorData(getConnectorMetaData());
     }
     
-    public void doSaveExtensions() {
-        setWorking("Saving extension settings...", true);
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-//                try {
-                    // Save the settings on the extensions panel
-                    extensionsPanel.savePluginData();
-                    extensionsPanel.saveConnectorData();
-
-                    // Save the meta data to the server
-//                    mirthClient.setPluginMetaData(getPluginMetaData());
-//                    mirthClient.setConnectorMetaData(getConnectorMetaData());
-//                } catch (ClientException e) {
-//                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-//                }
-                return null;
-            }
-
-            public void done() {
-                setSaveEnabled(false);
-                setWorking("", false);
-                alertInformation(PlatformUI.MIRTH_FRAME, "A restart is required before your changes will take effect.");
-            }
-        };
-
-        worker.execute();
-    }
-    
     public void doCheckForUpdates() {
         try {
             new ExtensionUpdateDialog();
@@ -4069,13 +4025,61 @@ public class Frame extends JXFrame {
     }
     
     public void doEnableExtension() {
-        extensionsPanel.setSelectedExtensionEnabled(true);
-        setSaveEnabled(true);
+        setWorking("Enabling extension...", true);
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            private boolean success = true;
+
+            public Void doInBackground() {
+                try {
+                    mirthClient.setExtensionEnabled(extensionsPanel.getSelectedExtension().getName(), true);
+                } catch (ClientException e) {
+                    success = false;
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
+                
+                return null;
+            }
+
+            public void done() {
+                if (success) {
+                    extensionsPanel.setSelectedExtensionEnabled(true);
+                    extensionsPanel.setRestartRequired(true);
+                }
+                setWorking("", false);
+            }
+        };
+
+        worker.execute();
     }
     
     public void doDisableExtension() {
-        extensionsPanel.setSelectedExtensionEnabled(false);
-        setSaveEnabled(true);
+        setWorking("Disabling extension...", true);
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            private boolean success = true;
+
+            public Void doInBackground() {
+                try {
+                    mirthClient.setExtensionEnabled(extensionsPanel.getSelectedExtension().getName(), false);
+                } catch (ClientException e) {
+                    success = false;
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
+                
+                return null;
+            }
+
+            public void done() {
+                if (success) {
+                    extensionsPanel.setSelectedExtensionEnabled(false);
+                    extensionsPanel.setRestartRequired(true);
+                }
+                setWorking("", false);
+            }
+        };
+
+        worker.execute();
     }
     
     public void doShowExtensionProperties() {
@@ -4086,6 +4090,7 @@ public class Frame extends JXFrame {
         setWorking("Uninstalling extension...", true);
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            private boolean success = true;
 
             public Void doInBackground() {
                 String packageName = extensionsPanel.getSelectedExtension().getPath();
@@ -4094,16 +4099,18 @@ public class Frame extends JXFrame {
                     try {
                         mirthClient.uninstallExtension(packageName);
                     } catch (ClientException e) {
+                        success = false;
                         alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
-                    
-                    alertInformation(PlatformUI.MIRTH_FRAME, "The Mirth Connect server must be restarted for the extension(s) to be uninstalled.");
                 }
 
                 return null;
             }
 
             public void done() {
+                if (success) {
+                    extensionsPanel.setRestartRequired(true);
+                }
                 setWorking("", false);
             }
         };
@@ -4139,10 +4146,6 @@ public class Frame extends JXFrame {
             return false;
         }
         return true;
-    }
-
-    public void finishExtensionInstall() {
-        alertInformation(this, "The Mirth Connect server must be restarted for the extension(s) to load.");
     }
     ///// End Extension Tasks /////
     
@@ -4184,8 +4187,6 @@ public class Frame extends JXFrame {
             settingsPane.getCurrentSettingsPanel().doSave();
         } else if (currentContentPage == alertPanel) {
             doSaveAlerts();
-        } else if (currentContentPage == extensionsPanel) {
-            doSaveExtensions();
         }
     }
     

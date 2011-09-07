@@ -273,7 +273,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog {
                 installSelectedButton.setEnabled(true);
                 if (installedUpdates) {
                     statusLabel.setText("Updates installed!");
-                    parent.finishExtensionInstall();
+                    parent.alertInformation(progressBar, "The Mirth Connect server must be restarted for the extension(s) to load.");
                     dispose();
                 }
             }
