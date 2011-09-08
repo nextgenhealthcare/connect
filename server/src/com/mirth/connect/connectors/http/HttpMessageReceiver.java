@@ -30,6 +30,7 @@ import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageReceiver;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
@@ -51,7 +52,8 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
     private ConnectorType connectorType = ConnectorType.LISTENER;
     private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-
+    private final TemplateValueReplacer replacer = new TemplateValueReplacer();
+    
     private Server server = null;
 
     private class RequestHandler extends AbstractHandler {
@@ -112,7 +114,13 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
 
         // add the request handler
         ContextHandler contextHandler = new ContextHandler();
-        contextHandler.setContextPath(StringUtils.defaultString(connector.getReceiverContextPath(), "/"));
+        String contextPath = replacer.replaceValues(connector.getReceiverContextPath());
+        
+        if (!contextPath.startsWith("/")) {
+            contextPath = "/" + contextPath;
+        }
+        
+        contextHandler.setContextPath(contextPath);
         contextHandler.setHandler(new RequestHandler());
         server.setHandler(contextHandler);
 
