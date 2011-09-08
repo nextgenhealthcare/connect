@@ -3,9 +3,11 @@ package com.mirth.connect.connectors.smtp;
 import java.util.Properties;
 
 import org.apache.commons.mail.Email;
+import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 
 import com.mirth.connect.connectors.ConnectorService;
+import com.mirth.connect.util.ConnectionTestResponse;
 
 public class SmtpConnectorService implements ConnectorService {
 
@@ -48,7 +50,13 @@ public class SmtpConnectorService implements ConnectorService {
             email.addTo(to);
             email.setFrom(from);
             email.setMsg("This is a test email from Mirth Connect.");
-            return email.send();
+            
+            try {
+                email.send();
+                return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Sucessfully sent test email.");
+            } catch (EmailException e) {
+                return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, e.getMessage());
+            }
         }
 
         return null;
