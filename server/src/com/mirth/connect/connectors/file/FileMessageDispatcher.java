@@ -94,7 +94,6 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
                 logger.debug("writing temp file: " + tempFilename);
                 fileSystemConnection.writeFile(tempFilename, path, false, bytes);
                 logger.debug("renaming temp file: " + filename);
-                fileSystemConnection.delete(filename, path, true);
                 fileSystemConnection.move(tempFilename, path, filename, path);
             } else {
                 fileSystemConnection.writeFile(filename, path, connector.isOutputAppend(), bytes);
