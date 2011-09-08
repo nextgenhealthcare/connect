@@ -92,8 +92,9 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
             } else if (connector.isTemporary()) {
                 String tempFilename = filename + ".tmp";
                 logger.debug("writing temp file: " + tempFilename);
-                fileSystemConnection.writeFile(tempFilename, path, connector.isOutputAppend(), bytes);
+                fileSystemConnection.writeFile(tempFilename, path, false, bytes);
                 logger.debug("renaming temp file: " + filename);
+                fileSystemConnection.delete(filename, path, true);
                 fileSystemConnection.move(tempFilename, path, filename, path);
             } else {
                 fileSystemConnection.writeFile(filename, path, connector.isOutputAppend(), bytes);
