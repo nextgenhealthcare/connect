@@ -165,7 +165,7 @@ public class UserServlet extends MirthServlet {
             // if the version of the client in is not the same as the server and
             // the version is not 0.0.0 (bypass)
             if (!version.equals(configurationController.getServerVersion()) && !version.equals("0.0.0")) {
-                loginStatus = new LoginStatus(LoginStatus.Status.FAIL_VERSION_MISMATCH, "Mirth Connect Server version " + configurationController.getServerVersion() + " cannot be connected to from Administrator version " + version + ". Please clear your Java cache and relaunch the Administrator from the Server webpage.");
+                loginStatus = new LoginStatus(LoginStatus.Status.FAIL_VERSION_MISMATCH, "Mirth Connect Administrator version " + version + " cannot conect to Server version " + configurationController.getServerVersion() + ". Please clear your Java cache and relaunch the Administrator from the Server webpage.");
             } else {
                 HttpSession session = request.getSession();
 
