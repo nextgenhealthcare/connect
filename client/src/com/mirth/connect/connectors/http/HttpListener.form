@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
@@ -35,6 +35,7 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="contextPathLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="listenerAddressLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="listenerPortLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="messageContentLabel" min="-2" max="-2" attributes="0"/>
@@ -60,6 +61,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="messageContentHeadersQueryAndBodyRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="contextPathField" min="-2" pref="150" max="-2" attributes="0"/>
               </Group>
               <EmptySpace pref="21" max="32767" attributes="0"/>
           </Group>
@@ -78,6 +80,11 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="listenerPortField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="listenerPortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="contextPathLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="contextPathField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -273,6 +280,16 @@
     <Component class="javax.swing.JLabel" name="charsetEncodingLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Charset Encoding:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="contextPathLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Context Path:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="contextPathField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The context path for the HTTP Listener URL."/>
       </Properties>
     </Component>
   </SubComponents>

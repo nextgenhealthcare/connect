@@ -45,6 +45,7 @@ public class HttpListener extends ConnectorClass {
         properties.put(HttpListenerProperties.DATATYPE, name);
         properties.put(HttpListenerProperties.HTTP_HOST, listenerAddressField.getText());
         properties.put(HttpListenerProperties.HTTP_PORT, listenerPortField.getText());
+        properties.put(HttpListenerProperties.HTTP_CONTEXT_PATH, contextPathField.getText());
 
         if (messageContentBodyOnlyRadio.isSelected()) {
             properties.put(HttpListenerProperties.HTTP_BODY_ONLY, UIConstants.YES_OPTION);
@@ -67,6 +68,7 @@ public class HttpListener extends ConnectorClass {
         updateListenerAddressRadio();
 
         listenerPortField.setText((String) props.get(HttpListenerProperties.HTTP_PORT));
+        contextPathField.setText((String) props.get(HttpListenerProperties.HTTP_CONTEXT_PATH));
 
         if (((String) props.get(HttpListenerProperties.HTTP_BODY_ONLY)).equals(UIConstants.YES_OPTION)) {
             messageContentBodyOnlyRadio.setSelected(true);
@@ -172,6 +174,8 @@ public class HttpListener extends ConnectorClass {
         responseContentTypeLabel = new javax.swing.JLabel();
         charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
         charsetEncodingLabel = new javax.swing.JLabel();
+        contextPathLabel = new javax.swing.JLabel();
+        contextPathField = new com.mirth.connect.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -253,6 +257,10 @@ public class HttpListener extends ConnectorClass {
 
         charsetEncodingLabel.setText("Charset Encoding:");
 
+        contextPathLabel.setText("Context Path:");
+
+        contextPathField.setToolTipText("The context path for the HTTP Listener URL.");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -260,6 +268,7 @@ public class HttpListener extends ConnectorClass {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(contextPathLabel)
                     .addComponent(listenerAddressLabel)
                     .addComponent(listenerPortLabel)
                     .addComponent(messageContentLabel)
@@ -281,7 +290,8 @@ public class HttpListener extends ConnectorClass {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(messageContentBodyOnlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(messageContentHeadersQueryAndBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(messageContentHeadersQueryAndBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(contextPathField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(21, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -296,6 +306,10 @@ public class HttpListener extends ConnectorClass {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(listenerPortLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(contextPathLabel)
+                    .addComponent(contextPathField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(messageContentLabel)
@@ -433,6 +447,8 @@ public class HttpListener extends ConnectorClass {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private javax.swing.JLabel charsetEncodingLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField contextPathField;
+    private javax.swing.JLabel contextPathLabel;
     private javax.swing.ButtonGroup includeHeadersGroup;
     private javax.swing.ButtonGroup listenerAddressButtonGroup;
     private com.mirth.connect.client.ui.components.MirthTextField listenerAddressField;
