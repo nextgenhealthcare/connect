@@ -726,7 +726,7 @@ private void sendTestEmailButtonActionPerformed(java.awt.event.ActionEvent evt) 
                 ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "sendTestEmail", getProperties());
                 
                 if (response == null) {
-                    throw new ClientException("Failed to send email.");
+                    parent.alertError(parent, "Failed to send email.");
                 } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
                     parent.alertInformation(parent, response.getMessage());
                 } else {
@@ -734,8 +734,8 @@ private void sendTestEmailButtonActionPerformed(java.awt.event.ActionEvent evt) 
                 }
                 
                 return null;
-            } catch (ClientException e) {
-                parent.alertError(parent, e.getMessage());
+            } catch (Exception e) {
+                parent.alertException(parent, e.getStackTrace(), e.getMessage());
                 return null;
             }
         }
