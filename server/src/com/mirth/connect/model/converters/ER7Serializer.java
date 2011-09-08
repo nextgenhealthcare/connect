@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -162,8 +163,12 @@ public class ER7Serializer implements IXMLSerializer<String> {
                  */
 
                 String segmentSeparator = "\r";
-                // usually |
                 String fieldSeparator = getNodeValue(source, "<MSH.1>", "</MSH.1>");
+                
+                if (StringUtils.isEmpty(fieldSeparator)) {
+                    fieldSeparator = "|";
+                }
+                
                 String componentSeparator = "^";
                 String repetitionSeparator = "~";
                 String subcomponentSeparator = "&";
@@ -266,42 +271,46 @@ public class ER7Serializer implements IXMLSerializer<String> {
             if ((source == null) || (source.length() < 3)) {
                 logger.error("Unable to parse, message is null or too short: " + source);
                 throw new SerializerException("Unable to parse, message is null or too short: " + source);
-            }
+            } else if (source.substring(0, 3).equalsIgnoreCase("MSH")) {
+                String segmentDelimeter = "\r";
+                String fieldDelimeter = String.valueOf(source.charAt(3));
+                String elementDelimeter = String.valueOf(source.charAt(4));
+                String mshFields[] = source.split(segmentDelimeter)[0].split(Pattern.quote(fieldDelimeter));
+                Pattern elementPattern = Pattern.compile(Pattern.quote(elementDelimeter));
 
-            String segmentDelimeter = "\r";
-            String fieldDelimeter = String.valueOf(source.charAt(3));
-            String elementDelimeter = String.valueOf(source.charAt(4));
-            String mshFields[] = source.split(segmentDelimeter)[0].split(Pattern.quote(fieldDelimeter));
-            Pattern elementPattern = Pattern.compile(Pattern.quote(elementDelimeter));
+                if (mshFields.length > 8) {
+                    // MSH.9
+                    String[] msh9 = elementPattern.split(mshFields[8]);
+                    // MSH.9.1
+                    String type = msh9[0];
 
-            if (mshFields.length > 8) {
-                // MSH.9
-                String[] msh9 = elementPattern.split(mshFields[8]);
-                // MSH.9.1
-                String type = msh9[0];
+                    if (msh9.length > 1) {
+                        // MSH.9.2
+                        type += "-" + msh9[1];
+                    }
 
-                if (msh9.length > 1) {
-                    // MSH.9.2
-                    type += "-" + msh9[1];
+                    metadata.put("type", type);
+                } else {
+                    metadata.put("type", "Unknown");
                 }
 
-                metadata.put("type", type);
+                if (mshFields.length > 3) {
+                    // MSH.4.1
+                    metadata.put("source", elementPattern.split(mshFields[3])[0]);
+                } else {
+                    metadata.put("source", "");
+                }
+
+                if (mshFields.length > 11) {
+                    // MSH.12.1
+                    metadata.put("version", elementPattern.split(mshFields[11])[0]);
+                } else {
+                    metadata.put("version", "");
+                }                
             } else {
                 metadata.put("type", "Unknown");
-            }
-
-            if (mshFields.length > 3) {
-                // MSH.4.1
-                metadata.put("source", elementPattern.split(mshFields[3])[0]);
-            } else {
-                metadata.put("source", "");
-            }
-
-            if (mshFields.length > 11) {
-                // MSH.12.1
-                metadata.put("version", elementPattern.split(mshFields[11])[0]);
-            } else {
-                metadata.put("version", "");
+                metadata.put("source", "Unknown");
+                metadata.put("version", "Unknown");
             }
 
             return metadata;
