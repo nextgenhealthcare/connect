@@ -139,7 +139,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     private boolean ignoreDot = true;
     private int timeout;
     private boolean temporary = true;
-    private boolean overwrite = true;
+    private boolean errorOnExists = true;
     
     public FileConnector() {
         filenameParser = new VariableFilenameParser();
@@ -750,12 +750,12 @@ public class FileConnector extends AbstractServiceEnabledConnector {
         this.temporary = temporary;
     }
 
-    public boolean isOverwrite() {
-        return overwrite;
+    public boolean isErrorOnExists() {
+        return errorOnExists;
     }
 
-    public void setOverwrite(boolean overwrite) {
-        this.overwrite = overwrite;
+    public void setErrorOnExists(boolean errorOnExists) {
+        this.errorOnExists = errorOnExists;
     }
     
 }

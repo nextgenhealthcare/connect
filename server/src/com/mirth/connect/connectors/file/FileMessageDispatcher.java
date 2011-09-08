@@ -87,7 +87,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 
             fileSystemConnection = connector.getConnection(uri, messageObject);
 
-            if (!connector.isOverwrite() && fileSystemConnection.exists(filename, path)) {
+            if (connector.isErrorOnExists() && fileSystemConnection.exists(filename, path)) {
                 throw new IOException("Destination file already exists, will not overwrite.");
             } else if (connector.isTemporary()) {
                 String tempFilename = filename + ".tmp";
