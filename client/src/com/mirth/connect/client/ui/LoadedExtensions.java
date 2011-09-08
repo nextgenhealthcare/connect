@@ -51,8 +51,6 @@ public class LoadedExtensions {
 
     private static LoadedExtensions instance = null;
 
-    private Frame parent = PlatformUI.MIRTH_FRAME;
-
     private LoadedExtensions() {
         // private
     }
@@ -72,9 +70,9 @@ public class LoadedExtensions {
         // initialized again
         clearExtensionMaps();
 
-        for (PluginMetaData metaData : parent.getPluginMetaData().values()) {
+        for (PluginMetaData metaData : PlatformUI.MIRTH_FRAME.getPluginMetaData().values()) {
             try {
-                if (parent.mirthClient.isExtensionEnabled(metaData.getName()) && (metaData.getClientClasses() != null)) {
+                if (PlatformUI.MIRTH_FRAME.mirthClient.isExtensionEnabled(metaData.getName()) && (metaData.getClientClasses() != null)) {
                     for (String clazzName : metaData.getClientClasses()) {
                         Class<?> clazz = Class.forName(clazzName);
                         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
@@ -93,13 +91,13 @@ public class LoadedExtensions {
                     }
                 }
             } catch (Exception e) {
-                parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
             }
         }
 
-        for (ConnectorMetaData metaData : parent.getConnectorMetaData().values()) {
+        for (ConnectorMetaData metaData : PlatformUI.MIRTH_FRAME.getConnectorMetaData().values()) {
             try {
-                if (parent.mirthClient.isExtensionEnabled(metaData.getName())) {
+                if (PlatformUI.MIRTH_FRAME.mirthClient.isExtensionEnabled(metaData.getName())) {
 
                     String connectorName = metaData.getName();
                     ConnectorClass connectorClass = (ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance();
@@ -116,7 +114,7 @@ public class LoadedExtensions {
                     }
                 }
             } catch (Exception e) {
-                parent.alertError(this.parent, "Could not load connector class: " + metaData.getClientClassName());
+                PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, "Could not load connector class: " + metaData.getClientClassName());
             }
         }
     }

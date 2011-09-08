@@ -40,14 +40,12 @@ public class ReferenceListFactory {
     public static final String USER_TEMPLATE_VARIABLES = "User Defined Variables";
     public static final String USER_TEMPLATE_CODE = "User Defined Code";
     public static final String USER_TEMPLATE_FUNCTIONS = "User Defined Functions";
-    private Frame parent = PlatformUI.MIRTH_FRAME;
     private static ReferenceListFactory instance;
     private LinkedHashMap<String, ArrayList<CodeTemplate>> references;
 
-    public ReferenceListFactory() {
+    private ReferenceListFactory() {
         references = new LinkedHashMap<String, ArrayList<CodeTemplate>>();
-        if (parent != null) // null parent check to let forms load in NetBeans
-        {
+        if (PlatformUI.MIRTH_FRAME != null) { // null parent check to let forms load in NetBeans
             setup();
         }
     }
@@ -97,7 +95,7 @@ public class ReferenceListFactory {
         ArrayList<CodeTemplate> variables = new ArrayList<CodeTemplate>();
         ArrayList<CodeTemplate> functions = new ArrayList<CodeTemplate>();
         ArrayList<CodeTemplate> code = new ArrayList<CodeTemplate>();
-        for (CodeTemplate template : parent.codeTemplates) {
+        for (CodeTemplate template : PlatformUI.MIRTH_FRAME.codeTemplates) {
             if (template.getType() == CodeSnippetType.VARIABLE) {
                 variables.add(template);
             }
@@ -117,7 +115,7 @@ public class ReferenceListFactory {
     }
 
     public ArrayList<CodeTemplate> getVariableListItems(String itemName, int context) {
-        if (parent != null) { // null parent check to let forms load in NetBeans
+        if (PlatformUI.MIRTH_FRAME != null) { // null parent check to let forms load in NetBeans
             updateUserTemplates();
         }
 
