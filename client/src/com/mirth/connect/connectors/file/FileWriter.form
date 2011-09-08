@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
@@ -13,6 +13,8 @@
     <Component class="javax.swing.ButtonGroup" name="buttonGroup5">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="buttonGroup6">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="buttonGroup7">
     </Component>
   </NonVisualComponents>
   <Properties>
@@ -42,6 +44,7 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="tempFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="templateLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="fileTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -53,7 +56,7 @@
                   <Component id="secureModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="validateConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="appendToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileExistsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="usernameLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="passiveModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="timeoutLabel" min="-2" max="-2" attributes="0"/>
@@ -92,9 +95,11 @@
                       <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="appendToFileYes" min="-2" max="-2" attributes="0"/>
+                      <Component id="fileExistsAppendRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="appendToFileNo" min="-2" max="-2" attributes="0"/>
+                      <Component id="fileExistsOverwriteRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="fileExistsErrorRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
@@ -109,6 +114,11 @@
                       <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="fileContentsTextPane" pref="430" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Component id="tempFileYesRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="tempFileNoRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -180,11 +190,18 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="appendToFileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="appendToFileYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="appendToFileNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileExistsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileExistsAppendRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileExistsOverwriteRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileExistsErrorRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="tempFileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="tempFileYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="tempFileNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="fileTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -198,7 +215,7 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="templateLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileContentsTextPane" pref="125" max="32767" attributes="0"/>
+                  <Component id="fileContentsTextPane" pref="104" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -430,7 +447,6 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="buttonGroup3"/>
         </Property>
-        <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
         <Property name="toolTipText" type="java.lang.String" value="Select No to skip testing the connection to the server before each operation."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
@@ -438,12 +454,12 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="appendToFileLabel">
+    <Component class="javax.swing.JLabel" name="fileExistsLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Append to file:"/>
+        <Property name="text" type="java.lang.String" value="File Exists:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="appendToFileYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="fileExistsAppendRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -456,14 +472,17 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="buttonGroup4"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Yes is selected, messages accepted by this destination will be appended to a single file specified in the File Name.&lt;br&gt;If No is selected, messages accepted by this destination will replace any existing file of the same name.&lt;br&gt;This feature will not work if a template is used for the File Name which generates a new file name when a message is processed.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Append"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &apos;append&apos; is selected, messages accepted by this destination will be appended to the file specified in the File Name.&lt;br&gt;If &apos;overwrite&apos; is selected, messages accepted by this destination will replace any existing file of the same name.&lt;br&gt;If &apos;error&apos; is selected and a file with the specified file name already exists, the message with error.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fileExistsAppendRadioActionPerformed"/>
+      </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="appendToFileNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="fileExistsOverwriteRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -476,13 +495,15 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="buttonGroup4"/>
         </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Yes is selected, messages accepted by this destination will be appended to a single file specified in the File Name.&lt;br&gt;If No is selected, messages accepted by this destination will replace any existing file of the same name.&lt;br&gt;This feature will not work if a template is used for the File Name which generates a new file name when a message is processed.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Overwrite"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &apos;append&apos; is selected, messages accepted by this destination will be appended to the file specified in the File Name.&lt;br&gt;If &apos;overwrite&apos; is selected, messages accepted by this destination will replace any existing file of the same name.&lt;br&gt;If &apos;error&apos; is selected and a file with the specified file name already exists, the message with error.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fileExistsOverwriteRadioActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="fileTypeLabel">
       <Properties>
@@ -630,6 +651,76 @@
     <Component class="javax.swing.JLabel" name="timeoutLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Timeout (ms):"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="fileExistsErrorRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="buttonGroup4"/>
+        </Property>
+        <Property name="selected" type="boolean" value="true"/>
+        <Property name="text" type="java.lang.String" value="Error"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &apos;append&apos; is selected, messages accepted by this destination will be appended to the file specified in the File Name.&lt;br&gt;If &apos;overwrite&apos; is selected, messages accepted by this destination will replace any existing file of the same name.&lt;br&gt;If &apos;error&apos; is selected and a file with the specified file name already exists, the message with error.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fileExistsErrorRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="tempFileLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Create Temp File:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tempFileYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="buttonGroup7"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &apos;yes&apos; is selected, the file contents will first be written to a temp file and then renamed to the specified file name.&lt;br&gt;If &apos;no&apos; is selected, the file contents will be written directly to the destination file.&lt;br&gt;Using a temp file is not an option if the specified file is being appended to.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tempFileNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="buttonGroup7"/>
+        </Property>
+        <Property name="selected" type="boolean" value="true"/>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &apos;yes&apos; is selected, the file contents will first be written to a temp file and then renamed to the specified file name.&lt;br&gt;If &apos;no&apos; is selected, the file contents will be written directly to the destination file.&lt;br&gt;Using a temp file is not an option if the specified file is being appended to.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
       </Properties>
     </Component>
   </SubComponents>

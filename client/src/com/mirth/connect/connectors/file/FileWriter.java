@@ -95,10 +95,21 @@ public class FileWriter extends ConnectorClass {
             properties.put(FileWriterProperties.FILE_VALIDATE_CONNECTION, UIConstants.NO_OPTION);
         }
 
-        if (appendToFileYes.isSelected()) {
+        if (fileExistsAppendRadio.isSelected()) {
             properties.put(FileWriterProperties.FILE_APPEND, UIConstants.YES_OPTION);
-        } else {
+            properties.put(FileWriterProperties.FILE_ERROR_ON_EXISTS, UIConstants.NO_OPTION);
+        } else if (fileExistsErrorRadio.isSelected()) {
             properties.put(FileWriterProperties.FILE_APPEND, UIConstants.NO_OPTION);
+            properties.put(FileWriterProperties.FILE_ERROR_ON_EXISTS, UIConstants.YES_OPTION);
+        } else { // overwrite
+            properties.put(FileWriterProperties.FILE_APPEND, UIConstants.NO_OPTION);
+            properties.put(FileWriterProperties.FILE_ERROR_ON_EXISTS, UIConstants.NO_OPTION);
+        }
+        
+        if (tempFileYesRadio.isSelected()) {
+            properties.put(FileWriterProperties.FILE_TEMPORARY, UIConstants.YES_OPTION);
+        } else {
+            properties.put(FileWriterProperties.FILE_TEMPORARY, UIConstants.NO_OPTION);
         }
 
         properties.put(FileWriterProperties.FILE_CONTENTS, fileContentsTextPane.getText());
@@ -244,13 +255,22 @@ public class FileWriter extends ConnectorClass {
             validateConnectionYes.setSelected(false);
             validateConnectionNo.setSelected(true);
         }
+        
+        if (((String) props.get(FileWriterProperties.FILE_TEMPORARY)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+            tempFileYesRadio.setSelected(true);
+        } else {
+            tempFileNoRadio.setSelected(true);
+        }
 
         if (((String) props.get(FileWriterProperties.FILE_APPEND)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
-            appendToFileYes.setSelected(true);
-            appendToFileNo.setSelected(false);
+            fileExistsAppendRadio.setSelected(true);
+            fileExistsAppendRadioActionPerformed(null);
+        } else if (((String) props.get(FileWriterProperties.FILE_ERROR_ON_EXISTS)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+            fileExistsErrorRadio.setSelected(true);
+            fileExistsErrorRadioActionPerformed(null);
         } else {
-            appendToFileYes.setSelected(false);
-            appendToFileNo.setSelected(true);
+            fileExistsOverwriteRadio.setSelected(true);
+            fileExistsOverwriteRadioActionPerformed(null);
         }
 
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(FileWriterProperties.CONNECTOR_CHARSET_ENCODING));
@@ -354,6 +374,7 @@ public class FileWriter extends ConnectorClass {
         buttonGroup4 = new javax.swing.ButtonGroup();
         buttonGroup5 = new javax.swing.ButtonGroup();
         buttonGroup6 = new javax.swing.ButtonGroup();
+        buttonGroup7 = new javax.swing.ButtonGroup();
         schemeLabel = new javax.swing.JLabel();
         schemeComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
         directoryLabel = new javax.swing.JLabel();
@@ -377,9 +398,9 @@ public class FileWriter extends ConnectorClass {
         validateConnectionLabel = new javax.swing.JLabel();
         validateConnectionYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         validateConnectionNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        appendToFileLabel = new javax.swing.JLabel();
-        appendToFileYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        appendToFileNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        fileExistsLabel = new javax.swing.JLabel();
+        fileExistsAppendRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        fileExistsOverwriteRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         fileTypeLabel = new javax.swing.JLabel();
         fileTypeBinary = new com.mirth.connect.client.ui.components.MirthRadioButton();
         fileTypeASCII = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -393,6 +414,10 @@ public class FileWriter extends ConnectorClass {
         passiveModeNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         timeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
         timeoutLabel = new javax.swing.JLabel();
+        fileExistsErrorRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        tempFileLabel = new javax.swing.JLabel();
+        tempFileYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        tempFileNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -497,27 +522,35 @@ public class FileWriter extends ConnectorClass {
         validateConnectionNo.setBackground(new java.awt.Color(255, 255, 255));
         validateConnectionNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup3.add(validateConnectionNo);
-        validateConnectionNo.setSelected(true);
         validateConnectionNo.setText("No");
         validateConnectionNo.setToolTipText("Select No to skip testing the connection to the server before each operation.");
         validateConnectionNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        appendToFileLabel.setText("Append to file:");
+        fileExistsLabel.setText("File Exists:");
 
-        appendToFileYes.setBackground(new java.awt.Color(255, 255, 255));
-        appendToFileYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(appendToFileYes);
-        appendToFileYes.setText("Yes");
-        appendToFileYes.setToolTipText("<html>If Yes is selected, messages accepted by this destination will be appended to a single file specified in the File Name.<br>If No is selected, messages accepted by this destination will replace any existing file of the same name.<br>This feature will not work if a template is used for the File Name which generates a new file name when a message is processed.</html>");
-        appendToFileYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        fileExistsAppendRadio.setBackground(new java.awt.Color(255, 255, 255));
+        fileExistsAppendRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup4.add(fileExistsAppendRadio);
+        fileExistsAppendRadio.setText("Append");
+        fileExistsAppendRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message with error.</html>");
+        fileExistsAppendRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        fileExistsAppendRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fileExistsAppendRadioActionPerformed(evt);
+            }
+        });
 
-        appendToFileNo.setBackground(new java.awt.Color(255, 255, 255));
-        appendToFileNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(appendToFileNo);
-        appendToFileNo.setSelected(true);
-        appendToFileNo.setText("No");
-        appendToFileNo.setToolTipText("<html>If Yes is selected, messages accepted by this destination will be appended to a single file specified in the File Name.<br>If No is selected, messages accepted by this destination will replace any existing file of the same name.<br>This feature will not work if a template is used for the File Name which generates a new file name when a message is processed.</html>");
-        appendToFileNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        fileExistsOverwriteRadio.setBackground(new java.awt.Color(255, 255, 255));
+        fileExistsOverwriteRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup4.add(fileExistsOverwriteRadio);
+        fileExistsOverwriteRadio.setText("Overwrite");
+        fileExistsOverwriteRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message with error.</html>");
+        fileExistsOverwriteRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        fileExistsOverwriteRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fileExistsOverwriteRadioActionPerformed(evt);
+            }
+        });
 
         fileTypeLabel.setText("File Type:");
 
@@ -573,6 +606,36 @@ public class FileWriter extends ConnectorClass {
 
         timeoutLabel.setText("Timeout (ms):");
 
+        fileExistsErrorRadio.setBackground(new java.awt.Color(255, 255, 255));
+        fileExistsErrorRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup4.add(fileExistsErrorRadio);
+        fileExistsErrorRadio.setSelected(true);
+        fileExistsErrorRadio.setText("Error");
+        fileExistsErrorRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message with error.</html>");
+        fileExistsErrorRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        fileExistsErrorRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fileExistsErrorRadioActionPerformed(evt);
+            }
+        });
+
+        tempFileLabel.setText("Create Temp File:");
+
+        tempFileYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        tempFileYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup7.add(tempFileYesRadio);
+        tempFileYesRadio.setText("Yes");
+        tempFileYesRadio.setToolTipText("<html>If 'yes' is selected, the file contents will first be written to a temp file and then renamed to the specified file name.<br>If 'no' is selected, the file contents will be written directly to the destination file.<br>Using a temp file is not an option if the specified file is being appended to.</html>");
+        tempFileYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        tempFileNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        tempFileNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup7.add(tempFileNoRadio);
+        tempFileNoRadio.setSelected(true);
+        tempFileNoRadio.setText("No");
+        tempFileNoRadio.setToolTipText("<html>If 'yes' is selected, the file contents will first be written to a temp file and then renamed to the specified file name.<br>If 'no' is selected, the file contents will be written directly to the destination file.<br>Using a temp file is not an option if the specified file is being appended to.</html>");
+        tempFileNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -580,6 +643,7 @@ public class FileWriter extends ConnectorClass {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(tempFileLabel)
                     .addComponent(templateLabel)
                     .addComponent(encodingLabel)
                     .addComponent(fileTypeLabel)
@@ -591,7 +655,7 @@ public class FileWriter extends ConnectorClass {
                     .addComponent(secureModeLabel)
                     .addComponent(passwordLabel)
                     .addComponent(validateConnectionLabel)
-                    .addComponent(appendToFileLabel)
+                    .addComponent(fileExistsLabel)
                     .addComponent(usernameLabel)
                     .addComponent(passiveModeLabel)
                     .addComponent(timeoutLabel))
@@ -624,9 +688,11 @@ public class FileWriter extends ConnectorClass {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(appendToFileYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(fileExistsAppendRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(appendToFileNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(fileExistsOverwriteRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(fileExistsErrorRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -637,7 +703,11 @@ public class FileWriter extends ConnectorClass {
                         .addComponent(passiveModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(passiveModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE))
+                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(tempFileYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tempFileNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -695,9 +765,15 @@ public class FileWriter extends ConnectorClass {
                     .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(appendToFileLabel)
-                    .addComponent(appendToFileYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(appendToFileNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(fileExistsLabel)
+                    .addComponent(fileExistsAppendRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fileExistsOverwriteRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fileExistsErrorRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tempFileLabel)
+                    .addComponent(tempFileYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tempFileNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(fileTypeLabel)
@@ -710,7 +786,7 @@ public class FileWriter extends ConnectorClass {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(templateLabel)
-                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))
+                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -772,19 +848,19 @@ public class FileWriter extends ConnectorClass {
 
         if (allowAppend) {
 
-            appendToFileNo.setEnabled(true);
-            appendToFileYes.setEnabled(true);
-            appendToFileLabel.setEnabled(true);
+            fileExistsOverwriteRadio.setEnabled(true);
+            fileExistsAppendRadio.setEnabled(true);
+            fileExistsLabel.setEnabled(true);
         } else {
 
-            if (appendToFileYes.isSelected()) {
-                appendToFileNo.setSelected(true);
-                appendToFileYes.setSelected(false);
+            if (fileExistsAppendRadio.isSelected()) {
+                fileExistsOverwriteRadio.setSelected(true);
+                fileExistsAppendRadio.setSelected(false);
             }
 
-            appendToFileNo.setEnabled(false);
-            appendToFileYes.setEnabled(false);
-            appendToFileLabel.setEnabled(false);
+            fileExistsOverwriteRadio.setEnabled(false);
+            fileExistsAppendRadio.setEnabled(false);
+            fileExistsLabel.setEnabled(false);
         }
 
         if (scheme.equals(FileWriterProperties.SCHEME_FTP)) {
@@ -901,6 +977,25 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     hostLabel.setText("http://");
 }//GEN-LAST:event_secureModeNoActionPerformed
 
+private void fileExistsAppendRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExistsAppendRadioActionPerformed
+    tempFileNoRadio.setSelected(true);
+    tempFileLabel.setEnabled(false);
+    tempFileYesRadio.setEnabled(false);
+    tempFileNoRadio.setEnabled(false);
+}//GEN-LAST:event_fileExistsAppendRadioActionPerformed
+
+private void fileExistsOverwriteRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExistsOverwriteRadioActionPerformed
+    tempFileLabel.setEnabled(true);
+    tempFileYesRadio.setEnabled(true);
+    tempFileNoRadio.setEnabled(true);
+}//GEN-LAST:event_fileExistsOverwriteRadioActionPerformed
+
+private void fileExistsErrorRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExistsErrorRadioActionPerformed
+    tempFileLabel.setEnabled(true);
+    tempFileYesRadio.setEnabled(true);
+    tempFileNoRadio.setEnabled(true);
+}//GEN-LAST:event_fileExistsErrorRadioActionPerformed
+
     private void fileTypeASCIIActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_fileTypeASCIIActionPerformed
     {// GEN-HEADEREND:event_fileTypeASCIIActionPerformed
         encodingLabel.setEnabled(true);
@@ -917,20 +1012,22 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JLabel anonymousLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton anonymousNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton anonymousYes;
-    private javax.swing.JLabel appendToFileLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton appendToFileNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton appendToFileYes;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
     private javax.swing.ButtonGroup buttonGroup5;
     private javax.swing.ButtonGroup buttonGroup6;
+    private javax.swing.ButtonGroup buttonGroup7;
     private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private com.mirth.connect.client.ui.components.MirthTextField directoryField;
     private javax.swing.JLabel directoryLabel;
     private javax.swing.JLabel encodingLabel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
+    private com.mirth.connect.client.ui.components.MirthRadioButton fileExistsAppendRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton fileExistsErrorRadio;
+    private javax.swing.JLabel fileExistsLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton fileExistsOverwriteRadio;
     private com.mirth.connect.client.ui.components.MirthTextField fileNameField;
     private javax.swing.JLabel fileNameLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton fileTypeASCII;
@@ -950,6 +1047,9 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JLabel secureModeLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton secureModeNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton secureModeYes;
+    private javax.swing.JLabel tempFileLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton tempFileNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton tempFileYesRadio;
     private javax.swing.JLabel templateLabel;
     private javax.swing.JButton testConnection;
     private com.mirth.connect.client.ui.components.MirthTextField timeoutField;
