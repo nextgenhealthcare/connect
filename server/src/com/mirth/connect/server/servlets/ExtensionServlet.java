@@ -102,6 +102,8 @@ public class ExtensionServlet extends MirthServlet {
                 } else if (operation.equals(Operations.EXTENSION_SET_ENABLED)) {
                     String pluginName = request.getParameter("name");
                     boolean enabled = BooleanUtils.toBoolean(request.getParameter("enabled"));
+                    parameterMap.put("extension", pluginName);
+                    parameterMap.put("enabled", enabled);
                     
                     if (isUserAuthorized(request, parameterMap)) {
                         extensionController.setExtensionEnabled(pluginName, enabled);

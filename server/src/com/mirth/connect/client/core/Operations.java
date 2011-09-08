@@ -75,7 +75,7 @@ public class Operations {
     public static final Operation EXTENSION_INSTALL = new Operation("installExtension", "Install extension", true);
     public static final Operation EXTENSION_UNINSTALL = new Operation("uninstallExtension", "Uninstall extension", true);
     public static final Operation EXTENSION_IS_ENABLED = new Operation("isExtensionEnabled", "Check if extension is installed", true);
-    public static final Operation EXTENSION_SET_ENABLED = new Operation("setExtensionEnabled", "Enables an extension", true);
+    public static final Operation EXTENSION_SET_ENABLED = new Operation("setExtensionEnabled", "Enable or disable an extension", true);
 
     // Messages
     public static final Operation MESSAGE_GET_BY_PAGE = new Operation("getMessagesByPage", "Get messages by page", false);
