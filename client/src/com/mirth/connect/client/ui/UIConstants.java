@@ -55,6 +55,7 @@ public class UIConstants {
     public static final Color HEADER_TITLE_TEXT_COLOR = new Color(255, 255, 255);
     public static final Color COMBO_BOX_BACKGROUND = new Color(220, 220, 220);
     public static final Color JX_CONTAINER_BACKGROUND_COLOR = new Color(0x9EB1C9);
+    public static final Color LIGHT_YELLOW = new Color(255, 255, 224);
     // for JSplitPane
     public static final int DIVIDER_SIZE = 12;
     // fonts

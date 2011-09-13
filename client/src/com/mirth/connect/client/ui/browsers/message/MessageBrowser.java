@@ -38,6 +38,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.text.DateFormatter;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.syntax.jedit.SyntaxDocument;
@@ -278,6 +279,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         quickSearchLabel.setEnabled(allowSearch);
         quickSearchField.setEnabled(allowSearch);
         advSearchFilterPopup.reset(allowSearch);
+        advSearchButton.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
 
         Calendar calendar = Calendar.getInstance();
         mirthDatePicker1.setDate(calendar.getTime());
@@ -1532,6 +1534,24 @@ public class MessageBrowser extends javax.swing.JPanel {
         advSearchFilterPopup.setFieldValues(connector, messageSource, messageType, containingKeyword, messageId, correlationId, includeRawMessage, includeTransformedMessage, includeEncodedMessage, includeErrors, protocol);
 
         advSearchFilterPopup.setVisible(true);
+        
+        // Highlight the Advanced button if anything is not set to its default
+        if (StringUtils.isNotEmpty(advSearchFilterPopup.getConnector()) ||
+            StringUtils.isNotEmpty(advSearchFilterPopup.getMessageType()) ||
+            StringUtils.isNotEmpty(advSearchFilterPopup.getContainingKeyword()) ||
+            StringUtils.isNotEmpty(advSearchFilterPopup.getMessageId()) ||
+            StringUtils.isNotEmpty(advSearchFilterPopup.getCorrelationId()) ||
+            StringUtils.isNotEmpty(advSearchFilterPopup.getMessageSource()) ||
+            !advSearchFilterPopup.getProtocol().equalsIgnoreCase(UIConstants.ALL_OPTION) ||
+            advSearchFilterPopup.isIncludeRawMessage() ||
+            advSearchFilterPopup.isIncludeTransformedMessage() ||
+            advSearchFilterPopup.isIncludeEncodedMessage() ||
+            advSearchFilterPopup.isIncludeErrors())
+        {
+            advSearchButton.setBackground(UIConstants.LIGHT_YELLOW);
+        } else {
+            advSearchButton.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
+        }
 
     }//GEN-LAST:event_advSearchButtonActionPerformed
 
