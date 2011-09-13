@@ -639,7 +639,7 @@ public class MuleEngineController implements EngineController {
             IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(transformer.getOutboundProtocol()).getSerializer(transformer.getOutboundProperties());
             String templateId = UUIDGenerator.getUUID();
 
-            if (transformer.getOutboundTemplate().length() > 0) {
+            if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
                 if (transformer.getOutboundProtocol().equals(MessageObject.Protocol.DICOM)) {
                     templateController.putTemplate(channel.getId(), templateId, transformer.getOutboundTemplate());
                 } else {
