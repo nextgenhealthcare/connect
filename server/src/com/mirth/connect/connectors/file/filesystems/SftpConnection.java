@@ -24,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.UserInfo;
@@ -89,6 +88,7 @@ public class SftpConnection implements FileSystemConnection {
 
 	/** The JSch SFTP client instance */
 	private ChannelSftp client = null;
+	private Session session = null;
 	private String lastDir = null;
 
 	public SftpConnection(String host, int port, String username, String password, int timeout) throws Exception {
@@ -97,8 +97,6 @@ public class SftpConnection implements FileSystemConnection {
 		client = new ChannelSftp();
 
 		try {
-			Session session = null;
-
 			if (port > 0) {
 				session = jsch.getSession(username, host, port);
 			} else {
@@ -291,20 +289,16 @@ public class SftpConnection implements FileSystemConnection {
 		// Nothing
 	}
 
-	@Override
+    @Override
     public void destroy() {
         if ((client != null) && client.isConnected()) {
             client.quit();
         }
 
-        try {
-            if ((client.getSession() != null) && client.getSession().isConnected()) {
-                client.getSession().disconnect();
-            }
-        } catch (JSchException e) {
-            logger.warn(e);
+        if ((session != null) && session.isConnected()) {
+            session.disconnect();
         }
-	}
+    }
 
 	@Override
 	public boolean isValid() {
