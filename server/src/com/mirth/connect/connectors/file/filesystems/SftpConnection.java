@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.UserInfo;
@@ -113,13 +114,8 @@ public class SftpConnection implements FileSystemConnection {
 			Channel channel = session.openChannel("sftp");
 			channel.connect();
 			client = (ChannelSftp) channel;
-		}
-		catch (Exception e) {
-			
-			if (client.isConnected()) {
-				client.disconnect();
-			}
-
+		} catch (Exception e) {
+			destroy();
 			throw e;
 		}
 	}
@@ -296,9 +292,18 @@ public class SftpConnection implements FileSystemConnection {
 	}
 
 	@Override
-	public void destroy() {
-		client.quit();
-		client.disconnect();
+    public void destroy() {
+        if ((client != null) && client.isConnected()) {
+            client.quit();
+        }
+
+        try {
+            if ((client.getSession() != null) && client.getSession().isConnected()) {
+                client.getSession().disconnect();
+            }
+        } catch (JSchException e) {
+            logger.warn(e);
+        }
 	}
 
 	@Override
