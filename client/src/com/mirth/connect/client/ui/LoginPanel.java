@@ -24,24 +24,15 @@ public class LoginPanel extends javax.swing.JFrame {
 
     private Client client;
     private static final String ERROR_MESSAGE = "There was an error connecting to the server at the specified address. Please verify that the server is up and running.";
+    private static LoginPanel instance = null;
 
-    public LoginPanel(String mirthServer, String version, String user, String pass) {
-        PlatformUI.CLIENT_VERSION = version;
+    private LoginPanel() {
         initComponents();
         setTitle("Mirth Connect Administrator - Login");
-        serverName.setText(mirthServer);
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         jLabel5.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setIconImage(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());
-        setLocationRelativeTo(null);
-        setVisible(true);
-        username.grabFocus();
-        username.setText(user);
-        password.setText(pass);
-        errorPane.setVisible(false);
-        errorTextArea.setBackground(Color.WHITE);
-        errorTextArea.setDisabledTextColor(Color.RED);
 
         mirthCorpImage.setIcon(UIConstants.MIRTHCORP_LOGO);
         mirthCorpImage.setText("");
@@ -68,7 +59,51 @@ public class LoginPanel extends javax.swing.JFrame {
         });
         
         placeholderButton.setVisible(false);
+        
+        errorTextArea.setBackground(Color.WHITE);
+        errorTextArea.setDisabledTextColor(Color.RED);
+    }
+    
+    public static LoginPanel getInstance() {
+        synchronized (LoginPanel.class) {
+            if (instance == null) {
+                instance = new LoginPanel();
+            }
 
+            return instance;
+        }
+    }
+    
+    public void initialize(String mirthServer, String version, String user, String pass) {
+        synchronized(this) {
+            // Do not initialize another login window if one is already visible
+            if (isVisible()) {
+                return;
+            }
+
+            PlatformUI.CLIENT_VERSION = version;
+            
+            serverName.setText(mirthServer);
+            
+            // Make sure the login window is centered and not minimized
+            setLocationRelativeTo(null);
+            setState(Frame.NORMAL);
+            
+            errorPane.setVisible(false);
+            loggingIn.setVisible(false);
+            loginMain.setVisible(true);
+            loginProgress.setIndeterminate(false);
+            
+            setStatus("Logging in...");
+            
+            username.setText(user);
+            password.setText(pass);
+            
+            username.grabFocus();
+            
+            setVisible(true);
+        }
+        
         if (user.length() > 0 && pass.length() > 0) {
             loginButtonActionPerformed(null);
         }
@@ -360,8 +395,6 @@ public class LoginPanel extends javax.swing.JFrame {
     {// GEN-HEADEREND:event_loginButtonActionPerformed
         errorPane.setVisible(false);
 
-        final LoginPanel thisPanel = this;
-
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
@@ -383,7 +416,7 @@ public class LoginPanel extends javax.swing.JFrame {
                         PlatformUI.USER_NAME = username.getText();
                         setStatus("Authenticated...");
                         new Mirth(client);
-                        thisPanel.dispose();
+                        LoginPanel.getInstance().setVisible(false);
 
                         try {
                             if (client.getUpdateSettings().getFirstLogin()) {

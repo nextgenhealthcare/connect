@@ -40,12 +40,11 @@ import com.mirth.connect.client.core.Client;
 public class Mirth {
 
     private static Preferences userPreferences;
-    private static LoginPanel login;
 
     /**
      * Construct and show the application.
      */
-    public Mirth(Client m) {
+    public Mirth(Client mirthClient) {
         PlatformUI.MIRTH_FRAME = new Frame();
 
         UIManager.put("Tree.leafIcon", UIConstants.LEAF_ICON);
@@ -53,8 +52,8 @@ public class Mirth {
         UIManager.put("Tree.closedIcon", UIConstants.CLOSED_ICON);
 
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
-        login.setStatus("Loading components...");
-        PlatformUI.MIRTH_FRAME.setupFrame(m, login);
+        LoginPanel.getInstance().setStatus("Loading components...");
+        PlatformUI.MIRTH_FRAME.setupFrame(mirthClient);
 
         int width = UIConstants.MIRTH_WIDTH;
         int height = UIConstants.MIRTH_HEIGHT;
@@ -217,7 +216,7 @@ public class Mirth {
                     e.printStackTrace();
                 }
                 PlatformUI.BACKGROUND_IMAGE = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/header_nologo.png"));
-                login = new LoginPanel(server, version, username, password);
+                LoginPanel.getInstance().initialize(server, version, username, password);
             }
         });
     }

@@ -332,7 +332,9 @@ public class Frame extends JXFrame {
     /**
      * Called to set up this main window frame.
      */
-    public void setupFrame(Client mirthClient, LoginPanel login) {
+    public void setupFrame(Client mirthClient) {
+        
+        LoginPanel login = LoginPanel.getInstance();
 
         this.mirthClient = mirthClient;
         login.setStatus("Loading extensions...");
@@ -1043,7 +1045,7 @@ public class Frame extends JXFrame {
                 }
                 mirthClient.cleanup();
                 this.dispose();
-                Mirth.main(new String[]{PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION});
+                LoginPanel.getInstance().initialize(PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION, "", "");
                 return;
             } else if (message.indexOf("Connection refused") != -1) {
                 connectionError = true;
@@ -1056,7 +1058,7 @@ public class Frame extends JXFrame {
                 }
                 mirthClient.cleanup();
                 this.dispose();
-                Mirth.main(new String[]{PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION});
+                LoginPanel.getInstance().initialize(PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION, "", "");
                 return;
             } else if (message.indexOf("Unauthorized") != -1) {
                 message = "You are not authorized to peform this action.\n\n" + message;
@@ -1778,7 +1780,7 @@ public class Frame extends JXFrame {
             mirthClient.cleanup();
             mirthClient.logout();
             this.dispose();
-            Mirth.main(new String[]{PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION});
+            LoginPanel.getInstance().initialize(PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION, "", "");
         } catch (ClientException e) {
             alertException(this, e.getStackTrace(), e.getMessage());
         }
