@@ -36,7 +36,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="fromLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="useAuthenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="bodyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -49,9 +49,11 @@
                   <Component id="htmlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="smtpHostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="headersLabel" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="bodyTextPane" pref="317" max="32767" attributes="2"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="useAuthenticationYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -74,23 +76,31 @@
                       <Component id="sendTestEmailButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="attachmentsPane" pref="248" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="newButton" max="32767" attributes="1"/>
-                          <Component id="deleteButton" alignment="1" min="-2" max="-2" attributes="1"/>
-                      </Group>
-                  </Group>
-                  <Component id="bodyTextPane" alignment="0" pref="317" max="32767" attributes="2"/>
-                  <Group type="102" alignment="0" attributes="0">
                       <Component id="encryptionNone" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="encryptionTls" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="encryptionSsl" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="headersPane" alignment="0" pref="248" max="32767" attributes="0"/>
+                          <Component id="attachmentsPane" alignment="1" pref="248" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" max="-2" attributes="1"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                              <Component id="newHeaderButton" alignment="1" max="32767" attributes="1"/>
+                              <Component id="deleteHeaderButton" alignment="1" min="-2" max="-2" attributes="1"/>
+                          </Group>
+                          <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                              <Component id="newAttachmentButton" max="32767" attributes="1"/>
+                              <Component id="deleteAttachmentButton" alignment="1" min="-2" max="-2" attributes="1"/>
+                          </Group>
+                      </Group>
+                  </Group>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -154,16 +164,26 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="bodyLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="bodyTextPane" pref="71" max="32767" attributes="0"/>
+                  <Component id="bodyTextPane" pref="112" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="attachmentsLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="attachmentsPane" pref="85" max="32767" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="newButton" min="-2" max="-2" attributes="0"/>
+                  <Component id="headersPane" min="-2" pref="85" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Component id="newHeaderButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="deleteHeaderButton" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="headersLabel" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="attachmentsLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="attachmentsPane" min="-2" pref="85" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="newAttachmentButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="deleteAttachmentButton" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -216,9 +236,6 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port number of the SMTP server to send the email message to.&lt;br&gt;Generally, the default port of 25 is used.&lt;/html&gt;"/>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="smtpPortFieldActionPerformed"/>
-      </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="smtpHostField">
       <Properties>
@@ -249,9 +266,6 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The name that should appear as the &quot;From address&quot; in the email."/>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fromFieldActionPerformed"/>
-      </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="bodyTextPane">
       <Properties>
@@ -328,25 +342,25 @@
                 <Column editable="true" title="MIME type" type="java.lang.String"/>
               </Table>
             </Property>
-            <Property name="toolTipText" type="java.lang.String" value="Request variables are encoded as x=y pairs as part of the request URL, separated from it by a &apos;?&apos; and from each other by an &apos;&amp;&apos;."/>
+            <Property name="toolTipText" type="java.lang.String" value=""/>
           </Properties>
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JButton" name="newButton">
+    <Component class="javax.swing.JButton" name="newAttachmentButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="New"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="newButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="newAttachmentButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="deleteButton">
+    <Component class="javax.swing.JButton" name="deleteAttachmentButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Delete"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteAttachmentButtonActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="encryptionLabel">
@@ -472,6 +486,47 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendTestEmailButtonActionPerformed"/>
       </Events>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="headersPane">
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="headersTable">
+          <Properties>
+            <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+              <Table columnCount="2" rowCount="0">
+                <Column editable="true" title="Name" type="java.lang.String"/>
+                <Column editable="true" title="Value" type="java.lang.String"/>
+              </Table>
+            </Property>
+            <Property name="toolTipText" type="java.lang.String" value=""/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Component class="javax.swing.JButton" name="newHeaderButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="New"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="newHeaderButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="deleteHeaderButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Delete"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteHeaderButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="headersLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Headers:"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

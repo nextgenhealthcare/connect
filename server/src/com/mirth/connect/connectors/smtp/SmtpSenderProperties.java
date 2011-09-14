@@ -10,7 +10,7 @@
 package com.mirth.connect.connectors.smtp;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Properties;
 
 import com.mirth.connect.model.ComponentProperties;
@@ -48,7 +48,7 @@ public class SmtpSenderProperties implements ComponentProperties {
         properties.put(SMTP_PASSWORD, "");
         properties.put(SMTP_TO, "");
         properties.put(SMTP_FROM, "");
-        properties.put(SMTP_HEADERS, serializer.toXML(new HashMap<String, String>()));
+        properties.put(SMTP_HEADERS, serializer.toXML(new LinkedHashMap<String, String>()));
         properties.put(SMTP_SUBJECT, "");
         properties.put(SMTP_BODY, "");
         properties.put(SMTP_HTML, "0");

@@ -9,7 +9,6 @@
 
 package com.mirth.connect.connectors.smtp;
 
-import com.mirth.connect.client.core.ClientException;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -37,16 +36,24 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.connectors.ConnectorClass;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.ConnectionTestResponse;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import javax.swing.SwingWorker;
 
 public class SmtpSender extends ConnectorClass {
 
-    private final int NAME_COLUMN = 0;
-    private final int CONTENT_COLUMN = 1;
-    private final int MIME_TYPE_COLUMN = 2;
-    private final String NAME_COLUMN_NAME = "Name";
-    private final String CONTENT_COLUMN_NAME = "Content";
-    private final String MIME_TYPE_COLUMN_NAME = "MIME type";
+    private final int HEADERS_NAME_COLUMN = 0;
+    private final int HEADERS_VALUE_COLUMN = 1;
+    private final String HEADERS_NAME_COLUMN_NAME = "Name";
+    private final String HEADERS_VALUE_COLUMN_NAME = "Value";
+    private final int ATTACHMENTS_NAME_COLUMN = 0;
+    private final int ATTACHMENTS_CONTENT_COLUMN = 1;
+    private final int ATTACHMENTS_MIME_TYPE_COLUMN = 2;
+    private final String ATTACHMENTS_NAME_COLUMN_NAME = "Name";
+    private final String ATTACHMENTS_CONTENT_COLUMN_NAME = "Content";
+    private final String ATTACHMENTS_MIME_TYPE_COLUMN_NAME = "MIME type";
+    private int headersLastIndex = -1;
     private int attachmentsLastIndex = -1;
    
     private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -89,6 +96,7 @@ public class SmtpSender extends ConnectorClass {
         }
 
         properties.put(SmtpSenderProperties.SMTP_BODY, bodyTextPane.getText());
+        properties.put(SmtpSenderProperties.SMTP_HEADERS, serializer.toXML(getHeaders()));
         properties.put(SmtpSenderProperties.SMTP_ATTACHMENTS, serializer.toXML(getAttachments()));
         return properties;
     }
@@ -128,6 +136,9 @@ public class SmtpSender extends ConnectorClass {
         }
 
         bodyTextPane.setText((String) props.get(SmtpSenderProperties.SMTP_BODY));
+        
+        Map<String, String> headers = (Map<String, String>) serializer.fromXML((String) props.get(SmtpSenderProperties.SMTP_HEADERS));
+        setHeaders(headers);
         
         List<Attachment> attachments = (List<Attachment>) serializer.fromXML((String) props.get(SmtpSenderProperties.SMTP_ATTACHMENTS));
         setAttachments(attachments);
@@ -180,18 +191,151 @@ public class SmtpSender extends ConnectorClass {
         return error;
     }
 
+    private void setHeaders(Map<String, String> headers) {
+        Object[][] tableData = new Object[headers.size()][2];
+
+        headersTable = new MirthTable();
+
+        int i = 0;
+        for (Entry<String, String> entry : headers.entrySet()) {
+            tableData[i][HEADERS_NAME_COLUMN] = entry.getKey();
+            tableData[i][HEADERS_VALUE_COLUMN] = entry.getValue();
+            i++;
+        }
+
+        headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{HEADERS_NAME_COLUMN_NAME, HEADERS_VALUE_COLUMN_NAME}) {
+
+            boolean[] canEdit = new boolean[]{true, true};
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit[columnIndex];
+            }
+        });
+
+        headersTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            public void valueChanged(ListSelectionEvent evt) {
+                if (getSelectedRow(headersTable) != -1) {
+                    headersLastIndex = getSelectedRow(headersTable);
+                    deleteHeaderButton.setEnabled(true);
+                } else {
+                    deleteHeaderButton.setEnabled(false);
+                }
+            }
+        });
+
+        class HeadersTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+
+            JComponent component = new JTextField();
+            Object originalValue;
+            boolean checkHeaders;
+
+            public HeadersTableCellEditor(boolean checkHeaders) {
+                super();
+                this.checkHeaders = checkHeaders;
+            }
+
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+                // 'value' is value contained in the cell located at (rowIndex,
+                // vColIndex)
+                originalValue = value;
+
+                if (isSelected) {
+                    // cell (and perhaps other cells) are selected
+                }
+
+                // Configure the component with the specified value
+                ((JTextField) component).setText((String) value);
+
+                // Return the configured component
+                return component;
+            }
+
+            public Object getCellEditorValue() {
+                return ((JTextField) component).getText();
+            }
+
+            public boolean stopCellEditing() {
+                String s = (String) getCellEditorValue();
+
+                if (checkHeaders && (s.length() == 0 || checkUniqueHeader(s))) {
+                    super.cancelCellEditing();
+                } else {
+                    parent.setSaveEnabled(true);
+                }
+
+                deleteHeaderButton.setEnabled(true);
+
+                return super.stopCellEditing();
+            }
+
+            public boolean checkUniqueHeader(String headerName) {
+                boolean exists = false;
+
+                for (int i = 0; i < headersTable.getRowCount(); i++) {
+                    if (headersTable.getValueAt(i, HEADERS_NAME_COLUMN) != null && ((String) headersTable.getValueAt(i, HEADERS_NAME_COLUMN)).equalsIgnoreCase(headerName)) {
+                        exists = true;
+                    }
+                }
+
+                return exists;
+            }
+
+            /**
+             * Enables the editor only for double-clicks.
+             */
+            public boolean isCellEditable(EventObject evt) {
+                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
+                    deleteHeaderButton.setEnabled(false);
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(HEADERS_NAME_COLUMN_NAME)).setCellEditor(new HeadersTableCellEditor(true));
+        headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(HEADERS_VALUE_COLUMN_NAME)).setCellEditor(new HeadersTableCellEditor(false));
+
+        headersTable.setSelectionMode(0);
+        headersTable.setRowSelectionAllowed(true);
+        headersTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        headersTable.setDragEnabled(false);
+        headersTable.setOpaque(true);
+        headersTable.setSortable(false);
+        headersTable.getTableHeader().setReorderingAllowed(false);
+
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            headersTable.setHighlighters(highlighter);
+        }
+
+        headersPane.setViewportView(headersTable);
+    }
+
+    private Map<String, String> getHeaders() {
+        Map<String, String> headers = new LinkedHashMap<String, String>();
+
+        for (int i = 0; i < headersTable.getRowCount(); i++) {
+            if (((String) headersTable.getValueAt(i, HEADERS_NAME_COLUMN)).length() > 0) {
+                headers.put((String) headersTable.getValueAt(i, HEADERS_NAME_COLUMN), (String) headersTable.getValueAt(i, HEADERS_VALUE_COLUMN));
+            }
+        }
+
+        return headers;
+    }
+    
     private void setAttachments(List<Attachment> attachments) {
         Object[][] tableData = new Object[attachments.size()][3];
 
         attachmentsTable = new MirthTable();
 
         for (int i = 0; i < attachments.size(); i++) {
-            tableData[i][NAME_COLUMN] = attachments.get(i).getName();
-            tableData[i][CONTENT_COLUMN] = attachments.get(i).getContent();
-            tableData[i][MIME_TYPE_COLUMN] = attachments.get(i).getMimeType();
+            tableData[i][ATTACHMENTS_NAME_COLUMN] = attachments.get(i).getName();
+            tableData[i][ATTACHMENTS_CONTENT_COLUMN] = attachments.get(i).getContent();
+            tableData[i][ATTACHMENTS_MIME_TYPE_COLUMN] = attachments.get(i).getMimeType();
         }
 
-        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{NAME_COLUMN_NAME, CONTENT_COLUMN_NAME, MIME_TYPE_COLUMN_NAME}) {
+        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{ATTACHMENTS_NAME_COLUMN_NAME, ATTACHMENTS_CONTENT_COLUMN_NAME, ATTACHMENTS_MIME_TYPE_COLUMN_NAME}) {
 
             boolean[] canEdit = new boolean[]{true, true, true};
 
@@ -205,9 +349,9 @@ public class SmtpSender extends ConnectorClass {
             public void valueChanged(ListSelectionEvent evt) {
                 if (getSelectedRow(attachmentsTable) != -1) {
                     attachmentsLastIndex = getSelectedRow(attachmentsTable);
-                    deleteButton.setEnabled(true);
+                    deleteAttachmentButton.setEnabled(true);
                 } else {
-                    deleteButton.setEnabled(false);
+                    deleteAttachmentButton.setEnabled(false);
                 }
             }
         });
@@ -252,7 +396,7 @@ public class SmtpSender extends ConnectorClass {
                     parent.setSaveEnabled(true);
                 }
 
-                deleteButton.setEnabled(true);
+                deleteAttachmentButton.setEnabled(true);
 
                 return super.stopCellEditing();
             }
@@ -261,7 +405,7 @@ public class SmtpSender extends ConnectorClass {
                 boolean exists = false;
 
                 for (int i = 0; i < attachmentsTable.getRowCount(); i++) {
-                    if (attachmentsTable.getValueAt(i, NAME_COLUMN) != null && ((String) attachmentsTable.getValueAt(i, NAME_COLUMN)).equalsIgnoreCase(attachmentName)) {
+                    if (attachmentsTable.getValueAt(i, ATTACHMENTS_NAME_COLUMN) != null && ((String) attachmentsTable.getValueAt(i, ATTACHMENTS_NAME_COLUMN)).equalsIgnoreCase(attachmentName)) {
                         exists = true;
                     }
                 }
@@ -274,7 +418,7 @@ public class SmtpSender extends ConnectorClass {
              */
             public boolean isCellEditable(EventObject evt) {
                 if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
-                    deleteButton.setEnabled(false);
+                    deleteAttachmentButton.setEnabled(false);
                     return true;
                 }
                 return false;
@@ -282,9 +426,9 @@ public class SmtpSender extends ConnectorClass {
         }
         ;
 
-        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(NAME_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(true));
-        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(CONTENT_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
-        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(MIME_TYPE_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
+        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(ATTACHMENTS_NAME_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(true));
+        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(ATTACHMENTS_CONTENT_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
+        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(ATTACHMENTS_MIME_TYPE_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
 
         attachmentsTable.setSelectionMode(0);
         attachmentsTable.setRowSelectionAllowed(true);
@@ -306,11 +450,11 @@ public class SmtpSender extends ConnectorClass {
         List<Attachment> attachments = new ArrayList<Attachment>();
 
         for (int i = 0; i < attachmentsTable.getRowCount(); i++) {
-            if (((String) attachmentsTable.getValueAt(i, NAME_COLUMN)).length() > 0) {
+            if (((String) attachmentsTable.getValueAt(i, ATTACHMENTS_NAME_COLUMN)).length() > 0) {
                 Attachment attachment = new Attachment();
-                attachment.setName((String) attachmentsTable.getValueAt(i, NAME_COLUMN));
-                attachment.setContent((String) attachmentsTable.getValueAt(i, CONTENT_COLUMN));
-                attachment.setMimeType((String) attachmentsTable.getValueAt(i, MIME_TYPE_COLUMN));
+                attachment.setName((String) attachmentsTable.getValueAt(i, ATTACHMENTS_NAME_COLUMN));
+                attachment.setContent((String) attachmentsTable.getValueAt(i, ATTACHMENTS_CONTENT_COLUMN));
+                attachment.setMimeType((String) attachmentsTable.getValueAt(i, ATTACHMENTS_MIME_TYPE_COLUMN));
                 attachments.add(attachment);
             }
         }
@@ -336,18 +480,29 @@ public class SmtpSender extends ConnectorClass {
     /**
      * Get the name that should be used for a new property so that it is unique.
      */
-    private String getNewAttachmentName(MirthTable table) {
-        String temp = "Attachment ";
+    private String getNewUniqueName(MirthTable table) {
+        String tempName;
+        int nameColumn;
+        
+        if (table == attachmentsTable) {
+            tempName = "Attachment ";
+            nameColumn = ATTACHMENTS_NAME_COLUMN;
+        } else if (table == headersTable) {
+            tempName = "Header ";
+            nameColumn = HEADERS_NAME_COLUMN;
+        } else {
+            return null;
+        }
 
         for (int i = 1; i <= table.getRowCount() + 1; i++) {
             boolean exists = false;
             for (int j = 0; j < table.getRowCount(); j++) {
-                if (((String) table.getValueAt(j, NAME_COLUMN)).equalsIgnoreCase(temp + i)) {
+                if (((String) table.getValueAt(j, nameColumn)).equalsIgnoreCase(tempName + i)) {
                     exists = true;
                 }
             }
             if (!exists) {
-                return temp + i;
+                return tempName + i;
             }
         }
         return "";
@@ -387,8 +542,8 @@ public class SmtpSender extends ConnectorClass {
         attachmentsLabel = new javax.swing.JLabel();
         attachmentsPane = new javax.swing.JScrollPane();
         attachmentsTable = new com.mirth.connect.client.ui.components.MirthTable();
-        newButton = new javax.swing.JButton();
-        deleteButton = new javax.swing.JButton();
+        newAttachmentButton = new javax.swing.JButton();
+        deleteAttachmentButton = new javax.swing.JButton();
         encryptionLabel = new javax.swing.JLabel();
         encryptionNone = new com.mirth.connect.client.ui.components.MirthRadioButton();
         encryptionTls = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -397,6 +552,11 @@ public class SmtpSender extends ConnectorClass {
         useAuthenticationLabel = new javax.swing.JLabel();
         useAuthenticationNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         sendTestEmailButton = new javax.swing.JButton();
+        headersPane = new javax.swing.JScrollPane();
+        headersTable = new com.mirth.connect.client.ui.components.MirthTable();
+        newHeaderButton = new javax.swing.JButton();
+        deleteHeaderButton = new javax.swing.JButton();
+        headersLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -418,11 +578,6 @@ public class SmtpSender extends ConnectorClass {
         usernameField.setToolTipText("If the SMTP server requires authentication to send a message, enter the username here.");
 
         smtpPortField.setToolTipText("<html>The port number of the SMTP server to send the email message to.<br>Generally, the default port of 25 is used.</html>");
-        smtpPortField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                smtpPortFieldActionPerformed(evt);
-            }
-        });
 
         smtpHostField.setToolTipText("<html>Enter the DNS domain name or IP address of the SMTP server to use to send the email messages.<br>Note that sending email to an SMTP server that is not expecting it may result in the IP of the box running Mirth being added to the server's \"blacklist.\"</html>");
 
@@ -435,11 +590,6 @@ public class SmtpSender extends ConnectorClass {
         fromLabel.setText("From:");
 
         fromField.setToolTipText("The name that should appear as the \"From address\" in the email.");
-        fromField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fromFieldActionPerformed(evt);
-            }
-        });
 
         bodyTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -477,20 +627,20 @@ public class SmtpSender extends ConnectorClass {
                 return types [columnIndex];
             }
         });
-        attachmentsTable.setToolTipText("Request variables are encoded as x=y pairs as part of the request URL, separated from it by a '?' and from each other by an '&'.");
+        attachmentsTable.setToolTipText("");
         attachmentsPane.setViewportView(attachmentsTable);
 
-        newButton.setText("New");
-        newButton.addActionListener(new java.awt.event.ActionListener() {
+        newAttachmentButton.setText("New");
+        newAttachmentButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                newButtonActionPerformed(evt);
+                newAttachmentButtonActionPerformed(evt);
             }
         });
 
-        deleteButton.setText("Delete");
-        deleteButton.addActionListener(new java.awt.event.ActionListener() {
+        deleteAttachmentButton.setText("Delete");
+        deleteAttachmentButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteButtonActionPerformed(evt);
+                deleteAttachmentButtonActionPerformed(evt);
             }
         });
 
@@ -550,27 +700,64 @@ public class SmtpSender extends ConnectorClass {
             }
         });
 
+        headersTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Name", "Value"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        headersTable.setToolTipText("");
+        headersPane.setViewportView(headersTable);
+
+        newHeaderButton.setText("New");
+        newHeaderButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newHeaderButtonActionPerformed(evt);
+            }
+        });
+
+        deleteHeaderButton.setText("Delete");
+        deleteHeaderButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteHeaderButtonActionPerformed(evt);
+            }
+        });
+
+        headersLabel.setText("Headers:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(fromLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(useAuthenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(bodyLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(encryptionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(subjectLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(smtpPortLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(toLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(htmlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(smtpHostLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(attachmentsLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(fromLabel)
+                    .addComponent(useAuthenticationLabel)
+                    .addComponent(bodyLabel)
+                    .addComponent(encryptionLabel)
+                    .addComponent(subjectLabel)
+                    .addComponent(usernameLabel)
+                    .addComponent(smtpPortLabel)
+                    .addComponent(toLabel)
+                    .addComponent(passwordLabel)
+                    .addComponent(htmlLabel)
+                    .addComponent(smtpHostLabel)
+                    .addComponent(attachmentsLabel)
+                    .addComponent(headersLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(useAuthenticationYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -590,18 +777,23 @@ public class SmtpSender extends ConnectorClass {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(sendTestEmailButton))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(deleteButton)))
-                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(encryptionNone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(encryptionTls, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(encryptionSsl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(encryptionSsl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(headersPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
+                            .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(newHeaderButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(deleteHeaderButton))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(newAttachmentButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(deleteAttachmentButton)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -654,26 +846,34 @@ public class SmtpSender extends ConnectorClass {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(bodyLabel)
-                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE))
+                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 112, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(attachmentsLabel)
-                    .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
+                    .addComponent(headersPane, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(newButton)
+                        .addComponent(newHeaderButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(deleteButton)))
+                        .addComponent(deleteHeaderButton))
+                    .addComponent(headersLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(attachmentsLabel)
+                    .addComponent(attachmentsPane, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(newAttachmentButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(deleteAttachmentButton)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
-private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
-    ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[]{getNewAttachmentName(attachmentsTable), ""});
+private void newAttachmentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newAttachmentButtonActionPerformed
+    ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[]{getNewUniqueName(attachmentsTable), ""});
     attachmentsTable.setRowSelectionInterval(attachmentsTable.getRowCount() - 1, attachmentsTable.getRowCount() - 1);
     parent.setSaveEnabled(true);
-}//GEN-LAST:event_newButtonActionPerformed
+}//GEN-LAST:event_newAttachmentButtonActionPerformed
 
-private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
+private void deleteAttachmentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteAttachmentButtonActionPerformed
     if (getSelectedRow(attachmentsTable) != -1 && !attachmentsTable.isEditing()) {
         ((DefaultTableModel) attachmentsTable.getModel()).removeRow(getSelectedRow(attachmentsTable));
 
@@ -689,15 +889,7 @@ private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 
         parent.setSaveEnabled(true);
     }
-}//GEN-LAST:event_deleteButtonActionPerformed
-
-private void smtpPortFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_smtpPortFieldActionPerformed
-// TODO add your handling code here:
-}//GEN-LAST:event_smtpPortFieldActionPerformed
-
-private void fromFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromFieldActionPerformed
-// TODO add your handling code here:
-}//GEN-LAST:event_fromFieldActionPerformed
+}//GEN-LAST:event_deleteAttachmentButtonActionPerformed
 
 private void useAuthenticationYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAuthenticationYesActionPerformed
     usernameLabel.setEnabled(true);
@@ -748,24 +940,53 @@ private void sendTestEmailButtonActionPerformed(java.awt.event.ActionEvent evt) 
     worker.execute();
 }//GEN-LAST:event_sendTestEmailButtonActionPerformed
 
+private void newHeaderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newHeaderButtonActionPerformed
+    ((DefaultTableModel) headersTable.getModel()).addRow(new Object[]{getNewUniqueName(headersTable), ""});
+    headersTable.setRowSelectionInterval(headersTable.getRowCount() - 1, headersTable.getRowCount() - 1);
+    parent.setSaveEnabled(true);
+}//GEN-LAST:event_newHeaderButtonActionPerformed
+
+private void deleteHeaderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteHeaderButtonActionPerformed
+    if (getSelectedRow(headersTable) != -1 && !headersTable.isEditing()) {
+        ((DefaultTableModel) headersTable.getModel()).removeRow(getSelectedRow(headersTable));
+
+        if (headersTable.getRowCount() != 0) {
+            if (headersLastIndex == 0) {
+                headersTable.setRowSelectionInterval(0, 0);
+            } else if (headersLastIndex == headersTable.getRowCount()) {
+                headersTable.setRowSelectionInterval(headersLastIndex - 1, headersLastIndex - 1);
+            } else {
+                headersTable.setRowSelectionInterval(headersLastIndex, headersLastIndex);
+            }
+        }
+
+        parent.setSaveEnabled(true);
+    }
+}//GEN-LAST:event_deleteHeaderButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel attachmentsLabel;
     private javax.swing.JScrollPane attachmentsPane;
     private com.mirth.connect.client.ui.components.MirthTable attachmentsTable;
     private javax.swing.JLabel bodyLabel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea bodyTextPane;
-    private javax.swing.JButton deleteButton;
+    private javax.swing.JButton deleteAttachmentButton;
+    private javax.swing.JButton deleteHeaderButton;
     private javax.swing.JLabel encryptionLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton encryptionNone;
     private com.mirth.connect.client.ui.components.MirthRadioButton encryptionSsl;
     private com.mirth.connect.client.ui.components.MirthRadioButton encryptionTls;
     private com.mirth.connect.client.ui.components.MirthTextField fromField;
     private javax.swing.JLabel fromLabel;
+    private javax.swing.JLabel headersLabel;
+    private javax.swing.JScrollPane headersPane;
+    private com.mirth.connect.client.ui.components.MirthTable headersTable;
     private javax.swing.ButtonGroup htmlButtonGroup;
     private javax.swing.JLabel htmlLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton htmlNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton htmlYes;
-    private javax.swing.JButton newButton;
+    private javax.swing.JButton newAttachmentButton;
+    private javax.swing.JButton newHeaderButton;
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.ButtonGroup secureButtonGroup;
