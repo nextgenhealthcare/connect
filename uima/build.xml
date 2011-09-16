@@ -56,6 +56,12 @@
 				<include name="com/mirth/connect/connectors/uima/UimaConnectorService.class" />
 				<include name="com/mirth/connect/connectors/uima/UimaPipelineInfo.class" />
 				<include name="com/mirth/connect/connectors/uima/MirthUimaCallbackListener.class" />
+				
+				<include name="com/mirth/connect/plugins/uima/UimaService.class" />
+				<include name="com/mirth/connect/plugins/uima/model/UimaPipeline.class" />
+			</fileset>
+			<fileset dir="${metadata}">
+				<include name="*Template.xml" />
 			</fileset>
 		</jar>
 
@@ -71,6 +77,10 @@
 				<include name="com/mirth/connect/connectors/uima/UimaSender*.class" />
 				<exclude name="com/mirth/connect/connectors/uima/UimaSenderProperties.class" />
 				<include name="com/mirth/connect/connectors/uima/UimaPipelineInfo.class" />
+				
+				<include name="com/mirth/connect/plugins/uima/UimaConfigurationClient*.class" />
+				<include name="com/mirth/connect/plugins/uima/UimaConfigurationPanel*.class" />
+				<include name="com/mirth/connect/plugins/uima/model/UimaPipeline.class" />
 			</fileset>
 		</jar>
 
