@@ -1,0 +1,23 @@
+<connectorMetaData path="uima">
+	<name>Apache UIMA Sender</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>2.0.1</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth Connect to connect to an Apache UIMA server.</description>
+	<clientClassName>com.mirth.connect.connectors.uima.UimaSender</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.uima.UimaConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.uima.UimaSenderProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.uima.UimaConnectorService</serviceClassName>
+	<transformers></transformers>
+	<protocol>uima</protocol>
+	<type>DESTINATION</type>
+	<enabled>true</enabled>
+	<library type="SERVER" path="uima-server.jar" />
+	<library type="CLIENT" path="uima-client.jar" />
+	<library type="SHARED" path="uima-shared.jar" />
+	<mule-properties>
+		<property name="connector">com.mirth.connect.connectors.uima.UimaConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.uima.UimaMessageDispatcherFactory</property>
+	</mule-properties>
+</connectorMetaData>

@@ -1,0 +1,92 @@
+<project name="uima" basedir="." default="help">
+	<target name="help">
+		<echo>Apache UIMA Connector</echo>
+	</target>
+
+	<target name="init">
+		<property file="build.properties" />
+
+		<path id="classpath">
+			<fileset dir="${lib}" includes="**/*.jar" />
+			<fileset dir="${mirth.server.setup}" includes="mirth-server.jar" />
+			<fileset dir="${mirth.server.setup}/lib" includes="**/*.jar" />
+			<fileset dir="${mirth.server.setup}/client-lib" includes="**/*.jar" />
+			<fileset dir="${mirth.server.setup}/extensions/vm" includes="**/*.jar" />
+			<fileset dir="${uima.service}/dist/uimaservice" includes="**/*.jar"/>
+		</path>
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="${classes}" />
+		<delete dir="${basedir}/dist" />
+	</target>
+
+	<target name="compile" depends="clean">
+		<mkdir dir="${classes}" />
+
+		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
+			<classpath refid="classpath" />
+		</javac>
+
+		<!-- create version.properties file -->
+		<propertyfile file="${metadata}/version.properties">
+			<entry key="extension.version" value="${version}" />
+			<entry key="build.date" type="date" value="today" pattern="MMMM d, yyyy" />
+		</propertyfile>
+	</target>
+
+	<target name="dist" depends="compile">
+		<mkdir dir="${dist}" />
+
+		<copy todir="${dist}">
+			<fileset dir="${metadata}">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+
+		<replace dir="${dist}" token="@mirthversion" value="${version}">
+			<include name="*.xml" />
+		</replace>
+
+		<jar destfile="${dist}/${name}-server.jar">
+			<fileset dir="${classes}">
+				<include name="com/mirth/connect/connectors/uima/UimaConnector.class" />
+				<include name="com/mirth/connect/connectors/uima/UimaMessageDispatcher.class" />
+				<include name="com/mirth/connect/connectors/uima/UimaMessageDispatcherFactory.class" />
+				<include name="com/mirth/connect/connectors/uima/UimaConnectorService.class" />
+				<include name="com/mirth/connect/connectors/uima/UimaPipelineInfo.class" />
+				<include name="com/mirth/connect/connectors/uima/MirthUimaCallbackListener.class" />
+			</fileset>
+		</jar>
+
+		<jar destfile="${dist}/${name}-shared.jar">
+			<fileset dir="${classes}">
+				<include name="com/mirth/connect/connectors/uima/UimaSenderProperties.class" />
+				<include name="com/mirth/connect/connectors/uima/UimaPipelineInfo.class" />
+			</fileset>
+		</jar>
+
+		<jar destfile="${dist}/${name}-client.jar">
+			<fileset dir="${classes}">
+				<include name="com/mirth/connect/connectors/uima/UimaSender*.class" />
+				<exclude name="com/mirth/connect/connectors/uima/UimaSenderProperties.class" />
+				<include name="com/mirth/connect/connectors/uima/UimaPipelineInfo.class" />
+			</fileset>
+		</jar>
+
+		<copy todir="${dist.lib}">
+			<fileset dir="${lib}" includes="**/*.jar" />
+		</copy>
+
+		<!-- sign jars for webstart -->
+		<property file="${keystore_property_file}" />
+
+		<signjar alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
+			<fileset dir="${dist}">
+				<include name="**/*.jar" />
+			</fileset>
+		</signjar>
+
+		<zip destfile="${basedir}/dist/${name}-${version}.zip" basedir="${basedir}/dist/" includes="${name}/**/*" />
+	</target>
+</project>
