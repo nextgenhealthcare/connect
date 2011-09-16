@@ -132,8 +132,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
 
             if (connector.isDispatcherIncludeHeadersInResponse()) {
                 HttpMessageConverter converter = new HttpMessageConverter();
-                String content = IOUtils.toString(httpMethod.getResponseBodyAsStream(), converter.getDefaultHttpCharset(connector.getDispatcherCharset()));
-                response = converter.httpResponseToXml(httpMethod.getStatusLine().toString(), httpMethod.getResponseHeaders(), content);
+                response = converter.httpResponseToXml(httpMethod.getStatusLine().toString(), httpMethod.getResponseHeaders(), httpMethod.getResponseBodyAsString());
             } else {
                 response = httpMethod.getResponseBodyAsString();
             }
