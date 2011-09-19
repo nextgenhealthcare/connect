@@ -161,24 +161,21 @@ public class MirthLauncher {
                         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(extensionFile);
                         Element rootElement = document.getDocumentElement();
 
-                        // Only add enabled extension libraries to the classpath
-                        String enabled = rootElement.getElementsByTagName("enabled").item(0).getTextContent();
-                        if (enabled.equalsIgnoreCase("true")) {
-                            NodeList libraries = rootElement.getElementsByTagName("library");
+                        // TODO: Only add enabled extension libraries to the classpath
+                        NodeList libraries = rootElement.getElementsByTagName("library");
 
-                            for (int i = 0; i < libraries.getLength(); i++) {
-                                Element libraryElement = (Element) libraries.item(i);
-                                String type = libraryElement.getAttribute("type");
+                        for (int i = 0; i < libraries.getLength(); i++) {
+                            Element libraryElement = (Element) libraries.item(i);
+                            String type = libraryElement.getAttribute("type");
 
-                                if (type.equalsIgnoreCase("server") || type.equalsIgnoreCase("shared")) {
-                                    File pathFile = new File(directory, libraryElement.getAttribute("path"));
+                            if (type.equalsIgnoreCase("server") || type.equalsIgnoreCase("shared")) {
+                                File pathFile = new File(directory, libraryElement.getAttribute("path"));
 
-                                    if (pathFile.exists()) {
-                                        logger.trace("adding library to classpath: " + pathFile.getAbsolutePath());
-                                        urls.add(pathFile.toURI().toURL());
-                                    } else {
-                                        logger.error("could not locate library: " + pathFile.getAbsolutePath());
-                                    }
+                                if (pathFile.exists()) {
+                                    logger.trace("adding library to classpath: " + pathFile.getAbsolutePath());
+                                    urls.add(pathFile.toURI().toURL());
+                                } else {
+                                    logger.error("could not locate library: " + pathFile.getAbsolutePath());
                                 }
                             }
                         }
