@@ -52,7 +52,7 @@
 	<delete id="prunePasswords" parameterClass="java.util.Map">
 		DELETE FROM PERSON_PASSWORD
 		WHERE PERSON_ID = #id#
-		AND PASSWORD_DATE <![CDATA[ <= ]]> to_date('$pruneDate$','YYYY-MM-DD HH24:MI:SS')
+		AND PASSWORD_DATE <![CDATA[ <= ]]> '$pruneDate$'
 	</delete>
 	
 	<insert id="insertUser" parameterClass="java.util.Map">
