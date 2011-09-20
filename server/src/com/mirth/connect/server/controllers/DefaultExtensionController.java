@@ -113,10 +113,6 @@ public class DefaultExtensionController extends ExtensionController {
                 try {
                     MetaData metaData = (MetaData) serializer.fromXML(FileUtils.readFileToString(extensionFile));
                     
-                    if (!getPluginProperties(metaData.getName()).contains("enabled")) {
-                        setExtensionEnabled(metaData.getName(), true);
-                    }
-                    
                     if (metaData instanceof ConnectorMetaData) {
                         ConnectorMetaData connectorMetaData = (ConnectorMetaData) metaData;
                         connectorMetaDataMap.put(connectorMetaData.getName(), connectorMetaData);
@@ -137,6 +133,29 @@ public class DefaultExtensionController extends ExtensionController {
             }
         } catch (Exception e) {
             logger.error("Error loading extension metadata.", e);
+        }
+    }
+
+    @Override
+    public void setDefaultExtensionStatus() {
+        for (MetaData metaData : getPluginMetaData().values()) {
+            try {
+                if (!getPluginProperties(metaData.getName()).contains("enabled")) {
+                    setExtensionEnabled(metaData.getName(), true);
+                }
+            } catch (Exception e) {
+                logger.error("Error setting default plugin status.", e);
+            }
+        }
+
+        for (MetaData metaData : getConnectorMetaData().values()) {
+            try {
+                if (!getPluginProperties(metaData.getName()).contains("enabled")) {
+                    setExtensionEnabled(metaData.getName(), true);
+                }
+            } catch (Exception e) {
+                logger.error("Error setting default connector status.", e);
+            }
         }
     }
 

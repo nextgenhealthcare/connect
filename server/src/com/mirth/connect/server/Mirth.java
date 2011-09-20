@@ -191,8 +191,9 @@ public class Mirth extends Thread {
      */
     public void startup() {
         configurationController.initializeSecuritySettings();
-        migrationController.migrate();
         extensionController.loadExtensions();
+        migrationController.migrate();
+        extensionController.setDefaultExtensionStatus();
         messageObjectController.removeAllFilterTables();
         eventController.removeAllFilterTables();
         extensionController.uninstallExtensions();

@@ -52,6 +52,8 @@ public abstract class ExtensionController extends Controller {
      * metadata file for an extension, it will skip it and continue.
      */
     public abstract void loadExtensions();
+    
+    public abstract void setDefaultExtensionStatus();
 
     /**
      * Iterates through all of the plugin metadata that was loaded on startup.
