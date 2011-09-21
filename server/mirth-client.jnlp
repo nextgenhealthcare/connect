@@ -31,6 +31,7 @@
 		<jar download="eager" href="webstart/client-lib/mirth-client-core.jar"/>
 		<jar download="eager" href="webstart/client-lib/mirth-crypto.jar"/>
 		<jar download="eager" href="webstart/client-lib/mirth-vocab-1.0.jar"/>
+		<jar download="eager" href="webstart/client-lib/bcprov-jdk16-144.jar"/>
 		<jar download="eager" href="webstart/client-lib/commons-codec-1.4.jar"/>
 		<jar download="eager" href="webstart/client-lib/commons-collections-3.2.1.jar"/>
 		<jar download="eager" href="webstart/client-lib/commons-httpclient-3.0.1.jar"/>
