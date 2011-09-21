@@ -3061,11 +3061,7 @@ public class Frame extends JXFrame {
         File file = browseForFile(fileExtension);
 
         if (file != null) {
-            try {
-                return FileUtils.readFileToString(file);
-            } catch (IOException e) {
-                alertError(this, "Unable to read file.");
-            }
+            return readFileToString(file);
         }
 
         return null;
