@@ -87,14 +87,13 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
     }
 
     public void setSelectedExtensionEnabled(boolean enabled) {
+        CellData enabledCellData = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
+        CellData disabledCellData = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
 
         if (loadedConnectorsTable.getSelectedRowCount() > 0) {
             int selectedRow = loadedConnectorsTable.getSelectedRow();
 
             if (selectedRow != -1) {
-                CellData enabledCellData = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
-                CellData disabledCellData = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
-
                 if (enabled) {
                     loadedConnectorsTable.getModel().setValueAt(enabledCellData, loadedConnectorsTable.convertRowIndexToModel(selectedRow), PLUGIN_STATUS_COLUMN_NUMBER);
                 } else {
@@ -105,9 +104,6 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             int selectedRow = loadedPluginsTable.getSelectedRow();
 
             if (selectedRow != -1) {
-                CellData enabledCellData = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
-                CellData disabledCellData = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
-
                 if (enabled) {
                     loadedPluginsTable.getModel().setValueAt(enabledCellData, loadedPluginsTable.convertRowIndexToModel(selectedRow), PLUGIN_STATUS_COLUMN_NUMBER);
                 } else {
