@@ -12,7 +12,6 @@
 			<fileset dir="${mirth.server.setup}/lib" includes="**/*.jar" />
 			<fileset dir="${mirth.server.setup}/client-lib" includes="**/*.jar" />
 			<fileset dir="${mirth.server.setup}/extensions/vm" includes="**/*.jar" />
-			<fileset dir="${uima.service}/dist/uimaservice" includes="**/*.jar"/>
 		</path>
 	</target>
 
