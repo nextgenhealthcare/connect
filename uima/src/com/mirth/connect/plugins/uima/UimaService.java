@@ -29,15 +29,12 @@ import com.mirth.connect.util.PropertyLoader;
 
 public class UimaService implements ServicePlugin {
     public static final String UIMA_SERVICE_PLUGINPOINT = "UIMA Service";
+    public static final String METHOD_TEST_PIPELINE = "testPipelines";
+    public static final String METHOD_GET_PIPELINES = "getPipelines";
+    private static final Pattern jmxStandardHostPattern = Pattern.compile(".*:[0-9]+$");
     
     private Logger logger = Logger.getLogger(this.getClass());
     private Properties properties = null;
-    
-    public static final String METHOD_TEST_PIPELINE = "testPipelines";
-    public static final String METHOD_GET_PIPELINES = "getPipelines";
-
-    
-    private static final Pattern jmxStandardHostPattern = Pattern.compile(".*:[0-9]+$");
 
     @Override
     public Properties getDefaultProperties() {
@@ -64,6 +61,7 @@ public class UimaService implements ServicePlugin {
 
     @Override
     public void start() {
+        
     }
     
     /**
@@ -112,6 +110,7 @@ public class UimaService implements ServicePlugin {
 
     @Override
     public void stop() {
+        
     }
 
     @Override
@@ -124,17 +123,24 @@ public class UimaService implements ServicePlugin {
         return null;
     }
 	
-    private List<UimaPipeline> testPipelines(Properties props) throws IOException, MalformedObjectNameException, AttributeNotFoundException, InstanceNotFoundException, NullPointerException, MBeanException, ReflectionException {
+    private List<UimaPipeline> testPipelines(Properties props) {
         JMXConnector conn = null;
+        
         try {
             conn = createConnection(props.getProperty("jmx.url"), props.getProperty("jmx.username"), props.getProperty("jmx.password"));
-        } catch (IOException e) {
-            logger.error("Unable to connect to the JMX service", e);
+            return getPipeLines(conn);
+        } catch (Exception e) {
+            logger.error("Unable to connect to the UIMA JMX service", e);
             return null;
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (IOException e) {
+                    
+                }
+            }
         }
-        List<UimaPipeline> pipelines = getPipeLines(conn);
-        conn.close();
-        return pipelines;
     }
 	
 	/**
@@ -188,16 +194,25 @@ public class UimaService implements ServicePlugin {
 	 * @throws MBeanException
 	 * @throws ReflectionException
 	 */
-    private List<UimaPipeline> getPipelines() throws IOException, MalformedObjectNameException, NullPointerException, AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException {
+    private List<UimaPipeline> getPipelines() {
         JMXConnector conn = null;
+        List<UimaPipeline> pipelines = new ArrayList<UimaPipeline>();
+        
         try {
             conn = createConnection();
-        } catch (IOException e) {
-            logger.error("Unable to connect to the JMX service", e);
-            return null;
+            pipelines = getPipeLines(conn);
+        } catch (Exception e) {
+            logger.warn("Unable to connect to the UIMA JMX service", e);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (IOException e) {
+
+                }    
+            }
         }
-        List<UimaPipeline> pipelines = getPipeLines(conn);
-        conn.close();
+        
         return pipelines;
     }
 

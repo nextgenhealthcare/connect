@@ -2,7 +2,7 @@
 	<name>Apache UIMA Sender</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.0.1</mirthVersion>
+	<mirthVersion>2.1.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth Connect to connect to an Apache UIMA server.</description>
 	<clientClassName>com.mirth.connect.connectors.uima.UimaSender</clientClassName>
