@@ -9,13 +9,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -147,15 +142,8 @@ public class UimaService implements ServicePlugin {
 	 * Gets all pipelines using a pre-created connnection
 	 * @param conn
 	 * @return
-	 * @throws IOException
-	 * @throws MalformedObjectNameException
-	 * @throws NullPointerException
-	 * @throws AttributeNotFoundException
-	 * @throws InstanceNotFoundException
-	 * @throws MBeanException
-	 * @throws ReflectionException
 	 */
-    private List<UimaPipeline> getPipeLines(JMXConnector conn) throws IOException, MalformedObjectNameException, NullPointerException, AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException {
+    private List<UimaPipeline> getPipeLines(JMXConnector conn) throws Exception {
         MBeanServerConnection mxbc = conn.getMBeanServerConnection();
 
         List<UimaPipeline> pipelines = new ArrayList<UimaPipeline>();
@@ -186,13 +174,6 @@ public class UimaService implements ServicePlugin {
 	/**
 	 * Returns all pipelines using the default connection info
 	 * @return
-	 * @throws IOException
-	 * @throws MalformedObjectNameException
-	 * @throws NullPointerException
-	 * @throws AttributeNotFoundException
-	 * @throws InstanceNotFoundException
-	 * @throws MBeanException
-	 * @throws ReflectionException
 	 */
     private List<UimaPipeline> getPipelines() {
         JMXConnector conn = null;
