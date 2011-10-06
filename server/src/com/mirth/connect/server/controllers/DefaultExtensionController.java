@@ -630,9 +630,7 @@ public class DefaultExtensionController extends ExtensionController {
         File clientLibDir = new File("client-lib");
 
         if (!clientLibDir.exists() || !clientLibDir.isDirectory()) {
-            String customClientLibDir = System.getProperty("client.lib.dir");
-            logger.warn("Could not find default client-lib directory, using custom system property: " + customClientLibDir);
-            clientLibDir = new File(customClientLibDir);
+            clientLibDir = new File("build/client-lib");
         }
         
         if (clientLibDir.exists() && clientLibDir.isDirectory()) {
