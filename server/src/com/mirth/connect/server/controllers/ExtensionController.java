@@ -50,8 +50,7 @@ public abstract class ExtensionController extends Controller {
     /**
      * Returns a list of the names of all of the jar files in the client library
      * directory. If the "client-lib" directory does not exist, it will check
-     * for the "client.lib.dir" system property and use that to scan for jar
-     * files.
+     * build/client-lib and use that to scan for jar files.
      * 
      * @return
      */
