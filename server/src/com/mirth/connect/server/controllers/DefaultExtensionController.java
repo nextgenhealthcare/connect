@@ -33,11 +33,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -621,5 +623,28 @@ public class DefaultExtensionController extends ExtensionController {
         }
 
         return false;
+    }
+    
+    public List<String> getClientLibraries() {
+        List<String> clientLibFilenames = new ArrayList<String>();
+        File clientLibDir = new File("client-lib");
+
+        if (!clientLibDir.exists() || !clientLibDir.isDirectory()) {
+            String customClientLibDir = System.getProperty("client.lib.dir");
+            logger.warn("Could not find default client-lib directory, using custom system property: " + customClientLibDir);
+            clientLibDir = new File(customClientLibDir);
+        }
+        
+        if (clientLibDir.exists() && clientLibDir.isDirectory()) {
+            Collection<File> clientLibs = FileUtils.listFiles(clientLibDir, new SuffixFileFilter(".jar"), FileFilterUtils.falseFileFilter());
+
+            for (File clientLib : clientLibs) {
+                clientLibFilenames.add(FilenameUtils.getName(clientLib.getName()));
+            }
+        } else {
+            logger.error("Could not find client-lib directory: " + clientLibDir.getAbsolutePath());
+        }
+
+        return clientLibFilenames;
     }
 }

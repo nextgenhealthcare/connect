@@ -10,6 +10,7 @@
 package com.mirth.connect.server.controllers;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -45,6 +46,16 @@ public abstract class ExtensionController extends Controller {
     public static ExtensionController getInstance() {
         return ControllerFactory.getFactory().createExtensionController();
     }
+
+    /**
+     * Returns a list of the names of all of the jar files in the client library
+     * directory. If the "client-lib" directory does not exist, it will check
+     * for the "client.lib.dir" system property and use that to scan for jar
+     * files.
+     * 
+     * @return
+     */
+    public abstract List<String> getClientLibraries();
 
     /**
      * Loads the metadata files (plugin.xml, source.xml, destination.xml) for

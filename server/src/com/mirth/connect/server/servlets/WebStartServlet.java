@@ -118,6 +118,14 @@ public class WebStartServlet extends HttpServlet {
         jnlpElement.setAttribute("codebase", codebase);
 
         Element resourcesElement = (Element) jnlpElement.getElementsByTagName("resources").item(0);
+        List<String> clientLibs = ControllerFactory.getFactory().createExtensionController().getClientLibraries();
+        
+        for (String clientLib : clientLibs) {
+            Element jarElement = document.createElement("jar");
+            jarElement.setAttribute("download", "eager");
+            jarElement.setAttribute("href", "webstart/client-lib/" + clientLib);
+            resourcesElement.appendChild(jarElement);
+        }
 
         List<MetaData> allExtensions = new ArrayList<MetaData>();
         allExtensions.addAll(ControllerFactory.getFactory().createExtensionController().getConnectorMetaData().values());
