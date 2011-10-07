@@ -121,7 +121,7 @@ public class SqlConfig {
                                 String encryptedPassword = StringUtils.removeStart(mirthProperties.getString("database.password"), ENCRYPTION_PREFIX);
                                 String decryptedPassword = encryptor.decrypt(encryptedPassword);
                                 databaseProperties.setProperty("database.password", decryptedPassword);
-                            } else {
+                            } else if (StringUtils.isNotBlank(mirthProperties.getString("database.password"))){
                                 // first we need to encrypt the plaintext password
                                 String decryptedPassword = mirthProperties.getString("database.password");
                                 databaseProperties.setProperty("database.password", decryptedPassword);
