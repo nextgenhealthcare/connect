@@ -32,6 +32,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector {
     private Map<String, String> headers;
     private String subject;
     private String body;
+    private String charset;
     private boolean html = false;
     private List<Attachment> attachments;
 
@@ -166,6 +167,14 @@ public class SmtpConnector extends AbstractServiceEnabledConnector {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public String getCharset() {
+        return charset;
+    }
+
+    public void setCharset(String charset) {
+        this.charset = charset;
     }
 
     public boolean isHtml() {

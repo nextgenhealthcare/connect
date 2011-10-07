@@ -65,7 +65,6 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
                 email = new MultiPartEmail();
             }
             
-            email.setDebug(true);
             email.setHostName(connector.getSmtpHost());
             email.setSmtpPort(connector.getSmtpPort());
             email.setSocketConnectionTimeout(connector.getTimeout());
@@ -114,8 +113,10 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
             if (connector.isHtml()) {
                 ((HtmlEmail) email).setHtmlMsg(body);
             } else {
-                email.setMsg(body);    
+                email.setMsg(body);
             }
+            
+            email.setCharset(connector.getCharset());
 
             /*
              * If the MIME type for the attachment is missing, we display a
