@@ -11,11 +11,15 @@ package com.mirth.connect.server.launcher;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -31,6 +35,11 @@ import org.w3c.dom.NodeList;
 
 public class MirthLauncher {
     private static final String EXTENSIONS_DIR = "./extensions";
+    private static final String MIRTH_PROPERTIES_FILE = "./conf/mirth.properties";
+    private static final String EXTENSION_PROPERTIES = "extension.properties";
+    private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
+
+    private static String appDataDir = null;
 
     private static Logger logger = Logger.getLogger(MirthLauncher.class);
 
@@ -40,7 +49,13 @@ public class MirthLauncher {
                 uninstallPendingExtensions();
                 installPendingExtensions();
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("Error uninstalling or installing pending extensions.", e);
+            }
+
+            try {
+                createAppdataDir();
+            } catch (Exception e) {
+                logger.error("Error creating the appdata directory.", e);
             }
 
             ManifestFile mirthServerJar = new ManifestFile("mirth-server.jar");
@@ -122,7 +137,7 @@ public class MirthLauncher {
                 if (manifestEntryFile.isDirectory()) {
                     ManifestDirectory manifestDir = (ManifestDirectory) manifestEntry;
                     IOFileFilter fileFilter = null;
-                    
+
                     if (manifestDir.getExcludes().length > 0) {
                         fileFilter = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.notFileFilter(new NameFileFilter(manifestDir.getExcludes())));
                     } else {
@@ -150,6 +165,9 @@ public class MirthLauncher {
         FileFilter directoryFilter = FileFilterUtils.directoryFileFilter();
         File extensionPath = new File(EXTENSIONS_DIR);
 
+        Properties extensionProperties = new Properties();
+        extensionProperties.load(new FileInputStream(new File(appDataDir, EXTENSION_PROPERTIES)));
+
         if (extensionPath.exists() && extensionPath.isDirectory()) {
             File[] directories = extensionPath.listFiles(directoryFilter);
 
@@ -161,21 +179,24 @@ public class MirthLauncher {
                         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(extensionFile);
                         Element rootElement = document.getDocumentElement();
 
-                        // TODO: Only add enabled extension libraries to the classpath
-                        NodeList libraries = rootElement.getElementsByTagName("library");
+                        // Only add libraries from extensions that are not
+                        // disabled
+                        if (extensionProperties.getProperty(rootElement.getElementsByTagName("name").item(0).getTextContent(), "true").equalsIgnoreCase("true")) {
+                            NodeList libraries = rootElement.getElementsByTagName("library");
 
-                        for (int i = 0; i < libraries.getLength(); i++) {
-                            Element libraryElement = (Element) libraries.item(i);
-                            String type = libraryElement.getAttribute("type");
+                            for (int i = 0; i < libraries.getLength(); i++) {
+                                Element libraryElement = (Element) libraries.item(i);
+                                String type = libraryElement.getAttribute("type");
 
-                            if (type.equalsIgnoreCase("server") || type.equalsIgnoreCase("shared")) {
-                                File pathFile = new File(directory, libraryElement.getAttribute("path"));
+                                if (type.equalsIgnoreCase("server") || type.equalsIgnoreCase("shared")) {
+                                    File pathFile = new File(directory, libraryElement.getAttribute("path"));
 
-                                if (pathFile.exists()) {
-                                    logger.trace("adding library to classpath: " + pathFile.getAbsolutePath());
-                                    urls.add(pathFile.toURI().toURL());
-                                } else {
-                                    logger.error("could not locate library: " + pathFile.getAbsolutePath());
+                                    if (pathFile.exists()) {
+                                        logger.trace("adding library to classpath: " + pathFile.getAbsolutePath());
+                                        urls.add(pathFile.toURI().toURL());
+                                    } else {
+                                        logger.error("could not locate library: " + pathFile.getAbsolutePath());
+                                    }
                                 }
                             }
                         }
@@ -187,5 +208,29 @@ public class MirthLauncher {
         } else {
             logger.warn("no extensions found");
         }
+    }
+
+    private static void createAppdataDir() throws FileNotFoundException, IOException {
+        Properties mirthProperties = new Properties();
+        mirthProperties.load(new FileInputStream(new File(MIRTH_PROPERTIES_FILE)));
+
+        File appDataDirFile = null;
+
+        if (mirthProperties.getProperty(PROPERTY_APP_DATA_DIR) != null) {
+            appDataDirFile = new File(mirthProperties.getProperty(PROPERTY_APP_DATA_DIR));
+
+            if (!appDataDirFile.exists()) {
+                if (appDataDirFile.mkdir()) {
+                    logger.debug("created app data dir: " + appDataDirFile.getAbsolutePath());
+                } else {
+                    logger.error("error creating app data dir: " + appDataDirFile.getAbsolutePath());
+                }
+            }
+        } else {
+            appDataDirFile = new File(".");
+        }
+
+        appDataDir = appDataDirFile.getAbsolutePath();
+        logger.debug("set app data dir: " + appDataDir);
     }
 }

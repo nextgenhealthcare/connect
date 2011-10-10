@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -31,6 +32,8 @@ import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -41,7 +44,6 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -80,6 +82,8 @@ public class DefaultExtensionController extends ExtensionController {
     private Map<String, ServicePlugin> servicePlugins = new HashMap<String, ServicePlugin>();
     private Map<String, ConnectorStatusPlugin> connectorStatusPlugins = new HashMap<String, ConnectorStatusPlugin>();
     private Map<String, ChannelPlugin> channelPlugins = new HashMap<String, ChannelPlugin>();
+    
+    private static PropertiesConfiguration extensionProperties = null;
 
     // singleton pattern
     private static DefaultExtensionController instance = null;
@@ -88,6 +92,7 @@ public class DefaultExtensionController extends ExtensionController {
         synchronized (DefaultExtensionController.class) {
             if (instance == null) {
                 instance = new DefaultExtensionController();
+                instance.initialize();
             }
 
             return instance;
@@ -96,6 +101,15 @@ public class DefaultExtensionController extends ExtensionController {
 
     private DefaultExtensionController() {
 
+    }
+    
+    private void initialize() {
+        try {
+            extensionProperties = new PropertiesConfiguration(new File(configurationController.getApplicationDataDir(), "extension.properties"));
+            extensionProperties.setDelimiterParsingDisabled(true);
+        } catch (ConfigurationException e) {
+            logger.error("There was an error loading extension.properties", e);
+        }
     }
 
     @Override
@@ -141,22 +155,42 @@ public class DefaultExtensionController extends ExtensionController {
     @Override
     public void setDefaultExtensionStatus() {
         for (MetaData metaData : getPluginMetaData().values()) {
-            try {
-                if (!getPluginProperties(metaData.getName()).contains("enabled")) {
-                    setExtensionEnabled(metaData.getName(), true);
+            if (!extensionProperties.containsKey(metaData.getName())) {
+                extensionProperties.setProperty(metaData.getName(), true);
+                try {
+                    extensionProperties.save();
+                } catch (ConfigurationException e) {
+                    logger.error("Could not save default enabled status for plugin: " + metaData.getName(), e);
                 }
-            } catch (Exception e) {
-                logger.error("Error setting default plugin status.", e);
             }
         }
 
         for (MetaData metaData : getConnectorMetaData().values()) {
-            try {
-                if (!getPluginProperties(metaData.getName()).contains("enabled")) {
-                    setExtensionEnabled(metaData.getName(), true);
+            if (!extensionProperties.containsKey(metaData.getName())) {
+                extensionProperties.setProperty(metaData.getName(), true);
+                try {
+                    extensionProperties.save();
+                } catch (ConfigurationException e) {
+                    logger.error("Could not save default enabled status for connector: " + metaData.getName(), e);
                 }
-            } catch (Exception e) {
-                logger.error("Error setting default connector status.", e);
+            }
+        }
+        
+        /*
+         * Remove extensions from the extensionProperties if they are not in the
+         * pluginMetaDataMap or connectorMetaDataMap
+         */
+        @SuppressWarnings("unchecked")
+        Iterator<String> keys = extensionProperties.getKeys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            if (!getPluginMetaData().containsKey(key) && !getConnectorMetaData().containsKey(key)) {
+                extensionProperties.clearProperty(key);
+                try {
+                    extensionProperties.save();
+                } catch (ConfigurationException e) {
+                    logger.error("Could not remove extension status for extension: " + key);
+                }
             }
         }
     }
@@ -265,25 +299,18 @@ public class DefaultExtensionController extends ExtensionController {
     /* ********************************************************************** */
     
     @Override
-    public void setExtensionEnabled(String pluginName, boolean enabled) throws ControllerException {
-        Properties properties = getPluginProperties(pluginName);
-        properties.setProperty("enabled", BooleanUtils.toStringTrueFalse(enabled));
-        setPluginProperties(pluginName, properties);
+    public void setExtensionEnabled(String extensionName, boolean enabled) throws ControllerException {
+        extensionProperties.setProperty(extensionName, enabled);
+        try {
+            extensionProperties.save();
+        } catch (ConfigurationException e) {
+            logger.error("Could not save enabled status " + enabled + " for extension: " + extensionName, e);
+        }
     }
     
     @Override
-    public boolean isExtensionEnabled(String pluginName) {
-        try {
-            Properties properties = getPluginProperties(pluginName);
-            
-            if (properties.containsKey("enabled")) {
-                return BooleanUtils.toBoolean(properties.getProperty("enabled"));
-            }
-        } catch (ControllerException e) {
-            logger.warn("Unabled to retrieve extension status: " + pluginName, e);
-        }
-        
-        return true;
+    public boolean isExtensionEnabled(String extensionName) {
+        return extensionProperties.getBoolean(extensionName, true);
     }
 
     @Override
