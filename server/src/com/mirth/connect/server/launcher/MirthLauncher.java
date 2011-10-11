@@ -166,7 +166,15 @@ public class MirthLauncher {
         File extensionPath = new File(EXTENSIONS_DIR);
 
         Properties extensionProperties = new Properties();
-        extensionProperties.load(new FileInputStream(new File(appDataDir, EXTENSION_PROPERTIES)));
+        File extensionPropertiesFile = new File(appDataDir, EXTENSION_PROPERTIES);
+
+        /*
+         * If the file does not exist yet, an empty Properties object will be
+         * used, returning the default of true for all extensions.
+         */
+        if (extensionPropertiesFile.exists()) {
+            extensionProperties.load(new FileInputStream(extensionPropertiesFile));
+        }
 
         if (extensionPath.exists() && extensionPath.isDirectory()) {
             File[] directories = extensionPath.listFiles(directoryFilter);
