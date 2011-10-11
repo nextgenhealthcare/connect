@@ -34,6 +34,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -107,6 +108,11 @@ public class DefaultExtensionController extends ExtensionController {
         try {
             extensionProperties = new PropertiesConfiguration(new File(configurationController.getApplicationDataDir(), "extension.properties"));
             extensionProperties.setDelimiterParsingDisabled(true);
+            
+            // Auto reload changes
+            FileChangedReloadingStrategy fileChangedReloadingStrategy = new FileChangedReloadingStrategy();
+            fileChangedReloadingStrategy.setRefreshDelay(1000);
+            extensionProperties.setReloadingStrategy(fileChangedReloadingStrategy);
         } catch (ConfigurationException e) {
             logger.error("There was an error loading extension.properties", e);
         }
