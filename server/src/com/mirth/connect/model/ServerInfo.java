@@ -9,12 +9,13 @@
 
 package com.mirth.connect.model;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverInfo")
-public class ServerInfo {
+public class ServerInfo implements Serializable {
     private Map<String, String> usageData;
     private Map<String, String> components;
     private String serverId;

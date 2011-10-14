@@ -9,6 +9,7 @@
 
 package com.mirth.connect.model;
 
+import java.io.Serializable;
 import java.util.Properties;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -18,7 +19,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverSettings")
-public class ServerSettings extends AbstractSettings implements Auditable {
+public class ServerSettings extends AbstractSettings implements Serializable, Auditable {
 
     private static final String CLEAR_GLOBAL_MAP = "server.resetglobalvariables";
     private static final String MAX_QUEUE_SIZE = "server.maxqueuesize";

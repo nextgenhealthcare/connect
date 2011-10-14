@@ -9,10 +9,12 @@
 
 package com.mirth.connect.model;
 
+import java.io.Serializable;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("usageData")
-public class UsageData {
+public class UsageData implements Serializable {
     private int key;
     private String value;
     private String groupId;

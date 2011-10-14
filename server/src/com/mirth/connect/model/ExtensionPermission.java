@@ -9,7 +9,9 @@
 
 package com.mirth.connect.model;
 
-public class ExtensionPermission {
+import java.io.Serializable;
+
+public class ExtensionPermission implements Serializable {
     private String extensionName;
     private String displayName;
     private String description;

@@ -1,5 +1,6 @@
 package com.mirth.connect.model;
 
+import java.io.Serializable;
 import java.util.Properties;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -9,7 +10,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("encryptionSettings")
-public class EncryptionSettings extends AbstractSettings implements Auditable {
+public class EncryptionSettings extends AbstractSettings implements Serializable, Auditable {
     public static final String DEFAULT_ENCRYPTION_ALGORITHM = "AES";
     public static final String DEFAULT_DIGEST_ALGORITHM = "SHA256";
     public static final String DEFAULT_SECURTITY_PROVIDER = BouncyCastleProvider.class.getName();

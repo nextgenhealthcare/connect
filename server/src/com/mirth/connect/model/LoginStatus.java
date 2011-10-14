@@ -9,7 +9,9 @@
 
 package com.mirth.connect.model;
 
-public class LoginStatus {
+import java.io.Serializable;
+
+public class LoginStatus implements Serializable {
 
     public enum Status {
         SUCCESS, SUCCESS_GRACE_PERIOD, FAIL, FAIL_EXPIRED, FAIL_LOCKED_OUT, FAIL_VERSION_MISMATCH

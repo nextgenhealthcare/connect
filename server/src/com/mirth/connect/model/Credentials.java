@@ -9,9 +9,10 @@
 
 package com.mirth.connect.model;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
-public class Credentials {
+public class Credentials implements Serializable{
     private String password;
     private Calendar passwordDate;
 

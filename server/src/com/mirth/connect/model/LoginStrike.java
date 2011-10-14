@@ -9,9 +9,10 @@
 
 package com.mirth.connect.model;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
-public class LoginStrike {
+public class LoginStrike implements Serializable {
 
     private int lastStrikeCount;
     private Calendar lastStrikeTime;

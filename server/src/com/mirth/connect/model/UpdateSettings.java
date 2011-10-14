@@ -9,6 +9,7 @@
 
 package com.mirth.connect.model;
 
+import java.io.Serializable;
 import java.util.Properties;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -18,7 +19,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("updateSettings")
-public class UpdateSettings extends AbstractSettings implements Auditable {
+public class UpdateSettings extends AbstractSettings implements Serializable, Auditable {
 
     private static final String FIRST_LOGIN = "firstlogin";
     private static final String UPDATES_ENABLED = "update.enabled";
