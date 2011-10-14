@@ -295,7 +295,7 @@
           <ComponentRef name="htmlButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether HTML tags can be used in the email message body."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -315,7 +315,7 @@
           <ComponentRef name="htmlButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether HTML tags can be used in the email message body."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -382,7 +382,7 @@
           <ComponentRef name="secureButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="None"/>
-        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether TLS/STARTTLS or SSL should be used for optional connection security."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -402,7 +402,7 @@
           <ComponentRef name="secureButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="TLS/STARTTLS"/>
-        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether TLS/STARTTLS or SSL should be used for optional connection security."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -422,7 +422,7 @@
           <ComponentRef name="secureButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="SSL"/>
-        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether TLS/STARTTLS or SSL should be used for optional connection security."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

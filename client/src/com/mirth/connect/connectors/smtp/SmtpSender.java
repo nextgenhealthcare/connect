@@ -599,14 +599,14 @@ public class SmtpSender extends ConnectorClass {
         htmlYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         htmlButtonGroup.add(htmlYes);
         htmlYes.setText("Yes");
-        htmlYes.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        htmlYes.setToolTipText("Selects whether HTML tags can be used in the email message body.");
         htmlYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         htmlNo.setBackground(new java.awt.Color(255, 255, 255));
         htmlNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         htmlButtonGroup.add(htmlNo);
         htmlNo.setText("No");
-        htmlNo.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        htmlNo.setToolTipText("Selects whether HTML tags can be used in the email message body.");
         htmlNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         attachmentsLabel.setText("Attachments:");
@@ -650,21 +650,21 @@ public class SmtpSender extends ConnectorClass {
         encryptionNone.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         secureButtonGroup.add(encryptionNone);
         encryptionNone.setText("None");
-        encryptionNone.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        encryptionNone.setToolTipText("Selects whether TLS/STARTTLS or SSL should be used for optional connection security.");
         encryptionNone.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         encryptionTls.setBackground(new java.awt.Color(255, 255, 255));
         encryptionTls.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         secureButtonGroup.add(encryptionTls);
         encryptionTls.setText("TLS/STARTTLS");
-        encryptionTls.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        encryptionTls.setToolTipText("Selects whether TLS/STARTTLS or SSL should be used for optional connection security.");
         encryptionTls.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         encryptionSsl.setBackground(new java.awt.Color(255, 255, 255));
         encryptionSsl.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         secureButtonGroup.add(encryptionSsl);
         encryptionSsl.setText("SSL");
-        encryptionSsl.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        encryptionSsl.setToolTipText("Selects whether TLS/STARTTLS or SSL should be used for optional connection security.");
         encryptionSsl.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         useAuthenticationYes.setBackground(new java.awt.Color(255, 255, 255));
