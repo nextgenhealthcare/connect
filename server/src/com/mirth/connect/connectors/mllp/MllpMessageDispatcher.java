@@ -9,7 +9,6 @@
 
 package com.mirth.connect.connectors.mllp;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -37,6 +36,7 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.UMOConnector;
 
 import com.mirth.connect.connectors.mllp.protocols.LlpProtocol;
+import com.mirth.connect.connectors.tcp.StateAwareSocket;
 import com.mirth.connect.connectors.tcp.TcpConnector;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.QueuedMessage;
@@ -56,7 +56,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
     // keepSocketOpen option variables
     // ///////////////////////////////////////////////////////////////
 
-    protected Map<String, Socket> connectedSockets = new HashMap<String, Socket>();
+    protected Map<String, StateAwareSocket> connectedSockets = new HashMap<String, StateAwareSocket>();
 
     // ///////////////////////////////////////////////////////////////
     /**
@@ -77,8 +77,8 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
         this.connector = connector;
         monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
-
-    protected Socket initSocket(String endpoint) throws IOException, URISyntaxException {
+    
+    protected StateAwareSocket initSocket(String endpoint) throws IOException, URISyntaxException {
         if (connectedSockets.get(endpoint) != null) {
             monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, connectedSockets.get(endpoint));
         }
@@ -86,7 +86,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
         int port = uri.getPort();
         InetAddress inetAddress = InetAddress.getByName(uri.getHost());
         InetSocketAddress inetSocketAddress = new InetSocketAddress(inetAddress, port);
-        Socket socket = new Socket();
+        StateAwareSocket socket = new StateAwareSocket();
         createSocket(socket, inetSocketAddress);
         socket.setReuseAddress(true);
         socket.setReceiveBufferSize(connector.getBufferSize());
@@ -104,7 +104,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
      * method
      */
     public void doDispatch(UMOEvent event) throws Exception {
-        Socket socket = null;
+        StateAwareSocket socket = null;
         boolean success = false;
         Exception exceptionWriting = null;
         String exceptionMessage = "";
@@ -139,8 +139,14 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
                             success = true;
                         } else {
                             socket = connectedSockets.get(host);
-                            if (socket != null && !socket.isClosed()) {
 
+                            // Dispose the socket if the remote side closed it
+                            if (socket != null && socket.remoteSideHasClosed()) {
+                                doDispose(socket);
+                                socket = null;
+                            }
+                            
+                            if (socket != null && !socket.isClosed()) {
                                 try {
                                     writeTemplatedData(socket, messageObject);
                                     success = true;
@@ -236,7 +242,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
     public boolean sendPayload(QueuedMessage thePayload) throws Exception {
         Boolean result = false;
         Exception sendException = null;
-        Socket socket = null;
+        StateAwareSocket socket = null;
         String host = replacer.replaceURLValues(thePayload.getEndpointUri().toString(), thePayload.getMessageObject());
 
         try {
@@ -246,6 +252,13 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
                 result = true;
             } else {
                 socket = connectedSockets.get(host);
+                
+                // Dispose the socket if the remote side closed it
+                if (socket != null && socket.remoteSideHasClosed()) {
+                    doDispose(socket);
+                    socket = null;
+                }
+                
                 if (socket != null && !socket.isClosed()) {
                     writeTemplatedData(socket, thePayload.getMessageObject());
                     result = true;
@@ -308,7 +321,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
         monitoringController.updateStatus(connector, connectorType, Event.DONE, socket);
     }
 
-    public boolean manageResponseAck(Socket socket, String endpointUri, MessageObject messageObject) {
+    public boolean manageResponseAck(StateAwareSocket socket, String endpointUri, MessageObject messageObject) {
         int maxTime = connector.getAckTimeout();
         if (maxTime <= 0) {
             messageObjectController.setSuccess(messageObject, "Message successfully sent", null);
@@ -368,7 +381,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
         }
     }
 
-    public byte[] getAck(Socket socket, String endpointUri) {
+    public byte[] getAck(StateAwareSocket socket, String endpointUri) {
         int maxTime = connector.getAckTimeout();
         if (maxTime == 0) {
             return null;
@@ -434,8 +447,8 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
         return null;
     }
 
-    protected byte[] receive(Socket socket, int timeout) throws IOException {
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+    protected byte[] receive(StateAwareSocket socket, int timeout) throws IOException {
+        DataInputStream dis = new DataInputStream(socket.getBufferedInputStream());
         if (timeout >= 0) {
             socket.setSoTimeout(timeout);
         }
@@ -443,7 +456,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
     }
 
     public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
-        Socket socket = null;
+        StateAwareSocket socket = null;
         try {
             socket = initSocket(endpointUri.getAddress());
             try {

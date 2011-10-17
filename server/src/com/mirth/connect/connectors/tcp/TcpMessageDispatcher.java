@@ -9,7 +9,6 @@
 
 package com.mirth.connect.connectors.tcp;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -62,7 +61,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
     // keepSocketOpen option variables
     // ///////////////////////////////////////////////////////////////
 
-    protected Map<String, Socket> connectedSockets = new HashMap<String, Socket>();
+    protected Map<String, StateAwareSocket> connectedSockets = new HashMap<String, StateAwareSocket>();
 
     // ///////////////////////////////////////////////////////////////
     /**
@@ -83,7 +82,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
         monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
 
-    protected Socket initSocket(String endpoint) throws IOException, URISyntaxException {
+    protected StateAwareSocket initSocket(String endpoint) throws IOException, URISyntaxException {
         if (connectedSockets.get(endpoint) != null) {
             monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, connectedSockets.get(endpoint));
         }
@@ -91,7 +90,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
         int port = uri.getPort();
         InetAddress inetAddress = InetAddress.getByName(uri.getHost());
         InetSocketAddress inetSocketAddress = new InetSocketAddress(inetAddress, port);
-        Socket socket = new Socket();
+        StateAwareSocket socket = new StateAwareSocket();
         createSocket(socket, inetSocketAddress);
         socket.setReuseAddress(true);
         socket.setReceiveBufferSize(connector.getBufferSize());
@@ -108,7 +107,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
      * method
      */
     public void doDispatch(UMOEvent event) throws Exception {
-        Socket socket = null;
+        StateAwareSocket socket = null;
         Object payload = null;
         boolean success = false;
         Exception exceptionWriting = null;
@@ -142,6 +141,13 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
                             success = true;
                         } else {
                             socket = connectedSockets.get(host);
+
+                            // Dispose the socket if the remote side closed it
+                            if (socket != null && socket.remoteSideHasClosed()) {
+                                doDispose(socket);
+                                socket = null;
+                            }
+                            
                             if (socket != null && !socket.isClosed()) {
                                 try {
                                     writeTemplatedData(socket, messageObject);
@@ -208,21 +214,6 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
         socket.connect(inetAddress, connector.getReconnectMillisecs());
     }
 
-    // TODO: Remove these two write methods after 1.7 beta
-    /*
-     * Deprecated? 1.7 protected void write(Socket socket, byte[] data) throws
-     * IOException { TcpProtocol protocol = connector.getTcpProtocol();
-     * BufferedOutputStream bos = new
-     * BufferedOutputStream(socket.getOutputStream()); protocol.write(bos,
-     * data); bos.flush(); }
-     * 
-     * protected void write(Socket socket, MessageObject messageObject) throws
-     * Exception { byte[] data =
-     * messageObject.getEncodedData().getBytes(connector.getCharsetEncoding());
-     * TcpProtocol protocol = connector.getTcpProtocol(); BufferedOutputStream
-     * bos = new BufferedOutputStream(socket.getOutputStream());
-     * protocol.write(bos, data); bos.flush(); }
-     */
     protected void write(Socket socket, String data) throws Exception {
         byte[] buffer = null;
         // When working with binary data the template has to be base64 encoded
@@ -245,7 +236,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
     public boolean sendPayload(QueuedMessage thePayload) throws Exception {
         Boolean result = false;
         Exception sendException = null;
-        Socket socket = null;
+        StateAwareSocket socket = null;
         String host = replacer.replaceURLValues(thePayload.getEndpointUri().toString(), thePayload.getMessageObject());
 
         try {
@@ -255,6 +246,13 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
                 result = true;
             } else {
                 socket = connectedSockets.get(host);
+                
+                // Dispose the socket if the remote side closed it
+                if (socket != null && socket.remoteSideHasClosed()) {
+                    doDispose(socket);
+                    socket = null;
+                }
+                
                 if (socket != null && !socket.isClosed()) {
                     writeTemplatedData(socket, thePayload.getMessageObject());
                     result = true;
@@ -317,7 +315,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
         monitoringController.updateStatus(connector, connectorType, Event.DONE, socket);
     }
 
-    public void manageResponseAck(Socket socket, String endpointUri, MessageObject messageObject) {
+    public void manageResponseAck(StateAwareSocket socket, String endpointUri, MessageObject messageObject) {
         int maxTime = connector.getAckTimeout();
         if (maxTime <= 0) { // TODO: Either make a UI setting to "not check for
             // ACK" or document this
@@ -347,7 +345,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
         }
     }
 
-    public byte[] getAck(Socket socket, String endpointUri) {
+    public byte[] getAck(StateAwareSocket socket, String endpointUri) {
         int maxTime = connector.getAckTimeout();
         if (maxTime == 0)
             return null;
@@ -367,8 +365,8 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
         }
     }
 
-    protected byte[] receive(Socket socket, int timeout) throws IOException {
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+    protected byte[] receive(StateAwareSocket socket, int timeout) throws IOException {
+        DataInputStream dis = new DataInputStream(socket.getBufferedInputStream());
         if (timeout >= 0) {
             socket.setSoTimeout(timeout);
         }
@@ -376,7 +374,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
     }
 
     public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
-        Socket socket = null;
+        StateAwareSocket socket = null;
         try {
             socket = initSocket(endpointUri.getAddress());
             try {
