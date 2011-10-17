@@ -10,10 +10,12 @@
 package com.mirth.connect.connectors.ws;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.ConnectException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
@@ -33,6 +35,13 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mule.providers.AbstractMessageDispatcher;
@@ -251,7 +260,7 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
             currentServiceName = serviceName;
             currentPortName = portName;
 
-            URL endpointUrl = WebServiceUtil.getWsdlUrl(wsdlUrl, username, password);
+            URL endpointUrl = getWsdlUrl(wsdlUrl, username, password);
             QName serviceQName = QName.valueOf(serviceName);
             QName portQName = QName.valueOf(portName);
 
@@ -261,5 +270,44 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
 
             dispatch = service.createDispatch(portQName, SOAPMessage.class, Service.Mode.MESSAGE);
         }
+    }
+
+    /**
+     * Returns the URL for the passed in String. If the URL requires
+     * authentication, then the WSDL is saved as a temp file and the URL for
+     * that file is returned.
+     * 
+     * @param wsdlUrl
+     * @param username
+     * @param password
+     * @return
+     * @throws Exception
+     */
+    private URL getWsdlUrl(String wsdlUrl, String username, String password) throws Exception {
+        URI uri = new URI(wsdlUrl);
+
+        // If the URL points to file, just return it
+        if (!uri.getScheme().equalsIgnoreCase("file")) {
+            HttpClient client = new HttpClient();
+            HttpMethod method = new GetMethod(wsdlUrl);
+
+            int status = client.executeMethod(method);
+            if ((status == HttpStatus.SC_UNAUTHORIZED) && (username != null) && (password != null)) {
+                client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+                status = client.executeMethod(method);
+
+                if (status == HttpStatus.SC_OK) {
+                    String wsdl = method.getResponseBodyAsString();
+                    File tempFile = File.createTempFile("WebServiceSender", ".wsdl");
+                    tempFile.deleteOnExit();
+
+                    FileUtils.writeStringToFile(tempFile, wsdl);
+
+                    return tempFile.toURI().toURL();
+                }
+            }
+        }
+
+        return uri.toURL();
     }
 }

@@ -404,7 +404,7 @@ public class WebServiceSender extends ConnectorClass {
     }
 
     public String buildHost() {
-        if (wsdlUrlField.getText().startsWith("http://")) {
+        if (wsdlUrlField.getText().startsWith("http://") || wsdlUrlField.getText().startsWith("file://")) {
             return wsdlUrlField.getText().substring(7);
         } else if (wsdlUrlField.getText().startsWith("https://")) {
             return wsdlUrlField.getText().substring(8);
