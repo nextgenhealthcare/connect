@@ -113,7 +113,9 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
 
         // add the request handler
         ContextHandler contextHandler = new ContextHandler();
-        String contextPath = replacer.replaceValues(connector.getReceiverContextPath());
+        
+        // Initialize contextPath to "" or its value after replacements
+        String contextPath = (connector.getReceiverContextPath() == null ? "" : replacer.replaceValues(connector.getReceiverContextPath()));
         
         if (!contextPath.startsWith("/")) {
             contextPath = "/" + contextPath;
