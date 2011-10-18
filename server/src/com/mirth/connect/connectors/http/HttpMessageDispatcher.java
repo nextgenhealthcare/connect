@@ -21,7 +21,6 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.QueueEnabledMessageDispatcher;
@@ -73,6 +72,11 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
 
         try {
             if (connector.isUsePersistentQueues()) {
+                /*
+                 * Note that the endpoint URI is not URL decoded before it is
+                 * put into the queue, so it will need to be decoded it is taken
+                 * off the queue in sendPayload
+                 */
                 connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), mo);
                 return;
             } else {
@@ -183,7 +187,14 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
         monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 
         try {
-            submitHttpRequest(message.getEndpointUri().toString(), message.getMessageObject());
+            /*
+             * We need to URL decode the endpoint since a MuleEndpointURI
+             * escapes special characters by default. This will allow map
+             * replacements.
+             * 
+             * See: MIRTH-1645 & MIRTH-1917
+             */
+            submitHttpRequest(URLDecoder.decode(message.getEndpointUri().toString(), "utf-8"), message.getMessageObject());
         } catch (Exception e) {
             if (e.getClass() == ConnectException.class) {
                 logger.warn("Can't connect to the queued endpoint: " + channelController.getDeployedChannelById(connector.getChannelId()).getName() + " - " + channelController.getDeployedDestinationName(connector.getName()) + " \r\n'" + e.getMessage());
