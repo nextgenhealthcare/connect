@@ -50,9 +50,11 @@
                   <Component id="smtpHostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="headersLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingLabel" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="bodyTextPane" pref="317" max="32767" attributes="2"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="useAuthenticationYes" min="-2" max="-2" attributes="0"/>
@@ -155,7 +157,12 @@
                   <Component id="subjectLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="subjectField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="htmlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="htmlYes" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -164,7 +171,7 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="bodyLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="bodyTextPane" pref="112" max="32767" attributes="0"/>
+                  <Component id="bodyTextPane" pref="110" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -526,6 +533,27 @@
     <Component class="javax.swing.JLabel" name="headersLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Headers:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="7">
+            <StringItem index="0" value="default"/>
+            <StringItem index="1" value="utf-8"/>
+            <StringItem index="2" value="iso-8859-1"/>
+            <StringItem index="3" value="utf-16 (le)"/>
+            <StringItem index="4" value="utf-16 (be)"/>
+            <StringItem index="5" value="utf-16 (bom)"/>
+            <StringItem index="6" value="us-ascii"/>
+          </StringArray>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the character set encoding used by the sender of the message,&lt;br&gt; or Default to assume the default character set encoding for the JVM running Mirth.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="charsetEncodingLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Charset Encoding:"/>
       </Properties>
     </Component>
   </SubComponents>

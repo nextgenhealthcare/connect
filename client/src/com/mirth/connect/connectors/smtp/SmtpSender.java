@@ -61,6 +61,7 @@ public class SmtpSender extends ConnectorClass {
     public SmtpSender() {
         name = SmtpSenderProperties.name;
         initComponents();
+        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
     public Properties getProperties() {
@@ -88,6 +89,8 @@ public class SmtpSender extends ConnectorClass {
         properties.put(SmtpSenderProperties.SMTP_TO, toField.getText());
         properties.put(SmtpSenderProperties.SMTP_FROM, fromField.getText());
         properties.put(SmtpSenderProperties.SMTP_SUBJECT, subjectField.getText());
+        
+        properties.put(SmtpSenderProperties.SMTP_CHARSET, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
         if (htmlYes.isSelected()) {
             properties.put(SmtpSenderProperties.SMTP_HTML, UIConstants.YES_OPTION);
@@ -129,6 +132,8 @@ public class SmtpSender extends ConnectorClass {
         fromField.setText((String) props.get(SmtpSenderProperties.SMTP_FROM));
         subjectField.setText((String) props.get(SmtpSenderProperties.SMTP_SUBJECT));
 
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(SmtpSenderProperties.SMTP_CHARSET));
+        
         if (((String) props.get(SmtpSenderProperties.SMTP_HTML)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             htmlYes.setSelected(true);
         } else {
@@ -557,6 +562,8 @@ public class SmtpSender extends ConnectorClass {
         newHeaderButton = new javax.swing.JButton();
         deleteHeaderButton = new javax.swing.JButton();
         headersLabel = new javax.swing.JLabel();
+        charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
+        charsetEncodingLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -735,6 +742,11 @@ public class SmtpSender extends ConnectorClass {
 
         headersLabel.setText("Headers:");
 
+        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
+        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding used by the sender of the message,<br> or Default to assume the default character set encoding for the JVM running Mirth.</html>");
+
+        charsetEncodingLabel.setText("Charset Encoding:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -754,9 +766,11 @@ public class SmtpSender extends ConnectorClass {
                     .addComponent(htmlLabel)
                     .addComponent(smtpHostLabel)
                     .addComponent(attachmentsLabel)
-                    .addComponent(headersLabel))
+                    .addComponent(headersLabel)
+                    .addComponent(charsetEncodingLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(useAuthenticationYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -840,13 +854,17 @@ public class SmtpSender extends ConnectorClass {
                     .addComponent(subjectField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(charsetEncodingLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(htmlLabel)
                     .addComponent(htmlYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(htmlNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(bodyLabel)
-                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 112, Short.MAX_VALUE))
+                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(headersPane, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -970,6 +988,8 @@ private void deleteHeaderButtonActionPerformed(java.awt.event.ActionEvent evt) {
     private com.mirth.connect.client.ui.components.MirthTable attachmentsTable;
     private javax.swing.JLabel bodyLabel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea bodyTextPane;
+    private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
+    private javax.swing.JLabel charsetEncodingLabel;
     private javax.swing.JButton deleteAttachmentButton;
     private javax.swing.JButton deleteHeaderButton;
     private javax.swing.JLabel encryptionLabel;
