@@ -218,7 +218,7 @@ public class LoginPanel extends javax.swing.JFrame {
 
         errorTextArea.setColumns(20);
         errorTextArea.setEditable(false);
-        errorTextArea.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
+        errorTextArea.setFont(new java.awt.Font("Tahoma", 0, 11));
         errorTextArea.setLineWrap(true);
         errorTextArea.setText("There was an error connecting to the server at the specified address. Please verify that the server is up and running.");
         errorTextArea.setWrapStyleWord(true);
@@ -292,9 +292,9 @@ public class LoginPanel extends javax.swing.JFrame {
 
         loggingIn.setBackground(new java.awt.Color(255, 255, 255));
 
-        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 18));
+        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("Mirth Connect Administrator Login");
+        jLabel5.setText("Mirth Connect Login");
 
         javax.swing.GroupLayout mirthHeadingPanel1Layout = new javax.swing.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);
