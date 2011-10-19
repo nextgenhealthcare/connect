@@ -28,7 +28,6 @@ public class LoginPanel extends javax.swing.JFrame {
 
     private LoginPanel() {
         initComponents();
-        setTitle("Mirth Connect - Login");
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         jLabel5.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -145,7 +144,7 @@ public class LoginPanel extends javax.swing.JFrame {
         placeholderButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Mirth Connect Administrator Login");
+        setTitle("Mirth Connect - Login");
         setResizable(false);
 
         loginMain.setBackground(new java.awt.Color(255, 255, 255));
@@ -175,9 +174,9 @@ public class LoginPanel extends javax.swing.JFrame {
 
         jLabel3.setText("Username:");
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18));
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Mirth Connect Administrator Login");
+        jLabel2.setText("Mirth Connect Login");
 
         javax.swing.GroupLayout mirthHeadingPanel2Layout = new javax.swing.GroupLayout(mirthHeadingPanel2);
         mirthHeadingPanel2.setLayout(mirthHeadingPanel2Layout);
