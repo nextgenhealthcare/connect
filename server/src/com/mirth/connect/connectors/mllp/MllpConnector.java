@@ -9,8 +9,6 @@
 
 package com.mirth.connect.connectors.mllp;
 
-import java.nio.charset.Charset;
-
 import org.mule.config.i18n.Message;
 import org.mule.impl.model.AbstractComponent;
 import org.mule.management.stats.ComponentStatistics;
@@ -23,6 +21,7 @@ import org.mule.umo.provider.UMOMessageReceiver;
 
 import com.mirth.connect.connectors.mllp.protocols.LlpProtocol;
 import com.mirth.connect.server.Constants;
+import com.mirth.connect.util.CharsetUtils;
 
 public class MllpConnector extends QueueEnabledConnector {
     // custom properties
@@ -97,11 +96,8 @@ public class MllpConnector extends QueueEnabledConnector {
 
     private UMOComponent component = null;
     private int ackTimeout = DEFAULT_ACK_TIMEOUT;
-    // ast: encoding Charset
-    public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
-    public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
-    public static final String DEFAULT_CHARSET_ENCODING = System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
-    private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
+    
+    private String charsetEncoding;
 
     // Does this protocol have any connected sockets?
     private boolean sendSocketValid = false;
@@ -125,13 +121,6 @@ public class MllpConnector extends QueueEnabledConnector {
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
-    }
-
-    // ast: overload of the creator, to allow the test of the charset Encoding
-    public MllpConnector() {
-        super();
-        // ast: try to set the default encoding
-        this.setCharsetEncoding(DEFAULT_CHARSET_ENCODING);
     }
 
     public boolean isKeepSendSocketOpen() {
@@ -336,30 +325,11 @@ public class MllpConnector extends QueueEnabledConnector {
         this.keepAlive = keepAlive;
     }
 
-    // ast: set the charset Encoding
     public void setCharsetEncoding(String charsetEncoding) {
-        if ((charsetEncoding == null) || (charsetEncoding.equals("")) || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
-            charsetEncoding = DEFAULT_CHARSET_ENCODING;
-        }
-
-        logger.debug("FileConnector: trying to set the encoding to " + charsetEncoding);
-
-        try {
-            this.charsetEncoding = charsetEncoding;
-        } catch (Exception e) {
-            // set the encoding to the default one: this charset can't launch an
-            // exception
-            this.charsetEncoding = Charset.defaultCharset().name();
-            logger.error("Unable to use " + charsetEncoding + " as the charset encoding: changing to the platform default [" + this.charsetEncoding + "]");
-        }
+        this.charsetEncoding = CharsetUtils.getEncoding(charsetEncoding, System.getProperty("ca.uhn.hl7v2.llp.charset"));
     }
 
-    // ast: get the charset Encoding
     public String getCharsetEncoding() {
-        if ((charsetEncoding == null) || (charsetEncoding.equals("")) || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
-            return DEFAULT_CHARSET_ENCODING;
-        }
-
         return charsetEncoding;
     }
 

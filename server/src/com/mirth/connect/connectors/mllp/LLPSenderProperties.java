@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.mllp;
 import java.util.Properties;
 
 import com.mirth.connect.model.QueuedSenderProperties;
+import com.mirth.connect.util.CharsetUtils;
 
 public class LLPSenderProperties extends QueuedSenderProperties {
     public static final String name = "LLP Sender";
@@ -55,7 +56,7 @@ public class LLPSenderProperties extends QueuedSenderProperties {
         properties.put(LLP_ACK_TIMEOUT, "5000");
         properties.put(LLP_QUEUE_ACK_TIMEOUT, "1");
         properties.put(LLP_HL7_ACK_RESPONSE, "1");
-        properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
+        properties.put(CONNECTOR_CHARSET_ENCODING, CharsetUtils.DEFAULT_ENCODING);
         properties.put(LLP_TEMPLATE, "${message.encodedData}");
         properties.put(CHANNEL_ID, "sink");
         return properties;

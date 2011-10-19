@@ -15,6 +15,7 @@ import java.util.Properties;
 
 import com.mirth.connect.model.ComponentProperties;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.util.CharsetUtils;
 
 public class SmtpSenderProperties implements ComponentProperties {
     public static final String name = "SMTP Sender";
@@ -31,7 +32,7 @@ public class SmtpSenderProperties implements ComponentProperties {
     public static final String SMTP_HEADERS = "headers";
     public static final String SMTP_FROM = "from";
     public static final String SMTP_SUBJECT = "subject";
-    public static final String SMTP_CHARSET = "charset";
+    public static final String SMTP_CHARSET = "charsetEncoding";
     public static final String SMTP_HTML = "html";
     public static final String SMTP_BODY = "body";
     public static final String SMTP_ATTACHMENTS = "attachments";
@@ -51,7 +52,7 @@ public class SmtpSenderProperties implements ComponentProperties {
         properties.put(SMTP_FROM, "");
         properties.put(SMTP_HEADERS, serializer.toXML(new LinkedHashMap<String, String>()));
         properties.put(SMTP_SUBJECT, "");
-        properties.put(SMTP_CHARSET, "DEFAULT_ENCODING");
+        properties.put(SMTP_CHARSET, CharsetUtils.DEFAULT_ENCODING);
         properties.put(SMTP_HTML, "0");
         properties.put(SMTP_BODY, "");
         properties.put(SMTP_ATTACHMENTS, serializer.toXML(new ArrayList<Attachment>()));

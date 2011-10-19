@@ -14,6 +14,8 @@ import java.util.Map;
 
 import org.mule.providers.AbstractServiceEnabledConnector;
 
+import com.mirth.connect.util.CharsetUtils;
+
 public class SmtpConnector extends AbstractServiceEnabledConnector {
     private String channelId;
 
@@ -32,7 +34,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector {
     private Map<String, String> headers;
     private String subject;
     private String body;
-    private String charset;
+    private String charsetEncoding;
     private boolean html = false;
     private List<Attachment> attachments;
 
@@ -169,12 +171,12 @@ public class SmtpConnector extends AbstractServiceEnabledConnector {
         this.body = body;
     }
 
-    public String getCharset() {
-        return charset;
+    public String getCharsetEncoding() {
+        return charsetEncoding;
     }
 
-    public void setCharset(String charset) {
-        this.charset = charset;
+    public void setCharsetEncoding(String charsetEncoding) {
+        this.charsetEncoding = CharsetUtils.getEncoding(charsetEncoding, System.getProperty("ca.uhn.hl7v2.llp.charset"));
     }
 
     public boolean isHtml() {

@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.file;
 import java.util.Properties;
 
 import com.mirth.connect.model.ComponentProperties;
+import com.mirth.connect.util.CharsetUtils;
 
 public class FileReaderProperties implements ComponentProperties {
     public static final String name = "File Reader";
@@ -79,7 +80,7 @@ public class FileReaderProperties implements ComponentProperties {
         properties.put(FILE_SORT_BY, SORT_BY_DATE);
         properties.put(FILE_TYPE, "0");
         properties.put(FILE_TIMEOUT, "10000");
-        properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
+        properties.put(CONNECTOR_CHARSET_ENCODING, CharsetUtils.DEFAULT_ENCODING);
         properties.put(FILE_FILTER, "*");
         properties.put(FILE_PROCESS_BATCH_FILES, "0");
         return properties;

@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.mllp;
 import java.util.Properties;
 
 import com.mirth.connect.model.ComponentProperties;
+import com.mirth.connect.util.CharsetUtils;
 
 public class LLPListenerProperties implements ComponentProperties {
     public static final String name = "LLP Listener";
@@ -81,7 +82,7 @@ public class LLPListenerProperties implements ComponentProperties {
         properties.put(LLP_WAIT_FOR_END_OF_MESSAGE_CHAR, "0");
         properties.put(LLP_USE_STRICT_LLP, "1");
         properties.put(LLP_PROCESS_BATCH_FILES, "0");
-        properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
+        properties.put(CONNECTOR_CHARSET_ENCODING, CharsetUtils.DEFAULT_ENCODING);
         return properties;
     }
 }

@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.tcp;
 import java.util.Properties;
 
 import com.mirth.connect.model.QueuedSenderProperties;
+import com.mirth.connect.util.CharsetUtils;
 
 public class TCPSenderProperties extends QueuedSenderProperties {
     public static final String name = "TCP Sender";
@@ -41,7 +42,7 @@ public class TCPSenderProperties extends QueuedSenderProperties {
         properties.put(TCP_MAX_RETRY_COUNT, "2");
         properties.put(TCP_CHAR_ENCODING, "hex");
         properties.put(TCP_ACK_TIMEOUT, "5000");
-        properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
+        properties.put(CONNECTOR_CHARSET_ENCODING, CharsetUtils.DEFAULT_ENCODING);
         properties.put(TCP_TEMPLATE, "${message.encodedData}");
         properties.put(CHANNEL_ID, "sink");
         properties.put(TCP_TYPE, "0");

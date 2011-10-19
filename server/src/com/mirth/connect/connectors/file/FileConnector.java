@@ -14,13 +14,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.log4j.Logger;
@@ -44,15 +42,11 @@ import org.mule.util.Utility;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
 import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.util.CharsetUtils;
 
 
 public class FileConnector extends AbstractServiceEnabledConnector {
     private Logger logger = Logger.getLogger(this.getClass());
-
-    // These are properties that can be overridden on the Receiver by the
-    // endpoint
-    // declarations
-    private static final String DEFAULT_ENCODING = "DEFAULT_ENCODING";
 
     public static final String PROPERTY_POLLING_TYPE = "pollingType";
     public static final String PROPERTY_POLLING_TIME = "pollingTime";
@@ -86,11 +80,6 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 
     public static final String POLLING_TYPE_INTERVAL = "interval";
     public static final String POLLING_TYPE_TIME = "time";
-
-    // ast: encoding Charset
-    public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
-    public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
-    public static final String DEFAULT_CHARSET_ENCODING = System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
 
     public static final String SCHEME_FILE = "file";
     public static final String SCHEME_FTP = "ftp";
@@ -126,8 +115,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     private UMOMessageReceiver receiver = null;
     private boolean processBatchFiles = true;
     private boolean validateConnections = true;
-    // ast: encoding charset
-    private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
+    private String charsetEncoding;
     private String channelId;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private Map protocolProperties;
@@ -143,7 +131,6 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     
     public FileConnector() {
         filenameParser = new VariableFilenameParser();
-        setCharsetEncoding(DEFAULT_CHARSET_ENCODING);
     }
 
     protected Object getReceiverKey(UMOComponent component, UMOEndpoint endpoint) {
@@ -582,28 +569,11 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     }
 
     public void setCharsetEncoding(String charsetEncoding) {
-        if (StringUtils.isBlank(charsetEncoding) || charsetEncoding.equalsIgnoreCase(DEFAULT_ENCODING)) {
-            charsetEncoding = DEFAULT_CHARSET_ENCODING;
-        }
-        
-        logger.debug("trying to set the encoding to " + charsetEncoding);
-        
-        try {
-            this.charsetEncoding = charsetEncoding;
-        } catch (Exception e) {
-            // set the encoding to the default one: this charset can't launch an
-            // exception
-            this.charsetEncoding = Charset.defaultCharset().name();
-            logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
-        }
+        this.charsetEncoding = CharsetUtils.getEncoding(charsetEncoding, System.getProperty("ca.uhn.hl7v2.llp.charset"));
     }
 
     public String getCharsetEncoding() {
-        if (StringUtils.isEmpty(charsetEncoding) || charsetEncoding.equalsIgnoreCase(DEFAULT_ENCODING)) {
-            return DEFAULT_CHARSET_ENCODING;
-        }
-        
-        return charsetEncoding;
+        return this.charsetEncoding;
     }
 
     public String getFileFilter() {

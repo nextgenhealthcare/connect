@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.tcp;
 import java.util.Properties;
 
 import com.mirth.connect.model.ComponentProperties;
+import com.mirth.connect.util.CharsetUtils;
 
 public class TCPListenerProperties implements ComponentProperties {
     public static final String name = "TCP Listener";
@@ -42,7 +43,7 @@ public class TCPListenerProperties implements ComponentProperties {
         properties.put(TCP_ACK_NEW_CONNECTION_IP, "");
         properties.put(TCP_ACK_NEW_CONNECTION_PORT, "");
         properties.put(TCP_RESPONSE_VALUE, "None");
-        properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
+        properties.put(CONNECTOR_CHARSET_ENCODING, CharsetUtils.DEFAULT_ENCODING);
         properties.put(TCP_TYPE, "0");
         return properties;
     }
