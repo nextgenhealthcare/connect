@@ -28,7 +28,7 @@ public class LoginPanel extends javax.swing.JFrame {
 
     private LoginPanel() {
         initComponents();
-        setTitle("Mirth Connect Administrator - Login");
+        setTitle("Mirth Connect - Login");
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         jLabel5.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -82,6 +82,8 @@ public class LoginPanel extends javax.swing.JFrame {
             }
 
             PlatformUI.CLIENT_VERSION = version;
+            
+            setTitle("Mirth Connect " + version + " - Login");
             
             serverName.setText(mirthServer);
             

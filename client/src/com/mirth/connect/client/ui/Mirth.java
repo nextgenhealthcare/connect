@@ -72,6 +72,23 @@ public class Mirth {
 
         PlatformUI.MIRTH_FRAME.setVisible(true);
     }
+    
+    /**
+     * About menu item on Mac OS X
+     */
+    public static void aboutMac() {
+        new AboutMirth();
+    }
+    
+	/**
+	 * Quit menu item on Mac OS X. Only exit if on the login window, or if
+	 * logout is successful
+	 * 
+	 * @return quit
+	 */
+    public static boolean quitMac() {
+    	return (LoginPanel.getInstance().isVisible() || (PlatformUI.MIRTH_FRAME != null && PlatformUI.MIRTH_FRAME.logout()));
+    }
 
     private static void createMacKeyBindings() {
         int acceleratorKey = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
@@ -82,8 +99,8 @@ public class Mirth {
             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_X, acceleratorKey), DefaultEditorKit.cutAction),
             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_A, acceleratorKey), DefaultEditorKit.selectAllAction),
             // deleteNextWordAction and deletePrevWordAction not available in Java 1.5
-            // new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, acceleratorKey), DefaultEditorKit.deleteNextWordAction),
-            // new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, acceleratorKey), DefaultEditorKit.deletePrevWordAction),
+            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, acceleratorKey), DefaultEditorKit.deleteNextWordAction),
+            new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, acceleratorKey), DefaultEditorKit.deletePrevWordAction),
             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, acceleratorKey), DefaultEditorKit.nextWordAction),
             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_KP_RIGHT, acceleratorKey), DefaultEditorKit.nextWordAction),
             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, acceleratorKey), DefaultEditorKit.previousWordAction),
@@ -139,7 +156,7 @@ public class Mirth {
             username = "";
             password = "";
         }
-
+        
         SwingUtilities.invokeLater(new Runnable() {
 
             public void run() {
@@ -151,6 +168,8 @@ public class Mirth {
                     LookAndFeelAddons.setAddon(WindowsLookAndFeelAddons.class);
                     if (System.getProperty("os.name").toLowerCase().lastIndexOf("mac") != -1) {
                         createMacKeyBindings();
+                        OSXAdapter.setAboutHandler(Mirth.class, Mirth.class.getDeclaredMethod("aboutMac", (Class[]) null));
+                        OSXAdapter.setQuitHandler(Mirth.class, Mirth.class.getDeclaredMethod("quitMac", (Class[]) null));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

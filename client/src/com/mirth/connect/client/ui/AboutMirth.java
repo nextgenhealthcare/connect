@@ -29,14 +29,20 @@ public class AboutMirth extends javax.swing.JDialog {
         this.setResizable(false);
         setModal(true);
         pack();
-        Dimension dlgSize = getPreferredSize();
-        Dimension frmSize = parent.getSize();
-        Point loc = parent.getLocation();
-
-        if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
-            setLocationRelativeTo(null);
+        
+        // If this is being called from the LoginPanel, parent may be null
+        if (parent == null) {
+        	setLocationRelativeTo(null);
         } else {
-            setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+	        Dimension dlgSize = getPreferredSize();
+	        Dimension frmSize = parent.getSize();
+	        Point loc = parent.getLocation();
+	
+	        if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
+	            setLocationRelativeTo(null);
+	        } else {
+	            setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+	        }
         }
 
         setVisible(true);
@@ -45,9 +51,19 @@ public class AboutMirth extends javax.swing.JDialog {
     /** Loads the contents of about.txt */
     public void loadContent() {
         StringBuilder content = new StringBuilder();
-        content.append("Mirth Connect Administrator " + PlatformUI.SERVER_VERSION + "\n\n");
-        content.append("Built on " + PlatformUI.BUILD_DATE + "\n\n");
-        content.append("Server ID: " + PlatformUI.SERVER_ID + "\n\n");
+        
+        if (PlatformUI.SERVER_VERSION != null) {
+        	content.append("Mirth Connect Server " + PlatformUI.SERVER_VERSION + "\n\n");
+        }
+        
+        if (PlatformUI.BUILD_DATE != null) {
+        	content.append("Built on " + PlatformUI.BUILD_DATE + "\n\n");
+        }
+        
+        if (PlatformUI.SERVER_ID != null) {
+        	content.append("Server ID: " + PlatformUI.SERVER_ID + "\n\n");
+        }
+        
         content.append("Java version: " + System.getProperty("java.version") + "\n\n");
 
         content.append("(c) 2005-" + Calendar.getInstance().get(Calendar.YEAR) + " Mirth Corporation. All rights reserved. Visit http://www.mirthcorp.com\n\n");
