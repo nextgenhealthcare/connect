@@ -51,6 +51,8 @@ import com.mirth.connect.server.controllers.MessageObjectController;
 import com.mirth.connect.server.controllers.MigrationController;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.controllers.UserController;
+import com.mirth.connect.server.logging.JuliToLog4JService;
+import com.mirth.connect.server.logging.LogOutputStream;
 import com.mirth.connect.server.servlets.AlertServlet;
 import com.mirth.connect.server.servlets.ChannelServlet;
 import com.mirth.connect.server.servlets.ChannelStatisticsServlet;
@@ -477,5 +479,7 @@ public class Mirth extends Thread {
     private void initializeLogging() {
         // Route all System.err messages to log4j error
         System.setErr(new PrintStream(new LogOutputStream()));
+        // Route all java.util.logging.Logger output to log4j
+        JuliToLog4JService.getInstance().start();
     }
 }

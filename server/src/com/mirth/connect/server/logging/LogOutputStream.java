@@ -16,7 +16,7 @@
  *
  */
 
-package com.mirth.connect.server;
+package com.mirth.connect.server.logging;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
