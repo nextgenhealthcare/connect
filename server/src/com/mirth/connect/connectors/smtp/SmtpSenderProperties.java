@@ -23,6 +23,7 @@ public class SmtpSenderProperties implements ComponentProperties {
     public static final String DATATYPE = "DataType";
     public static final String SMTP_HOST = "smtpHost";
     public static final String SMTP_PORT = "smtpPort";
+    public static final String SMTP_TIMEOUT = "timeout";
     public static final String SMTP_SECURE = "encryption";
     public static final String SMTP_AUTHENTICATION = "authentication";
     public static final String SMTP_USERNAME = "username";
@@ -44,6 +45,7 @@ public class SmtpSenderProperties implements ComponentProperties {
         properties.put(DATATYPE, name);
         properties.put(SMTP_HOST, "");
         properties.put(SMTP_PORT, "25");
+        properties.put(SMTP_TIMEOUT, "5000");
         properties.put(SMTP_SECURE, "none");
         properties.put(SMTP_AUTHENTICATION, "0");
         properties.put(SMTP_USERNAME, "");

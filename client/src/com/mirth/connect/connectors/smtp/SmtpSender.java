@@ -69,6 +69,7 @@ public class SmtpSender extends ConnectorClass {
         properties.put(SmtpSenderProperties.DATATYPE, name);
         properties.put(SmtpSenderProperties.SMTP_HOST, smtpHostField.getText());
         properties.put(SmtpSenderProperties.SMTP_PORT, smtpPortField.getText());
+        properties.put(SmtpSenderProperties.SMTP_TIMEOUT, sendTimeoutField.getText());
 
         if (encryptionTls.isSelected()) {
             properties.put(SmtpSenderProperties.SMTP_SECURE, "TLS");
@@ -109,6 +110,7 @@ public class SmtpSender extends ConnectorClass {
 
         smtpHostField.setText((String) props.get(SmtpSenderProperties.SMTP_HOST));
         smtpPortField.setText((String) props.get(SmtpSenderProperties.SMTP_PORT));
+        sendTimeoutField.setText((String) props.get(SmtpSenderProperties.SMTP_TIMEOUT));
 
         if (((String) props.getProperty(SmtpSenderProperties.SMTP_SECURE)).equalsIgnoreCase("TLS")) {
             encryptionTls.setSelected(true);
@@ -163,10 +165,18 @@ public class SmtpSender extends ConnectorClass {
                 smtpHostField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
+        
         if (((String) props.get(SmtpSenderProperties.SMTP_PORT)).length() == 0) {
             valid = false;
             if (highlight) {
                 smtpPortField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        
+        if (((String) props.get(SmtpSenderProperties.SMTP_TIMEOUT)).length() == 0) {
+            valid = false;
+            if (highlight) {
+                sendTimeoutField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         
@@ -183,6 +193,7 @@ public class SmtpSender extends ConnectorClass {
     private void resetInvalidProperties() {
         smtpHostField.setBackground(null);
         smtpPortField.setBackground(null);
+        sendTimeoutField.setBackground(null);
         toField.setBackground(null);
     }
 
@@ -534,6 +545,8 @@ public class SmtpSender extends ConnectorClass {
         bodyLabel = new javax.swing.JLabel();
         usernameField = new com.mirth.connect.client.ui.components.MirthTextField();
         smtpPortField = new com.mirth.connect.client.ui.components.MirthTextField();
+        sendTimeoutLabel = new javax.swing.JLabel();
+        sendTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
         smtpHostField = new com.mirth.connect.client.ui.components.MirthTextField();
         toField = new com.mirth.connect.client.ui.components.MirthTextField();
         subjectField = new com.mirth.connect.client.ui.components.MirthTextField();
@@ -585,6 +598,10 @@ public class SmtpSender extends ConnectorClass {
         usernameField.setToolTipText("If the SMTP server requires authentication to send a message, enter the username here.");
 
         smtpPortField.setToolTipText("<html>The port number of the SMTP server to send the email message to.<br>Generally, the default port of 25 is used.</html>");
+
+        sendTimeoutLabel.setText("Send Timeout (ms):");
+
+        sendTimeoutField.setToolTipText("<html>Enter the number of milliseconds for the SMTP socket connection timeout.</html>");
 
         smtpHostField.setToolTipText("<html>Enter the DNS domain name or IP address of the SMTP server to use to send the email messages.<br>Note that sending email to an SMTP server that is not expecting it may result in the IP of the box running Mirth being added to the server's \"blacklist.\"</html>");
 
@@ -753,23 +770,25 @@ public class SmtpSender extends ConnectorClass {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(fromLabel)
-                    .addComponent(useAuthenticationLabel)
-                    .addComponent(bodyLabel)
-                    .addComponent(encryptionLabel)
-                    .addComponent(subjectLabel)
-                    .addComponent(usernameLabel)
-                    .addComponent(smtpPortLabel)
-                    .addComponent(toLabel)
-                    .addComponent(passwordLabel)
-                    .addComponent(htmlLabel)
-                    .addComponent(smtpHostLabel)
-                    .addComponent(attachmentsLabel)
-                    .addComponent(headersLabel)
-                    .addComponent(charsetEncodingLabel))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(sendTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(bodyLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(subjectLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(charsetEncodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(headersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(fromLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(useAuthenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(attachmentsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(htmlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(smtpHostLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(smtpPortLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(toLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(encryptionLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
@@ -823,6 +842,10 @@ public class SmtpSender extends ConnectorClass {
                     .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sendTimeoutLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(encryptionLabel)
                     .addComponent(encryptionNone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(encryptionTls, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -864,7 +887,7 @@ public class SmtpSender extends ConnectorClass {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(bodyLabel)
-                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE))
+                    .addComponent(bodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(headersPane, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1011,6 +1034,8 @@ private void deleteHeaderButtonActionPerformed(java.awt.event.ActionEvent evt) {
     private javax.swing.JLabel passwordLabel;
     private javax.swing.ButtonGroup secureButtonGroup;
     private javax.swing.JButton sendTestEmailButton;
+    private com.mirth.connect.client.ui.components.MirthTextField sendTimeoutField;
+    private javax.swing.JLabel sendTimeoutLabel;
     private com.mirth.connect.client.ui.components.MirthTextField smtpHostField;
     private javax.swing.JLabel smtpHostLabel;
     private com.mirth.connect.client.ui.components.MirthTextField smtpPortField;

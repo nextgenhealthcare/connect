@@ -36,24 +36,26 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="sendTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="bodyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="subjectLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="fromLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="useAuthenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="bodyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="encryptionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="subjectLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="smtpPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="toLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="htmlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="smtpHostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="headersLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="charsetEncodingLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="smtpPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="toLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="encryptionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="sendTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                   <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="bodyTextPane" pref="317" max="32767" attributes="2"/>
                   <Group type="102" alignment="0" attributes="0">
@@ -121,6 +123,11 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="sendTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sendTimeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="encryptionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="encryptionNone" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="encryptionTls" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -171,7 +178,7 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="bodyLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="bodyTextPane" pref="110" max="32767" attributes="0"/>
+                  <Component id="bodyTextPane" pref="84" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -242,6 +249,16 @@
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="smtpPortField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port number of the SMTP server to send the email message to.&lt;br&gt;Generally, the default port of 25 is used.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="sendTimeoutLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Send Timeout (ms):"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="sendTimeoutField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the number of milliseconds for the SMTP socket connection timeout.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="smtpHostField">
