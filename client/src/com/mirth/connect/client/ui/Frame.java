@@ -231,7 +231,7 @@ public class Frame extends JXFrame {
         this.addWindowListener(new WindowAdapter() {
 
             public void windowClosing(WindowEvent e) {
-                if (logout()) {
+                if (logout(true)) {
                     System.exit(0);
                 }
             }
@@ -1757,10 +1757,10 @@ public class Frame extends JXFrame {
     }
 
     public void doLogout() {
-        logout();
+        logout(false);
     }
 
-    public boolean logout() {
+    public boolean logout(boolean quit) {
         if (!confirmLeave()) {
             return false;
         }
@@ -1780,7 +1780,10 @@ public class Frame extends JXFrame {
             mirthClient.cleanup();
             mirthClient.logout();
             this.dispose();
-            LoginPanel.getInstance().initialize(PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION, "", "");
+            
+            if (!quit) {
+                LoginPanel.getInstance().initialize(PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION, "", "");
+            }
         } catch (ClientException e) {
             alertException(this, e.getStackTrace(), e.getMessage());
         }

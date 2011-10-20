@@ -87,7 +87,7 @@ public class Mirth {
 	 * @return quit
 	 */
     public static boolean quitMac() {
-    	return (LoginPanel.getInstance().isVisible() || (PlatformUI.MIRTH_FRAME != null && PlatformUI.MIRTH_FRAME.logout()));
+    	return (LoginPanel.getInstance().isVisible() || (PlatformUI.MIRTH_FRAME != null && PlatformUI.MIRTH_FRAME.logout(true)));
     }
 
     private static void createMacKeyBindings() {
