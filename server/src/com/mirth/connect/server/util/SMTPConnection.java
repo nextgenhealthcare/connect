@@ -22,7 +22,7 @@ public class SMTPConnection {
     private String username;
     private String password;
     private String from;
-    private int socketTimeout;
+    private int socketTimeout = 5000;
 
     public String getHost() {
         return host;
@@ -79,7 +79,7 @@ public class SMTPConnection {
     public void setFrom(String from) {
         this.from = from;
     }
-    
+
     public int getSocketTimeout() {
         return socketTimeout;
     }
@@ -102,13 +102,7 @@ public class SMTPConnection {
         Email email = new SimpleEmail();
         email.setHostName(host);
         email.setSmtpPort(Integer.parseInt(port));
-        
-        if (socketTimeout > -1) {
-            email.setSocketConnectionTimeout(socketTimeout);    
-        } else {
-            email.setSocketConnectionTimeout(5000);
-        }
-        
+        email.setSocketConnectionTimeout(socketTimeout);
         email.setDebug(true);
 
         if (useAuthentication) {
