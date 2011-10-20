@@ -118,13 +118,34 @@ public class WebStartServlet extends HttpServlet {
         jnlpElement.setAttribute("codebase", codebase);
 
         Element resourcesElement = (Element) jnlpElement.getElementsByTagName("resources").item(0);
-        List<String> clientLibs = ControllerFactory.getFactory().createExtensionController().getClientLibraries();
         
-        for (String clientLib : clientLibs) {
+        List<String> defaultClientLibs = new ArrayList<String>();
+        defaultClientLibs.add("mirth-client.jar");
+        defaultClientLibs.add("mirth-client-core.jar");
+        defaultClientLibs.add("mirth-crypto.jar");
+        defaultClientLibs.add("mirth-vocab.jar");
+
+        for (String defaultClientLib : defaultClientLibs) {
             Element jarElement = document.createElement("jar");
             jarElement.setAttribute("download", "eager");
-            jarElement.setAttribute("href", "webstart/client-lib/" + clientLib);
+            jarElement.setAttribute("href", "webstart/client-lib/" + defaultClientLib);
+            
+            if (defaultClientLib.equals("mirth-client.jar")) {
+                jarElement.setAttribute("main", "true");
+            }
+            
             resourcesElement.appendChild(jarElement);
+        }
+
+        List<String> clientLibs = ControllerFactory.getFactory().createExtensionController().getClientLibraries();
+
+        for (String clientLib : clientLibs) {
+            if (!defaultClientLibs.contains(clientLib)) {
+                Element jarElement = document.createElement("jar");
+                jarElement.setAttribute("download", "eager");
+                jarElement.setAttribute("href", "webstart/client-lib/" + clientLib);
+                resourcesElement.appendChild(jarElement);
+            }
         }
 
         List<MetaData> allExtensions = new ArrayList<MetaData>();
@@ -170,7 +191,7 @@ public class WebStartServlet extends HttpServlet {
         List<MetaData> allExtensions = new ArrayList<MetaData>();
         allExtensions.addAll(ControllerFactory.getFactory().createExtensionController().getConnectorMetaData().values());
         allExtensions.addAll(ControllerFactory.getFactory().createExtensionController().getPluginMetaData().values());
-        List<ExtensionLibrary> librariesToAddToJnlp = new ArrayList<ExtensionLibrary>();
+        Set<String> librariesToAddToJnlp = new HashSet<String>();
         List<String> extensionsWithThePath = new ArrayList<String>();
 
         for (MetaData metaData : allExtensions) {
@@ -179,7 +200,7 @@ public class WebStartServlet extends HttpServlet {
 
                 for (ExtensionLibrary library : metaData.getLibraries()) {
                     if (library.getType().equals(ExtensionLibrary.Type.CLIENT) || library.getType().equals(ExtensionLibrary.Type.SHARED)) {
-                        librariesToAddToJnlp.add(library);
+                        librariesToAddToJnlp.add(library.getPath());
                     }
                 }
             }
@@ -210,11 +231,11 @@ public class WebStartServlet extends HttpServlet {
 
         Element resourcesElement = document.createElement("resources");
 
-        for (ExtensionLibrary library : librariesToAddToJnlp) {
+        for (String library : librariesToAddToJnlp) {
             Element jarElement = document.createElement("jar");
             jarElement.setAttribute("download", "eager");
             // this path is relative to the servlet path
-            jarElement.setAttribute("href", "libs/" + extensionPath + "/" + library.getPath());
+            jarElement.setAttribute("href", "libs/" + extensionPath + "/" + library);
             resourcesElement.appendChild(jarElement);
         }
 
