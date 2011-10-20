@@ -30,8 +30,22 @@ public abstract class AbstractSettings {
      * @return
      */
     protected Boolean intToBooleanObject(String str) {
+        return intToBooleanObject(str, null);
+    }
+    
+    /**
+     * Takes a String and returns a Boolean Object.
+     * "1" = true
+     * "0" = false
+     * null or not a number = defaultValue
+     * 
+     * @param str
+     * @param defaultValue
+     * @return
+     */
+    protected Boolean intToBooleanObject(String str, Boolean defaultValue) {
         int i = NumberUtils.toInt(str, -1);
-        return (i == -1 ? null : BooleanUtils.toBooleanObject(i));
+        return (i == -1 ? defaultValue : BooleanUtils.toBooleanObject(i));
     }
 
     /**
@@ -43,8 +57,21 @@ public abstract class AbstractSettings {
      * @return
      */
     protected Integer toIntegerObject(String str) {
+        return toIntegerObject(str, null);
+    }
+    
+    /**
+     * Takes a String and returns an Integer Object.
+     * "1" = 1
+     * null or not a number = defaultValue
+     * 
+     * @param str
+     * @param defaultValue
+     * @return
+     */
+    protected Integer toIntegerObject(String str, Integer defaultValue) {
         int i = NumberUtils.toInt(str, -1);
-        return (i == -1 ? null : i);
+        return (i == -1 ? defaultValue : i);
     }
     
     /**
@@ -56,7 +83,20 @@ public abstract class AbstractSettings {
      * @return
      */
     protected Long toLongObject(String str) {
+        return toLongObject(str, null);
+    }
+    
+    /**
+     * Takes a String and returns a Long Object.
+     * "1" = 1
+     * null or not a number = defaultValue
+     * 
+     * @param str
+     * @param defaultValue
+     * @return
+     */
+    protected Long toLongObject(String str, Long defaultValue) {
         long i = NumberUtils.toLong(str, -1);
-        return (i == -1 ? null : i);
+        return (i == -1 ? defaultValue : i);
     }
 }

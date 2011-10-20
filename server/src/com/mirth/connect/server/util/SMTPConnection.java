@@ -24,6 +24,21 @@ public class SMTPConnection {
     private String from;
     private int socketTimeout = 5000;
 
+    public SMTPConnection(String host, String port, int socketTimeout, boolean useAuthentication, String secure, String username, String password, String from) {
+        this.host = host;
+        this.port = port;
+        this.socketTimeout = socketTimeout;
+        this.useAuthentication = useAuthentication;
+        this.secure = secure;
+        this.username = username;
+        this.password = password;
+        this.from = from;
+    }
+
+    public SMTPConnection(String host, String port, boolean useAuthentication, String secure, String username, String password, String from) {
+        this(host, port, 5000, useAuthentication, secure, username, password, from);
+    }
+
     public String getHost() {
         return host;
     }
@@ -86,16 +101,6 @@ public class SMTPConnection {
 
     public void setSocketTimeout(int socketTimeout) {
         this.socketTimeout = socketTimeout;
-    }
-
-    public SMTPConnection(String host, String port, boolean useAuthentication, String secure, String username, String password, String from) {
-        this.host = host;
-        this.port = port;
-        this.useAuthentication = useAuthentication;
-        this.secure = secure;
-        this.username = username;
-        this.password = password;
-        this.from = from;
     }
 
     public void send(String toList, String ccList, String from, String subject, String body) throws EmailException {

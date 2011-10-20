@@ -64,11 +64,11 @@ public class UpdateSettings extends AbstractSettings implements Serializable, Au
     }
 
     public void setProperties(Properties properties) {
-        setFirstLogin(intToBooleanObject((String) properties.get(FIRST_LOGIN)));
-        setUpdatesEnabled(intToBooleanObject((String) properties.get(UPDATES_ENABLED)));
-        setStatsEnabled(intToBooleanObject((String) properties.get(STATS_ENABLED)));
-        setUpdateUrl((String) properties.get(UPDATE_URL));
-        setLastStatsTime(toLongObject((String) properties.get(LAST_STATS_TIME)));
+        setFirstLogin(intToBooleanObject(properties.getProperty(FIRST_LOGIN)));
+        setUpdatesEnabled(intToBooleanObject(properties.getProperty(UPDATES_ENABLED)));
+        setStatsEnabled(intToBooleanObject(properties.getProperty(STATS_ENABLED)));
+        setUpdateUrl(properties.getProperty(UPDATE_URL));
+        setLastStatsTime(toLongObject(properties.getProperty(LAST_STATS_TIME)));
     }
 
     public Boolean getFirstLogin() {

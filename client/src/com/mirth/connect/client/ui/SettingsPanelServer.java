@@ -42,6 +42,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         provideUsageStatsMoreInfoLabel.setToolTipText(UIConstants.PRIVACY_TOOLTIP);
         provideUsageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         maxQueueSizeField.setDocument(new MirthFieldConstraints(8, false, false, true));
+        smtpTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
     }
 
     public void doRefresh() {
@@ -87,6 +88,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             getFrame().alertWarning(this, "Please enter a valid maximum queue size.");
             return;
         }
+        
+        // Integer smtpTimeput will be null if it was invalid
+        if (serverSettings.getSmtpTimeout() == null) {
+            getFrame().alertWarning(this, "Please enter a valid SMTP timeout.");
+            return;
+        }
 
         getFrame().setWorking("Saving " + getTabName() + " settings...", true);
 
@@ -125,6 +132,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             smtpPortField.setText(serverSettings.getSmtpPort());
         } else {
             smtpPortField.setText("");
+        }
+        
+        if (serverSettings.getSmtpTimeout() != null) {
+            smtpTimeoutField.setText(serverSettings.getSmtpTimeout().toString());
+        } else {
+            smtpTimeoutField.setText("");
         }
 
         if (serverSettings.getSmtpFrom() != null) {
@@ -211,6 +224,15 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         
         serverSettings.setSmtpHost(smtpHostField.getText());
         serverSettings.setSmtpPort(smtpPortField.getText());
+        
+        // Set the SMTP timeout Integer to null if it was invalid
+        int smtpTimeout = NumberUtils.toInt(smtpTimeoutField.getText(), -1);
+        if (smtpTimeout == -1) {
+            serverSettings.setSmtpTimeout(null);
+        } else {
+            serverSettings.setSmtpTimeout(smtpTimeout);
+        }
+        
         serverSettings.setSmtpFrom(defaultFromAddressField.getText());
         
         if (secureConnectionTLSRadio.isSelected()) {
@@ -334,6 +356,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         secureConnectionNoneRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         secureConnectionTLSRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         secureConnectionSSLRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        smtpTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
+        smtpTimeoutLabel = new javax.swing.JLabel();
         configurationPanel = new javax.swing.JPanel();
         clearGlobalMapLabel = new javax.swing.JLabel();
         clearGlobalMapYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -391,7 +415,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         requireAuthenticationLabel.setText("Require Authentication:");
 
-        defaultFromAddressLabel.setText("Default from Address:");
+        defaultFromAddressLabel.setText("Default From Address:");
 
         defaultFromAddressField.setToolTipText("Default \"from\" email address used for global SMTP settings.");
 
@@ -427,24 +451,30 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         secureConnectionSSLRadio.setToolTipText("Toggles TLS and SSL connections for global SMTP settings.");
         secureConnectionSSLRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        smtpTimeoutField.setToolTipText("SMTP socket connection timeout in milliseconds used for global SMTP settings.");
+
+        smtpTimeoutLabel.setText("Send Timeout (ms):");
+
         javax.swing.GroupLayout emailPanelLayout = new javax.swing.GroupLayout(emailPanel);
         emailPanel.setLayout(emailPanelLayout);
         emailPanelLayout.setHorizontalGroup(
             emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(emailPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(requireAuthenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(secureConnectionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(defaultFromAddressLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(smtpPortLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(smtpHostLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(passwordLabel)
+                    .addComponent(usernameLabel)
+                    .addComponent(requireAuthenticationLabel)
+                    .addComponent(secureConnectionLabel)
+                    .addComponent(defaultFromAddressLabel)
+                    .addComponent(smtpPortLabel)
+                    .addComponent(smtpHostLabel)
+                    .addComponent(smtpTimeoutLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(smtpTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(defaultFromAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
                     .addGroup(emailPanelLayout.createSequentialGroup()
                         .addComponent(secureConnectionNoneRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -473,6 +503,10 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(smtpPortLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(smtpTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(smtpTimeoutLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(defaultFromAddressLabel)
@@ -703,6 +737,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     private javax.swing.JLabel smtpHostLabel;
     private com.mirth.connect.client.ui.components.MirthTextField smtpPortField;
     private javax.swing.JLabel smtpPortLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField smtpTimeoutField;
+    private javax.swing.JLabel smtpTimeoutLabel;
     private com.mirth.connect.client.ui.components.MirthTextField updateUrlField;
     private javax.swing.JLabel updateUrlLabel;
     private com.mirth.connect.client.ui.components.MirthTextField usernameField;

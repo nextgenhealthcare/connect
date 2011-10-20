@@ -16,6 +16,6 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 public class SMTPConnectionFactory {
     public static SMTPConnection createSMTPConnection() throws ControllerException {
         ServerSettings settings = ControllerFactory.getFactory().createConfigurationController().getServerSettings();
-        return new SMTPConnection(settings.getSmtpHost(), settings.getSmtpPort(), settings.getSmtpAuth(), settings.getSmtpSecure(), settings.getSmtpUsername(), settings.getSmtpPassword(), settings.getSmtpFrom());
+        return new SMTPConnection(settings.getSmtpHost(), settings.getSmtpPort(), settings.getSmtpTimeout(), settings.getSmtpAuth(), settings.getSmtpSecure(), settings.getSmtpUsername(), settings.getSmtpPassword(), settings.getSmtpFrom());
     }
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
@@ -85,7 +85,7 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" groupAlignment="1" attributes="0">
                       <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="requireAuthenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -93,11 +93,13 @@
                       <Component id="defaultFromAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="smtpPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="smtpHostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="smtpTimeoutLabel" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="smtpTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                       <Component id="smtpHostField" linkSize="1" alignment="0" min="-2" pref="117" max="-2" attributes="1"/>
-                      <Component id="smtpPortField" alignment="0" min="-2" pref="44" max="-2" attributes="0"/>
+                      <Component id="smtpPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
                       <Component id="defaultFromAddressField" linkSize="1" alignment="0" pref="117" max="32767" attributes="1"/>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="secureConnectionNoneRadio" min="-2" max="-2" attributes="0"/>
@@ -130,7 +132,12 @@
                       <Component id="smtpPortField" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="smtpPortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="smtpTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="smtpTimeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="defaultFromAddressLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="defaultFromAddressField" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -238,7 +245,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="defaultFromAddressLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Default from Address:"/>
+            <Property name="text" type="java.lang.String" value="Default From Address:"/>
           </Properties>
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="defaultFromAddressField">
@@ -330,6 +337,16 @@
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="smtpTimeoutField">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="SMTP socket connection timeout in milliseconds used for global SMTP settings."/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="smtpTimeoutLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Send Timeout (ms):"/>
           </Properties>
         </Component>
       </SubComponents>

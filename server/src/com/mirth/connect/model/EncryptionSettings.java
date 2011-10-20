@@ -14,7 +14,7 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
     public static final String DEFAULT_ENCRYPTION_ALGORITHM = "AES";
     public static final String DEFAULT_DIGEST_ALGORITHM = "SHA256";
     public static final String DEFAULT_SECURTITY_PROVIDER = BouncyCastleProvider.class.getName();
-    public static final String DEFAULT_ENCRYPTION_KEY_LENGTH = "128";
+    public static final Integer DEFAULT_ENCRYPTION_KEY_LENGTH = 128;
 
     private static final String ENCRYPTION_EXPORT = "encryption.export";
     private static final String ENCRYPTION_PROPERTIES = "encryption.properties";
@@ -23,13 +23,13 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
     private static final String DIGEST_ALGORITHM = "digest.algorithm";
     private static final String SECURITY_PROVIDER = "security.provider";
 
-    private Boolean encryptExport = false;
-    private Boolean encryptProperties = false;
-    private String encryptionAlgorithm = null;
-    private int encryptionKeyLength = -1;
-    private String digestAlgorithm = null;
-    private String securityProvider = null;
-    private byte[] secretKey = null;
+    private Boolean encryptExport;
+    private Boolean encryptProperties;
+    private String encryptionAlgorithm;
+    private Integer encryptionKeyLength;
+    private String digestAlgorithm;
+    private String securityProvider;
+    private byte[] secretKey;
 
     public EncryptionSettings() {
 
@@ -63,11 +63,11 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
         this.encryptionAlgorithm = encryptionAlgorithm;
     }
 
-    public int getEncryptionKeyLength() {
+    public Integer getEncryptionKeyLength() {
         return encryptionKeyLength;
     }
 
-    public void setEncryptionKeyLength(int encryptionKeyLength) {
+    public void setEncryptionKeyLength(Integer encryptionKeyLength) {
         this.encryptionKeyLength = encryptionKeyLength;
     }
 
@@ -97,12 +97,12 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
 
     @Override
     public void setProperties(Properties properties) {
-        setEncryptExport(intToBooleanObject(properties.getProperty(ENCRYPTION_EXPORT, "0")));
-        setEncryptProperties(intToBooleanObject(properties.getProperty(ENCRYPTION_PROPERTIES, "0")));
-        setEncryptionAlgorithm((String) properties.getProperty(ENCRYPTION_ALGORITHM, DEFAULT_ENCRYPTION_ALGORITHM));
-        setEncryptionKeyLength(Integer.parseInt((String) properties.getProperty(ENCRYPTION_KEY_LENGTH, DEFAULT_ENCRYPTION_KEY_LENGTH)));
-        setDigestAlgorithm((String) properties.getProperty(DIGEST_ALGORITHM, DEFAULT_DIGEST_ALGORITHM));
-        setSecurityProvider((String) properties.getProperty(SECURITY_PROVIDER, DEFAULT_SECURTITY_PROVIDER));
+        setEncryptExport(intToBooleanObject(properties.getProperty(ENCRYPTION_EXPORT), false));
+        setEncryptProperties(intToBooleanObject(properties.getProperty(ENCRYPTION_PROPERTIES), false));
+        setEncryptionAlgorithm(properties.getProperty(ENCRYPTION_ALGORITHM, DEFAULT_ENCRYPTION_ALGORITHM));
+        setEncryptionKeyLength(toIntegerObject(properties.getProperty(ENCRYPTION_KEY_LENGTH), DEFAULT_ENCRYPTION_KEY_LENGTH));
+        setDigestAlgorithm(properties.getProperty(DIGEST_ALGORITHM, DEFAULT_DIGEST_ALGORITHM));
+        setSecurityProvider(properties.getProperty(SECURITY_PROVIDER, DEFAULT_SECURTITY_PROVIDER));
     }
 
     @Override
@@ -121,8 +121,8 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
             properties.put(ENCRYPTION_ALGORITHM, getEncryptionAlgorithm());
         }
 
-        if (getEncryptionKeyLength() != -1) {
-            properties.put(ENCRYPTION_KEY_LENGTH, getEncryptionKeyLength());
+        if (getEncryptionKeyLength() != null) {
+            properties.put(ENCRYPTION_KEY_LENGTH, getEncryptionKeyLength().toString());
         }
 
         if (getDigestAlgorithm() != null) {

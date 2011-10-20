@@ -25,6 +25,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     private static final String MAX_QUEUE_SIZE = "server.maxqueuesize";
     private static final String SMTP_HOST = "smtp.host";
     private static final String SMTP_PORT = "smtp.port";
+    private static final String SMTP_TIMEOUT = "smtp.timeout";
     private static final String SMTP_FROM = "smtp.from";
     private static final String SMTP_SECURE = "smtp.secure";
     private static final String SMTP_AUTH = "smtp.auth";
@@ -38,6 +39,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     // SMTP
     private String smtpHost;
     private String smtpPort;
+    private Integer smtpTimeout;
     private String smtpFrom;
     private String smtpSecure;
     private Boolean smtpAuth;
@@ -67,6 +69,9 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         if (getSmtpPort() != null) {
             properties.put(SMTP_PORT, getSmtpPort());
         }
+        if (getSmtpTimeout() != null) {
+            properties.put(SMTP_TIMEOUT, getSmtpTimeout().toString());
+        }
         if (getSmtpFrom() != null) {
             properties.put(SMTP_FROM, getSmtpFrom());
         }
@@ -87,15 +92,16 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     }
 
     public void setProperties(Properties properties) {
-        setClearGlobalMap(intToBooleanObject((String) properties.get(CLEAR_GLOBAL_MAP)));
-        setMaxQueueSize(toIntegerObject((String) properties.get(MAX_QUEUE_SIZE)));
-        setSmtpHost((String) properties.get(SMTP_HOST));
-        setSmtpPort((String) properties.get(SMTP_PORT));
-        setSmtpFrom((String) properties.get(SMTP_FROM));
-        setSmtpSecure((String) properties.get(SMTP_SECURE));
-        setSmtpAuth(intToBooleanObject((String) properties.get(SMTP_AUTH)));
-        setSmtpUsername((String) properties.get(SMTP_USERNAME));
-        setSmtpPassword((String) properties.get(SMTP_PASSWORD));
+        setClearGlobalMap(intToBooleanObject(properties.getProperty(CLEAR_GLOBAL_MAP)));
+        setMaxQueueSize(toIntegerObject(properties.getProperty(MAX_QUEUE_SIZE)));
+        setSmtpHost(properties.getProperty(SMTP_HOST));
+        setSmtpPort(properties.getProperty(SMTP_PORT));
+        setSmtpTimeout(toIntegerObject(properties.getProperty(SMTP_TIMEOUT)));
+        setSmtpFrom(properties.getProperty(SMTP_FROM));
+        setSmtpSecure(properties.getProperty(SMTP_SECURE));
+        setSmtpAuth(intToBooleanObject(properties.getProperty(SMTP_AUTH)));
+        setSmtpUsername(properties.getProperty(SMTP_USERNAME));
+        setSmtpPassword(properties.getProperty(SMTP_PASSWORD));
     }
     
     public Boolean getClearGlobalMap() {
@@ -128,6 +134,14 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
 
     public void setSmtpPort(String smtpPort) {
         this.smtpPort = smtpPort;
+    }
+    
+    public Integer getSmtpTimeout() {
+        return smtpTimeout;
+    }
+
+    public void setSmtpTimeout(Integer smtpTimeout) {
+        this.smtpTimeout = smtpTimeout;
     }
 
     public String getSmtpFrom() {
