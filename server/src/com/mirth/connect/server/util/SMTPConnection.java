@@ -22,6 +22,71 @@ public class SMTPConnection {
     private String username;
     private String password;
     private String from;
+    private int socketTimeout;
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public boolean isUseAuthentication() {
+        return useAuthentication;
+    }
+
+    public void setUseAuthentication(boolean useAuthentication) {
+        this.useAuthentication = useAuthentication;
+    }
+
+    public String getSecure() {
+        return secure;
+    }
+
+    public void setSecure(String secure) {
+        this.secure = secure;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
+    
+    public int getSocketTimeout() {
+        return socketTimeout;
+    }
+
+    public void setSocketTimeout(int socketTimeout) {
+        this.socketTimeout = socketTimeout;
+    }
 
     public SMTPConnection(String host, String port, boolean useAuthentication, String secure, String username, String password, String from) {
         this.host = host;
@@ -37,7 +102,13 @@ public class SMTPConnection {
         Email email = new SimpleEmail();
         email.setHostName(host);
         email.setSmtpPort(Integer.parseInt(port));
-        email.setSocketConnectionTimeout(5000);
+        
+        if (socketTimeout > -1) {
+            email.setSocketConnectionTimeout(socketTimeout);    
+        } else {
+            email.setSocketConnectionTimeout(5000);
+        }
+        
         email.setDebug(true);
 
         if (useAuthentication) {
