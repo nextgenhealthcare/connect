@@ -45,7 +45,17 @@ public abstract class AbstractSettings {
      */
     protected Boolean intToBooleanObject(String str, Boolean defaultValue) {
         int i = NumberUtils.toInt(str, -1);
-        return (i == -1 ? defaultValue : BooleanUtils.toBooleanObject(i));
+        
+        if (i == -1) {
+            // Must return null explicitly to avoid Java NPE due to autoboxing
+            if (defaultValue == null) {
+                return null;
+            } else {
+                return defaultValue;
+            }
+        } else {
+            return BooleanUtils.toBooleanObject(i);
+        }
     }
 
     /**
@@ -71,7 +81,17 @@ public abstract class AbstractSettings {
      */
     protected Integer toIntegerObject(String str, Integer defaultValue) {
         int i = NumberUtils.toInt(str, -1);
-        return (i == -1 ? defaultValue : i);
+        
+        if (i == -1) {
+            // Must return null explicitly to avoid Java NPE due to autoboxing
+            if (defaultValue == null) {
+                return null;
+            } else {
+                return defaultValue;
+            }
+        } else {
+            return i;
+        }
     }
     
     /**
@@ -97,6 +117,16 @@ public abstract class AbstractSettings {
      */
     protected Long toLongObject(String str, Long defaultValue) {
         long i = NumberUtils.toLong(str, -1);
-        return (i == -1 ? defaultValue : i);
+        
+        if (i == -1) {
+            // Must return null explicitly to avoid Java NPE due to autoboxing
+            if (defaultValue == null) {
+                return null;
+            } else {
+                return defaultValue;
+            }
+        } else {
+            return i;
+        }
     }
 }
