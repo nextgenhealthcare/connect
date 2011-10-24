@@ -9,6 +9,8 @@
 
 package com.mirth.connect.model.converters;
 
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -122,8 +124,16 @@ public class ObjectXMLSerializer {
         return xstream.toXML(source);
     }
 
+    public void toXML(Object source, Writer writer) {
+        xstream.toXML(source, writer);
+    }
+
     public Object fromXML(String source) {
         return xstream.fromXML(source);
+    }
+
+    public Object fromXML(Reader reader) {
+        return xstream.fromXML(reader);
     }
 
     private void processAnnotations() {
