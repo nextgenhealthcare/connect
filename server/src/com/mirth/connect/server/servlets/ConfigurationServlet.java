@@ -53,7 +53,7 @@ public class ConfigurationServlet extends MirthServlet {
                 if (operation.equals(Operations.CONFIGURATION_CHARSET_ENCODINGS_GET)) {
                     if (isUserAuthorized(request, null)) {
                         response.setContentType(APPLICATION_XML);
-                        out.println(serializer.toXML(configurationController.getAvaiableCharsetEncodings()));
+                        serializer.toXML(configurationController.getAvaiableCharsetEncodings(), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -61,7 +61,7 @@ public class ConfigurationServlet extends MirthServlet {
                     response.setContentType(APPLICATION_XML);
 
                     if (isUserAuthorized(request, null)) {
-                        out.println(serializer.toXML(configurationController.getServerSettings()));
+                        serializer.toXML(configurationController.getServerSettings(), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -78,7 +78,7 @@ public class ConfigurationServlet extends MirthServlet {
                     response.setContentType(APPLICATION_XML);
 
                     if (isUserAuthorized(request, null)) {
-                        out.println(serializer.toXML(configurationController.getUpdateSettings()));
+                        serializer.toXML(configurationController.getUpdateSettings(), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -95,7 +95,7 @@ public class ConfigurationServlet extends MirthServlet {
                     response.setContentType(APPLICATION_XML);
 
                     if (isUserAuthorized(request, null)) {
-                        out.println(serializer.toXML(configurationController.getEncryptionSettings()));
+                        serializer.toXML(configurationController.getEncryptionSettings(), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -109,7 +109,7 @@ public class ConfigurationServlet extends MirthServlet {
                 } else if (operation.equals(Operations.CONFIGURATION_DATABASE_DRIVERS_GET)) {
                     if (isUserAuthorized(request, null)) {
                         response.setContentType(APPLICATION_XML);
-                        out.println(serializer.toXML(configurationController.getDatabaseDrivers()));
+                        serializer.toXML(configurationController.getDatabaseDrivers(), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -130,7 +130,7 @@ public class ConfigurationServlet extends MirthServlet {
                 } else if (operation.equals(Operations.SERVER_CONFIGURATION_GET)) {
                     if (isUserAuthorized(request, null)) {
                         response.setContentType(APPLICATION_XML);
-                        out.println(serializer.toXML(configurationController.getServerConfiguration()));
+                        serializer.toXML(configurationController.getServerConfiguration(), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -160,7 +160,7 @@ public class ConfigurationServlet extends MirthServlet {
                 } else if (operation.equals(Operations.GLOBAL_SCRIPT_GET)) {
                     if (isUserAuthorized(request, null)) {
                         response.setContentType(APPLICATION_XML);
-                        out.println(serializer.toXML(scriptController.getGlobalScripts()));
+                        serializer.toXML(scriptController.getGlobalScripts(), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -176,7 +176,7 @@ public class ConfigurationServlet extends MirthServlet {
                 } else if (operation.equals(Operations.CONFIGURATION_PASSWORD_REQUIREMENTS_GET)) {
                     if (isUserAuthorized(request, null)) {
                         response.setContentType(APPLICATION_XML);
-                        out.println(serializer.toXML(configurationController.getPasswordRequirements()));
+                        serializer.toXML(configurationController.getPasswordRequirements(), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }

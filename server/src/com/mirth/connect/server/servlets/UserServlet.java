@@ -55,7 +55,7 @@ public class UserServlet extends MirthServlet {
             String password = request.getParameter("password");
             String version = request.getParameter("version");
             response.setContentType(TEXT_PLAIN);
-            out.println(serializer.toXML(login(request, response, userController, eventController, username, password, version)));
+            serializer.toXML(login(request, response, userController, eventController, username, password, version), out);
         } else if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
@@ -81,7 +81,7 @@ public class UserServlet extends MirthServlet {
                         user.setId(getCurrentUserId(request));
                     }
 
-                    out.println(serializer.toXML(userController.getUser(user)));
+                    serializer.toXML(userController.getUser(user), out);
                 } else if (operation.equals(Operations.USER_UPDATE)) {
                     User user = (User) serializer.fromXML(request.getParameter("user"));
                     parameterMap.put("user", user);
@@ -97,7 +97,7 @@ public class UserServlet extends MirthServlet {
 
                     if (isUserAuthorized(request, parameterMap) || isCurrentUser(request, user)) {
                         String plainPassword = request.getParameter("plainPassword");
-                        out.println(serializer.toXML(userController.checkOrUpdateUserPassword(user.getId(), plainPassword)));
+                        serializer.toXML(userController.checkOrUpdateUserPassword(user.getId(), plainPassword), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -131,7 +131,7 @@ public class UserServlet extends MirthServlet {
                     // Check this first so a current user call is not audited.
                     if (isCurrentUser(request, user) || isUserAuthorized(request, parameterMap)) {
                         response.setContentType(TEXT_PLAIN);
-                        out.println(serializer.toXML(userController.getUserPreferences(user)));
+                        serializer.toXML(userController.getUserPreferences(user), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }

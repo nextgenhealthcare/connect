@@ -82,7 +82,7 @@ public class ExtensionServlet extends MirthServlet {
 
                     if (isUserAuthorizedForExtension(request, pluginName, operation.getName(), null)) {
                         response.setContentType(APPLICATION_XML);
-                        out.println(serializer.toXML(extensionController.getPluginProperties(pluginName)));
+                        serializer.toXML(extensionController.getPluginProperties(pluginName), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -98,7 +98,7 @@ public class ExtensionServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.PLUGIN_METADATA_GET)) {
                     response.setContentType(APPLICATION_XML);
-                    out.println(serializer.toXML(extensionController.getPluginMetaData()));
+                    serializer.toXML(extensionController.getPluginMetaData(), out);
                 } else if (operation.equals(Operations.EXTENSION_SET_ENABLED)) {
                     String pluginName = request.getParameter("name");
                     boolean enabled = BooleanUtils.toBoolean(request.getParameter("enabled"));
@@ -112,7 +112,7 @@ public class ExtensionServlet extends MirthServlet {
                     }
                 } else if (operation.equals(Operations.CONNECTOR_METADATA_GET)) {
                     response.setContentType(APPLICATION_XML);
-                    out.println(serializer.toXML(extensionController.getConnectorMetaData()));
+                    serializer.toXML(extensionController.getConnectorMetaData(), out);
                 } else if (operation.equals(Operations.EXTENSION_IS_ENABLED)) {
                     String extensionName = request.getParameter("name");
                     response.setContentType(TEXT_PLAIN);
@@ -124,7 +124,7 @@ public class ExtensionServlet extends MirthServlet {
                     String sessionId = request.getSession().getId();
 
                     if (isUserAuthorizedForExtension(request, pluginName, method, null)) {
-                        out.println(serializer.toXML(extensionController.invokePluginService(pluginName, method, object, sessionId)));
+                        serializer.toXML(extensionController.invokePluginService(pluginName, method, object, sessionId), out);
                     } else {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     }
@@ -134,7 +134,7 @@ public class ExtensionServlet extends MirthServlet {
                     Object object = serializer.fromXML(request.getParameter("object"));
                     String sessionId = request.getSession().getId();
                     response.setContentType(APPLICATION_XML);
-                    out.println(serializer.toXML(extensionController.invokeConnectorService(name, method, object, sessionId)));
+                    serializer.toXML(extensionController.invokeConnectorService(name, method, object, sessionId), out);
                 } else if (operation.equals(Operations.EXTENSION_UNINSTALL)) {
                     String packageName = request.getParameter("packageName");
                     parameterMap.put("packageName", packageName);

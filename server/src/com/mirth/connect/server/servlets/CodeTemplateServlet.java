@@ -51,7 +51,7 @@ public class CodeTemplateServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         response.setContentType(APPLICATION_XML);
-                        out.println(serializer.toXML(codeTemplateController.getCodeTemplate(codeTemplate)));
+                        serializer.toXML(codeTemplateController.getCodeTemplate(codeTemplate), out);
                     }
                 } else if (operation.equals(Operations.CODE_TEMPLATE_UPDATE)) {
                     List<CodeTemplate> codeTemplates = (List<CodeTemplate>) serializer.fromXML(request.getParameter("codeTemplates"));

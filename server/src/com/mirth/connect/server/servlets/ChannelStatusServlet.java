@@ -82,7 +82,7 @@ public class ChannelStatusServlet extends MirthServlet {
                         channelStatuses = channelStatusController.getChannelStatusList();
                     }
 
-                    out.println(serializer.toXML(channelStatuses));    
+                    serializer.toXML(channelStatuses, out);    
                 }
             } catch (Throwable t) {
                 logger.error(ExceptionUtils.getStackTrace(t));

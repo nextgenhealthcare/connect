@@ -80,7 +80,7 @@ public class MessageObjectServlet extends MirthServlet {
                         int pageSize = Integer.parseInt(request.getParameter("pageSize"));
                         int max = Integer.parseInt(request.getParameter("maxMessages"));
                         response.setContentType(APPLICATION_XML);
-                        out.print(serializer.toXML(messageObjectController.getMessagesByPage(page, pageSize, max, uid, true)));
+                        serializer.toXML(messageObjectController.getMessagesByPage(page, pageSize, max, uid, true), out);
                     }
 
                 } else if (operation.equals(Operations.MESSAGE_GET_BY_PAGE_LIMIT)) {
@@ -95,7 +95,7 @@ public class MessageObjectServlet extends MirthServlet {
                         int pageSize = Integer.parseInt(request.getParameter("pageSize"));
                         int max = Integer.parseInt(request.getParameter("maxMessages"));
                         response.setContentType(APPLICATION_XML);
-                        out.print(serializer.toXML(messageObjectController.getMessagesByPageLimit(page, pageSize, max, uid, filter)));
+                        serializer.toXML(messageObjectController.getMessagesByPageLimit(page, pageSize, max, uid, filter), out);
                     }
                 } else if (operation.equals(Operations.MESSAGE_REMOVE)) {
                     MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
@@ -157,7 +157,7 @@ public class MessageObjectServlet extends MirthServlet {
                     } else {
                         response.setContentType(APPLICATION_XML);
                         Attachment attachment = messageObjectController.getAttachment(attachmentId);
-                        out.println(serializer.toXML(attachment));
+                        serializer.toXML(attachment,out);
                     }
                 } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID)) {
                     String messageId = request.getParameter("messageId");
@@ -168,7 +168,7 @@ public class MessageObjectServlet extends MirthServlet {
                     } else {
                         response.setContentType(APPLICATION_XML);
                         List<Attachment> list = messageObjectController.getAttachmentsByMessageId(messageId);
-                        out.println(serializer.toXML(list));
+                        serializer.toXML(list,out);out.println("");
                     }
                 } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID)) {
                     String messageId = request.getParameter("messageId");
@@ -179,7 +179,7 @@ public class MessageObjectServlet extends MirthServlet {
                     } else {
                         response.setContentType(APPLICATION_XML);
                         List<Attachment> list = messageObjectController.getAttachmentIdsByMessageId(messageId);
-                        out.println(serializer.toXML(list));
+                        serializer.toXML(list,out);out.println("");
                     }
                 } else if (operation.equals(Operations.MESSAGE_DICOM_MESSAGE_GET)) {
                     MessageObject message = (MessageObject) serializer.fromXML(request.getParameter("message"));

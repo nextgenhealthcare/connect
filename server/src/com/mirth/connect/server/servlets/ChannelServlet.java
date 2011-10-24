@@ -62,7 +62,7 @@ public class ChannelServlet extends MirthServlet {
                         channels = channelController.getChannel(channel);
                     }
 
-                    out.println(serializer.toXML(channels));
+                    serializer.toXML(channels, out);
                 } else if (operation.equals(Operations.CHANNEL_UPDATE)) {
                     Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
                     boolean override = Boolean.valueOf(request.getParameter("override")).booleanValue();
@@ -100,7 +100,7 @@ public class ChannelServlet extends MirthServlet {
                         channelSummaries = channelController.getChannelSummary(cachedChannels);
                     }
 
-                    out.println(serializer.toXML(channelSummaries));
+                    serializer.toXML(channelSummaries, out);
                 }
             } catch (Throwable t) {
                 logger.error(ExceptionUtils.getStackTrace(t));

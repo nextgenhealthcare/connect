@@ -76,7 +76,7 @@ public class EventServlet extends MirthServlet {
                         int pageSize = Integer.parseInt(request.getParameter("pageSize"));
                         int max = Integer.parseInt(request.getParameter("maxEvents"));
                         response.setContentType(APPLICATION_XML);
-                        out.print(serializer.toXML(eventController.getEventsByPage(page, pageSize, max, uid)));
+                        serializer.toXML(eventController.getEventsByPage(page, pageSize, max, uid), out);
                     }
                 } else if (operation.equals(Operations.EVENT_GET_BY_PAGE_LIMIT)) {
                     EventFilter eventFilter = (EventFilter) serializer.fromXML(request.getParameter("filter"));
@@ -89,7 +89,7 @@ public class EventServlet extends MirthServlet {
                         int pageSize = Integer.parseInt(request.getParameter("pageSize"));
                         int max = Integer.parseInt(request.getParameter("maxEvents"));
                         response.setContentType(APPLICATION_XML);
-                        out.print(serializer.toXML(eventController.getEventsByPageLimit(page, pageSize, max, uid, eventFilter)));
+                        serializer.toXML(eventController.getEventsByPageLimit(page, pageSize, max, uid, eventFilter), out);
                     }
                 } else if (operation.equals(Operations.EVENT_REMOVE_ALL)) {
                     if (!isUserAuthorized(request, null)) {

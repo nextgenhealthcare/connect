@@ -65,7 +65,7 @@ public class WebStartServlet extends HttpServlet {
             }
 
             DocumentSerializer docSerializer = new DocumentSerializer(true);
-            out.println(docSerializer.toXML(jnlpDocument));
+            docSerializer.toXML(jnlpDocument, out);
         } catch (Throwable t) {
             logger.error(ExceptionUtils.getStackTrace(t));
             throw new ServletException(t);

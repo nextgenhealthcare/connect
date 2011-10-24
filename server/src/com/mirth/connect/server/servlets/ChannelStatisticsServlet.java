@@ -48,7 +48,7 @@ public class ChannelStatisticsServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         response.setContentType(APPLICATION_XML);
-                        out.println(serializer.toXML(statisticsController.getStatistics(channelId)));
+                        serializer.toXML(statisticsController.getStatistics(channelId), out);
                     }
                 } else if (operation.equals(Operations.CHANNEL_STATS_CLEAR)) {
                     if (!isUserAuthorized(request, parameterMap)) {
