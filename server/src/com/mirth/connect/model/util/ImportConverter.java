@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -43,6 +44,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.mirth.connect.connectors.smtp.Attachment;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.Connector;
@@ -52,6 +54,7 @@ import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.util.CharsetUtils;
 
 public class ImportConverter {
     private static ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -772,7 +775,7 @@ public class ImportConverter {
         // Properties to be added if missing, or reset if present
         Map<String, String> propertyChanges = new HashMap<String, String>();
 
-        // logic to deal with SOAP listener settings
+        // logic to deal with HTTP listener settings
         if (transportNameText.equals("HTTP Listener") || transportNameText.equals("HTTPS Listener")) {
             NodeList properties = connectorRoot.getElementsByTagName("property");
 
@@ -907,8 +910,6 @@ public class ImportConverter {
     }
     
     public static void convertFileConnectorFor2_2(Document document, Element connectorRoot) throws Exception {
-
-        // convert HTTP Listener and HTTP writer to the new formats
         Node transportNode = getConnectorTransportNode(connectorRoot);
         String transportNameText = transportNode.getTextContent();
         Element propertiesElement = getPropertiesElement(connectorRoot);
@@ -919,12 +920,115 @@ public class ImportConverter {
         // Properties to be added if missing, or reset if present
         Map<String, String> propertyChanges = new HashMap<String, String>();
 
-        // logic to deal with SOAP listener settings
         if (transportNameText.equals("File Reader")) {
             // set defaults
             propertyDefaults.put("ignoreDot", "0");
 
             // update properties
+            updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
+        }
+    }
+    
+    public static void convertEmailConnectorFor2_2(Document document, Element connectorRoot) throws Exception {
+        // convert Email Sender to the new SMTP Sender
+        Node transportNode = getConnectorTransportNode(connectorRoot);
+        String transportNameText = transportNode.getTextContent();
+        String attribute = "";
+        String value = "";
+        Element propertiesElement = getPropertiesElement(connectorRoot);
+
+        // Default Properties
+        Map<String, String> propertyDefaults = new HashMap<String, String>();
+
+        // Properties to be added if missing, or reset if present
+        Map<String, String> propertyChanges = new HashMap<String, String>();
+
+        // logic to deal with SMTP Sender settings
+        if (transportNameText.equals("Email Sender")) {
+            // get properties
+            NodeList properties = connectorRoot.getElementsByTagName("property");
+
+            // set defaults
+            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+
+            propertyDefaults.put("DataType", "SMTP Sender");
+            propertyDefaults.put("smtpHost", "");
+            propertyDefaults.put("smtpPort", "25");
+            propertyDefaults.put("timeout", "5000");
+            propertyDefaults.put("encryption", "none");
+            propertyDefaults.put("authentication", "0");
+            propertyDefaults.put("username", "");
+            propertyDefaults.put("password", "");
+            propertyDefaults.put("to", "");
+            propertyDefaults.put("from", "");
+            propertyDefaults.put("headers", serializer.toXML(new LinkedHashMap<String, String>()));
+            propertyDefaults.put("subject", "");
+            propertyDefaults.put("charsetEncoding", CharsetUtils.DEFAULT_ENCODING);
+            propertyDefaults.put("html", "0");
+            propertyDefaults.put("body", "");
+            propertyDefaults.put("attachments", serializer.toXML(new ArrayList<Attachment>()));
+
+            List<String> attachmentNames = null;
+            List<String> attachmentContents = null;
+            List<String> attachmentTypes = null;
+            for (int i = 0; i < properties.getLength(); i++) {
+                // get the current attribute and current value
+                attribute = properties.item(i).getAttributes().item(0).getTextContent();
+                value = properties.item(i).getTextContent();
+
+                // Now rename attributes
+                if (attribute.equals("hostname")) {
+                    propertyChanges.put("smtpHost", value);
+                } else if (attribute.equals("emailSecure")) {
+                    propertyChanges.put("encryption", value);
+                } else if (attribute.equals("useAuthentication")) {
+                    propertyChanges.put("authentication", value);
+                } else if (attribute.equals("toAddresses")) {
+                    propertyChanges.put("to", value);
+                } else if (attribute.equals("fromAddress")) {
+                    propertyChanges.put("from", value);
+                } else if (attribute.equals("contentType")) {
+                    if (value.equalsIgnoreCase("text/plain")) {
+                        propertyChanges.put("html", "0");
+                    } else {
+                        propertyChanges.put("html", "1");
+                    }
+                    
+                } else if (attribute.equals("attachmentNames")) {
+                    attachmentNames = (ArrayList<String>) serializer.fromXML(value);
+                } else if (attribute.equals("attachmentContents")) {
+                    attachmentContents = (ArrayList<String>) serializer.fromXML(value);
+                } else if (attribute.equals("attachmentTypes")) {
+                    attachmentTypes = (ArrayList<String>) serializer.fromXML(value);
+                } else if (attribute.equals("useServerSettings")) {
+                    // Disable the channel or connector if useServerSettings was set
+                    if (value.equalsIgnoreCase("1")) {
+                        document.getElementsByTagName("enabled").item(0).setTextContent("false");
+                    }
+                }
+            }
+            
+            List<Attachment> attachments = new ArrayList<Attachment>();
+            
+            // If any attachments existed, convert them now
+            if (attachmentNames != null) {
+                for (int i = 0; i < attachmentNames.size(); i++) {
+                    Attachment attachment = new Attachment();
+                    attachment.setName(attachmentNames.get(i));
+                    attachment.setContent(attachmentContents.get(i));
+                    attachment.setMimeType(attachmentTypes.get(i));
+                    
+                    attachments.add(attachment);
+                }
+            }
+            
+            propertyChanges.put("attachments", serializer.toXML(attachments));
+
+            propertyChanges.put("DataType", "SMTP Sender");
+
+            // set new name of transport node
+            transportNode.setTextContent("SMTP Sender");
+
             updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
         }
     }
@@ -940,7 +1044,7 @@ public class ImportConverter {
         // Convert all destination connectors
         for (int i = 0; i < destinationsConnectors.getLength(); i++) {
             Element destinationConnector = (Element) destinationsConnectors.item(i);
-            // TODO: convertEmailConnectorFor2_2(document, destinationConnector);
+            convertEmailConnectorFor2_2(document, destinationConnector);
         }
     }
 
@@ -1010,6 +1114,14 @@ public class ImportConverter {
             if (compareVersions(versionData, "2.0.0") < 0) {
                 convertHttpConnectorFor2_0(document, connectorRoot);
             }
+        }
+        
+        // Conversions for 2.2.0
+        String versionData = getComponentVersion(connectorXml, "2.1.1");
+        
+        if (compareVersions(versionData, "2.2.0") < 0) {
+            convertFileConnectorFor2_2(document, connectorRoot);
+            convertEmailConnectorFor2_2(document, connectorRoot);
         }
 
         DocumentSerializer docSerializer = new DocumentSerializer();

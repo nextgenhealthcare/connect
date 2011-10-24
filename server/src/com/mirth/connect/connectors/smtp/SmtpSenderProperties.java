@@ -29,9 +29,8 @@ public class SmtpSenderProperties implements ComponentProperties {
     public static final String SMTP_USERNAME = "username";
     public static final String SMTP_PASSWORD = "password";
     public static final String SMTP_TO = "to";
-    public static final String SMTP_REPLYTO = "replyTo";
-    public static final String SMTP_HEADERS = "headers";
     public static final String SMTP_FROM = "from";
+    public static final String SMTP_HEADERS = "headers";
     public static final String SMTP_SUBJECT = "subject";
     public static final String SMTP_CHARSET = "charsetEncoding";
     public static final String SMTP_HTML = "html";
