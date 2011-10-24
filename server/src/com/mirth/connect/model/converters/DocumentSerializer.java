@@ -47,9 +47,7 @@ public class DocumentSerializer implements IXMLSerializer<Document> {
         this.omitXmlDeclaration = omitXmlDeclaration;
     }
 
-    public String toXML(Document source) {
-        Writer writer = new StringWriter();
-
+    public void toXML(Document source, Writer writer) {
         try {
             TransformerFactory factory = TransformerFactory.newInstance();
             
@@ -98,7 +96,11 @@ public class DocumentSerializer implements IXMLSerializer<Document> {
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-
+    }
+    
+    public String toXML(Document source) {
+        Writer writer = new StringWriter();
+        toXML(source, writer);
         return writer.toString();
     }
 
