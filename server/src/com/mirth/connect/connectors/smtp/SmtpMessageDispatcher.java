@@ -126,21 +126,25 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
              * anything else, we assume it should be Base64 decoded first.
              */
             for (Attachment attachment : connector.getAttachments()) {
-                byte[] contentBytes;
+                String name = replacer.replaceValues(attachment.getName(), mo);
+                String mimeType = replacer.replaceValues(attachment.getMimeType(), mo);
+                String content = replacer.replaceValues(attachment.getContent(), mo);
+                
+                byte[] bytes;
 
-                if (StringUtils.indexOf(attachment.getMimeType(), "/") < 0) {
-                    logger.warn("valid MIME type is missing for email attachment: \"" + attachment.getName() + "\", using default of text/plain");
+                if (StringUtils.indexOf(mimeType, "/") < 0) {
+                    logger.warn("valid MIME type is missing for email attachment: \"" + name + "\", using default of text/plain");
                     attachment.setMimeType("text/plain");
-                    contentBytes = attachment.getContent().getBytes();
-                } else if ("application/xml".equalsIgnoreCase(attachment.getMimeType()) || StringUtils.startsWith(attachment.getMimeType(), "text/")) {
-                    logger.debug("text or XML MIME type detected for attachment \"" + attachment.getName() + "\"");
-                    contentBytes = attachment.getContent().getBytes();
+                    bytes = content.getBytes();
+                } else if ("application/xml".equalsIgnoreCase(mimeType) || StringUtils.startsWith(mimeType, "text/")) {
+                    logger.debug("text or XML MIME type detected for attachment \"" + name + "\"");
+                    bytes = content.getBytes();
                 } else {
-                    logger.debug("binary MIME type detected for attachment \"" + attachment.getName() + "\", performing Base64 decoding");
-                    contentBytes = Base64.decodeBase64(attachment.getContent());
+                    logger.debug("binary MIME type detected for attachment \"" + name + "\", performing Base64 decoding");
+                    bytes = Base64.decodeBase64(content);
                 }
 
-                ((MultiPartEmail) email).attach(new ByteArrayDataSource(contentBytes, attachment.getMimeType()), attachment.getName(), null);
+                ((MultiPartEmail) email).attach(new ByteArrayDataSource(bytes, mimeType), name, null);
             }
 
             /*
