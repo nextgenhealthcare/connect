@@ -9,7 +9,6 @@
 
 package com.mirth.connect.model.converters;
 
-import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -24,7 +23,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.PipeParser;
@@ -111,29 +109,21 @@ public class ER7Serializer implements IXMLSerializer<String> {
      * @return
      */
     public String toXML(String source) throws SerializerException {
-        StringBuilder builder = new StringBuilder();
-
-        if (useStrictParser) {
-            try {
-                builder.append(xmlParser.encode(pipeParser.parse(source.trim())));
-            } catch (HL7Exception e) {
-                throw new SerializerException(e);
-            }
-        } else {
-            try {
+        try {
+            if (useStrictParser) {
+                return xmlParser.encode(pipeParser.parse(source.trim()));
+            } else {
                 ER7Reader er7Reader = new ER7Reader(handleRepetitions, handleSubcomponents, convertLFtoCR);
                 StringWriter stringWriter = new StringWriter();
                 XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
                 serializer.setEncodeEntities(true);
                 er7Reader.setContentHandler(serializer);
                 er7Reader.parse(new InputSource(new StringReader(source)));
-                builder.append(stringWriter.toString());
-            } catch (Exception e) {
-                logger.error("Error converting HL7 message to XML.", e);
+                return stringWriter.toString();
             }
+        } catch (Exception e) {
+            throw new SerializerException(e);
         }
-
-        return builder.toString();
     }
 
     /**
@@ -144,16 +134,10 @@ public class ER7Serializer implements IXMLSerializer<String> {
      * @return
      */
     public String fromXML(String source) throws SerializerException {
-        StringBuilder builder = new StringBuilder();
-
-        if (useStrictParser) {
-            try {
-                builder.append(pipeParser.encode(xmlParser.parse(source)));
-            } catch (HL7Exception e) {
-                throw new SerializerException(e);
-            }
-        } else {
-            try {
+        try {
+            if (useStrictParser) {
+                return pipeParser.encode(xmlParser.parse(source));
+            } else {
                 /*
                  * The delimiters below need to come from the XML somehow. The
                  * ER7 handler should take care of it TODO: Ensure you get these
@@ -162,11 +146,11 @@ public class ER7Serializer implements IXMLSerializer<String> {
 
                 String segmentSeparator = "\r";
                 String fieldSeparator = getNodeValue(source, "<MSH.1>", "</MSH.1>");
-                
+
                 if (StringUtils.isEmpty(fieldSeparator)) {
                     fieldSeparator = "|";
                 }
-                
+
                 String componentSeparator = "^";
                 String repetitionSeparator = "~";
                 String subcomponentSeparator = "&";
@@ -199,15 +183,11 @@ public class ER7Serializer implements IXMLSerializer<String> {
                  * fixes pretty-printed XML we might receive.
                  */
                 reader.parse(new InputSource(new StringReader(source.replaceAll("\\s*<([^/][^>]*)>", "<$1>").replaceAll("<(/[^>]*)>\\s*", "<$1>"))));
-                builder.append(handler.getOutput());
-            } catch (Exception e) {
-                String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();
-                logger.error(exceptionMessage);
-                throw new SerializerException(e);
+                return handler.getOutput().toString();
             }
+        } catch (Exception e) {
+            throw new SerializerException(e);
         }
-
-        return builder.toString();
     }
 
     public Map<String, String> getMetadataFromXML(String source) throws SerializerException {
