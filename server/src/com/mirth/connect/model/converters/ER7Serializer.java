@@ -127,11 +127,9 @@ public class ER7Serializer implements IXMLSerializer<String> {
                 serializer.setEncodeEntities(true);
                 er7Reader.setContentHandler(serializer);
                 er7Reader.parse(new InputSource(new StringReader(source)));
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                baos.write(stringWriter.toString().getBytes());
-                builder.append(baos.toString());
+                builder.append(stringWriter.toString());
             } catch (Exception e) {
-                logger.error(e.getClass().getName() + ":" + e.getMessage());
+                logger.error("Error converting HL7 message to XML.", e);
             }
         }
 

@@ -9,7 +9,6 @@
 
 package com.mirth.connect.model.converters;
 
-import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -82,26 +81,21 @@ public class EDISerializer implements IXMLSerializer<String> {
 		return handler.getOutput().toString();
 	}
 
-	public String toXML(String source) throws SerializerException {
-		try {
-			EDIReader ediReader = new EDIReader(segmentDelim, elementDelim, subelementDelim);
-			StringWriter stringWriter = new StringWriter();
-			XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
-			serializer.setEncodeEntities(true);
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
-			try {
-				ediReader.setContentHandler(serializer);
-				ediReader.parse(new InputSource(new StringReader(source)));
-				os.write(stringWriter.toString().getBytes());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return os.toString();
-		} catch (Exception e) {
-			logger.error(e);
-		}
-		return new String();
-	}
+    public String toXML(String source) throws SerializerException {
+        try {
+            EDIReader ediReader = new EDIReader(segmentDelim, elementDelim, subelementDelim);
+            StringWriter stringWriter = new StringWriter();
+            XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
+            serializer.setEncodeEntities(true);
+            ediReader.setContentHandler(serializer);
+            ediReader.parse(new InputSource(new StringReader(source)));
+            return stringWriter.toString();
+        } catch (Exception e) {
+            logger.error("Error converting EDI message to XML.", e);
+        }
+        
+        return new String();
+    }
 
 	public String getSegmentDelim() {
 		return segmentDelim;

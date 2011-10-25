@@ -126,26 +126,20 @@ public class NCPDPSerializer  implements IXMLSerializer<String> {
 		return handler.getOutput().toString();
 	}
 
-	public String toXML(String source) throws SerializerException {
-		try {
-			NCPDPReader ncpdpReader = new NCPDPReader(segmentDelim, groupDelim, fieldDelim);
-			StringWriter stringWriter = new StringWriter();
-			XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
-			try {
-                ncpdpReader.setContentHandler(serializer);
-                ncpdpReader.parse(new InputSource(new StringReader(source)));
-                os.write(stringWriter.toString().getBytes());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return os.toString();
-		} catch (Exception e) {
-			logger.error(e);
-		}
-		return new String();
-	}
+    public String toXML(String source) throws SerializerException {
+        try {
+            NCPDPReader ncpdpReader = new NCPDPReader(segmentDelim, groupDelim, fieldDelim);
+            StringWriter stringWriter = new StringWriter();
+            XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
+            ncpdpReader.setContentHandler(serializer);
+            ncpdpReader.parse(new InputSource(new StringReader(source)));
+            return stringWriter.toString();
+        } catch (Exception e) {
+            logger.error("Error converting NCPDP message to XML.", e);
+        }
 
+        return new String();
+    }
 
     public String getSegmentDelim() {
         return segmentDelim;

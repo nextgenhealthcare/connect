@@ -88,19 +88,14 @@ public class DelimitedSerializer implements IXMLSerializer<String> {
             StringWriter stringWriter = new StringWriter();
             XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
             serializer.setEncodeEntities(true);
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            try {
-                DelimitedReader delimitedReader = new DelimitedReader(props);
-                delimitedReader.setContentHandler(serializer);
-                delimitedReader.parse(new InputSource(new StringReader(source)));
-                os.write(stringWriter.toString().getBytes());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return os.toString();
+            DelimitedReader delimitedReader = new DelimitedReader(props);
+            delimitedReader.setContentHandler(serializer);
+            delimitedReader.parse(new InputSource(new StringReader(source)));
+            return stringWriter.toString();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Error converting delimited text to XML.", e);
         }
+
         return new String();
     }
 
