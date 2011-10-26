@@ -158,21 +158,21 @@
 	</select>
 
     <select id="getAttachmentsByMessageId" parameterClass="java.lang.String" resultMap="get-attachment-result">
-        SELECT ID,MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE
+        SELECT ID, MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE
         FROM ATTACHMENT
         WITH (NOLOCK)
         WHERE MESSAGE_ID = #messageId#
     </select>
 
     <select id="getAttachmentIdsByMessageId" parameterClass="java.lang.String" resultMap="get-attachment-result2">
-        SELECT ID,MESSAGE_ID, ATTACHMENT_SIZE, ATTACHMENT_TYPE
+        SELECT ID, MESSAGE_ID, ATTACHMENT_SIZE, ATTACHMENT_TYPE
         FROM ATTACHMENT
         WITH (NOLOCK)
         WHERE MESSAGE_ID = #messageId#
     </select>
 
     <select id="getAttachment" parameterClass="java.lang.String" resultMap="get-attachment-result">
-        SELECT ID,MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE
+        SELECT ID, MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE
         FROM ATTACHMENT
         WITH (NOLOCK)
         WHERE ID = #attachmentId#
