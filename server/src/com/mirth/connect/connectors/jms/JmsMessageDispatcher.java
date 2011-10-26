@@ -116,12 +116,15 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             boolean topic = false;
             String resourceInfo = endpointUri.getResourceInfo();
             topic = (resourceInfo != null && "topic".equalsIgnoreCase(resourceInfo));
+            
             // todo MULE20 remove resource info support
-            if (!topic)
+            if (!topic) {
                 topic = PropertiesHelper.getBooleanProperty(event.getEndpoint().getProperties(), "topic", false);
-            String host = replacer.replaceValues(endpointUri.toString(), messageObject);
-            Destination dest = connector.getJmsSupport().createDestination(session, endpointUri.getAddress(), topic);
-            producer = connector.getJmsSupport().createProducer(session, dest);
+            }
+                
+            String host = replacer.replaceValues(endpointUri.getAddress(), messageObject);
+            Destination destination = connector.getJmsSupport().createDestination(session, host, topic);
+            producer = connector.getJmsSupport().createProducer(session, destination);
             MessageObjectToJMSMessage transformer = new MessageObjectToJMSMessage(connector);
             transformer.setEndpoint(event.getEndpoint());
             Object message = transformer.doTransform(messageObject);
