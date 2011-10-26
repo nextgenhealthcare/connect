@@ -210,13 +210,13 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
         }
 
         if (username != null) {
-            connection = jmsSupport.createConnection(connectionFactory, username, password);
+            connection = jmsSupport.createConnection(connectionFactory, replacer.replaceValues(username), replacer.replaceValues(password));
         } else {
             connection = jmsSupport.createConnection(connectionFactory);
         }
 
         if (clientId != null) {
-            connection.setClientID(getClientId());
+            connection.setClientID(replacer.replaceValues(getClientId()));
         }
 
         if (recoverJmsConnections && connection != null) {
