@@ -63,6 +63,7 @@ public class UIConstants {
     public static final Font TEXTFIELD_BOLD_FONT = new Font("Tahoma", Font.BOLD, 11);
     public static final Font BANNER_FONT = new Font("Arial", Font.BOLD, 36);
     public static final Font DIALOG_FONT = new Font("Dialog", Font.PLAIN, 12);
+    public static final Font MONOSPACED_FONT = new Font("Monospaced", Font.PLAIN, 12);
     // issue link
     public static final String ISSUE_TRACKER_LOCATION = "http://www.mirthcorp.com/community/issues/";
     // help links

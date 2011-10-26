@@ -107,12 +107,7 @@ public class TextAreaDefaults
             this.eolMarkerColor = new Color(0x009999);
             this.eolMarkers = false; // true;
             this.paintInvalid = false; // true;
-            
-            if (System.getProperty("os.name").toLowerCase().lastIndexOf("mac") != -1) {
-                this.font = new Font("Lucida Console", Font.PLAIN, 14);
-            } else {
-                this.font = new Font("Courier New", Font.PLAIN, 14);
-            }
+            this.font = new Font("Monospaced", Font.PLAIN, 14);
         }
         else
         {
@@ -128,13 +123,7 @@ public class TextAreaDefaults
             this.eolMarkerColor = Color.lightGray;// Color(0x009999);
             this.eolMarkers = true; // true;
             this.paintInvalid = false; // true;
-            
-            if (System.getProperty("os.name").toLowerCase().lastIndexOf("mac") != -1) {
-                this.font = new Font("Lucida Console", Font.PLAIN, 12);
-            } else {
-                this.font = new Font("Courier New", Font.PLAIN, 12);
-            }
-
+            this.font = new Font("Monospaced", Font.PLAIN, 12);
         }
 
     }

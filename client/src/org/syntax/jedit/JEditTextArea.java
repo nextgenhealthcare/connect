@@ -708,6 +708,15 @@ public class JEditTextArea extends JComponent {
 			Font defaultFont = painter.getFont();
 			SyntaxStyle[] styles = painter.getStyles();
 
+            /*
+             * MIRTH-2000: For some reason certain monospaced fonts display
+             * invalid control characters as a space with a smaller width than a
+             * standard space. Since we are changing the character that is
+             * rendered for these invalid control characters, this width
+             * difference must be used to adjust the cursor position.
+             */
+            int invalidCharWidthDiff = fm.charWidth('w') - fm.charWidth('\u0001');
+
 			for (;;) {
 				byte id = tokens.id;
 				if (id == Token.END) {
@@ -723,10 +732,32 @@ public class JEditTextArea extends JComponent {
 
 				if (offset + segmentOffset < lineSegment.offset + length) {
 					lineSegment.count = offset - (lineSegment.offset - segmentOffset);
-					return x + Utilities.getTabbedTextWidth(lineSegment, fm, x, painter, 0);
+					
+					// MIRTH: 2000 - See comment above
+					int padding = 0;
+					if (invalidCharWidthDiff != 0) {
+    					for (int i = lineSegment.getBeginIndex(); i < lineSegment.getEndIndex(); i++) {
+    					    if (SyntaxUtilities.invalidCharSet.contains(lineSegment.array[i])) {
+    					        padding += invalidCharWidthDiff;
+    					    }
+    					}
+					}
+					
+					return x + Utilities.getTabbedTextWidth(lineSegment, fm, x, painter, 0) + padding;
 				} else {
 					lineSegment.count = length;
-					x += Utilities.getTabbedTextWidth(lineSegment, fm, x, painter, 0);
+					
+					// MIRTH: 2000 - See comment above
+					int padding = 0;
+					if (invalidCharWidthDiff != 0) {
+                        for (int i = lineSegment.getBeginIndex(); i < lineSegment.getEndIndex(); i++) {
+                            if (SyntaxUtilities.invalidCharSet.contains(lineSegment.array[i])) {
+                                padding += invalidCharWidthDiff;
+                            }
+                        }
+					}
+                    
+					x += Utilities.getTabbedTextWidth(lineSegment, fm, x, painter, 0) + padding;
 					lineSegment.offset += length;
 				}
 				tokens = tokens.next;
@@ -763,7 +794,8 @@ public class JEditTextArea extends JComponent {
 				if (c == '\t')
 					charWidth = (int) painter.nextTabStop(width, i) - width;
 				else
-					charWidth = fm.charWidth(c);
+//					charWidth = fm.charWidth(c);
+				    charWidth = fm.charWidth('w');
 
 				if (painter.isBlockCaretEnabled()) {
 					if (x - charWidth <= width)

@@ -12,6 +12,7 @@ package org.syntax.jedit;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.util.HashSet;
 
 import javax.swing.text.Segment;
 import javax.swing.text.TabExpander;
@@ -28,6 +29,45 @@ import org.syntax.jedit.tokenmarker.Token;
  */
 public class SyntaxUtilities
 {
+    // MIRTH-2000: HashSet of invalid control characters
+    public static final HashSet<Character> invalidCharSet;
+
+    static {
+        invalidCharSet = new HashSet<Character>();
+        // x00-x08
+        invalidCharSet.add('\u0000');
+        invalidCharSet.add('\u0001');
+        invalidCharSet.add('\u0002');
+        invalidCharSet.add('\u0003');
+        invalidCharSet.add('\u0004');
+        invalidCharSet.add('\u0005');
+        invalidCharSet.add('\u0006');
+        invalidCharSet.add('\u0007');
+        invalidCharSet.add('\u0008');
+        // x0B-x0C
+        invalidCharSet.add('\u000B');
+        invalidCharSet.add('\u000C');
+        // x0E-x1F
+        invalidCharSet.add('\u000E');
+        invalidCharSet.add('\u000F');
+        invalidCharSet.add('\u0010');
+        invalidCharSet.add('\u0011');
+        invalidCharSet.add('\u0012');
+        invalidCharSet.add('\u0013');
+        invalidCharSet.add('\u0014');
+        invalidCharSet.add('\u0015');
+        invalidCharSet.add('\u0016');
+        invalidCharSet.add('\u0017');
+        invalidCharSet.add('\u0018');
+        invalidCharSet.add('\u0019');
+        invalidCharSet.add('\u001A');
+        invalidCharSet.add('\u001B');
+        invalidCharSet.add('\u001C');
+        invalidCharSet.add('\u001D');
+        invalidCharSet.add('\u001E');
+        invalidCharSet.add('\u001F');
+    }
+    
     /**
      * Checks if a subregion of a <code>Segment</code> is equal to a string.
      * 
@@ -205,9 +245,38 @@ public class SyntaxUtilities
                 styles[id].setGraphicsFlags(gfx, defaultFont);
 
             line.count = length;
-            x = Utilities.drawTabbedText(line, x, y, gfx, expander, 0);
-            line.offset += length;
-            offset += length;
+            
+            /*
+             * MIRTH-2000: We want to replace all invalid control characters
+             * with a bold red question mark '?'. Instead of rendering each
+             * token as a whole string, render each character individually. If
+             * it is an invalid character, render it is a red question mark '?'.
+             */
+            int tokenLength = line.getEndIndex();
+            for (int i = line.getBeginIndex(); i < tokenLength; i++) {
+                if (invalidCharSet.contains(line.array[i])) {
+                    Font oldFont = gfx.getFont();
+                    gfx.setFont(new Font(oldFont.getFamily(), Font.BOLD, oldFont.getSize()));
+                    Color oldColor = gfx.getColor();
+                    gfx.setColor(Color.RED);
+                    x = Utilities.drawTabbedText(new Segment(new char[] { '?' }, 0, 1), x, y, gfx, expander, 0);
+                    gfx.setColor(oldColor);
+                    gfx.setFont(oldFont);
+                } else {
+                    x = Utilities.drawTabbedText(new Segment(line.array, line.getBeginIndex(), 1), x, y, gfx, expander, 0);
+                }
+
+                line.offset += 1;
+                offset += 1;
+                length--;
+
+                line.count = length;
+            }
+
+            // MIRTH-2000: Old Drawing code
+//            x = Utilities.drawTabbedText(line, x, y, gfx, expander, 0);
+//            line.offset += length;
+//            offset += length;
 
             tokens = tokens.next;
         }

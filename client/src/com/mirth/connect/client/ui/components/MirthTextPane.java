@@ -19,6 +19,7 @@ import javax.swing.text.Document;
 
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.actions.CopyAction;
 import com.mirth.connect.client.ui.actions.CutAction;
 import com.mirth.connect.client.ui.actions.DeleteAction;
@@ -44,7 +45,8 @@ public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInt
         super();
         this.parent = PlatformUI.MIRTH_FRAME;
         this.setFocusable(true);
-
+        setFont(UIConstants.MONOSPACED_FONT);
+        
         cutAction = new CutAction(this);
         copyAction = new CopyAction(this);
         pasteAction = new PasteAction(this);
