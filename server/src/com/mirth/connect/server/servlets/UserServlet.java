@@ -44,6 +44,10 @@ public class UserServlet extends MirthServlet {
     public static final String SESSION_AUTHORIZED = "authorized";
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // MIRTH-1745
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        
         UserController userController = ControllerFactory.getFactory().createUserController();
         EventController eventController = ControllerFactory.getFactory().createEventController();
         PrintWriter out = response.getWriter();
