@@ -39,7 +39,6 @@ public class ExtensionServlet extends MirthServlet {
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // MIRTH-1745
-        request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         
         if (!isUserLoggedIn(request)) {
