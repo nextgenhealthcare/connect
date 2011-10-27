@@ -10,7 +10,6 @@
 package com.mirth.connect.model.converters;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
