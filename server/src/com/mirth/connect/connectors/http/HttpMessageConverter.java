@@ -17,10 +17,13 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
+import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.Header;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 public class HttpMessageConverter {
@@ -61,7 +64,18 @@ public class HttpMessageConverter {
             }
 
             requestElement.appendChild(headerElement);
-            addElement(requestElement, "Content", request.getContent());
+
+
+            Element contentElement = new Element("Content");
+
+            if (isBinaryContentType(request.getContentType())) {
+                contentElement.appendChild(Base64.encodeBase64String(request.getContent().getBytes()));
+                contentElement.addAttribute(new Attribute("encoding", "Base64"));
+            } else {
+                contentElement.appendChild(request.getContent());
+            }
+            
+            requestElement.appendChild(contentElement);
 
             return document.toXML();
         } catch (Exception e) {
@@ -89,9 +103,10 @@ public class HttpMessageConverter {
 
             requestElement.appendChild(headerElement);
 
-            // NOTE: "Body" is added as a CDATA element in the
-            // documentSerializer
-            // constructor
+            /*
+             * NOTE: "Body" is added as a CDATA element in the
+             * documentSerializer constructor
+             */
             Element contentElement = new Element("Body");
             contentElement.appendChild(content);
             requestElement.appendChild(contentElement);
@@ -129,5 +144,9 @@ public class HttpMessageConverter {
         child.appendChild(textContent);
         parent.appendChild(child);
         return child;
+    }
+    
+    private boolean isBinaryContentType(String contentType) {
+        return StringUtils.startsWithAny(contentType, new String[] { "application/", "image/", "video/", "audio/" });
     }
 }

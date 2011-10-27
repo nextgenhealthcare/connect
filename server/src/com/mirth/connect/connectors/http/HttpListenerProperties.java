@@ -28,6 +28,7 @@ public class HttpListenerProperties implements ComponentProperties {
     public static final String HTTP_RESPONSE_HEADERS = "receiverResponseHeaders";
     public static final String HTTP_CHARSET = "receiverCharset";
     public static final String HTTP_CONTEXT_PATH = "receiverContextPath";
+    public static final String HTTP_TIMEOUT = "receiverTimeout";
     
     public Properties getDefaults() {
         Properties properties = new Properties();
@@ -44,6 +45,7 @@ public class HttpListenerProperties implements ComponentProperties {
         properties.put(HTTP_CONTEXT_PATH, "");
         properties.put(HTTP_RESPONSE_STATUS_CODE, 0);
         properties.put(HTTP_RESPONSE_HEADERS, serializer.toXML(new HashMap<String, String>()));
+        properties.put(HTTP_TIMEOUT, 0);
         return properties;
     }
 

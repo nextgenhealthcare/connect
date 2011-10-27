@@ -9,18 +9,34 @@
 
 package com.mirth.connect.connectors.http;
 
+import java.io.File;
 import java.net.ConnectException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.FilePart;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.QueueEnabledMessageDispatcher;
@@ -52,7 +68,6 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private ConnectorType connectorType = ConnectorType.WRITER;
-    private HttpMethodFactory httpMethodFactory = new HttpMethodFactory();
 
     private HttpClient client = new HttpClient();
 
@@ -102,7 +117,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
         HttpMethod httpMethod = null;
 
         try {
-            httpMethod = httpMethodFactory.createHttpMethod(connector.getDispatcherMethod(), replacer.replaceValues(address, mo), replacer.replaceValues(connector.getDispatcherContent(), mo), connector.getDispatcherContentType(), connector.getDispatcherCharset(), connector.isDispatcherMultipart(), replacer.replaceValuesInMap(connector.getDispatcherHeaders(), mo), replacer.replaceValuesInMap(connector.getDispatcherParameters(), mo));
+            httpMethod = buildHttpRequest(replacer.replaceValues(address, mo), mo);
 
             // authentication
 
@@ -127,7 +142,6 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
             client.getParams().setSoTimeout(connector.getDispatcherSocketTimeout());
 
             // execute the method
-
             logger.debug("executing method: type=" + httpMethod.getName() + ", uri=" + httpMethod.getURI().toString());
             int statusCode = client.executeMethod(httpMethod);
             logger.debug("received status code: " + statusCode);
@@ -210,5 +224,66 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
         }
 
         return true;
+    }
+    
+    private HttpMethod buildHttpRequest(String address, MessageObject mo) throws Exception {
+        String method = connector.getDispatcherMethod();
+        String content = replacer.replaceValues(connector.getDispatcherContent(), mo);
+        String contentType = connector.getDispatcherContentType();
+        String charset = connector.getDispatcherCharset();
+        boolean isMultipart = connector.isDispatcherMultipart();
+        Map<String, String> headers = replacer.replaceValuesInMap(connector.getDispatcherHeaders(), mo);
+        Map<String, String> parameters = replacer.replaceValuesInMap(connector.getDispatcherParameters(), mo);
+
+        HttpMethod httpMethod = null;
+
+        // populate the query parameters
+        NameValuePair[] queryParameters = new NameValuePair[parameters.size()];
+        int index = 0;
+        
+        for (Entry<String, String> parameterEntry : parameters.entrySet()) {
+            queryParameters[index] = new NameValuePair(parameterEntry.getKey(), parameterEntry.getValue());
+            index++;
+            logger.debug("setting query parameter: [" + parameterEntry.getKey() + ", " + parameterEntry.getValue() + "]");
+        }
+
+        // create the method
+        if ("GET".equalsIgnoreCase(method)) {
+            httpMethod = new GetMethod(address);
+            httpMethod.setQueryString(queryParameters);
+        } else if ("POST".equalsIgnoreCase(method)) {
+            PostMethod postMethod = new PostMethod(address);
+
+            if (isMultipart) {
+                logger.debug("setting multipart file content");
+                File tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tmp");
+                FileUtils.writeStringToFile(tempFile, content, charset);
+                Part[] parts = new Part[] { new FilePart(tempFile.getName(), tempFile, contentType, charset) };
+                postMethod.setRequestEntity(new MultipartRequestEntity(parts, postMethod.getParams()));
+            } else if (StringUtils.equals(contentType, "application/x-www-form-urlencoded")) {
+                postMethod.setRequestBody(queryParameters);
+            } else {
+                postMethod.setQueryString(queryParameters);
+                postMethod.setRequestEntity(new StringRequestEntity(content, contentType, charset));
+            }
+                
+            httpMethod = postMethod;
+        } else if ("PUT".equalsIgnoreCase(method)) {
+            PutMethod putMethod = new PutMethod(address);
+            putMethod.setRequestEntity(new StringRequestEntity(content, contentType, charset));
+            putMethod.setQueryString(queryParameters);
+            httpMethod = putMethod;
+        } else if ("DELETE".equalsIgnoreCase(method)) {
+            httpMethod = new DeleteMethod(address);
+            httpMethod.setQueryString(queryParameters);
+        }
+        
+        // set the headers
+        for (Entry<String, String> headerEntry : headers.entrySet()) {
+            httpMethod.setRequestHeader(new Header(headerEntry.getKey(), headerEntry.getValue()));
+            logger.debug("setting method header: [" + headerEntry.getKey() + ", " + headerEntry.getValue() + "]");
+        }
+
+        return httpMethod;
     }
 }

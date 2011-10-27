@@ -21,7 +21,7 @@ public interface HttpConfiguration {
      */
     public void configureConnector(HttpConnector connector);
     
-    public void configureReceiver(Server server, UMOEndpoint endpoint) throws Exception;
+    public void configureReceiver(Server server, UMOEndpoint endpoint, int timeout) throws Exception;
     
     public void configureDispatcher();
 }

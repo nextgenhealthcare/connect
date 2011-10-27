@@ -17,6 +17,7 @@ import org.mule.umo.lifecycle.InitialisationException;
 import com.mirth.connect.server.Constants;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.util.CharsetUtils;
 
 public class HttpConnector extends QueueEnabledConnector {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -35,15 +36,17 @@ public class HttpConnector extends QueueEnabledConnector {
     private String dispatcherPassword;
     private boolean dispatcherMultipart;
     private String dispatcherReplyChannelId;
+    private boolean dispatcherIncludeHeadersInResponse;
+    private int dispatcherSocketTimeout;
+    
     private String receiverResponseContentType;
     private boolean receiverBodyOnly;
-    private boolean dispatcherIncludeHeadersInResponse;
     private String receiverResponse;
     private Map<String, String> receiverResponseHeaders;
     private int receiverResponseStatusCode;
     private String receiverCharset;
-    private int dispatcherSocketTimeout;
     private String receiverContextPath;
+    private int receiverTimeout;
     
     private HttpConfiguration configuration = null;
 
@@ -134,7 +137,7 @@ public class HttpConnector extends QueueEnabledConnector {
     }
 
     public void setDispatcherCharset(String dispatcherCharset) {
-        this.dispatcherCharset = dispatcherCharset;
+        this.dispatcherCharset = CharsetUtils.getEncoding(dispatcherCharset);
     }
 
     public boolean isDispatcherUseAuthentication() {
@@ -214,7 +217,7 @@ public class HttpConnector extends QueueEnabledConnector {
     }
 
     public void setReceiverCharset(String receiverCharset) {
-        this.receiverCharset = receiverCharset;
+        this.receiverCharset = CharsetUtils.getEncoding(receiverCharset, System.getProperty("ca.uhn.hl7v2.llp.charset"));
     }
 
     public int getDispatcherSocketTimeout() {
@@ -247,6 +250,14 @@ public class HttpConnector extends QueueEnabledConnector {
 
     public void setReceiverResponseStatusCode(int receiverResponseStatusCode) {
         this.receiverResponseStatusCode = receiverResponseStatusCode;
+    }
+
+    public int getReceiverTimeout() {
+        return receiverTimeout;
+    }
+
+    public void setReceiverTimeout(int receiverTimeout) {
+        this.receiverTimeout = receiverTimeout;
     }
 
     @Override

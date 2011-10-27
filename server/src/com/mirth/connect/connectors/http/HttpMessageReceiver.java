@@ -109,7 +109,7 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
     @Override
     public void doConnect() throws Exception {
         server = new Server();
-        connector.getConfiguration().configureReceiver(server, endpoint);
+        connector.getConfiguration().configureReceiver(server, endpoint, connector.getReceiverTimeout());
 
         // add the request handler
         ContextHandler contextHandler = new ContextHandler();
