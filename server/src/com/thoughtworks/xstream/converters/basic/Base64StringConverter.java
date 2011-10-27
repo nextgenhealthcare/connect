@@ -9,6 +9,8 @@
 
 package com.thoughtworks.xstream.converters.basic;
 
+import java.nio.charset.Charset;
+
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -26,7 +28,7 @@ public class Base64StringConverter implements Converter {
 
     public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
         writer.addAttribute("encoding", "base64");
-        writer.setValue(base64.encode(((String) value).getBytes()));
+        writer.setValue(base64.encode(((String) value).getBytes(Charset.forName("UTF-8"))));
     }
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
@@ -35,7 +37,7 @@ public class Base64StringConverter implements Converter {
 
         try {
             if ("base64".equalsIgnoreCase(encoding)) {
-                return new String(base64.decode(data));
+                return new String(base64.decode(data), Charset.forName("UTF-8"));
             } else {
                 return data;
             }
