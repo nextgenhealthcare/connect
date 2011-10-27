@@ -35,6 +35,8 @@ public class SerializerFactory {
         }
     }
 
+    // TODO: Remove in 3.0
+    @Deprecated
     public static ER7Serializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR, boolean handleSubcomponents) {
         Properties properties = new Properties();
         properties.put("useStrictParser", Boolean.toString(useStrictParser));
@@ -43,9 +45,9 @@ public class SerializerFactory {
         properties.put("convertLFtoCR", Boolean.toString(convertLFtoCR));
         properties.put("handleSubcomponents", Boolean.toString(handleSubcomponents));
         return new ER7Serializer(properties);
-
     }
 
+    @Deprecated
     public static ER7Serializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR) {
         Properties properties = new Properties();
         properties.put("useStrictParser", Boolean.toString(useStrictParser));
@@ -53,9 +55,9 @@ public class SerializerFactory {
         properties.put("handleRepetitions", Boolean.toString(handleRepetitions));
         properties.put("convertLFtoCR", Boolean.toString(convertLFtoCR));
         return new ER7Serializer(properties);
-
     }
 
+    @Deprecated
     public static ER7Serializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions) {
         Properties properties = new Properties();
         properties.put("useStrictParser", Boolean.toString(useStrictParser));
@@ -64,6 +66,7 @@ public class SerializerFactory {
         return new ER7Serializer(properties);
     }
 
+    @Deprecated
     public static ER7Serializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation) {
         Properties properties = new Properties();
         properties.put("useStrictParser", Boolean.toString(useStrictParser));
@@ -71,16 +74,19 @@ public class SerializerFactory {
         return new ER7Serializer(properties);
     }
 
+    @Deprecated
     public static ER7Serializer getHL7Serializer() {
         return new ER7Serializer(new Properties());
     }
 
+    @Deprecated
     public static X12Serializer getX12Serializer(boolean inferDelimiters) {
         Properties properties = new Properties();
         properties.put("inferDelimiters", Boolean.toString(inferDelimiters));
-        return new X12Serializer(inferDelimiters);
+        return new X12Serializer(properties);
     }
-
+    
+    @Deprecated
     public static EDISerializer getEDISerializer(String segmentDelim, String elementDelim, String subelementDelim) {
         Properties properties = new Properties();
         properties.put("segmentDelimiter", segmentDelim);
@@ -89,6 +95,7 @@ public class SerializerFactory {
         return new EDISerializer(properties);
     }
 
+    @Deprecated
     public static NCPDPSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim) {
         Properties properties = new Properties();
         properties.put("segmentDelimiter", segmentDelim);
@@ -97,6 +104,7 @@ public class SerializerFactory {
         return new NCPDPSerializer(properties);
     }
 
+    @Deprecated
     public static NCPDPSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim, boolean useStrictValidation) {
         Properties properties = new Properties();
         properties.put("segmentDelimiter", segmentDelim);
