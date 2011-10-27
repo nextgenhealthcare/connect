@@ -9,6 +9,7 @@
 
 package com.mirth.connect.client.ui.components;
 
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -23,6 +24,8 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -34,6 +37,7 @@ import com.mirth.connect.client.ui.MapperDropData;
 import com.mirth.connect.client.ui.MessageBuilderDropData;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TreeTransferable;
+import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.editors.MessageTreePanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 
@@ -47,16 +51,22 @@ public class MirthTree extends JXTree implements DropTargetListener {
     private DropTarget dropTarget;
     private DataFlavor supportedDropFlavor;
 
-    /** Creates a new instance of MirthTree */
+    // Default construct to allow viewing in netbeans
     public MirthTree() {
-        mf = new MyFilter();
-        ftm = new FilterTreeModel(null, mf);
-        this.setModel(ftm);
-        dropTarget = new DropTarget(this, this);
+        this(null, null, null);
     }
 
     public MirthTree(MirthTreeNode root, String prefix, String suffix) {
         this.parent = PlatformUI.MIRTH_FRAME;
+        
+        setCellRenderer(new DefaultTreeCellRenderer() {
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+                setFont(UIConstants.MONOSPACED_FONT);
+                return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            }
+        });
+        
         mf = new MyFilter();
         ftm = new FilterTreeModel(root, mf);
         this.setModel(ftm);
@@ -64,10 +74,12 @@ public class MirthTree extends JXTree implements DropTargetListener {
         this.prefix = prefix;
         this.suffix = suffix;
 
-        if (prefix.equals(MessageTreePanel.MAPPER_PREFIX)) {
-            this.supportedDropFlavor = TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR;
-        } else if (prefix.equals(MessageTreePanel.MESSAGE_BUILDER_PREFIX)) {
-            this.supportedDropFlavor = TreeTransferable.MAPPER_DATA_FLAVOR;
+        if (prefix != null) {
+            if (prefix.equals(MessageTreePanel.MAPPER_PREFIX)) {
+                this.supportedDropFlavor = TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR;
+            } else if (prefix.equals(MessageTreePanel.MESSAGE_BUILDER_PREFIX)) {
+                this.supportedDropFlavor = TreeTransferable.MAPPER_DATA_FLAVOR;
+            }
         }
     }
 

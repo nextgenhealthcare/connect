@@ -642,14 +642,14 @@ public class TreePanel extends javax.swing.JPanel {
     }
 
     public void clearMessage() {
-        MirthTreeNode top = new MirthTreeNode("Please provide a message template.");
+        MirthTreeNode top = new MirthTreeNode("Enter a message template.");
         MirthTree tree = new MirthTree(top, _dropPrefix, _dropSuffix);
         treePane.setViewportView(tree);
         revalidate();
     }
 
     public void setInvalidMessage(String messageType) {
-        MirthTreeNode top = new MirthTreeNode("The message template is not valid " + messageType + ".");
+        MirthTreeNode top = new MirthTreeNode("Template is not valid " + messageType + ".");
         MirthTree tree = new MirthTree(top, _dropPrefix, _dropSuffix);
         treePane.setViewportView(tree);
         revalidate();
