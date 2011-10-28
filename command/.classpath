@@ -10,12 +10,12 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/cli/api-release/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar">
+	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api-2.4/"/>
+			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api-2.6/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar">
+	<classpathentry kind="lib" path="lib/commons-codec-1.5.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/codec/api-release/"/>
 		</attributes>
@@ -32,6 +32,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/xpp3_min-1.1.4c.jar"/>
-	<classpathentry kind="lib" path="lib/commons-io-2.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
