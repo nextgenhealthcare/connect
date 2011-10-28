@@ -69,7 +69,7 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
                     servletResponse.getOutputStream().write(response.getMessage().getBytes(connector.getReceiverCharset()));
 
                     for (Entry<String, String> entry : connector.getReceiverResponseHeaders().entrySet()) {
-                        servletResponse.setHeader(entry.getKey(), entry.getValue());
+                        servletResponse.setHeader(entry.getKey(), replacer.replaceValues(entry.getValue()));
                     }
 
                     if (connector.getReceiverResponseStatusCode() != 0) {
@@ -84,7 +84,8 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
                             servletResponse.setStatus(HttpStatus.SC_OK);
                         }
                     } else {
-                        servletResponse.setStatus(connector.getReceiverResponseStatusCode());
+                        int statusCode = Integer.parseInt(replacer.replaceValues(String.valueOf(connector.getReceiverResponseStatusCode())));
+                        servletResponse.setStatus(statusCode);
                     }
                 } else {
                     servletResponse.setStatus(HttpStatus.SC_OK);
