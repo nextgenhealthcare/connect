@@ -458,6 +458,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         transformerTableModel = (DefaultTableModel) transformerTable.getModel();
 
         transformerTable.getColumnModel().getColumn(STEP_NAME_COL).setCellEditor(new EditorTableCellEditor(this));
+        transformerTable.setCustomEditorControls(true);
 
         // Set the combobox editor on the type column, and add action listener
         String[] defaultComboBoxValues = new String[LoadedExtensions.getInstance().getTransformerStepPlugins().size()];

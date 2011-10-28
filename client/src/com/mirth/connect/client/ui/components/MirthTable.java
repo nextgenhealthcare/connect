@@ -48,34 +48,42 @@ public class MirthTable extends JXTable {
          * Tables that want it set to true can override it.
          */
         this.putClientProperty("terminateEditOnFocusLost", Boolean.FALSE);
+    }
 
-        // An action to toggle cell editing with the 'Enter' key.
-        Action toggleEditing = new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                if (isEditing()) {
-                    getCellEditor().stopCellEditing();
-                } else {
-                    boolean success = editCellAt(getSelectedRow(), getSelectedColumn(), e);
+    public void setCustomEditorControls(boolean enabled) {
+        if (enabled) {
+            // An action to toggle cell editing with the 'Enter' key.
+            Action toggleEditing = new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    if (isEditing()) {
+                        getCellEditor().stopCellEditing();
+                    } else {
+                        boolean success = editCellAt(getSelectedRow(), getSelectedColumn(), e);
 
-                    if (success) {
-                        // Request focus for TextFieldCellEditors
-                        if (getCellEditor() instanceof TextFieldCellEditor) {
-                            ((TextFieldCellEditor) getCellEditor()).getTextField().requestFocusInWindow();
+                        if (success) {
+                            // Request focus for TextFieldCellEditors
+                            if (getCellEditor() instanceof TextFieldCellEditor) {
+                                ((TextFieldCellEditor) getCellEditor()).getTextField().requestFocusInWindow();
+                            }
                         }
                     }
                 }
-            }
-        };
+            };
 
-        /*
-         * Don't edit cells on any keystroke. Let the toggleEditing action
-         * handle it for 'Enter' only. Also surrender focus to any activated
-         * editor.
-         */
-        setAutoStartEditOnKeyStroke(false);
-        setSurrendersFocusOnKeystroke(true);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "toggleEditing");
-        getActionMap().put("toggleEditing", toggleEditing);
+            /*
+             * Don't edit cells on any keystroke. Let the toggleEditing action
+             * handle it for 'Enter' only. Also surrender focus to any activated
+             * editor.
+             */
+            setAutoStartEditOnKeyStroke(false);
+            setSurrendersFocusOnKeystroke(true);
+            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "toggleEditing");
+            getActionMap().put("toggleEditing", toggleEditing);
+        } else {
+            setAutoStartEditOnKeyStroke(true);
+            setSurrendersFocusOnKeystroke(false);
+            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "selectNextRowCell");
+        }
     }
 
     @Override

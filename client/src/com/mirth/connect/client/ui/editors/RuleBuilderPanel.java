@@ -9,30 +9,24 @@
 
 package com.mirth.connect.client.ui.editors;
 
-import java.awt.Component;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
-import javax.swing.AbstractCellEditor;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
 
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.plugins.rulebuilder.RuleBuilderPlugin;
@@ -213,7 +207,7 @@ public class RuleBuilderPanel extends BasePanel {
     }
 
     public void setValues(ArrayList<String> values) {
-        Object[][] tableData = new Object[values.size()][2];
+        Object[][] tableData = new Object[values.size()][1];
 
         valuesTable = new MirthTable();
 
@@ -223,7 +217,7 @@ public class RuleBuilderPanel extends BasePanel {
 
         valuesTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{VALUE_COLUMN_NAME}) {
 
-            boolean[] canEdit = new boolean[]{true, true};
+            boolean[] canEdit = new boolean[]{true};
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
@@ -244,70 +238,45 @@ public class RuleBuilderPanel extends BasePanel {
             }
         });
 
-        class RegExTableCellEditor extends AbstractCellEditor implements TableCellEditor {
-
-            JComponent component = new JTextField();
-            Object originalValue;
-
-            public RegExTableCellEditor() {
-                super();
-            }
-
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                // 'value' is value contained in the cell located at (rowIndex,
-                // vColIndex)
-                originalValue = value;
-
-                if (isSelected) {
-                    // cell (and perhaps other cells) are selected
-                }
-
-                // Configure the component with the specified value
-                ((JTextField) component).setText((String) value);
-
-                // Return the configured component
-                return component;
-            }
-
-            public Object getCellEditorValue() {
-                return ((JTextField) component).getText();
-            }
+        class RegExTableCellEditor extends TextFieldCellEditor {
 
             public boolean stopCellEditing() {
-                String s = (String) getCellEditorValue();
-
                 parent.modified = true;
-
                 deleteButton.setEnabled(true);
-                
                 boolean result = super.stopCellEditing();
                 
                 /*
-                 * Need to update the name after stopping cell editing, because
-                 * the swingx update caused the ListSelectionListener to stop
-                 * being called when there was only one row and it was edited.
+                 * HACK: Cannot move this logic into valueChanged. We need to
+                 * update the name after stopping cell editing, because the
+                 * swingx update caused the ListSelectionListener to stop being
+                 * called when there was only one row and it was edited.
                  */
                 rulePlugin.updateName();
-                
+
                 return result;
             }
-
-            /**
-             * Enables the editor only for double-clicks.
-             */
+            
+            @Override
             public boolean isCellEditable(EventObject evt) {
-                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
+                boolean editable = super.isCellEditable(evt);
+                
+                if (editable) {
                     deleteButton.setEnabled(false);
-                    return true;
                 }
-                return false;
+
+                return editable; 
+            }
+
+            @Override
+            protected boolean valueChanged(String value) {
+                return true;
             }
         }
-        ;
 
         // Set the custom cell editor for the Destination Name column.
         valuesTable.getColumnModel().getColumn(valuesTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new RegExTableCellEditor());
-
+        valuesTable.setCustomEditorControls(true);
+        
         valuesTable.setSelectionMode(0);
         valuesTable.setRowSelectionAllowed(true);
         valuesTable.setRowHeight(UIConstants.ROW_HEIGHT);

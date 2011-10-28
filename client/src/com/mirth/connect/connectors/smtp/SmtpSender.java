@@ -9,37 +9,31 @@
 
 package com.mirth.connect.connectors.smtp;
 
-import java.awt.Component;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
-import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
 
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.connectors.ConnectorClass;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.ConnectionTestResponse;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import javax.swing.SwingWorker;
 
 public class SmtpSender extends ConnectorClass {
 
@@ -240,49 +234,13 @@ public class SmtpSender extends ConnectorClass {
             }
         });
 
-        class HeadersTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+        class HeadersTableCellEditor extends TextFieldCellEditor {
 
-            JComponent component = new JTextField();
-            Object originalValue;
             boolean checkHeaders;
 
             public HeadersTableCellEditor(boolean checkHeaders) {
                 super();
                 this.checkHeaders = checkHeaders;
-            }
-
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                // 'value' is value contained in the cell located at (rowIndex,
-                // vColIndex)
-                originalValue = value;
-
-                if (isSelected) {
-                    // cell (and perhaps other cells) are selected
-                }
-
-                // Configure the component with the specified value
-                ((JTextField) component).setText((String) value);
-
-                // Return the configured component
-                return component;
-            }
-
-            public Object getCellEditorValue() {
-                return ((JTextField) component).getText();
-            }
-
-            public boolean stopCellEditing() {
-                String s = (String) getCellEditorValue();
-
-                if (checkHeaders && (s.length() == 0 || checkUniqueHeader(s))) {
-                    super.cancelCellEditing();
-                } else {
-                    parent.setSaveEnabled(true);
-                }
-
-                deleteHeaderButton.setEnabled(true);
-
-                return super.stopCellEditing();
             }
 
             public boolean checkUniqueHeader(String headerName) {
@@ -297,21 +255,34 @@ public class SmtpSender extends ConnectorClass {
                 return exists;
             }
 
-            /**
-             * Enables the editor only for double-clicks.
-             */
+            @Override
             public boolean isCellEditable(EventObject evt) {
-                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
+                boolean editable = super.isCellEditable(evt);
+                
+                if (editable) {
                     deleteHeaderButton.setEnabled(false);
-                    return true;
                 }
-                return false;
+
+                return editable; 
+            }
+
+            @Override
+            protected boolean valueChanged(String value) {
+                deleteHeaderButton.setEnabled(true);
+                
+                if (checkHeaders && (value.length() == 0 || checkUniqueHeader(value))) {
+                    return false;
+                }
+
+                parent.setSaveEnabled(true);
+                return true;
             }
         }
 
         headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(HEADERS_NAME_COLUMN_NAME)).setCellEditor(new HeadersTableCellEditor(true));
         headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(HEADERS_VALUE_COLUMN_NAME)).setCellEditor(new HeadersTableCellEditor(false));
-
+        headersTable.setCustomEditorControls(true);
+        
         headersTable.setSelectionMode(0);
         headersTable.setRowSelectionAllowed(true);
         headersTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -372,49 +343,13 @@ public class SmtpSender extends ConnectorClass {
             }
         });
 
-        class AttachmentsTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+        class AttachmentsTableCellEditor extends TextFieldCellEditor {
 
-            JComponent component = new JTextField();
-            Object originalValue;
             boolean checkAttachments;
 
             public AttachmentsTableCellEditor(boolean checkAttachments) {
                 super();
                 this.checkAttachments = checkAttachments;
-            }
-
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                // 'value' is value contained in the cell located at (rowIndex,
-                // vColIndex)
-                originalValue = value;
-
-                if (isSelected) {
-                    // cell (and perhaps other cells) are selected
-                }
-
-                // Configure the component with the specified value
-                ((JTextField) component).setText((String) value);
-
-                // Return the configured component
-                return component;
-            }
-
-            public Object getCellEditorValue() {
-                return ((JTextField) component).getText();
-            }
-
-            public boolean stopCellEditing() {
-                String s = (String) getCellEditorValue();
-
-                if (checkAttachments && (s.length() == 0 || checkUniqueAttachment(s))) {
-                    super.cancelCellEditing();
-                } else {
-                    parent.setSaveEnabled(true);
-                }
-
-                deleteAttachmentButton.setEnabled(true);
-
-                return super.stopCellEditing();
             }
 
             public boolean checkUniqueAttachment(String attachmentName) {
@@ -429,22 +364,34 @@ public class SmtpSender extends ConnectorClass {
                 return exists;
             }
 
-            /**
-             * Enables the editor only for double-clicks.
-             */
+            @Override
             public boolean isCellEditable(EventObject evt) {
-                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
+                boolean editable = super.isCellEditable(evt);
+                
+                if (editable) {
                     deleteAttachmentButton.setEnabled(false);
-                    return true;
                 }
-                return false;
+
+                return editable; 
+            }
+
+            @Override
+            protected boolean valueChanged(String value) {
+                deleteAttachmentButton.setEnabled(true);
+                
+                if (checkAttachments && (value.length() == 0 || checkUniqueAttachment(value))) {
+                    return false;
+                }
+
+                parent.setSaveEnabled(true);
+                return true;
             }
         }
-        ;
 
         attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(ATTACHMENTS_NAME_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(true));
         attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(ATTACHMENTS_CONTENT_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
         attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(ATTACHMENTS_MIME_TYPE_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
+        attachmentsTable.setCustomEditorControls(true);
 
         attachmentsTable.setSelectionMode(0);
         attachmentsTable.setRowSelectionAllowed(true);

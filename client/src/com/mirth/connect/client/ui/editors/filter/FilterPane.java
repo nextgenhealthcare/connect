@@ -437,6 +437,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         filterTableModel = (DefaultTableModel) filterTable.getModel();
 
         filterTable.getColumnModel().getColumn(RULE_NAME_COL).setCellEditor(new EditorTableCellEditor(this));
+        filterTable.setCustomEditorControls(true);
 
         // Set the combobox editor on the operator column, and add action
         // listener

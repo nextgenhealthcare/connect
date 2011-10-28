@@ -9,9 +9,7 @@
 
 package com.mirth.connect.connectors.ws;
 
-import java.awt.Component;
 import java.awt.Point;
-import java.awt.event.MouseEvent;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.EventObject;
@@ -25,21 +23,17 @@ import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.AbstractCellEditor;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
 
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
@@ -232,48 +226,13 @@ public class WebServiceListener extends ConnectorClass {
             }
         });
 
-        class AttachmentsTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+        class AttachmentsTableCellEditor extends TextFieldCellEditor {
 
-            JComponent component = new JTextField();
-            Object originalValue;
             boolean checkUnique;
 
             public AttachmentsTableCellEditor(boolean checkUnique) {
                 super();
                 this.checkUnique = checkUnique;
-            }
-
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                // 'value' is value contained in the cell located at (rowIndex, vColIndex)
-                originalValue = value;
-
-                if (isSelected) {
-                    // cell (and perhaps other cells) are selected
-                }
-
-                // Configure the component with the specified value
-                ((JTextField) component).setText((String) value);
-
-                // Return the configured component
-                return component;
-            }
-
-            public Object getCellEditorValue() {
-                return ((JTextField) component).getText();
-            }
-
-            public boolean stopCellEditing() {
-                String s = (String) getCellEditorValue();
-
-                if (checkUnique && (s.length() == 0 || checkUnique(s))) {
-                    super.cancelCellEditing();
-                } else {
-                    parent.setSaveEnabled(true);
-                }
-
-                deleteButton.setEnabled(true);
-
-                return super.stopCellEditing();
             }
 
             public boolean checkUnique(String value) {
@@ -288,21 +247,33 @@ public class WebServiceListener extends ConnectorClass {
                 return exists;
             }
 
-            /**
-             * Enables the editor only for double-clicks.
-             */
+            @Override
             public boolean isCellEditable(EventObject evt) {
-                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
+                boolean editable = super.isCellEditable(evt);
+                
+                if (editable) {
                     deleteButton.setEnabled(false);
-                    return true;
                 }
-                return false;
+
+                return editable; 
+            }
+
+            @Override
+            protected boolean valueChanged(String value) {
+                deleteButton.setEnabled(true);
+                
+                if (checkUnique && (value.length() == 0 || checkUnique(value))) {
+                    return false;
+                }
+
+                parent.setSaveEnabled(true);
+                return true;
             }
         }
-        ;
 
         credentialsTable.getColumnModel().getColumn(credentialsTable.getColumnModelIndex(USERNAME_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(true));
         credentialsTable.getColumnModel().getColumn(credentialsTable.getColumnModelIndex(PASSWORD_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
+        credentialsTable.setCustomEditorControls(true);
 
         credentialsTable.setSelectionMode(0);
         credentialsTable.setRowSelectionAllowed(true);

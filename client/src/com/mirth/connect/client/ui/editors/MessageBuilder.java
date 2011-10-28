@@ -9,31 +9,25 @@
 
 package com.mirth.connect.client.ui.editors;
 
-import java.awt.Component;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
-import javax.swing.AbstractCellEditor;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
 
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.syntax.jedit.SyntaxDocument;
 
 import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 
@@ -181,64 +175,31 @@ public class MessageBuilder extends BasePanel {
             }
         });
 
-        class RegExTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+        class RegExTableCellEditor extends TextFieldCellEditor {
 
-            JComponent component = new JTextField();
-            Object originalValue;
-
-            public RegExTableCellEditor() {
-                super();
-            }
-
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                // 'value' is value contained in the cell located at (rowIndex,
-                // vColIndex)
-                originalValue = value;
-
-                if (isSelected) {
-                    // cell (and perhaps other cells) are selected
-                }
-
-                // Configure the component with the specified value
-                ((JTextField) component).setText((String) value);
-
-                // Return the configured component
-                return component;
-            }
-
-            public Object getCellEditorValue() {
-                return ((JTextField) component).getText();
-            }
-
-            public boolean stopCellEditing() {
-                String s = (String) getCellEditorValue();
-
-                parent.modified = true;
-
-                deleteButton.setEnabled(true);
-
-                return super.stopCellEditing();
-            }
-
-            /**
-             * Enables the editor only for double-clicks.
-             */
+            @Override
             public boolean isCellEditable(EventObject evt) {
-                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
+                boolean editable = super.isCellEditable(evt);
+                
+                if (editable) {
                     deleteButton.setEnabled(false);
-                    return true;
                 }
-                return false;
+
+                return editable; 
+            }
+
+            @Override
+            protected boolean valueChanged(String value) {
+                parent.modified = true;
+                deleteButton.setEnabled(true);
+                return true;
             }
         }
-        ;
 
-        // Set the custom cell editor for the Destination Name column.
         regularExpressionsTable.getColumnModel().getColumn(regularExpressionsTable.getColumnModel().getColumnIndex(REGEX_COLUMN_NAME)).setCellEditor(new RegExTableCellEditor());
-
-        // Set the custom cell editor for the Destination Name column.
         regularExpressionsTable.getColumnModel().getColumn(regularExpressionsTable.getColumnModel().getColumnIndex(REPLACEWITH_COLUMN_NAME)).setCellEditor(new RegExTableCellEditor());
-
+        regularExpressionsTable.setCustomEditorControls(true);
+        
         regularExpressionsTable.setSelectionMode(0);
         regularExpressionsTable.setRowSelectionAllowed(true);
         regularExpressionsTable.setRowHeight(UIConstants.ROW_HEIGHT);

@@ -9,26 +9,19 @@
 
 package com.mirth.connect.client.ui;
 
-import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-import javax.swing.AbstractCellEditor;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
 
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -85,6 +78,7 @@ public class AlertPanel extends javax.swing.JPanel {
 
         // Set the custom cell editor for the Alert Name column.
         alertTable.getColumnModel().getColumn(alertTable.getColumnModelIndex(ALERT_NAME_COLUMN_NAME)).setCellEditor(new AlertTableCellEditor());
+        alertTable.setCustomEditorControls(true);
         alertTable.getColumnExt(ALERT_STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
 
         alertTable.setSelectionMode(0);
@@ -556,54 +550,31 @@ public class AlertPanel extends javax.swing.JPanel {
             }
         });
 
-        class EmailsTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+        class EmailsTableCellEditor extends TextFieldCellEditor {
 
-            JComponent component = new JTextField();
-            Object originalValue;
+            @Override
+            public boolean isCellEditable(EventObject evt) {
+                boolean editable = super.isCellEditable(evt);
+                
+                if (editable) {
+                    removeButton.setEnabled(false);
+                }
 
-            public EmailsTableCellEditor() {
-                super();
+                return editable; 
             }
-
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                // 'value' is value contained in the cell located at (rowIndex,
-                // vColIndex)
-                originalValue = value;
-
-                // Configure the component with the specified value
-                ((JTextField) component).setText((String) value);
-
-                // Return the configured component
-                return component;
-            }
-
-            public Object getCellEditorValue() {
-                return ((JTextField) component).getText();
-            }
-
-            public boolean stopCellEditing() {
-                String s = (String) getCellEditorValue();
+            
+            @Override
+            protected boolean valueChanged(String value) {
                 parent.setSaveEnabled(true);
                 removeButton.setEnabled(true);
-                return super.stopCellEditing();
-            }
-
-            /**
-             * Enables the editor only for double-clicks.
-             */
-            public boolean isCellEditable(EventObject evt) {
-                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
-                    return true;
-                }
-                return false;
+                return true;
             }
         }
-        ;
 
         emailsTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
-        // Set the custom cell editor for the Destination Name column.
         emailsTable.getColumnModel().getColumn(emailsTable.getColumnModelIndex(EMAIL_COLUMN_NAME)).setCellEditor(new EmailsTableCellEditor());
+        emailsTable.setCustomEditorControls(true);
 
         emailsTable.setSelectionMode(0);
         emailsTable.setRowSelectionAllowed(true);

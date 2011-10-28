@@ -96,7 +96,8 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
 
         // Set the custom cell editor for the CodeTemplate Name column.
         templateTable.getColumnModel().getColumn(templateTable.getColumnModelIndex(TEMPLATE_NAME_COLUMN_NAME)).setCellEditor(new CodeTemplateTableCellEditor());
-
+        templateTable.setCustomEditorControls(true);
+        
         templateTable.setSelectionMode(0);
         templateTable.setRowSelectionAllowed(true);
         templateTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -200,6 +201,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
             updating = false;
         } else {
             templateTable = new MirthTable();
+            
             templateTable.setModel(new RefreshTableModel(tableData, new String[]{TEMPLATE_NAME_COLUMN_NAME, TEMPLATE_TYPE_COLUMN_NAME, TEMPLATE_CONTEXT_COLUMN_NAME, TEMPLATE_DESCRIPTION_COLUMN_NAME}) {
 
                 boolean[] canEdit = new boolean[]{true, false, false, false};

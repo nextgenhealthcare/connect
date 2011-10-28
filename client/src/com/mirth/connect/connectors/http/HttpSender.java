@@ -8,8 +8,6 @@
  */
 package com.mirth.connect.connectors.http;
 
-import java.awt.Component;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
@@ -18,22 +16,18 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
-import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
 
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
@@ -307,49 +301,12 @@ public class HttpSender extends ConnectorClass {
             }
         });
 
-        class HTTPTableCellEditor extends AbstractCellEditor implements TableCellEditor {
-
-            JComponent component = new JTextField();
-            Object originalValue;
+        class HTTPTableCellEditor extends TextFieldCellEditor {
             boolean checkProperties;
 
             public HTTPTableCellEditor(boolean checkProperties) {
                 super();
                 this.checkProperties = checkProperties;
-            }
-
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                // 'value' is value contained in the cell located at (rowIndex,
-                // vColIndex)
-                originalValue = value;
-
-                if (isSelected) {
-                    // cell (and perhaps other cells) are selected
-                }
-
-                // Configure the component with the specified value
-                ((JTextField) component).setText((String) value);
-
-                // Return the configured component
-                return component;
-            }
-
-            public Object getCellEditorValue() {
-                return ((JTextField) component).getText();
-            }
-
-            public boolean stopCellEditing() {
-                String s = (String) getCellEditorValue();
-
-                if (checkProperties && (s.length() == 0 || checkUniqueProperty(s))) {
-                    super.cancelCellEditing();
-                } else {
-                    parent.setSaveEnabled(true);
-                }
-
-                queryParametersDeleteButton.setEnabled(true);
-
-                return super.stopCellEditing();
             }
 
             public boolean checkUniqueProperty(String property) {
@@ -364,25 +321,34 @@ public class HttpSender extends ConnectorClass {
                 return exists;
             }
 
-            /**
-             * Enables the editor only for double-clicks.
-             */
+            @Override
             public boolean isCellEditable(EventObject evt) {
-                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
+                boolean editable = super.isCellEditable(evt);
+                
+                if (editable) {
                     queryParametersDeleteButton.setEnabled(false);
-                    return true;
                 }
-                return false;
+
+                return editable; 
+            }
+
+            @Override
+            protected boolean valueChanged(String value) {
+                queryParametersDeleteButton.setEnabled(true);
+                
+                if (checkProperties && (value.length() == 0 || checkUniqueProperty(value))) {
+                    return false;
+                }
+
+                parent.setSaveEnabled(true);
+                return true;
             }
         }
-        ;
 
-        // Set the custom cell editor for the Destination Name column.
         queryParametersTable.getColumnModel().getColumn(queryParametersTable.getColumnModel().getColumnIndex(NAME_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
-
-        // Set the custom cell editor for the Destination Name column.
         queryParametersTable.getColumnModel().getColumn(queryParametersTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(false));
-
+        queryParametersTable.setCustomEditorControls(true);
+        
         queryParametersTable.setSelectionMode(0);
         queryParametersTable.setRowSelectionAllowed(true);
         queryParametersTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -434,49 +400,12 @@ public class HttpSender extends ConnectorClass {
             }
         });
 
-        class HTTPTableCellEditor extends AbstractCellEditor implements TableCellEditor {
-
-            JComponent component = new JTextField();
-            Object originalValue;
+        class HTTPTableCellEditor extends TextFieldCellEditor {
             boolean checkProperties;
 
             public HTTPTableCellEditor(boolean checkProperties) {
                 super();
                 this.checkProperties = checkProperties;
-            }
-
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                // 'value' is value contained in the cell located at (rowIndex,
-                // vColIndex)
-                originalValue = value;
-
-                if (isSelected) {
-                    // cell (and perhaps other cells) are selected
-                }
-
-                // Configure the component with the specified value
-                ((JTextField) component).setText((String) value);
-
-                // Return the configured component
-                return component;
-            }
-
-            public Object getCellEditorValue() {
-                return ((JTextField) component).getText();
-            }
-
-            public boolean stopCellEditing() {
-                String s = (String) getCellEditorValue();
-
-                if (checkProperties && (s.length() == 0 || checkUniqueProperty(s))) {
-                    super.cancelCellEditing();
-                } else {
-                    parent.setSaveEnabled(true);
-                }
-
-                headersDeleteButton.setEnabled(true);
-
-                return super.stopCellEditing();
             }
 
             public boolean checkUniqueProperty(String property) {
@@ -491,25 +420,34 @@ public class HttpSender extends ConnectorClass {
                 return exists;
             }
 
-            /**
-             * Enables the editor only for double-clicks.
-             */
+            @Override
             public boolean isCellEditable(EventObject evt) {
-                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
+                boolean editable = super.isCellEditable(evt);
+                
+                if (editable) {
                     headersDeleteButton.setEnabled(false);
-                    return true;
                 }
-                return false;
+
+                return editable; 
+            }
+
+            @Override
+            protected boolean valueChanged(String value) {
+                headersDeleteButton.setEnabled(true);
+                
+                if (checkProperties && (value.length() == 0 || checkUniqueProperty(value))) {
+                    return false;
+                }
+                
+                parent.setSaveEnabled(true);
+                return true;
             }
         }
-        ;
 
-        // Set the custom cell editor for the Destination Name column.
         headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(NAME_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
-
-        // Set the custom cell editor for the Destination Name column.
         headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(false));
-
+        headersTable.setCustomEditorControls(true);
+        
         headersTable.setSelectionMode(0);
         headersTable.setRowSelectionAllowed(true);
         headersTable.setRowHeight(UIConstants.ROW_HEIGHT);
