@@ -51,7 +51,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
@@ -67,6 +66,7 @@ import com.mirth.connect.client.ui.RuleDropData;
 import com.mirth.connect.client.ui.TreeTransferable;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthComboBoxCellEditor;
+import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.EditorTableCellEditor;
@@ -87,7 +87,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     private Filter filter;
     private Transformer transformer;
     // fields
-    private JXTable filterTable;
+    private MirthTable filterTable;
     private DefaultTableModel filterTableModel;
     private JScrollPane filterTablePane;
     private JSplitPane hSplitPane;
@@ -108,7 +108,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     public static final String BLANK_TYPE = "";
     public static final String JAVASCRIPT = "JavaScript";
     public static final String RULE_BUILDER = "Rule Builder";
-    private String[] comboBoxValues = new String[]{Rule.Operator.AND.toString(), Rule.Operator.OR.toString()};
+    private String[] comboBoxValues = new String[] { Rule.Operator.AND.toString(), Rule.Operator.OR.toString() };
     private Channel channel;
     private DropTarget dropTarget;
 
@@ -147,7 +147,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         makeFilterTable();
 
         parent.setCurrentContentPage((JPanel) this);
-        parent.setFocus(new JXTaskPane[]{viewTasks, filterTasks}, false, true);
+        parent.setFocus(new JXTaskPane[] { viewTasks, filterTasks }, false, true);
 
         // add any existing rules to the model
         List<Rule> list = filter.getRules();
@@ -237,14 +237,11 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         }
     }
 
-    public void dragOver(DropTargetDragEvent dtde) {
-    }
+    public void dragOver(DropTargetDragEvent dtde) {}
 
-    public void dropActionChanged(DropTargetDragEvent dtde) {
-    }
+    public void dropActionChanged(DropTargetDragEvent dtde) {}
 
-    public void dragExit(DropTargetEvent dte) {
-    }
+    public void dragExit(DropTargetEvent dte) {}
 
     public void drop(DropTargetDropEvent dtde) {
         try {
@@ -418,18 +415,18 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     } // END initComponents()
 
     public void makeFilterTable() {
-        filterTable = new JXTable();
+        filterTable = new MirthTable();
 
-        filterTable.setModel(new DefaultTableModel(new String[]{"#", "Operator", "Name", "Type", "Data"}, 0) {
+        filterTable.setModel(new DefaultTableModel(new String[] { "#", "Operator", "Name", "Type", "Data" }, 0) {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 boolean[] canEdit;
                 FilterRulePlugin plugin;
                 try {
                     plugin = getPlugin((String) filterTableModel.getValueAt(rowIndex, RULE_TYPE_COL));
-                    canEdit = new boolean[]{false, true, plugin.isNameEditable(), true, true};
+                    canEdit = new boolean[] { false, true, plugin.isNameEditable(), true, true };
                 } catch (Exception e) {
-                    canEdit = new boolean[]{false, true, true, true, true};
+                    canEdit = new boolean[] { false, true, true, true, true };
                 }
                 return canEdit[columnIndex];
             }
@@ -483,7 +480,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                     } catch (Exception e) {
                         parent.alertException(parent, e.getStackTrace(), e.getMessage());
                     }
-
 
                 }
             }
@@ -547,23 +543,15 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             }
         });
         filterTable.addKeyListener(new KeyListener() {
-
             public void keyPressed(KeyEvent e) {
-                boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
-                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
-                    PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
-                } else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
                     deleteRule();
                 }
             }
 
-            public void keyReleased(KeyEvent e) {
-                // TODO Auto-generated method stub
-            }
+            public void keyReleased(KeyEvent e) {}
 
-            public void keyTyped(KeyEvent e) {
-                // TODO Auto-generated method stub
-            }
+            public void keyTyped(KeyEvent e) {}
         });
     }
 
@@ -707,10 +695,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
     public void updateName(int row, String name) {
         /*
-         * Make sure a row is not being added or removed when updating name.
-         * The removingRow check was added to force Rule Builder rows to disappear
-         * when they are removed. They stopped disappearing sometime after 1.8.2, 
-         * possibly with swingx changes.
+         * Make sure a row is not being added or removed when updating name. The
+         * removingRow check was added to force Rule Builder rows to disappear
+         * when they are removed. They stopped disappearing sometime after
+         * 1.8.2, possibly with swingx changes.
          */
         if (row > -1 && !addingNewRow && !removingRow) {
             updating = true;
@@ -751,10 +739,11 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         } // on row 0
         else {
             rule.setOperator(Rule.Operator.AND); // AND operator by default
-        }        // elsewhere
+        } // elsewhere
 
         if (LoadedExtensions.getInstance().getFilterRulePlugins().containsKey(RULE_BUILDER)) {
-            rule.setType(RULE_BUILDER); // graphical rule type by default, inbound
+            rule.setType(RULE_BUILDER); // graphical rule type by default,
+                                        // inbound
             FilterRulePlugin plugin = LoadedExtensions.getInstance().getFilterRulePlugins().get(RULE_BUILDER);
             plugin.initData();
             Map<Object, Object> data = new HashMap<Object, Object>();
@@ -778,8 +767,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             System.out.println("Rule Builder not found");
             rule.setType(LoadedExtensions.getInstance().getFilterRulePlugins().keySet().iterator().next());
         }
-
-
 
         setRowData(rule, rowCount, true);
         prevSelRow = rowCount;
@@ -1026,7 +1013,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             Connector destination = it.next();
             if (connector == destination) {
                 seenCurrent = true;
-                //VariableListUtil.getStepVariables(concatenatedSteps, destination, true, row);
+                // VariableListUtil.getStepVariables(concatenatedSteps,
+                // destination, true, row);
             } else if (!seenCurrent) {
                 VariableListUtil.getStepVariables(concatenatedSteps, destination, false);
                 concatenatedSteps.add(destination.getName());

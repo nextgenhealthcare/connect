@@ -140,14 +140,10 @@ public class AlertPanel extends javax.swing.JPanel {
 
         alertPane.setViewportView(alertTable);
 
-        // Key Listener trigger for CTRL-S and DEL
+        // Key Listener trigger for DEL
         alertTable.addKeyListener(new KeyListener() {
-
             public void keyPressed(KeyEvent e) {
-                boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
-                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
-                    PlatformUI.MIRTH_FRAME.doSaveAlerts();
-                } else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
                     parent.doDeleteAlert();
                 }
             }
@@ -281,23 +277,6 @@ public class AlertPanel extends javax.swing.JPanel {
         });
 
         applyToChannelsScrollPane.setViewportView(applyToChannelsTable);
-
-        // Key Listener trigger for CTRL-S
-        applyToChannelsTable.addKeyListener(new KeyListener() {
-
-            public void keyPressed(KeyEvent e) {
-                boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
-                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
-                    PlatformUI.MIRTH_FRAME.doSaveAlerts();
-                }
-            }
-
-            public void keyReleased(KeyEvent e) {
-            }
-
-            public void keyTyped(KeyEvent e) {
-            }
-        });
     }
 
     public void updateApplyToChannelsTable(Alert alert) {

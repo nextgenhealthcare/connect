@@ -88,12 +88,11 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
             setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
 
-        makeIncludedDestinationsTable(null);
+        makeIncludedMetaDataTable(null);
         filterTableTextField.requestFocus();
         generateButton.addKeyListener(new KeyListener() {
 
             public void keyPressed(KeyEvent e) {
-                // TODO Auto-generated method stub
             }
 
             public void keyReleased(KeyEvent e) {
@@ -103,7 +102,6 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
             }
 
             public void keyTyped(KeyEvent e) {
-                // TODO Auto-generated method stub
             }
         });
         setVisible(true);
@@ -113,8 +111,8 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
      * Makes the alert table with a parameter that is true if a new alert should
      * be added as well.
      */
-    public void makeIncludedDestinationsTable(Set<Table> metaData) {
-        updateIncludedDestinationsTable(metaData);
+    public void makeIncludedMetaDataTable(Set<Table> metaData) {
+        updateIncludedMetaDataTable(metaData);
 
         includedMetaDataTable.setDragEnabled(false);
         includedMetaDataTable.setRowSelectionAllowed(false);
@@ -140,24 +138,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
             }
         });
 
-        includedDestinationsPane.setViewportView(includedMetaDataTable);
-
-        // Key Listener trigger for CTRL-S
-        includedMetaDataTable.addKeyListener(new KeyListener() {
-
-            public void keyPressed(KeyEvent e) {
-                boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
-                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
-                    PlatformUI.MIRTH_FRAME.doSaveAlerts();
-                }
-            }
-
-            public void keyReleased(KeyEvent e) {
-            }
-
-            public void keyTyped(KeyEvent e) {
-            }
-        });
+        includedMetaDataPane.setViewportView(includedMetaDataTable);
 
         // Mouse listener for trigger-button popup on the table.
         includedMetaDataTable.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -208,7 +189,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         }
     }
 
-    public void updateIncludedDestinationsTable(Set<Table> metaData) {
+    public void updateIncludedMetaDataTable(Set<Table> metaData) {
         Object[][] tableData = null;
         int tableSize = 0;
         
@@ -393,7 +374,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         cancelButton = new javax.swing.JButton();
         generateButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
-        includedDestinationsPane = new javax.swing.JScrollPane();
+        includedMetaDataPane = new javax.swing.JScrollPane();
         includedMetaDataTable = null;
         tableFilterNamePanel = new javax.swing.JPanel();
         filterByLabel = new javax.swing.JLabel();
@@ -419,7 +400,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
             }
         });
 
-        includedDestinationsPane.setViewportView(includedMetaDataTable);
+        includedMetaDataPane.setViewportView(includedMetaDataTable);
 
         filterByLabel.setText("Filter by:");
 
@@ -461,7 +442,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(includedDestinationsPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
+                    .addComponent(includedMetaDataPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
                     .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(generateButton)
@@ -478,7 +459,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addComponent(tableFilterNamePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(includedDestinationsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
+                .addComponent(includedMetaDataPane, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -559,7 +540,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
 	                    parent.alertError(parent, "Could not retrieve database metadata.  Please ensure that your driver, URL, username, and password are correct.");
 	                } else {
 	                    // format table information into presentation
-	                    makeIncludedDestinationsTable(metaData);
+	                    makeIncludedMetaDataTable(metaData);
 	                }
                 }
                 
@@ -576,7 +557,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
     private javax.swing.JLabel filterByLabel;
     private javax.swing.JTextField filterTableTextField;
     private javax.swing.JButton generateButton;
-    private javax.swing.JScrollPane includedDestinationsPane;
+    private javax.swing.JScrollPane includedMetaDataPane;
     private com.mirth.connect.client.ui.components.MirthTable includedMetaDataTable;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator1;

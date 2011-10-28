@@ -51,7 +51,6 @@ public class DashboardPanel extends javax.swing.JPanel {
     
     private Frame parent;
 
-    /** Creates new form DashboardPanel */
     public DashboardPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();

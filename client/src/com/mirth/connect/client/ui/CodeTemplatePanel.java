@@ -157,10 +157,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
         templateTable.addKeyListener(new KeyListener() {
 
             public void keyPressed(KeyEvent e) {
-                boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
-                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
-                    PlatformUI.MIRTH_FRAME.doSaveCodeTemplates();
-                } else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
                     parent.doDeleteCodeTemplate();
                 }
             }

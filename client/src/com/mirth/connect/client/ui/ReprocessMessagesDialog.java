@@ -60,7 +60,6 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
         okButton.addKeyListener(new KeyListener() {
 
             public void keyPressed(KeyEvent e) {
-                // TODO Auto-generated method stub
             }
 
             public void keyReleased(KeyEvent e) {
@@ -70,7 +69,6 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
             }
 
             public void keyTyped(KeyEvent e) {
-                // TODO Auto-generated method stub
             }
         });
         setVisible(true);
@@ -107,23 +105,6 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
         });
 
         includedDestinationsPane.setViewportView(includedDestinationsTable);
-
-        // Key Listener trigger for CTRL-S
-        includedDestinationsTable.addKeyListener(new KeyListener() {
-
-            public void keyPressed(KeyEvent e) {
-                boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
-                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
-                    PlatformUI.MIRTH_FRAME.doSaveAlerts();
-                }
-            }
-
-            public void keyReleased(KeyEvent e) {
-            }
-
-            public void keyTyped(KeyEvent e) {
-            }
-        });
     }
 
     public void updateIncludedDestinationsTable(Channel channel) {

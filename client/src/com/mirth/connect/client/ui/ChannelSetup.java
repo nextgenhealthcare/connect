@@ -329,14 +329,10 @@ public class ChannelSetup extends javax.swing.JPanel {
         destinationTablePane.setViewportView(destinationTable);
         destinationTablePane.setWheelScrollingEnabled(true);
 
-        // Key Listener trigger for CTRL-S and DEL
+        // Key Listener trigger for DEL
         destinationTable.addKeyListener(new KeyListener() {
-
             public void keyPressed(KeyEvent e) {
-                boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
-                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
-                    PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
-                } else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
                     parent.doDeleteDestination();
                 }
             }
