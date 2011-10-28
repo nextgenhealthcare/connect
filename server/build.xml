@@ -642,7 +642,7 @@
 					<include name="log4j-1.2.15.jar" />
 					<include name="derby-10.8.1.2.jar" />
 					<include name="derbytools-10.8.1.2.jar" />
-					<include name="commons/commons-io-2.0.jar" />
+					<include name="commons/commons-io-2.1.jar" />
 				</fileset>
 			</classpath>
 			<arg value="dbconf/derby/derby-database.sql" />
