@@ -10,12 +10,14 @@
 package com.mirth.connect.server;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.nio.charset.Charset;
+import java.security.KeyStore;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
+import org.eclipse.jetty.http.ssl.SslContextFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -290,22 +293,31 @@ public class Mirth extends Thread {
 
             // add HTTP listener
             SelectChannelConnector connector = new SelectChannelConnector();
+            connector.setName("connector");
             connector.setHost(mirthProperties.getString("http.host", "0.0.0.0"));
             connector.setPort(mirthProperties.getInt("http.port"));
-            connector.setName("connector");
 
             // add HTTPS listener
             SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
+            sslConnector.setName("sslconnector");
             sslConnector.setHost(mirthProperties.getString("https.host", "0.0.0.0"));
             sslConnector.setPort(mirthProperties.getInt("https.port"));
-            sslConnector.setKeystore(mirthProperties.getString("keystore.path"));
-            sslConnector.setPassword(mirthProperties.getString("keystore.storepass"));
-            sslConnector.setKeyPassword(mirthProperties.getString("keystore.keypass"));
-            sslConnector.setSslKeyManagerFactoryAlgorithm(mirthProperties.getString("keystore.algorithm"));
-            sslConnector.setKeystoreType(mirthProperties.getString("keystore.storetype"));
-            sslConnector.setName("sslconnector");
-            // Disabling low and medium strength cipers (see MIRTH-1924)
-            sslConnector.setExcludeCipherSuites(new String[] { "EXP-EDH-DSS-DES-CBC-SHA", "EDH-DSS-DES-CBC-SHA" });
+            
+            SslContextFactory contextFactory = sslConnector.getSslContextFactory();
+            KeyStore keyStore = KeyStore.getInstance(mirthProperties.getString("keystore.storetype"));
+            FileInputStream is = new FileInputStream(new File(mirthProperties.getString("keystore.path")));
+            
+            try {
+                keyStore.load(is, mirthProperties.getString("keystore.storepass").toCharArray());
+            } finally {
+                is.close();    
+            }
+            
+            contextFactory.setKeyStore(keyStore);
+            contextFactory.setKeyManagerPassword(mirthProperties.getString("keystore.keypass"));
+            contextFactory.setSslKeyManagerFactoryAlgorithm(mirthProperties.getString("keystore.algorithm"));
+            // disabling low and medium strength cipers (see MIRTH-1924)
+            contextFactory.setExcludeCipherSuites(new String[] { "SSL_RSA_WITH_DES_CBC_SHA", "SSL_DHE_RSA_WITH_DES_CBC_SHA", "SSL_DHE_DSS_WITH_DES_CBC_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA", "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA", "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA" });
 
             HandlerList handlers = new HandlerList();
             String contextPath = mirthProperties.getString("http.contextpath");
