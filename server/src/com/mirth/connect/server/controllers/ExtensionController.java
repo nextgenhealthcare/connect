@@ -40,7 +40,7 @@ public abstract class ExtensionController extends Controller {
     }
 
     public static final String EXTENSIONS_UNINSTALL_FILE = "uninstall";
-
+    public static final String EXTENSIONS_UNINSTALL_PROPERTIES_FILE = "uninstallProperties";
     public static final String EXTENSIONS_UNINSTALL_SCRIPTS_FILE = "uninstallScripts";
 
     public static ExtensionController getInstance() {
@@ -202,6 +202,12 @@ public abstract class ExtensionController extends Controller {
      */
     public abstract void uninstallExtensions();
 
+    /**
+     * Removes all properties stored in the database for extensions that were
+     * marked for uninstalltion.
+     */
+    public abstract void removePropertiesForUninstalledExtensions();
+    
     // ************************************************************
     // Maps for different plugins
     // ************************************************************

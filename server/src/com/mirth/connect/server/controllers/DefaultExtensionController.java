@@ -117,6 +117,26 @@ public class DefaultExtensionController extends ExtensionController {
             logger.error("There was an error loading extension.properties", e);
         }
     }
+    
+    @Override
+    public void removePropertiesForUninstalledExtensions() {
+        try {
+            File uninstallFile = new File(getExtensionsPath(), EXTENSIONS_UNINSTALL_PROPERTIES_FILE);
+
+            if (uninstallFile.exists()) {
+                List<String> extensionPaths = FileUtils.readLines(uninstallFile);
+
+                for (String extensionPath : extensionPaths) {
+                    configurationController.removePropertiesForGroup(extensionPath);
+                }
+
+                // delete the uninstall file when we're done
+                FileUtils.deleteQuietly(uninstallFile);
+            }
+        } catch (Exception e) {
+            logger.error("Error removing properties for uninstalled extensions.", e);
+        }
+    }
 
     @Override
     public void loadExtensions() {
@@ -471,23 +491,27 @@ public class DefaultExtensionController extends ExtensionController {
             addExtensionToUninstallFile(pluginPath);
 
             for (PluginMetaData plugin : pluginMetaDataMap.values()) {
-                if (plugin.getPath().equals(pluginPath) && plugin.getSqlScript() != null) {
-                    String pluginSqlScripts = FileUtils.readFileToString(new File(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript()));
-                    String script = getUninstallScriptForCurrentDatabase(pluginSqlScripts);
+                if (plugin.getPath().equals(pluginPath)) {
+                    addExtensionToUninstallPropertiesFile(plugin.getName());
 
-                    if (script != null) {
-                        List<String> scriptList = parseUninstallScript(script);
+                    if (plugin.getSqlScript() != null) {
+                        String pluginSqlScripts = FileUtils.readFileToString(new File(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript()));
+                        String script = getUninstallScriptForCurrentDatabase(pluginSqlScripts);
 
-                        /*
-                         * If there was an uninstall script, then save the
-                         * script to run later and remove the schema version
-                         * from the database.
-                         */
-                        if (scriptList.size() > 0) {
-                            List<String> uninstallScripts = readUninstallScript();
-                            uninstallScripts.addAll(scriptList);
-                            writeUninstallScript(uninstallScripts);
-                            configurationController.removeProperty(plugin.getName(), "schema");
+                        if (script != null) {
+                            List<String> scriptList = parseUninstallScript(script);
+
+                            /*
+                             * If there was an uninstall script, then save the
+                             * script to run later and remove the schema version
+                             * from the database.
+                             */
+                            if (scriptList.size() > 0) {
+                                List<String> uninstallScripts = readUninstallScript();
+                                uninstallScripts.addAll(scriptList);
+                                writeUninstallScript(uninstallScripts);
+                                configurationController.removeProperty(plugin.getName(), "schema");
+                            }
                         }
                     }
                 }
@@ -538,6 +562,20 @@ public class DefaultExtensionController extends ExtensionController {
             writer.write(pluginPath + System.getProperty("line.separator"));
         } catch (IOException e) {
             logger.error("Error adding extension to uninstall file: " + pluginPath, e);
+        } finally {
+            IOUtils.closeQuietly(writer);
+        }
+    }
+    
+    private void addExtensionToUninstallPropertiesFile(String pluginName) {
+        File uninstallFile = new File(getExtensionsPath(), EXTENSIONS_UNINSTALL_PROPERTIES_FILE);
+        FileWriter writer = null;
+
+        try {
+            writer = new FileWriter(uninstallFile, true);
+            writer.write(pluginName + System.getProperty("line.separator"));
+        } catch (IOException e) {
+            logger.error("Error adding extension to uninstall properties file: " + pluginName, e);
         } finally {
             IOUtils.closeQuietly(writer);
         }
