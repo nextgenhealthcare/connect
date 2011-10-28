@@ -480,8 +480,8 @@ public class DefaultExtensionController extends ExtensionController {
 
                         /*
                          * If there was an uninstall script, then save the
-                         * script to run later and remove the schema.plugin from
-                         * extensions.properties
+                         * script to run later and remove the schema version
+                         * from the database.
                          */
                         if (scriptList.size() > 0) {
                             List<String> uninstallScripts = readUninstallScript();
