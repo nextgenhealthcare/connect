@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="mirth" basedir="." default="help">
+<project name="mirth-server" basedir="." default="help">
 
 	<property name="keystore_property_file" value="keystore.properties" />
 
@@ -610,7 +610,6 @@
 			<include name="mirth-client.jnlp" />
 
 			<exclude name="com/mirth/connect/server/launcher/**" />
-			<exclude name="com/mirth/connect/server/mbeans/**" />
 			<exclude name="org/dcm4che2/**" />
 		</jar>
 

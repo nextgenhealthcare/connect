@@ -1,4 +1,4 @@
-<project name="mirth" basedir="." default="build">
+<project name="mirth-connect" basedir="." default="build">
 	<target name="init">
 		<property file="mirth-build.properties" />
 		<property name="server.setup" value="${server}/setup" />
