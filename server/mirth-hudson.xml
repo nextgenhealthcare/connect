@@ -1,6 +1,5 @@
 <project name="mirth-hudson" default="create-dist">
 	<target name="create-dist">
-
 		<exec executable="svn" output="svn.properties">
 			<arg value="info" />
 		</exec>
@@ -14,18 +13,13 @@
 		</ant>
 	</target>
 
-
-
-
-
 	<target name="junit" description="run all unit tests">
 		<property file="build.properties" />
-
-
 		<property name="reports" value="junit-reports" />
 
 		<delete dir="${reports}" />
 		<mkdir dir="${reports}" />
+		
 		<junit haltonfailure="false" fork="true" forkmode="once">
 			<jvmarg value="-Xms128m" />
 			<jvmarg value="-Xmx256m" />
@@ -47,10 +41,6 @@
 					<exclude name="**/connect/util/**/*Test.class" />
 				</fileset>
 			</batchtest>
-
 		</junit>
 	</target>
-
-
-
 </project>

@@ -9,7 +9,7 @@
 
 	<target name="init">
 		<property file="build.properties" />
-		<echo>Version: ${version}</echo>
+
 		<path id="classpath">
 			<fileset dir="${lib}" includes="**/*.jar" />
 		</path>
@@ -551,6 +551,8 @@
 	</target>
 
 	<target name="create-setup" depends="init">
+		<echo>Sub-project files have been copied into setup</echo>
+		
 		<!-- create the setup directory -->
 		<mkdir dir="${setup}" />
 		<mkdir dir="${setup.conf}" />
