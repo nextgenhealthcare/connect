@@ -13,31 +13,29 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import javax.swing.DropMode;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.TransferHandler;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
@@ -50,13 +48,15 @@ import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.plugins.ChannelColumnPlugin;
 import com.mirth.connect.plugins.ChannelPanelPlugin;
 
-public class ChannelPanel extends javax.swing.JPanel implements DropTargetListener {
+public class ChannelPanel extends javax.swing.JPanel {
 
     private final String STATUS_COLUMN_NAME = "Status";
     private final String DATA_TYPE_COLUMN_NAME = "Data Type";
     private final String NAME_COLUMN_NAME = "Name";
+    private final int NAME_COLUMN_NUMBER = 2;
     private final String DESCRIPTION_COLUMN_NAME = "Description";
     private final String ID_COLUMN_NAME = "Id";
+    private final int ID_COLUMN_NUMBER = 3;
     private final String LAST_DEPLOYED_COLUMN_NAME = "Last Deployed";
     private final String DEPLOYED_REVISION_DELTA_COLUMN_NAME = "Rev \u0394";
     private final String ENABLED_STATUS = "Enabled";
@@ -64,7 +64,6 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
     private final String[] DEFAULT_COLUMNS = new String[] { STATUS_COLUMN_NAME, DATA_TYPE_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME, DESCRIPTION_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME };
     
     private Frame parent;
-    private DropTarget dropTarget;
 
     /** Creates new form ChannelPanel */
     public ChannelPanel() {
@@ -85,7 +84,6 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         };
         tabs.addChangeListener(changeListener);
 
-        dropTarget = new DropTarget(this, this);
         makeChannelTable();
 
         channelPane.setComponentPopupMenu(parent.channelPopupMenu);
@@ -193,8 +191,88 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
 
         channelPane.setViewportView(channelTable);
 
-        channelTable.setDropTarget(dropTarget);
-        channelPane.setDropTarget(dropTarget);
+        class CustomTransferHandler extends TransferHandler {
+
+            @Override
+            protected Transferable createTransferable(JComponent c) {
+                MirthTable table = (MirthTable) c;
+                int[] rows = table.getSelectedModelRows();
+
+                // Don't put anything on the clipboard if no rows are selected
+                if (rows.length == 0) {
+                    return null;
+                }
+
+                StringBuilder builder = new StringBuilder();
+
+                for (int i = 0; i < rows.length; i++) {
+                    builder.append(table.getModel().getValueAt(rows[i], NAME_COLUMN_NUMBER));
+                    builder.append(" (");
+                    builder.append(table.getModel().getValueAt(rows[i], ID_COLUMN_NUMBER));
+                    builder.append(")");
+
+                    if (i != rows.length - 1) {
+                        builder.append("\n");
+                    }
+                }
+
+                return new StringSelection(builder.toString());
+            }
+
+            @Override
+            public int getSourceActions(JComponent c) {
+                return COPY_OR_MOVE;
+            }
+            
+            @Override
+            public boolean importData(TransferSupport support) {
+                if (canImport(support)) {
+                    try {
+                        List<File> fileList = (List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                        boolean showAlerts = (fileList.size() == 1);
+
+                        for (File file : fileList) {
+                            if (FilenameUtils.isExtension(file.getName(), "xml")) {
+                                parent.importChannel(parent.readFileToString(file), showAlerts);
+                            }
+                        }
+
+                        return true;
+                    } catch (Exception e) {
+                        // Let it return false
+                    }
+                }
+
+                return false;
+            }
+            
+            @Override
+            public boolean canImport(TransferSupport support) {
+                if (support.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                    try {
+                        List<File> fileList = (List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+
+                        for (File file : fileList) {
+                            if (!FilenameUtils.isExtension(file.getName(), "xml")) {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    } catch (Exception e) {
+                        // Return true anyway until this bug is fixed:
+                        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6759788
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+        }
+
+        channelTable.setDragEnabled(true);
+        channelTable.setDropMode(DropMode.ON);
+        channelTable.setTransferHandler(new CustomTransferHandler());
 
         channelTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -454,64 +532,6 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 2, 2, false);
         parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 8, -1, false);
         updateCurrentPluginPanel();
-    }
-
-    public void dragEnter(DropTargetDragEvent dtde) {
-        try {
-            Transferable tr = dtde.getTransferable();
-            if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-
-                dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
-
-                List<File> fileList = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
-                Iterator<File> iterator = fileList.iterator();
-                while (iterator.hasNext()) {
-                    String fileName = (iterator.next()).getName();
-                    if (!fileName.substring(fileName.lastIndexOf(".")).equalsIgnoreCase(".xml")) {
-                        dtde.rejectDrag();
-                        return;
-                    }
-                }
-            } else {
-                dtde.rejectDrag();
-            }
-        } catch (Exception e) {
-            dtde.rejectDrag();
-        }
-    }
-
-    public void dragOver(DropTargetDragEvent dtde) {
-    }
-
-    public void dropActionChanged(DropTargetDragEvent dtde) {
-    }
-
-    public void dragExit(DropTargetEvent dte) {
-    }
-
-    public void drop(DropTargetDropEvent dtde) {
-        try {
-            Transferable tr = dtde.getTransferable();
-            if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-
-                dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
-
-                List<File> fileList = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
-                Iterator<File> iterator = fileList.iterator();
-
-                if (fileList.size() == 1) {
-                    File file = iterator.next();
-                    parent.importChannel(parent.readFileToString(file), true);
-                } else {
-                    while (iterator.hasNext()) {
-                        File file = iterator.next();
-                        parent.importChannel(parent.readFileToString(file), false);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            dtde.rejectDrop();
-        }
     }
 
     /**
