@@ -46,6 +46,7 @@ public class HttpListener extends ConnectorClass {
         properties.put(HttpListenerProperties.HTTP_HOST, listenerAddressField.getText());
         properties.put(HttpListenerProperties.HTTP_PORT, listenerPortField.getText());
         properties.put(HttpListenerProperties.HTTP_CONTEXT_PATH, contextPathField.getText());
+        properties.put(HttpListenerProperties.HTTP_TIMEOUT, receiveTimeoutField.getText());
 
         if (messageContentBodyOnlyRadio.isSelected()) {
             properties.put(HttpListenerProperties.HTTP_BODY_ONLY, UIConstants.YES_OPTION);
@@ -69,6 +70,7 @@ public class HttpListener extends ConnectorClass {
 
         listenerPortField.setText((String) props.get(HttpListenerProperties.HTTP_PORT));
         contextPathField.setText((String) props.get(HttpListenerProperties.HTTP_CONTEXT_PATH));
+        receiveTimeoutField.setText((String) props.get(HttpListenerProperties.HTTP_TIMEOUT));
 
         if (((String) props.get(HttpListenerProperties.HTTP_BODY_ONLY)).equals(UIConstants.YES_OPTION)) {
             messageContentBodyOnlyRadio.setSelected(true);
@@ -119,6 +121,12 @@ public class HttpListener extends ConnectorClass {
                 listenerPortField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
+        if (((String) props.get(HttpListenerProperties.HTTP_TIMEOUT)).length() == 0) {
+            valid = false;
+            if (highlight) {
+                receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
         if (!((String) props.get(HttpListenerProperties.HTTP_RESPONSE)).equalsIgnoreCase("None")) {
             if (((String) props.get(HttpListenerProperties.HTTP_RESPONSE_CONTENT_TYPE)).length() == 0) {
                 valid = false;
@@ -135,6 +143,7 @@ public class HttpListener extends ConnectorClass {
     private void resetInvalidProperties() {
         listenerAddressField.setBackground(null);
         listenerPortField.setBackground(null);
+        receiveTimeoutField.setBackground(null);
         responseContentTypeField.setBackground(null);
     }
 
@@ -176,6 +185,8 @@ public class HttpListener extends ConnectorClass {
         charsetEncodingLabel = new javax.swing.JLabel();
         contextPathLabel = new javax.swing.JLabel();
         contextPathField = new com.mirth.connect.client.ui.components.MirthTextField();
+        receiveTimeoutLabel = new javax.swing.JLabel();
+        receiveTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -261,6 +272,10 @@ public class HttpListener extends ConnectorClass {
 
         contextPathField.setToolTipText("The context path for the HTTP Listener URL.");
 
+        receiveTimeoutLabel.setText("Receive Timeout (ms):");
+
+        receiveTimeoutField.setToolTipText("Enter the maximum idle time in milliseconds for a connection.");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -274,9 +289,11 @@ public class HttpListener extends ConnectorClass {
                     .addComponent(messageContentLabel)
                     .addComponent(responseFromLabel)
                     .addComponent(responseContentTypeLabel)
-                    .addComponent(charsetEncodingLabel))
+                    .addComponent(charsetEncodingLabel)
+                    .addComponent(receiveTimeoutLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
@@ -310,6 +327,10 @@ public class HttpListener extends ConnectorClass {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(contextPathLabel)
                     .addComponent(contextPathField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(receiveTimeoutLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(messageContentLabel)
@@ -460,6 +481,8 @@ public class HttpListener extends ConnectorClass {
     private com.mirth.connect.client.ui.components.MirthRadioButton messageContentBodyOnlyRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton messageContentHeadersQueryAndBodyRadio;
     private javax.swing.JLabel messageContentLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField receiveTimeoutField;
+    private javax.swing.JLabel receiveTimeoutLabel;
     private com.mirth.connect.client.ui.components.MirthTextField responseContentTypeField;
     private javax.swing.JLabel responseContentTypeLabel;
     private javax.swing.JLabel responseFromLabel;
