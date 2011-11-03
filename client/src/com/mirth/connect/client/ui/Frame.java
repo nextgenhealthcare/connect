@@ -1050,7 +1050,7 @@ public class Frame extends JXFrame {
                 this.dispose();
                 LoginPanel.getInstance().initialize(PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION, "", "");
                 return;
-            } else if (message.indexOf("Connection refused") != -1) {
+            } else if (message.startsWith("java.net.ConnectException: Connection refused")) {
                 connectionError = true;
                 if (currentContentPage == dashboardPanel) {
                     su.interruptThread();
