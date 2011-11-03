@@ -70,6 +70,7 @@ import com.mirth.connect.server.servlets.UserServlet;
 import com.mirth.connect.server.servlets.WebStartServlet;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.ResourceUtil;
+import com.mirth.connect.server.util.SqlConfig;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.
@@ -196,6 +197,15 @@ public class Mirth extends Thread {
      */
     public void startup() {
         configurationController.initializeSecuritySettings();
+
+        try {
+            SqlConfig.getSqlMapClient().getDataSource().getConnection();
+        } catch (Exception e) {
+            // the getCause is needed since the wrapper exception is from the connection pool
+            logger.error("Error establishing connection to database, aborting startup. " + e.getCause().getMessage());
+            System.exit(0);
+        }
+
         extensionController.removePropertiesForUninstalledExtensions();
         extensionController.loadExtensions();
         migrationController.migrate();
@@ -223,7 +233,6 @@ public class Mirth extends Thread {
         startWebServer();
         startEngine();
         printSplashScreen();
-        
     }
 
     /**
@@ -235,8 +244,14 @@ public class Mirth extends Thread {
         
         stopEngine();
         
-        // Add event after stopping the engine, but before stopping the plugins
-        eventController.addEvent(new Event("Server shutdown"));
+        try {
+            // check for database connection before trying to log shutdown event
+            SqlConfig.getSqlMapClient().getDataSource().getConnection();
+            // add event after stopping the engine, but before stopping the plugins
+            eventController.addEvent(new Event("Server shutdown"));
+        } catch (Exception e) {
+            logger.debug("could not log shutdown even since database is unavailable", e);
+        }
         
         stopWebServer();
         extensionController.stopPlugins();
@@ -407,7 +422,9 @@ public class Mirth extends Thread {
         logger.debug("stopping jetty web server");
 
         try {
-            webServer.stop();
+            if (webServer != null) {
+                webServer.stop();    
+            }
         } catch (Exception e) {
             logger.warn("Could not stop web server.", e);
         }

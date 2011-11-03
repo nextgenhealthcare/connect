@@ -132,6 +132,13 @@ public class MuleEngineController implements EngineController {
         defaultTransformers.put("NoActionTransformer", "org.mule.transformers.NoActionTransformer");
         defaultTransformers.put("HttpStringToXML", "com.mirth.connect.server.mule.transformers.HttpStringToXML");
         defaultTransformers.put("HttpRequestToString", "com.mirth.connect.server.mule.transformers.HttpRequestToString");
+        
+        /*
+         * This is here because if there is an aborted startup, this line would
+         * not otherwise be called and we will see the Mule shutdown splash
+         * screen.
+         */
+        MuleManager.getConfiguration().setEmbedded(true);
     }
 
     public void startEngine() throws ControllerException {
@@ -929,7 +936,6 @@ public class MuleEngineController implements EngineController {
 
         Properties properties = PropertyLoader.loadProperties("mirth");
         muleManager.setId("MirthConfiguration");
-        MuleManager.getConfiguration().setEmbedded(true);
         MuleManager.getConfiguration().setRecoverableMode(true);
         MuleManager.getConfiguration().setClientMode(false);
         MuleManager.getConfiguration().setWorkingDirectory(ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir());
