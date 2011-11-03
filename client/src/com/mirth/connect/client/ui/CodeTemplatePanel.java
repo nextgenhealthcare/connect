@@ -154,7 +154,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
 
         templatePane.setViewportView(templateTable);
 
-        // Key Listener trigger for CTRL-S and DEL
+        // Key Listener trigger for and DEL
         templateTable.addKeyListener(new KeyListener() {
 
             public void keyPressed(KeyEvent e) {
