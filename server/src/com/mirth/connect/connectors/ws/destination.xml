@@ -15,10 +15,10 @@
 	<library type="SERVER" path="ws-server.jar" />
 	<library type="CLIENT" path="ws-client.jar" />
 	<library type="SHARED" path="ws-shared.jar" />
-	<library type="SERVER" path="lib/soapui-3.6.1.jar" />
+	<library type="SERVER" path="lib/soapui-4.0.1.jar" />
 	<library type="SERVER" path="lib/wsdl4j-1.6.2-fixed.jar" />
 	<library type="SERVER" path="lib/xbean-fixed-2.4.0.jar" />
-	<library type="SERVER" path="lib/soapui-xmlbeans-3.6.1.jar" />
+	<library type="SERVER" path="lib/soapui-xmlbeans-4.0.1.jar" />
 	<library type="SERVER" path="lib/policy-xmlbeans-1.5.jar" />
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.ws.WebServiceConnector</property>
