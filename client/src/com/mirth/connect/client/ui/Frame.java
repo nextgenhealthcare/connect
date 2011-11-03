@@ -21,6 +21,7 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -182,7 +183,7 @@ public class Frame extends JXFrame {
     private boolean refreshingStatuses = false;
     private Map<String, Integer> safeErrorFailCountMap = new HashMap<String, Integer>();
     private Map<Component, String> componentTaskMap = new HashMap<Component, String>();
-    private boolean isAcceleratorKeyPressed = false;
+    private boolean acceleratorKeyPressed = false;
     
     public Frame() {
         rightContainer = new JXTitledPanel();
@@ -238,9 +239,11 @@ public class Frame extends JXFrame {
         });
         
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+            
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
-                isAcceleratorKeyPressed = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
+                // Update the state of the accelerator key (CTRL on Windows)
+                updateAcceleratorKeyPressed(e);
                 return false;
             }
         });
@@ -4253,7 +4256,11 @@ public class Frame extends JXFrame {
         users = mirthClient.getUser(null);
     }
 
-    public boolean isAcceleratorKeyPressed() {
-        return isAcceleratorKeyPressed;
+    public synchronized void updateAcceleratorKeyPressed(InputEvent e) {
+        this.acceleratorKeyPressed = ((e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0);
+    }
+    
+    public synchronized boolean isAcceleratorKeyPressed() {
+        return acceleratorKeyPressed;
     }
 }

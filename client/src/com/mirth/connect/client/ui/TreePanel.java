@@ -466,13 +466,23 @@ public class TreePanel extends javax.swing.JPanel {
                     TreePath tp = tree.getSelectionPath();
                     TreeNode tn = (TreeNode) tp.getLastPathComponent();
                     if (tn.isLeaf()) {
-                        refTableMouseDragged(evt);
+                        /*
+                         * Update whether the accelerator key is pressed when
+                         * dragging is started. This is because a release may
+                         * have never been triggered the last time it was
+                         * pressed if it was released during a mouse drag.
+                         */ 
+                        PlatformUI.MIRTH_FRAME.updateAcceleratorKeyPressed(evt);
                     }
                 }
             }
 
             public void mouseMoved(MouseEvent evt) {
-                refTableMouseMoved(evt);
+                int row = tree.getRowForLocation(evt.getPoint().x, evt.getPoint().y);
+
+                if (!popupMenu.isShowing() && row >= 0 && row < tree.getRowCount()) {
+                    tree.setSelectionRow(row);
+                }
             }
         });
         tree.addMouseListener(new MouseListener() {
@@ -483,7 +493,9 @@ public class TreePanel extends javax.swing.JPanel {
             }
 
             public void mouseExited(MouseEvent e) {
-                refTableMouseExited(e);
+                if (!popupMenu.isShowing()) {
+                    tree.clearSelection();
+                }
             }
 
             public void mousePressed(MouseEvent e) {
@@ -504,23 +516,6 @@ public class TreePanel extends javax.swing.JPanel {
         }
         
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-    }
-
-    private void refTableMouseExited(MouseEvent evt) {
-        if (!popupMenu.isShowing()) {
-            tree.clearSelection();
-        }
-    }
-
-    private void refTableMouseDragged(MouseEvent evt) {
-    }
-
-    private void refTableMouseMoved(MouseEvent evt) {
-        int row = tree.getRowForLocation(evt.getPoint().x, evt.getPoint().y);
-
-        if (!popupMenu.isShowing() && row >= 0 && row < tree.getRowCount()) {
-            tree.setSelectionRow(row);
-        }
     }
 
     private void processElement(Protocol protocol, Object elo, MirthTreeNode mtn) {

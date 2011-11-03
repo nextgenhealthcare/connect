@@ -72,7 +72,12 @@ public class TreeTransferable implements Transferable {
 
         if (data != null) {
             if (df == flavors[0]) {
-                return MirthTree.constructPath(data.getParent(), prefix, suffix).toString();
+                /*
+                 * Always use a blank suffix if the accelerator key (CTRL on
+                 * Windows) is pressed. This allows CTRL + Drag to be used to
+                 * mapp into msg where we don't want to append a ".toString()".
+                 */
+                return MirthTree.constructPath(data.getParent(), prefix, (PlatformUI.MIRTH_FRAME.isAcceleratorKeyPressed() ? "" : suffix)).toString();
             }
             if (df == flavors[1]) {
                 if (prefix.equals(MessageTreePanel.MAPPER_PREFIX)) {
