@@ -670,7 +670,7 @@ public class UimaSender extends ConnectorClass {
     }// </editor-fold>//GEN-END:initComponents
 
 private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
-    parent.setWorking("Testing connection...", true);
+    parent.startWorking("Testing connection...");
 
     SwingWorker worker = new SwingWorker<Void, Void>() {
 
@@ -695,7 +695,7 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
         }
 
         public void done() {
-            parent.setWorking("", false);
+            parent.stopWorking("");
         }
     };
 
