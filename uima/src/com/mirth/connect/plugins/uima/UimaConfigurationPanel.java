@@ -46,7 +46,7 @@ public class UimaConfigurationPanel extends AbstractSettingsPanel {
     
     
     public void doRefresh() {
-        getFrame().startWorking("Loading UIMA properties...");
+        final String workingId = getFrame().startWorking("Loading UIMA properties...");
 
         final Properties serverProperties = new Properties();
         pipelines.clear();
@@ -70,7 +70,7 @@ public class UimaConfigurationPanel extends AbstractSettingsPanel {
 
             public void done() {
                 setProperties(serverProperties, pipelines);
-                getFrame().stopWorking("");
+                getFrame().stopWorking(workingId);
             }
         };
 
@@ -78,7 +78,7 @@ public class UimaConfigurationPanel extends AbstractSettingsPanel {
     }
 
     public void doSave() {
-        getFrame().startWorking("Saving UIMA properties...");
+        final String workingId = getFrame().startWorking("Saving UIMA properties...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             public Void doInBackground() {
@@ -92,7 +92,7 @@ public class UimaConfigurationPanel extends AbstractSettingsPanel {
 
             public void done() {
                 setSaveEnabled(false);
-                getFrame().stopWorking("");
+                getFrame().stopWorking(workingId);
             }
         };
 
