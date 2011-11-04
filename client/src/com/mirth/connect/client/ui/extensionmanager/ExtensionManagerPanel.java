@@ -628,7 +628,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
 
     private void installButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_installButtonActionPerformed
     {//GEN-HEADEREND:event_installButtonActionPerformed
-        parent.setWorking("Installing Extension...", true);
+        final String workingId = parent.startWorking("Installing Extension...");
         installButton.setEnabled(false);
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -640,7 +640,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             }
 
             public void done() {
-                parent.setWorking("", false);
+                parent.stopWorking(workingId);
                 installButton.setEnabled(true);
                 if (retVal) {
                     setRestartRequired(true);

@@ -1485,7 +1485,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             final ArrayList<String> finalAttachmentIds = attachmentIds;
             if (attachmentViewer != null) {
 
-                parent.setWorking("Loading " + attachType + " viewer...", true);
+                final String workingId = parent.startWorking("Loading " + attachType + " viewer...");
 
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -1495,7 +1495,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     }
 
                     public void done() {
-                        parent.setWorking("", false);
+                        parent.stopWorking(workingId);
                     }
                 };
                 worker.execute();
@@ -1568,7 +1568,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     }//GEN-LAST:event_formatXmlEncodedCheckBoxActionPerformed
 
     private void nextPageButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_nextPageButtonActionPerformed
-        parent.setWorking("Loading next page...", true);
+        final String workingId = parent.startWorking("Loading next page...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -1583,7 +1583,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 } else {
                     updateMessageTable(null);
                 }
-                parent.setWorking("", false);
+                parent.stopWorking(workingId);
             }
         };
         worker.execute();
@@ -1591,7 +1591,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     }// GEN-LAST:event_nextPageButtonActionPerformed
 
     private void previousPageButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_previousPageButtonActionPerformed
-        parent.setWorking("Loading previous page...", true);
+        final String workingId = parent.startWorking("Loading previous page...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -1606,7 +1606,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 } else {
                     updateMessageTable(null);
                 }
-                parent.setWorking("", false);
+                parent.stopWorking(workingId);
             }
         };
         worker.execute();
@@ -1727,7 +1727,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         if (!pageSizeField.getText().equals("")) {
             pageSize = Integer.parseInt(pageSizeField.getText());
         }
-        parent.setWorking("Loading messages...", true);
+        final String workingId = parent.startWorking("Loading messages...");
 
         if (messageListHandler == null) {
             updateMessageTable(null);
@@ -1750,7 +1750,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 } else {
                     updateMessageTable(null);
                 }
-                parent.setWorking("", false);
+                parent.stopWorking(workingId);
             }
         }
         ;

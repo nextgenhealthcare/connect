@@ -1068,7 +1068,7 @@ private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) 
     generateEnvelope.setEnabled(false);
 
     // Get the new operations
-    parent.setWorking("Getting operations...", true);
+    final String workingId = parent.startWorking("Getting operations...");
 
     SwingWorker worker = new SwingWorker<Void, Void>() {
 
@@ -1109,7 +1109,7 @@ private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) 
 
             parent.setSaveEnabled(true);
 
-            parent.setWorking("", false);
+            parent.stopWorking(workingId);
         }
     };
     worker.execute();
@@ -1166,7 +1166,7 @@ private void generateEnvelopeActionPerformed(java.awt.event.ActionEvent evt) {//
         }
     }
 
-    parent.setWorking("Generating envelope...", true);
+    final String workingId = parent.startWorking("Generating envelope...");
 
     SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -1195,7 +1195,7 @@ private void generateEnvelopeActionPerformed(java.awt.event.ActionEvent evt) {//
                 parent.setSaveEnabled(true);
             }
 
-            parent.setWorking("", false);
+            parent.stopWorking(workingId);
         }
     };
     worker.execute();

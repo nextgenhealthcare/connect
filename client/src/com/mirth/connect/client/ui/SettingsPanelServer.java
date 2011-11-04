@@ -46,7 +46,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     }
 
     public void doRefresh() {
-        getFrame().setWorking("Loading " + getTabName() + " settings...", true);
+        final String workingId = getFrame().startWorking("Loading " + getTabName() + " settings...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -72,7 +72,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     setServerSettings(serverSettings);
                     setUpdateSettings(updateSettings);
                 }
-                getFrame().setWorking("", false);
+                getFrame().stopWorking(workingId);
             }
         };
 
@@ -95,7 +95,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             return;
         }
 
-        getFrame().setWorking("Saving " + getTabName() + " settings...", true);
+        final String workingId = getFrame().startWorking("Saving " + getTabName() + " settings...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -113,7 +113,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             @Override
             public void done() {
                 setSaveEnabled(false);
-                getFrame().setWorking("", false);
+                getFrame().stopWorking(workingId);
             }
         };
 

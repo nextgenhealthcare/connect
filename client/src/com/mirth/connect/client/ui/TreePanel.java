@@ -77,6 +77,7 @@ public class TreePanel extends javax.swing.JPanel {
     private JMenuItem popupMenuMapSegmentFilter;
     private JMenuItem popupMenuMapSegment;
     private JMenuItem popupMenuFilterSegment;
+    private String lastWorkingId = null;
 
     /**
      * Creates new form TreePanel
@@ -311,14 +312,15 @@ public class TreePanel extends javax.swing.JPanel {
             timer.schedule(new FilterTimer(), 1000);
         } else {
             timer.cancel();
-            PlatformUI.MIRTH_FRAME.setWorking("", false);
+            PlatformUI.MIRTH_FRAME.stopWorking(lastWorkingId);
             timer = new Timer();
             timer.schedule(new FilterTimer(), 1000);
         }
     }
 
     public void filter() {
-        PlatformUI.MIRTH_FRAME.setWorking("Filtering...", true);
+        final String workingId = PlatformUI.MIRTH_FRAME.startWorking("Filtering...");
+        lastWorkingId = workingId;
         FilterTreeModel model = (FilterTreeModel) tree.getModel();
 
         if (filterTextBox.getText().length() > 0) {
@@ -333,7 +335,7 @@ public class TreePanel extends javax.swing.JPanel {
             tree.expandAll();
         }
 
-        PlatformUI.MIRTH_FRAME.setWorking("", false);
+        PlatformUI.MIRTH_FRAME.stopWorking(workingId);
     }
 
     public void setMessage(Properties protocolProperties, String messageType, String source, String ignoreText, Properties dataProperties) {

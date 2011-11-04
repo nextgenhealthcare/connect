@@ -863,7 +863,7 @@ public class EventBrowser extends javax.swing.JPanel {
             pageSize = Integer.parseInt(pageSizeField.getText());
         }
 
-        parent.setWorking("Loading events...", true);
+        final String workingId = parent.startWorking("Loading events...");
 
         if (eventListHandler == null) {
             updateEventTable(null);
@@ -888,7 +888,7 @@ public class EventBrowser extends javax.swing.JPanel {
                     updateEventTable(null);
                 }
 
-                parent.setWorking("", false);
+                parent.stopWorking(workingId);
             }
         }
         ;
@@ -897,7 +897,7 @@ public class EventBrowser extends javax.swing.JPanel {
     }//GEN-LAST:event_searchButtonActionPerformed
 
     private void previousPageButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_previousPageButtonActionPerformed
-        parent.setWorking("Loading previous page...", true);
+        final String workingId = parent.startWorking("Loading previous page...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -912,14 +912,14 @@ public class EventBrowser extends javax.swing.JPanel {
                 } else {
                     updateEventTable(null);
                 }
-                parent.setWorking("", false);
+                parent.stopWorking(workingId);
             }
         };
         worker.execute();
     }//GEN-LAST:event_previousPageButtonActionPerformed
 
     private void nextPageButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextPageButtonActionPerformed
-        parent.setWorking("Loading next page...", true);
+        final String workingId = parent.startWorking("Loading next page...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -934,7 +934,7 @@ public class EventBrowser extends javax.swing.JPanel {
                 } else {
                     updateEventTable(null);
                 }
-                parent.setWorking("", false);
+                parent.stopWorking(workingId);
             }
         };
         worker.execute();

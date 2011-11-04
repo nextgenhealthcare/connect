@@ -38,7 +38,7 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
 
     @Override
     public void doRefresh() {
-        getFrame().setWorking("Loading " + getTabName() + " properties...", true);
+        final String workingId = getFrame().startWorking("Loading " + getTabName() + " properties...");
 
         final Properties serverProperties = new Properties();
 
@@ -64,7 +64,7 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
             @Override
             public void done() {
                 setProperties(serverProperties);
-                getFrame().setWorking("", false);
+                getFrame().stopWorking(workingId);
             }
         };
 
@@ -73,7 +73,7 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
 
     @Override
     public void doSave() {
-        getFrame().setWorking("Saving " + getTabName() + " properties...", true);
+        final String workingId = getFrame().startWorking("Saving " + getTabName() + " properties...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -89,7 +89,7 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
             @Override
             public void done() {
                 setSaveEnabled(false);
-                getFrame().setWorking("", false);
+                getFrame().stopWorking(workingId);
             }
         };
 

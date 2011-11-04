@@ -513,7 +513,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
 		// retrieve the table pattern filter
 		connectionProperties.put(DatabaseReaderProperties.DATABASE_TABLE_NAME_PATTERN_EXPRESSION, filterTableTextField.getText());
 		
-		parent.setWorking("Retrieving tables...", true);
+		final String workingId = parent.startWorking("Retrieving tables...");
 		
 		// Cancel any previous workers that had been called.
 		if (metaDataWorker != null) {
@@ -544,7 +544,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
 	                }
                 }
                 
-                parent.setWorking("", false);
+                parent.stopWorking(workingId);
             }
         };
 

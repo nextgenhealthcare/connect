@@ -260,7 +260,7 @@ public class ChannelWizard extends javax.swing.JDialog {
     {//GEN-HEADEREND:event_runWizardButtonActionPerformed
 
         final String wizard = (String) wizardComboBox.getSelectedItem();
-        parent.setWorking("Running " + wizard + " wizard...", true);
+        final String workingId = parent.startWorking("Running " + wizard + " wizard...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -276,7 +276,7 @@ public class ChannelWizard extends javax.swing.JDialog {
                     parent.editChannel(channel);
                     parent.setSaveEnabled(true);
                 }
-                parent.setWorking("", false);
+                parent.stopWorking(workingId);
             }
         };
 

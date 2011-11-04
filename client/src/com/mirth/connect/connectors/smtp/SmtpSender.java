@@ -896,7 +896,7 @@ private void useAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt) 
 }//GEN-LAST:event_useAuthenticationNoActionPerformed
 
 private void sendTestEmailButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendTestEmailButtonActionPerformed
-    parent.setWorking("Sending test email...", true);
+    final String workingId = parent.startWorking("Sending test email...");
     
     SwingWorker worker = new SwingWorker<Void, Void>() {
         
@@ -921,7 +921,7 @@ private void sendTestEmailButtonActionPerformed(java.awt.event.ActionEvent evt) 
         }
         
         public void done() {
-            parent.setWorking("", false);
+            parent.stopWorking(workingId);
         }
     };
     

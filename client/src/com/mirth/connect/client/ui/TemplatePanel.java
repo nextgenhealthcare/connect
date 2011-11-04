@@ -59,6 +59,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     private String currentDataType;
     private Properties dataProperties;
     private Timer timer;
+    private String lastWorkingId = null;
 
     public TemplatePanel() {
         initComponents();
@@ -190,7 +191,8 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 if (currentMessage.equals("") && currentMessage.equals(pasteBox.getText())) {
                     treePanel.clearMessage();
                 } else if (!currentMessage.equals(pasteBox.getText())) {
-                    PlatformUI.MIRTH_FRAME.setWorking("Parsing...", true);
+                    final String workingId = PlatformUI.MIRTH_FRAME.startWorking("Parsing...");
+                    lastWorkingId = workingId;
                     String message = pasteBox.getText();
                     currentMessage = message;
                     
@@ -202,7 +204,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    PlatformUI.MIRTH_FRAME.setWorking("", false);
+                    PlatformUI.MIRTH_FRAME.stopWorking(workingId);
                 }
             }
         }
@@ -212,7 +214,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             timer.schedule(new UpdateTimer(), 1000);
         } else {
             timer.cancel();
-            PlatformUI.MIRTH_FRAME.setWorking("", false);
+            PlatformUI.MIRTH_FRAME.stopWorking(lastWorkingId);
             timer = new Timer();
             timer.schedule(new UpdateTimer(), 1000);
         }

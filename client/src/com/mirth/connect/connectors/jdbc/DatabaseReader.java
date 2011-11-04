@@ -340,9 +340,9 @@ public class DatabaseReader extends ConnectorClass {
 
             public void run() {
 
-                PlatformUI.MIRTH_FRAME.setWorking("Parsing...", true);
+                final String workingId = PlatformUI.MIRTH_FRAME.startWorking("Parsing...");
                 updateSQL();
-                PlatformUI.MIRTH_FRAME.setWorking("", false);
+                PlatformUI.MIRTH_FRAME.stopWorking(workingId);
             }
         }
         if (timer == null) {
