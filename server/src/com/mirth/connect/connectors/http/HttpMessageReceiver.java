@@ -18,7 +18,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -72,7 +74,13 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
                         servletResponse.setHeader(entry.getKey(), replacer.replaceValues(entry.getValue()));
                     }
 
-                    if (connector.getReceiverResponseStatusCode() != 0) {
+                    int statusCode = NumberUtils.toInt(replacer.replaceValues(connector.getReceiverResponseStatusCode()), -1);
+                    
+                    /*
+                     * If there is not a valid status code entered, send
+                     * defaults based on Response
+                     */
+                    if (StringUtils.isBlank(connector.getReceiverResponseStatusCode()) || (statusCode == -1)) {
                         /*
                          * If the destination sends a failure response, the
                          * listener should return a 500 error, otherwise 200.
@@ -84,7 +92,6 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
                             servletResponse.setStatus(HttpStatus.SC_OK);
                         }
                     } else {
-                        int statusCode = Integer.parseInt(replacer.replaceValues(String.valueOf(connector.getReceiverResponseStatusCode())));
                         servletResponse.setStatus(statusCode);
                     }
                 } else {
@@ -110,7 +117,7 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
     @Override
     public void doConnect() throws Exception {
         server = new Server();
-        connector.getConfiguration().configureReceiver(server, endpoint, connector.getReceiverTimeout());
+        connector.getConfiguration().configureReceiver(server, endpoint, NumberUtils.toInt(replacer.replaceValues(connector.getReceiverTimeout()), 0));
 
         // add the request handler
         ContextHandler contextHandler = new ContextHandler();

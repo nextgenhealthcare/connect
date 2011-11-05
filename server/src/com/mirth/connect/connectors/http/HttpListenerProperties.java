@@ -43,7 +43,7 @@ public class HttpListenerProperties implements ComponentProperties {
         properties.put(HTTP_RESPONSE_CONTENT_TYPE, "text/plain");
         properties.put(HTTP_CHARSET, "UTF-8");
         properties.put(HTTP_CONTEXT_PATH, "");
-        properties.put(HTTP_RESPONSE_STATUS_CODE, 0);
+        properties.put(HTTP_RESPONSE_STATUS_CODE, "");
         properties.put(HTTP_RESPONSE_HEADERS, serializer.toXML(new HashMap<String, String>()));
         properties.put(HTTP_TIMEOUT, "0");
         return properties;

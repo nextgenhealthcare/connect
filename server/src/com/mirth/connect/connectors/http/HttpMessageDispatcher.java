@@ -37,6 +37,7 @@ import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.QueueEnabledMessageDispatcher;
@@ -139,7 +140,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
                 logger.debug("using authentication with credentials: " + credentials);
             }
 
-            client.getParams().setSoTimeout(connector.getDispatcherSocketTimeout());
+            client.getParams().setSoTimeout(NumberUtils.toInt(replacer.replaceValues(connector.getDispatcherSocketTimeout()), 30000));
 
             // execute the method
             logger.debug("executing method: type=" + httpMethod.getName() + ", uri=" + httpMethod.getURI().toString());

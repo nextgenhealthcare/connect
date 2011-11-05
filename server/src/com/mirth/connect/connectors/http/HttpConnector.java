@@ -37,16 +37,16 @@ public class HttpConnector extends QueueEnabledConnector {
     private boolean dispatcherMultipart;
     private String dispatcherReplyChannelId;
     private boolean dispatcherIncludeHeadersInResponse;
-    private int dispatcherSocketTimeout;
+    private String dispatcherSocketTimeout;
     
     private String receiverResponseContentType;
     private boolean receiverBodyOnly;
     private String receiverResponse;
     private Map<String, String> receiverResponseHeaders;
-    private int receiverResponseStatusCode;
+    private String receiverResponseStatusCode;
     private String receiverCharset;
     private String receiverContextPath;
-    private int receiverTimeout;
+    private String receiverTimeout;
     
     private HttpConfiguration configuration = null;
 
@@ -220,11 +220,11 @@ public class HttpConnector extends QueueEnabledConnector {
         this.receiverCharset = CharsetUtils.getEncoding(receiverCharset, System.getProperty("ca.uhn.hl7v2.llp.charset"));
     }
 
-    public int getDispatcherSocketTimeout() {
+    public String getDispatcherSocketTimeout() {
         return dispatcherSocketTimeout;
     }
 
-    public void setDispatcherSocketTimeout(int dispatcherSocketTimeout) {
+    public void setDispatcherSocketTimeout(String dispatcherSocketTimeout) {
         this.dispatcherSocketTimeout = dispatcherSocketTimeout;
     }
     
@@ -244,19 +244,19 @@ public class HttpConnector extends QueueEnabledConnector {
         this.receiverResponseHeaders = receiverResponseHeaders;
     }
 
-    public int getReceiverResponseStatusCode() {
+    public String getReceiverResponseStatusCode() {
         return receiverResponseStatusCode;
     }
 
-    public void setReceiverResponseStatusCode(int receiverResponseStatusCode) {
+    public void setReceiverResponseStatusCode(String receiverResponseStatusCode) {
         this.receiverResponseStatusCode = receiverResponseStatusCode;
     }
 
-    public int getReceiverTimeout() {
+    public String getReceiverTimeout() {
         return receiverTimeout;
     }
 
-    public void setReceiverTimeout(int receiverTimeout) {
+    public void setReceiverTimeout(String receiverTimeout) {
         this.receiverTimeout = receiverTimeout;
     }
 
