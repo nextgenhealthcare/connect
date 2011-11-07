@@ -43,6 +43,7 @@
                   <Component id="responseContentTypeLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="charsetEncodingLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="receiveTimeoutLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="httpUrlLabel" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -64,6 +65,7 @@
                       <Component id="messageContentHeadersQueryAndBodyRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="contextPathField" min="-2" pref="150" max="-2" attributes="0"/>
+                  <Component id="httpUrlField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
               </Group>
               <EmptySpace pref="21" max="32767" attributes="0"/>
           </Group>
@@ -98,6 +100,11 @@
                   <Component id="messageContentLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="messageContentHeadersQueryAndBodyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="messageContentBodyOnlyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="httpUrlField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="httpUrlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -252,6 +259,9 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The port on which the server should listen for connections."/>
       </Properties>
+      <Events>
+        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="listenerPortFieldKeyReleased"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="listenerPortLabel">
       <Properties>
@@ -298,6 +308,9 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The context path for the HTTP Listener URL."/>
       </Properties>
+      <Events>
+        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="contextPathFieldKeyReleased"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="receiveTimeoutLabel">
       <Properties>
@@ -307,6 +320,16 @@
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="receiveTimeoutField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the maximum idle time in milliseconds for a connection."/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="httpUrlField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Displays the generated HTTP URL for the HTTP Listener.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="httpUrlLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="HTTP URL:"/>
       </Properties>
     </Component>
   </SubComponents>

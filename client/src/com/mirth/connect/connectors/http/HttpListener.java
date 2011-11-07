@@ -6,8 +6,10 @@
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
+
 package com.mirth.connect.connectors.http;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -20,6 +22,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.DefaultComboBoxModel;
 
+import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.connectors.ConnectorClass;
@@ -37,6 +40,7 @@ public class HttpListener extends ConnectorClass {
     public HttpListener() {
         name = HttpListenerProperties.name;
         initComponents();
+        httpUrlField.setEditable(false);
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
@@ -72,6 +76,8 @@ public class HttpListener extends ConnectorClass {
         contextPathField.setText((String) props.get(HttpListenerProperties.HTTP_CONTEXT_PATH));
         receiveTimeoutField.setText((String) props.get(HttpListenerProperties.HTTP_TIMEOUT));
 
+        updateHttpUrl();
+
         if (((String) props.get(HttpListenerProperties.HTTP_BODY_ONLY)).equals(UIConstants.YES_OPTION)) {
             messageContentBodyOnlyRadio.setSelected(true);
         } else {
@@ -103,6 +109,17 @@ public class HttpListener extends ConnectorClass {
             listenerSpecificRadio.setSelected(true);
             listenerSpecificRadioActionPerformed(null);
         }
+    }
+
+    public void updateHttpUrl() {
+        String server = "<server ip>";
+        try {
+            server = new URI(PlatformUI.SERVER_NAME).getHost();
+        } catch (Exception e) {
+            // ignore exceptions getting the server ip
+        }
+
+        httpUrlField.setText("http://" + server + ":" + listenerPortField.getText() + (contextPathField.getText().startsWith("/") ? "" : "/") + contextPathField.getText());
     }
 
     public boolean checkProperties(Properties props, boolean highlight) {
@@ -187,6 +204,8 @@ public class HttpListener extends ConnectorClass {
         contextPathField = new com.mirth.connect.client.ui.components.MirthTextField();
         receiveTimeoutLabel = new javax.swing.JLabel();
         receiveTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
+        httpUrlField = new javax.swing.JTextField();
+        httpUrlLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -256,6 +275,11 @@ public class HttpListener extends ConnectorClass {
         listenerAddressField.setToolTipText("The DNS domain name or IP address on which the server should listen for connections.");
 
         listenerPortField.setToolTipText("The port on which the server should listen for connections.");
+        listenerPortField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                listenerPortFieldKeyReleased(evt);
+            }
+        });
 
         listenerPortLabel.setText("Port:");
 
@@ -271,10 +295,19 @@ public class HttpListener extends ConnectorClass {
         contextPathLabel.setText("Context Path:");
 
         contextPathField.setToolTipText("The context path for the HTTP Listener URL.");
+        contextPathField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                contextPathFieldKeyReleased(evt);
+            }
+        });
 
         receiveTimeoutLabel.setText("Receive Timeout (ms):");
 
         receiveTimeoutField.setToolTipText("Enter the maximum idle time in milliseconds for a connection.");
+
+        httpUrlField.setToolTipText("<html>Displays the generated HTTP URL for the HTTP Listener.</html>");
+
+        httpUrlLabel.setText("HTTP URL:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -290,7 +323,8 @@ public class HttpListener extends ConnectorClass {
                     .addComponent(responseFromLabel)
                     .addComponent(responseContentTypeLabel)
                     .addComponent(charsetEncodingLabel)
-                    .addComponent(receiveTimeoutLabel))
+                    .addComponent(receiveTimeoutLabel)
+                    .addComponent(httpUrlLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -308,7 +342,8 @@ public class HttpListener extends ConnectorClass {
                         .addComponent(messageContentBodyOnlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(messageContentHeadersQueryAndBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(contextPathField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(contextPathField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(httpUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(21, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -336,6 +371,10 @@ public class HttpListener extends ConnectorClass {
                     .addComponent(messageContentLabel)
                     .addComponent(messageContentHeadersQueryAndBodyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(messageContentBodyOnlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(httpUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(httpUrlLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(responseFromTransformer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -379,6 +418,14 @@ public class HttpListener extends ConnectorClass {
     private void messageContentBodyOnlyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageContentBodyOnlyRadioActionPerformed
         parent.channelEditPanel.checkAndSetXmlDataType();
     }//GEN-LAST:event_messageContentBodyOnlyRadioActionPerformed
+
+    private void listenerPortFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_listenerPortFieldKeyReleased
+        updateHttpUrl();
+    }//GEN-LAST:event_listenerPortFieldKeyReleased
+
+    private void contextPathFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_contextPathFieldKeyReleased
+        updateHttpUrl();
+    }//GEN-LAST:event_contextPathFieldKeyReleased
 
     public void updateResponseDropDown() {
         boolean enabled = parent.isSaveEnabled();
@@ -470,6 +517,8 @@ public class HttpListener extends ConnectorClass {
     private javax.swing.JLabel charsetEncodingLabel;
     private com.mirth.connect.client.ui.components.MirthTextField contextPathField;
     private javax.swing.JLabel contextPathLabel;
+    private javax.swing.JTextField httpUrlField;
+    private javax.swing.JLabel httpUrlLabel;
     private javax.swing.ButtonGroup includeHeadersGroup;
     private javax.swing.ButtonGroup listenerAddressButtonGroup;
     private com.mirth.connect.client.ui.components.MirthTextField listenerAddressField;
