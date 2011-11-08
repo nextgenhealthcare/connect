@@ -124,7 +124,7 @@ public class NCPDPReader extends SAXParser {
     }
 
     private String parseHeader(String message, ContentHandler contentHandler) throws SAXException {
-        String headerElementName = null;
+        String headerElementName = StringUtils.EMPTY;
         
         /*
          * The first segment is always the Transaction header so we will process
