@@ -48,6 +48,7 @@ public class LLPListener extends ConnectorClass {
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
+    @Override
     public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(LLPListenerProperties.DATATYPE, name);
@@ -135,6 +136,7 @@ public class LLPListener extends ConnectorClass {
         return properties;
     }
 
+    @Override
     public void setProperties(Properties props) {
         resetInvalidProperties();
 
@@ -233,10 +235,12 @@ public class LLPListener extends ConnectorClass {
         parent.setSaveEnabled(enabled);
     }
 
+    @Override
     public Properties getDefaults() {
         return new LLPListenerProperties().getDefaults();
     }
 
+    @Override
     public boolean checkProperties(Properties props, boolean highlight) {
         resetInvalidProperties();
         boolean valid = true;
@@ -350,6 +354,7 @@ public class LLPListener extends ConnectorClass {
         ackPortField.setBackground(null);
     }
 
+    @Override
     public String doValidate(Properties props, boolean highlight) {
         String error = null;
 
@@ -358,6 +363,99 @@ public class LLPListener extends ConnectorClass {
         }
 
         return error;
+    }
+
+    @Override
+    public void updateResponseDropDown() {
+        boolean enabled = parent.isSaveEnabled();
+
+        String selectedItem = (String) responseFromTransformer.getSelectedItem();
+
+        Channel channel = parent.channelEditPanel.currentChannel;
+
+        Set<String> variables = new LinkedHashSet<String>();
+
+        variables.add("None");
+
+        List<Step> stepsToCheck = new ArrayList<Step>();
+        stepsToCheck.addAll(channel.getSourceConnector().getTransformer().getSteps());
+
+        List<String> scripts = new ArrayList<String>();
+
+        for (Connector connector : channel.getDestinationConnectors()) {
+            if (connector.getTransportName().equals("Database Writer")) {
+                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION)) {
+                    scripts.add(connector.getProperties().getProperty("script"));
+                }
+
+            } else if (connector.getTransportName().equals("JavaScript Writer")) {
+                scripts.add(connector.getProperties().getProperty("script"));
+            }
+
+            variables.add(connector.getName());
+            stepsToCheck.addAll(connector.getTransformer().getSteps());
+        }
+
+        Pattern pattern = Pattern.compile(RESULT_PATTERN);
+
+        int i = 0;
+        for (Iterator it = stepsToCheck.iterator(); it.hasNext();) {
+            Step step = (Step) it.next();
+            Map data;
+            data = (Map) step.getData();
+
+            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)) {
+                Matcher matcher = pattern.matcher(step.getScript());
+                while (matcher.find()) {
+                    String key = matcher.group(1);
+                    variables.add(key);
+                }
+            } else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
+                if (data.containsKey(UIConstants.IS_GLOBAL)) {
+                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE)) {
+                        variables.add((String) data.get("Variable"));
+                    }
+                }
+            }
+        }
+
+        scripts.add(channel.getPreprocessingScript());
+        scripts.add(channel.getPostprocessingScript());
+
+        for (String script : scripts) {
+            if (script != null && script.length() > 0) {
+                Matcher matcher = pattern.matcher(script);
+                while (matcher.find()) {
+                    String key = matcher.group(1);
+                    variables.add(key);
+                }
+            }
+        }
+
+        responseFromTransformer.setModel(new DefaultComboBoxModel(variables.toArray()));
+
+        if (variables.contains(selectedItem)) {
+            responseFromTransformer.setSelectedItem(selectedItem);
+        } else {
+            responseFromTransformer.setSelectedIndex(0);
+        }
+
+        if (!parent.channelEditPanel.synchronousCheckBox.isSelected()) {
+            responseFromTransformer.setEnabled(false);
+            responseFromTransformer.setSelectedIndex(0);
+        } else {
+            responseFromTransformer.setEnabled(true);
+        }
+
+        // Reset the proper enabled fields if sendACKNo or sendACKYes were
+        // selected.
+        if (sendACKYes.isSelected()) {
+            sendACKYesActionPerformed(null);
+        } else if (sendACKNo.isSelected()) {
+            sendACKNoActionPerformed(null);
+        }
+
+        parent.setSaveEnabled(enabled);
     }
 
     /**
@@ -602,11 +700,6 @@ public class LLPListener extends ConnectorClass {
         });
 
         responseFromTransformer.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        responseFromTransformer.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                responseFromTransformerActionPerformed(evt);
-            }
-        });
 
         waitForEndOfMessageCharLabel.setText("Wait for End of Message Char:");
 
@@ -956,268 +1049,158 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
     worker.execute();
 }//GEN-LAST:event_testConnectionActionPerformed
 
-    private void clientRadioButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_clientRadioButtonActionPerformed
-    {// GEN-HEADEREND:event_clientRadioButtonActionPerformed
-        addressLabel.setText("Server Address");
-        portLabel.setText("Server Port");
-        reconnectIntervalField.setEnabled(true);
-        reconnectIntervalLabel.setEnabled(true);
-        testConnection.setEnabled(true);
-    }// GEN-LAST:event_clientRadioButtonActionPerformed
+private void clientRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clientRadioButtonActionPerformed
+    addressLabel.setText("Server Address");
+    portLabel.setText("Server Port");
+    reconnectIntervalField.setEnabled(true);
+    reconnectIntervalLabel.setEnabled(true);
+    testConnection.setEnabled(true);
+}//GEN-LAST:event_clientRadioButtonActionPerformed
 
-    private void serverRadioButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_serverRadioButtonActionPerformed
-    {// GEN-HEADEREND:event_serverRadioButtonActionPerformed
-        addressLabel.setText("Listener Address");
-        portLabel.setText("Listener Port");
-        reconnectIntervalField.setEnabled(false);
-        reconnectIntervalLabel.setEnabled(false);
-        testConnection.setEnabled(false);
-    }// GEN-LAST:event_serverRadioButtonActionPerformed
+private void serverRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_serverRadioButtonActionPerformed
+    addressLabel.setText("Listener Address");
+    portLabel.setText("Listener Port");
+    reconnectIntervalField.setEnabled(false);
+    reconnectIntervalLabel.setEnabled(false);
+    testConnection.setEnabled(false);
+}//GEN-LAST:event_serverRadioButtonActionPerformed
 
-    private void useStrictLLPNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useStrictLLPNoActionPerformed
-    {// GEN-HEADEREND:event_useStrictLLPNoActionPerformed
-        waitForEndOfMessageCharLabel.setEnabled(true);
-        waitForEndOfMessageCharYes.setEnabled(true);
-        waitForEndOfMessageCharNo.setEnabled(true);
-    }// GEN-LAST:event_useStrictLLPNoActionPerformed
+private void useStrictLLPNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useStrictLLPNoActionPerformed
+    waitForEndOfMessageCharLabel.setEnabled(true);
+    waitForEndOfMessageCharYes.setEnabled(true);
+    waitForEndOfMessageCharNo.setEnabled(true);
+}//GEN-LAST:event_useStrictLLPNoActionPerformed
 
-    private void useStrictLLPYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useStrictLLPYesActionPerformed
-    {// GEN-HEADEREND:event_useStrictLLPYesActionPerformed
-        waitForEndOfMessageCharLabel.setEnabled(false);
-        waitForEndOfMessageCharYes.setEnabled(false);
-        waitForEndOfMessageCharNo.setEnabled(false);
-        waitForEndOfMessageCharNo.setSelected(true);
-    }// GEN-LAST:event_useStrictLLPYesActionPerformed
+private void useStrictLLPYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useStrictLLPYesActionPerformed
+    waitForEndOfMessageCharLabel.setEnabled(false);
+    waitForEndOfMessageCharYes.setEnabled(false);
+    waitForEndOfMessageCharNo.setEnabled(false);
+    waitForEndOfMessageCharNo.setSelected(true);
+}//GEN-LAST:event_useStrictLLPYesActionPerformed
 
-    private void responseFromTransformerActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_responseFromTransformerActionPerformed
-    {// GEN-HEADEREND:event_responseFromTransformerActionPerformed
-        if (responseFromTransformer.getSelectedIndex() != 0 && !parent.channelEditPanel.synchronousCheckBox.isSelected()) {
-            parent.alertInformation(this, "The synchronize source connector setting has been enabled since it is required to use this feature.");
-            parent.channelEditPanel.synchronousCheckBox.setSelected(true);
-        }
-    }// GEN-LAST:event_responseFromTransformerActionPerformed
+private void sendACKTransformerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendACKTransformerActionPerformed
+    successACKCode.setEnabled(false);
+    successACKMessage.setEnabled(false);
+    errorACKCode.setEnabled(false);
+    errorACKMessage.setEnabled(false);
+    rejectedACKCode.setEnabled(false);
+    rejectedACKMessage.setEnabled(false);
 
-    public void updateResponseDropDown() {
-        boolean enabled = parent.isSaveEnabled();
+    successACKCodeLabel.setEnabled(false);
+    successACKMessageLabel.setEnabled(false);
+    errorACKCodeLabel.setEnabled(false);
+    errorACKMessageLabel.setEnabled(false);
+    rejectedACKCodeLabel.setEnabled(false);
+    rejectedACKMessageLabel.setEnabled(false);
 
-        String selectedItem = (String) responseFromTransformer.getSelectedItem();
+    ackOnNewConnectionNo.setEnabled(true);
+    ackOnNewConnectionYes.setEnabled(true);
+    ackOnNewConnectionLabel.setEnabled(true);
+    mshAckAcceptNo.setEnabled(false);
+    mshAckAcceptYes.setEnabled(false);
+    mshAckAcceptLabel.setEnabled(false);
 
-        Channel channel = parent.channelEditPanel.currentChannel;
-
-        Set<String> variables = new LinkedHashSet<String>();
-
-        variables.add("None");
-
-        List<Step> stepsToCheck = new ArrayList<Step>();
-        stepsToCheck.addAll(channel.getSourceConnector().getTransformer().getSteps());
-
-        List<String> scripts = new ArrayList<String>();
-
-        for (Connector connector : channel.getDestinationConnectors()) {
-            if (connector.getTransportName().equals("Database Writer")) {
-                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION)) {
-                    scripts.add(connector.getProperties().getProperty("script"));
-                }
-
-            } else if (connector.getTransportName().equals("JavaScript Writer")) {
-                scripts.add(connector.getProperties().getProperty("script"));
-            }
-
-            variables.add(connector.getName());
-            stepsToCheck.addAll(connector.getTransformer().getSteps());
-        }
-
-        Pattern pattern = Pattern.compile(RESULT_PATTERN);
-
-        int i = 0;
-        for (Iterator it = stepsToCheck.iterator(); it.hasNext();) {
-            Step step = (Step) it.next();
-            Map data;
-            data = (Map) step.getData();
-
-            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)) {
-                Matcher matcher = pattern.matcher(step.getScript());
-                while (matcher.find()) {
-                    String key = matcher.group(1);
-                    variables.add(key);
-                }
-            } else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
-                if (data.containsKey(UIConstants.IS_GLOBAL)) {
-                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE)) {
-                        variables.add((String) data.get("Variable"));
-                    }
-                }
-            }
-        }
-
-        scripts.add(channel.getPreprocessingScript());
-        scripts.add(channel.getPostprocessingScript());
-
-        for (String script : scripts) {
-            if (script != null && script.length() > 0) {
-                Matcher matcher = pattern.matcher(script);
-                while (matcher.find()) {
-                    String key = matcher.group(1);
-                    variables.add(key);
-                }
-            }
-        }
-
-        responseFromTransformer.setModel(new DefaultComboBoxModel(variables.toArray()));
-
-        if (variables.contains(selectedItem)) {
-            responseFromTransformer.setSelectedItem(selectedItem);
-        } else {
-            responseFromTransformer.setSelectedIndex(0);
-        }
-
-        if (!parent.channelEditPanel.synchronousCheckBox.isSelected()) {
-            responseFromTransformer.setEnabled(false);
-            responseFromTransformer.setSelectedIndex(0);
-        } else {
-            responseFromTransformer.setEnabled(true);
-        }
-
-        // Reset the proper enabled fields if sendACKNo or sendACKYes were
-        // selected.
-        if (sendACKYes.isSelected()) {
-            sendACKYesActionPerformed(null);
-        } else if (sendACKNo.isSelected()) {
-            sendACKNoActionPerformed(null);
-        }
-
-        parent.setSaveEnabled(enabled);
-    }
-
-    private void sendACKTransformerActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_sendACKTransformerActionPerformed
-    {// GEN-HEADEREND:event_sendACKTransformerActionPerformed
-        successACKCode.setEnabled(false);
-        successACKMessage.setEnabled(false);
-        errorACKCode.setEnabled(false);
-        errorACKMessage.setEnabled(false);
-        rejectedACKCode.setEnabled(false);
-        rejectedACKMessage.setEnabled(false);
-
-        successACKCodeLabel.setEnabled(false);
-        successACKMessageLabel.setEnabled(false);
-        errorACKCodeLabel.setEnabled(false);
-        errorACKMessageLabel.setEnabled(false);
-        rejectedACKCodeLabel.setEnabled(false);
-        rejectedACKMessageLabel.setEnabled(false);
-
-        ackOnNewConnectionNo.setEnabled(true);
-        ackOnNewConnectionYes.setEnabled(true);
-        ackOnNewConnectionLabel.setEnabled(true);
-        mshAckAcceptNo.setEnabled(false);
-        mshAckAcceptYes.setEnabled(false);
-        mshAckAcceptLabel.setEnabled(false);
-
-        if (ackOnNewConnectionYes.isSelected()) {
-            ackAddressField.setEnabled(true);
-            ackPortField.setEnabled(true);
-            ackIPLabel.setEnabled(true);
-            ackPortLabel.setEnabled(true);
-        }
-        responseFromTransformer.setEnabled(true);
-        updateResponseDropDown();
-    }// GEN-LAST:event_sendACKTransformerActionPerformed
-
-    private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
-    {// GEN-HEADEREND:event_ackOnNewConnectionNoActionPerformed
-        ackAddressField.setEnabled(false);
-        ackPortField.setEnabled(false);
-        ackIPLabel.setEnabled(false);
-        ackPortLabel.setEnabled(false);
-    }// GEN-LAST:event_ackOnNewConnectionNoActionPerformed
-
-    private void ackOnNewConnectionYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionYesActionPerformed
-    {// GEN-HEADEREND:event_ackOnNewConnectionYesActionPerformed
+    if (ackOnNewConnectionYes.isSelected()) {
         ackAddressField.setEnabled(true);
         ackPortField.setEnabled(true);
         ackIPLabel.setEnabled(true);
         ackPortLabel.setEnabled(true);
-    }// GEN-LAST:event_ackOnNewConnectionYesActionPerformed
+    }
+    responseFromTransformer.setEnabled(true);
+    updateResponseDropDown();
+}//GEN-LAST:event_sendACKTransformerActionPerformed
 
-    private void sendACKYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_sendACKYesActionPerformed
-    {// GEN-HEADEREND:event_sendACKYesActionPerformed
+private void sendACKYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendACKYesActionPerformed
+    successACKCode.setEnabled(true);
+    successACKMessage.setEnabled(true);
 
-        successACKCode.setEnabled(true);
-        successACKMessage.setEnabled(true);
-
-        if (parent.channelEditPanel.synchronousCheckBox.isSelected()) {
-            errorACKCode.setEnabled(true);
-            errorACKMessage.setEnabled(true);
-            rejectedACKCode.setEnabled(true);
-            rejectedACKMessage.setEnabled(true);
-        } else {
-            errorACKCode.setEnabled(false);
-            errorACKMessage.setEnabled(false);
-            rejectedACKCode.setEnabled(false);
-            rejectedACKMessage.setEnabled(false);
-        }
-
-        successACKCodeLabel.setEnabled(true);
-        successACKMessageLabel.setEnabled(true);
-
-        if (parent.channelEditPanel.synchronousCheckBox.isSelected()) {
-            errorACKCodeLabel.setEnabled(true);
-            errorACKMessageLabel.setEnabled(true);
-            rejectedACKCodeLabel.setEnabled(true);
-            rejectedACKMessageLabel.setEnabled(true);
-        } else {
-            errorACKCodeLabel.setEnabled(false);
-            errorACKMessageLabel.setEnabled(false);
-            rejectedACKCodeLabel.setEnabled(false);
-            rejectedACKMessageLabel.setEnabled(false);
-        }
-
-        ackOnNewConnectionNo.setEnabled(true);
-        ackOnNewConnectionYes.setEnabled(true);
-        ackOnNewConnectionLabel.setEnabled(true);
-        mshAckAcceptNo.setEnabled(true);
-        mshAckAcceptYes.setEnabled(true);
-        mshAckAcceptLabel.setEnabled(true);
-
-        if (ackOnNewConnectionYes.isSelected()) {
-            ackAddressField.setEnabled(true);
-            ackPortField.setEnabled(true);
-            ackIPLabel.setEnabled(true);
-            ackPortLabel.setEnabled(true);
-        }
-
-        responseFromTransformer.setEnabled(false);
-    }// GEN-LAST:event_sendACKYesActionPerformed
-
-    private void sendACKNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_sendACKNoActionPerformed
-    {// GEN-HEADEREND:event_sendACKNoActionPerformed
-        successACKCode.setEnabled(false);
-        successACKMessage.setEnabled(false);
+    if (parent.channelEditPanel.synchronousCheckBox.isSelected()) {
+        errorACKCode.setEnabled(true);
+        errorACKMessage.setEnabled(true);
+        rejectedACKCode.setEnabled(true);
+        rejectedACKMessage.setEnabled(true);
+    } else {
         errorACKCode.setEnabled(false);
         errorACKMessage.setEnabled(false);
         rejectedACKCode.setEnabled(false);
         rejectedACKMessage.setEnabled(false);
+    }
 
-        successACKCodeLabel.setEnabled(false);
-        successACKMessageLabel.setEnabled(false);
+    successACKCodeLabel.setEnabled(true);
+    successACKMessageLabel.setEnabled(true);
+
+    if (parent.channelEditPanel.synchronousCheckBox.isSelected()) {
+        errorACKCodeLabel.setEnabled(true);
+        errorACKMessageLabel.setEnabled(true);
+        rejectedACKCodeLabel.setEnabled(true);
+        rejectedACKMessageLabel.setEnabled(true);
+    } else {
         errorACKCodeLabel.setEnabled(false);
         errorACKMessageLabel.setEnabled(false);
         rejectedACKCodeLabel.setEnabled(false);
         rejectedACKMessageLabel.setEnabled(false);
+    }
 
-        ackAddressField.setEnabled(false);
-        ackPortField.setEnabled(false);
-        ackIPLabel.setEnabled(false);
-        ackPortLabel.setEnabled(false);
+    ackOnNewConnectionNo.setEnabled(true);
+    ackOnNewConnectionYes.setEnabled(true);
+    ackOnNewConnectionLabel.setEnabled(true);
+    mshAckAcceptNo.setEnabled(true);
+    mshAckAcceptYes.setEnabled(true);
+    mshAckAcceptLabel.setEnabled(true);
 
-        ackOnNewConnectionNo.setEnabled(false);
-        ackOnNewConnectionYes.setEnabled(false);
-        ackOnNewConnectionLabel.setEnabled(false);
-        mshAckAcceptNo.setEnabled(false);
-        mshAckAcceptYes.setEnabled(false);
-        mshAckAcceptLabel.setEnabled(false);
+    if (ackOnNewConnectionYes.isSelected()) {
+        ackAddressField.setEnabled(true);
+        ackPortField.setEnabled(true);
+        ackIPLabel.setEnabled(true);
+        ackPortLabel.setEnabled(true);
+    }
 
-        responseFromTransformer.setEnabled(false);
-    }// GEN-LAST:event_sendACKNoActionPerformed
+    responseFromTransformer.setEnabled(false);
+}//GEN-LAST:event_sendACKYesActionPerformed
+
+private void sendACKNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendACKNoActionPerformed
+    successACKCode.setEnabled(false);
+    successACKMessage.setEnabled(false);
+    errorACKCode.setEnabled(false);
+    errorACKMessage.setEnabled(false);
+    rejectedACKCode.setEnabled(false);
+    rejectedACKMessage.setEnabled(false);
+
+    successACKCodeLabel.setEnabled(false);
+    successACKMessageLabel.setEnabled(false);
+    errorACKCodeLabel.setEnabled(false);
+    errorACKMessageLabel.setEnabled(false);
+    rejectedACKCodeLabel.setEnabled(false);
+    rejectedACKMessageLabel.setEnabled(false);
+
+    ackAddressField.setEnabled(false);
+    ackPortField.setEnabled(false);
+    ackIPLabel.setEnabled(false);
+    ackPortLabel.setEnabled(false);
+
+    ackOnNewConnectionNo.setEnabled(false);
+    ackOnNewConnectionYes.setEnabled(false);
+    ackOnNewConnectionLabel.setEnabled(false);
+    mshAckAcceptNo.setEnabled(false);
+    mshAckAcceptYes.setEnabled(false);
+    mshAckAcceptLabel.setEnabled(false);
+
+    responseFromTransformer.setEnabled(false);
+}//GEN-LAST:event_sendACKNoActionPerformed
+
+private void ackOnNewConnectionYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ackOnNewConnectionYesActionPerformed
+    ackAddressField.setEnabled(true);
+    ackPortField.setEnabled(true);
+    ackIPLabel.setEnabled(true);
+    ackPortLabel.setEnabled(true);
+}//GEN-LAST:event_ackOnNewConnectionYesActionPerformed
+
+private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
+    ackAddressField.setEnabled(false);
+    ackPortField.setEnabled(false);
+    ackIPLabel.setEnabled(false);
+    ackPortLabel.setEnabled(false);
+}//GEN-LAST:event_ackOnNewConnectionNoActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthTextField ackAddressField;
     private javax.swing.JLabel ackIPLabel;
