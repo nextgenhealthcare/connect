@@ -46,8 +46,8 @@
 	<classpathentry kind="lib" path="lib/commons/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-tools-2.0.jar"/>
-	<classpathentry kind="lib" path="lib/derby-10.8.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/derbytools-10.8.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/derby-10.8.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/derbytools-10.8.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dicomviewer/ij.jar"/>
 	<classpathentry kind="lib" path="lib/ibatis-2.3.4.726.jar"/>
 	<classpathentry kind="lib" path="lib/jdom-1.1.1.jar"/>
@@ -92,5 +92,5 @@
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/wsdl4j-1.6.2-fixed.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/xbean-fixed-2.4.0.jar"/>
-	<classpathentry kind="output" path="bin"/>	
+	<classpathentry kind="output" path="bin"/>
 </classpath>
