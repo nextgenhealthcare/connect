@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -30,15 +31,8 @@ import com.mirth.connect.model.converters.NCPDPXMLHandler;
 import com.mirth.connect.model.converters.SerializerException;
 import com.mirth.connect.model.converters.Stopwatch;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dans
- * Date: Jun 6, 2007
- * Time: 2:04:21 PM
- * To change this template use File | Settings | File Templates.
- */
 public class NCPDPTest {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		String testMessage = "";
         ArrayList<String> testFiles = new ArrayList<String>();
         testFiles.add("C:\\NCPDP_51_B1_Request.txt");
@@ -98,19 +92,11 @@ public class NCPDPTest {
         testFiles.add("C:\\NCPDP_51_CALPOS_16.txt");
         testFiles.add("C:\\NCPDP_51_CALPOS_17.txt");
 
-        Iterator iterator = testFiles.iterator();
-        while(iterator.hasNext()){
-            String fileName = (String) iterator.next();
+        for (String testFile : testFiles){
+            testMessage = new String(FileUtils.readFileToByteArray(new File(testFile)));
+            System.out.println("Processing test file:" + testFile);
+            
             try {
-                testMessage = new String(getBytesFromFile(new File(fileName)));
-                System.out.println("Processing test file:" + fileName);
-                //System.out.println(testMessage);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            try {
-
                 long totalExecutionTime = 0;
                 int iterations = 1;
                 for (int i = 0; i < iterations; i++) {
@@ -133,7 +119,7 @@ public class NCPDPTest {
 	private static long runTest(String testMessage) throws SerializerException, SAXException, IOException {
 		Stopwatch stopwatch = new Stopwatch();
 		Properties properties = new Properties();
-        String SchemaUrl = "/ncpdp.xsd";
+        String SchemaUrl = "/ncpdp51.xsd";
         properties.put("useStrictParser", "true");
         properties.put("http://java.sun.com/xml/jaxp/properties/schemaSource",SchemaUrl);
         stopwatch.start();
@@ -144,7 +130,7 @@ public class NCPDPTest {
 		Document doc = docser.fromXML(xmloutput);
 		XMLReader xr = XMLReaderFactory.createXMLReader();
 
-        NCPDPXMLHandler handler = new NCPDPXMLHandler("\u001E","\u001D","\u001C");
+        NCPDPXMLHandler handler = new NCPDPXMLHandler("\u001E","\u001D","\u001C", "51");
 
         xr.setContentHandler(handler);
 		xr.setErrorHandler(handler);
@@ -153,7 +139,7 @@ public class NCPDPTest {
         xr.setFeature("http://apache.org/xml/features/validation/schema-full-checking",true);
         xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage","http://www.w3.org/2001/XMLSchema");
         xr.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation",SchemaUrl);
-        xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource","/ncpdp.xsd");
+        xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource","/ncpdp51.xsd");
         xr.parse(new InputSource(new StringReader(xmloutput)));
 		stopwatch.stop();
 
@@ -180,39 +166,5 @@ public class NCPDPTest {
 			System.out.println("Test Failed!");
 		}
 		return stopwatch.toValue();
-	}
-	// Returns the contents of the file in a byte array.
-	private static byte[] getBytesFromFile(File file) throws IOException {
-		InputStream is = new FileInputStream(file);
-
-		// Get the size of the file
-		long length = file.length();
-
-		// You cannot create an array using a long type.
-		// It needs to be an int type.
-		// Before converting to an int type, check
-		// to ensure that file is not larger than Integer.MAX_VALUE.
-		if (length > Integer.MAX_VALUE) {
-			// File is too large
-		}
-
-		// Create the byte array to hold the data
-		byte[] bytes = new byte[(int) length];
-
-		// Read in the bytes
-		int offset = 0;
-		int numRead = 0;
-		while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
-			offset += numRead;
-		}
-
-		// Ensure all the bytes have been read in
-		if (offset < bytes.length) {
-			throw new IOException("Could not completely read file " + file.getName());
-		}
-
-		// Close the input stream and return bytes
-		is.close();
-		return bytes;
 	}
 }

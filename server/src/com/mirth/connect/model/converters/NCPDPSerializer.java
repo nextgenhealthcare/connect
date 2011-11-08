@@ -9,202 +9,185 @@
 
 package com.mirth.connect.model.converters;
 
-import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.mirth.connect.model.ncpdp.NCPDPReference;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dans
- * Date: Jun 5, 2007
- * Time: 2:46:03 PM
- * To change this template use File | Settings | File Templates.
- */
-public class NCPDPSerializer  implements IXMLSerializer<String> {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private String segmentDelim = "\u001E";
-	private String groupDelim = "\u001D";
-	private String fieldDelim = "\u001C";
-	private boolean useStrictValidation = false;
-    public boolean validationError = false;
-    
-	public static Map<String, String> getDefaultProperties() {
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("segmentDelimiter", "0x1E");
-		map.put("groupDelimiter", "0x1D");
-		map.put("fieldDelimiter", "0x1C");
-		map.put("useStrictValidation", "false");
-		return map;
-	}
+public class NCPDPSerializer implements IXMLSerializer<String> {
+    private String segmentDelimeter = "\u001E";
+    private String groupDelimeter = "\u001D";
+    private String fieldDelimeter = "\u001C";
+    private boolean useStrictValidation = false;
 
-    public NCPDPSerializer(Map NCPDPProperties){
-		if (NCPDPProperties == null) {
-			return;
-		}
-		if (NCPDPProperties.get("segmentDelimiter") != null) {
-            String segDel = convertNonPrintableCharacters((String) NCPDPProperties.get("segmentDelimiter"));
-            if(segDel.equals("0x1E")){
-                this.segmentDelim = "\u001E";
-            }
-            else {
-                this.segmentDelim = segDel;
+    public NCPDPSerializer(Map<?, ?> properties) {
+        if (properties != null) {
+            if (properties.get("segmentDelimiter") != null) {
+                String segDel = convertNonPrintableCharacters((String) properties.get("segmentDelimiter"));
+
+                if (segDel.equals("0x1E")) {
+                    this.segmentDelimeter = "\u001E";
+                } else {
+                    this.segmentDelimeter = segDel;
+                }
             }
 
+            if (properties.get("groupDelimiter") != null) {
+                String grpDel = convertNonPrintableCharacters((String) properties.get("groupDelimiter"));
+
+                if (grpDel.equals("0x1D")) {
+                    this.groupDelimeter = "\u001D";
+                } else {
+                    this.groupDelimeter = grpDel;
+                }
+            }
+
+            if (properties.get("fieldDelimiter") != null) {
+                String fieldDel = convertNonPrintableCharacters((String) properties.get("fieldDelimiter"));
+
+                if (fieldDel.equals("0x1C")) {
+                    this.fieldDelimeter = "\u001C";
+                } else {
+                    this.fieldDelimeter = fieldDel;
+                }
+            }
+
+            if (properties.get("useStrictValidation") != null) {
+                this.useStrictValidation = Boolean.parseBoolean((String) properties.get("useStrictValidation"));
+            }
         }
-		if (NCPDPProperties.get("groupDelimiter") != null) {
-            String grpDel = convertNonPrintableCharacters((String) NCPDPProperties.get("groupDelimiter"));
-            if(grpDel.equals("0x1D")){
-                this.groupDelim = "\u001D";
-            }
-            else {
-                this.groupDelim = grpDel;
-            }
-        }
-		if (NCPDPProperties.get("fieldDelimiter") != null) {
-            String fieldDel = convertNonPrintableCharacters((String) NCPDPProperties.get("fieldDelimiter"));
-            if(fieldDel.equals("0x1C")){
-                this.fieldDelim = "\u001C";
-            }
-            else {
-                this.fieldDelim = fieldDel;
-            }
-        }
-		if (NCPDPProperties.get("useStrictValidation") != null) {
-			this.useStrictValidation = Boolean.parseBoolean((String) NCPDPProperties.get("useStrictValidation"));
-		}
-        return;
     }
 
-	private String convertNonPrintableCharacters(String delimiter) {
-		return delimiter.replaceAll("\\\\r", "\r").replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
+    public static Map<String, String> getDefaultProperties() {
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put("segmentDelimiter", "0x1E");
+        properties.put("groupDelimiter", "0x1D");
+        properties.put("fieldDelimiter", "0x1C");
+        properties.put("useStrictValidation", "false");
+        return properties;
+    }
 
-	}
+    @Override
+    public String fromXML(String source) throws SerializerException {
+        /*
+         * Need to determine the version by looking at the raw message.
+         * The transaction header will contain the version ("51" for 5.1 and
+         * "D0" for D.0)
+         */
+        String version = "D0";
 
-	public NCPDPSerializer() {
+        if (source.indexOf("D0") == -1) {
+            version = "51";
+        } else if (source.indexOf("51") == -1) {
+            version = "D0";
+        } else if (source.indexOf("51") < source.indexOf("D0")) {
+            version = "51";
+        }
 
-	}
+        try {
+            XMLReader reader = XMLReaderFactory.createXMLReader();
+            NCPDPXMLHandler handler = new NCPDPXMLHandler(segmentDelimeter, groupDelimeter, fieldDelimeter, version);
+            reader.setContentHandler(handler);
 
-	public String fromXML(String source) throws SerializerException {
-		XMLReader xr;
-		try {
-			xr = XMLReaderFactory.createXMLReader();
-		} catch (SAXException e) {
-			throw new SerializerException(e.getMessage());
-		}
-		NCPDPXMLHandler handler = new NCPDPXMLHandler(segmentDelim, groupDelim, fieldDelim);
-		xr.setContentHandler(handler);
-		xr.setErrorHandler(handler);
-		try {
-            //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
-            // change from source.replaceAll(">\\s+<", "><")
-            if(useStrictValidation){
-                xr.setFeature("http://xml.org/sax/features/validation", true);
-                xr.setFeature("http://apache.org/xml/features/validation/schema", true);
-                xr.setFeature("http://apache.org/xml/features/validation/schema-full-checking",true);
-                xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage","http://www.w3.org/2001/XMLSchema");
-                xr.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation","ncpdp.xsd");
-                xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource","/ncpdp.xsd");
+            if (useStrictValidation) {
+                reader.setFeature("http://xml.org/sax/features/validation", true);
+                reader.setFeature("http://apache.org/xml/features/validation/schema", true);
+                reader.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true);
+                reader.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
+                reader.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation", "ncpdp" + version + ".xsd");
+                reader.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "/ncpdp" + version + ".xsd");
             }
-            xr.parse(new InputSource(new StringReader(source.replaceAll("</([^>]*)>\\s+<", "</$1><"))));
-            validationError = handler.validationError;    
 
+            /*
+             * Parse, but first replace all spaces between brackets. This fixes
+             * pretty-printed XML we might receive
+             */
+            reader.parse(new InputSource(new StringReader(source.replaceAll(">\\s+<", "><"))));
+            return handler.getOutput().toString();
         } catch (Exception e) {
-			throw new SerializerException(e.getMessage());
-		}
-		return handler.getOutput().toString();
-	}
+            throw new SerializerException("Error converting XML to NCPDP message.", e);
+        }
+    }
 
+    @Override
     public String toXML(String source) throws SerializerException {
         try {
-            NCPDPReader ncpdpReader = new NCPDPReader(segmentDelim, groupDelim, fieldDelim);
+            NCPDPReader ncpdpReader = new NCPDPReader(segmentDelimeter, groupDelimeter, fieldDelimeter);
             StringWriter stringWriter = new StringWriter();
             XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
             ncpdpReader.setContentHandler(serializer);
             ncpdpReader.parse(new InputSource(new StringReader(source)));
             return stringWriter.toString();
         } catch (Exception e) {
-            logger.error("Error converting NCPDP message to XML.", e);
+            throw new SerializerException("Error converting NCPDP message to XML.", e);
+        }
+    }
+
+    @Override
+    public Map<String, String> getMetadataFromDocument(Document document) {
+        Map<String, String> metadata = new HashMap<String, String>();
+
+        String serviceProviderId = StringUtils.EMPTY;
+
+        if ((document != null) && (document.getElementsByTagName("ServiceProviderId") != null)) {
+            Node sender = document.getElementsByTagName("ServiceProviderId").item(0);
+
+            if (sender != null) {
+                serviceProviderId = sender.getTextContent();
+            }
         }
 
-        return new String();
+        String transactionCode = StringUtils.EMPTY;
+
+        if ((document != null) && (document.getElementsByTagName("TransactionCode") != null)) {
+            Node type = document.getElementsByTagName("TransactionCode").item(0);
+
+            if (type != null) {
+                transactionCode = NCPDPReference.getInstance().getTransactionName(type.getTextContent());
+            }
+        }
+
+        String versionReleaseNumber = "5.1";
+
+        if ((document != null) && (document.getElementsByTagName("VersionReleaseNumber") != null)) {
+            Node versionNode = document.getElementsByTagName("VersionReleaseNumber").item(0);
+
+            if (versionNode != null) {
+                versionReleaseNumber = versionNode.getTextContent();
+            }
+        }
+
+        metadata.put("version", versionReleaseNumber);
+        metadata.put("type", transactionCode);
+        metadata.put("source", serviceProviderId);
+        return metadata;
     }
 
-    public String getSegmentDelim() {
-        return segmentDelim;
+    @Override
+    public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
+        return getMetadata(fromXML(source));
     }
 
-    public void setSegmentDelim(String segmentDelim) {
-        this.segmentDelim = segmentDelim;
+    @Override
+    public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
+        return getMetadata(xmlSource);
     }
 
-    public String getGroupDelim() {
-        return groupDelim;
+    private Map<String, String> getMetadata(String sourceMessage) throws SerializerException {
+        Document document = new DocumentSerializer().fromXML(sourceMessage);
+        return getMetadataFromDocument(document);
     }
 
-    public void setGroupDelim(String groupDelim) {
-        this.groupDelim = groupDelim;
+    private String convertNonPrintableCharacters(String delimiter) {
+        return delimiter.replaceAll("\\\\r", "\r").replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
     }
-
-    public String getFieldDelim() {
-        return fieldDelim;
-    }
-
-    public void setFieldDelim(String fieldDelim) {
-        this.fieldDelim = fieldDelim;
-    }
-	private Map<String, String> getMetadata(String sourceMessage) throws SerializerException {
-		DocumentSerializer docSerializer = new DocumentSerializer();
-		Document document = docSerializer.fromXML(sourceMessage);
-		return getMetadataFromDocument(document);
-	}
-
-	public Map<String, String> getMetadataFromDocument(Document document) {
-		Map<String, String> map = new HashMap<String, String>();
-		String sendingFacility = "";
-		if (document != null && document.getElementsByTagName("ServiceProviderId") != null) {
-			Node sender = document.getElementsByTagName("ServiceProviderId").item(0);
-			if (sender != null) {
-				sendingFacility = sender.getTextContent();
-			}
-		}
-		String event = "";
-		if (document != null && document.getElementsByTagName("TransactionCode") != null) {
-			Node type = document.getElementsByTagName("TransactionCode").item(0);
-			if (type != null) {
-				event = NCPDPReference.getInstance().getTransactionName(type.getTextContent());
-			}
-		}
-		String version = "5.1";
-		if (document != null && document.getElementsByTagName("VersionReleaseNumber") != null) {
-			Node versionNode = document.getElementsByTagName("VersionReleaseNumber").item(0);
-			if (versionNode != null) {
-				version = versionNode.getTextContent();
-			}
-		}
-		map.put("version", version);
-		map.put("type", event);
-		map.put("source", sendingFacility);
-		return map;
-	}
-
-	public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
-		String NCPDPXML = fromXML(source);
-		return getMetadata(NCPDPXML);
-	}
-
-	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
-		return getMetadata(xmlSource);
-	}
 }

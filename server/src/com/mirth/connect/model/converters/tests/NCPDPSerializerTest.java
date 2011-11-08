@@ -22,7 +22,7 @@ import com.mirth.connect.model.converters.NCPDPSerializer;
 
 public class NCPDPSerializerTest {
     private Properties defaultProperties;
-    
+
     @Before
     public void setUp() throws Exception {
         defaultProperties = new Properties();
@@ -33,17 +33,49 @@ public class NCPDPSerializerTest {
     }
 
     @Test
-    public void testDefaultToXml() throws Exception {
-        String input = FileUtils.readFileToString(new File("tests/test-ncpdp51-input.txt"));
-        String output = FileUtils.readFileToString(new File("tests/test-ncpdp51-output.xml"));
+    public void test51RequestToXml() throws Exception {
+        String input = FileUtils.readFileToString(new File("tests/test-ncpdp-51-request-input.txt"));
+        String output = FileUtils.readFileToString(new File("tests/test-ncpdp-51-request-output.xml"));
         NCPDPSerializer serializer = new NCPDPSerializer(defaultProperties);
         Assert.assertEquals(output, TestUtil.prettyPrintXml(serializer.toXML(input)));
     }
 
     @Test
-    public void testDefaultFromXml() throws Exception {
-        String input = FileUtils.readFileToString(new File("tests/test-ncpdp51-output.xml"));
-        String output = FileUtils.readFileToString(new File("tests/test-ncpdp51-input.txt"));
+    public void test51RequestFromXml() throws Exception {
+        String input = FileUtils.readFileToString(new File("tests/test-ncpdp-51-request-output.xml"));
+        String output = FileUtils.readFileToString(new File("tests/test-ncpdp-51-request-input.txt"));
+        NCPDPSerializer serializer = new NCPDPSerializer(defaultProperties);
+        Assert.assertEquals(output, serializer.fromXML(input));
+    }
+
+    @Test
+    public void test51ResponseToXml() throws Exception {
+        String input = FileUtils.readFileToString(new File("tests/test-ncpdp-51-response-input.txt"));
+        String output = FileUtils.readFileToString(new File("tests/test-ncpdp-51-response-output.xml"));
+        NCPDPSerializer serializer = new NCPDPSerializer(defaultProperties);
+        Assert.assertEquals(output, TestUtil.prettyPrintXml(serializer.toXML(input)));
+    }
+
+    @Test
+    public void test51ResponseFromXml() throws Exception {
+        String input = FileUtils.readFileToString(new File("tests/test-ncpdp-51-response-output.xml"));
+        String output = FileUtils.readFileToString(new File("tests/test-ncpdp-51-response-input.txt"));
+        NCPDPSerializer serializer = new NCPDPSerializer(defaultProperties);
+        Assert.assertEquals(output, serializer.fromXML(input));
+    }
+
+    @Test
+    public void testD0ToXml() throws Exception {
+        String input = FileUtils.readFileToString(new File("tests/test-ncpdp-d0-input.txt"));
+        String output = FileUtils.readFileToString(new File("tests/test-ncpdp-d0-output.xml"));
+        NCPDPSerializer serializer = new NCPDPSerializer(defaultProperties);
+        Assert.assertEquals(output, TestUtil.prettyPrintXml(serializer.toXML(input)));
+    }
+
+    @Test
+    public void testD0FromXml() throws Exception {
+        String input = FileUtils.readFileToString(new File("tests/test-ncpdp-d0-output.xml"));
+        String output = FileUtils.readFileToString(new File("tests/test-ncpdp-d0-input.txt"));
         NCPDPSerializer serializer = new NCPDPSerializer(defaultProperties);
         Assert.assertEquals(output, serializer.fromXML(input));
     }

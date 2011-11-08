@@ -9,10 +9,11 @@
 
 package com.mirth.connect.model.converters;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Stack;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xerces.parsers.SAXParser;
 import org.xml.sax.ContentHandler;
@@ -25,114 +26,118 @@ import com.mirth.connect.model.ncpdp.NCPDPReference;
 public class NCPDPReader extends SAXParser {
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private String segmentDelim;
-    private String groupDelim;
-    private String fieldDelim;
+    private String segmentDelimeter;
+    private String groupDelimeter;
+    private String fieldDelimeter;
+    private String version;
 
-    public NCPDPReader(String segmentDelim, String groupDelim, String fieldDelim) {
-        this.segmentDelim = segmentDelim;
-        this.groupDelim = groupDelim;
-        this.fieldDelim = fieldDelim;
-        return;
+    public NCPDPReader(String segmentDelimeter, String groupDelimeter, String fieldDelimeter) {
+        this.segmentDelimeter = segmentDelimeter;
+        this.groupDelimeter = groupDelimeter;
+        this.fieldDelimeter = fieldDelimeter;
     }
 
+    @Override
     public void parse(InputSource input) throws SAXException, IOException {
-        // Read the data from the InputSource
-        BufferedReader in = new BufferedReader(input.getCharacterStream());
-        String nextLine = "";
-        StringBuffer sb = new StringBuffer();
-        while ((nextLine = in.readLine()) != null) {
-            sb.append(nextLine);
-            sb.append("\n");
-        }
-        String message = sb.toString();
-        message = message.trim();
-        // fire SAX events
-        String documentHead = "";
+        // convert the InputSource to a String and trim the whitespace
+        String message = IOUtils.toString(input.getCharacterStream()).trim();
+
         ContentHandler contentHandler = getContentHandler();
         contentHandler.startDocument();
-        // First tokenize the segments
+
         if (message == null || message.length() < 3) {
-            logger.error("Unable to parse, message is null or too short: " + message);
             throw new SAXException("Unable to parse, message is null or too short: " + message);
         }
 
-        // Process header
-        documentHead = readHeader(message, contentHandler);
-        // Process message body
-        int indexOfGroup = message.indexOf(groupDelim);
-        int indexOfSegment = message.indexOf(segmentDelim);
-        int indexMessageBody;
+        // process header
+        String documentHead = parseHeader(message, contentHandler);
+
+        // process body
+        int indexOfGroup = message.indexOf(groupDelimeter);
+        int indexOfSegment = message.indexOf(segmentDelimeter);
+        int indexMessageBody = 0;
+
         if (indexOfGroup == -1 || indexOfSegment < indexOfGroup) {
             indexMessageBody = indexOfSegment;
         } else {
             indexMessageBody = indexOfGroup;
         }
+
         String messageBody = message.substring(indexMessageBody, message.length());
 
         boolean hasMoreSegments = true;
         boolean inGroup = false;
         boolean firstTrans = true;
-        int groupIterator = 0;
+        int groupCounter = 0;
+        
         while (hasMoreSegments) {
             // get next segment or group
-            indexOfGroup = messageBody.indexOf(groupDelim);
-            indexOfSegment = messageBody.indexOf(segmentDelim);
+            indexOfGroup = messageBody.indexOf(groupDelimeter);
+            indexOfSegment = messageBody.indexOf(segmentDelimeter);
+            
             // Case: Next part is a group
             if (indexOfGroup > -1 && indexOfGroup < indexOfSegment) {
                 // process last segment before group
                 String segment = messageBody.substring(0, indexOfGroup);
-                readSegment(segment, contentHandler);
+                parseSegment(segment, contentHandler);
+                
                 if (inGroup) {
                     contentHandler.endElement("", "TRANSACTION", "");
                 }
+                
                 if (firstTrans) {
                     firstTrans = false;
                     contentHandler.startElement("", "TRANSACTIONS", "", null);
                 }
-                groupIterator++;
+                
+                groupCounter++;
                 // process a group
                 AttributesImpl attr = new AttributesImpl();
-                attr.addAttribute("", "counter", "counter", "", Integer.toString(groupIterator));
+                attr.addAttribute("", "counter", "counter", "", Integer.toString(groupCounter));
                 contentHandler.startElement("", "TRANSACTION", "", attr);
                 inGroup = true;
-
             }
             // Case: last segment
             else if (indexOfGroup == -1 && indexOfSegment == -1) {
                 // process last segment
-                readSegment(messageBody, contentHandler);
+                parseSegment(messageBody, contentHandler);
                 hasMoreSegments = false;
             }
             // Case Next part is a segment
             else {
                 // process a segment
                 String segment = messageBody.substring(0, indexOfSegment);
-                readSegment(segment, contentHandler);
+                parseSegment(segment, contentHandler);
             }
             // Remove processed segment from messageBody
-            messageBody = messageBody.substring(indexOfSegment + segmentDelim.length());
+            messageBody = messageBody.substring(indexOfSegment + segmentDelimeter.length());
         }
+        
         // End group if we have started one
         if (inGroup) {
             contentHandler.endElement("", "TRANSACTION", "");
             contentHandler.endElement("", "TRANSACTIONS", "");
         }
+        
         contentHandler.endElement("", documentHead, "");
         contentHandler.endDocument();
     }
 
-    private String readHeader(String message, ContentHandler contentHandler) throws SAXException {
+    private String parseHeader(String message, ContentHandler contentHandler) throws SAXException {
         int position;
         String docHead = "";
+        
         // First Segment is always Transaction header. Process seperately
-        if (message.indexOf(segmentDelim) != -1) {
-            position = message.indexOf(segmentDelim);
+        if (message.indexOf(segmentDelimeter) != -1) {
+            position = message.indexOf(segmentDelimeter);
             String header = message.substring(0, position);
             String docAttr = "";// " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"ncpdp.xsd\"";
+            
+            // handle a request (requests have a longer header than responses)
             if (header.length() > 40) {
                 String transaction = NCPDPReference.getInstance().getTransactionName(header.substring(8, 10));
-                docHead = "NCPDP_51_" + transaction + "_Request";
+                version = header.substring(6, 8);
+                docHead = "NCPDP_" + version + "_" + transaction + "_Request";
                 contentHandler.startElement("", docHead + docAttr, "", null);
                 contentHandler.startElement("", "TransactionHeaderRequest", "", null);
                 contentHandler.startElement("", "BinNumber", "", null);
@@ -163,9 +168,10 @@ public class NCPDPReader extends SAXParser {
                 contentHandler.characters(header.toCharArray(), 46, 10);
                 contentHandler.endElement("", "SoftwareVendorCertificationId", "");
                 contentHandler.endElement("", "TransactionHeaderRequest", "");
-            } else {
+            } else { // handle a response
                 String transaction = NCPDPReference.getInstance().getTransactionName(header.substring(2, 4));
-                docHead = "NCPDP_51_" + transaction + "_Response";
+                version = header.substring(0, 2);
+                docHead = "NCPDP_" + version + "_" + transaction + "_Response";
                 contentHandler.startElement("", docHead + docAttr, "", null);
                 contentHandler.startElement("", "TransactionHeaderResponse", "", null);
                 contentHandler.startElement("", "VersionReleaseNumber", "", null);
@@ -192,65 +198,74 @@ public class NCPDPReader extends SAXParser {
                 contentHandler.endElement("", "TransactionHeaderResponse", "");
             }
         }
+
         return docHead;
     }
 
-    private void readSegment(String segment, ContentHandler contentHandler) throws SAXException {
-        if (segment == null || segment.equals("")) {
+    private void parseSegment(String segment, ContentHandler contentHandler) throws SAXException {
+        if (StringUtils.isBlank(segment)) {
             return;
         }
+
         boolean inCounter = false;
         boolean inCount = false;
         boolean hasMoreFields = true;
         String segmentId = "";
-        Stack<String> a = new Stack<String>();
         String subSegment = "";
+        Stack<String> fieldStack = new Stack<String>();
 
-        int indexOfField = segment.indexOf(fieldDelim);
-        if (indexOfField == 0) {
-            segment = segment.substring(indexOfField + fieldDelim.length());
-            indexOfField = segment.indexOf(fieldDelim);
+        int fieldIndex = segment.indexOf(fieldDelimeter);
+
+        if (fieldIndex == 0) {
+            segment = segment.substring(fieldIndex + fieldDelimeter.length());
+            fieldIndex = segment.indexOf(fieldDelimeter);
         }
-        if (indexOfField == -1) {
+
+        if (fieldIndex == -1) {
             logger.debug("Empty Segment, No field Seperators. Make sure batch file processing is disabled");
             hasMoreFields = false;
             segmentId = segment;
         } else {
-            segmentId = segment.substring(0, indexOfField);
-            subSegment = segment.substring(indexOfField + fieldDelim.length(), segment.length());
+            segmentId = segment.substring(0, fieldIndex);
+            subSegment = segment.substring(fieldIndex + fieldDelimeter.length(), segment.length());
         }
-        //
-        contentHandler.startElement("", NCPDPReference.getInstance().getSegment(segmentId), "", null);
+
+        contentHandler.startElement("", NCPDPReference.getInstance().getSegment(segmentId, version), "", null);
+
         while (hasMoreFields) {
-            indexOfField = subSegment.indexOf(fieldDelim);
+            fieldIndex = subSegment.indexOf(fieldDelimeter);
             // not last field
             String field;
-            if (indexOfField != -1) {
-                field = subSegment.substring(0, subSegment.indexOf(fieldDelim));
-                subSegment = subSegment.substring(indexOfField + fieldDelim.length());
+            
+            if (fieldIndex != -1) {
+                field = subSegment.substring(0, subSegment.indexOf(fieldDelimeter));
+                subSegment = subSegment.substring(fieldIndex + fieldDelimeter.length());
             } else {
                 field = subSegment;
                 hasMoreFields = false;
             }
+            
             String fieldId = field.substring(0, 2);
-            String fieldDesc = NCPDPReference.getInstance().getDescription(fieldId);
+            String fieldDesc = NCPDPReference.getInstance().getDescription(fieldId, version);
             String fieldMessage = field.substring(2);
+            
             if (inCount && !isRepeatingField(fieldDesc) && !isCountField(fieldDesc)) {
                 // if we are were in count field, end element
-                contentHandler.endElement("", a.pop(), "");
-                if (a.size() == 0) {
+                contentHandler.endElement("", fieldStack.pop(), "");
+                if (fieldStack.size() == 0) {
                     inCount = false;
                 }
             }
             if (isCounterField(fieldDesc)) {
                 if (inCounter) {
-                    contentHandler.endElement("", a.pop(), "");
+                    contentHandler.endElement("", fieldStack.pop(), "");
                 }
+                
                 inCounter = true;
                 AttributesImpl attr = new AttributesImpl();
                 attr.addAttribute("", "counter", "counter", "", fieldMessage);
                 contentHandler.startElement("", fieldDesc, "", attr);
-                a.push(fieldDesc);
+                fieldStack.push(fieldDesc);
             } else if (isCountField(fieldDesc)) {
                 // Count field. Add complex element
                 inCount = true;
@@ -258,35 +273,31 @@ public class NCPDPReader extends SAXParser {
                 attr.addAttribute("", fieldDesc, fieldDesc, "", fieldMessage);
                 // Start repeating field element
                 contentHandler.startElement("", fieldDesc, "", attr);
-                a.push(fieldDesc);
+                fieldStack.push(fieldDesc);
             } else {
                 contentHandler.startElement("", fieldDesc, "", null);
                 contentHandler.characters(fieldMessage.toCharArray(), 0, fieldMessage.length());
                 contentHandler.endElement("", fieldDesc, "");
             }
         }
-        while (a.size() > 0) {
+
+        while (fieldStack.size() > 0) {
             // close remaining count and counters
-            contentHandler.endElement("", a.pop(), "");
+            contentHandler.endElement("", fieldStack.pop(), "");
         }
-        contentHandler.endElement("", NCPDPReference.getInstance().getSegment(segmentId), "");
+
+        contentHandler.endElement("", NCPDPReference.getInstance().getSegment(segmentId, version), "");
     }
 
-    private boolean isCounterField(String fieldDesc) {
-        if (fieldDesc.endsWith("Counter")) {
-            return true;
-        }
-        return false;
+    private boolean isCounterField(String fieldDescription) {
+        return fieldDescription.endsWith("Counter");
     }
 
-    private boolean isCountField(String fieldDesc) {
-        if (fieldDesc.endsWith("Count")) {
-            return true;
-        }
-        return false;
+    private boolean isCountField(String fieldDescription) {
+        return fieldDescription.endsWith("Count");
     }
 
-    private boolean isRepeatingField(String fieldDesc) {
-        return NCPDPReference.getInstance().isRepeatingField(fieldDesc);
+    private boolean isRepeatingField(String fieldDescription) {
+        return NCPDPReference.getInstance().isRepeatingField(fieldDescription, version);
     }
 }

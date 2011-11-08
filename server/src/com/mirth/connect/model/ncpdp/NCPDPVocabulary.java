@@ -13,17 +13,17 @@ import com.mirth.connect.model.MessageObject.Protocol;
 import com.mirth.connect.model.util.MessageVocabulary;
 
 public class NCPDPVocabulary extends MessageVocabulary {
-    private NCPDPReference reference = null;
+    private NCPDPReference reference = NCPDPReference.getInstance();
+    private String version = "51";
 
     public NCPDPVocabulary(String version, String type) {
         super(version, type);
-        reference = NCPDPReference.getInstance();
+        this.version = version;
     }
 
     // For now we are going to use the large hashmap
-    // TODO: 1.4.1 - Use hl7 model XML from JAXB to generate vocab in real-time
     public String getDescription(String elementId) {
-        return reference.getDescription(elementId);
+        return reference.getDescription(elementId, version);
     }
 
     public Protocol getProtocol() {
