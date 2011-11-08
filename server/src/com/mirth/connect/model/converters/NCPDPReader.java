@@ -45,25 +45,25 @@ public class NCPDPReader extends SAXParser {
         ContentHandler contentHandler = getContentHandler();
         contentHandler.startDocument();
 
-        if (message == null || message.length() < 3) {
+        if ((message == null) || (message.length() < 3)) {
             throw new SAXException("Unable to parse, message is null or too short: " + message);
         }
 
         // process header
-        String documentHead = parseHeader(message, contentHandler);
+        String header = parseHeader(message, contentHandler);
 
         // process body
         int indexOfGroup = message.indexOf(groupDelimeter);
         int indexOfSegment = message.indexOf(segmentDelimeter);
         int indexMessageBody = 0;
 
-        if (indexOfGroup == -1 || indexOfSegment < indexOfGroup) {
+        if ((indexOfGroup == -1) || (indexOfSegment < indexOfGroup)) {
             indexMessageBody = indexOfSegment;
         } else {
             indexMessageBody = indexOfGroup;
         }
 
-        String messageBody = message.substring(indexMessageBody, message.length());
+        String body = message.substring(indexMessageBody, message.length());
 
         boolean hasMoreSegments = true;
         boolean inGroup = false;
@@ -72,13 +72,13 @@ public class NCPDPReader extends SAXParser {
         
         while (hasMoreSegments) {
             // get next segment or group
-            indexOfGroup = messageBody.indexOf(groupDelimeter);
-            indexOfSegment = messageBody.indexOf(segmentDelimeter);
+            indexOfGroup = body.indexOf(groupDelimeter);
+            indexOfSegment = body.indexOf(segmentDelimeter);
             
             // Case: Next part is a group
             if (indexOfGroup > -1 && indexOfGroup < indexOfSegment) {
                 // process last segment before group
-                String segment = messageBody.substring(0, indexOfGroup);
+                String segment = body.substring(0, indexOfGroup);
                 parseSegment(segment, contentHandler);
                 
                 if (inGroup) {
@@ -100,17 +100,17 @@ public class NCPDPReader extends SAXParser {
             // Case: last segment
             else if (indexOfGroup == -1 && indexOfSegment == -1) {
                 // process last segment
-                parseSegment(messageBody, contentHandler);
+                parseSegment(body, contentHandler);
                 hasMoreSegments = false;
             }
             // Case Next part is a segment
             else {
                 // process a segment
-                String segment = messageBody.substring(0, indexOfSegment);
+                String segment = body.substring(0, indexOfSegment);
                 parseSegment(segment, contentHandler);
             }
             // Remove processed segment from messageBody
-            messageBody = messageBody.substring(indexOfSegment + segmentDelimeter.length());
+            body = body.substring(indexOfSegment + segmentDelimeter.length());
         }
         
         // End group if we have started one
@@ -119,26 +119,27 @@ public class NCPDPReader extends SAXParser {
             contentHandler.endElement("", "TRANSACTIONS", "");
         }
         
-        contentHandler.endElement("", documentHead, "");
+        contentHandler.endElement("", header, "");
         contentHandler.endDocument();
     }
 
     private String parseHeader(String message, ContentHandler contentHandler) throws SAXException {
-        int position;
-        String docHead = "";
+        String headerElementName = null;
         
-        // First Segment is always Transaction header. Process seperately
+        /*
+         * The first segment is always the Transaction header so we will process
+         * it seperately.
+         */
         if (message.indexOf(segmentDelimeter) != -1) {
-            position = message.indexOf(segmentDelimeter);
-            String header = message.substring(0, position);
-            String docAttr = "";// " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"ncpdp.xsd\"";
+            String header = message.substring(0, message.indexOf(segmentDelimeter));
             
             // handle a request (requests have a longer header than responses)
             if (header.length() > 40) {
-                String transaction = NCPDPReference.getInstance().getTransactionName(header.substring(8, 10));
+                String transactionName = NCPDPReference.getInstance().getTransactionName(header.substring(8, 10));
                 version = header.substring(6, 8);
-                docHead = "NCPDP_" + version + "_" + transaction + "_Request";
-                contentHandler.startElement("", docHead + docAttr, "", null);
+                headerElementName = "NCPDP_" + version + "_" + transactionName + "_Request";
+                
+                contentHandler.startElement("", headerElementName, "", null);
                 contentHandler.startElement("", "TransactionHeaderRequest", "", null);
                 contentHandler.startElement("", "BinNumber", "", null);
                 contentHandler.characters(header.toCharArray(), 0, 6);
@@ -171,8 +172,9 @@ public class NCPDPReader extends SAXParser {
             } else { // handle a response
                 String transaction = NCPDPReference.getInstance().getTransactionName(header.substring(2, 4));
                 version = header.substring(0, 2);
-                docHead = "NCPDP_" + version + "_" + transaction + "_Response";
-                contentHandler.startElement("", docHead + docAttr, "", null);
+                headerElementName = "NCPDP_" + version + "_" + transaction + "_Response";
+                
+                contentHandler.startElement("", headerElementName, "", null);
                 contentHandler.startElement("", "TransactionHeaderResponse", "", null);
                 contentHandler.startElement("", "VersionReleaseNumber", "", null);
                 contentHandler.characters(header.toCharArray(), 0, 2);
@@ -199,7 +201,7 @@ public class NCPDPReader extends SAXParser {
             }
         }
 
-        return docHead;
+        return headerElementName;
     }
 
     private void parseSegment(String segment, ContentHandler contentHandler) throws SAXException {
@@ -222,7 +224,7 @@ public class NCPDPReader extends SAXParser {
         }
 
         if (fieldIndex == -1) {
-            logger.debug("Empty Segment, No field Seperators. Make sure batch file processing is disabled");
+            logger.warn("Empty segment with no field seperators. Make sure batch file processing is disabled.");
             hasMoreFields = false;
             segmentId = segment;
         } else {
@@ -249,14 +251,15 @@ public class NCPDPReader extends SAXParser {
             String fieldDesc = NCPDPReference.getInstance().getDescription(fieldId, version);
             String fieldMessage = field.substring(2);
             
-            if (inCount && !isRepeatingField(fieldDesc) && !isCountField(fieldDesc)) {
+            if (inCount && !isRepeatingField(fieldDesc) && !fieldDesc.endsWith("Count")) {
                 // if we are were in count field, end element
                 contentHandler.endElement("", fieldStack.pop(), "");
                 if (fieldStack.size() == 0) {
                     inCount = false;
                 }
             }
-            if (isCounterField(fieldDesc)) {
+            
+            if (fieldDesc.endsWith("Counter")) {
                 if (inCounter) {
                     contentHandler.endElement("", fieldStack.pop(), "");
                 }
@@ -266,7 +269,7 @@ public class NCPDPReader extends SAXParser {
                 attr.addAttribute("", "counter", "counter", "", fieldMessage);
                 contentHandler.startElement("", fieldDesc, "", attr);
                 fieldStack.push(fieldDesc);
-            } else if (isCountField(fieldDesc)) {
+            } else if (fieldDesc.endsWith("Count")) {
                 // Count field. Add complex element
                 inCount = true;
                 AttributesImpl attr = new AttributesImpl();
@@ -287,14 +290,6 @@ public class NCPDPReader extends SAXParser {
         }
 
         contentHandler.endElement("", NCPDPReference.getInstance().getSegment(segmentId, version), "");
-    }
-
-    private boolean isCounterField(String fieldDescription) {
-        return fieldDescription.endsWith("Counter");
-    }
-
-    private boolean isCountField(String fieldDescription) {
-        return fieldDescription.endsWith("Count");
     }
 
     private boolean isRepeatingField(String fieldDescription) {
