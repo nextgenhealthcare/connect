@@ -32,24 +32,36 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="contextPathLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="listenerAddressLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="listenerPortLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="messageContentLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseFromLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseContentTypeLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="charsetEncodingLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="receiveTimeoutLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="httpUrlLabel" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
+          <Group type="102" attributes="0">
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="receiveTimeoutField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
-                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseFromLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="messageContentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="listenerAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="httpUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="receiveTimeoutLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseContentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="contextPathLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="receiveTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="listenerPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="listenerPortField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Component id="contextPathField" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                  <Component id="receiveTimeoutField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
+                  <Component id="httpUrlField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                  <Component id="responseFromTransformer" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                  <Component id="responseContentTypeField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseStatusCodeField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="messageContentBodyOnlyRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="messageContentHeadersQueryAndBodyRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="listenerAllRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -57,17 +69,16 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="listenerAddressField" min="-2" pref="155" max="-2" attributes="1"/>
                   </Group>
-                  <Component id="responseFromTransformer" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
-                  <Component id="responseContentTypeField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
-                  <Group type="102" attributes="0">
-                      <Component id="messageContentBodyOnlyRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="messageContentHeadersQueryAndBodyRadio" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="responseHeadersPane" pref="337" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="responseHeadersNewButton" max="32767" attributes="1"/>
+                          <Component id="responseHeadersDeleteButton" alignment="0" max="32767" attributes="1"/>
+                      </Group>
                   </Group>
-                  <Component id="contextPathField" min="-2" pref="150" max="-2" attributes="0"/>
-                  <Component id="httpUrlField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
               </Group>
-              <EmptySpace pref="21" max="32767" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -85,43 +96,58 @@
                   <Component id="listenerPortField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="listenerPortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="contextPathLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="contextPathField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="receiveTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="receiveTimeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="messageContentLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="messageContentHeadersQueryAndBodyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="messageContentBodyOnlyRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="httpUrlField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="httpUrlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="responseFromTransformer" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="responseFromLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="responseContentTypeField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="responseContentTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="charsetEncodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="responseStatusCodeField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="receiveTimeoutLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="headersLabel" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Component id="responseHeadersNewButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="responseHeadersDeleteButton" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="responseHeadersPane" pref="85" max="32767" attributes="2"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -330,6 +356,57 @@
     <Component class="javax.swing.JLabel" name="httpUrlLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="HTTP URL:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="headersLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Response Headers:"/>
+      </Properties>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="responseHeadersPane">
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="responseHeadersTable">
+          <Properties>
+            <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+              <Table columnCount="2" rowCount="0">
+                <Column editable="true" title="Name" type="java.lang.Object"/>
+                <Column editable="true" title="Value" type="java.lang.Object"/>
+              </Table>
+            </Property>
+            <Property name="toolTipText" type="java.lang.String" value="Response header parameters are encoded as HTTP headers in the response sent to the client."/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Component class="javax.swing.JButton" name="responseHeadersNewButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="New"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="responseHeadersNewButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="responseHeadersDeleteButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Delete"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="responseHeadersDeleteButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="receiveTimeoutLabel1">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Response Status Code:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="responseStatusCodeField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the status code for the HTTP response.  If this field is left blank a &lt;br&gt;default status code of 200 will be returned for a successful message, &lt;br&gt;and 500 will be returned for an errored message. If a &quot;Respond from&quot; &lt;br&gt;value is chosen, that response will be used to determine a successful &lt;br&gt;or errored response.&lt;html&gt;"/>
       </Properties>
     </Component>
   </SubComponents>

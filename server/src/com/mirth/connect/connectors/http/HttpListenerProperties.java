@@ -9,7 +9,7 @@
 
 package com.mirth.connect.connectors.http;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Properties;
 
 import com.mirth.connect.model.ComponentProperties;
@@ -44,7 +44,7 @@ public class HttpListenerProperties implements ComponentProperties {
         properties.put(HTTP_CHARSET, "UTF-8");
         properties.put(HTTP_CONTEXT_PATH, "");
         properties.put(HTTP_RESPONSE_STATUS_CODE, "");
-        properties.put(HTTP_RESPONSE_HEADERS, serializer.toXML(new HashMap<String, String>()));
+        properties.put(HTTP_RESPONSE_HEADERS, serializer.toXML(new LinkedHashMap<String, String>()));
         properties.put(HTTP_TIMEOUT, "0");
         return properties;
     }
