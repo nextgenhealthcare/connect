@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
@@ -54,7 +53,7 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
     private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
-    
+
     private Server server = null;
 
     private class RequestHandler extends AbstractHandler {
@@ -65,34 +64,50 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
 
             try {
                 servletResponse.setContentType(connector.getReceiverResponseContentType());
-                Response response = processData(baseRequest);
+                MessageObject messageObjectResponse = processData(baseRequest);
 
-                if (response != null) {
-                    servletResponse.getOutputStream().write(response.getMessage().getBytes(connector.getReceiverCharset()));
-
+                if (messageObjectResponse != null) {
+                    // set the response headers
                     for (Entry<String, String> entry : connector.getReceiverResponseHeaders().entrySet()) {
-                        servletResponse.setHeader(entry.getKey(), replacer.replaceValues(entry.getValue()));
+                        servletResponse.setHeader(entry.getKey(), replacer.replaceValues(entry.getValue(), messageObjectResponse));
                     }
 
-                    int statusCode = NumberUtils.toInt(replacer.replaceValues(connector.getReceiverResponseStatusCode()), -1);
-                    
-                    /*
-                     * If there is not a valid status code entered, send
-                     * defaults based on Response
-                     */
-                    if (StringUtils.isBlank(connector.getReceiverResponseStatusCode()) || (statusCode == -1)) {
-                        /*
-                         * If the destination sends a failure response, the
-                         * listener should return a 500 error, otherwise 200.
-                         */
+                    // set the status code
+                    int statusCode = NumberUtils.toInt(replacer.replaceValues(connector.getReceiverResponseStatusCode(), messageObjectResponse), -1);
 
-                        if (response.getStatus().equals(Response.Status.FAILURE)) {
+                    /*
+                     * set the response body and status code (if we choose a
+                     * response from the drop-down)
+                     */
+                    if (!connector.getReceiverResponse().equalsIgnoreCase("None")) {
+                        Response destinationResponse = (Response) messageObjectResponse.getResponseMap().get(connector.getReceiverResponse());
+                        servletResponse.getOutputStream().write(destinationResponse.getMessage().getBytes(connector.getReceiverCharset()));
+
+                        /*
+                         * If the status code is custom, use the
+                         * entered/replaced string
+                         * If is is not a variable, use the status of the
+                         * destination's response (success = 200, failure = 500)
+                         * Otherwise, return 200
+                         */
+                        if (statusCode != -1) {
+                            servletResponse.setStatus(statusCode);
+                        } else if (destinationResponse.getStatus().equals(Response.Status.FAILURE)) {
                             servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                         } else {
                             servletResponse.setStatus(HttpStatus.SC_OK);
                         }
                     } else {
-                        servletResponse.setStatus(statusCode);
+                        /*
+                         * If the status code is custom, use the
+                         * entered/replaced string
+                         * Otherwise, return 200
+                         */
+                        if (statusCode != -1) {
+                            servletResponse.setStatus(statusCode);
+                        } else {
+                            servletResponse.setStatus(HttpStatus.SC_OK);
+                        }
                     }
                 } else {
                     servletResponse.setStatus(HttpStatus.SC_OK);
@@ -121,14 +136,14 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
 
         // add the request handler
         ContextHandler contextHandler = new ContextHandler();
-        
+
         // Initialize contextPath to "" or its value after replacements
         String contextPath = (connector.getReceiverContextPath() == null ? "" : replacer.replaceValues(connector.getReceiverContextPath()));
-        
+
         if (!contextPath.startsWith("/")) {
             contextPath = "/" + contextPath;
         }
-        
+
         contextHandler.setContextPath(contextPath);
         contextHandler.setHandler(new RequestHandler());
         server.setHandler(contextHandler);
@@ -138,21 +153,21 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
         monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
 
-    private Response processData(Request request) throws Exception {
+    private MessageObject processData(Request request) throws Exception {
         monitoringController.updateStatus(connector, connectorType, Event.BUSY);
         HttpMessageConverter converter = new HttpMessageConverter();
 
         HttpRequestMessage message = new HttpRequestMessage();
         message.setMethod(request.getMethod());
         message.setHeaders(converter.convertFieldEnumerationToMap(request));
-        
+
         /*
          * XXX: extractParameters must be called before the parameters are
          * accessed, otherwise the map will be null.
          */
         request.extractParameters();
         message.setParameters(request.getParameters());
-        
+
         message.setContent(IOUtils.toString(request.getInputStream(), converter.getDefaultHttpCharset(request.getCharacterEncoding())));
         message.setIncludeHeaders(!connector.isReceiverBodyOnly());
         message.setContentType(request.getContentType());
@@ -168,10 +183,7 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
             if (payload instanceof MessageObject) {
                 MessageObject messageObjectResponse = (MessageObject) payload;
                 postProcessor.doPostProcess(messageObjectResponse);
-
-                if (!connector.getReceiverResponse().equalsIgnoreCase("None")) {
-                    return (Response) messageObjectResponse.getResponseMap().get(connector.getReceiverResponse());
-                }
+                return messageObjectResponse;
             }
         }
 
