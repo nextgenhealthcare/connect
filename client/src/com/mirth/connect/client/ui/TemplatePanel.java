@@ -161,7 +161,8 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 File file = ((List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor)).get(0);
 
                 if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM))) {
-                    pasteBox.setText(new DICOMSerializer().toXML(file));
+                    // TODO: Why don't we automatically parse other formats? Like delimeted text?
+                    pasteBox.setText(new DICOMSerializer().toXML(FileUtils.readFileToString(file)));
                 } else {
                     pasteBox.setText(FileUtils.readFileToString(file, UIConstants.CHARSET));
                 }
