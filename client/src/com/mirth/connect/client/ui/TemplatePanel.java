@@ -29,6 +29,7 @@ import java.util.TimerTask;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.syntax.jedit.SyntaxDocument;
@@ -161,8 +162,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 File file = ((List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor)).get(0);
 
                 if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM))) {
-                    // TODO: Why don't we automatically parse other formats? Like delimeted text?
-                    pasteBox.setText(new DICOMSerializer().toXML(FileUtils.readFileToString(file)));
+                    pasteBox.setText(new DICOMSerializer().toXML(Base64.encodeBase64String(FileUtils.readFileToByteArray(file))));
                 } else {
                     pasteBox.setText(FileUtils.readFileToString(file, UIConstants.CHARSET));
                 }
@@ -373,7 +373,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         if (content != null) {
             try {
                 if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM))) {
-                    pasteBox.setText(new DICOMSerializer().toXML(content));
+                    pasteBox.setText(new DICOMSerializer().toXML(Base64.encodeBase64String(content.getBytes())));
                 } else {
                     pasteBox.setText(content);
                 }
