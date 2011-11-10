@@ -28,11 +28,20 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.dcm4che2.data.BasicDicomObject;
+import org.dcm4che2.data.DicomElement;
+import org.dcm4che2.data.DicomObject;
+import org.dcm4che2.data.Tag;
+import org.dcm4che2.data.TransferSyntax;
+import org.dcm4che2.data.VR;
+import org.dcm4che2.io.DicomInputStream;
+import org.dcm4che2.io.DicomOutputStream;
 
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.converters.DICOMSerializer;
 import com.mirth.connect.model.converters.SerializerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MessageObjectController;
@@ -46,10 +55,13 @@ public class DICOMUtil {
             MessageObjectController mos = ControllerFactory.getFactory().createMessageObjectController();
             try {
                 List<Attachment> attachments = null;
-                if (message.getCorrelationId() != null)
+                
+                if (message.getCorrelationId() != null) {
                     attachments = mos.getAttachmentsByMessageId(message.getCorrelationId());
-                else
+                } else {
                     attachments = mos.getAttachmentsByMessageId(message.getId());
+                }
+                    
                 if (attachments.get(0).getType().equals("DICOM")) {
                     mergedMessage = mergeHeaderAttachments(message, attachments);
                 } else {
@@ -62,29 +74,58 @@ public class DICOMUtil {
         } else {
             mergedMessage = message.getRawData();
         }
+        
         return mergedMessage;
     }
 
     public static byte[] getDICOMMessage(MessageObject message) {
-        return new Base64().decode(getDICOMRawData(message).getBytes());
+        return Base64.decodeBase64(getDICOMRawData(message).getBytes());
     }
 
     public static String mergeHeaderAttachments(MessageObject message, List<Attachment> attachments) throws SerializerException {
-        ArrayList<byte[]> images = new ArrayList<byte[]>();
-        Base64 base64 = new Base64();
-        for (Attachment attach : attachments) {
-            images.add(base64.decode(attach.getData()));
-        }
-        byte[] headerData;
-        if (message.getEncodedDataProtocol().equals(MessageObject.Protocol.DICOM) && message.getEncodedData()!=null) {
-            headerData = base64.decode(message.getEncodedData().getBytes());
-        } else if (message.getRawDataProtocol().equals(MessageObject.Protocol.DICOM) && message.getRawData()!=null) {
-            headerData = base64.decode(message.getRawData().getBytes());
-        } else {
-            return "";
-        }
-        return DICOMSerializer.mergeHeaderPixelData(headerData, images);
+        try {
+            List<byte[]> images = new ArrayList<byte[]>();
 
+            for (Attachment attachment : attachments) {
+                images.add(Base64.decodeBase64(attachment.getData()));
+            }
+
+            byte[] headerBytes;
+
+            if (message.getEncodedDataProtocol().equals(MessageObject.Protocol.DICOM) && message.getEncodedData() != null) {
+                headerBytes = Base64.decodeBase64(message.getEncodedData().getBytes());
+            } else if (message.getRawDataProtocol().equals(MessageObject.Protocol.DICOM) && message.getRawData() != null) {
+                headerBytes = Base64.decodeBase64(message.getRawData().getBytes());
+            } else {
+                return StringUtils.EMPTY;
+            }
+
+            return mergeHeaderPixelData(headerBytes, images);
+        } catch (IOException e) {
+            throw new SerializerException(e);
+        }
+    }
+
+    public static String mergeHeaderPixelData(byte[] header, List<byte[]> images) throws IOException {
+        // 1. read in header
+        DicomObject dcmObj = byteArrayToDicomObject(header);
+
+        // 2. Add pixel data to DicomObject
+        if (images != null && !images.isEmpty()) {
+            if (images.size() > 1) {
+                DicomElement dicomElement = dcmObj.putFragments(Tag.PixelData, VR.OB, dcmObj.bigEndian(), images.size());
+
+                for (byte[] image : images) {
+                    dicomElement.addFragment(image);
+                }
+
+                dcmObj.add(dicomElement);
+            } else {
+                dcmObj.putBytes(Tag.PixelData, VR.OB, images.get(0));
+            }
+        }
+
+        return Base64.encodeBase64String(dicomObjectToByteArray(dcmObj));
     }
 
     public static List<Attachment> getMessageAttachments(MessageObject message) throws SerializerException {
@@ -100,31 +141,32 @@ public class DICOMUtil {
     }
 
     private static String returnOtherImageFormat(MessageObject message, String format, boolean autoThreshold) {
-        String encodedData = getDICOMRawData(message);
-        Base64 base64 = new Base64();
-        
         // use new method for jpegs
-        if (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg"))
-            return new String(Base64.encodeBase64(dicomToJpg(1, message, autoThreshold)));
-        try {
-            byte[] rawImage = base64.decode(encodedData.getBytes());
-            ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
-            DICOM dcm = new DICOM(bis);
-            dcm.run(message.getType());
+        if (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg")) {
+            return Base64.encodeBase64String(dicomToJpg(1, message, autoThreshold));
+        }
 
-            int width = dcm.getWidth();
-            int height = dcm.getHeight();
-            BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-            ByteArrayOutputStream f = new ByteArrayOutputStream();
-            Graphics g = bi.createGraphics();
-            g.drawImage(dcm.getImage(), 0, 0, null);
-            g.dispose();
-            ImageIO.write(bi, format, f);
-            return new String(base64.encode(f.toByteArray()));
+        byte[] rawImage = Base64.decodeBase64(getDICOMRawData(message).getBytes());
+        ByteArrayInputStream bais = new ByteArrayInputStream(rawImage);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try {
+            DICOM dicom = new DICOM(bais);
+            dicom.run(message.getType());
+            BufferedImage image = new BufferedImage(dicom.getWidth(), dicom.getHeight(), BufferedImage.TYPE_INT_RGB);
+            Graphics graphics = image.createGraphics();
+            graphics.drawImage(dicom.getImage(), 0, 0, null);
+            graphics.dispose();
+            ImageIO.write(image, format, baos);
+            return Base64.encodeBase64String(baos.toByteArray());
         } catch (IOException e) {
             logger.error("Error Converting DICOM image", e);
+        } finally {
+            IOUtils.closeQuietly(bais);
+            IOUtils.closeQuietly(baos);
         }
-        return "";
+
+        return StringUtils.EMPTY;
     }
 
     public static String reAttachMessage(MessageObject message) {
@@ -132,53 +174,105 @@ public class DICOMUtil {
     }
 
     public static byte[] dicomToJpg(int sliceIndex, MessageObject message, boolean autoThreshold) {
-        String encodedData = getDICOMRawData(message);
-        
-        ByteArrayInputStream bis = new ByteArrayInputStream(Base64.decodeBase64(encodedData));
-        DICOM dcm = new DICOM(bis);
-        dcm.run("dcm");
-        if (autoThreshold) {
-            ImageProcessor im = dcm.getProcessor();
-            // Automatically sets the lower and upper threshold levels, where
-            // 'method' must be ISODATA or ISODATA2
-            im.setAutoThreshold(0, 2);
-        }
-        ImageStack imageStack = dcm.getImageStack();
-        if (imageStack.getSize() < sliceIndex || sliceIndex < 1) {
-            return null;
-        }
-        ImagePlus image = new ImagePlus("ImageName", imageStack.getProcessor(sliceIndex));
-
-        return saveAsJpeg(image, 100);
-    }
-
-    private static byte[] saveAsJpeg(ImagePlus imp, int quality) {
-        int width = imp.getWidth();
-        int height = imp.getHeight();
-        int biType = BufferedImage.TYPE_INT_RGB;
-        if (imp.getProcessor().isDefaultLut())
-            biType = BufferedImage.TYPE_BYTE_GRAY;
-        BufferedImage bi = new BufferedImage(width, height, biType);
+        ByteArrayInputStream bais = new ByteArrayInputStream(Base64.decodeBase64(getDICOMRawData(message)));
 
         try {
-            Graphics g = bi.createGraphics();
-            g.drawImage(imp.getImage(), 0, 0, null);
-            g.dispose();
+            DICOM dicom = new DICOM(bais);
+            dicom.run("dcm");
+
+            if (autoThreshold) {
+                ImageProcessor im = dicom.getProcessor();
+                // Automatically sets the lower and upper threshold levels, where
+                // 'method' must be ISODATA or ISODATA2
+                im.setAutoThreshold(0, 2);
+            }
+
+            ImageStack imageStack = dicom.getImageStack();
+
+            if ((imageStack.getSize() < sliceIndex) || sliceIndex < 1) {
+                return null;
+            }
+
+            ImagePlus image = new ImagePlus("ImageName", imageStack.getProcessor(sliceIndex));
+            return saveAsJpeg(image, 100);
+        } finally {
+            IOUtils.closeQuietly(bais);
+        }
+    }
+
+    private static byte[] saveAsJpeg(ImagePlus imagePlug, int quality) {
+        int imageType = BufferedImage.TYPE_INT_RGB;
+        
+        if (imagePlug.getProcessor().isDefaultLut()) {
+            imageType = BufferedImage.TYPE_BYTE_GRAY;
+        }
+            
+        BufferedImage bufferedImage = new BufferedImage(imagePlug.getWidth(), imagePlug.getHeight(), imageType);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try {
+            Graphics graphics = bufferedImage.createGraphics();
+            graphics.drawImage(imagePlug.getImage(), 0, 0, null);
+            graphics.dispose();
             ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
             writer.setOutput(ImageIO.createImageOutputStream(baos));
             ImageWriteParam param = writer.getDefaultWriteParam();
             param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             param.setCompressionQuality(quality / 100f);
-            if (quality == 100)
+            
+            if (quality == 100) {
                 param.setSourceSubsampling(1, 1, 0, 0);
-            IIOImage iioImage = new IIOImage(bi, null, null);
+            }
+                
+            IIOImage iioImage = new IIOImage(bufferedImage, null, null);
             writer.write(null, iioImage, param);
             return baos.toByteArray();
         } catch (Exception e) {
             logger.error("Error converting dcm file", e);
+        } finally {
+            IOUtils.closeQuietly(baos);
         }
+        
         return null;
     }
 
+    public static DicomObject byteArrayToDicomObject(byte[] bytes) throws IOException {
+        DicomObject basicDicomObject = new BasicDicomObject();
+        DicomInputStream dis = null;
+
+        try {
+            dis = new DicomInputStream(new ByteArrayInputStream(bytes));
+            dis.readDicomObject(basicDicomObject, -1);
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            IOUtils.closeQuietly(dis);
+        }
+
+        return basicDicomObject;
+    }
+
+    public static byte[] dicomObjectToByteArray(DicomObject dicomObject) throws IOException {
+        BasicDicomObject basicDicomObject = (BasicDicomObject) dicomObject;
+        DicomOutputStream dos = null;
+
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            dos = new DicomOutputStream(bos);
+
+            if (basicDicomObject.fileMetaInfo().isEmpty()) {
+                // Create ACR/NEMA Dump
+                dos.writeDataset(basicDicomObject, TransferSyntax.ImplicitVRLittleEndian);
+            } else {
+                // Create DICOM File
+                dos.writeDicomFile(basicDicomObject);
+            }
+
+            return bos.toByteArray();
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            IOUtils.closeQuietly(dos);
+        }
+    }
 }

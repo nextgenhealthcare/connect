@@ -9,8 +9,9 @@
 
 package com.mirth.connect.server.mule.adaptors;
 
-import java.util.Iterator;
 import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.MessageObject;
@@ -22,6 +23,7 @@ import com.mirth.connect.server.controllers.MessageObjectController;
 import com.mirth.connect.server.util.UUIDGenerator;
 
 public class DICOMAdaptor extends Adaptor {
+    @Override
     protected void populateMessage(boolean emptyFilterAndTransformer) throws AdaptorException {
         messageObject.setRawDataProtocol(MessageObject.Protocol.DICOM);
         messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
@@ -29,44 +31,47 @@ public class DICOMAdaptor extends Adaptor {
 
         try {
             // Set transformed data
-            DICOMSerializer dSerializer = (DICOMSerializer) serializer;
-            String message = dSerializer.toXML(source);
+            DICOMSerializer dicomSerializer = (DICOMSerializer) serializer;
+            String message = dicomSerializer.toXML(source);
             messageObject.setTransformedData(message);
 
             // Set rawdata on messageobject without attachment data
-            if(dSerializer.rawData != null)
-                messageObject.setRawData(dSerializer.rawData);
-            else
-                messageObject.setRawData("");
-            
+            if (dicomSerializer.getRawData() != null) {
+                messageObject.setRawData(dicomSerializer.getRawData());
+            } else {
+                messageObject.setRawData(StringUtils.EMPTY);
+            }
+
             // Set source data to the new raw data which does not include the attachments
             // If the source is used after this point it will no longer have any attachment data.
             source = messageObject.getRawData();
-            
+
             // Create attachment
-            if(dSerializer.getPixelData() != null && !dSerializer.getPixelData().isEmpty()) {
-                Iterator<String> i = dSerializer.getPixelData().iterator();
+            if (dicomSerializer.getPixelData() != null && !dicomSerializer.getPixelData().isEmpty()) {
                 Attachment attachment = new Attachment();
                 attachment.setType("DICOM");
-                MessageObjectController moc = ControllerFactory.getFactory().createMessageObjectController();
-                moc.setAttachmentMessageId(messageObject, attachment);
-                while(i.hasNext()){
-                    String image = i.next();
+
+                MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+                messageObjectController.setAttachmentMessageId(messageObject, attachment);
+
+                for (String image : dicomSerializer.getPixelData()) {
                     attachment.setAttachmentId(UUIDGenerator.getUUID());
                     attachment.setData(image.getBytes());
                     attachment.setSize(image.length());
-                    moc.insertAttachment(attachment);
+                    messageObjectController.insertAttachment(attachment);
                 }
+
                 messageObject.setAttachment(true);
             }
+
             populateMetadataFromXML(message);
         } catch (Exception e) {
             handleException(e);
         }
-        
-		if (emptyFilterAndTransformer) {
-			messageObject.setEncodedData(source);
-		}
+
+        if (emptyFilterAndTransformer) {
+            messageObject.setEncodedData(source);
+        }
     }
 
     @Override
