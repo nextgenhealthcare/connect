@@ -50,7 +50,8 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private ConnectorType connectorType = ConnectorType.WRITER;
-
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    
     public DocumentMessageDispatcher(DocumentConnector connector) {
         super(connector);
         this.connector = connector;
@@ -59,7 +60,6 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 
     public void doDispatch(UMOEvent event) throws Exception {
         monitoringController.updateStatus(connector, connectorType, Event.BUSY);
-        TemplateValueReplacer replacer = new TemplateValueReplacer();
         String endpoint = event.getEndpoint().getEndpointURI().getAddress();
         MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
 
@@ -145,7 +145,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
                     encryptFis = new FileInputStream(file);
                     PdfReader reader = new PdfReader(encryptFis);
                     encryptFos = new FileOutputStream(file);
-                    PdfEncryptor.encrypt(reader, encryptFos, true, connector.getPassword(), null, PdfWriter.ALLOW_PRINTING | PdfWriter.ALLOW_COPY);
+                    PdfEncryptor.encrypt(reader, encryptFos, true, replacer.replaceValues(connector.getPassword(), messageObject), null, PdfWriter.ALLOW_PRINTING | PdfWriter.ALLOW_COPY);
                 } catch (Exception e) {
                     throw e;
                 } finally {
