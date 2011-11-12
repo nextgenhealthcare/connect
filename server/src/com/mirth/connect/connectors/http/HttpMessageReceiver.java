@@ -80,6 +80,10 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
                      * response from the drop-down)
                      */
                     if (!connector.getReceiverResponse().equalsIgnoreCase("None")) {
+                        if (!(messageObjectResponse.getResponseMap().get(connector.getReceiverResponse()) instanceof Response)) {
+                            throw new Exception("Response from '" + connector.getReceiverResponse() + "' must be of type " + Response.class.getName());
+                        }
+                        
                         Response destinationResponse = (Response) messageObjectResponse.getResponseMap().get(connector.getReceiverResponse());
                         servletResponse.getOutputStream().write(destinationResponse.getMessage().getBytes(connector.getReceiverCharset()));
 

@@ -159,6 +159,7 @@ public class TemplateValueReplacer {
             context.put("message", messageObject);
             context.put("DICOMMESSAGE", DICOMUtil.getDICOMRawData(messageObject));
             context.put("MESSAGEATTACH", DICOMUtil.reAttachMessage(messageObject));
+            loadContextFromMap(context, messageObject.getResponseMap());
             loadContextFromMap(context, messageObject.getConnectorMap());
             loadContextFromMap(context, messageObject.getChannelMap());
 
