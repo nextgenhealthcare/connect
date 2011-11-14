@@ -394,21 +394,6 @@ public class MuleEngineController implements EngineController {
         InboundMessageRouter inboundRouter = new InboundMessageRouter();
         Exception exceptionRegisteringInboundRouter = null;
 
-        // add source endpoints
-        MuleEndpoint vmEndpoint = new MuleEndpoint();
-        vmEndpoint.setEndpointURI(new MuleEndpointURI(new URI("vm://" + channel.getId()).toString()));
-
-        /*
-         * XXX: Set create connector to true so that channel readers will not
-         * use an existing connector (one from a different channel). Not
-         * entirely sure why this is required, but if this is set to 0 then a VM
-         * EndpointService mbean is created, and when undeploying channels a
-         * null pointer is sometimes thrown when calling
-         * unregisterComponent(descriptor). The error occurs in
-         * AbstractConnector.unregisterListener because receivers is null.
-         */
-        vmEndpoint.setCreateConnector(1);
-
         MuleEndpoint endpoint = new MuleEndpoint();
         String connectorReference = getConnectorReferenceForInboundRouter(channel);
 
@@ -457,9 +442,6 @@ public class MuleEngineController implements EngineController {
 
         // STEP 4. add the transformer sequence as an attribute to the endpoint
         endpoint.setTransformer(transformerList.getFirst());
-        vmEndpoint.setTransformer(preprocessorTransformer);
-
-        inboundRouter.addEndpoint(vmEndpoint);
 
         SelectiveConsumer selectiveConsumerRouter = new SelectiveConsumer();
         selectiveConsumerRouter.setFilter(new ValidMessageFilter());
@@ -480,6 +462,24 @@ public class MuleEngineController implements EngineController {
         if (endpointUri.equals("vm://")) {
             endpointUri += channel.getId();
             endpoint.setName(channel.getId());
+            endpoint.setCreateConnector(1);
+        } else {
+            // add source endpoints
+            MuleEndpoint vmEndpoint = new MuleEndpoint();
+            vmEndpoint.setEndpointURI(new MuleEndpointURI(new URI("vm://" + channel.getId()).toString()));
+            vmEndpoint.setTransformer(preprocessorTransformer);
+            
+            /*
+             * XXX: Set create connector to true so that channel readers will
+             * not use an existing connector (one from a different channel). Not
+             * entirely sure why this is required, but if this is set to 0 then
+             * a VM EndpointService mbean is created, and when undeploying
+             * channels a null pointer is sometimes thrown when calling
+             * unregisterComponent(descriptor). The error occurs in
+             * AbstractConnector.unregisterListener because receivers is null.
+             */
+            vmEndpoint.setCreateConnector(1);
+            inboundRouter.addEndpoint(vmEndpoint);
         }
 
         endpoint.setEndpointURI(new MuleEndpointURI(endpointUri, channel.getId()));
