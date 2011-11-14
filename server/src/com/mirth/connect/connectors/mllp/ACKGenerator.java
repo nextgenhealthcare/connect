@@ -61,7 +61,7 @@ public class ACKGenerator {
             ackIsXML = true;
 
             // Use the HL7v2XMLQuickParser to pull out the ack fields
-            HL7v2XMLQuickParser.HL7v2HeaderElements mshElements = HL7v2XMLQuickParser.getInstance().processXMLString(message);
+            HL7v2XMLQuickParser.HL7v2Header mshElements = HL7v2XMLQuickParser.getInstance().processMSH(message);
 
             // Set the ack fields that were retrieved.
             sendingApplication = mshElements.getSendingApplication();

@@ -367,7 +367,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
                 return true;
             }
             ResponseAck rack = new ResponseAck(ackString);
-            if (rack.getTypeOfAck()) { // Ack Ok
+            if (rack.isSuccessAck()) { // Ack Ok
                 messageObjectController.setSuccess(messageObject, ackString, null);
                 return true;
             } else {

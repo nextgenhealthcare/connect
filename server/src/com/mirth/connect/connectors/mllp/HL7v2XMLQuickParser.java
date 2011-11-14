@@ -24,7 +24,7 @@ public class HL7v2XMLQuickParser {
 
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private final String mshHedader = "MSH|^~\\&|";
+    private final String mshHeader = "MSH|^~\\&|";
     private final String fieldSeparator = "|";
     private final String componentSeparator = "^";
 
@@ -54,7 +54,24 @@ public class HL7v2XMLQuickParser {
     private final Pattern msg2DataPrecompiled = Pattern.compile("MSG\\.2\\s");
     private final String cm2Data = "CM.2";
     private final Pattern cm2DataPrecompiled = Pattern.compile("CM\\.2\\s");
+
+    private final String msaSegmentName = "MSA";
+    private final Pattern msaSegmentNamePrecompiled = Pattern.compile("MSA\\s", Pattern.MULTILINE);
+    private final String acknowledgmentCodeField = "MSA.1";
+    private final Pattern acknowledgmentCodeFieldPrecompiled = Pattern.compile("MSA\\.1\\s", Pattern.MULTILINE);
+    private final String ackMessageControlIdField = "MSA.2";
+    private final Pattern ackMessageControlIdFieldPrecompiled = Pattern.compile("MSA\\.2\\s", Pattern.MULTILINE);
+    private final String ackTextMessageField = "MSA.3";
+    private final Pattern ackTextMessageFieldPrecompiled = Pattern.compile("MSA\\.3\\s", Pattern.MULTILINE);
+
+    private final String errorSegmentName = "ERR";
+    private final Pattern errorSegmentNamePrecompiled = Pattern.compile("ERR\\s", Pattern.MULTILINE);
+    private final String errorLocationField = "ERR.1";
+    private final Pattern errorLocationFieldPrecompiled = Pattern.compile("ERR\\.1\\s", Pattern.MULTILINE);
+
     private final Pattern whiteSpacePattern = Pattern.compile("\\s");
+    private final Pattern xmlElementPatternPrecompiled = Pattern.compile("</?[^>]+/?>", Pattern.MULTILINE);
+    private final Pattern multipleWhiteSpacePatternPrecompiled = Pattern.compile("\\s+", Pattern.MULTILINE);
 
     private static HL7v2XMLQuickParser instance = null;
 
@@ -79,7 +96,7 @@ public class HL7v2XMLQuickParser {
 
         // MSH|^~\&|senderApp|senderPlace|receiverApp|receiverPlace|timest||msgType^event^msgStructure|msgId|processingId|version
 
-        String msh = mshHedader;
+        String msh = mshHeader;
         msh += senderApp + fieldSeparator;
         msh += senderPlace + fieldSeparator;
         msh += receiverApp + fieldSeparator;
@@ -171,8 +188,14 @@ public class HL7v2XMLQuickParser {
         return getFirstChildContent(xmlInput, startPos);
     }
 
-    public HL7v2HeaderElements processXMLString(String xmlInput) {
-        HL7v2HeaderElements msh = new HL7v2XMLQuickParser.HL7v2HeaderElements();
+    /**
+     * Process only the MSH segment
+     * 
+     * @param xmlInput
+     * @return an hl7HeaderElements object with the content of the message
+     */
+    public HL7v2Header processMSH(String xmlInput) {
+        HL7v2Header msh = new HL7v2Header();
         try {
             String mshHeader = getElementContent(xmlInput, headerSegmentName, headerSegmentNamePrecompiled);
 
@@ -184,12 +207,12 @@ public class HL7v2XMLQuickParser {
             msh.setVersion(getFirstChildContent(getElementContent(mshHeader, msgVersionField, msgVersionFieldPrecompiled), -1).trim());
 
             String msh9 = getElementContent(mshHeader, msg9Field, msg9FieldPrecompiled).trim();
-            if (msh9.indexOf(msg2Data) > 0)
-                msh.setOriginalEvent(getElementContent(msh9, msg2Data, msg2DataPrecompiled).trim()); // Ver
-                                                                                                     // 2.5
-            else if (msh9.indexOf(cm2Data) > 0)
-                msh.setOriginalEvent(getElementContent(msh9, cm2Data, cm2DataPrecompiled).trim()); // Ver
-                                                                                                   // 2.4
+
+            if (msh9.indexOf(msg2Data) > 0) { // Ver 2.5
+                msh.setOriginalEvent(getElementContent(msh9, msg2Data, msg2DataPrecompiled).trim());
+            } else if (msh9.indexOf(cm2Data) > 0) { // Ver 2.4
+                msh.setOriginalEvent(getElementContent(msh9, cm2Data, cm2DataPrecompiled).trim());
+            }
 
             String msh11 = getElementContent(mshHeader, msgh11Field, msgh11FieldPrecompiled);
             msh.setProcId(getElementContent(msh11, procIdData, procIdDataPrecompiled).trim());
@@ -198,10 +221,43 @@ public class HL7v2XMLQuickParser {
             logger.error("Error extracting HL7 from XML in the string " + t + " input string: " + xmlInput);
         }
         return msh;
-
     }
 
-    public class HL7v2HeaderElements {
+    /**
+     * Process only the MSA segment
+     * 
+     * @param xmlInput
+     * @return an hl7HeaderElements object with the content of the message
+     */
+    public HL7v2Header processMSA(String xmlInput) {
+        HL7v2Header msh = new HL7v2Header();
+        try {
+            String msaSegment = getElementContent(xmlInput, msaSegmentName, msaSegmentNamePrecompiled);
+
+            if ((msaSegment == null) || (msaSegment.length() == 0)) {
+                msh.setParseError("No MSA segment found in message");
+                return msh;
+            }
+
+            msh.setAcknowledgmentCode(getFirstChildContent(getElementContent(msaSegment, acknowledgmentCodeField, acknowledgmentCodeFieldPrecompiled), -1).trim());
+            msh.setAckMessageControlId(getFirstChildContent(getElementContent(msaSegment, ackMessageControlIdField, ackMessageControlIdFieldPrecompiled), -1).trim());
+            msh.setAckTextMessage(getFirstChildContent(getElementContent(msaSegment, ackTextMessageField, ackTextMessageFieldPrecompiled), -1).trim());
+            String errorSegment = getElementContent(xmlInput, errorSegmentName, errorSegmentNamePrecompiled);
+
+            if ((errorSegment != null) && (errorSegment.length() > 0)) {
+                msh.setERRFullSegment(errorSegment);
+                String errorDesc = getElementContent(errorSegment, errorLocationField, errorLocationFieldPrecompiled);
+                errorDesc = xmlElementPatternPrecompiled.matcher(errorDesc).replaceAll(":");
+                errorDesc = multipleWhiteSpacePatternPrecompiled.matcher(errorDesc).replaceAll(" ");
+                msh.setError(errorDesc);
+            }
+        } catch (Throwable t) {
+            logger.error("Error extracting HL7 from XML in the string " + t + " input string: " + xmlInput);
+        }
+        return msh;
+    }
+
+    public class HL7v2Header {
         String sendingApplication = "Unknown"; // MSH.3.1
         String sendingFacility = "Unknown"; // MSH.4.1
         String receivingApplication = "MIRTH"; // MSH.5.1
@@ -211,6 +267,14 @@ public class HL7v2XMLQuickParser {
         String procId = "P"; // MSH.11.1
         String procIdMode = ""; // // MSH.11.2
         String version = "2.4"; // MSH.12.1
+
+        String acknowledgmentCode = "CE"; // MSA.1
+        String ackMessageControlId = "Unknown"; // MSA.2
+        String ackTextMessage = "Not valid ACK"; // MSA.3
+
+        String error = null; // ERR.1
+        String parseError = null;
+        String fullSegment = "ERR";
 
         public String toString() {
             return createER7MSH(sendingApplication, sendingFacility, receivingApplication, receivingFacility, "2001111111111", originalEvent, procId, procIdMode, originalId, version);
@@ -286,6 +350,54 @@ public class HL7v2XMLQuickParser {
 
         public void setVersion(String version) {
             this.version = version;
+        }
+
+        public String getAcknowledgmentCode() {
+            return acknowledgmentCode;
+        }
+
+        public void setAcknowledgmentCode(String acknowledgmentCode) {
+            this.acknowledgmentCode = acknowledgmentCode;
+        }
+
+        public String getAckMessageControlId() {
+            return ackMessageControlId;
+        }
+
+        public void setAckMessageControlId(String ackMessageControlId) {
+            this.ackMessageControlId = ackMessageControlId;
+        }
+
+        public String getAckTextMessage() {
+            return ackTextMessage;
+        }
+
+        public void setAckTextMessage(String ackTextMessage) {
+            this.ackTextMessage = ackTextMessage;
+        }
+
+        public String getError() {
+            return error;
+        }
+
+        public void setError(String error) {
+            this.error = error;
+        }
+        
+        public String getParseError() {
+            return parseError;
+        }
+        
+        public void setParseError(String parseError) {
+            this.parseError = parseError;
+        }
+        
+        public String getERRFullSegment() {
+            return fullSegment;
+        }
+
+        public void setERRFullSegment(String fullSegment) {
+            this.fullSegment = fullSegment;
         }
     }
 }
