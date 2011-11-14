@@ -86,6 +86,7 @@ public class MuleEngineController implements EngineController {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private ChannelStatisticsController channelStatisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
+    private ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
@@ -302,6 +303,12 @@ public class MuleEngineController implements EngineController {
 
             // Remove the channels from the cache and unregister them
             for (String registeredChannelId : registeredChannelIds) {
+                try {
+                    channelStatusController.stopChannel(registeredChannelId);
+                } catch (Exception e) {
+                    logger.error("Unable to stop channel " + registeredChannelId + " before undeploying it.", e);
+                }
+                
                 channelController.removeDeployedChannelFromCache(registeredChannelId);
                 unregisterChannel(registeredChannelId);
                 
