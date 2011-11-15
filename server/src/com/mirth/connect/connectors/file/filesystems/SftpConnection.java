@@ -12,6 +12,8 @@ package com.mirth.connect.connectors.file.filesystems;
 import java.io.ByteArrayInputStream;
 import java.io.FilenameFilter;
 import java.io.InputStream;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -130,7 +132,7 @@ public class SftpConnection implements FileSystemConnection {
             filenameFilter = new WildcardFileFilter(filenamePattern);
         }
 	    
-		client.cd(fromDir);
+		client.cd(URLDecoder.decode(fromDir, Charset.defaultCharset().name()));
 		@SuppressWarnings("unchecked")
         Vector<ChannelSftp.LsEntry> entries = client.ls(".");
 		List<FileInfo> files = new ArrayList<FileInfo>(entries.size());
