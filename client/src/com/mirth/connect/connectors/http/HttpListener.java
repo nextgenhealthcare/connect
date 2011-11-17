@@ -28,6 +28,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -297,7 +298,8 @@ public class HttpListener extends ConnectorClass {
             // ignore exceptions getting the server ip
         }
 
-        httpUrlField.setText("http://" + server + ":" + listenerPortField.getText() + (contextPathField.getText().startsWith("/") ? "" : "/") + contextPathField.getText());
+        // Display: http://server:port/contextpath/
+        httpUrlField.setText("http://" + server + ":" + listenerPortField.getText() + (contextPathField.getText().startsWith("/") ? "" : "/") + contextPathField.getText() + ((StringUtils.isBlank(contextPathField.getText()) || contextPathField.getText().endsWith("/")) ? "" : "/"));
     }
 
     public void setResponseHeaders(LinkedHashMap<String, String> responseHeaders) {
