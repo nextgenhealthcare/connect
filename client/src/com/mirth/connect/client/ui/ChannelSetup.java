@@ -65,6 +65,9 @@ public class ChannelSetup extends javax.swing.JPanel {
     private static final String DATABASE_READER = "Database Reader";
     private static final String HTTP_LISTENER = "HTTP Listener";
     private static final String HTTP_BODY_ONLY = "receiverBodyOnly";
+    private static final String EMAIL_READER = "Email Reader";
+    private static final String EMAIL_CONTENT_ALL = "content";
+    private static final String EMAIL_CONTENT_ALL_VALUE = "All";
     private final String STATUS_COLUMN_NAME = "Status";
     private final String DESTINATION_COLUMN_NAME = "Destination";
     private final String CONNECTOR_TYPE_COLUMN_NAME = "Connector Type";
@@ -1943,6 +1946,11 @@ public class ChannelSetup extends javax.swing.JPanel {
         } else if (((String) sourceSourceDropdown.getSelectedItem()).equals(HTTP_LISTENER)) {
             String bodyOnly = sourceConnectorClass.getProperties().getProperty(HTTP_BODY_ONLY);
             if (bodyOnly != null && bodyOnly.equals(UIConstants.NO_OPTION)) {
+                return true;
+            }
+        } else if (((String) sourceSourceDropdown.getSelectedItem()).equals(EMAIL_READER)) {
+            String emailContent = sourceConnectorClass.getProperties().getProperty(EMAIL_CONTENT_ALL);
+            if (emailContent != null && emailContent.equalsIgnoreCase(EMAIL_CONTENT_ALL_VALUE)) {
                 return true;
             }
         }
