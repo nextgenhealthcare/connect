@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,6 +45,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.configuration.ConfigurationConverter;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
@@ -124,13 +126,16 @@ public class DefaultConfigurationController extends ConfigurationController {
             // Disable delimiter parsing so getString() returns the whole
             // property, even if there are commas
             mirthConfig.setDelimiterParsingDisabled(true);
-            mirthConfig.load("mirth.properties");
+            mirthConfig.setFile(new File(ClassPathResource.getResourceURI("mirth.properties")));
+            mirthConfig.load();
+
+            checkMirthConfigProperties();
 
             // load the server version
-            InputStream is = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
             versionConfig.setDelimiterParsingDisabled(true);
-            versionConfig.load(is);
-            IOUtils.closeQuietly(is);
+            InputStream versionPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
+            versionConfig.load(versionPropertiesStream);
+            IOUtils.closeQuietly(versionPropertiesStream);
 
             if (mirthConfig.getString(PROPERTY_TEMP_DIR) != null) {
                 File tempDataDirFile = new File(mirthConfig.getString(PROPERTY_TEMP_DIR));
@@ -642,7 +647,7 @@ public class DefaultConfigurationController extends ConfigurationController {
              * client side.
              */
             encryptionConfig = new EncryptionSettings(ConfigurationConverter.getProperties(mirthConfig));
-            
+
             File keyStoreFile = new File(properties.getString("keystore.path"));
             String keyStoreType = properties.getString("keystore.storetype");
             char[] keyStorePassword = properties.getString("keystore.storepass").toCharArray();
@@ -676,10 +681,14 @@ public class DefaultConfigurationController extends ConfigurationController {
      * properties. If the properties are not found, reasonable defaults are
      * used.
      * 
-     * @param properties The server properties
-     * @param provider The provider to use (ex. BC)
-     * @param keyStore The keystore from which to load the secret encryption key
-     * @param keyPassword The secret key password
+     * @param properties
+     *            The server properties
+     * @param provider
+     *            The provider to use (ex. BC)
+     * @param keyStore
+     *            The keystore from which to load the secret encryption key
+     * @param keyPassword
+     *            The secret key password
      * @throws Exception
      */
     private void configureEncryption(PropertiesConfiguration properties, Provider provider, KeyStore keyStore, char[] keyPassword) throws Exception {
@@ -776,6 +785,46 @@ public class DefaultConfigurationController extends ConfigurationController {
             logger.debug("truststore file not found, creating new one");
         } else {
             logger.debug("truststore file found: " + trustStoreFile.getAbsolutePath());
+        }
+    }
+
+    /**
+     * Check for required properties that have been added since 2.1.1 and add
+     * them with their default value if they don't already exist.
+     */
+    private void checkMirthConfigProperties() {
+        HashMap<String, Object> defaultProperties = new LinkedHashMap<String, Object>();
+        defaultProperties.put("password.retrylimit", 0);
+        defaultProperties.put("password.lockoutperiod", 0);
+        defaultProperties.put("password.expiration", 0);
+        defaultProperties.put("password.graceperiod", 0);
+        defaultProperties.put("password.reuseperiod", 0);
+        defaultProperties.put("password.reuselimit", 0);
+        
+        HashMap<String, Object> updatedProperties = new LinkedHashMap<String, Object>();
+        
+        for (Entry<String, Object> property : defaultProperties.entrySet()) {
+            if (!mirthConfig.containsKey(property.getKey())) {
+                mirthConfig.setProperty(property.getKey(), property.getValue());
+                
+                // If this is the first added property, add a blank line and comment before it
+                if (updatedProperties.isEmpty()) {
+                    mirthConfig.getLayout().setBlancLinesBefore(property.getKey(), 1);
+                    mirthConfig.getLayout().setComment(property.getKey(), "The following properties were automatically added on startup because they are required.\nIf you recently upgraded Mirth Connect, they may have been added in this version.");
+                }
+                
+                updatedProperties.put(property.getKey(), property.getValue());
+            }
+        }
+        
+        if (!updatedProperties.isEmpty()) {
+            logger.info("Updating mirth.properties: " + updatedProperties);
+            
+            try {
+                mirthConfig.save();
+            } catch (ConfigurationException e) {
+                logger.error("There was an error updating mirth.properties with new required properties. The following properties should be added to mirth.properties manually: " + updatedProperties.toString());
+            }
         }
     }
 }
