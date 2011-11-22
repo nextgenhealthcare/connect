@@ -650,14 +650,13 @@ public class DefaultConfigurationController extends ConfigurationController {
             encryptionConfig = new EncryptionSettings(ConfigurationConverter.getProperties(mirthConfig));
 
             File keyStoreFile = new File(properties.getString("keystore.path"));
-            String keyStoreType = properties.getString("keystore.storetype");
             char[] keyStorePassword = properties.getString("keystore.storepass").toCharArray();
             char[] keyPassword = properties.getString("keystore.keypass").toCharArray();
 
             Provider provider = (Provider) Class.forName(encryptionConfig.getSecurityProvider()).newInstance();
 
             // load the keystore if it exists, otherwise create a new one
-            KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+            KeyStore keyStore = KeyStore.getInstance("JCEKS");
 
             if (keyStoreFile.exists()) {
                 keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
@@ -748,7 +747,7 @@ public class DefaultConfigurationController extends ConfigurationController {
      * 
      */
     private void generateDefaultCertificate(PropertiesConfiguration properties, Provider provider, KeyStore keyStore, char[] keyPassword) throws Exception {
-        String certificateAlias = properties.getString("keystore.alias");
+        String certificateAlias = "mirthconnect";
 
         if (!keyStore.containsAlias(certificateAlias)) {
             // initialize the certificate attributes
@@ -789,9 +788,8 @@ public class DefaultConfigurationController extends ConfigurationController {
      */
     private void generateDefaultTrustStore(PropertiesConfiguration properties) throws Exception {
         File trustStoreFile = new File(properties.getString("truststore.path"));
-        String trustStoreType = properties.getString("truststore.storetype");
         char[] trustStorePassword = properties.getString("truststore.storepass").toCharArray();
-        KeyStore trustStore = KeyStore.getInstance(trustStoreType);
+        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
 
         if (!trustStoreFile.exists()) {
             trustStore.load(null, trustStorePassword);

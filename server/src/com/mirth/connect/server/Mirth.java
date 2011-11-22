@@ -320,18 +320,17 @@ public class Mirth extends Thread {
             sslConnector.setPort(mirthProperties.getInt("https.port"));
             
             SslContextFactory contextFactory = sslConnector.getSslContextFactory();
-            KeyStore keyStore = KeyStore.getInstance(mirthProperties.getString("keystore.storetype"));
+            KeyStore keyStore = KeyStore.getInstance("JCEKS");
             FileInputStream is = new FileInputStream(new File(mirthProperties.getString("keystore.path")));
             
             try {
                 keyStore.load(is, mirthProperties.getString("keystore.storepass").toCharArray());
             } finally {
-                is.close();    
+                IOUtils.closeQuietly(is);  
             }
             
             contextFactory.setKeyStore(keyStore);
             contextFactory.setKeyManagerPassword(mirthProperties.getString("keystore.keypass"));
-            contextFactory.setSslKeyManagerFactoryAlgorithm(mirthProperties.getString("keystore.algorithm"));
             // disabling low and medium strength cipers (see MIRTH-1924)
             contextFactory.setExcludeCipherSuites(new String[] { "SSL_RSA_WITH_DES_CBC_SHA", "SSL_DHE_RSA_WITH_DES_CBC_SHA", "SSL_DHE_DSS_WITH_DES_CBC_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA", "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA", "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA" });
 
