@@ -8,17 +8,6 @@
 		<result property="value" column="VALUE" javaType="java.lang.String" nullValue="" />
 	</resultMap>
 
-	<select id="getKey" resultClass="java.lang.String">
-		SELECT DATA
-		FROM ENCRYPTION_KEY
-	</select>
-
-	<insert id="insertKey" parameterClass="java.lang.String">
-		INSERT INTO
-		ENCRYPTION_KEY (DATA)
-		VALUES (#data#)
-	</insert>
-
 	<select id="getSchemaVersion" resultClass="java.lang.Integer">
 		SELECT VERSION FROM SCHEMA_INFO
 	</select>
