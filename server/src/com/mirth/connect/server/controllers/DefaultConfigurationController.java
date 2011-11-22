@@ -69,6 +69,7 @@ import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.JMXConnection;
@@ -643,7 +644,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             properties.load(ResourceUtil.getResourceStream(this.getClass(), "mirth.properties"));
 
             /*
-             * Load the encryption settings so that they can be references
+             * Load the encryption settings so that they can be referenced
              * client side.
              */
             encryptionConfig = new EncryptionSettings(ConfigurationConverter.getProperties(mirthConfig));
@@ -696,12 +697,25 @@ public class DefaultConfigurationController extends ConfigurationController {
         SecretKey secretKey = null;
 
         if (!keyStore.containsAlias(secretKeyAlias)) {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionConfig.getEncryptionAlgorithm(), provider);
-            keyGenerator.init(encryptionConfig.getEncryptionKeyLength());
-            secretKey = keyGenerator.generateKey();
-            logger.debug("generated new encryption key using provider: " + provider.getName());
+            /*
+             * If we migrated from a version prior to 2.2, then the key from the
+             * ENCRYTPION_KEY table has been added to the CONFIGURATION table.
+             * We want to deserialize it and put it in the new keystore.
+             */
+            if (getProperty(PROPERTIES_CORE, "encryption.key") != null) {
+                String data = getProperty(PROPERTIES_CORE, "encryption.key");
+                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                secretKey = (SecretKey) serializer.fromXML(data);
+                logger.debug("loaded pre-2.2 DESede encryption key from property");
+                removeProperty(PROPERTIES_CORE, "encryption.key");
+            } else {
+                KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionConfig.getEncryptionAlgorithm(), provider);
+                keyGenerator.init(encryptionConfig.getEncryptionKeyLength());
+                secretKey = keyGenerator.generateKey();
+                logger.debug("generated new encryption key using provider: " + provider.getName());
+            }
 
-            // generate new secret key
+            // add secret key to the keystore
             KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(secretKey);
             keyStore.setEntry(secretKeyAlias, entry, new KeyStore.PasswordProtection(keyPassword));
         } else {
