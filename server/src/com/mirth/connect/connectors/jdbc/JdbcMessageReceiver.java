@@ -19,6 +19,7 @@ import java.util.Map;
 import javax.sql.RowSet;
 import javax.sql.rowset.CachedRowSet;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -252,20 +253,46 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
                     return null;
                 }
             } else {
-                boolean validConnection = true;
                 if (connection.isClosed()) {
                     try {
                         connection = connector.getConnection(null);
                     } catch (Exception e) {
-                        validConnection = false;
-                        logger.error(e);
+                        logger.error("Error trying to establish a connection to the datatabase receiver in channel: " + connector.getChannelId(), e);
+                        return new ArrayList();
                     }
                 }
 
-                if (validConnection) {
+                try {
                     return new QueryRunner().query(connection, readStmt, new MapListHandler(), JdbcUtils.getParams(getEndpointURI(), readParams, null));
-                } else {
-                    return new ArrayList();
+                } catch (SQLException e) {
+                    /*
+                     * Check if the connection is still valid. Apache pools
+                     * throws an unexpected error when calling isValid for some
+                     * drivers (i.e. informix), so assume the connection is not
+                     * valid if an exception occurs
+                     */
+                    boolean validConnection = true;
+                    try {
+                        validConnection = connection.isValid(10000);
+                    } catch (Throwable t) {
+                        validConnection = false;
+                    }
+
+                    /*
+                     * If the connection is not valid, then get a new connection
+                     * and retry the query now.
+                     */
+                    if (!validConnection) {
+                        try {
+                            DbUtils.closeQuietly(connection);
+                            connection = connector.getConnection(null);
+                            return new QueryRunner().query(connection, readStmt, new MapListHandler(), JdbcUtils.getParams(getEndpointURI(), readParams, null));
+                        } catch (SQLException e2) {
+                            e = e2;
+                        }
+                    }
+
+                    throw e;
                 }
             }
         } catch (Exception e) {
