@@ -81,6 +81,7 @@ public class DefaultInputHandler extends InputHandler
 
         addKeyBinding("C+ENTER", REPEAT);
         addKeyBinding("S+ENTER", INSERT_CR_BREAK);
+
         // Clipboard
         addKeyBinding("C+C", CLIP_COPY);
         addKeyBinding("C+V", CLIP_PASTE);
@@ -94,6 +95,34 @@ public class DefaultInputHandler extends InputHandler
         addKeyBinding("C+S", SAVE);
         
         addKeyBinding("C+F", FIND);
+        
+        /*
+         * MIRTH-1225 and MIRTH-2019: Sometimes CTRL might not be the same as
+         * the OS defined menu shortcut key mask. For example, this is COMMAND
+         * on OSX. In this case, we want both CTRL and COMMAND to work.
+         */
+        if (InputEvent.CTRL_MASK != Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) {
+            addKeyBinding("X+BACK_SPACE", BACKSPACE_WORD);
+            addKeyBinding("X+DELETE", DELETE_WORD);
+            addKeyBinding("X+\\", TOGGLE_RECT);
+            addKeyBinding("X+A", SELECT_ALL);
+            addKeyBinding("X+HOME", DOCUMENT_HOME);
+            addKeyBinding("X+END", DOCUMENT_END);
+            addKeyBinding("XS+HOME", SELECT_DOC_HOME);
+            addKeyBinding("XS+END", SELECT_DOC_END);
+            addKeyBinding("X+LEFT", PREV_WORD);
+            addKeyBinding("XS+LEFT", SELECT_PREV_WORD);
+            addKeyBinding("X+RIGHT", NEXT_WORD);
+            addKeyBinding("XS+RIGHT", SELECT_NEXT_WORD);
+            addKeyBinding("X+ENTER", REPEAT);
+            addKeyBinding("X+C", CLIP_COPY);
+            addKeyBinding("X+V", CLIP_PASTE);
+            addKeyBinding("X+X", CLIP_CUT);
+            addKeyBinding("X+Z", UNDO);
+            addKeyBinding("X+Y", REDO);
+            addKeyBinding("X+S", SAVE);
+            addKeyBinding("X+F", FIND);
+        }
     }
 
     /**
@@ -299,13 +328,22 @@ public class DefaultInputHandler extends InputHandler
                     modifiers |= InputEvent.ALT_MASK;
                     break;
                 case 'C':
-                    modifiers |= Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+                    modifiers |= InputEvent.CTRL_MASK;
                     break;
                 case 'M':
                     modifiers |= InputEvent.META_MASK;
                     break;
                 case 'S':
                     modifiers |= InputEvent.SHIFT_MASK;
+                    break;
+                case 'X':
+                    /*
+                     * MIRTH-1225 and MIRTH-2019: Sometimes CTRL might not
+                     * be the same as the OS defined menu shortcut key mask.
+                     * For example, this is COMMAND on OSX. This special
+                     * case uses that menu shortcut key mask.
+                     */
+                    modifiers |= Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
                     break;
                 }
             }

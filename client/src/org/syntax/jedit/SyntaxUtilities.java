@@ -250,7 +250,8 @@ public class SyntaxUtilities
              * MIRTH-2000: We want to replace all invalid control characters
              * with a bold red question mark '?'. Instead of rendering each
              * token as a whole string, render each character individually. If
-             * it is an invalid character, render it is a red question mark '?'.
+             * it is an invalid character, render it as a bold red question mark
+             * '?'.
              */
             int tokenLength = line.getEndIndex();
             for (int i = line.getBeginIndex(); i < tokenLength; i++) {

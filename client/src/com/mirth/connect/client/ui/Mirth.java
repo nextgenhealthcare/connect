@@ -10,6 +10,7 @@
 package com.mirth.connect.client.ui;
 
 import java.awt.Color;
+import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -90,15 +91,20 @@ public class Mirth {
     	return (LoginPanel.getInstance().isVisible() || (PlatformUI.MIRTH_FRAME != null && PlatformUI.MIRTH_FRAME.logout(true)));
     }
 
-    private static void createMacKeyBindings() {
-        int acceleratorKey = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    /**
+     * Create the alternate key bindings for the menu shortcut key mask. This is
+     * called if the menu shortcut key mask is not the CTRL key (i.e. COMMAND on
+     * OSX)
+     */
+    private static void createAlternateKeyBindings() {
+        int acceleratorKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
         // Add the common KeyBindings for macs
         KeyBinding[] defaultBindings = {
             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_C, acceleratorKey), DefaultEditorKit.copyAction),
             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_V, acceleratorKey), DefaultEditorKit.pasteAction),
             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_X, acceleratorKey), DefaultEditorKit.cutAction),
             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_A, acceleratorKey), DefaultEditorKit.selectAllAction),
-            // deleteNextWordAction and deletePrevWordAction not available in Java 1.5
+            // deleteNextWordAction and deletePrevWordAction were not available in Java 1.5
             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, acceleratorKey), DefaultEditorKit.deleteNextWordAction),
             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, acceleratorKey), DefaultEditorKit.deletePrevWordAction),
             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, acceleratorKey), DefaultEditorKit.nextWordAction),
@@ -112,11 +118,13 @@ public class Mirth {
         };
 
         keyMapBindings(new javax.swing.JTextField(), defaultBindings);
-        keyMapBindings(new javax.swing.JEditorPane(), defaultBindings);
+        keyMapBindings(new javax.swing.JPasswordField(), defaultBindings);
+        keyMapBindings(new javax.swing.JTextPane(), defaultBindings);
         keyMapBindings(new javax.swing.JTextArea(), defaultBindings);
-        keyMapBindings(new com.mirth.connect.client.ui.components.MirthTextArea(), defaultBindings);
         keyMapBindings(new com.mirth.connect.client.ui.components.MirthTextField(), defaultBindings);
+        keyMapBindings(new com.mirth.connect.client.ui.components.MirthPasswordField(), defaultBindings);
         keyMapBindings(new com.mirth.connect.client.ui.components.MirthTextPane(), defaultBindings);
+        keyMapBindings(new com.mirth.connect.client.ui.components.MirthTextArea(), defaultBindings);
     }
 
     private static void keyMapBindings(JTextComponent comp, KeyBinding[] bindings) {
@@ -166,8 +174,17 @@ public class Mirth {
                     UIManager.setLookAndFeel(look);
                     UIManager.put("win.xpstyle.name", "metallic");
                     LookAndFeelAddons.setAddon(WindowsLookAndFeelAddons.class);
+                    
+                    /*
+                     * MIRTH-1225 and MIRTH-2019: Create alternate key bindings
+                     * if CTRL is not the same as the menu shortcut key (i.e.
+                     * COMMAND on OSX)
+                     */
+                    if (InputEvent.CTRL_MASK != Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) {
+                        createAlternateKeyBindings();
+                    }
+                    
                     if (System.getProperty("os.name").toLowerCase().lastIndexOf("mac") != -1) {
-                        createMacKeyBindings();
                         OSXAdapter.setAboutHandler(Mirth.class, Mirth.class.getDeclaredMethod("aboutMac", (Class[]) null));
                         OSXAdapter.setQuitHandler(Mirth.class, Mirth.class.getDeclaredMethod("quitMac", (Class[]) null));
                     }

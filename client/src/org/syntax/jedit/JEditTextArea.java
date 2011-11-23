@@ -733,7 +733,7 @@ public class JEditTextArea extends JComponent {
 				if (offset + segmentOffset < lineSegment.offset + length) {
 					lineSegment.count = offset - (lineSegment.offset - segmentOffset);
 					
-					// MIRTH: 2000 - See comment above
+					// MIRTH-2000: See comment above
 					int padding = 0;
 					if (invalidCharWidthDiff != 0) {
     					for (int i = lineSegment.getBeginIndex(); i < lineSegment.getEndIndex(); i++) {
@@ -747,7 +747,7 @@ public class JEditTextArea extends JComponent {
 				} else {
 					lineSegment.count = length;
 					
-					// MIRTH: 2000 - See comment above
+					// MIRTH-2000: See comment above
 					int padding = 0;
 					if (invalidCharWidthDiff != 0) {
                         for (int i = lineSegment.getBeginIndex(); i < lineSegment.getEndIndex(); i++) {
