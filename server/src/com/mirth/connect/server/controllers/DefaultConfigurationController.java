@@ -658,7 +658,8 @@ public class DefaultConfigurationController extends ConfigurationController {
             /*
              * If we have the encryption key property in the database, that
              * means the previous keystore was of type jks, so we want to delete
-             * it so that a new jceks one can be created.
+             * it so that a new jceks one can be created. This should only
+             * execute once.
              */
             if (keyStoreFile.exists() && (getProperty(PROPERTIES_CORE, "encryption.key") != null)) {
                 logger.debug("deleting pre-2.2 jks keystore");
@@ -691,8 +692,6 @@ public class DefaultConfigurationController extends ConfigurationController {
      * properties. If the properties are not found, reasonable defaults are
      * used.
      * 
-     * @param properties
-     *            The server properties
      * @param provider
      *            The provider to use (ex. BC)
      * @param keyStore
@@ -702,21 +701,22 @@ public class DefaultConfigurationController extends ConfigurationController {
      * @throws Exception
      */
     private void configureEncryption(Provider provider, KeyStore keyStore, char[] keyPassword) throws Exception {
-        String secretKeyAlias = "encryption";
+        final String secretKeyAlias = "encryption";
         SecretKey secretKey = null;
 
         if (!keyStore.containsAlias(secretKeyAlias)) {
             /*
              * If we migrated from a version prior to 2.2, then the key from the
              * ENCRYTPION_KEY table has been added to the CONFIGURATION table.
-             * We want to deserialize it and put it in the new keystore.
+             * We want to deserialize it and put it in the new keystore. We also
+             * need to delete the property so that this only executes once.
              */
             if (getProperty(PROPERTIES_CORE, "encryption.key") != null) {
                 String data = getProperty(PROPERTIES_CORE, "encryption.key");
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 secretKey = (SecretKey) serializer.fromXML(data);
-                logger.debug("loaded pre-2.2 DESede encryption key from property");
                 removeProperty(PROPERTIES_CORE, "encryption.key");
+                logger.debug("saved pre-2.2 DESede encryption key from property");
             } else {
                 KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionConfig.getEncryptionAlgorithm(), provider);
                 keyGenerator.init(encryptionConfig.getEncryptionKeyLength());
@@ -724,7 +724,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 logger.debug("generated new encryption key using provider: " + provider.getName());
             }
 
-            // add secret key to the keystore
+            // add the secret key to the keystore using the key password
             KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(secretKey);
             keyStore.setEntry(secretKeyAlias, entry, new KeyStore.PasswordProtection(keyPassword));
         } else {
@@ -757,7 +757,7 @@ public class DefaultConfigurationController extends ConfigurationController {
      * 
      */
     private void generateDefaultCertificate(Provider provider, KeyStore keyStore, char[] keyPassword) throws Exception {
-        String certificateAlias = "mirthconnect";
+        final String certificateAlias = "mirthconnect";
 
         if (!keyStore.containsAlias(certificateAlias)) {
             // initialize the certificate attributes
@@ -767,7 +767,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA", provider);
             keyPairGenerator.initialize(1024);
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
-            logger.debug("generated new key pair using probider: " + provider.getName());
+            logger.debug("generated new key pair using provider: " + provider.getName());
 
             // set the certificate attributes
             X509V1CertificateGenerator certificateGenerator = new X509V1CertificateGenerator();
@@ -784,7 +784,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             X509Certificate certificate = certificateGenerator.generate(keyPair.getPrivate());
             logger.debug("generated new certificate with serial number: " + certificate.getSerialNumber());
 
-            // add the generated certificate and save the keystore
+            // add the generated certificate to the keystore using the key password
             keyStore.setKeyEntry(certificateAlias, keyPair.getPrivate(), keyPassword, new Certificate[] { certificate });
         } else {
             logger.debug("found certificate in keystore");
