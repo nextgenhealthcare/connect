@@ -48,6 +48,7 @@ import org.apache.commons.configuration.ConfigurationConverter;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -652,9 +653,18 @@ public class DefaultConfigurationController extends ConfigurationController {
             File keyStoreFile = new File(properties.getString("keystore.path"));
             char[] keyStorePassword = properties.getString("keystore.storepass").toCharArray();
             char[] keyPassword = properties.getString("keystore.keypass").toCharArray();
-
             Provider provider = (Provider) Class.forName(encryptionConfig.getSecurityProvider()).newInstance();
 
+            /*
+             * If we have the encryption key property in the database, that
+             * means the previous keystore was of type jks, so we want to delete
+             * it so that a new jceks one can be created.
+             */
+            if (keyStoreFile.exists() && (getProperty(PROPERTIES_CORE, "encryption.key") != null)) {
+                logger.debug("deleting pre-2.2 jks keystore");
+                FileUtils.deleteQuietly(keyStoreFile);
+            }
+            
             // load the keystore if it exists, otherwise create a new one
             KeyStore keyStore = KeyStore.getInstance("JCEKS");
 
@@ -666,8 +676,8 @@ public class DefaultConfigurationController extends ConfigurationController {
                 logger.debug("keystore file not found, created new one");
             }
 
-            configureEncryption(properties, provider, keyStore, keyPassword);
-            generateDefaultCertificate(properties, provider, keyStore, keyPassword);
+            configureEncryption(provider, keyStore, keyPassword);
+            generateDefaultCertificate(provider, keyStore, keyPassword);
             keyStore.store(new FileOutputStream(keyStoreFile), keyStorePassword);
 
             generateDefaultTrustStore(properties);
@@ -691,7 +701,7 @@ public class DefaultConfigurationController extends ConfigurationController {
      *            The secret key password
      * @throws Exception
      */
-    private void configureEncryption(PropertiesConfiguration properties, Provider provider, KeyStore keyStore, char[] keyPassword) throws Exception {
+    private void configureEncryption(Provider provider, KeyStore keyStore, char[] keyPassword) throws Exception {
         String secretKeyAlias = "encryption";
         SecretKey secretKey = null;
 
@@ -746,7 +756,7 @@ public class DefaultConfigurationController extends ConfigurationController {
      * generate a new one.
      * 
      */
-    private void generateDefaultCertificate(PropertiesConfiguration properties, Provider provider, KeyStore keyStore, char[] keyPassword) throws Exception {
+    private void generateDefaultCertificate(Provider provider, KeyStore keyStore, char[] keyPassword) throws Exception {
         String certificateAlias = "mirthconnect";
 
         if (!keyStore.containsAlias(certificateAlias)) {
