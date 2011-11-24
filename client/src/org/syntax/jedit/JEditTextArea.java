@@ -2101,7 +2101,8 @@ public class JEditTextArea extends JComponent {
 			if (popup != null && popup.isVisible())
 				return;
 
-			setSelectionRectangular((evt.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0);
+			// MIRTH-2019: Allow CTRL, ALT, or COMMAND (OSX) for rectangle selection drag
+			setSelectionRectangular((((evt.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0) || ((evt.getModifiers() & InputEvent.CTRL_MASK) != 0) || ((evt.getModifiers() & InputEvent.ALT_MASK) != 0)));
 			select(getMarkPosition(), xyToOffset(evt.getX(), evt.getY()));
 		}
 
@@ -2128,6 +2129,16 @@ public class JEditTextArea extends JComponent {
 			setCaretVisible(true);
 			focusedComponent = JEditTextArea.this;
 
+			boolean rightClick = ((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0);
+			
+            /*
+             * MIRTH-2019: Also allow CTRL + Click if CTRL is not the menu
+             * shortcut key mask (i.e. OSX)
+             */
+			if (InputEvent.CTRL_MASK != Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) {
+			    rightClick = (rightClick || ((evt.getModifiers() & InputEvent.CTRL_MASK) != 0));
+			}
+			
 			if ((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0 && popup != null) {
 
 				// setCursor(Cursor.getDefaultCursor());
@@ -2166,7 +2177,8 @@ public class JEditTextArea extends JComponent {
 		private void doSingleClick(MouseEvent evt, int line, int offset, int dot) {
 			if (isEnabled()) {
 				if ((evt.getModifiers() & InputEvent.SHIFT_MASK) != 0) {
-					rectSelect = (evt.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
+				    // MIRTH-2019: Allow CTRL, ALT, or COMMAND (OSX) for rectangle selection drag
+					rectSelect = (((evt.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0) || ((evt.getModifiers() & InputEvent.CTRL_MASK) != 0) || ((evt.getModifiers() & InputEvent.ALT_MASK) != 0));
 					select(getMarkPosition(), dot);
 				} else
 					setCaretPosition(dot);

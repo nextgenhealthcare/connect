@@ -18,6 +18,7 @@ import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -4268,7 +4269,7 @@ public class Frame extends JXFrame {
     }
 
     public synchronized void updateAcceleratorKeyPressed(InputEvent e) {
-        this.acceleratorKeyPressed = ((e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0);
+        this.acceleratorKeyPressed = (((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0) || ((e.getModifiers() & InputEvent.CTRL_MASK) > 0) || ((e.getModifiers() & InputEvent.ALT_MASK) > 0));
     }
     
     public synchronized boolean isAcceleratorKeyPressed() {

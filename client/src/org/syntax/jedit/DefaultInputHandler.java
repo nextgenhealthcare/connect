@@ -91,7 +91,6 @@ public class DefaultInputHandler extends InputHandler
         addKeyBinding("C+Z", UNDO);
         addKeyBinding("C+Y", REDO);
 
-        addKeyBinding("A+S", SAVE);
         addKeyBinding("C+S", SAVE);
         
         addKeyBinding("C+F", FIND);

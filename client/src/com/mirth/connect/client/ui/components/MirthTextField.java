@@ -9,6 +9,8 @@
 
 package com.mirth.connect.client.ui.components;
 
+import java.awt.Toolkit;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -67,7 +69,7 @@ public class MirthTextField extends javax.swing.JTextField implements MirthTextI
         this.addKeyListener(new KeyListener() {
 
             public void keyPressed(KeyEvent e) {
-                boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
+                boolean isAccelerated = (((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0) || ((e.getModifiers() & InputEvent.CTRL_MASK) > 0));
                 if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
                     PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
                 }
