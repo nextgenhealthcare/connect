@@ -57,6 +57,7 @@ public class ErrorDialog extends javax.swing.JDialog {
             setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
 
+        cancel.requestFocusInWindow();
         setVisible(true);
     }
 

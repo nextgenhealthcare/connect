@@ -249,7 +249,7 @@ public class ChangePasswordDialog extends javax.swing.JDialog {
      * the information.
      */
     private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishButtonActionPerformed
-        finishButton.requestFocusInWindow();
+        password.requestFocusInWindow();
     
         if (!String.valueOf(password.getPassword()).equals(String.valueOf(confirmPassword.getPassword()))) {
             parent.alertError(this, "The passwords you entered do not match.");

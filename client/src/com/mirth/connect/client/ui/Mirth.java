@@ -18,6 +18,7 @@ import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -245,6 +246,10 @@ public class Mirth {
                 UIManager.put("ComboBox.font", UIConstants.TEXTFIELD_PLAIN_FONT);
                 UIManager.put("JXLoginPanel.banner.font", UIConstants.BANNER_FONT);
                 UIManager.put("List.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+
+                InputMap im = (InputMap) UIManager.get("Button.focusInputMap");
+                im.put(KeyStroke.getKeyStroke("pressed ENTER"), "pressed");
+                im.put(KeyStroke.getKeyStroke("released ENTER"), "released");
 
                 try {
                     UIManager.put("wizard.sidebar.image", ImageIO.read(com.mirth.connect.client.ui.Frame.class.getResource("images/wizardsidebar.png")));
