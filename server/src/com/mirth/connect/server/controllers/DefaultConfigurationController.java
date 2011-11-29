@@ -711,7 +711,15 @@ public class DefaultConfigurationController extends ConfigurationController {
              * We want to deserialize it and put it in the new keystore. We also
              * need to delete the property so that this only executes once.
              */
-            if (getProperty(PROPERTIES_CORE, "encryption.key") != null) {
+            boolean migrateEncryptionKey = false;
+            
+            try {
+                migrateEncryptionKey = (getProperty(PROPERTIES_CORE, "encryption.key") != null);
+            } catch (Exception e) {
+                logger.trace("attempted to load encryption.key property from database before it has been created");
+            }
+            
+            if (migrateEncryptionKey) {
                 String data = getProperty(PROPERTIES_CORE, "encryption.key");
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 secretKey = (SecretKey) serializer.fromXML(data);
