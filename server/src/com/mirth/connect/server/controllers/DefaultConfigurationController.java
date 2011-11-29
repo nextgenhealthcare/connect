@@ -740,7 +740,6 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         encryptor = new KeyEncryptor();
         encryptor.setProvider(provider);
-        encryptor.setAlgorithm(encryptionConfig.getEncryptionAlgorithm());
         encryptor.setKey(secretKey);
         encryptor.setFormat(Output.BASE64);
 

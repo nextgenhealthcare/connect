@@ -677,7 +677,6 @@ public class Client {
         try {
             EncryptionSettings encryptionSettings = getEncryptionSettings();
             encryptor = new KeyEncryptor();
-            encryptor.setAlgorithm(encryptionSettings.getEncryptionAlgorithm());
             encryptor.setProvider((Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance());
             SecretKey secretKey = new SecretKeySpec(encryptionSettings.getSecretKey(), encryptionSettings.getDigestAlgorithm());
             encryptor.setKey(secretKey);
