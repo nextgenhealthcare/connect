@@ -583,6 +583,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
+    @Override
     public String getProperty(String category, String name) {
         logger.debug("retrieving property: category=" + category + ", name=" + name);
 
@@ -592,7 +593,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             parameterMap.put("name", name);
             return (String) SqlConfig.getSqlMapClient().queryForObject("Configuration.selectProperty", parameterMap);
         } catch (Exception e) {
-            logger.error("Could not retrieve property: category=" + category + ", name=" + name, e);
+            logger.warn("Could not retrieve property: category=" + category + ", name=" + name, e);
         }
 
         return null;
@@ -661,15 +662,7 @@ public class DefaultConfigurationController extends ConfigurationController {
              * it so that a new jceks one can be created. This should only
              * execute once.
              */
-            boolean deleteJksKeyStore = false;
-
-            try {
-                deleteJksKeyStore = (getProperty(PROPERTIES_CORE, "encryption.key") != null);
-            } catch (Exception e) {
-                logger.trace("encryption.key property was not found when checking if the JKS keystore should be deleted");
-            }
-            
-            if (keyStoreFile.exists() && deleteJksKeyStore) {
+            if (keyStoreFile.exists() && (getProperty(PROPERTIES_CORE, "encryption.key") != null)) {
                 logger.debug("deleting pre-2.2 jks keystore");
                 FileUtils.deleteQuietly(keyStoreFile);
             }
@@ -719,15 +712,7 @@ public class DefaultConfigurationController extends ConfigurationController {
              * We want to deserialize it and put it in the new keystore. We also
              * need to delete the property so that this only executes once.
              */
-            boolean migrateEncryptionKey = false;
-            
-            try {
-                migrateEncryptionKey = (getProperty(PROPERTIES_CORE, "encryption.key") != null);
-            } catch (Exception e) {
-                logger.trace("attempted to load encryption.key property from database before it has been created");
-            }
-            
-            if (migrateEncryptionKey) {
+            if (getProperty(PROPERTIES_CORE, "encryption.key") != null) {
                 String data = getProperty(PROPERTIES_CORE, "encryption.key");
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 secretKey = (SecretKey) serializer.fromXML(data);
