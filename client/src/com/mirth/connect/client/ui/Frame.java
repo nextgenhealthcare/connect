@@ -2893,7 +2893,7 @@ public class Frame extends JXFrame {
             channelXML = ImportConverter.convertChannelString(content);
         } catch (Exception e) {
             if (showAlerts) {
-                alertException(this, e.getStackTrace(), "Invalid channel file. " + e.getMessage());
+                alertException(this, e.getStackTrace(), "Invalid channel file:\n" + e.getMessage());
             }
         }
 
@@ -2904,7 +2904,7 @@ public class Frame extends JXFrame {
             importChannel = (Channel) serializer.fromXML(channelXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"));
         } catch (Exception e) {
             if (showAlerts) {
-                alertException(this, e.getStackTrace(), "Invalid channel file. " + e.getMessage());
+                alertException(this, e.getStackTrace(), "Invalid channel file:\n" + e.getMessage());
             }
             return;
         }
