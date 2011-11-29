@@ -713,9 +713,16 @@ public class JEditTextArea extends JComponent {
              * invalid control characters as a space with a smaller width than a
              * standard space. Since we are changing the character that is
              * rendered for these invalid control characters, this width
-             * difference must be used to adjust the cursor position.
+             * difference must be used to adjust the cursor position. For some
+             * reason, OSX is showing the width of the control character to be
+             * 0, so don't determine the char width if control characters show
+             * as 0. Note that selection via mouse is still off on Windows, and
+             * both typing and selection are off on Mac.
              */
-            int invalidCharWidthDiff = fm.charWidth('w') - fm.charWidth('\u0001');
+            int invalidCharWidthDiff = 0;
+            if (fm.charWidth('\u0001') > 0) {
+                invalidCharWidthDiff = fm.charWidth('w') - fm.charWidth('\u0001');
+            }
 
 			for (;;) {
 				byte id = tokens.id;
