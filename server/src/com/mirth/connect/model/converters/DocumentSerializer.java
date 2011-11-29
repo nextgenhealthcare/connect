@@ -110,7 +110,7 @@ public class DocumentSerializer implements IXMLSerializer<Document> {
         try {
             document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(source)));
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e);
         }
 
         return document;

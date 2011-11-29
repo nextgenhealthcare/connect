@@ -15,7 +15,7 @@ import java.util.Properties;
 import com.mirth.connect.model.MessageObject.Protocol;
 
 public class SerializerFactory {
-    public static IXMLSerializer<String> getSerializer(Protocol protocol, Map properties) {
+    public static IXMLSerializer<String> getSerializer(Protocol protocol, Map<?, ?> properties) {
         if (protocol.equals(Protocol.HL7V2)) {
             return new ER7Serializer(properties);
         } else if (protocol.equals(Protocol.HL7V3)) {
