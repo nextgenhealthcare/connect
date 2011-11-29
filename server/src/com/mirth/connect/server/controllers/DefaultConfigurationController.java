@@ -661,7 +661,15 @@ public class DefaultConfigurationController extends ConfigurationController {
              * it so that a new jceks one can be created. This should only
              * execute once.
              */
-            if (keyStoreFile.exists() && (getProperty(PROPERTIES_CORE, "encryption.key") != null)) {
+            boolean deleteJksKeyStore = false;
+
+            try {
+                deleteJksKeyStore = (getProperty(PROPERTIES_CORE, "encryption.key") != null);
+            } catch (Exception e) {
+                logger.trace("encryption.key property was not found when checking if the JKS keystore should be deleted");
+            }
+            
+            if (keyStoreFile.exists() && deleteJksKeyStore) {
                 logger.debug("deleting pre-2.2 jks keystore");
                 FileUtils.deleteQuietly(keyStoreFile);
             }
