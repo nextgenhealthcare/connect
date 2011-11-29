@@ -130,7 +130,7 @@ public class FtpConnection implements FileSystemConnection {
             filenameFilter = new WildcardFileFilter(filenamePattern);
         }
 	    
-		if (!client.changeWorkingDirectory(fromDir)) {
+		if (!cwd(fromDir)) {
 			logger.error("listFiles.changeWorkingDirectory: " + client.getReplyCode() + "-" + client.getReplyString());
 			throw new IOException("Ftp error: " + client.getReplyCode());
 		}
@@ -170,7 +170,7 @@ public class FtpConnection implements FileSystemConnection {
 	@Override
 	public boolean canRead(String readDir) {
 	    try {
-	        return client.changeWorkingDirectory(readDir);
+	        return cwd(readDir);
 	    } catch (IOException e) {
 	        return false;
 	    }
@@ -179,17 +179,26 @@ public class FtpConnection implements FileSystemConnection {
 	@Override
 	public boolean canWrite(String writeDir) {
         try {
-            return client.changeWorkingDirectory(writeDir);
+            return cwd(writeDir);
         } catch (IOException e) {
             return false;
         }
 	}
+
+    // See MIRTH-1873
+    private boolean cwd(String destDir) throws IOException {
+        if (destDir.equals("/")) {
+            return true;
+        }
+
+        return client.changeWorkingDirectory(destDir);
+    }
 	
 	@Override
 	public InputStream readFile(String file, String fromDir)
 		throws Exception
 	{
-		if (!client.changeWorkingDirectory(fromDir)) {
+		if (!cwd(fromDir)) {
 			logger.error("readFile.changeWorkingDirectory: " + client.getReplyCode() + "-" + client.getReplyString());
 			throw new IOException("Ftp error: " + client.getReplyCode());
 		}
@@ -233,7 +242,7 @@ public class FtpConnection implements FileSystemConnection {
 	public void delete(String file, String fromDir, boolean mayNotExist)
 		throws Exception
 	{
-		if (!client.changeWorkingDirectory(fromDir)) {
+		if (!cwd(fromDir)) {
 			if (!mayNotExist) {
 				logger.error("delete.changeWorkingDirectory: " + client.getReplyCode() + "-" + client.getReplyString());
 				throw new IOException("Ftp error: " + client.getReplyCode());
@@ -257,7 +266,7 @@ public class FtpConnection implements FileSystemConnection {
 	        return;
 	    }
 	    
-		if (!client.changeWorkingDirectory(dir)) {
+		if (!cwd(dir)) {
 			if (!client.makeDirectory(dir)) {
 				String tempDir = dir;
 				
@@ -288,7 +297,7 @@ public class FtpConnection implements FileSystemConnection {
 						}
 					}
 				}
-			} else if (!client.changeWorkingDirectory(dir)) {
+			} else if (!cwd(dir)) {
 				throw new Exception("Unable to change to destination directory: " + dir);
 			}
 		}
@@ -296,7 +305,7 @@ public class FtpConnection implements FileSystemConnection {
 
 	@Override
 	public void move(String fromName, String fromDir, String toName, String toDir) throws Exception {
-		client.changeWorkingDirectory(fromDir); // start in the read directory
+		cwd(fromDir); // start in the read directory
 		cdmake(toDir);
 
 		try {
@@ -305,7 +314,7 @@ public class FtpConnection implements FileSystemConnection {
 			logger.info("Unable to delete destination file");
 		}
 
-		if (!client.changeWorkingDirectory(fromDir)) {
+		if (!cwd(fromDir)) {
 			throw new Exception("Unable to change to directory: " + fromDir.substring(1) + "/");
 		}
 

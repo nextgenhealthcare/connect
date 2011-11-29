@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -132,7 +133,8 @@ public class SftpConnection implements FileSystemConnection {
             filenameFilter = new WildcardFileFilter(filenamePattern);
         }
 	    
-		client.cd(URLDecoder.decode(fromDir, Charset.defaultCharset().name()));
+        cwd(fromDir);
+		
 		@SuppressWarnings("unchecked")
         Vector<ChannelSftp.LsEntry> entries = client.ls(".");
 		List<FileInfo> files = new ArrayList<FileInfo>(entries.size());
@@ -153,10 +155,16 @@ public class SftpConnection implements FileSystemConnection {
     @Override
     public boolean exists(String file, String path) {
         try {
-            client.cd(path);
+            cwd(path);
             return client.ls(".").contains(file);
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    private void cwd(String path) throws Exception {
+        if (StringUtils.isNotBlank(path)) {
+            client.cd(URLDecoder.decode(path, Charset.defaultCharset().name()));
         }
     }
 
@@ -164,7 +172,7 @@ public class SftpConnection implements FileSystemConnection {
 	public boolean canRead(String readDir) {
 	    try {
 	        lastDir = readDir;
-	        client.cd(readDir);
+	        cwd(readDir);
 	        return true;
 	    } catch (Exception e) {
 	        return false;
@@ -175,7 +183,7 @@ public class SftpConnection implements FileSystemConnection {
 	public boolean canWrite(String writeDir) {
         try {
             lastDir = writeDir;
-            client.cd(writeDir);
+            cwd(writeDir);
             return true;
         } catch (Exception e) {
             return false;
@@ -185,7 +193,7 @@ public class SftpConnection implements FileSystemConnection {
 	@Override
 	public InputStream readFile(String file, String fromDir) throws Exception {
 	    lastDir = fromDir;
-		client.cd(fromDir);
+		cwd(fromDir);
 		return client.get(file);
 	}
 
@@ -217,7 +225,7 @@ public class SftpConnection implements FileSystemConnection {
 	@Override
 	public void delete(String file, String fromDir, boolean mayNotExist) throws Exception
 	{
-		client.cd(fromDir);
+		cwd(fromDir);
 		try {
 			client.rm(file);
 		}
@@ -231,7 +239,7 @@ public class SftpConnection implements FileSystemConnection {
 	private void cdmake(String dir) throws Exception {
 		
 		try {
-			client.cd(dir);
+			cwd(dir);
 		}
 		catch (Exception e) {
 			String toDir = dir;
@@ -258,7 +266,7 @@ public class SftpConnection implements FileSystemConnection {
 	public void move(String fromName, String fromDir, String toName, String toDir)
 		throws Exception
 	{
-		client.cd(fromDir); // start in the read directory
+		cwd(fromDir); // start in the read directory
 		// Create any missing directories in the toDir path
 		cdmake(toDir);
 
@@ -269,7 +277,7 @@ public class SftpConnection implements FileSystemConnection {
 			logger.info("Unable to delete destination file");
 		}
 
-		client.cd(fromDir); // move to the read directory
+		cwd(fromDir); // move to the read directory
 		client.rename(fromName.replaceAll("//", "/"), (toDir + "/" + toName).replaceAll("//", "/"));
 	}
 
