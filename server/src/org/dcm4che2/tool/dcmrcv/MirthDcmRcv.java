@@ -5,6 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.dcm4che2.data.BasicDicomObject;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
@@ -21,7 +23,7 @@ import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
 
 public class MirthDcmRcv extends DcmRcv {
-
+    private Logger logger = Logger.getLogger(this.getClass());
     private AbstractMessageReceiver messageReceiver;
     private JavaScriptPostprocessor postProcessor;
     private UMOEndpoint endpoint;
@@ -35,36 +37,48 @@ public class MirthDcmRcv extends DcmRcv {
 
     @Override
     void onCStoreRQ(Association as, int pcid, DicomObject rq, PDVInputStream dataStream, String tsuid, DicomObject rsp) throws IOException, DicomServiceException {
-        UMOMessage returnMessage = null;
+        ByteArrayOutputStream baos = null;
+        BufferedOutputStream bos = null;
+        DicomOutputStream dos = null;
+
+        String cuid = rq.getString(Tag.AffectedSOPClassUID);
+        String iuid = rq.getString(Tag.AffectedSOPInstanceUID);
+        BasicDicomObject fileMetaInformation = new BasicDicomObject();
+        fileMetaInformation.initFileMetaInformation(cuid, iuid, tsuid);
+
         try {
-            String cuid = rq.getString(Tag.AffectedSOPClassUID);
-            String iuid = rq.getString(Tag.AffectedSOPInstanceUID);
-            BasicDicomObject fmi = new BasicDicomObject();
-            fmi.initFileMetaInformation(cuid, iuid, tsuid);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            BufferedOutputStream bos = new BufferedOutputStream(baos);
-            DicomOutputStream dos = new DicomOutputStream(bos);
-            dos.writeFileMetaInformation(fmi);
+            baos = new ByteArrayOutputStream();
+            bos = new BufferedOutputStream(baos);
+            dos = new DicomOutputStream(bos);
+            dos.writeFileMetaInformation(fileMetaInformation);
             dataStream.copyTo(dos);
-            dos.close();
-            String dcmString = new String(new Base64().encode(baos.toByteArray()));
-            returnMessage = messageReceiver.routeMessage(new MuleMessage(dcmString), endpoint.isSynchronous());
+
+            String dicomMessage = Base64.encodeBase64String(baos.toByteArray());
+            UMOMessage response = messageReceiver.routeMessage(new MuleMessage(dicomMessage), endpoint.isSynchronous());
+
             // We need to check the message status
-            if (returnMessage != null && returnMessage instanceof MuleMessage) {
-                Object payload = returnMessage.getPayload();
+            if ((response != null) && (response instanceof MuleMessage)) {
+                Object payload = response.getPayload();
+
                 if (payload instanceof MessageObject) {
-                    MessageObject messageObjectResponse = (MessageObject) payload;
-                    postProcessor.doPostProcess(messageObjectResponse);
+                    postProcessor.doPostProcess((MessageObject) payload);
                 }
             }
         } catch (Exception e) {
+            logger.error(e);
         } finally {
             // Let the dispose take care of closing the socket
+            IOUtils.closeQuietly(baos);
+            IOUtils.closeQuietly(bos);
+
+            if (dos != null) {
+                dos.close();
+            }
         }
     }
 
+    @Override
     public boolean isStoreFile() {
         return true;
     }
-
 }

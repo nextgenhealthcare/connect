@@ -105,11 +105,21 @@ public class DICOMSerializer implements IXMLSerializer<String> {
                 }
             }
 
-            // parse document into dicomObject
+            // find the charset
+            String charset = null;
+            Element charsetElement = (Element) document.getElementsByTagName("tag00080005").item(0);
+
+            if (charsetElement != null) {
+                charset = charsetElement.getNodeValue();
+            } else {
+                charset = "utf-8";
+            }
+
+            // parse the Document into a DicomObject
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             DicomObject dicomObject = new BasicDicomObject();
             ContentHandlerAdapter contentHandler = new ContentHandlerAdapter(dicomObject);
-            byte[] documentBytes = documentSerializer.toXML(document).trim().getBytes("utf-8");
+            byte[] documentBytes = documentSerializer.toXML(document).trim().getBytes(charset);
             parser.parse(new InputSource(new ByteArrayInputStream(documentBytes)), contentHandler);
             return Base64.encodeBase64String(DICOMUtil.dicomObjectToByteArray(dicomObject));
         } catch (Exception e) {
@@ -138,9 +148,10 @@ public class DICOMSerializer implements IXMLSerializer<String> {
                 final SAXWriter writer = new SAXWriter(handler, null);
                 dis.setHandler(writer);
                 dis.readDicomObject(new BasicDicomObject(), -1);
-
+                String serializedDicomObject = output.toString();
+                
                 // rename the "attr" element to the tag ID
-                Document document = documentSerializer.fromXML(output.toString());
+                Document document = documentSerializer.fromXML(serializedDicomObject);
                 NodeList attrElements = document.getElementsByTagName("attr");
 
                 for (int i = 0; i < attrElements.getLength(); i++) {

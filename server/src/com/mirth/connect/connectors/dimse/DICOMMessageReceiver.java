@@ -9,9 +9,10 @@
 
 package com.mirth.connect.connectors.dimse;
 
-import java.io.IOException;
 import java.net.URI;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.dcm4che2.data.UID;
 import org.dcm4che2.tool.dcmrcv.DcmRcv;
 import org.dcm4che2.tool.dcmrcv.MirthDcmRcv;
@@ -30,40 +31,41 @@ import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
 
 public class DICOMMessageReceiver extends AbstractMessageReceiver {
-    // --- DICOM Specific Variables ---
-
+    private Logger logger = Logger.getLogger(this.getClass());
     protected DICOMConnector connector;
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
     private ConnectorType connectorType = ConnectorType.LISTENER;
-    
-    DcmRcv dcmrcv;
+    private DcmRcv dcmrcv;
 
     public DICOMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
         super(connector, component, endpoint);
-        DICOMConnector tcpConnector = (DICOMConnector) connector;
-        this.connector = tcpConnector;
+        this.connector = (DICOMConnector) connector;
         this.dcmrcv = new MirthDcmRcv(this, postProcessor, endpoint);
     }
 
     @Override
     public void doConnect() throws ConnectException {
-
         disposing.set(false);
         URI uri = endpoint.getEndpointURI().getUri();
+
         try {
             dcmrcv.setPort(uri.getPort());
             dcmrcv.setHostname(uri.getHost());
             dcmrcv.setAEtitle("DCMRCV");
+
             String[] only_def_ts = { UID.ImplicitVRLittleEndian };
             String[] native_le_ts = { UID.ImplicitVRLittleEndian };
             String[] native_ts = { UID.ImplicitVRLittleEndian };
             String[] non_retired_ts = { UID.ImplicitVRLittleEndian };
-            if (connector.getDest() != null && !connector.getDest().equals(""))
+
+            if (StringUtils.isNotBlank(connector.getDest())) {
                 dcmrcv.setDestination(connector.getDest());
-            if (connector.isDefts())
+            }
+
+            if (connector.isDefts()) {
                 dcmrcv.setTransferSyntax(only_def_ts);
-            else if (connector.isNativeData()) {
+            } else if (connector.isNativeData()) {
                 if (connector.isBigendian()) {
                     dcmrcv.setTransferSyntax(native_ts);
                 } else {
@@ -72,66 +74,107 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
             } else if (connector.isBigendian()) {
                 dcmrcv.setTransferSyntax(non_retired_ts);
             }
-            if (connector.getApplicationEntity() != null && !connector.getApplicationEntity().equals(""))
+
+            if (StringUtils.isNotBlank(connector.getApplicationEntity())) {
                 dcmrcv.setAEtitle(connector.getApplicationEntity());
-            if (connector.getReaper() != 10)
+            }
+
+            if (connector.getReaper() != 10) {
                 dcmrcv.setAssociationReaperPeriod(connector.getReaper());
-            if (connector.getIdleto() != 60)
+            }
+
+            if (connector.getIdleto() != 60) {
                 dcmrcv.setIdleTimeout(connector.getIdleto());
-            if (connector.getRequestto() != 5)
+            }
+
+            if (connector.getRequestto() != 5) {
                 dcmrcv.setRequestTimeout(connector.getRequestto());
-            if (connector.getReleaseto() != 5)
+            }
+
+            if (connector.getReleaseto() != 5) {
                 dcmrcv.setReleaseTimeout(connector.getReleaseto());
-            if (connector.getSoclosedelay() != 50)
+            }
+
+            if (connector.getSoclosedelay() != 50) {
                 dcmrcv.setSocketCloseDelay(connector.getSoclosedelay());
-            if (connector.getRspdelay() > 0)
+            }
+
+            if (connector.getRspdelay() > 0) {
                 dcmrcv.setDimseRspDelay(connector.getRspdelay());
-            if (connector.getRcvpdulen() != 16)
+            }
+
+            if (connector.getRcvpdulen() != 16) {
                 dcmrcv.setMaxPDULengthReceive(connector.getRcvpdulen());
-            if (connector.getSndpdulen() != 16)
+            }
+
+            if (connector.getSndpdulen() != 16) {
                 dcmrcv.setMaxPDULengthSend(connector.getSndpdulen());
-            if (connector.getSosndbuf() > 0)
+            }
+
+            if (connector.getSosndbuf() > 0) {
                 dcmrcv.setSendBufferSize(connector.getSosndbuf());
-            if (connector.getSorcvbuf() > 0)
+            }
+
+            if (connector.getSorcvbuf() > 0) {
                 dcmrcv.setReceiveBufferSize(connector.getSorcvbuf());
-            if (connector.getBufsize() != 1)
+            }
+
+            if (connector.getBufsize() != 1) {
                 dcmrcv.setFileBufferSize(connector.getBufsize());
+            }
+
             dcmrcv.setPackPDV(connector.isPdv1());
             dcmrcv.setTcpNoDelay(!connector.isTcpdelay());
-            if (connector.getAsync() > 0)
+
+            if (connector.getAsync() > 0) {
                 dcmrcv.setMaxOpsPerformed(connector.getAsync());
+            }
+
             dcmrcv.initTransferCapability();
-            // tls settings
-            if (connector.getTls() != null && !connector.getTls().equals("notls")) {
-                if (connector.getTls().equals("without"))
+
+            // connection tls settings
+            
+            if (!StringUtils.equals(connector.getTls(), "notls")) {
+                if (connector.getTls().equals("without")) {
                     dcmrcv.setTlsWithoutEncyrption();
-                else if (connector.getTls().equals("3des"))
+                } else if (connector.getTls().equals("3des")) {
                     dcmrcv.setTls3DES_EDE_CBC();
-                else if (connector.getTls().equals("aes"))
+                } else if (connector.getTls().equals("aes")) {
                     dcmrcv.setTlsAES_128_CBC();
-                if (connector.getTruststore() != null && !connector.getTruststore().equals(""))
+                }
+
+                if (StringUtils.isNotBlank(connector.getTruststore())) {
                     dcmrcv.setTrustStoreURL(connector.getTruststore());
-                if (connector.getTruststorepw() != null && !connector.getTruststorepw().equals(""))
+                }
+
+                if (StringUtils.isNotBlank(connector.getTruststorepw())) {
                     dcmrcv.setTrustStorePassword(connector.getTruststorepw());
-                if (connector.getKeypw() != null && !connector.getKeypw().equals(""))
+                }
+
+                if (StringUtils.isNotBlank(connector.getKeypw())) {
                     dcmrcv.setKeyPassword(connector.getKeypw());
-                if (connector.getKeystore() != null && !connector.getKeystore().equals(""))
+                }
+
+                if (StringUtils.isNotBlank(connector.getKeystore())) {
                     dcmrcv.setKeyStoreURL(connector.getKeystore());
-                if (connector.getKeystorepw() != null && !connector.getKeystorepw().equals(""))
+                }
+
+                if (StringUtils.isNotBlank(connector.getKeystorepw())) {
                     dcmrcv.setKeyStorePassword(connector.getKeystorepw());
+                }
+
                 dcmrcv.setTlsNeedClientAuth(connector.isNoclientauth());
-                if (!connector.isNossl2())
+
+                if (!connector.isNossl2()) {
                     dcmrcv.setTlsProtocol(new String[] { "TLSv1", "SSLv3" });
+                }
+
                 dcmrcv.initTLS();
             }
 
-            try {
-                dcmrcv.start();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            // System.out.println("Start Server listening on port " +
-            // connector.getNc().getPort());
+            // start the DICOM port
+            dcmrcv.start();
+
             monitoringController.updateStatus(this.connector, connectorType, Event.INITIALIZED);
         } catch (Exception e) {
             throw new ConnectException(new Message("DICOM", 1, uri), e, this);
@@ -140,20 +183,21 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
 
     @Override
     public void doDisconnect() throws ConnectException {
-    // this will cause the server thread to quit
+        // this will cause the server thread to quit
     }
 
     @Override
     public void doDispose() {
-        // device.stopListening();
         disposing.set(true);
+
         try {
             dcmrcv.stop();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Unable to close DICOM port.", e);
         } finally {
             monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
         }
-        logger.info("Closed DICOM port");
+
+        logger.debug("closed DICOM port");
     }
 }
