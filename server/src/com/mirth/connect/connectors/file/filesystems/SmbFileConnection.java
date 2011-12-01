@@ -88,7 +88,7 @@ public class SmbFileConnection implements FileSystemConnection {
     private NtlmPasswordAuthentication auth = null;
     private SmbFile share = null;
 
-    public SmbFileConnection(String share, String domainAndUser, String password) throws Exception {
+    public SmbFileConnection(String share, String domainAndUser, String password, int timeout) throws Exception {
         String[] params = Pattern.compile("[\\\\|/|@|:|;]").split(domainAndUser);
         String domain = null;
         String username = null;
@@ -105,6 +105,7 @@ public class SmbFileConnection implements FileSystemConnection {
         }
 
         this.share = new SmbFile("smb://" + share, auth);
+        this.share.setConnectTimeout(timeout);
     }
 
     private String getPath(String dir, String name) {

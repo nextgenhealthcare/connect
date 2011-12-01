@@ -96,7 +96,7 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
         } else if (scheme.equals(FileConnector.SCHEME_SFTP)) {
             return new SftpConnection(host, port, username, password, timeout);
         } else if (scheme.equals(FileConnector.SCHEME_SMB)) {
-            return new SmbFileConnection(host, username, password);
+            return new SmbFileConnection(host, username, password, timeout);
         } else if (scheme.equals(FileConnector.SCHEME_WEBDAV)) {
             return new WebDavConnection(host, secure, username, password);
         } else {
