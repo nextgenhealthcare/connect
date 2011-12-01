@@ -259,21 +259,32 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
                         try {
                             b = protocol.read(dataIn);
                         } catch (SocketException e) {
-                            // If there was a socket exception, break and
-                            // dispose the connection whether or not
-                            // keepSendSocketOpen is true.
+                            /*
+                             * If there was a socket exception, break and
+                             * dispose the connection whether or not
+                             * keepSendSocketOpen is true.
+                             */
                             break;
-                        }
-                        // end of stream
-                        if (b == null) {
-                            // No message was received, possibly because of a
-                            // timeout. If keepSendSocketOpen is true then
-                            // continue waiting, otherwise break.
+                        } catch (SocketTimeoutException ste) {
+                            /*
+                             * No message was received because of a timeout. If
+                             * keepSendSocketOpen is true then continue waiting,
+                             * otherwise break.
+                             */
                             if (connector.isKeepSendSocketOpen()) {
                                 continue;
                             } else {
                                 break;
                             }
+                        }
+
+                        if (b == null) {
+                            /*
+                             * The remote side of the connection was closed.
+                             * Break and dispose of the connection whether or not
+                             * keepSendSocketOpen is true.
+                             */
+                            break;
                         } else {
                             monitoringController.updateStatus(connector, connectorType, Event.BUSY, socket);
                             processData(b);

@@ -55,7 +55,11 @@ public class DefaultProtocol implements TcpProtocol {
 			throw e;
 		} catch (SocketTimeoutException ste) {
 			logger.info("SocketTimeoutException on read() attempt.  Socket appears to have been closed: " + ste.getMessage());
-			return null;
+            /*
+             * Throw the exception so the listener can know it was a timeout and
+             * decide whether or not to recycle the connection.
+             */
+			throw ste;
 		}
 
 		// trying to read when there is no data (stream may have been closed at
