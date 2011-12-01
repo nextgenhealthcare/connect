@@ -421,7 +421,7 @@ public class FileReader extends ConnectorClass {
         }
 
         Object scheme = props.get(FileReaderProperties.FILE_SCHEME);
-        if (scheme.equals(FileReaderProperties.SCHEME_FTP) || scheme.equals(FileReaderProperties.SCHEME_SFTP)) {
+        if (scheme.equals(FileReaderProperties.SCHEME_FTP) || scheme.equals(FileReaderProperties.SCHEME_SFTP) || scheme.equals(FileReaderProperties.SCHEME_SMB)) {
             if (((String) props.get(FileReaderProperties.FILE_TIMEOUT)).length() == 0) {
                 valid = false;
                 if (highlight) {
@@ -1139,15 +1139,12 @@ public class FileReader extends ConnectorClass {
     }//GEN-LAST:event_anonymousYesActionPerformed
 
     private void onSchemeChange(boolean enableHost, boolean anonymous, String scheme) {
-
         // act like the appropriate Anonymous button was selected.
         if (anonymous) {
-
             anonymousNo.setSelected(false);
             anonymousYes.setSelected(true);
             anonymousYesActionPerformed(null);
         } else {
-
             anonymousNo.setSelected(true);
             anonymousYes.setSelected(false);
             anonymousNoActionPerformed(null);
@@ -1177,7 +1174,6 @@ public class FileReader extends ConnectorClass {
         timeoutField.setEnabled(false);
 
         if (scheme.equals(FileReaderProperties.SCHEME_FTP)) {
-
             anonymousLabel.setEnabled(true);
             anonymousYes.setEnabled(true);
             anonymousNo.setEnabled(true);
@@ -1189,14 +1185,10 @@ public class FileReader extends ConnectorClass {
             validateConnectionNo.setEnabled(true);
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
-
         } else if (scheme.equals(FileReaderProperties.SCHEME_SFTP)) {
-
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
-
         } else if (scheme.equals(FileReaderProperties.SCHEME_WEBDAV)) {
-
             anonymousLabel.setEnabled(true);
             anonymousYes.setEnabled(true);
             anonymousNo.setEnabled(true);
@@ -1207,6 +1199,9 @@ public class FileReader extends ConnectorClass {
             // set Passive Mode and validate connection to No.
             passiveModeNo.setSelected(true);
             validateConnectionNo.setSelected(true);
+        } else if (scheme.equals(FileReaderProperties.SCHEME_SMB)) {
+            timeoutLabel.setEnabled(true);
+            timeoutField.setEnabled(true);
         }
     }
 

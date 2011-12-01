@@ -47,7 +47,7 @@ public class FileWriter extends ConnectorClass {
         } else if (((String) schemeComboBox.getSelectedItem()).equals("smb")) {
             properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_SMB);
         } else if (((String) schemeComboBox.getSelectedItem()).equals("webdav")) {
-            properties.put(FileReaderProperties.FILE_SCHEME, FileWriterProperties.SCHEME_WEBDAV);
+            properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_WEBDAV);
         } else {
             // This "can't happen"
             logger.error("Unrecognized this.schemeComboBox value '" + schemeComboBox.getSelectedItem() + "', using 'file' instead");
@@ -55,7 +55,7 @@ public class FileWriter extends ConnectorClass {
         }
 
         if (schemeComboBox.getSelectedItem().equals("file")) {
-            properties.put(FileReaderProperties.FILE_HOST, directoryField.getText().replace('\\', '/'));
+            properties.put(FileWriterProperties.FILE_HOST, directoryField.getText().replace('\\', '/'));
         } else {
             properties.put(FileWriterProperties.FILE_HOST, hostField.getText() + "/" + pathField.getText());
         }
@@ -325,7 +325,7 @@ public class FileWriter extends ConnectorClass {
         }
 
         Object scheme = props.get(FileWriterProperties.FILE_SCHEME);
-        if (scheme.equals(FileReaderProperties.SCHEME_FTP) || scheme.equals(FileReaderProperties.SCHEME_SFTP)) {
+        if (scheme.equals(FileWriterProperties.SCHEME_FTP) || scheme.equals(FileWriterProperties.SCHEME_SFTP) || scheme.equals(FileWriterProperties.SCHEME_SMB)) {
             if (((String) props.get(FileWriterProperties.FILE_TIMEOUT)).length() == 0) {
                 valid = false;
                 if (highlight) {
@@ -810,15 +810,12 @@ public class FileWriter extends ConnectorClass {
     }//GEN-LAST:event_anonymousYesActionPerformed
 
     private void onSchemeChange(boolean enableHost, boolean anonymous, boolean allowAppend, String scheme) {
-
         // act like the appropriate Anonymous button was selected.
         if (anonymous) {
-
             anonymousNo.setSelected(false);
             anonymousYes.setSelected(true);
             anonymousYesActionPerformed(null);
         } else {
-
             anonymousNo.setSelected(true);
             anonymousYes.setSelected(false);
             anonymousNoActionPerformed(null);
@@ -847,12 +844,10 @@ public class FileWriter extends ConnectorClass {
         timeoutField.setEnabled(false);
 
         if (allowAppend) {
-
             fileExistsOverwriteRadio.setEnabled(true);
             fileExistsAppendRadio.setEnabled(true);
             fileExistsLabel.setEnabled(true);
         } else {
-
             if (fileExistsAppendRadio.isSelected()) {
                 fileExistsOverwriteRadio.setSelected(true);
                 fileExistsAppendRadio.setSelected(false);
@@ -864,7 +859,6 @@ public class FileWriter extends ConnectorClass {
         }
 
         if (scheme.equals(FileWriterProperties.SCHEME_FTP)) {
-
             anonymousLabel.setEnabled(true);
             anonymousYes.setEnabled(true);
             anonymousNo.setEnabled(true);
@@ -876,14 +870,10 @@ public class FileWriter extends ConnectorClass {
             validateConnectionNo.setEnabled(true);
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
-
         } else if (scheme.equals(FileWriterProperties.SCHEME_SFTP)) {
-
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
-
         } else if (scheme.equals(FileWriterProperties.SCHEME_WEBDAV)) {
-
             anonymousLabel.setEnabled(true);
             anonymousYes.setEnabled(true);
             anonymousNo.setEnabled(true);
@@ -895,6 +885,9 @@ public class FileWriter extends ConnectorClass {
             passiveModeNo.setSelected(true);
             validateConnectionNo.setSelected(true);
 
+        } else if (scheme.equals(FileWriterProperties.SCHEME_SMB)) {
+            timeoutLabel.setEnabled(true);
+            timeoutField.setEnabled(true);
         }
     }
 
