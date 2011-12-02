@@ -1075,7 +1075,7 @@ public class Frame extends JXFrame {
                 this.dispose();
                 LoginPanel.getInstance().initialize(PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION, "", "");
                 return;
-            } else if (message.indexOf("Unauthorized") != -1) {
+            } else if (message.startsWith("com.mirth.connect.client.core.UnauthorizedException")) {
                 message = "You are not authorized to peform this action.\n\n" + message;
             }
         }
