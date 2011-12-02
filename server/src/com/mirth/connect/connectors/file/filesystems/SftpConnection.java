@@ -163,9 +163,7 @@ public class SftpConnection implements FileSystemConnection {
     }
 
     private void cwd(String path) throws Exception {
-        if (StringUtils.isNotBlank(path)) {
-            client.cd(URLDecoder.decode(path, Charset.defaultCharset().name()));
-        }
+        client.cd(URLDecoder.decode(path, Charset.defaultCharset().name()));
     }
 
 	@Override
