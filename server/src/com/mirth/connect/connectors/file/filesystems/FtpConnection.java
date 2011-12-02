@@ -187,10 +187,6 @@ public class FtpConnection implements FileSystemConnection {
 
     // See MIRTH-1873
     private boolean cwd(String destDir) throws IOException {
-        if (destDir.equals("/")) {
-            return true;
-        }
-
         return client.changeWorkingDirectory(destDir);
     }
 	
