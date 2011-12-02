@@ -257,11 +257,6 @@ public class FtpConnection implements FileSystemConnection {
 	}
 
 	private void cdmake(String dir) throws Exception {
-	    // See MIRTH-1873
-	    if (dir.equals("/")) {
-	        return;
-	    }
-	    
 		if (!cwd(dir)) {
 			if (!client.makeDirectory(dir)) {
 				String tempDir = dir;
