@@ -100,7 +100,7 @@
 	</statement>
 
 	<!-- NOTE: The nested SELECT needs an ORDER BY DATE_CREATED, which Derby does not support -->
-	<insert id="populateTempSystemEventsTable" parameterClass="java.util.Map">
+	<insert id="populateTempEventTable" parameterClass="java.util.Map">
 		INSERT INTO EVT_TMP_$uid$ (ID)
 			(SELECT ID
 			FROM EVENT
