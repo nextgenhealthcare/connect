@@ -138,7 +138,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
                 Context context = Context.enter();
                 Scriptable scope = new ImporterTopLevel(context);
                 // load variables in JavaScript scope
-                JavaScriptScopeUtil.buildScope(scope, connector.getName(), scriptLogger);
+                JavaScriptScopeUtil.buildScope(scope, connector.getChannelId(), scriptLogger);
                 scope.put("dbMap", scope, jdbcMap);
                 scope.put("resultMap", scope, message);
 
