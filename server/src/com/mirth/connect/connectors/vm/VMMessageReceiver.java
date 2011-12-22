@@ -68,6 +68,8 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
         } catch (Exception e) {
         }
         super.start();
+        // MIRTH-2039 - Update the status when the channel is started.
+        monitoringController.updateStatus(componentName, connectorType, Event.INITIALIZED, null);
     }
 
     @Override
