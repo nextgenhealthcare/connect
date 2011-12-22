@@ -28,6 +28,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.io.EofException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -69,6 +70,8 @@ public class WebStartServlet extends HttpServlet {
 
             DocumentSerializer docSerializer = new DocumentSerializer(true);
             docSerializer.toXML(jnlpDocument, out);
+        } catch (EofException eof) {
+            logger.debug(eof);
         } catch (Throwable t) {
             logger.error(ExceptionUtils.getStackTrace(t));
             throw new ServletException(t);

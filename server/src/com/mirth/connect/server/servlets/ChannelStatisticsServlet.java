@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.io.EofException;
 
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
@@ -66,6 +67,8 @@ public class ChannelStatisticsServlet extends MirthServlet {
                         statisticsController.clearStatistics(channelId, deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored, deleteAlerted);
                     }
                 }
+            } catch (EofException eof) {
+                logger.debug(eof);
             } catch (Throwable t) {
                 logger.error(ExceptionUtils.getStackTrace(t));
                 throw new ServletException(t);
