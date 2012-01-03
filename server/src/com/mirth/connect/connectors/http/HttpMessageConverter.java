@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.http;
 
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +39,7 @@ public class HttpMessageConverter {
             addElement(requestElement, "RequestUrl", request.getRequestUrl());
             addElement(requestElement, "Method", request.getMethod());
             addElement(requestElement, "RequestPath", request.getQueryString());
+            addElement(requestElement, "RequestContextPath", new URL(request.getRequestUrl()).getPath());
 
             if (!request.getParameters().isEmpty()) {
                 Element parametersElement = new Element("Parameters");
