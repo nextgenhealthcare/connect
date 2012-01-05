@@ -63,6 +63,7 @@ public class MirthTree extends JXTree implements DropTargetListener {
             @Override
             public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
                 setFont(UIConstants.MONOSPACED_FONT);
+                putClientProperty("html.disable", Boolean.TRUE);
                 return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
             }
         });
