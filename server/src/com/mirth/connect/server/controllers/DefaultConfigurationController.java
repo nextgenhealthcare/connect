@@ -680,7 +680,11 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             configureEncryption(provider, keyStore, keyPassword);
             generateDefaultCertificate(provider, keyStore, keyPassword);
-            keyStore.store(new FileOutputStream(keyStoreFile), keyStorePassword);
+            
+            // write the kesytore back to the file
+            FileOutputStream fos = new FileOutputStream(keyStoreFile);
+            keyStore.store(fos, keyStorePassword);
+            IOUtils.closeQuietly(fos);
 
             generateDefaultTrustStore(properties);
         } catch (Exception e) {
