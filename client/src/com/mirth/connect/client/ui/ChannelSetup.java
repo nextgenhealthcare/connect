@@ -1199,11 +1199,13 @@ public class ChannelSetup extends javax.swing.JPanel {
         encryptMessagesCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         encryptMessagesCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         encryptMessagesCheckBox.setText("Encrypt messages in database");
+        encryptMessagesCheckBox.setToolTipText("<html>Encrypt messages that are stored in the database. Messages that<br>are stored while this option is enabled will still be viewable in the<br>message browser, but their contents will not be searchable.</html>");
         encryptMessagesCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         storeMessages.setBackground(new java.awt.Color(255, 255, 255));
         storeMessages.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         storeMessages.setText("Store message data");
+        storeMessages.setToolTipText("<html>Store messages processed by this channel for viewing in the<br>message browser. Limiting or disabling message storage<br>entirely will improve performance.</html>");
         storeMessages.setMargin(new java.awt.Insets(0, 0, 0, 0));
         storeMessages.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1215,6 +1217,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         storeMessagesAll.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(storeMessagesAll);
         storeMessagesAll.setText("Store indefinitely");
+        storeMessagesAll.setToolTipText("Store messages in the database until they are removed manually.");
         storeMessagesAll.setMargin(new java.awt.Insets(0, 0, 0, 0));
         storeMessagesAll.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1226,6 +1229,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         storeMessagesDays.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(storeMessagesDays);
         storeMessagesDays.setText("Prune messages after");
+        storeMessagesDays.setToolTipText("Let the message pruner remove messages older than the specified number of days.");
         storeMessagesDays.setMargin(new java.awt.Insets(0, 0, 0, 0));
         storeMessagesDays.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1235,16 +1239,20 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         days.setText("day(s)");
 
+        numDays.setToolTipText("Let the message pruner remove messages older than the specified number of days.");
+
         jLabel3.setText("Messages:");
 
         storeMessagesErrors.setBackground(new java.awt.Color(255, 255, 255));
         storeMessagesErrors.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         storeMessagesErrors.setText("With errors only");
+        storeMessagesErrors.setToolTipText("Only store messages that error.");
         storeMessagesErrors.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         storeFiltered.setBackground(new java.awt.Color(255, 255, 255));
         storeFiltered.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         storeFiltered.setText("Do not store filtered messages");
+        storeFiltered.setToolTipText("Do not store messages that are filtered out by this channel's filter rules.");
         storeFiltered.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
@@ -1253,16 +1261,19 @@ public class ChannelSetup extends javax.swing.JPanel {
         summaryEnabledCheckbox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         summaryEnabledCheckbox.setSelected(true);
         summaryEnabledCheckbox.setText("Enabled");
+        summaryEnabledCheckbox.setToolTipText("Enable this channel so that it can be deployed.");
         summaryEnabledCheckbox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         transactionalCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         transactionalCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         transactionalCheckBox.setText("Use transactional endpoints");
+        transactionalCheckBox.setToolTipText("Cause multiple Database Writer destinations to execute SQL as a single transaction.");
         transactionalCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         synchronousCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         synchronousCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         synchronousCheckBox.setText("Synchronize channel");
+        synchronousCheckBox.setToolTipText("<html>Disabling synchronization will cause your destinations to run on separate concurrent threads.<br>It not recommended for the following reasons:<br>1) Destinations are not guaranteed to run in order, so they cannot reference each other.<br>2) Your source cannot send a response from any of the destinations.<br>3) Your source connector may be modified to to ensure compatibility with requirement #2.<br>4) Turning off synchronization will disable the post-processor.</html>");
         synchronousCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
         synchronousCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1273,7 +1284,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         clearGlobalChannelMapCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         clearGlobalChannelMapCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         clearGlobalChannelMapCheckBox.setText("Clear global channel map on deploy");
-        clearGlobalChannelMapCheckBox.setToolTipText("This will clear the global channel map on both single channel deploy and a full redeploy.");
+        clearGlobalChannelMapCheckBox.setToolTipText("Clear the global channel map on both single channel deploy and a full redeploy.");
         clearGlobalChannelMapCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
