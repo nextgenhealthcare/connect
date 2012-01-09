@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.KeyPair;
@@ -727,12 +728,12 @@ public class DefaultConfigurationController extends ConfigurationController {
                 keyStore.setEntry(SECRET_KEY_ALIAS, entry, new KeyStore.PasswordProtection(keyPassword));
 
                 // save the keystore to the filesystem
-                FileOutputStream fos = new FileOutputStream(keyStoreFile);
+                OutputStream keyStoreOuputStream = new FileOutputStream(keyStoreFile);
                 
                 try {
-                    keyStore.store(fos, keyStorePassword);    
+                    keyStore.store(keyStoreOuputStream, keyStorePassword);    
                 } finally {
-                    IOUtils.closeQuietly(fos);    
+                    IOUtils.closeQuietly(keyStoreOuputStream);    
                 }
 
                 // remove the property from CONFIGURATION
@@ -740,7 +741,13 @@ public class DefaultConfigurationController extends ConfigurationController {
 
                 // save the keystore.type property to the mirth.properties file
                 properties.setProperty("keystore.type", "JCEKS");
-                properties.save();
+                OutputStream propertiesOutputStream = new FileOutputStream(new File(new File(getConfigurationDir()), "mirth.properties"));
+
+                try {
+                    properties.save(propertiesOutputStream);
+                } finally {
+                    IOUtils.closeQuietly(propertiesOutputStream);
+                }
                 
                 // reinitialize the security settings
                 initializeSecuritySettings();
