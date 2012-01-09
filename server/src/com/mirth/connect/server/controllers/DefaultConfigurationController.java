@@ -48,7 +48,6 @@ import org.apache.commons.configuration.ConfigurationConverter;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -86,6 +85,7 @@ import com.mirth.connect.util.PropertyVerifier;
  */
 public class DefaultConfigurationController extends ConfigurationController {
     public static final String PROPERTIES_CORE = "core";
+    public static final String SECRET_KEY_ALIAS = "encryption";
 
     private Logger logger = Logger.getLogger(this.getClass());
     private String appDataDir = null;
@@ -656,19 +656,13 @@ public class DefaultConfigurationController extends ConfigurationController {
             char[] keyPassword = properties.getString("keystore.keypass").toCharArray();
             Provider provider = (Provider) Class.forName(encryptionConfig.getSecurityProvider()).newInstance();
 
-            /*
-             * If we have the encryption key property in the database, that
-             * means the previous keystore was of type jks, so we want to delete
-             * it so that a new jceks one can be created. This should only
-             * execute once.
-             */
-            if (keyStoreFile.exists() && (getProperty(PROPERTIES_CORE, "encryption.key") != null)) {
-                logger.debug("deleting pre-2.2 jks keystore");
-                FileUtils.deleteQuietly(keyStoreFile);
+            KeyStore keyStore = null;
+
+            if (properties.containsKey("keystore.type")) {
+                keyStore = KeyStore.getInstance(properties.getString("keystore.type"));
+            } else {
+                keyStore = KeyStore.getInstance("JKS");
             }
-            
-            // load the keystore if it exists, otherwise create a new one
-            KeyStore keyStore = KeyStore.getInstance("JCEKS");
 
             if (keyStoreFile.exists()) {
                 keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
@@ -680,7 +674,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             configureEncryption(provider, keyStore, keyPassword);
             generateDefaultCertificate(provider, keyStore, keyPassword);
-            
+
             // write the kesytore back to the file
             FileOutputStream fos = new FileOutputStream(keyStoreFile);
             keyStore.store(fos, keyStorePassword);
@@ -689,6 +683,70 @@ public class DefaultConfigurationController extends ConfigurationController {
             generateDefaultTrustStore(properties);
         } catch (Exception e) {
             logger.error("Could not initialize security settings.", e);
+        }
+    }
+
+    /*
+     * If we have the encryption key property in the database, that
+     * means the previous keystore was of type JKS, so we want to delete
+     * it so that a new JCEKS one can be created.
+     * 
+     * If we migrated from a version prior to 2.2, then the key from the
+     * ENCRYTPION_KEY table has been added to the CONFIGURATION table.
+     * We want to deserialize it and put it in the new keystore. We also
+     * need to delete the property.
+     * 
+     * NOTE that this method should only execute once.
+     */
+
+    public void migrateKeystore() {
+        PropertiesConfiguration properties = new PropertiesConfiguration();
+        properties.setDelimiterParsingDisabled(true);
+
+        try {
+            if (getProperty(PROPERTIES_CORE, "encryption.key") != null) {
+                // load the keystore path and passwords
+                properties.load(ResourceUtil.getResourceStream(this.getClass(), "mirth.properties"));
+                File keyStoreFile = new File(properties.getString("keystore.path"));
+                char[] keyStorePassword = properties.getString("keystore.storepass").toCharArray();
+                char[] keyPassword = properties.getString("keystore.keypass").toCharArray();
+
+                // delete the old JKS keystore
+                keyStoreFile.delete();
+
+                // create and load a new one as type JCEKS
+                KeyStore keyStore = KeyStore.getInstance("JCEKS");
+                keyStore.load(null, keyStorePassword);
+
+                // deserialize the XML secret key to an Object
+                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                SecretKey secretKey = (SecretKey) serializer.fromXML(getProperty(PROPERTIES_CORE, "encryption.key"));
+
+                // add the secret key entry to the new keystore
+                KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(secretKey);
+                keyStore.setEntry(SECRET_KEY_ALIAS, entry, new KeyStore.PasswordProtection(keyPassword));
+
+                // save the keystore to the filesystem
+                FileOutputStream fos = new FileOutputStream(keyStoreFile);
+                
+                try {
+                    keyStore.store(fos, keyStorePassword);    
+                } finally {
+                    IOUtils.closeQuietly(fos);    
+                }
+
+                // remove the property from CONFIGURATION
+                removeProperty(PROPERTIES_CORE, "encryption.key");
+
+                // save the keystore.type property to the mirth.properties file
+                properties.setProperty("keystore.type", "JCEKS");
+                properties.save();
+                
+                // reinitialize the security settings
+                initializeSecuritySettings();
+            }
+        } catch (Exception e) {
+            logger.error("Error migrating encryption key from database to keystore.", e);
         }
     }
 
@@ -706,35 +764,18 @@ public class DefaultConfigurationController extends ConfigurationController {
      * @throws Exception
      */
     private void configureEncryption(Provider provider, KeyStore keyStore, char[] keyPassword) throws Exception {
-        final String secretKeyAlias = "encryption";
         SecretKey secretKey = null;
 
-        if (!keyStore.containsAlias(secretKeyAlias)) {
-            /*
-             * If we migrated from a version prior to 2.2, then the key from the
-             * ENCRYTPION_KEY table has been added to the CONFIGURATION table.
-             * We want to deserialize it and put it in the new keystore. We also
-             * need to delete the property so that this only executes once.
-             */
-            if (getProperty(PROPERTIES_CORE, "encryption.key") != null) {
-                String data = getProperty(PROPERTIES_CORE, "encryption.key");
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                secretKey = (SecretKey) serializer.fromXML(data);
-                removeProperty(PROPERTIES_CORE, "encryption.key");
-                logger.debug("saved pre-2.2 DESede encryption key from property");
-            } else {
-                KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionConfig.getEncryptionAlgorithm(), provider);
-                keyGenerator.init(encryptionConfig.getEncryptionKeyLength());
-                secretKey = keyGenerator.generateKey();
-                logger.debug("generated new encryption key using provider: " + provider.getName());
-            }
-
-            // add the secret key to the keystore using the key password
+        if (!keyStore.containsAlias(SECRET_KEY_ALIAS)) {
+            logger.debug("encryption key not found, generating new one");
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionConfig.getEncryptionAlgorithm(), provider);
+            keyGenerator.init(encryptionConfig.getEncryptionKeyLength());
+            secretKey = keyGenerator.generateKey();
             KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(secretKey);
-            keyStore.setEntry(secretKeyAlias, entry, new KeyStore.PasswordProtection(keyPassword));
+            keyStore.setEntry(SECRET_KEY_ALIAS, entry, new KeyStore.PasswordProtection(keyPassword));
         } else {
             logger.debug("found encryption key in keystore");
-            secretKey = (SecretKey) keyStore.getKey(secretKeyAlias, keyPassword);
+            secretKey = (SecretKey) keyStore.getKey(SECRET_KEY_ALIAS, keyPassword);
         }
 
         /*

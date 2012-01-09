@@ -50,6 +50,12 @@ public abstract class ConfigurationController extends Controller {
     public abstract void initializeSecuritySettings();
     
     /**
+     * Migrates the encryption key from the database to a new JCEKS keystore.
+     * This should only be run once during the migration from pre-2.2 to 2.2.
+     */
+    public abstract void migrateKeystore();
+    
+    /**
      * Returns the default encryptor.
      * 
      * @return the default encryptor

@@ -209,6 +209,7 @@ public class Mirth extends Thread {
         extensionController.removePropertiesForUninstalledExtensions();
         extensionController.loadExtensions();
         migrationController.migrate();
+        configurationController.migrateKeystore();
         extensionController.setDefaultExtensionStatus();
         messageObjectController.removeAllFilterTables();
         eventController.removeAllFilterTables();
