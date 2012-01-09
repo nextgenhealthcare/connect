@@ -25,9 +25,11 @@ import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -659,10 +661,11 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             KeyStore keyStore = null;
 
-            if (properties.containsKey("keystore.type")) {
-                keyStore = KeyStore.getInstance(properties.getString("keystore.type"));
-            } else {
+            // if the current server version is pre-2.2, load the keystore as JKS
+            if (compareVersions(getServerVersion(), "2.2.0") == -1) {
                 keyStore = KeyStore.getInstance("JKS");
+            } else {
+                keyStore = KeyStore.getInstance("JCEKS");
             }
 
             if (keyStoreFile.exists()) {
@@ -738,16 +741,6 @@ public class DefaultConfigurationController extends ConfigurationController {
 
                 // remove the property from CONFIGURATION
                 removeProperty(PROPERTIES_CORE, "encryption.key");
-
-                // save the keystore.type property to the mirth.properties file
-                properties.setProperty("keystore.type", "JCEKS");
-                OutputStream propertiesOutputStream = new FileOutputStream(new File(new File(getConfigurationDir()), "mirth.properties"));
-
-                try {
-                    properties.save(propertiesOutputStream);
-                } finally {
-                    IOUtils.closeQuietly(propertiesOutputStream);
-                }
                 
                 // reinitialize the security settings
                 initializeSecuritySettings();
@@ -917,5 +910,58 @@ public class DefaultConfigurationController extends ConfigurationController {
                 logger.error("The following properties should be removed from mirth.properties manually: " + removedProperties.toString());
             }
         }
+    }
+    
+    /**
+     * Compares two versions strings (ex. 1.6.1.2335).
+     * 
+     * @param version1
+     * @param version2
+     * @return -1 if version1 < version2, 1 if version1 > version2, 0 if version1
+     *         = version2
+     */
+    private int compareVersions(String version1, String version2) {
+        if ((version1 == null) && (version2 == null)) {
+            return 0;
+        } else if ((version1 != null) && (version2 == null)) {
+            return 1;
+        } else if ((version1 == null) && (version2 != null)) {
+            return -1;
+        } else {
+            String[] numbers1 = normalizeVersion(version1, 3).split("\\.");
+            String[] numbers2 = normalizeVersion(version2, 3).split("\\.");
+
+            for (int i = 0; i < numbers1.length; i++) {
+                if (Integer.valueOf(numbers1[i]) < Integer.valueOf(numbers2[i])) {
+                    return -1;
+                } else if (Integer.valueOf(numbers1[i]) > Integer.valueOf(numbers2[i])) {
+                    return 1;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    private String normalizeVersion(String version, int length) {
+        List<String> numbers = new ArrayList<String>(Arrays.asList(version.split("\\.")));
+
+        while (numbers.size() < length) {
+            numbers.add("0");
+        }
+
+        StringBuilder builder = new StringBuilder();
+
+        for (Iterator<String> iterator = numbers.iterator(); iterator.hasNext();) {
+            String number = iterator.next();
+
+            if (iterator.hasNext()) {
+                builder.append(number + ".");
+            } else {
+                builder.append(number);
+            }
+        }
+
+        return builder.toString();
     }
 }
