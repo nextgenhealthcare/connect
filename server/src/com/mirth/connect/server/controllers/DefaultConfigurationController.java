@@ -662,7 +662,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             KeyStore keyStore = null;
 
             // if the current server version is pre-2.2, load the keystore as JKS
-            if (compareVersions(getServerVersion(), "2.2.0") == -1) {
+            if (compareVersions("2.2.0", getServerVersion()) == 1) {
                 keyStore = KeyStore.getInstance("JKS");
             } else {
                 keyStore = KeyStore.getInstance("JCEKS");
