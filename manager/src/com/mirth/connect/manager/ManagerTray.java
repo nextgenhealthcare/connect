@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 
 public class ManagerTray {
 
@@ -152,16 +153,34 @@ public class ManagerTray {
         administratorItem.setEnabled(active);
     }
 
-    public void alertError(String text) {
-        mirthTrayIcon.displayMessage("Error", text, TrayIcon.MessageType.ERROR);
+    public void alertError(final String text) {
+        // MIRTH-2050: Use invokeLater so that the messages always appear
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                mirthTrayIcon.displayMessage("Error", text, TrayIcon.MessageType.ERROR);
+            }
+        });
     }
 
-    public void alertInfo(String text) {
-        mirthTrayIcon.displayMessage("Information", text, TrayIcon.MessageType.INFO);
+    public void alertInfo(final String text) {
+        // MIRTH-2050: Use invokeLater so that the messages always appear
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                mirthTrayIcon.displayMessage("Information", text, TrayIcon.MessageType.INFO);
+            }
+        });
     }
 
-    public void alertWarning(String caption, String text) {
-        mirthTrayIcon.displayMessage("Warning", text, TrayIcon.MessageType.WARNING);
+    public void alertWarning(final String text) {
+        // MIRTH-2050: Use invokeLater so that the messages always appear
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                mirthTrayIcon.displayMessage("Warning", text, TrayIcon.MessageType.WARNING);
+            }
+        });
     }
 
     public void setTrayIcon(int icon) {

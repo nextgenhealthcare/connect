@@ -267,8 +267,7 @@ public class ManagerController {
         SwingWorker worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                ManagerController.getInstance().restartMirth();
-
+                restartMirth();
                 return null;
             }
 
