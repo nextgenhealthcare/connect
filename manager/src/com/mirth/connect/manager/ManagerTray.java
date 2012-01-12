@@ -17,7 +17,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
-import javax.swing.SwingUtilities;
 
 public class ManagerTray {
 
@@ -154,37 +153,19 @@ public class ManagerTray {
     }
 
     public void alertError(final String text) {
-        // MIRTH-2050: Use invokeLater so that the messages always appear
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                mirthTrayIcon.displayMessage("Error", text, TrayIcon.MessageType.ERROR);
-            }
-        });
+        mirthTrayIcon.displayMessage("Error", text, TrayIcon.MessageType.ERROR);
     }
 
     public void alertInfo(final String text) {
-        // MIRTH-2050: Use invokeLater so that the messages always appear
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                mirthTrayIcon.displayMessage("Information", text, TrayIcon.MessageType.INFO);
-            }
-        });
+        mirthTrayIcon.displayMessage("Information", text, TrayIcon.MessageType.INFO);
     }
 
     public void alertWarning(final String text) {
-        // MIRTH-2050: Use invokeLater so that the messages always appear
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                mirthTrayIcon.displayMessage("Warning", text, TrayIcon.MessageType.WARNING);
-            }
-        });
+        mirthTrayIcon.displayMessage("Warning", text, TrayIcon.MessageType.WARNING);
     }
 
     public void setTrayIcon(int icon) {
-        final ImageIcon imageIcon;
+        ImageIcon imageIcon;
         if (icon == STARTED) {
             imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico.png"));
         } else if (icon == STOPPED) {
@@ -193,12 +174,6 @@ public class ManagerTray {
             imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico_gray.png"));
         }
 
-        // MIRTH-2050: Use invokeLater so that the messages always appear
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                mirthTrayIcon.setImage(imageIcon.getImage());
-            }
-        });
+        mirthTrayIcon.setImage(imageIcon.getImage());
     }
 }
