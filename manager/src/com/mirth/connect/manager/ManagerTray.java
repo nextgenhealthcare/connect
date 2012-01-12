@@ -184,7 +184,7 @@ public class ManagerTray {
     }
 
     public void setTrayIcon(int icon) {
-        ImageIcon imageIcon = null;
+        final ImageIcon imageIcon;
         if (icon == STARTED) {
             imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico.png"));
         } else if (icon == STOPPED) {
@@ -193,7 +193,12 @@ public class ManagerTray {
             imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico_gray.png"));
         }
 
-        mirthTrayIcon.setImage(imageIcon.getImage());
-
+        // MIRTH-2050: Use invokeLater so that the messages always appear
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                mirthTrayIcon.setImage(imageIcon.getImage());
+            }
+        });
     }
 }
