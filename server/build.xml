@@ -93,6 +93,8 @@
 
 			<include name="version.properties" />
 		</jar>
+		
+		<copy file="${lib}/mirth-crypto.jar" todir="${setup.lib}" />
 	</target>
 
 	<target name="create-connectors" depends="create-client-core">
