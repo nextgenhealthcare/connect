@@ -41,6 +41,7 @@
 	<!-- Manager -->
 	<target name="build-manager" depends="build-client">
 		<copy file="${server.setup}/lib/mirth-client-core.jar" todir="${manager}/lib" />
+		<copy file="${server.setup}/lib/mirth-crypto.jar" todir="${manager}/lib" />
 
 		<ant antfile="${manager}/ant-build.xml" dir="${manager}" target="build" />
 
