@@ -66,6 +66,8 @@ public class SyntaxUtilities
         invalidCharSet.add('\u001D');
         invalidCharSet.add('\u001E');
         invalidCharSet.add('\u001F');
+        // x7F
+        invalidCharSet.add('\u007F');
     }
     
     /**
