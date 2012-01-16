@@ -100,7 +100,7 @@ public class HL7v2Adaptor extends Adaptor implements BatchAdaptor {
         }
 
         /*
-         * Now that the file has been completely read, make sure to process
+         * MIRTH-2058: Now that the file has been completely read, make sure to process
          * anything remaining in the message buffer. There could have been lines
          * read in that were not closed with an EOM.
          */
@@ -111,8 +111,6 @@ public class HL7v2Adaptor extends Adaptor implements BatchAdaptor {
                 errored = true;
                 logger.error("Error processing message in batch.", e);
             }
-
-            message = new StringBuilder();
         }
 
         scanner.close();
