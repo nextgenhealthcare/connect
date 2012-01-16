@@ -49,7 +49,7 @@ public class SmtpConnectorService implements ConnectorService {
             email.setSubject("Mirth Connect Test Email");
             email.addTo(to);
             email.setFrom(from);
-            email.setMsg("This is a test email from Mirth Connect.");
+            email.setMsg("Receipt of this email confirms that mail originating from this Mirth Connect Server is capable of reaching its intended destination.\n\nSMTP Configuration:\n- Host: " + host + "\n- Port: " + port);
             
             try {
                 email.send();
