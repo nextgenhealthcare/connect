@@ -93,35 +93,30 @@ public class HL7v2Adaptor extends Adaptor implements BatchAdaptor {
                 }
             } else if (line.startsWith("FHS") || line.startsWith("BHS") || line.startsWith("BTS") || line.startsWith("FTS")) {
                 // ignore batch headers
-                if (!scanner.hasNext()) {
-                    try {
-                        dest.processBatchMessage(message.toString());
-                    } catch (UMOException e) {
-                        errored = true;
-                        logger.error("Error processing message in batch.", e);
-                    }
-
-                    message = new StringBuilder();
-                }
             } else {
                 message.append(line);
                 message.append((char) endOfRecord);
-
-                if (!scanner.hasNext()) {
-                    try {
-                        dest.processBatchMessage(message.toString());
-                    } catch (UMOException e) {
-                        errored = true;
-                        logger.error("Error processing message in batch.", e);
-                    }
-
-                    message = new StringBuilder();
-                }
             }
         }
 
+        /*
+         * Now that the file has been completely read, make sure to process
+         * anything remaining in the message buffer. There could have been lines
+         * read in that were not closed with an EOM.
+         */
+        if (message.length() > 0) {
+            try {
+                dest.processBatchMessage(message.toString());
+            } catch (UMOException e) {
+                errored = true;
+                logger.error("Error processing message in batch.", e);
+            }
+
+            message = new StringBuilder();
+        }
+
         scanner.close();
-        
+
         if (errored) {
             throw new RoutingException(new Message(Messages.ROUTING_ERROR), new MuleMessage(null), endpoint);
         }
