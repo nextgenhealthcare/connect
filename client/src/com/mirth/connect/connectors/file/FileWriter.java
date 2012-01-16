@@ -532,7 +532,7 @@ public class FileWriter extends ConnectorClass {
         fileExistsAppendRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup4.add(fileExistsAppendRadio);
         fileExistsAppendRadio.setText("Append");
-        fileExistsAppendRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message with error.</html>");
+        fileExistsAppendRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message will error.</html>");
         fileExistsAppendRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         fileExistsAppendRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -544,7 +544,7 @@ public class FileWriter extends ConnectorClass {
         fileExistsOverwriteRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup4.add(fileExistsOverwriteRadio);
         fileExistsOverwriteRadio.setText("Overwrite");
-        fileExistsOverwriteRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message with error.</html>");
+        fileExistsOverwriteRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message will error.</html>");
         fileExistsOverwriteRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         fileExistsOverwriteRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -611,7 +611,7 @@ public class FileWriter extends ConnectorClass {
         buttonGroup4.add(fileExistsErrorRadio);
         fileExistsErrorRadio.setSelected(true);
         fileExistsErrorRadio.setText("Error");
-        fileExistsErrorRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message with error.</html>");
+        fileExistsErrorRadio.setToolTipText("<html>If 'append' is selected, messages accepted by this destination will be appended to the file specified in the File Name.<br>If 'overwrite' is selected, messages accepted by this destination will replace any existing file of the same name.<br>If 'error' is selected and a file with the specified file name already exists, the message will error.</html>");
         fileExistsErrorRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         fileExistsErrorRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

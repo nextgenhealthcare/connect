@@ -473,7 +473,7 @@
           <ComponentRef name="buttonGroup4"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Append"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &apos;append&apos; is selected, messages accepted by this destination will be appended to the file specified in the File Name.&lt;br&gt;If &apos;overwrite&apos; is selected, messages accepted by this destination will replace any existing file of the same name.&lt;br&gt;If &apos;error&apos; is selected and a file with the specified file name already exists, the message with error.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &apos;append&apos; is selected, messages accepted by this destination will be appended to the file specified in the File Name.&lt;br&gt;If &apos;overwrite&apos; is selected, messages accepted by this destination will replace any existing file of the same name.&lt;br&gt;If &apos;error&apos; is selected and a file with the specified file name already exists, the message will error.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -496,7 +496,7 @@
           <ComponentRef name="buttonGroup4"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Overwrite"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &apos;append&apos; is selected, messages accepted by this destination will be appended to the file specified in the File Name.&lt;br&gt;If &apos;overwrite&apos; is selected, messages accepted by this destination will replace any existing file of the same name.&lt;br&gt;If &apos;error&apos; is selected and a file with the specified file name already exists, the message with error.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &apos;append&apos; is selected, messages accepted by this destination will be appended to the file specified in the File Name.&lt;br&gt;If &apos;overwrite&apos; is selected, messages accepted by this destination will replace any existing file of the same name.&lt;br&gt;If &apos;error&apos; is selected and a file with the specified file name already exists, the message will error.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -668,7 +668,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Error"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &apos;append&apos; is selected, messages accepted by this destination will be appended to the file specified in the File Name.&lt;br&gt;If &apos;overwrite&apos; is selected, messages accepted by this destination will replace any existing file of the same name.&lt;br&gt;If &apos;error&apos; is selected and a file with the specified file name already exists, the message with error.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &apos;append&apos; is selected, messages accepted by this destination will be appended to the file specified in the File Name.&lt;br&gt;If &apos;overwrite&apos; is selected, messages accepted by this destination will replace any existing file of the same name.&lt;br&gt;If &apos;error&apos; is selected and a file with the specified file name already exists, the message will error.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
