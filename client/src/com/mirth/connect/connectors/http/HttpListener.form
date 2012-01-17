@@ -210,7 +210,7 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="includeHeadersGroup"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Headers, Query, and Body"/>
+        <Property name="text" type="java.lang.String" value="Headers, Query, and Body as XML"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If selected, the message content will include the request headers, query parameters, and body as XML.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>

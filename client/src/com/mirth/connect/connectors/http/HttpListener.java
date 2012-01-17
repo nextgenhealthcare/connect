@@ -512,7 +512,7 @@ public class HttpListener extends ConnectorClass {
         messageContentHeadersQueryAndBodyRadio.setBackground(new java.awt.Color(255, 255, 255));
         messageContentHeadersQueryAndBodyRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         includeHeadersGroup.add(messageContentHeadersQueryAndBodyRadio);
-        messageContentHeadersQueryAndBodyRadio.setText("Headers, Query, and Body");
+        messageContentHeadersQueryAndBodyRadio.setText("Headers, Query, and Body as XML");
         messageContentHeadersQueryAndBodyRadio.setToolTipText("<html>If selected, the message content will include the request headers, query parameters, and body as XML.</html>");
         messageContentHeadersQueryAndBodyRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         messageContentHeadersQueryAndBodyRadio.addActionListener(new java.awt.event.ActionListener() {

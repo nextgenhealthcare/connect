@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="methodButtonGroup">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="responseHeadersButtonGroup">
+    <Component class="javax.swing.ButtonGroup" name="responseContentButtonGroup">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="usePersistantQueuesButtonGroup">
     </Component>
@@ -53,7 +53,7 @@
                   <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="contentTypeLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="charsetEncodingLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseHeadersLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseContentLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="sendTimeoutLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationTypeLabel" min="-2" max="-2" attributes="0"/>
@@ -104,13 +104,12 @@
                                           </Group>
                                           <Group type="103" alignment="0" groupAlignment="0" attributes="0">
                                               <Group type="102" alignment="0" attributes="0">
-                                                  <Component id="includeResponseHeadersYesButton" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="responseContentBodyOnlyButton" min="-2" max="-2" attributes="0"/>
                                                   <EmptySpace max="-2" attributes="0"/>
-                                                  <Component id="includeResponseHeadersNoButton" min="-2" max="-2" attributes="0"/>
-                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="responseContentHeadersAndBodyButton" min="-2" max="-2" attributes="0"/>
                                               </Group>
                                               <Group type="102" attributes="0">
-                                                  <Component id="contentTextArea" pref="443" max="32767" attributes="2"/>
+                                                  <Component id="contentTextArea" pref="455" max="32767" attributes="2"/>
                                                   <EmptySpace max="-2" attributes="0"/>
                                               </Group>
                                               <Group type="102" attributes="0">
@@ -145,7 +144,7 @@
                                                       <Group type="102" alignment="0" attributes="0">
                                                           <Group type="103" groupAlignment="0" attributes="0">
                                                               <Component id="contentTypeField" min="-2" pref="125" max="-2" attributes="0"/>
-                                                              <Component id="headersPane" pref="374" max="32767" attributes="0"/>
+                                                              <Component id="headersPane" pref="386" max="32767" attributes="0"/>
                                                           </Group>
                                                           <EmptySpace max="-2" attributes="0"/>
                                                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
@@ -154,7 +153,7 @@
                                                           </Group>
                                                       </Group>
                                                       <Group type="102" alignment="1" attributes="0">
-                                                          <Component id="queryParametersPane" pref="374" max="32767" attributes="0"/>
+                                                          <Component id="queryParametersPane" pref="386" max="32767" attributes="0"/>
                                                           <EmptySpace max="-2" attributes="0"/>
                                                           <Group type="103" groupAlignment="0" attributes="0">
                                                               <Component id="queryParametersDeleteButton" linkSize="1" min="-2" max="-2" attributes="0"/>
@@ -214,9 +213,9 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="includeResponseHeadersYesButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="includeResponseHeadersNoButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseHeadersLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseContentHeadersAndBodyButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseContentLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseContentBodyOnlyButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -463,12 +462,12 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="headersDeleteButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="responseHeadersLabel">
+    <Component class="javax.swing.JLabel" name="responseContentLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Include Response Headers:"/>
+        <Property name="text" type="java.lang.String" value="Response Content:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="includeResponseHeadersYesButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="responseContentHeadersAndBodyButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -479,16 +478,16 @@
           </Border>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="responseHeadersButtonGroup"/>
+          <ComponentRef name="responseContentButtonGroup"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If yes is selected, the HTTP headers of the response received are included as part of the response.&lt;br&gt;If no is selected, the HTTP headers are not included.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Headers and Body as XML"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If selected, the response content will include the HTTP headers and body as XML.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="includeResponseHeadersNoButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="responseContentBodyOnlyButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -499,10 +498,10 @@
           </Border>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="responseHeadersButtonGroup"/>
+          <ComponentRef name="responseContentButtonGroup"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If yes is selected, the HTTP headers of the response received are included as part of the response.&lt;br&gt;If no is selected, the HTTP headers are not included.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Body Only"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If selected, the response content will only include the body as a string.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

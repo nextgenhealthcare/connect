@@ -114,7 +114,7 @@ public class HttpSender extends ConnectorClass {
         properties.put(HttpSenderProperties.HTTP_USERNAME, usernameField.getText());
         properties.put(HttpSenderProperties.HTTP_PASSWORD, new String(passwordField.getPassword()));
 
-        if (includeResponseHeadersYesButton.isSelected()) {
+        if (responseContentHeadersAndBodyButton.isSelected()) {
             properties.put(HttpSenderProperties.HTTP_INCLUDE_HEADERS_IN_RESPONSE, UIConstants.YES_OPTION);
         } else {
             properties.put(HttpSenderProperties.HTTP_INCLUDE_HEADERS_IN_RESPONSE, UIConstants.NO_OPTION);
@@ -198,9 +198,9 @@ public class HttpSender extends ConnectorClass {
         passwordField.setText(props.getProperty(HttpSenderProperties.HTTP_PASSWORD));
 
         if (((String) props.get(HttpSenderProperties.HTTP_INCLUDE_HEADERS_IN_RESPONSE)).equals(UIConstants.YES_OPTION)) {
-            includeResponseHeadersYesButton.setSelected(true);
+            responseContentHeadersAndBodyButton.setSelected(true);
         } else {
-            includeResponseHeadersNoButton.setSelected(true);
+            responseContentBodyOnlyButton.setSelected(true);
         }
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -655,7 +655,7 @@ public class HttpSender extends ConnectorClass {
     private void initComponents() {
 
         methodButtonGroup = new javax.swing.ButtonGroup();
-        responseHeadersButtonGroup = new javax.swing.ButtonGroup();
+        responseContentButtonGroup = new javax.swing.ButtonGroup();
         usePersistantQueuesButtonGroup = new javax.swing.ButtonGroup();
         multipartButtonGroup = new javax.swing.ButtonGroup();
         authenticationButtonGroup = new javax.swing.ButtonGroup();
@@ -677,9 +677,9 @@ public class HttpSender extends ConnectorClass {
         headersLabel = new javax.swing.JLabel();
         headersNewButton = new javax.swing.JButton();
         headersDeleteButton = new javax.swing.JButton();
-        responseHeadersLabel = new javax.swing.JLabel();
-        includeResponseHeadersYesButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        includeResponseHeadersNoButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        responseContentLabel = new javax.swing.JLabel();
+        responseContentHeadersAndBodyButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        responseContentBodyOnlyButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         rotateMessagesCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         usePersistentQueuesNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         usePersistentQueuesYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -805,21 +805,21 @@ public class HttpSender extends ConnectorClass {
             }
         });
 
-        responseHeadersLabel.setText("Include Response Headers:");
+        responseContentLabel.setText("Response Content:");
 
-        includeResponseHeadersYesButton.setBackground(new java.awt.Color(255, 255, 255));
-        includeResponseHeadersYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        responseHeadersButtonGroup.add(includeResponseHeadersYesButton);
-        includeResponseHeadersYesButton.setText("Yes");
-        includeResponseHeadersYesButton.setToolTipText("<html>If yes is selected, the HTTP headers of the response received are included as part of the response.<br>If no is selected, the HTTP headers are not included.</html>");
-        includeResponseHeadersYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseContentHeadersAndBodyButton.setBackground(new java.awt.Color(255, 255, 255));
+        responseContentHeadersAndBodyButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        responseContentButtonGroup.add(responseContentHeadersAndBodyButton);
+        responseContentHeadersAndBodyButton.setText("Headers and Body as XML");
+        responseContentHeadersAndBodyButton.setToolTipText("<html>If selected, the response content will include the HTTP headers and body as XML.</html>");
+        responseContentHeadersAndBodyButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        includeResponseHeadersNoButton.setBackground(new java.awt.Color(255, 255, 255));
-        includeResponseHeadersNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        responseHeadersButtonGroup.add(includeResponseHeadersNoButton);
-        includeResponseHeadersNoButton.setText("No");
-        includeResponseHeadersNoButton.setToolTipText("<html>If yes is selected, the HTTP headers of the response received are included as part of the response.<br>If no is selected, the HTTP headers are not included.</html>");
-        includeResponseHeadersNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseContentBodyOnlyButton.setBackground(new java.awt.Color(255, 255, 255));
+        responseContentBodyOnlyButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        responseContentButtonGroup.add(responseContentBodyOnlyButton);
+        responseContentBodyOnlyButton.setText("Body Only");
+        responseContentBodyOnlyButton.setToolTipText("<html>If selected, the response content will only include the body as a string.</html>");
+        responseContentBodyOnlyButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         rotateMessagesCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         rotateMessagesCheckBox.setText("Rotate Messages in Queue");
@@ -991,7 +991,7 @@ public class HttpSender extends ConnectorClass {
                     .addComponent(contentLabel)
                     .addComponent(contentTypeLabel)
                     .addComponent(charsetEncodingLabel)
-                    .addComponent(responseHeadersLabel)
+                    .addComponent(responseContentLabel)
                     .addComponent(sendTimeoutLabel)
                     .addComponent(authenticationLabel)
                     .addComponent(authenticationTypeLabel)
@@ -1035,12 +1035,11 @@ public class HttpSender extends ConnectorClass {
                                                 .addContainerGap())
                                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                 .addGroup(layout.createSequentialGroup()
-                                                    .addComponent(includeResponseHeadersYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(responseContentBodyOnlyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(includeResponseHeadersNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addContainerGap())
+                                                    .addComponent(responseContentHeadersAndBodyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                                 .addGroup(layout.createSequentialGroup()
-                                                    .addComponent(contentTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 443, Short.MAX_VALUE)
+                                                    .addComponent(contentTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
                                                     .addContainerGap())
                                                 .addGroup(layout.createSequentialGroup()
                                                     .addComponent(multipartYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1069,13 +1068,13 @@ public class HttpSender extends ConnectorClass {
                                                         .addGroup(layout.createSequentialGroup()
                                                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                                 .addComponent(contentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                .addComponent(headersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE))
+                                                                .addComponent(headersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE))
                                                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                                                 .addComponent(headersNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                                 .addComponent(headersDeleteButton)))
                                                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                                            .addComponent(queryParametersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
+                                                            .addComponent(queryParametersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
                                                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                                 .addComponent(queryParametersDeleteButton)
@@ -1118,9 +1117,9 @@ public class HttpSender extends ConnectorClass {
                     .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(includeResponseHeadersYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(includeResponseHeadersNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(responseHeadersLabel))
+                    .addComponent(responseContentHeadersAndBodyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(responseContentLabel)
+                    .addComponent(responseContentBodyOnlyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1341,8 +1340,6 @@ private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JButton headersNewButton;
     private javax.swing.JScrollPane headersPane;
     private com.mirth.connect.client.ui.components.MirthTable headersTable;
-    private com.mirth.connect.client.ui.components.MirthRadioButton includeResponseHeadersNoButton;
-    private com.mirth.connect.client.ui.components.MirthRadioButton includeResponseHeadersYesButton;
     private javax.swing.JLabel jLabel36;
     private javax.swing.ButtonGroup methodButtonGroup;
     private javax.swing.JLabel methodLabel;
@@ -1363,8 +1360,10 @@ private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JLabel queuePollIntervalLabel;
     private com.mirth.connect.client.ui.components.MirthTextField reconnectIntervalField;
     private javax.swing.JLabel reconnectIntervalLabel;
-    private javax.swing.ButtonGroup responseHeadersButtonGroup;
-    private javax.swing.JLabel responseHeadersLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton responseContentBodyOnlyButton;
+    private javax.swing.ButtonGroup responseContentButtonGroup;
+    private com.mirth.connect.client.ui.components.MirthRadioButton responseContentHeadersAndBodyButton;
+    private javax.swing.JLabel responseContentLabel;
     private com.mirth.connect.client.ui.components.MirthCheckBox rotateMessagesCheckBox;
     private com.mirth.connect.client.ui.components.MirthTextField sendTimeoutField;
     private javax.swing.JLabel sendTimeoutLabel;
