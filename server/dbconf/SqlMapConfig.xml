@@ -12,7 +12,7 @@
 	<typeHandler javaType="com.mirth.connect.model.Connector" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
 	<typeHandler javaType="java.util.List" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
 	<typeHandler javaType="java.util.Properties" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
-	<typeHandler javaType="java.util.Map" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
+	<typeHandler javaType="java.util.Map" callback="com.mirth.connect.server.sqlmap.extensions.MapTypeHandler" />
 	<typeHandler javaType="java.util.Calendar" callback="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />
 	
 	<transactionManager type="JDBC">
