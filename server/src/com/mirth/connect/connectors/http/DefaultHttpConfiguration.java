@@ -9,8 +9,9 @@
 
 package com.mirth.connect.connectors.http;
 
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.bio.SocketConnector;
 import org.mule.umo.endpoint.UMOEndpoint;
 
 public class DefaultHttpConfiguration implements HttpConfiguration {
@@ -19,7 +20,7 @@ public class DefaultHttpConfiguration implements HttpConfiguration {
     }
 
     public void configureReceiver(Server server, UMOEndpoint endpoint, int timeout) throws Exception {
-        SelectChannelConnector connector = new SelectChannelConnector();
+        Connector connector = new SocketConnector();
         connector.setHost(endpoint.getEndpointURI().getUri().getHost());
         connector.setPort(endpoint.getEndpointURI().getUri().getPort());
         connector.setMaxIdleTime(timeout);
@@ -27,6 +28,6 @@ public class DefaultHttpConfiguration implements HttpConfiguration {
     }
 
     public void configureDispatcher() {
-        
+
     }
 }
