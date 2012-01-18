@@ -238,6 +238,9 @@ public class AlertPanel extends javax.swing.JPanel {
         applyToChannelsTable.setOpaque(true);
         applyToChannelsTable.getTableHeader().setReorderingAllowed(false);
         applyToChannelsTable.setSortable(true);
+        
+        // Sort by Channel Name column
+        applyToChannelsTable.getRowSorter().toggleSortOrder(applyToChannelsTable.getColumnModelIndex(APPLY_CHANNEL_NAME_COLUMN_NAME));
 
         applyToChannelsTable.getColumnExt(APPLY_STATUS_COLUMN_NAME).setMaxWidth(50);
         applyToChannelsTable.getColumnExt(APPLY_STATUS_COLUMN_NAME).setMinWidth(50);
