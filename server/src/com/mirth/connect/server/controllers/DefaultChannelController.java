@@ -149,9 +149,18 @@ public class DefaultChannelController extends ChannelController {
 
         // If the channel exists, set the currentRevision
         if (!matchingChannels.isEmpty()) {
-            // If the channel in the database is the same as what's being passed
-            // in, don't bother saving it
-            if (EqualsBuilder.reflectionEquals(channel, matchingChannels.get(0), new String[] { "lastModified" })) {
+            /*
+             * If the channel in the database is the same as what's being passed
+             * in, don't bother saving it.
+             * 
+             * Ignore the channel revision and last modified date when comparing
+             * the channel being passed in to the existing channel in the
+             * database. This will prevent the channel from being saved if the
+             * only thing that changed was the revision and/or the last modified
+             * date. The client/CLI take care of this by passing in the proper
+             * revision number, but the API alone does not.
+             */
+            if (EqualsBuilder.reflectionEquals(channel, matchingChannels.get(0), new String[] { "lastModified", "revision" })) {
                 return true;
             }
 
