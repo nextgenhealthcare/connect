@@ -1014,7 +1014,13 @@ public class CommandLineInterface {
     }
 
     private void commandChannelDeploy(Token[] arguments) throws ClientException {
-        client.deployChannels(getMatchingChannels(arguments[2]));
+        List<String> channelIds = new ArrayList<String>();
+
+        for (Channel channel : getMatchingChannels(arguments[2])) {
+            channelIds.add(channel.getId());
+        }
+        
+        client.deployChannels(channelIds);
     }
 
     private void commandChannelUndeploy(Token[] arguments) throws ClientException {
