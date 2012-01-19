@@ -198,6 +198,12 @@ public class Mirth extends Thread {
     public void startup() {
         configurationController.initializeSecuritySettings();
 
+        /*
+         * This needs to happen before instantiating a SqlConfig object so that
+         * custom extension SQL maps can be loaded.
+         */
+        extensionController.loadExtensions();
+        
         try {
             SqlConfig.getSqlMapClient().getDataSource().getConnection();
         } catch (Exception e) {
@@ -207,7 +213,6 @@ public class Mirth extends Thread {
         }
 
         extensionController.removePropertiesForUninstalledExtensions();
-        extensionController.loadExtensions();
         migrationController.migrate();
         configurationController.migrateKeystore();
         extensionController.setDefaultExtensionStatus();
