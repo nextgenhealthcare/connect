@@ -180,17 +180,17 @@ public class MuleEngineController implements EngineController {
         }
     }
 
-    public void deployChannels(List<Channel> channels, ServerEventContext context) throws ControllerException {
-        if (channels == null) {
-            throw new ControllerException("Invalid channel list.");
+    public void deployChannels(List<String> channelIds, ServerEventContext context) throws ControllerException {
+        if (channelIds == null) {
+            throw new ControllerException("Invalid channel id list.");
         }
 
         try {
             List<String> registeredChannelIds = new ArrayList<String>();
 
-            for (Channel channel : channels) {
-                if (isChannelRegistered(channel.getId())) {
-                    registeredChannelIds.add(channel.getId());
+            for (String channelId : channelIds) {
+                if (isChannelRegistered(channelId)) {
+                    registeredChannelIds.add(channelId);
                 }
             }
 
@@ -208,7 +208,9 @@ public class MuleEngineController implements EngineController {
             List<String> failedChannelIds = new ArrayList<String>();
             int deployedChannelCount = 0;
             
-            for (Channel channel : channels) {
+            for (String channelId : channelIds) {
+                Channel channel = channelController.getCachedChannelById(channelId);
+                
                 if (channel.isEnabled()) {
                     try {
                         scriptController.compileChannelScript(channel);
@@ -329,7 +331,7 @@ public class MuleEngineController implements EngineController {
         try {
             undeployChannels(getDeployedChannelIds(), context);
             clearGlobalMap();
-            deployChannels(channelController.getChannel(null), context);
+            deployChannels(channelController.getCachedChannelIds(), context);
         } catch (Exception e) {
             logger.error("Error redeploying channels.", e);
         }

@@ -376,6 +376,10 @@ public class DefaultChannelController extends ChannelController {
 
         return destinationName;
     }
+    
+    public List<String> getCachedChannelIds() {
+        return new ArrayList<String>(channelCacheById.keySet());
+    }
 
     public String getDeployedConnectorId(String channelId, String connectorName) throws Exception {
         Channel channel = getDeployedChannelById(channelId);

@@ -44,6 +44,8 @@ public abstract class ChannelController extends Controller {
     public abstract Channel getCachedChannelByName(String channelName);
 
     public abstract String getCachedDestinationName(String connectorId);
+    
+    public abstract List<String> getCachedChannelIds();
 
     // deployed channel cache
 

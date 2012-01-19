@@ -2678,11 +2678,11 @@ public class Frame extends JXFrame {
         }
 
         // Only deploy enabled channels
-        final List<Channel> selectedEnabledChannels = new ArrayList<Channel>();
+        final List<String> selectedEnabledChannelIds = new ArrayList<String>();
         boolean channelDisabled = false;
         for (Channel channel : selectedChannels) {
             if (channel.isEnabled()) {
-                selectedEnabledChannels.add(channel);
+                selectedEnabledChannelIds.add(channel.getId());
             } else {
                 channelDisabled = true;
             }
@@ -2701,7 +2701,7 @@ public class Frame extends JXFrame {
 
             public Void doInBackground() {
                 try {
-                    mirthClient.deployChannels(selectedEnabledChannels);
+                    mirthClient.deployChannels(selectedEnabledChannelIds);
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }

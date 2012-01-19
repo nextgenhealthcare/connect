@@ -24,7 +24,6 @@ import org.eclipse.jetty.io.EofException;
 
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
-import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -49,19 +48,19 @@ public class EngineServlet extends MirthServlet {
                 context.setUserId(getCurrentUserId(request));
 
                 if (operation.equals(Operations.CHANNEL_REDEPLOY)) {
-                    if (!isUserAuthorized(request, null)) {
+                    if (!isUserAuthorized(request, null) || doesUserHaveChannelRestrictions(request)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         engineController.redeployAllChannels(context);
                     }
                 } else if (operation.equals(Operations.CHANNEL_DEPLOY)) {
-                    List<Channel> channels = (List<Channel>) serializer.fromXML(request.getParameter("channels"));
-                    parameterMap.put("channels", channels);
+                    List<String> channelIds = (List<String>) serializer.fromXML(request.getParameter("channelIds"));
+                    parameterMap.put("channelIds", channelIds);
 
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        engineController.deployChannels(channels, context);
+                        engineController.deployChannels(channelIds, context);
                     }
                 } else if (operation.equals(Operations.CHANNEL_UNDEPLOY)) {
                     List<String> channelIds = (List<String>) serializer.fromXML(request.getParameter("channelIds"));

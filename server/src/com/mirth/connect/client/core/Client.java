@@ -546,9 +546,9 @@ public class Client {
      * 
      * @throws ClientException
      */
-    public synchronized void deployChannels(List<Channel> channels) throws ClientException {
+    public synchronized void deployChannels(List<String> channelIds) throws ClientException {
         logger.debug("deploying channels");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_DEPLOY.getName()), new NameValuePair("channels", serializer.toXML(channels)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_DEPLOY.getName()), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
         serverConnection.executePostMethod(ENGINE_SERVLET, params);
     }
 
