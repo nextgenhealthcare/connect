@@ -107,7 +107,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
         if (isRegex) {
             filenameFilter = new RegexFilenameFilter(filenamePattern);
         } else {
-            filenameFilter = new WildcardFileFilter(filenamePattern);
+            filenameFilter = new WildcardFileFilter(filenamePattern.trim().split("\\s*,\\s*"));
         }
 
         File readDirectory = null;

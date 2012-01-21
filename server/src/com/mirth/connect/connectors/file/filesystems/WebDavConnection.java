@@ -105,7 +105,7 @@ public class WebDavConnection implements FileSystemConnection {
         if (isRegex) {
             filenameFilter = new RegexFilenameFilter(filenamePattern);
         } else {
-            filenameFilter = new WildcardFileFilter(filenamePattern);
+            filenameFilter = new WildcardFileFilter(filenamePattern.trim().split("\\s*,\\s*"));
         }
 
         client.setPath(fromDir);
