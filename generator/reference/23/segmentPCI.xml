@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PCI</name>
+    <description>Provider Credentials Information Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCI.1</name>
+            <description>Provider ID (internal)</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCI.2</name>
+            <description>ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.3</name>
+            <description>Classification ID</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.4</name>
+            <description>SSN</description>
+            <datatype>FT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.5</name>
+            <description>Tax ID</description>
+            <datatype>FT</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCI.6</name>
+            <description>Date of birth</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.7</name>
+            <description>Is USA Citizen</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.8</name>
+            <description>Alien Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.9</name>
+            <description>Birth Country ID</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.10</name>
+            <description>Birth City</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.11</name>
+            <description>Birth State ID</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.12</name>
+            <description>Gender</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.13</name>
+            <description>Original State ID</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.14</name>
+            <description>Original Year</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.15</name>
+            <description>Maiden Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.16</name>
+            <description>Comment</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.17</name>
+            <description>Standing ID</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>PCI.18</name>
+            <description>Practicing Specialties</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>PCI.19</name>
+            <description>Languages</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="unbounded">
+            <name>PCI.20</name>
+            <description>Provider Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.21</name>
+            <description>Line of Business</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCI.22</name>
+            <description>Revised By</description>
+            <datatype>PPN</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>LCI</name>
+    <description>Location (Sites) Information Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>LCI.1</name>
+            <description>Location ID (internal)</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>LCI.2</name>
+            <description>External ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="unbounded">
+            <name>LCI.3</name>
+            <description>Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="unbounded">
+            <name>LCI.4</name>
+            <description>Phone</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LCI.5</name>
+            <description>Comment</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LCI.6</name>
+            <description>Standing ID</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LCI.7</name>
+            <description>Revised By</description>
+            <datatype>PPN</datatype>
+        </field>
+    </elements>
+</segment>

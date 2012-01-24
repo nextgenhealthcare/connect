@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>VR</name>
+    <description>Value Qualifier</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>VR.1</name>
+            <description>First Data Code Value</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>VR.2</name>
+            <description>Last Data Code Calue</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

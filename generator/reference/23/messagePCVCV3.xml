@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>PCVCV3</name>
+    <description>Request to Cancel Verification</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EVN</segment>
+        <segment>PCI</segment>
+    </segments>
+</message>

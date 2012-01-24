@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>DDI</name>
+    <description>Daily Deductible</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DDI.1</name>
+            <description>Delay Days</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DDI.2</name>
+            <description>Amount</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DDI.3</name>
+            <description>Number of Days</description>
+            <datatype>NM</datatype>
+        </field>
+    </elements>
+</segment>

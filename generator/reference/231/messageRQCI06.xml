@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>RQCI06</name>
+    <description>Request/Receipt of Clinical Data Listing</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>QRD</segment>
+        <segment minOccurs="0">QRF</segment>
+        <group maxOccurs="unbounded">
+            <segment>PRD</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">CTD</segment>
+        </group>
+        <segment>PID</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NK1</segment>
+        <segment minOccurs="0">GT1</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+    </segments>
+</message>

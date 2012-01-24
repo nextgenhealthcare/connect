@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PID</name>
+    <description>Patient Identification</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.2</name>
+            <description>Patient ID (External Id)</description>
+            <datatype>CK</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PID.3</name>
+            <description>Patient ID (Internal Id)</description>
+            <datatype>CK</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.4</name>
+            <description>Alternate Patient ID</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PID.5</name>
+            <description>Patient's Name</description>
+            <datatype>PN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.6</name>
+            <description>Mother's Maiden Name</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.7</name>
+            <description>Date of Birth</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.8</name>
+            <description>Sex</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>PID.9</name>
+            <description>Patient Alias</description>
+            <datatype>PN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.10</name>
+            <description>Ethnic Group</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.11</name>
+            <description>Patient Address</description>
+            <datatype>AD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.12</name>
+            <description>County Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.13</name>
+            <description>Phone Number - Home</description>
+            <datatype>TN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.14</name>
+            <description>Phone Number - Business</description>
+            <datatype>TN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.15</name>
+            <description>Language - Patient</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.16</name>
+            <description>Marital Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.17</name>
+            <description>Religion</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.18</name>
+            <description>Patient Account Number</description>
+            <datatype>CK</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.19</name>
+            <description>Ssn Number - Patient</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PID.20</name>
+            <description>Drivers License - Patient</description>
+            <datatype>CM</datatype>
+        </field>
+    </elements>
+</segment>

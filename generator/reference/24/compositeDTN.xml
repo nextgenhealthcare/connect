@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>DTN</name>
+    <description>Day Type and Number</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DTN.1</name>
+            <description>Day Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DTN.2</name>
+            <description>Number of Days</description>
+            <datatype>NM</datatype>
+        </field>
+    </elements>
+</segment>

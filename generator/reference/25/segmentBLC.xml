@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>BLC</name>
+    <description>Blood Code</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BLC.1</name>
+            <description>Blood Product Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>BLC.2</name>
+            <description>Blood Amount</description>
+            <datatype>CQ</datatype>
+        </field>
+    </elements>
+</segment>

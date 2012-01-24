@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CTI</name>
+    <description>Clinical Trial Identification Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>CTI.1</name>
+            <description>Sponsor Study ID</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CTI.2</name>
+            <description>Study Phase Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CTI.3</name>
+            <description>Study Scheduled Time Point</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

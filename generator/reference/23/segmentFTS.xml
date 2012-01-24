@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>FTS</name>
+    <description>File Trailer</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FTS.1</name>
+            <description>File Batch Count</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FTS.2</name>
+            <description>File Trailer Comment</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

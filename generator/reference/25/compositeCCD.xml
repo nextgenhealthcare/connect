@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CCD</name>
+    <description>Charge Code and Date</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CCD.1</name>
+            <description>Invocation Event</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CCD.2</name>
+            <description>Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+    </elements>
+</segment>
