@@ -1,0 +1,1378 @@
+<?xml version="1.0"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!-- Eligibility Verification Request E1 -->
+    <xs:element name="NCPDP_D0_EligibilityVerification_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="0" maxOccurs="1" type="Patient"/>
+                <xs:element name="Insurance" type="Insurance" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="PharmacyProvider" type="PharmacyProvider" minOccurs="0" maxOccurs="1"/>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <!-- Billing Request B1 -->
+    <xs:element name="NCPDP_D0_Billing_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="0" maxOccurs="1" type="Patient"/>
+                <xs:element name="Insurance" type="Insurance" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1">
+                    <xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="10">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="Claim" type="Claim" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="PharmacyProvider" type="PharmacyProvider" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Prescriber" type="Prescriber" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="CoordinationOfBenefitsOtherPayments" type="CoordinationOfBenefitsOtherPayments" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="WorkersCompensation" type="WorkersCompensation" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="DURPPS" type="DURPPS" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Pricing" type="Pricing" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="Coupon" type="Coupon" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Compound" type="Compound" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="PriorAuthorization" type="PriorAuthorization" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Clinical" type="Clinical" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="AdditionalDocumentation" type="AdditionalDocumentation" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Facility" type="Facility" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Narrative" type="Narrative" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <!-- Reversal Request B2 -->
+    <xs:element name="NCPDP_D0_Reversal_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="0" maxOccurs="1" type="Patient"/>
+                <xs:element name="Insurance" type="Insurance" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="10">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="Claim" type="Claim" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="DURPPS" type="DURPPS" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Pricing" type="Pricing" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <!-- Rebill Request B3 -->
+    <xs:element name="NCPDP_D0_Rebill_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="0" maxOccurs="1" type="Patient"/>
+                <xs:element name="Insurance" type="Insurance" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="10">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="Claim" type="Claim" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="PharmacyProvider" type="PharmacyProvider" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Prescriber" type="Prescriber" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="CoordinationOfBenefitsOtherPayments" type="CoordinationOfBenefitsOtherPayments" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="WorkersCompensation" type="WorkersCompensation" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="DURPPS" type="DURPPS" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Pricing" type="Pricing" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="Coupon" type="Coupon" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Compound" type="Compound" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="PriorAuthorization" type="PriorAuthorization" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Clinical" type="Clinical" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="AdditionalDocumentation" type="AdditionalDocumentation" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Facility" type="Facility" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Narrative" type="Narrative" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <!-- PARequestBilling Request P1 -->
+    <xs:element name="NCPDP_D0_PARequestBilling_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="0" maxOccurs="1" type="Patient"/>
+                <xs:element name="Insurance" type="Insurance" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="10">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="Claim" type="Claim" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="PharmacyProvider" type="PharmacyProvider" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Prescriber" type="Prescriber" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="CoordinationOfBenefitsOtherPayments" type="CoordinationOfBenefitsOtherPayments" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="WorkersCompensation" type="WorkersCompensation" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="DURPPS" type="DURPPS" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Pricing" type="Pricing" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="Coupon" type="Coupon" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Compound" type="Compound" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="PriorAuthorization" type="PriorAuthorization" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="Clinical" type="Clinical" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="AdditionalDocumentation" type="AdditionalDocumentation" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Facility" type="Facility" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Narrative" type="Narrative" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <!-- PAReversal Request P2 -->
+    <xs:element name="NCPDP_D0_PAReversal_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="0" maxOccurs="1" type="Patient"/>
+                <xs:element name="Insurance" type="Insurance" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="10">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="Claim" type="Claim" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="PharmacyProvider" type="PharmacyProvider" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Prescriber" type="Prescriber" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="WorkersCompensation" type="WorkersCompensation" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="DURPPS" type="DURPPS" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Pricing" type="Pricing" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Coupon" type="Coupon" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Compound" type="Compound" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="PriorAuthorization" type="PriorAuthorization" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+                <xs:element name="PriorAuthorization" type="PriorAuthorization" minOccurs="0" maxOccurs="1"/>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <!-- PAInquiry Request P3 -->
+    <xs:element name="NCPDP_D0_PAInquiry_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="0" maxOccurs="1" type="Patient"/>
+                <xs:element name="Insurance" type="Insurance" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="10">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="Claim" type="Claim" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="PharmacyProvider" type="PharmacyProvider" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Prescriber" type="Prescriber" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="CoordinationOfBenefitsOtherPayments" type="CoordinationOfBenefitsOtherPayments" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="WorkersCompensation" type="WorkersCompensation" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="DURPPS" type="DURPPS" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Pricing" type="Pricing" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Coupon" type="Coupon" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Compound" type="Compound" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="PriorAuthorization" type="PriorAuthorization" minOccurs="1" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <!-- PARequestOnly Request P4 -->
+    <xs:element name="NCPDP_D0_PARequestOnly_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="0" maxOccurs="1" type="Patient"/>
+                <xs:element name="Insurance" type="Insurance" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="10">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="Claim" type="Claim" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="PharmacyProvider" type="PharmacyProvider" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Prescriber" type="Prescriber" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="CoordinationOfBenefitsOtherPayments" type="CoordinationOfBenefitsOtherPayments" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="WorkersCompensation" type="WorkersCompensation" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="DURPPS" type="DURPPS" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Pricing" type="Pricing" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Coupon" type="Coupon" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Compound" type="Compound" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="PriorAuthorization" type="PriorAuthorization" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="Clinical" type="Clinical" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <!-- InformationReporting Request N1 -->
+    <xs:element name="NCPDP_D0_InformationReporting_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="0" maxOccurs="1" type="Patient"/>
+                <xs:element name="Insurance" type="Insurance" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="10">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="Claim" type="Claim" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="PharmacyProvider" type="PharmacyProvider" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Prescriber" type="Prescriber" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="CoordinationOfBenefitsOtherPayments" type="CoordinationOfBenefitsOtherPayments" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="WorkersCompensation" type="WorkersCompensation" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="DURPPS" type="DURPPS" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Pricing" type="Pricing" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Clinical" type="Clinical" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+                <xs:element name="Clinical" type="Clinical" minOccurs="0" maxOccurs="1"/>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <!-- InformationReportingReversal Request N2 -->
+    <xs:element name="NCPDP_D0_InformationReportingReversal_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="0" maxOccurs="1" type="Patient"/>
+                <xs:element name="Insurance" type="Insurance" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="10">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="Claim" type="Claim" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="DURPPS" type="DURPPS" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Pricing" type="Pricing" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <!-- InformationReportingRebill Request N3 -->
+    <xs:element name="NCPDP_D0_InformationReportingRebill_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="0" maxOccurs="1" type="Patient"/>
+                <xs:element name="Insurance" type="Insurance" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="10">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="Claim" type="Claim" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="PharmacyProvider" type="PharmacyProvider" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Prescriber" type="Prescriber" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="CoordinationOfBenefitsOtherPayments" type="CoordinationOfBenefitsOtherPayments" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="WorkersCompensation" type="WorkersCompensation" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="DURPPS" type="DURPPS" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Pricing" type="Pricing" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Clinical" type="Clinical" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>    
+    <!-- ControlledSubstanceReporting Request C1 -->
+    <xs:element name="NCPDP_D0_ControlledSubstanceReporting_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="1" maxOccurs="1" type="Patient"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="10">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="Claim" type="Claim" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="PharmacyProvider" type="PharmacyProvider" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Prescriber" type="Prescriber" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <!-- ControlledSubstanceReportingReversal Request C2 -->
+    <xs:element name="NCPDP_D0_ControlledSubstanceReportingReversal_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="1" maxOccurs="1" type="Patient"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="10">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="Claim" type="Claim" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="PharmacyProvider" type="PharmacyProvider" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Prescriber" type="Prescriber" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <!-- ControlledSubstanceReportingRebill Request C3 -->
+    <xs:element name="NCPDP_D0_ControlledSubstanceReportingRebill_Request">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderRequest" type="TransactionHeaderRequest" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Patient" minOccurs="1" maxOccurs="1" type="Patient"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="10">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="Claim" type="Claim" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="PharmacyProvider" type="PharmacyProvider" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Prescriber" type="Prescriber" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="NCPDP_D0_EligibilityVerification_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="ResponseInsurance" type="ResponseInsurance" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                 </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NCPDP_D0_Billing_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="ResponseInsurance" type="ResponseInsurance" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponseClaim" type="ResponseClaim" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponsePricing" type="ResponsePricing" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponseDURPPS" type="ResponseDURPPS" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NCPDP_D0_Reversal_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="ResponseClaim" type="ResponseClaim" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponsePricing" type="ResponsePricing" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                 </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NCPDP_D0_Rebill_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="ResponseInsurance" type="ResponseInsurance" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="ResponseClaim" type="ResponseClaim" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponsePricing" type="ResponsePricing" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponseDURPPS" type="ResponseDURPPS" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                 </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NCPDP_D0_PARequestBilling_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="ResponseInsurance" type="ResponseInsurance" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="ResponseClaim" type="ResponseClaim" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponsePricing" type="ResponsePricing" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponseDURPPS" type="ResponseDURPPS" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponsePriorAuthorization" type="ResponsePriorAuthorization" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                 </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NCPDP_D0_PAReversal_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="ResponseClaim" type="ResponseClaim" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NCPDP_D0_PAInquiry_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="ResponseInsurance" type="ResponseInsurance" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="ResponseClaim" type="ResponseClaim" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponsePricing" type="ResponsePricing" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponseDURPPS" type="ResponseDURPPS" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponsePriorAuthorization" type="ResponsePriorAuthorization" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                 </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NCPDP_D0_PARequestOnly_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="ResponseInsurance" type="ResponseInsurance" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="ResponseClaim" type="ResponseClaim" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponsePricing" type="ResponsePricing" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponseDURPPS" type="ResponseDURPPS" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponsePriorAuthorization" type="ResponsePriorAuthorization" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                 </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NCPDP_D0_InformationReporting_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="ResponseInsurance" type="ResponseInsurance" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="ResponseClaim" type="ResponseClaim" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponsePricing" type="ResponsePricing" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponseDURPPS" type="ResponseDURPPS" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                 </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NCPDP_D0_InformationReportingReversal_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="ResponseClaim" type="ResponseClaim" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponsePricing" type="ResponsePricing" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NCPDP_D0_InformationReportingRebill_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="ResponseInsurance" type="ResponseInsurance" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="ResponseClaim" type="ResponseClaim" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponsePricing" type="ResponsePricing" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="ResponseDURPPS" type="ResponseDURPPS" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                 </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NCPDP_D0_ControlledSubstanceReporting_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSCATION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="ResponseClaim" type="ResponseClaim" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                 </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NCPDP_D0_ControlledSubstanceReportingReversal_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="ResponseClaim" type="ResponseClaim" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                 </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NCPDP_D0_ControlledSubstanceReportingRebill_Response">
+        <xs:complexType>
+            <xs:all minOccurs="0">
+                <xs:element name="TransactionHeaderResponse" type="TransactionHeaderResponse" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="ResponseMessage" type="ResponseMessage" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="TRANSACTIONS" minOccurs="0" maxOccurs="1"><xs:complexType><xs:sequence>
+                    <xs:element name="TRANSACTION" minOccurs="0" maxOccurs="5">
+                        <xs:complexType>
+                            <xs:all minOccurs="0">
+                                <xs:element name="ResponseStatus" type="ResponseStatus" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="ResponseClaim" type="ResponseClaim" minOccurs="0" maxOccurs="1"/>
+                            </xs:all>
+                            <xs:attribute name="counter" type="xs:string"/>
+                        </xs:complexType>
+                     </xs:element>
+                 </xs:sequence></xs:complexType></xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+
+<!--
+    Segment definitions
+-->
+    <!-- Transaction Header Request -->
+    <xs:complexType name="TransactionHeaderRequest">
+        <xs:sequence>
+            <xs:element name="BinNumber" minOccurs="1" maxOccurs="1" type="n..6"/>
+            <xs:element name="VersionReleaseNumber" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="TransactionCode" minOccurs="1" maxOccurs="1" type="TransCodes"/>
+            <xs:element name="ProcessorControlNumber" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="TransactionCount" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="ServiceProviderIdQualifier" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="ServiceProviderId" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="DateOfService" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="SoftwareVendorCertificationId" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- Insurance Segment -->
+    <xs:complexType name="Insurance">
+        <xs:all minOccurs="0">
+            <xs:element name="CardholderId" minOccurs="1" type="an..20"/>
+            <xs:element name="CardholderFirstName" minOccurs="0" type="an..12"/>
+            <xs:element name="CardholderLastName" minOccurs="0" type="an..15"/>
+            <xs:element name="HomePlan" minOccurs="0" type="an..3"/>
+            <xs:element name="PlanId" minOccurs="0" type="an..8"/>
+            <xs:element name="EligibilityClarificationCode" minOccurs="0" type="n..1"/>
+            <!--<xs:element name="FacilityId" minOccurs="0" type="an..10"/>-->
+            <xs:element name="GroupId" minOccurs="0" type="an..15"/>
+            <xs:element name="PersonCode" minOccurs="0" type="an..3"/>
+            <xs:element name="PatientRelationshipCode" minOccurs="0" type="n..1"/>
+            <xs:element name="OtherPayerBinNumber" minOccurs="0" type="n..6"/>
+            <xs:element name="OtherPayerProcessorControlNumber" minOccurs="0" type="an..10"/>
+            <xs:element name="OtherPayerCardholderId" minOccurs="0" type="an..20"/>
+            <xs:element name="OtherPayerGroupId" minOccurs="0" type="an..15"/>
+            <xs:element name="MedigapId" minOccurs="0" type="an..20"/>
+            <xs:element name="MedicaidIndicator" minOccurs="0" type="an..2"/>
+            <xs:element name="ProviderAcceptAssignmentIndicator" minOccurs="0" type="an..1"/>
+            <xs:element name="CMSPartDDefinedQualifiedFacility" minOccurs="0" type="an..1"/>
+            <xs:element name="MedicaidIdNumber" minOccurs="0" type="an..20"/>
+            <xs:element name="MedicaidAgencyNumber" minOccurs="0" type="an..15"/>
+
+
+        </xs:all>
+    </xs:complexType>
+    <!-- Patient Segment -->
+    <xs:complexType name="Patient">
+        <xs:all minOccurs="0">
+            <xs:element name="PatientIdQualifier" type="n..2" minOccurs="0"/>
+            <xs:element name="PatientId" type="an..20" minOccurs="0"/>
+            <xs:element name="DateOfBirth" type="NCPDPdate" minOccurs="0"/>
+            <xs:element name="PatientGenderCode" type="n..1" minOccurs="0"/>
+            <xs:element name="PatientFirstName" type="an..12" minOccurs="0"/>
+            <xs:element name="PatientLastName" type="an..15" minOccurs="0"/>
+            <xs:element name="PatientStreetAddress" type="an..30" minOccurs="0"/>
+            <xs:element name="PatientCityAddress" type="an..20" minOccurs="0"/>
+            <xs:element name="PatientStateProvinceAddress" type="an..2" minOccurs="0"/>
+            <xs:element name="PatientZipPostalZone" type="an..15" minOccurs="0"/>
+            <xs:element name="PatientPhoneNumber" type="n..10" minOccurs="0"/>
+            <xs:element name="PlaceOfService" type="n..2" minOccurs="0"/>
+            <xs:element name="EmployerId" type="an..15" minOccurs="0"/>
+            <!--<xs:element name="SmokerNon-SmokerCode" type="PregIndic" minOccurs="0"/>-->
+            <xs:element name="PregnancyIndicator" type="PregIndic" minOccurs="0"/>
+            <xs:element name="PatientEmailAddress" type="an..80" minOccurs="0"/>
+            <xs:element name="PatientResidence" type="n..2" minOccurs="0"/>
+
+        </xs:all>
+    </xs:complexType>
+    <!-- Claims Segment -->
+    <xs:complexType name="Claim">
+        <xs:all minOccurs="0">
+            <xs:element name="PrescriptionServiceReferenceNumberQualifier" type="an..1" minOccurs="1"/>
+            <xs:element name="PrescriptionServiceReferenceNumber" type="n..12" minOccurs="1"/>
+            <xs:element name="ProductServiceIdQualifier" type="n..2" minOccurs="1"/>
+            <xs:element name="ProductServiceId" type="an..19" minOccurs="1"/>
+            <xs:element name="AssociatedPrescriptionServiceReferenceNumber" type="n..12" minOccurs="0"/>
+            <xs:element name="AssociatedPrescriptionServiceDate" type="NCPDPdate" minOccurs="0"/>
+            <xs:element name="ProcedureModifierCodeCount" type="ProcedureModifierCodeCount" minOccurs="0"/>
+            <xs:element name="QuantityDispensed" type="quantity..10" minOccurs="0"/>
+            <xs:element name="FillNumber" type="n..2" minOccurs="0"/>
+            <xs:element name="DaysSupply" type="n..3" minOccurs="0"/>
+            <xs:element name="CompoundCode" type="n..1" minOccurs="0"/>
+            <xs:element name="DispenseAsWrittenProductSelectionCode" type="n..1" minOccurs="0"/>
+            <xs:element name="DatePrescriptionWritten" type="NCPDPdate" minOccurs="0"/>
+            <xs:element name="NumberOfRefillsAuthorized" type="n..2" minOccurs="0"/>
+            <xs:element name="PrescriptionOriginCode" type="n..1" minOccurs="0"/>
+            <xs:element name="SubmissionClarificationCodeCount" type="SubmissionClarificationCodeCount" minOccurs="0"/>
+            <!--<xs:element name="QuantityPrescribed" type="quantity..10" minOccurs="0"/>-->
+            <xs:element name="OtherCoverageCode" type="an..2" minOccurs="0"/>
+            <xs:element name="SpecialPackagingIndicator" type="n..1" minOccurs="0"/>
+            <xs:element name="OrigPrescribedProductServiceIdQualifier"  type="an..2" minOccurs="0"/>
+            <xs:element name="OriginallyPrescribedProductServiceCode"  type="an..19" minOccurs="0"/>
+            <xs:element name="OriginallyPrescribedQuantity"  type="quantity..10" minOccurs="0"/>
+            <!--<xs:element name="AlternateId" type="an..20" minOccurs="0"/>-->
+            <!--<xs:element name="ScheduledPrescriptionIdNumber"  type="an..12" minOccurs="0"/>-->
+            <xs:element name="UnitOfMeasure" type="an..2" minOccurs="0"/>
+            <xs:element name="DateOfService" type="NCPDPdate" minOccurs="0"/>
+            <xs:element name="PriorAuthorizationTypeCode" type="n..2" minOccurs="0"/>
+            <xs:element name="PriorAuthorizationNumberSubmitted" type="n..11" minOccurs="0"/>
+            <xs:element name="IntermediaryAuthorizationTypeId" type="n..2" minOccurs="0"/>
+            <xs:element name="IntermediaryAuthorizationId" type="an..11" minOccurs="0"/>
+            <xs:element name="DispensingStatus" type="an..1" minOccurs="0"/>
+            <xs:element name="QuantityIntendedToBeDispensed" type="quantity..10" minOccurs="0"/>
+            <xs:element name="DaysSupplyIntendedToBeDispensed" type="n..3" minOccurs="0"/>
+            <xs:element name="DelayReasonCode" type="n..2" minOccurs="0"/>
+            <xs:element name="PatientAssignmentIndicator" type="an..1" minOccurs="0"/>
+            <xs:element name="RouteOfAdministration" type="an..11" minOccurs="0"/>
+            <xs:element name="CompoundType" type="an..2" minOccurs="0"/>
+            <xs:element name="PharmacyServiceType" type="n..2" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- Pharmacy Provider Segment -->
+    <xs:complexType name="PharmacyProvider">
+        <xs:all minOccurs="0">
+            <xs:element name="ProviderIdQualifier" type="an..2" minOccurs="0"/>
+            <xs:element name="ProviderId" type="an..15" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- Prescriber Segment -->
+    <xs:complexType name="Prescriber">
+        <xs:all minOccurs="0">
+            <xs:element name="PrescriberIdQualifier" minOccurs="0" type="an..2"/>
+            <xs:element name="PrescriberId" minOccurs="0" type="an..15"/>
+            <!--<xs:element name="PrescriberLocationCode" minOccurs="0" type="an..3"/>-->
+            <xs:element name="PrescriberLastName" minOccurs="0" type="an..15"/>
+            <xs:element name="PrescriberPhoneNumber" minOccurs="0" type="NCPDPphone"/>
+            <xs:element name="PrimaryCareProviderIdQualifier" minOccurs="0"  type="an..2"/>
+            <xs:element name="PrimaryCareProviderId" minOccurs="0" type="an..15"/>
+            <xs:element name="PrimaryCareProviderLastName" minOccurs="0" type="an..15"/>
+            <!--<xs:element name="PrimaryCareProviderLocationCode" minOccurs="0" type="an..3"/>-->
+            <xs:element name="PrescriberFirstName" minOccurs="0" type="an..12"/>
+            <xs:element name="PrescriberStreetAddress" minOccurs="0" type="an..30"/>
+            <xs:element name="PrescriberCityAddress" minOccurs="0" type="an..20"/>
+            <xs:element name="PrescriberStateAddress" minOccurs="0" type="an..2"/>
+            <xs:element name="PrescriberZipAddress" minOccurs="0" type="an..15"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- Pricing Segment -->
+    <xs:complexType name="Pricing">
+        <xs:all minOccurs="0">
+            <xs:element name="IngredientCostSubmitted" type="n..8" minOccurs="0"/>
+            <xs:element name="DispensingFeeSubmitted" type="n..8" minOccurs="0"/>
+            <xs:element name="ProfessionalServiceFeeSubmitted" type="n..8" minOccurs="0"/>
+            <xs:element name="PatientPaidAmountSubmitted"  type="n..8" minOccurs="0"/>
+            <xs:element name="IncentiveAmountSubmitted" type="n..8" minOccurs="0"/>
+            <xs:element name="OtherAmountClaimedSubmittedCount" type="OtherAmountClaimedSubmittedCount" minOccurs="0"/>
+            <xs:element name="FlatSalesTaxAmountSubmitted"  type="n..8" minOccurs="0"/>
+            <xs:element name="PercentageSalesTaxAmountSubmitted" type="n..8" minOccurs="0"/>
+            <xs:element name="PercentageSalesTaxRateSubmitted"  type="n..7" minOccurs="0"/>
+            <xs:element name="PercentageSalesTaxBasisSubmitted" type="an..2" minOccurs="0"/>
+            <xs:element name="UsualAndCustomaryCharge" type="n..8" minOccurs="0"/>
+            <xs:element name="GrossAmountDue" type="n..8" minOccurs="0"/>
+            <xs:element name="BasisOfCostDetermination" type="an..2" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- COB/Other Payments Segment -->
+    <xs:complexType name="CoordinationOfBenefitsOtherPayments">
+        <xs:sequence>
+            <xs:element name="CoordinationOfBenefitsOtherPaymentsCount" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- Workers’ Compensation Segment -->
+    <xs:complexType name="WorkersCompensation">
+        <xs:all minOccurs="0">
+            <xs:element name="DateOfInjury" minOccurs="1" type="NCPDPdate"/>
+            <xs:element name="EmployerName" type="an..30" minOccurs="0"/>
+            <xs:element name="EmployerStreetAddress" type="an..30" minOccurs="0"/>
+            <xs:element name="EmployerCityAddress" type="an..20" minOccurs="0"/>
+            <xs:element name="EmployerStateProvinceAddress" type="an..2" minOccurs="0"/>
+            <xs:element name="EmployerZipPostalZone" type="an..15" minOccurs="0"/>
+            <xs:element name="EmployerPhoneNumber" type="n..10" minOccurs="0"/>
+            <xs:element name="EmployerContactName" type="an..30" minOccurs="0"/>
+            <xs:element name="CarrierId" type="an..10" minOccurs="0"/>
+            <xs:element name="ClaimReferenceId" type="an..30" minOccurs="0"/>
+            <xs:element name="BillingEntityTypeIndicator" type="n..2" minOccurs="0"/>
+            <xs:element name="PayToQualifier" type="n..2" minOccurs="0"/>
+            <xs:element name="PayToId" type="an..15" minOccurs="0"/>
+            <xs:element name="PayToName" type="an..20" minOccurs="0"/>
+            <xs:element name="PayToStreetAddress" type="an..30" minOccurs="0"/>
+            <xs:element name="PayToCityAddress" type="an..20" minOccurs="0"/>
+            <xs:element name="PayToStateAddress" type="an..2" minOccurs="0"/>
+            <xs:element name="PayToZipAddress" type="an..15" minOccurs="0"/>
+            <xs:element name="GenericEquivalentProductIdQualifier" type="an..2" minOccurs="0"/>
+            <xs:element name="GenericEquivalentProductId" type="an..19" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- DUR/PPS Segment -->
+    <xs:complexType name="DURPPS">
+        <xs:sequence>
+            <xs:element name="DurPpsCodeCounter" minOccurs="0" maxOccurs="9" type="DurPpsCodeCounter"/>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- Coupon Segment -->
+    <xs:complexType name="Coupon">
+        <xs:all minOccurs="0">
+            <xs:element name="CouponType" minOccurs="1" type="an..2"/>
+            <xs:element name="CouponNumber" minOccurs="1" type="an..15"/>
+            <xs:element name="CouponValueAmount" type="n..8" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- Compound Segment -->
+    <xs:complexType name="Compound">
+        <xs:all minOccurs="0">
+            <xs:element name="CompoundDosageFormDescriptionCode" minOccurs="1" type="an..2"/>
+            <xs:element name="CompoundDispensingUnitFormIndicator" minOccurs="1" type="n..1"/>
+            <xs:element name="CompoundIngredientComponentCount" minOccurs="1" type="CompoundIngredientComponentCount"/>
+            <xs:element name="CompoundIngredientModifierCodeCount" minOccurs="1" type="CompoundIngredientModifierCodeCount"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- Prior Authorization Segment -->
+    <xs:complexType name="PriorAuthorization">
+        <xs:all minOccurs="0">
+            <xs:element name="RequestType" minOccurs="1" type="an..1"/>
+            <xs:element name="RequestPeriodDate-Begin" minOccurs="1" type="NCPDPdate"/>
+            <xs:element name="RequestPeriodDate-End" minOccurs="1" type="NCPDPdate"/>
+            <xs:element name="BasisOfRequest" minOccurs="1" type="an..2"/>
+            <xs:element name="AuthorizedRepresentativeFirstName" type="an..12" minOccurs="0"/>
+            <xs:element name="AuthorizedRepresentativeLastName" type="an..15" minOccurs="0"/>
+            <xs:element name="AuthorizedRepresentativeStreetAddress" type="an..30" minOccurs="0"/>
+            <xs:element name="AuthorizedRepresentativeCityAddress" type="an..20" minOccurs="0"/>
+            <xs:element name="AuthorizedRepresentativeStateProvinceAddress" type="an..2" minOccurs="0"/>
+            <xs:element name="AuthorizedRepresentativeZipPostalZone" type="an..15" minOccurs="0"/>
+            <xs:element name="PriorAuthorizationNumber-Assigned" type="n..11" minOccurs="0"/>
+            <xs:element name="AuthorizationNumber" type="an..20" minOccurs="0"/>
+            <xs:element name="PriorAuthorizationSupportingDocumentation" type="an..500" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+     <!--Clinical Segment -->
+    <xs:complexType name="Clinical">
+        <xs:sequence>
+            <xs:element name="DiagnosisCodeCount" minOccurs="0" maxOccurs="1" type="DiagnosisCodeCount"/>
+            <xs:element name="ClinicalInformationCounter" minOccurs="0" maxOccurs="9" type="ClinicalInformationCounter"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Facility Segment-->
+    <xs:complexType name="Facility">
+        <xs:all minOccurs="0">
+            <xs:element name="FacilityId" minOccurs="0" type="an..10"/>
+            <xs:element name="FacilityName" minOccurs="0" type="an..30"/>
+            <xs:element name="FacilityStreetAddress" minOccurs="0" type="an..30"/>
+            <xs:element name="FacilityCityAddress" minOccurs="0" type="an..20"/>
+            <xs:element name="FacilityStateAddress" minOccurs="0" type="an..2"/>
+            <xs:element name="FacilityZip" minOccurs="0" type="an..15"/>
+        </xs:all>
+    </xs:complexType>
+        
+    <!-- Additional Documentation Segment-->
+    <xs:complexType name="AdditionalDocumentation">
+        <xs:all minOccurs="0">
+            <xs:element name="AdditionalDocumentationTypeId" minOccurs="0" type="an..3"/>
+            <xs:element name="RequestPeriodBeginDate" minOccurs="0" type="NCPDPdate"/>
+            <xs:element name="RequestStatus" minOccurs="0" type="an..1"/>
+            <xs:element name="LengthOfNeedQualifier" minOccurs="0" type="n..2"/>
+            <xs:element name="LengthOfNeed" minOccurs="0" type="n..3"/>
+            <xs:element name="PrescriberSupplierDateSigned" minOccurs="0" type="n..8"/>
+            <xs:element name="QuestionNumberLetterCount" minOccurs="0" type="QuestionNumberLetterCount"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- Narrative Segment-->
+    <xs:complexType name="Narrative">
+        <xs:all minOccurs="1">
+            <xs:element name="NarrativeMessage" minOccurs="0" type="an..200"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- Transaction Header Response -->
+    <xs:complexType name="TransactionHeaderResponse">
+        <xs:sequence>
+            <xs:element name="VersionReleaseNumber" minOccurs="1" maxOccurs="1" type="xs:string"/>
+            <xs:element name="TransactionCode" type="TransCodes" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="TransactionCount" minOccurs="1" maxOccurs="1" type="xs:string"/>
+            <xs:element name="HeaderResponseStatus" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="ServiceProviderIdQualifier" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="ServiceProviderId" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="DateOfService" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- AM20 -->
+    <xs:complexType name="ResponseMessage">
+        <xs:all minOccurs="0">
+            <xs:element name="Message" type="an..200" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- AM25 -->
+    <xs:complexType name="ResponseInsurance">
+        <xs:all minOccurs="0">
+            <xs:element name="GroupId" type="an..15" minOccurs="0"/>
+            <xs:element name="PlanId" type="an..8" minOccurs="0"/>
+            <xs:element name="NetworkReimbursementId" type="an..10" minOccurs="0"/>
+            <xs:element name="PayerIdQualifier" type="an..2" minOccurs="0"/>
+            <xs:element name="PayerId" type="an..10" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- AM21 -->
+    <xs:complexType name="ResponseStatus">
+        <xs:all minOccurs="0">
+            <xs:element name="TransactionResponseStatus" type="an..1" minOccurs="1"/>
+            <xs:element name="AuthorizationNumber" type="an..20" minOccurs="0"/>
+            <xs:element name="RejectCount" type="RejectCount" minOccurs="0" />
+            <xs:element name="ApprovedMessageCodeCount" minOccurs="0" type="ApprovedMessageCodeCount" />
+            <xs:element name="AdditionalMessageInformation" type="an..200" minOccurs="0"/>
+            <xs:element name="HelpDeskPhoneNumberQualifier" type="an..2" minOccurs="0"/>
+            <xs:element name="HelpDeskPhoneNumber" type="an..18" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- AM22 -->
+    <xs:complexType name="ResponseClaim">
+        <xs:all minOccurs="0">
+            <xs:element name="PrescriptionServiceReferenceNumberQualifier" type="an..1" minOccurs="1"/>
+            <xs:element name="PrescriptionServiceReferenceNumber" type="n..7" minOccurs="1"/>
+            <xs:element name="PreferredProductCount" minOccurs="0" type="PreferredProductCount"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- AM23 -->
+    <xs:complexType name="ResponsePricing">
+        <xs:all minOccurs="0">
+            <xs:element name="PatientPayAmount" type="n..8" minOccurs="0"/>
+            <xs:element name="IngredientCostPaid" type="n..8" minOccurs="0"/>
+            <xs:element name="DispensingFeePaid" type="n..8" minOccurs="0"/>
+            <xs:element name="TaxExemptIndicator" type="an..1" minOccurs="0"/>
+            <xs:element name="FlatSalesTaxAmountPaid" type="n..8" minOccurs="0"/>
+            <xs:element name="PercentageSalesTaxAmountPaid" type="n..8" minOccurs="0"/>
+            <xs:element name="PercentageSalesTaxRatePaid" type="n..7" minOccurs="0"/>
+            <xs:element name="PercentageSalesTaxBasisPaid" type="an..2" minOccurs="0"/>
+            <xs:element name="IncentiveAmountPaid" type="n..8" minOccurs="0"/>
+            <xs:element name="ProfessionalServiceFeePaid" type="n..8" minOccurs="0"/>
+            <xs:element name="OtherAmountPaidCount" type="OtherAmountPaidCount" minOccurs="0"/>
+            <xs:element name="OtherPayerAmountRecognized" type="n..8" minOccurs="0"/>
+            <xs:element name="TotalAmountPaid" type="n..8" minOccurs="0"/>
+            <xs:element name="BasisOfReimbursementDetermination" type="n..2" minOccurs="0"/>
+            <xs:element name="AmountAttributedToSalesTax" type="n..8" minOccurs="0"/>
+            <xs:element name="AccumulatedDeductibleAmount" type="n..8" minOccurs="0"/>
+            <xs:element name="RemainingDeductibleAmount" type="n..8" minOccurs="0"/>
+            <xs:element name="RemainingBenefitAmount" type="n..8" minOccurs="0"/>
+            <xs:element name="AmountAppliedToPeriodicDeductible" type="n..8" minOccurs="0"/>
+            <xs:element name="AmountOfCopayCo-Insurance" type="n..8" minOccurs="0"/>
+            <xs:element name="AmountAttributedToProductSelection" type="n..8" minOccurs="0" />
+            <xs:element name="AmountExceedingPeriodicBenefitMaximum" type="n..8" minOccurs="0"/>
+            <xs:element name="BasisOfCalculationDispensingFee" type="an..2" minOccurs="0"/>
+            <xs:element name="BasisOfCalculationCopay" type="an..2" minOccurs="0"/>
+            <xs:element name="BasisOfCalculationFlatSalesTax" type="an..2" minOccurs="0"/>
+            <xs:element name="BasisOfCalculationPercentageSalesTax" type="an..2" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+    <!-- AM24 -->
+    <xs:complexType name="ResponseDURPPS">
+        <xs:sequence>
+            <xs:element name="DurPpsResponseCodeCounter" type="DurPpsResponseCodeCounter" minOccurs="0" maxOccurs="9"/>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- AM26 -->
+    <xs:complexType name="ResponsePriorAuthorization">
+        <xs:all minOccurs="0">
+            <xs:element name="PriorAuthorizationProcessedDate" type="NCPDPdate" minOccurs="0"/>
+            <xs:element name="PriorAuthorizationEffectiveDate" type="NCPDPdate" minOccurs="0"/>
+            <xs:element name="PriorAuthorizationExpirationDate" type="NCPDPdate" minOccurs="0"/>
+            <xs:element name="PriorAuthorizationQuantity" type="n..10" minOccurs="0"/>
+            <xs:element name="PriorAuthorizationDollarsAuthorized" type="n..8" minOccurs="0"/>
+            <xs:element name="PriorAuthorizationNumberOfRefillsAuthorized" type="n..2" minOccurs="0"/>
+            <xs:element name="PriorAuthorizationQuantityAccumulated" type="n..10" minOccurs="0"/>
+            <xs:element name="PriorAuthorizationNumber-Assigned" type="n..11" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+<!--
+    Counter Field Types
+-->
+    <xs:complexType name="ClinicalInformationCounter">
+        <xs:sequence>
+            <xs:element name="MeasurementDate" minOccurs="0" maxOccurs="1" type="NCPDPdate"/>
+            <xs:element name="MeasurementTime" minOccurs="0" maxOccurs="1" type="n..4"/>
+            <xs:element name="MeasurementDimension" minOccurs="0" maxOccurs="1" type="an..2"/>
+            <xs:element name="MeasurementUnit" minOccurs="0" maxOccurs="1" type="an..2"/>
+            <xs:element name="MeasurementValue" minOccurs="0" maxOccurs="1" type="an..15"/>
+        </xs:sequence>
+        <xs:attribute name="counter" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="DurPpsCodeCounter">
+        <xs:sequence>
+            <xs:element name="ReasonForServiceCode" minOccurs="0" maxOccurs="1" type="an..2"/>
+            <xs:element name="ProfessionalServiceCode" minOccurs="0" maxOccurs="1" type="an..2"/>
+            <xs:element name="ResultOfServiceCode" minOccurs="0" maxOccurs="1" type="an..2"/>
+            <xs:element name="DurPpsLevelOfEffort" minOccurs="0" maxOccurs="1" type="n..2"/>
+            <xs:element name="DurCo-AgentIdQualifier" minOccurs="0" maxOccurs="1" type="an..2"/>
+            <xs:element name="DurCo-AgentId" minOccurs="0" maxOccurs="1" type="an..19"/>
+        </xs:sequence>
+        <xs:attribute name="counter" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="DurPpsResponseCodeCounter">
+        <xs:sequence>
+            <xs:element name="ReasonForServiceCode" minOccurs="0" maxOccurs="1" type="an..2"/>
+            <xs:element name="ClinicalSignificanceCode" minOccurs="0" maxOccurs="1" type="an..1"/>
+            <xs:element name="OtherPharmacyIndicator" minOccurs="0" maxOccurs="1" type="n..1"/>
+            <xs:element name="PreviousDateOfFill" minOccurs="0" maxOccurs="1" type="NCPDPdate"/>
+            <xs:element name="QuantityOfPreviousFill" minOccurs="0" maxOccurs="1" type="n..10"/>
+            <xs:element name="DatabaseIndicator" minOccurs="0" maxOccurs="1" type="an..1"/>
+            <xs:element name="OtherPrescriberIndicator" type="n..1" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="DurFreeTextMessage" type="an..30" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="counter" type="xs:string"/>
+    </xs:complexType>
+
+
+        <xs:complexType name="QuestionNumberLetterCount">
+        <xs:sequence maxOccurs="50">
+            <xs:element name="QuestionNumberLetter" type="an..3" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="QuestionPercentResponse" type="n..5" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="QuestionDateResponse" type="n..8" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="QuestionDollarAmountResponse" type="an..11" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="QuestionNumericResponse" type="n..11" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="QuestionAlphaNumericResponse" type="an..30" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="QuestionNumberLetterCount" type="n..2"/>
+    </xs:complexType>
+
+
+<!--
+    Count Field Types
+-->
+    <xs:complexType name="RejectCount">
+        <xs:sequence maxOccurs="99">
+            <xs:element name="RejectCode" type="an..3" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="RejectFieldOccurrenceIndicator" type="n..2" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="RejectCount" type="n..2"/>
+    </xs:complexType>
+    <xs:complexType name="ApprovedMessageCodeCount">
+        <xs:sequence maxOccurs="9">
+            <xs:element name="ApprovedMessageCode" type="an..3" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="ApprovedMessageCodeCount" type="n..1"/>
+    </xs:complexType>
+    <xs:complexType name="PreferredProductCount">
+        <xs:sequence maxOccurs="9">
+            <xs:element name="PreferredProductIdQualifier" type="an..2" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="PreferredProductId" type="an..19" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="PreferredProductIncentive" type="n..8" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="PreferredProductCopayIncentive" type="n..8" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="PreferredProductDescription" type="an..40" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="PreferredProductCount" type="n..1"/>
+    </xs:complexType>
+    <xs:complexType name="OtherAmountPaidCount">
+        <xs:sequence maxOccurs="9">
+            <xs:element name="OtherAmountPaidQualifier" type="an..2" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="OtherAmountPaid" type="n..8" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="OtherAmountPaidCount" type="n..1"/>
+    </xs:complexType>
+    <xs:complexType name="DiagnosisCodeCount">
+        <xs:sequence maxOccurs="9">
+            <xs:element name="DiagnosisCodeQualifier" minOccurs="0" maxOccurs="9" type="an..2"/>
+            <xs:element name="DiagnosisCode" minOccurs="0" maxOccurs="1" type="an..15"/>
+        </xs:sequence>
+        <xs:attribute name="DiagnosisCodeCount" type="n..1"/>
+    </xs:complexType>
+    <xs:complexType name="CompoundIngredientComponentCount">
+        <xs:sequence maxOccurs="99">
+            <xs:element name="CompoundProductIdQualifier" minOccurs="1" maxOccurs="1" type="an..2"/>
+            <xs:element name="CompoundProductId" minOccurs="1" maxOccurs="1" type="an..19"/>
+            <xs:element name="CompoundIngredientQuantity" minOccurs="1" maxOccurs="1" type="n..10"/>
+            <xs:element name="CompoundIngredientDrugCost" minOccurs="0" maxOccurs="1" type="n..8"/>
+            <xs:element name="CompoundIngredientBasisOfCostDetermination" minOccurs="0" maxOccurs="1" type="an..2"/>
+        </xs:sequence>
+        <xs:attribute name="CompoundIngredientComponentCount" type="n..2"/>
+    </xs:complexType>
+    <xs:complexType name="CompoundIngredientModifierCodeCount">
+        <xs:sequence maxOccurs="99">
+            <xs:element name="CompoundIngredientModifierCode" minOccurs="0" maxOccurs="1" type="n..2"/>
+        </xs:sequence>
+        <xs:attribute name="CompoundIngredientModifierCodeCount" type="n..2"/>
+    </xs:complexType>
+
+    <xs:complexType name="CoordinationOfBenefitsOtherPaymentsCount">
+        <xs:sequence maxOccurs="9">
+            <xs:element name="OtherPayerCoverageType" minOccurs="1" maxOccurs="1" type="an..2"/>
+            <xs:element name="OtherPayerIdQualifier" minOccurs="0" maxOccurs="1" type="an..2"/>
+            <xs:element name="OtherPayerId" minOccurs="0" maxOccurs="1" type="an..10"/>
+            <xs:element name="OtherPayerDate" minOccurs="0" maxOccurs="1" type="NCPDPdate"/>
+            <xs:element name="InternalControlNumber" minOccurs="0" maxOccurs="1" type="an..30"/>
+            <xs:element name="OtherPayerAmountPaidCount" minOccurs="0" maxOccurs="1" type="OtherPayerAmountPaidCount"/>
+            <xs:element name="OtherPayerRejectCount" minOccurs="0" maxOccurs="1" type="OtherPayerRejectCount"/>
+            <xs:element name="OtherPayerRespCount" minOccurs="0" maxOccurs="1" type="OtherPayerRespCount"/>
+            <xs:element name="BenefitStageCount" minOccurs="0" maxOccurs="1" type="BenefitStageCount"/>
+        </xs:sequence>
+        <xs:attribute name="CoordinationOfBenefitsOtherPaymentsCount" type="n..1"/>
+    </xs:complexType>
+    <xs:complexType name="OtherPayerAmountPaidCount">
+        <xs:sequence maxOccurs="9">
+            <xs:element name="OtherPayerAmountPaidQualifier" minOccurs="0" maxOccurs="1" type="an..2"/>
+            <xs:element name="OtherPayerAmountPaid" minOccurs="0" maxOccurs="1" type="n..8"/>
+        </xs:sequence>
+        <xs:attribute name="OtherPayerAmountPaidCount" type="n..1"/>
+    </xs:complexType>
+    <xs:complexType name="OtherPayerRejectCount">
+        <xs:sequence maxOccurs="20">
+            <xs:element name="OtherPayerRejectCode" minOccurs="0" maxOccurs="1" type="an..3"/>
+        </xs:sequence>
+        <xs:attribute name="OtherPayerRejectCount" type="n..2"/>
+    </xs:complexType>
+    <xs:complexType name="OtherPayerRespCount">
+        <xs:sequence maxOccurs="25">
+            <xs:element name="OtherPayerPatientRespAmountPaidQualifier" minOccurs="0" maxOccurs="25" type="an..2"/>
+            <xs:element name="OtherPayerPatientRespAmount" minOccurs="0" maxOccurs="25" type="n..8"/>
+        </xs:sequence>
+        <xs:attribute name="OtherPayerRespCount" type="n..2"/>
+    </xs:complexType>
+    <xs:complexType name="BenefitStageCount">
+        <xs:sequence maxOccurs="4">
+            <xs:element name="BenefitStageQualifier" minOccurs="0" maxOccurs="25" type="an..2"/>
+            <xs:element name="BenefitStageAmount" minOccurs="0" maxOccurs="25" type="n..8"/>
+        </xs:sequence>
+        <xs:attribute name="BenefitStageCount" type="n..2"/>
+    </xs:complexType>
+    <xs:complexType name="OtherAmountClaimedSubmittedCount">
+        <xs:sequence maxOccurs="9">
+            <xs:element name="OtherAmountClaimedSubmittedQualifier" minOccurs="0" maxOccurs="9" type="an..2"/>
+            <xs:element name="OtherAmountClaimedSubmitted" minOccurs="0" maxOccurs="9" type="n..8"/>
+        </xs:sequence>
+        <xs:attribute name="OtherAmountClaimedSubmittedCount" type="n..1"/>
+    </xs:complexType>
+    <xs:complexType name="ProcedureModifierCodeCount">
+        <xs:sequence maxOccurs="9">
+            <xs:element name="ProcedureModifierCode" minOccurs="0" maxOccurs="9" type="an..2"/>
+        </xs:sequence>
+        <xs:attribute name="ProcedureModifierCodeCount" type="n..1"/>
+    </xs:complexType>
+    <xs:complexType name="SubmissionClarificationCodeCount">
+        <xs:sequence maxOccurs="3">
+            <xs:element name="SubmissionClarificationCode" minOccurs="0" maxOccurs="3" type="an..2"/>
+        </xs:sequence>
+        <xs:attribute name="SubmissionClarificationCodeCount" type="n..1"/>
+    </xs:complexType>
+
+
+
+    <!--
+    Simple Types
+-->
+    <xs:simpleType name="TransCodes">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="E1|B1|B2|B3|P1|P2|P3|P4|N1|N2|N3|C1|C2|C3"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..1">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..2">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="2"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..3">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="3"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..8">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="8"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..10">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="10"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..11">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="11"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..12">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="12"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..15">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="15"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..18">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="18"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..19">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="19"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..20">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="20"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..30">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="30"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..40">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="40"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..80">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="80"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..200">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="200"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="an..500">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="500"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="n..1">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="1"/>
+            <xs:pattern value="[0-9]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="n..2">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="2"/>
+            <xs:pattern value="[0-9]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="n..3">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="3"/>
+            <xs:pattern value="[0-9]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="n..4">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="4"/>
+            <xs:pattern value="[0-9]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="n..5">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="5"/>
+            <xs:pattern value="[0-9]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="n..6">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="6"/>
+            <xs:pattern value="[0-9]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="n..7">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="7"/>
+            <xs:pattern value="[0-9]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="n..8">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="8"/>
+            <xs:pattern value="[0-9]*[{|}|A-R|0-9]"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="n..10">
+            <xs:restriction base="xs:string">
+                <xs:maxLength value="10"/>
+                <xs:pattern value="[0-9]*"/>
+            </xs:restriction>
+        </xs:simpleType>
+    <xs:simpleType name="n..11">
+            <xs:restriction base="xs:string">
+                <xs:maxLength value="11"/>
+                <xs:pattern value="[0-9]*"/>
+            </xs:restriction>
+        </xs:simpleType>
+    <xs:simpleType name="n..12">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="12"/>
+            <xs:pattern value="[0-9]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="PregIndic">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value=""/>
+            <xs:enumeration value=" "/>
+            <xs:enumeration value="1"/>
+            <xs:enumeration value="2"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="NCPDPdate">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9]*"/>
+            <xs:maxLength value="8"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="NCPDPphone">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9]*"/>
+            <xs:maxLength value="10"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="quantity..10">
+        <xs:restriction base="xs:double">
+            <xs:maxInclusive value="9999999.999"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="quantity..5">
+        <xs:restriction base="xs:double">
+            <xs:maxInclusive value="999.99"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
