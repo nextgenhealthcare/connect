@@ -50,6 +50,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.basic.StringConverter;
 import com.thoughtworks.xstream.converters.collections.ConcurrentHashMapConverter;
+import com.thoughtworks.xstream.converters.reflection.Sun14ReflectionProvider;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
 public class ObjectXMLSerializer {
@@ -93,7 +94,8 @@ public class ObjectXMLSerializer {
     };
 
     public ObjectXMLSerializer() {
-        xstream = new XStream(new XppDriver());
+        // http://jira.codehaus.org/browse/XSTR-651
+        xstream = new XStream(new Sun14ReflectionProvider(), new XppDriver());
         xstream.registerConverter(new StringConverter(stringCache));
         xstream.registerConverter(new ConcurrentHashMapConverter(xstream.getMapper()));
         xstream.setMode(XStream.NO_REFERENCES);
@@ -101,7 +103,8 @@ public class ObjectXMLSerializer {
     }
 
     public ObjectXMLSerializer(Class<?>[] aliases) {
-        xstream = new XStream(new XppDriver());
+        // http://jira.codehaus.org/browse/XSTR-651
+        xstream = new XStream(new Sun14ReflectionProvider(), new XppDriver());
         xstream.registerConverter(new StringConverter(stringCache));
         xstream.registerConverter(new ConcurrentHashMapConverter(xstream.getMapper()));
         processAnnotations();
@@ -110,7 +113,8 @@ public class ObjectXMLSerializer {
     }
 
     public ObjectXMLSerializer(Class<?>[] aliases, Converter[] converters) {
-        xstream = new XStream(new XppDriver());
+        // http://jira.codehaus.org/browse/XSTR-651
+        xstream = new XStream(new Sun14ReflectionProvider(), new XppDriver());
         processAnnotations();
         xstream.processAnnotations(aliases);
         xstream.setMode(XStream.NO_REFERENCES);
