@@ -90,20 +90,6 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
 
         makeIncludedMetaDataTable(null);
         filterTableTextField.requestFocus();
-        generateButton.addKeyListener(new KeyListener() {
-
-            public void keyPressed(KeyEvent e) {
-            }
-
-            public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    generateButtonActionPerformed(null);
-                }
-            }
-
-            public void keyTyped(KeyEvent e) {
-            }
-        });
         setVisible(true);
     }
 

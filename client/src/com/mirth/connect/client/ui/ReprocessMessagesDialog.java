@@ -57,20 +57,6 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
 
         makeIncludedDestinationsTable();
         okButton.requestFocus();
-        okButton.addKeyListener(new KeyListener() {
-
-            public void keyPressed(KeyEvent e) {
-            }
-
-            public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    okButtonActionPerformed(null);
-                }
-            }
-
-            public void keyTyped(KeyEvent e) {
-            }
-        });
         setVisible(true);
     }
 
