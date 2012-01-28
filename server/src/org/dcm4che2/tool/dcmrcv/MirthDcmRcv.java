@@ -52,6 +52,8 @@ public class MirthDcmRcv extends DcmRcv {
             dos = new DicomOutputStream(bos);
             dos.writeFileMetaInformation(fileMetaInformation);
             dataStream.copyTo(dos);
+            // MIRTH-2072: This needs to be closed here
+            dos.close();
 
             String dicomMessage = Base64.encodeBase64String(baos.toByteArray());
             UMOMessage response = messageReceiver.routeMessage(new MuleMessage(dicomMessage), endpoint.isSynchronous());
@@ -70,10 +72,6 @@ public class MirthDcmRcv extends DcmRcv {
             // Let the dispose take care of closing the socket
             IOUtils.closeQuietly(baos);
             IOUtils.closeQuietly(bos);
-
-            if (dos != null) {
-                dos.close();
-            }
         }
     }
 
