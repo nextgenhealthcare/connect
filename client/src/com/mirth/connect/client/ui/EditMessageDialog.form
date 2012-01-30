@@ -47,9 +47,9 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
-                          <Component id="openFileButton" min="-2" max="-2" attributes="0"/>
+                          <Component id="openTextFileButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="processBinaryFileButton" min="-2" max="-2" attributes="0"/>
+                          <Component id="openBinaryFileButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="processMessageButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -70,8 +70,8 @@
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="closeButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="processMessageButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="openFileButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="processBinaryFileButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="openTextFileButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="openBinaryFileButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -106,22 +106,22 @@
             </Property>
           </Properties>
         </Component>
-        <Component class="javax.swing.JButton" name="openFileButton">
+        <Component class="javax.swing.JButton" name="openTextFileButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Open File..."/>
+            <Property name="text" type="java.lang.String" value="Open Text File..."/>
             <Property name="toolTipText" type="java.lang.String" value="Open a file into the editor above."/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openFileButtonActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openTextFileButtonActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="processBinaryFileButton">
+        <Component class="javax.swing.JButton" name="openBinaryFileButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Process Binary File..."/>
+            <Property name="text" type="java.lang.String" value="Open Binary File..."/>
             <Property name="toolTipText" type="java.lang.String" value="Process a file without first loading the contents into the editor."/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="processBinaryFileButtonActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openBinaryFileButtonActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>

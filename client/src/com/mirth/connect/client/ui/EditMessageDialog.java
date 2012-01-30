@@ -6,7 +6,6 @@
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
-
 package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
@@ -35,7 +34,6 @@ import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.MessageObject.Protocol;
 
-/** Creates the Edit Message dialog. */
 public class EditMessageDialog extends javax.swing.JDialog implements DropTargetListener {
 
     private Frame parent;
@@ -158,8 +156,8 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         closeButton = new javax.swing.JButton();
         processMessageButton = new javax.swing.JButton();
         messageContent = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
-        openFileButton = new javax.swing.JButton();
-        processBinaryFileButton = new javax.swing.JButton();
+        openTextFileButton = new javax.swing.JButton();
+        openBinaryFileButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Message");
@@ -184,19 +182,19 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
 
         messageContent.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        openFileButton.setText("Open File...");
-        openFileButton.setToolTipText("Open a file into the editor above.");
-        openFileButton.addActionListener(new java.awt.event.ActionListener() {
+        openTextFileButton.setText("Open Text File...");
+        openTextFileButton.setToolTipText("Open a file into the editor above.");
+        openTextFileButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openFileButtonActionPerformed(evt);
+                openTextFileButtonActionPerformed(evt);
             }
         });
 
-        processBinaryFileButton.setText("Process Binary File...");
-        processBinaryFileButton.setToolTipText("Process a file without first loading the contents into the editor.");
-        processBinaryFileButton.addActionListener(new java.awt.event.ActionListener() {
+        openBinaryFileButton.setText("Open Binary File...");
+        openBinaryFileButton.setToolTipText("Process a file without first loading the contents into the editor.");
+        openBinaryFileButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                processBinaryFileButtonActionPerformed(evt);
+                openBinaryFileButtonActionPerformed(evt);
             }
         });
 
@@ -208,9 +206,9 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(openFileButton)
+                        .addComponent(openTextFileButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(processBinaryFileButton)
+                        .addComponent(openBinaryFileButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(processMessageButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -227,8 +225,8 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(closeButton)
                     .addComponent(processMessageButton)
-                    .addComponent(openFileButton)
-                    .addComponent(processBinaryFileButton))
+                    .addComponent(openTextFileButton)
+                    .addComponent(openBinaryFileButton))
                 .addContainerGap())
         );
 
@@ -246,24 +244,22 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void processBinaryFileButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_processBinaryFileButtonActionPerformed
-    {//GEN-HEADEREND:event_processBinaryFileButtonActionPerformed
-        String content = parent.browseForFileString(null);
+    private void openBinaryFileButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_openBinaryFileButtonActionPerformed
+    {//GEN-HEADEREND:event_openBinaryFileButtonActionPerformed
+        byte[] content = parent.browseForFileBytes(null);
 
         if (content != null) {
-            message.setRawData(Base64.encodeBase64String(content.getBytes()));
-            parent.processMessage(message);
-            this.dispose();
+            messageContent.setText(Base64.encodeBase64String(content));
         }
-    }//GEN-LAST:event_processBinaryFileButtonActionPerformed
+    }//GEN-LAST:event_openBinaryFileButtonActionPerformed
 
-    private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
+    private void openTextFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openTextFileButtonActionPerformed
         String content = parent.browseForFileString(null);
 
         if (content != null) {
             messageContent.setText(content);
         }
-    }//GEN-LAST:event_openFileButtonActionPerformed
+    }//GEN-LAST:event_openTextFileButtonActionPerformed
 
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_closeButtonActionPerformed
     {//GEN-HEADEREND:event_closeButtonActionPerformed
@@ -280,8 +276,8 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
     private javax.swing.JButton closeButton;
     private javax.swing.JPanel jPanel1;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea messageContent;
-    private javax.swing.JButton openFileButton;
-    private javax.swing.JButton processBinaryFileButton;
+    private javax.swing.JButton openBinaryFileButton;
+    private javax.swing.JButton openTextFileButton;
     private javax.swing.JButton processMessageButton;
     // End of variables declaration//GEN-END:variables
 }

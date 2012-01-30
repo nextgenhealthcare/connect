@@ -3101,6 +3101,25 @@ public class Frame extends JXFrame {
 
         return null;
     }
+    
+    /**
+     * Read the bytes from a file with the default defined file filter type.
+     * 
+     * @return
+     */
+    public byte[] browseForFileBytes(String fileExtension) {
+        File file = browseForFile(fileExtension);
+
+        if (file != null) {
+            try {
+                return FileUtils.readFileToByteArray(file);
+            } catch (IOException e) {
+                alertError(this, "Unable to read file.");
+            }
+        }
+
+        return null;
+    }
 
     public String readFileToString(File file) {
         try {
