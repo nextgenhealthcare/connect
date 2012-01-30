@@ -183,7 +183,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         messageContent.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         openTextFileButton.setText("Open Text File...");
-        openTextFileButton.setToolTipText("Open a file into the editor above.");
+        openTextFileButton.setToolTipText("Open a text file into the editor above.");
         openTextFileButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 openTextFileButtonActionPerformed(evt);
@@ -191,7 +191,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         });
 
         openBinaryFileButton.setText("Open Binary File...");
-        openBinaryFileButton.setToolTipText("Process a file without first loading the contents into the editor.");
+        openBinaryFileButton.setToolTipText("<html>Open a binary file into the editor above.<br>The file will be encoded and displayed as Base64.</html>");
         openBinaryFileButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 openBinaryFileButtonActionPerformed(evt);

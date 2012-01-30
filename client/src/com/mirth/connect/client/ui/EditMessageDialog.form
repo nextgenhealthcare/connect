@@ -109,7 +109,7 @@
         <Component class="javax.swing.JButton" name="openTextFileButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="Open Text File..."/>
-            <Property name="toolTipText" type="java.lang.String" value="Open a file into the editor above."/>
+            <Property name="toolTipText" type="java.lang.String" value="Open a text file into the editor above."/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openTextFileButtonActionPerformed"/>
@@ -118,7 +118,7 @@
         <Component class="javax.swing.JButton" name="openBinaryFileButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="Open Binary File..."/>
-            <Property name="toolTipText" type="java.lang.String" value="Process a file without first loading the contents into the editor."/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Open a binary file into the editor above.&lt;br&gt;The file will be encoded and displayed as Base64.&lt;/html&gt;"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openBinaryFileButtonActionPerformed"/>
