@@ -260,6 +260,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
                 File tempFile = File.createTempFile(UUID.randomUUID().toString(), ".tmp");
                 FileUtils.writeStringToFile(tempFile, content, charset);
                 Part[] parts = new Part[] { new FilePart(tempFile.getName(), tempFile, contentType, charset) };
+                postMethod.setQueryString(queryParameters);
                 postMethod.setRequestEntity(new MultipartRequestEntity(parts, postMethod.getParams()));
             } else if (StringUtils.equals(contentType, "application/x-www-form-urlencoded")) {
                 postMethod.setRequestBody(queryParameters);
