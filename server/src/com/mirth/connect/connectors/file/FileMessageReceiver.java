@@ -219,7 +219,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
                     } else {
                         String message = "";
                         if (fileConnector.isBinary()) {
-                            message = new String(new Base64().encode(getBytesFromFile(file)));
+                            message = new String(Base64.encodeBase64Chunked(getBytesFromFile(file)));
                         } else {
                             message = new String(getBytesFromFile(file), fileConnector.getCharsetEncoding());
                         }

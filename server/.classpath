@@ -27,7 +27,7 @@
 	<classpathentry kind="lib" path="lib/rhino-1.7r3pre.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.8.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-cli-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/commons/commons-codec-1.5.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-codec-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-configuration-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-dbcp-1.4.jar"/>

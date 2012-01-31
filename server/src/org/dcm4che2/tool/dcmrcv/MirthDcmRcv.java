@@ -55,7 +55,7 @@ public class MirthDcmRcv extends DcmRcv {
             // MIRTH-2072: This needs to be closed here
             dos.close();
 
-            String dicomMessage = Base64.encodeBase64String(baos.toByteArray());
+            String dicomMessage = new String(Base64.encodeBase64Chunked(baos.toByteArray()));
             UMOMessage response = messageReceiver.routeMessage(new MuleMessage(dicomMessage), endpoint.isSynchronous());
 
             // We need to check the message status

@@ -71,7 +71,7 @@ public class HttpMessageConverter {
             Element contentElement = new Element("Content");
 
             if (isBinaryContentType(request.getContentType())) {
-                contentElement.appendChild(Base64.encodeBase64String(request.getContent().getBytes()));
+                contentElement.appendChild(new String(Base64.encodeBase64Chunked(request.getContent().getBytes())));
                 contentElement.addAttribute(new Attribute("encoding", "Base64"));
             } else {
                 contentElement.appendChild(request.getContent());

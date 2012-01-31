@@ -80,7 +80,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
             byte[] bytes = null;
 
             if (connector.isBinary()) {
-                bytes = new Base64().decode(template.getBytes());
+                bytes = Base64.decodeBase64(template);
             } else {
                 bytes = template.getBytes(connector.getCharsetEncoding());
             }

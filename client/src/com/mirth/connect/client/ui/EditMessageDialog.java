@@ -249,7 +249,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         byte[] content = parent.browseForFileBytes(null);
 
         if (content != null) {
-            messageContent.setText(Base64.encodeBase64String(content));
+            messageContent.setText(new String(Base64.encodeBase64Chunked(content)));
         }
     }//GEN-LAST:event_openBinaryFileButtonActionPerformed
 

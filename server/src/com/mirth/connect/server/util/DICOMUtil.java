@@ -125,7 +125,7 @@ public class DICOMUtil {
             }
         }
 
-        return Base64.encodeBase64String(dicomObjectToByteArray(dcmObj));
+        return new String(Base64.encodeBase64Chunked(dicomObjectToByteArray(dcmObj)));
     }
 
     public static List<Attachment> getMessageAttachments(MessageObject message) throws SerializerException {
@@ -143,7 +143,7 @@ public class DICOMUtil {
     private static String returnOtherImageFormat(MessageObject message, String format, boolean autoThreshold) {
         // use new method for jpegs
         if (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg")) {
-            return Base64.encodeBase64String(dicomToJpg(1, message, autoThreshold));
+            return new String(Base64.encodeBase64Chunked(dicomToJpg(1, message, autoThreshold)));
         }
 
         byte[] rawImage = Base64.decodeBase64(getDICOMRawData(message).getBytes());
@@ -158,7 +158,7 @@ public class DICOMUtil {
             graphics.drawImage(dicom.getImage(), 0, 0, null);
             graphics.dispose();
             ImageIO.write(image, format, baos);
-            return Base64.encodeBase64String(baos.toByteArray());
+            return new String(Base64.encodeBase64Chunked(baos.toByteArray()));
         } catch (IOException e) {
             logger.error("Error Converting DICOM image", e);
         } finally {

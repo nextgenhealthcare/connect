@@ -121,7 +121,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
             ContentHandlerAdapter contentHandler = new ContentHandlerAdapter(dicomObject);
             byte[] documentBytes = documentSerializer.toXML(document).trim().getBytes(charset);
             parser.parse(new InputSource(new ByteArrayInputStream(documentBytes)), contentHandler);
-            return Base64.encodeBase64String(DICOMUtil.dicomObjectToByteArray(dicomObject));
+            return new String(Base64.encodeBase64Chunked(DICOMUtil.dicomObjectToByteArray(dicomObject)));
         } catch (Exception e) {
             throw new SerializerException(e);
         }
@@ -134,7 +134,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
             // read in header and pixel data
             pixelData = extractPixelDataFromDicomObject(dicomObject);
             byte[] decodedMessage = DICOMUtil.dicomObjectToByteArray(dicomObject);
-            rawData = Base64.encodeBase64String(decodedMessage);
+            rawData = new String(Base64.encodeBase64Chunked(decodedMessage));
 
             StringWriter output = new StringWriter();
             DicomInputStream dis = new DicomInputStream(new ByteArrayInputStream(decodedMessage));
@@ -239,10 +239,10 @@ public class DICOMSerializer implements IXMLSerializer<String> {
         if (dicomElement != null) {
             if (dicomElement.hasItems()) {
                 for (int i = 0; i < dicomElement.countItems(); i++) {
-                    images.add(Base64.encodeBase64String(dicomElement.getFragment(i)));
+                    images.add(new String(Base64.encodeBase64Chunked(dicomElement.getFragment(i))));
                 }
             } else {
-                images.add(Base64.encodeBase64String(dicomElement.getBytes()));
+                images.add(new String(Base64.encodeBase64Chunked(dicomElement.getBytes())));
             }
         }
 

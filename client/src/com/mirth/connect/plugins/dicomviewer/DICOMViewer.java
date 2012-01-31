@@ -40,7 +40,7 @@ public class DICOMViewer extends AttachmentViewer {
         try {
             String messageId = parent.mirthClient.getAttachment(attachmentIds.get(0)).getMessageId();
             MessageObject message = parent.messageBrowser.getMessageObjectById(messageId);
-            byte[] rawImage = new Base64().decode(parent.mirthClient.getDICOMMessage(message).getBytes());
+            byte[] rawImage = Base64.decodeBase64(parent.mirthClient.getDICOMMessage(message).getBytes());
             ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
             DICOM dcm = new DICOM(bis);
             dcm.run(message.getType());

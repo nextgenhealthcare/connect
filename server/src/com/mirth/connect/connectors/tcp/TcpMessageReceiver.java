@@ -318,7 +318,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
             String str_data;
             // if we are receiving binary, base64 the bytes
             if (((TcpConnector) connector).isBinary()) {
-                str_data = new String(new Base64().encode(data));
+                str_data = new String(Base64.encodeBase64Chunked(data));
             } else {
                 String charset = connector.getCharsetEncoding();
                 str_data = new String(data, charset);

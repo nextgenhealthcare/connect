@@ -52,7 +52,7 @@ public class RTFViewer extends AttachmentViewer {
         try {
 
             Attachment attachment = parent.mirthClient.getAttachment(attachmentIds.get(0));
-            byte[] rawRTF = new Base64().decode(attachment.getData());
+            byte[] rawRTF = Base64.decodeBase64(attachment.getData());
             JEditorPane jEditorPane = new JEditorPane("text/rtf", new String(rawRTF));
 
             if (jEditorPane.getDocument().getLength() == 0) {

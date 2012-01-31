@@ -53,7 +53,7 @@ public class ImageViewer extends AttachmentViewer {
 
             Attachment attachment = parent.mirthClient.getAttachment(attachmentIds.get(0));
             byte[] rawData = attachment.getData();
-            byte[] rawImage = new Base64().decode(rawData);
+            byte[] rawImage = Base64.decodeBase64(rawData);
             ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
 
             image = ImageIO.read(bis);

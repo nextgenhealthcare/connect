@@ -162,7 +162,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 File file = ((List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor)).get(0);
 
                 if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM))) {
-                    pasteBox.setText(new DICOMSerializer().toXML(Base64.encodeBase64String(FileUtils.readFileToByteArray(file))));
+                    pasteBox.setText(new DICOMSerializer().toXML(new String(Base64.encodeBase64Chunked(FileUtils.readFileToByteArray(file)))));
                 } else {
                     pasteBox.setText(FileUtils.readFileToString(file, UIConstants.CHARSET));
                 }
@@ -373,7 +373,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 byte[] content = PlatformUI.MIRTH_FRAME.browseForFileBytes(null);
                 
                 if (content != null) {
-                    pasteBox.setText(new DICOMSerializer().toXML(Base64.encodeBase64String(content)));
+                    pasteBox.setText(new DICOMSerializer().toXML(new String(Base64.encodeBase64Chunked(content))));
                 }
             } else {
                 String content = PlatformUI.MIRTH_FRAME.browseForFileString(null);

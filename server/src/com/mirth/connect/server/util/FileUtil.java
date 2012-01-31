@@ -45,11 +45,11 @@ public class FileUtil {
 	}
 
 	public static byte[] decode(String data) {
-		return new Base64().decode(data.getBytes());
+		return Base64.decodeBase64(data.getBytes());
 	}
 
 	public static String encode(byte[] data) {
-		return new String(new Base64().encode(data));
+		return new String(Base64.encodeBase64Chunked(data));
 	}
 
 	/**

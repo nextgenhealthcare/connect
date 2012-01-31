@@ -218,7 +218,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
         byte[] buffer = null;
         // When working with binary data the template has to be base64 encoded
         if (connector.isBinary()) {
-            buffer = new Base64().decode(data.getBytes());
+            buffer = Base64.decodeBase64(data);
         } else {
             buffer = data.getBytes(connector.getCharsetEncoding());
         }

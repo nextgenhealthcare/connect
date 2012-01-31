@@ -38,7 +38,7 @@ public class PDFViewer extends AttachmentViewer {
         try {
             Attachment attachment = parent.mirthClient.getAttachment(attachmentIds.get(0));
             byte[] rawData = attachment.getData();
-            byte[] rawPDF = new Base64().decode(rawData);
+            byte[] rawPDF = Base64.decodeBase64(rawData);
 
             File temp = File.createTempFile(attachment.getAttachmentId(), ".pdf");
             temp.deleteOnExit();
