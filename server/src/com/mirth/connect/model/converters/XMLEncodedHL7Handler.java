@@ -28,10 +28,12 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
     private String subcomponentSeparator;
     private boolean encodeEntities = false;
     private boolean inElement = false;
+    private int rootLevel = -1;
 
     private int previousDelimeterCount = -1;
     private String[] previousFieldNameArray;
     private String[] previousComponentNameArray;
+    private String[] previousSubcomponentNameArray;
 
     private StringBuilder output = new StringBuilder();
 
@@ -58,11 +60,16 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
 
         String[] localNameArray = StringUtils.split(localName, ID_DELIMETER);
 
+        if (rootLevel == -1) {
+            rootLevel = localNameArray.length;
+        }
+
         /*
          * Skip the root element, MSH.1, and MSH.2 since those don't have any
          * data that we care about.
          */
         if ((localNameArray.length == 1) && (localNameArray[0].equals(ER7Reader.MESSAGE_ROOT_ID))) {
+            rootLevel = 0;
             return;
         } else if (localNameArray.length == 2) {
             if (isHeaderSegment(localNameArray[0])) {
@@ -90,7 +97,12 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
          */
         int currentDelimeterCount = localNameArray.length - 1;
 
-        if (currentDelimeterCount == 1) {
+        /*
+         * MIRTH-2078: Don't add missing fields/components/subcomponents if the
+         * current level was the starting level. This only pertains to partial
+         * XML messages where the root is a field or component.
+         */
+        if (currentDelimeterCount == 1 && rootLevel <= 1) {
             /*
              * This will add missing fields if any (ex. between OBX.1 and
              * OBX.5).
@@ -108,7 +120,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
             }
 
             previousFieldNameArray = localNameArray;
-        } else if (currentDelimeterCount == 2) {
+        } else if (currentDelimeterCount == 2 && rootLevel <= 2) {
             /*
              * This will add missing components if any (ex. between OBX.1.1 and
              * OBX.1.5).
@@ -126,6 +138,24 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
             }
 
             previousComponentNameArray = localNameArray;
+        } else if (currentDelimeterCount == 3 && rootLevel <= 3) {
+            /*
+             * This will add missing subcomponents if any (ex. between OBX.1.1.1
+             * and OBX.1.1.5).
+             */
+            int previousSubcomponentId = 0;
+
+            if (previousSubcomponentNameArray != null) {
+                previousSubcomponentId = NumberUtils.toInt(previousSubcomponentNameArray[3]);
+            }
+
+            int currentSubcomponentId = NumberUtils.toInt(localNameArray[3]);
+
+            for (int i = 1; i < (currentSubcomponentId - previousSubcomponentId); i++) {
+                output.append(subcomponentSeparator);
+            }
+
+            previousSubcomponentNameArray = localNameArray;
         }
 
         /*
@@ -195,22 +225,29 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
          * at level 0, MSH.3 is at level 1, MSH.3.1 at level 2, and so on. We
          * can use this to determine which seperator to append once the element
          * is closed.
+         * 
+         * MIRTH-2078: Only add the last character if the root delimiter is 0
+         * (HL7Message) or the current element level is deeper than the root
+         * level. This only pertains to partial XML messages where the root is a
+         * field or component.
          */
-        switch (currentDelimeterCount) {
-            case 0:
-                output.append(segmentSeparator);
-                break;
-            case 1:
-                output.append(fieldSeparator);
-                break;
-            case 2:
-                output.append(componentSeparator);
-                break;
-            case 3:
-                output.append(subcomponentSeparator);
-                break;
-            default:
-                break;
+        if (rootLevel == 0 || currentDelimeterCount >= rootLevel) {
+            switch (currentDelimeterCount) {
+                case 0:
+                    output.append(segmentSeparator);
+                    break;
+                case 1:
+                    output.append(fieldSeparator);
+                    break;
+                case 2:
+                    output.append(componentSeparator);
+                    break;
+                case 3:
+                    output.append(subcomponentSeparator);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -233,7 +270,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
         // Receive notification of ignorable whitespace in element content.
         logger.trace("found ignorable whitespace: length=" + length);
     }
-    
+
     /**
      * This awesome piece of code returns true if the string is MSH|[B|F]HS
      * 
@@ -246,7 +283,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
                 return true;
             }
         }
-        
+
         return false;
     }
 }
