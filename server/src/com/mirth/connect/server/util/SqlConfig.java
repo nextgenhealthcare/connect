@@ -43,7 +43,6 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
 
 public class SqlConfig {
-    private static final String ENCRYPTION_PREFIX = "{enc}";
     private static SqlMapClient sqlMapClient = null;
     private static Map<String, String> databaseDriverMap = null;
 
@@ -117,8 +116,8 @@ public class SqlConfig {
                         Encryptor encryptor = configurationController.getEncryptor();
 
                         if (encryptionSettings.getEncryptProperties()) {
-                            if (StringUtils.startsWith(mirthProperties.getString("database.password"), ENCRYPTION_PREFIX)) {
-                                String encryptedPassword = StringUtils.removeStart(mirthProperties.getString("database.password"), ENCRYPTION_PREFIX);
+                            if (StringUtils.startsWith(mirthProperties.getString("database.password"), EncryptionSettings.ENCRYPTION_PREFIX)) {
+                                String encryptedPassword = StringUtils.removeStart(mirthProperties.getString("database.password"), EncryptionSettings.ENCRYPTION_PREFIX);
                                 String decryptedPassword = encryptor.decrypt(encryptedPassword);
                                 databaseProperties.setProperty("database.password", decryptedPassword);
                             } else if (StringUtils.isNotBlank(mirthProperties.getString("database.password"))){
@@ -127,7 +126,7 @@ public class SqlConfig {
                                 databaseProperties.setProperty("database.password", decryptedPassword);
 
                                 // now encrypt the password and write it back to the file
-                                String encryptedPassword = ENCRYPTION_PREFIX + encryptor.encrypt(decryptedPassword);
+                                String encryptedPassword = EncryptionSettings.ENCRYPTION_PREFIX + encryptor.encrypt(decryptedPassword);
                                 mirthProperties.setProperty("database.password", encryptedPassword);
                                 File confDir = new File(ControllerFactory.getFactory().createConfigurationController().getConfigurationDir());
                                 OutputStream os = new FileOutputStream(new File(confDir, "mirth.properties"));

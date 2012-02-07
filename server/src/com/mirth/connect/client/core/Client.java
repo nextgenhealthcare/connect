@@ -727,10 +727,17 @@ public class Client {
                         messageObject.setChannelId(channelId);
                         messageObject.setId(getGuid());
                         
-                        if (isEncryptExport()) {
-                            messageObject.setRawData(getEncryptor().decrypt(messageObject.getRawData()));
-                            messageObject.setTransformedData(getEncryptor().decrypt(messageObject.getTransformedData()));
-                            messageObject.setEncodedData(getEncryptor().decrypt(messageObject.getEncodedData()));
+                        
+                        if (StringUtils.startsWith(messageObject.getRawData(), EncryptionSettings.ENCRYPTION_PREFIX)) {
+                            messageObject.setRawData(StringUtils.removeStart(getEncryptor().decrypt(messageObject.getRawData()), EncryptionSettings.ENCRYPTION_PREFIX));
+                        }
+                        
+                        if (StringUtils.startsWith(messageObject.getTransformedData(), EncryptionSettings.ENCRYPTION_PREFIX)) {
+                            messageObject.setTransformedData(StringUtils.removeStart(getEncryptor().decrypt(messageObject.getTransformedData()), EncryptionSettings.ENCRYPTION_PREFIX));
+                        }
+                        
+                        if (StringUtils.startsWith(messageObject.getEncodedData(), EncryptionSettings.ENCRYPTION_PREFIX)) {
+                            messageObject.setEncodedData(StringUtils.removeStart(getEncryptor().decrypt(messageObject.getEncodedData()), EncryptionSettings.ENCRYPTION_PREFIX));
                         }
 
                         try {
@@ -773,9 +780,9 @@ public class Client {
                 for (MessageObject messageObject : messageObjectList) {
                     
                     if (isEncryptExport()) {
-                        messageObject.setRawData(getEncryptor().encrypt(messageObject.getRawData()));
-                        messageObject.setTransformedData(getEncryptor().encrypt(messageObject.getTransformedData()));
-                        messageObject.setEncodedData(getEncryptor().encrypt(messageObject.getEncodedData()));
+                        messageObject.setRawData(EncryptionSettings.ENCRYPTION_PREFIX + getEncryptor().encrypt(messageObject.getRawData()));
+                        messageObject.setTransformedData(EncryptionSettings.ENCRYPTION_PREFIX + getEncryptor().encrypt(messageObject.getTransformedData()));
+                        messageObject.setEncodedData(EncryptionSettings.ENCRYPTION_PREFIX + getEncryptor().encrypt(messageObject.getEncodedData()));
                     }
                     
                     if (exportMode == 1) {

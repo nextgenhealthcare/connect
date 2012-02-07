@@ -95,6 +95,7 @@ import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerSettings;
@@ -3125,8 +3126,8 @@ public class Frame extends JXFrame {
         try {
             String content = FileUtils.readFileToString(file, UIConstants.CHARSET);
 
-            if (mirthClient.isEncryptExport()) {
-                return mirthClient.getEncryptor().decrypt(content);
+            if (StringUtils.startsWith(content, EncryptionSettings.ENCRYPTION_PREFIX)) {
+                return mirthClient.getEncryptor().decrypt(StringUtils.removeStart(content, EncryptionSettings.ENCRYPTION_PREFIX));
             } else {
                 return content;
             }
@@ -3200,7 +3201,7 @@ public class Frame extends JXFrame {
                 String contentToWrite = null;
                 
                 if (mirthClient.isEncryptExport()) {
-                    contentToWrite = mirthClient.getEncryptor().encrypt(fileContents);    
+                    contentToWrite = EncryptionSettings.ENCRYPTION_PREFIX + mirthClient.getEncryptor().encrypt(fileContents);    
                 } else {
                     contentToWrite = fileContents;
                 }
