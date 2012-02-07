@@ -11,6 +11,7 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre6"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.mirth.connect.server.Mirth"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Server"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx512m"/>
