@@ -678,7 +678,7 @@ public class Client {
             EncryptionSettings encryptionSettings = getEncryptionSettings();
             encryptor = new KeyEncryptor();
             encryptor.setProvider((Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance());
-            SecretKey secretKey = new SecretKeySpec(encryptionSettings.getSecretKey(), encryptionSettings.getDigestAlgorithm());
+            SecretKey secretKey = new SecretKeySpec(encryptionSettings.getSecretKey(), encryptionSettings.getEncryptionAlgorithm());
             encryptor.setKey(secretKey);
         } catch (Exception e) {
             logger.error("Unable to load encryption settings.", e);
