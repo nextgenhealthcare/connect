@@ -285,6 +285,8 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
         protected AtomicBoolean closed = new AtomicBoolean(false);
 
         protected LlpProtocol protocol;
+        
+        protected Protocol inboundProtocol;
 
         public TcpWorker(Socket socket) {
             this.socket = socket;
@@ -303,6 +305,17 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
             }
 
             logger.info("TCP connection from " + socket.getRemoteSocketAddress().toString() + " on port " + socket.getLocalPort());
+            
+            try {
+                inboundProtocol = channelController.getDeployedChannelById(connector.getChannelId()).getSourceConnector().getTransformer().getInboundProtocol();
+            } catch (Exception e) {
+                /*
+                 * MIRTH-2095: If the above fails, then for some reason the
+                 * channel is not in the deployed channel cache yet. Get it from
+                 * the general channel cache.
+                 */
+                inboundProtocol = channelController.getCachedChannelById(connector.getChannelId()).getSourceConnector().getTransformer().getInboundProtocol();
+            }
         }
 
         public void release() {
@@ -538,9 +551,6 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
             if (error == null) {
                 error = "";
             }
-
-            // Get the inbound protocol of this connector from the channel cache
-            Protocol inboundProtocol = channelController.getDeployedChannelById(connector.getChannelId()).getSourceConnector().getTransformer().getInboundProtocol();
 
             // Check if we want to send ACKs at all.
             if (connector.getSendACK()) {
