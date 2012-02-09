@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.io.EofException;
+import org.eclipse.jetty.io.RuntimeIOException;
 
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
@@ -186,8 +186,8 @@ public class ConfigurationServlet extends MirthServlet {
                     }
                 }
             }
-        } catch (EofException eof) {
-            logger.debug(eof);
+        } catch (RuntimeIOException rio) {
+            logger.debug(rio);
         } catch (Throwable t) {
             logger.error(ExceptionUtils.getStackTrace(t));
             throw new ServletException(t);
