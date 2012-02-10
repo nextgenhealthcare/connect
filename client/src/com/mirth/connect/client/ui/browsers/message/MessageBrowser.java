@@ -46,7 +46,6 @@ import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.X12TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
-import org.w3c.dom.Document;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.MessageListHandler;
@@ -70,6 +69,7 @@ import com.mirth.connect.model.MessageObject.Protocol;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.filters.MessageObjectFilter;
 import com.mirth.connect.plugins.AttachmentViewer;
+import com.mirth.connect.util.XmlUtil;
 
 /**
  * The message browser panel.
@@ -936,8 +936,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                         DocumentSerializer serializer = new DocumentSerializer(true);
 
                         try {
-                            Document doc = serializer.fromXML(message);
-                            message = serializer.toXML(doc);
+                            message = XmlUtil.prettyPrint(message);
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
                         }
