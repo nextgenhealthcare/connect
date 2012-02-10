@@ -154,16 +154,27 @@ public class DefaultMessageObjectController extends MessageObjectController {
             if (checkIfMessageExists) {
                 if (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) {
                     try {
+                        /*
+                         * MIRTH-2098: Don't remove the message from the actual
+                         * queue if the new status is QUEUED. Still remove it
+                         * from the database so that a queued message doesn't
+                         * show up in the message browser when only storing
+                         * errored messages.
+                         */
+                        if (!messageObject.getStatus().equals(MessageObject.Status.QUEUED)) {
+                            removeMessageFromQueue(messageObject);
+                        }
                         removeMessage(messageObject);
-                    } catch (ControllerException e) {
+                    } catch (Exception e) {
                         logger.error("Could not remove old message: id=" + messageObject.getId(), e);
                     }
                 }
 
                 if (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
                     try {
+                        removeMessageFromQueue(messageObject);
                         removeMessage(messageObject);
-                    } catch (ControllerException e) {
+                    } catch (Exception e) {
                         logger.error("Could not remove old message: id=" + messageObject.getId(), e);
                     }
                 }
@@ -382,7 +393,6 @@ public class DefaultMessageObjectController extends MessageObjectController {
         logger.debug("removing message: id=" + messageObject.getId());
 
         try {
-            removeMessageFromQueue(messageObject);
             MessageObjectFilter filter = new MessageObjectFilter();
             filter.setId(messageObject.getId());
             SqlConfig.getSqlMapClient().delete("Message.deleteMessage", getFilterMap(filter, null));
