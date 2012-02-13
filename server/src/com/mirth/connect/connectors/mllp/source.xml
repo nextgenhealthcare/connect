@@ -2,7 +2,7 @@
 	<name>LLP Listener</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.2.0</mirthVersion>
+	<mirthVersion>2.2.1</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to listen for incoming messages in using the MLLP protocol (HL7 only). Automatic acknowledgement generation is supported.</description>
 	<clientClassName>com.mirth.connect.connectors.mllp.LLPListener</clientClassName>

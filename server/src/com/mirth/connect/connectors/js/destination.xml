@@ -2,7 +2,7 @@
 	<name>JavaScript Writer</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.2.0</mirthVersion>
+	<mirthVersion>2.2.1</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to execute JavaScript to connect to an arbitrary destination.</description>
 	<clientClassName>com.mirth.connect.connectors.js.JavaScriptWriter</clientClassName>
