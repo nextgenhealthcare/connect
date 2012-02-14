@@ -855,7 +855,7 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
 
     public void setSelectText(String statement) {
         if (!useJavaScriptYes.isSelected()) {
-            databaseSQLTextPane.setText(statement + ";\n\n" + databaseSQLTextPane.getText());
+            databaseSQLTextPane.setText(statement + "\n\n" + databaseSQLTextPane.getText());
         } else {
             StringBuilder connectionString = new StringBuilder();
             connectionString.append("var result = dbConn.executeCachedQuery(\"");
@@ -869,7 +869,7 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
     public void setUpdateText(List<String> statements) {
         if (!useJavaScriptYes.isSelected()) {
             for (String statement : statements) {
-                databaseUpdateSQLTextPane.setText(statement.replaceAll("\\?", "") + ";\n\n" + databaseUpdateSQLTextPane.getText());
+                databaseUpdateSQLTextPane.setText(statement.replaceAll("\\?", "") + "\n\n" + databaseUpdateSQLTextPane.getText());
             }
         } else {
             StringBuilder connectionString = new StringBuilder();

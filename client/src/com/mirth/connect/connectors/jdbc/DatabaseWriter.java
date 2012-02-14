@@ -426,7 +426,7 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
     public void setInsertText(List<String> statements) {
         if (!useJavaScriptYes.isSelected()) {
             for (String statement : statements) {
-                databaseSQLTextPane.setText(statement.replaceAll("\\?", "") + ";\n\n" + databaseSQLTextPane.getText());
+                databaseSQLTextPane.setText(statement.replaceAll("\\?", "") + "\n\n" + databaseSQLTextPane.getText());
             }
         } else {
             StringBuilder connectionString = new StringBuilder();
