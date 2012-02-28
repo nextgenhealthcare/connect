@@ -12,7 +12,7 @@
 	<library type="CLIENT" path="file-client.jar" />
 	<library type="SHARED" path="file-shared.jar" />
 	<library type="SERVER" path="file-server.jar" />
-	<library type="SERVER" path="lib/jcifs-1.2.22.jar" />
+	<library type="SERVER" path="lib/jcifs-1.3.17.jar" />
 	<library type="SERVER" path="lib/webdavclient4j-core-0.92.jar" />
 	<transformers></transformers>
 	<protocol>file</protocol>
