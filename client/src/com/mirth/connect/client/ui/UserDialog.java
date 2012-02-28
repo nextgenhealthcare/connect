@@ -12,8 +12,6 @@ package com.mirth.connect.client.ui;
 import java.awt.Dimension;
 import java.awt.Point;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.mirth.connect.model.User;
 
 /**
@@ -193,16 +191,8 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         User user = userEditPanel.getUser();
         boolean success = false;
         
-        // If the username is being changed, update and switch user
-        if (editingLoggedInUser && !user.getUsername().equals(PlatformUI.USER_NAME)) {
-            String newPassword = userEditPanel.getPassword();
-            
-            if (StringUtils.isEmpty(newPassword)) {
-                parent.alertWarning(this, "If you are changing your username, you must also update your password.");
-                return;
-            }
-            
-            success = parent.updateAndSwitchUser(this, user, user.getUsername(), newPassword);
+        if (editingLoggedInUser) {
+            success = parent.updateCurrentUser(this, user, userEditPanel.getPassword());
         } else {
             success = parent.updateUser(this, user, userEditPanel.getPassword());
         }

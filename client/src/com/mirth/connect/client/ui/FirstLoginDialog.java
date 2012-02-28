@@ -235,12 +235,7 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         User user = userEditPanel.getUser();
         boolean success = false;
         
-        // If the current user's username is being changed, update and switch user
-        if (!user.getUsername().equals(PlatformUI.USER_NAME)) {
-            success = parent.updateAndSwitchUser(this, user, user.getUsername(), userEditPanel.getPassword());
-        } else {
-            success = parent.updateUser(this, user, userEditPanel.getPassword());
-        }
+        success = parent.updateCurrentUser(this, user, userEditPanel.getPassword());
         
         if (!success) {
             return;

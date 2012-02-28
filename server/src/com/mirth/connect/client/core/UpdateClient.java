@@ -164,7 +164,7 @@ public class UpdateClient {
         HttpClient httpClient = new HttpClient(httpClientParams, httpConnectionManager);
 
         PostMethod post = new PostMethod(client.getUpdateSettings().getUpdateUrl() + URL_REGISTRATION);
-        NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("user", serializer.toXML(requestUser)) };
+        NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("version", client.getVersion()), new NameValuePair("user", serializer.toXML(user)) };
         post.setRequestBody(params);
 
         try {

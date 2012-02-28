@@ -1283,7 +1283,7 @@ public class Frame extends JXFrame {
     /**
      * Sends the passed in user to the server, updating it or adding it.
      */
-    public boolean updateUser(final Component parentComponent, final User currentUser, final String newPassword) {
+    public boolean updateUser(final Component parentComponent, final User updateUser, final String newPassword) {
         final String workingId = startWorking("Saving user...");
         
         if (StringUtils.isNotEmpty(newPassword)) {
@@ -1291,7 +1291,7 @@ public class Frame extends JXFrame {
              * If a new user is being passed in (null user id), the password
              * will only be checked right now.
              */
-            if (!checkOrUpdateUserPassword(parentComponent, currentUser, newPassword)) {
+            if (!checkOrUpdateUserPassword(parentComponent, updateUser, newPassword)) {
                 stopWorking(workingId);
                 return false;
             }
@@ -1301,7 +1301,7 @@ public class Frame extends JXFrame {
 
             public Void doInBackground() {
                 try {
-                    mirthClient.updateUser(currentUser);
+                    mirthClient.updateUser(updateUser);
                     retrieveUsers();
                     
                     /*
@@ -1309,10 +1309,10 @@ public class Frame extends JXFrame {
                      * the password was only checked. Get the created user with
                      * the id and then update the password.
                      */
-                    if (currentUser.getId() == null) {
+                    if (updateUser.getId() == null) {
                         User newUser = null;
                         for (User user : users) {
-                            if (user.getUsername().equals(currentUser.getUsername())) {
+                            if (user.getUsername().equals(updateUser.getUsername())) {
                                 newUser = user;
                             }
                         }
@@ -1339,10 +1339,34 @@ public class Frame extends JXFrame {
         return true;
     }
 
-    public boolean updateAndSwitchUser(Component parentComponent, final User currentUser, String newUsername, String newPassword) {
+    /**
+     * If the current user is being updated, it needs to be done in the main
+     * thread so that the username can be changed, re-logged in, and the current
+     * user information can be updated.
+     * 
+     * @param parentComponent
+     * @param currentUser
+     * @param newPassword
+     * @return
+     */
+    public boolean updateCurrentUser(Component parentComponent, final User currentUser, String newPassword) {
         final String workingId = startWorking("Saving user...");
         
-        if (!checkOrUpdateUserPassword(parentComponent, currentUser, newPassword)) {
+        // Find out if the username is being changed so that we can login again.
+        boolean changingUsername = !currentUser.getUsername().equals(PlatformUI.USER_NAME);
+        
+        /*
+         * If there is a new password, update it. If not, make sure that the
+         * username is not being changed, since the password must be updated
+         * when the username is changed.
+         */
+        if (StringUtils.isNotEmpty(newPassword)) {
+            if (!checkOrUpdateUserPassword(parentComponent, currentUser, newPassword)) {
+                stopWorking(workingId);
+                return false;
+            }
+        } else if (changingUsername) {
+            alertWarning(parentComponent, "If you are changing your username, you must also update your password.");
             stopWorking(workingId);
             return false;
         }
@@ -1361,18 +1385,21 @@ public class Frame extends JXFrame {
             stopWorking(workingId);
         }
 
-        final String workingId2 = startWorking("Switching User...");
-
-        try {
-            LoadedExtensions.getInstance().resetPlugins();
-            mirthClient.logout();
-            mirthClient.login(newUsername, newPassword, PlatformUI.CLIENT_VERSION);
-            PlatformUI.USER_NAME = newUsername;
-            updateClient = null; // Reset the update client so it uses the new user next time it is called.
-        } catch (ClientException e) {
-            alertException(parentComponent, e.getStackTrace(), e.getMessage());
-        } finally {
-            stopWorking(workingId2);
+        // If the username is being changed, login again.
+        if (changingUsername) {
+            final String workingId2 = startWorking("Switching User...");
+    
+            try {
+                LoadedExtensions.getInstance().resetPlugins();
+                mirthClient.logout();
+                mirthClient.login(currentUser.getUsername(), newPassword, PlatformUI.CLIENT_VERSION);
+                PlatformUI.USER_NAME = currentUser.getUsername();
+                updateClient = null; // Reset the update client so it uses the new user next time it is called.
+            } catch (ClientException e) {
+                alertException(parentComponent, e.getStackTrace(), e.getMessage());
+            } finally {
+                stopWorking(workingId2);
+            }
         }
         
         return true;
