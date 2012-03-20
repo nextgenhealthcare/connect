@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>LCH</name>
+    <description>Location Characteristic</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>LCH.1</name>
+            <description>Primary Key Value</description>
+            <datatype>PL</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LCH.2</name>
+            <description>Segment Action Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LCH.3</name>
+            <description>Segment Unique Key</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>LCH.4</name>
+            <description>Location Characteristic ID</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LCH.5</name>
+            <description>Location Characteristic Value</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

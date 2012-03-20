@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PRA</name>
+    <description>Pracitioner Detail</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PRA.1</name>
+            <description>Primary Key Value</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRA.2</name>
+            <description>Practioner Group</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRA.3</name>
+            <description>Practioner Category</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRA.4</name>
+            <description>Provider Billing</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRA.5</name>
+            <description>Specialty</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRA.6</name>
+            <description>Practitioner ID Numbers</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRA.7</name>
+            <description>Privileges</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRA.8</name>
+            <description>Date Entered Practice</description>
+            <datatype>DT</datatype>
+        </field>
+    </elements>
+</segment>

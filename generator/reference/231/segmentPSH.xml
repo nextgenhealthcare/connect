@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PSH</name>
+    <description>Product Summary Header</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PSH.1</name>
+            <description>Report Type</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PSH.2</name>
+            <description>Report Form Identifier</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PSH.3</name>
+            <description>Report Date</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PSH.4</name>
+            <description>Report Interval Start Date</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PSH.5</name>
+            <description>Report Interval End Date</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PSH.6</name>
+            <description>Quantity Manufactured</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PSH.7</name>
+            <description>Quantity Distributed</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PSH.8</name>
+            <description>Quantity Distributed Method</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PSH.9</name>
+            <description>Quantity Distributed Comment</description>
+            <datatype>FT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PSH.10</name>
+            <description>Quantity In Use</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PSH.11</name>
+            <description>Quantity In Use Method</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PSH.12</name>
+            <description>Quantity In Use Comment</description>
+            <datatype>FT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PSH.13</name>
+            <description>Number of Product Experience Reports Filed by Facility</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PSH.14</name>
+            <description>Number of Product Experience Reports Filed by Distributor</description>
+            <datatype>NM</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>LSUU12</name>
+    <description>Automated Equipment Log/Service Update</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>EQU</segment>
+        <segment maxOccurs="unbounded">EQP</segment>
+        <segment minOccurs="0">ROL</segment>
+    </segments>
+</message>

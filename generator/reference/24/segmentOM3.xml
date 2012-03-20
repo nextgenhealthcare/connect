@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>OM3</name>
+    <description>Categorical Service/Test/Observation</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM3.1</name>
+            <description>Sequence Number - Test/ Observation Master File</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM3.2</name>
+            <description>Preferred Coding System</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM3.3</name>
+            <description>Valid Coded 'Answers'</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM3.4</name>
+            <description>Normal Text/Codes for Categorical Observations</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM3.5</name>
+            <description>Abnormal Text/Codes for Categorical Observations</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM3.6</name>
+            <description>Critical Text/Codes for Categorical Observations</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM3.7</name>
+            <description>Value Type</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

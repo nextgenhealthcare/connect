@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CF</name>
+    <description>Coded Element with Formatted Values</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CF.1</name>
+            <description>Identifier</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CF.2</name>
+            <description>Formatted Text</description>
+            <datatype>FT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CF.3</name>
+            <description>Name of Coding System</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CF.4</name>
+            <description>Alternate Identifier</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CF.5</name>
+            <description>Alternate Formatted Text</description>
+            <datatype>FT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CF.6</name>
+            <description>Name of Alternate Coding System</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>SPD</name>
+    <description>Specialty</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SPD.1</name>
+            <description>Specialty Name</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SPD.2</name>
+            <description>Governing Board</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SPD.3</name>
+            <description>Eligible or Certified</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SPD.4</name>
+            <description>Date of Certification</description>
+            <datatype>DT</datatype>
+        </field>
+    </elements>
+</segment>

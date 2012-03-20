@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CX</name>
+    <description>Extended Composite ID with Check Digit</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CX.1</name>
+            <description>ID</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CX.2</name>
+            <description>Check Digit</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CX.3</name>
+            <description>Code Identifying the Check Digit Scheme Employed</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CX.4</name>
+            <description>Assigning Authority</description>
+            <datatype>HD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CX.5</name>
+            <description>Identifier Type Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CX.6</name>
+            <description>Assigning Facility</description>
+            <datatype>HD</datatype>
+        </field>
+    </elements>
+</segment>

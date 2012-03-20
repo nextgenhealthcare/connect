@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>DFTP03</name>
+    <description>Post Detail Financial Transaction</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EVN</segment>
+        <segment>PID</segment>
+        <segment minOccurs="0">PD1</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">ROL</segment>
+        <segment minOccurs="0">PV1</segment>
+        <segment minOccurs="0">PV2</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">ROL</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">DB1</segment>
+        <group maxOccurs="unbounded" minOccurs="0">
+            <segment minOccurs="0">ORC</segment>
+            <group minOccurs="0">
+                <segment>OBR</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>OBX</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+        </group>
+        <group maxOccurs="unbounded">
+            <segment>FT1</segment>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>PR1</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">ROL</segment>
+            </group>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment minOccurs="0">ORC</segment>
+                <group minOccurs="0">
+                    <segment>OBR</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                </group>
+                <group maxOccurs="unbounded" minOccurs="0">
+                    <segment>OBX</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                </group>
+            </group>
+        </group>
+        <segment minOccurs="0" maxOccurs="unbounded">DG1</segment>
+        <segment minOccurs="0">DRG</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">GT1</segment>
+        <group maxOccurs="unbounded" minOccurs="0">
+            <segment>IN1</segment>
+            <segment minOccurs="0">IN2</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">IN3</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">ROL</segment>
+        </group>
+        <segment minOccurs="0">ACC</segment>
+    </segments>
+</message>

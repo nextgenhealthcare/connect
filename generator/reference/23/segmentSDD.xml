@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>SDD</name>
+    <description>Study Design Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SDD.1</name>
+            <description>DesignID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SDD.2</name>
+            <description>DefinitionID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SDD.3</name>
+            <description>StudyTypeID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SDD.4</name>
+            <description>QuestionID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SDD.5</name>
+            <description>CategoryID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SDD.6</name>
+            <description>Parent</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SDD.7</name>
+            <description>Sequence</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SDD.8</name>
+            <description>RevisedBy</description>
+            <datatype>PPN</datatype>
+        </field>
+    </elements>
+</segment>

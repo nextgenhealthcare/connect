@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>RXC</name>
+    <description>Pharmacy/Treatment Component Order</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXC.1</name>
+            <description>Rx Component Type</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXC.2</name>
+            <description>Component Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXC.3</name>
+            <description>Component Amount</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXC.4</name>
+            <description>Component Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXC.5</name>
+            <description>Component Strength</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXC.6</name>
+            <description>Component Strength Units</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

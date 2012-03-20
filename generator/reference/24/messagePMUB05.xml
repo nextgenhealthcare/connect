@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>PMUB05</name>
+    <description>Deactivate Practicing Person</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EVN</segment>
+        <segment>STF</segment>
+        <segment minOccurs="0">PRA</segment>
+        <segment minOccurs="0">ORG</segment>
+    </segments>
+</message>
