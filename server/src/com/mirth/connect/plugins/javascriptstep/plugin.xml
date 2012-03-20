@@ -1,0 +1,12 @@
+<pluginMetaData path="javascriptstep">
+	<name>Javascript Transformer Step</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>2.2.1</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides a JavaScript step-type for Mirth Connect transformers</description>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.javascriptstep.JavascriptStepPlugin</string>
+	</clientClasses>
+	<library type="CLIENT" path="javascriptstep-client.jar" />
+</pluginMetaData>
