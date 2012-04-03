@@ -14,6 +14,11 @@ public class SimpleReceiver
 	protected long startTime;
 	protected int lastCount = 0;
 	protected long lastTime;
+	
+    private char END_MESSAGE = 0x1C; // character indicating end of message
+    private char START_MESSAGE = 0x0B; // first character of a new message
+    private char END_OF_RECORD = 0x0D; // character sent between messages
+    private char END_OF_SEGMENT = 0x0D; // character sent between hl7 segments
 
 	public static void main(String args[]) throws Exception
 	{
@@ -134,7 +139,7 @@ public class SimpleReceiver
 
 	public void serve(InputStream in, PrintStream out)
 	{
-		out.println("MSH|junk|junk|junk");
+		out.println(START_MESSAGE + "MSH|^~\\&|HL7LISTENER|AMRS|FORMENTRY|AMRS|20050217153200||ORU^R01^ACK|?|P|2.5" + END_OF_SEGMENT + "MSA|AA|AMRS20050217152845|" + END_OF_SEGMENT + END_MESSAGE + END_OF_RECORD);
 		incrementCount();
 	}
 
