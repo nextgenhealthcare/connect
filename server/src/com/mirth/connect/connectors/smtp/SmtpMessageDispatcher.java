@@ -58,18 +58,28 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 
         try {
             Email email = null;
-            
+
             if (connector.isHtml()) {
                 email = new HtmlEmail();
             } else {
                 email = new MultiPartEmail();
             }
-            
+
             email.setCharset(connector.getCharsetEncoding());
-            
-            email.setHostName(connector.getSmtpHost());
-            email.setSmtpPort(connector.getSmtpPort());
-            email.setSocketConnectionTimeout(connector.getTimeout());
+
+            email.setHostName(replacer.replaceValues(connector.getSmtpHost(), mo));
+
+            try {
+                email.setSmtpPort(Integer.parseInt(replacer.replaceValues(connector.getSmtpPort(), mo)));
+            } catch (NumberFormatException e) {
+                // Don't set if the value is invalid
+            }
+
+            try {
+                email.setSocketConnectionTimeout(Integer.parseInt(replacer.replaceValues(connector.getTimeout(), mo)));
+            } catch (NumberFormatException e) {
+                // Don't set if the value is invalid
+            }
 
             if ("SSL".equalsIgnoreCase(connector.getEncryption())) {
                 email.setSSL(true);
@@ -78,7 +88,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
             }
 
             if (connector.isAuthentication()) {
-                email.setAuthentication(connector.getUsername(), connector.getPassword());
+                email.setAuthentication(replacer.replaceValues(connector.getUsername(), mo), replacer.replaceValues(connector.getPassword(), mo));
             }
 
             /*
@@ -91,33 +101,35 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
                 email.addTo(to);
             }
 
+            // Currently unused
             for (String cc : replaceValuesAndSplit(connector.cc(), mo)) {
                 email.addCc(cc);
             }
 
+            // Currently unused
             for (String bcc : replaceValuesAndSplit(connector.getBcc(), mo)) {
                 email.addBcc(bcc);
             }
 
-            if (StringUtils.isNotBlank(connector.getReplyTo())) {
-                email.addReplyTo(connector.getReplyTo());
+            // Currently unused
+            for (String replyTo : replaceValuesAndSplit(connector.getReplyTo(), mo)) {
+                email.addReplyTo(replyTo);
             }
 
             for (Entry<String, String> header : connector.getHeaders().entrySet()) {
-                email.addHeader(header.getKey(), header.getValue());
+                email.addHeader(replacer.replaceValues(header.getKey(), mo), replacer.replaceValues(header.getValue(), mo));
             }
 
-            email.setFrom(connector.getFrom());
+            email.setFrom(replacer.replaceValues(connector.getFrom(), mo));
             email.setSubject(replacer.replaceValues(connector.getSubject(), mo));
-            
+
             String body = replacer.replaceValues(connector.getBody(), mo);
-            
+
             if (connector.isHtml()) {
                 ((HtmlEmail) email).setHtmlMsg(body);
             } else {
                 email.setMsg(body);
             }
-            
 
             /*
              * If the MIME type for the attachment is missing, we display a
@@ -129,7 +141,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
                 String name = replacer.replaceValues(attachment.getName(), mo);
                 String mimeType = replacer.replaceValues(attachment.getMimeType(), mo);
                 String content = replacer.replaceValues(attachment.getContent(), mo);
-                
+
                 byte[] bytes;
 
                 if (StringUtils.indexOf(mimeType, "/") < 0) {

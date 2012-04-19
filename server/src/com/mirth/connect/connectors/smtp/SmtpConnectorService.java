@@ -2,6 +2,7 @@ package com.mirth.connect.connectors.smtp;
 
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
@@ -56,7 +57,10 @@ public class SmtpConnectorService implements ConnectorService {
             email.setSubject("Mirth Connect Test Email");
 
             try {
-                email.addTo(to);
+                for (String toAddress : StringUtils.split(to, ",")) {
+                    email.addTo(toAddress);
+                }
+                
                 email.setFrom(from);
                 email.setMsg("Receipt of this email confirms that mail originating from this Mirth Connect Server is capable of reaching its intended destination.\n\nSMTP Configuration:\n- Host: " + host + "\n- Port: " + port);
 

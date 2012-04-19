@@ -20,8 +20,8 @@ public class SmtpConnector extends AbstractServiceEnabledConnector {
     private String channelId;
 
     private String smtpHost;
-    private int smtpPort = 25;
-    private int timeout = 5000;
+    private String smtpPort = "25";
+    private String timeout = "5000";
     private String encryption;
     private boolean authentication = false;
     private String username;
@@ -59,19 +59,19 @@ public class SmtpConnector extends AbstractServiceEnabledConnector {
         this.smtpHost = smtpHost;
     }
 
-    public int getSmtpPort() {
+    public String getSmtpPort() {
         return smtpPort;
     }
 
-    public void setSmtpPort(int smtpPort) {
+    public void setSmtpPort(String smtpPort) {
         this.smtpPort = smtpPort;
     }
 
-    public int getTimeout() {
+    public String getTimeout() {
         return timeout;
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(String timeout) {
         this.timeout = timeout;
     }
 
