@@ -1,4 +1,4 @@
-<project name="mirth-hudson" default="create-dist">
+<project name="mirth-ci" default="create-dist">
 	<target name="create-dist">
 		<exec executable="svn" output="svn.properties">
 			<arg value="info" />
