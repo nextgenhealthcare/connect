@@ -6,8 +6,8 @@
 		<property name="upstreamProjectRoot" value="../../${upstreamProjectName}" />
 
 		<ant dir="../../../${env.JOB_NAME}/workspace/" antfile="build.xml" target="dist">
-			<property name="key.keystore" value="${upstreamProjectRoot}/mirthcodecert.pfx" />
-			<property name="keystore_property_file" value="${upstreamProjectRoot}/keystore.properties" />
+			<property name="key.keystore" value="/opt/mirthcodecert/mirthcodecert.pfx" />
+			<property name="keystore_property_file" value="/opt/mirthcodecert/keystore.properties" />
 			<property name="schemaVersion" value="${schema.version}" />
 			<property name="version" value="${mirth.version}.b${env.BUILD_NUMBER}" />
 			<property name="server" value="${upstreamProjectRoot}/workspace/server/" />
