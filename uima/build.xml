@@ -1,10 +1,15 @@
-<project name="uima" basedir="." default="help">
+<project name="connect-connector-uima" basedir="." default="help">
 	<target name="help">
 		<echo>Apache UIMA Connector</echo>
 	</target>
 
 	<target name="init">
+		<!-- Set default server, version, and keystore_property_file value for local build, passed in for CI build -->
+		<property name="server" value="../Server" />
+		<property prefix="mversion" file="${server}/version.properties" />
+		<property name="version" value="${mversion.mirth.version}" />
 		<property file="build.properties" />
+		<property name="keystore_property_file" value="${mirth.server}/keystore.properties" />
 
 		<path id="classpath">
 			<fileset dir="${lib}" includes="**/*.jar" />
@@ -88,9 +93,13 @@
 		</copy>
 
 		<!-- sign jars for webstart -->
+		<!-- Set default key.keystore value for local build, passed in for CI build -->
+		<property name="key.keystore" value="${mirth.server}/keystore.jks" />
 		<property file="${keystore_property_file}" />
 
 		<signjar alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
+			<!-- http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7127374 -->
+			<sysproperty key="jsse.enableSNIExtension" value="false" />
 			<fileset dir="${dist}">
 				<include name="**/*.jar" />
 			</fileset>
