@@ -647,7 +647,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
                                             String rawData = DICOMUtil.getDICOMRawData(message);
                                             message.setRawData(rawData);
                                         } else {
-                                            String rawData = AttachmentUtil.reAttachMessage(message);
+                                            String rawData = AttachmentUtil.reAttachRawMessage(message);
                                             message.setRawData(rawData);
                                         }
 

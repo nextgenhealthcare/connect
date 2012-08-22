@@ -42,6 +42,22 @@ public class AttachmentUtil {
         return messageData;
     }
 
+    public static String reAttachRawMessage(MessageObject message){
+        String messageData = message.getRawData();
+        try {
+            List<Attachment> list  = getMessageAttachments(message);
+            if(list != null){
+                for(Attachment attachment : list){
+                    // backslash escaping - http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4626653
+                    messageData = messageData.replaceAll(attachment.getAttachmentId(), new String(attachment.getData()).replaceAll("\\\\", "\\\\\\\\"));
+                }
+            }
+        }
+        catch(Exception e){
+            logger.error("Error reattaching attachments",e);
+        }
+        return messageData;
+    }
     
     public static List<Attachment> getMessageAttachments(MessageObject message) throws SerializerException {
         List<Attachment> attachments = null;
