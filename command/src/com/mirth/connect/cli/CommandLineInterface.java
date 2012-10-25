@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,21 +44,23 @@ import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.EventListHandler;
 import com.mirth.connect.client.core.ListHandlerException;
+import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
-import com.mirth.connect.model.ChannelStatus;
-import com.mirth.connect.model.ChannelStatus.State;
 import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.Event;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
-import com.mirth.connect.model.filters.MessageObjectFilter;
+import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.util.PropertyVerifier;
+import com.mirth.connect.util.export.MessageExportOptions;
 
 public class CommandLineInterface {
     private String DEFAULT_CHARSET = "UTF-8";
@@ -566,14 +569,16 @@ public class CommandLineInterface {
                 break;
             }
         }
+        
         client.redeployAllChannels();
+        
         if (hasChannels) {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            List<ChannelStatus> channelStatus = client.getChannelStatusList();
+            List<DashboardStatus> channelStatus = client.getChannelStatusList();
             int limit = 60; // 30 second limit
             if (arguments.length > 1 && arguments[1] instanceof IntToken) {
                 limit = ((IntToken) arguments[1]).getValue() * 2; // multiply
@@ -795,28 +800,31 @@ public class CommandLineInterface {
         File fXml = new File(path);
 
         // message filter
-        MessageObjectFilter filter = new MessageObjectFilter();
+        MessageFilter filter = new MessageFilter();
         String channelId = arguments[2].getText();
-        filter.setChannelId(channelId);
 
         // export mode
         int exportMode = 0;
-        int plainTextMode = 0;
+        Character plainTextContentType = null;
+        ContentType contentType = null;
 
         if (arguments.length == 4) {
             String modeArg = arguments[3].getText();
             
-            if (StringUtils.equals(modeArg, "xml")) {
-                exportMode = 0;
-            } else if (StringUtils.equals(modeArg, "raw")) {
-                exportMode = 1;
-                plainTextMode = 0;
+            if (StringUtils.equals(modeArg, "raw")) {
+                contentType = ContentType.RAW;
+            } else if (StringUtils.equals(modeArg, "processedraw")) {
+                contentType = ContentType.PROCESSED_RAW;
             } else if (StringUtils.equals(modeArg, "transformed")) {
-                exportMode = 1;
-                plainTextMode = 1;
+                contentType = ContentType.TRANSFORMED;
             } else if (StringUtils.equals(modeArg, "encoded")) {
-                exportMode = 1;
-                plainTextMode = 2;
+                contentType = ContentType.ENCODED;
+            } else if (StringUtils.equals(modeArg, "sent")) {
+                contentType = ContentType.SENT;
+            } else if (StringUtils.equals(modeArg, "response")) {
+                contentType = ContentType.RESPONSE;
+            } else if (StringUtils.equals(modeArg, "processedresponse")) {
+                contentType = ContentType.PROCESSED_RESPONSE;
             }
         }
         
@@ -831,7 +839,18 @@ public class CommandLineInterface {
         
         try {
             out.println("Exporting messages to file: " + fXml.getPath());
-            messageCount = client.exportMessages(exportMode, plainTextMode, filter, pageSize, fXml, DEFAULT_CHARSET);
+            
+            MessageExportOptions options = new MessageExportOptions();
+            options.setChannelId(channelId);
+            options.setMessageFilter(filter);
+            options.setContentType(contentType);
+            options.setBufferSize(pageSize);
+            options.setFolder(fXml.getAbsolutePath());
+            options.setOutputType(MessageExportOptions.SINGLE);
+            options.setEncrypt(false);
+            options.setCharset(DEFAULT_CHARSET);
+            
+            messageCount = client.exportMessagesLocal(options);
         } catch (Exception e) {
             error("unable to write file " + path + ": " + e, e);
         }
@@ -841,9 +860,9 @@ public class CommandLineInterface {
 
     private void commandStatus(Token[] arguments) throws ClientException {
         out.println("ID\t\t\t\t\tStatus\t\tName");
-        List<ChannelStatus> channels = client.getChannelStatusList();
-        for (Iterator<ChannelStatus> iter = channels.iterator(); iter.hasNext();) {
-            ChannelStatus channel = iter.next();
+        List<DashboardStatus> channels = client.getChannelStatusList();
+        for (Iterator<DashboardStatus> iter = channels.iterator(); iter.hasNext();) {
+            DashboardStatus channel = iter.next();
 
             out.println(channel.getChannelId() + "\t" + channel.getState().toString() + "\t\t" + channel.getName());
         }
@@ -895,9 +914,9 @@ public class CommandLineInterface {
     private void commandAllChannelStats(Token[] arguments) throws ClientException {
         out.println("Received\tFiltered\tQueued\t\tSent\t\tErrored\t\tAlerted\t\tName");
 
-        List<ChannelStatus> channelStatuses = client.getChannelStatusList();
+        List<DashboardStatus> channelStatuses = client.getChannelStatusList();
 
-        for (ChannelStatus channelStatus : channelStatuses) {
+        for (DashboardStatus channelStatus : channelStatuses) {
             ChannelStatistics stats = client.getStatistics(channelStatus.getChannelId());
             out.println(stats.getReceived() + "\t\t" + stats.getFiltered() + "\t\t" + stats.getQueued() + "\t\t" + stats.getSent() + "\t\t" + stats.getError() + "\t\t" + stats.getAlerted() + "\t\t" + channelStatus.getName());
         }
@@ -949,9 +968,9 @@ public class CommandLineInterface {
     }
 
     private void commandChannelStart(Token[] arguments) throws ClientException {
-        for (ChannelStatus channel : getMatchingChannelStatuses(arguments[2])) {
-            if (channel.getState().equals(State.PAUSED) || channel.getState().equals(State.STOPPED)) {
-                if (channel.getState().equals(State.PAUSED)) {
+        for (DashboardStatus channel : getMatchingChannelStatuses(arguments[2])) {
+            if (channel.getState().equals(ChannelState.PAUSED) || channel.getState().equals(ChannelState.STOPPED)) {
+                if (channel.getState().equals(ChannelState.PAUSED)) {
                     client.resumeChannel(channel.getChannelId());
                     out.println("Channel '" + channel.getName() + "' Resumed");
                 } else {
@@ -963,8 +982,8 @@ public class CommandLineInterface {
     }
 
     private void commandChannelStop(Token[] arguments) throws ClientException {
-        for (ChannelStatus channel : getMatchingChannelStatuses(arguments[2])) {
-            if (channel.getState().equals(State.PAUSED) || channel.getState().equals(State.STARTED)) {
+        for (DashboardStatus channel : getMatchingChannelStatuses(arguments[2])) {
+            if (channel.getState().equals(ChannelState.PAUSED) || channel.getState().equals(ChannelState.STARTED)) {
                 client.stopChannel(channel.getChannelId());
                 out.println("Channel '" + channel.getName() + "' Stopped");
             }
@@ -972,8 +991,8 @@ public class CommandLineInterface {
     }
 
     private void commandChannelPause(Token[] arguments) throws ClientException {
-        for (ChannelStatus channel : getMatchingChannelStatuses(arguments[2])) {
-            if (channel.getState().equals(State.STARTED)) {
+        for (DashboardStatus channel : getMatchingChannelStatuses(arguments[2])) {
+            if (channel.getState().equals(ChannelState.STARTED)) {
                 client.pauseChannel(channel.getChannelId());
                 out.println("Channel '" + channel.getName() + "' Paused");
             }
@@ -981,8 +1000,8 @@ public class CommandLineInterface {
     }
 
     private void commandChannelResume(Token[] arguments) throws ClientException {
-        for (ChannelStatus channel : getMatchingChannelStatuses(arguments[2])) {
-            if (channel.getState().equals(State.PAUSED)) {
+        for (DashboardStatus channel : getMatchingChannelStatuses(arguments[2])) {
+            if (channel.getState().equals(ChannelState.PAUSED)) {
                 client.resumeChannel(channel.getChannelId());
                 out.println("Channel '" + channel.getName() + "' Resumed");
             }
@@ -990,7 +1009,7 @@ public class CommandLineInterface {
     }
 
     private void commandChannelStats(Token[] arguments) throws ClientException {
-        for (ChannelStatus channel : getMatchingChannelStatuses(arguments[2])) {
+        for (DashboardStatus channel : getMatchingChannelStatuses(arguments[2])) {
             ChannelStatistics stats = client.getStatistics(channel.getChannelId());
             out.println("Channel Stats for " + channel.getName());
             out.println("Received: " + stats.getReceived());
@@ -1098,10 +1117,10 @@ public class CommandLineInterface {
     // there was, all channel methods could operate on a Channel object (or a
     // ChannelStatus
     // object), and we would only need one getMatching...() method.
-    private List<ChannelStatus> getMatchingChannelStatuses(Token key) throws ClientException {
-        List<ChannelStatus> result = new ArrayList<ChannelStatus>();
+    private List<DashboardStatus> getMatchingChannelStatuses(Token key) throws ClientException {
+        List<DashboardStatus> result = new ArrayList<DashboardStatus>();
 
-        for (ChannelStatus status : client.getChannelStatusList()) {
+        for (DashboardStatus status : client.getChannelStatusList()) {
             if (matchesChannel(key, status.getName(), status.getChannelId())) {
                 result.add(status);
             }
@@ -1130,10 +1149,33 @@ public class CommandLineInterface {
     }
 
     private void commandResetstats(Token[] arguments) throws ClientException {
-        List<ChannelStatus> channelStatuses = client.getChannelStatusList();
+        List<DashboardStatus> channelStatuses = client.getChannelStatusList();
+        
+        // TODO: separate this code into a utility method since this code is also duplicated in com.mirth.connect.client.ui.Frame.clearStats()
+        Map<String, List<Integer>> channelConnectorMap = new HashMap<String, List<Integer>>();
+        
+        for (DashboardStatus status : channelStatuses) {
+            String channelId = status.getChannelId();
+            Integer metaDataId = status.getMetaDataId();
 
-        for (ChannelStatus channelStatus : channelStatuses) {
-            client.clearStatistics(channelStatus.getChannelId(), true, true, true, true, true, true);
+            if (channelConnectorMap.containsKey(channelId)) {
+                List<Integer> metaDataIds = channelConnectorMap.get(channelId);
+                
+                if (metaDataIds != null && metaDataId != null) {
+                    metaDataIds.add(metaDataId);
+                }
+            } else {
+                if (metaDataId == null) {
+                    channelConnectorMap.put(channelId, null);
+                } else {
+                    channelConnectorMap.put(channelId, new ArrayList<Integer>());
+                    channelConnectorMap.get(channelId).add(metaDataId);
+                }
+            }
+        }
+
+        for (DashboardStatus channelStatus : channelStatuses) {
+            client.clearStatistics(channelConnectorMap, true, true, true, true, true);
         }
     }
 
@@ -1177,9 +1219,9 @@ public class CommandLineInterface {
         builder.append("Mirth Channel Statistics Dump: " + (new Date()).toString() + "\n");
         builder.append("Name, Received, Filtered, Queued, Sent, Errored, Alerted\n");
 
-        List<ChannelStatus> channelStatuses = client.getChannelStatusList();
+        List<DashboardStatus> channelStatuses = client.getChannelStatusList();
 
-        for (ChannelStatus channelStatus : channelStatuses) {
+        for (DashboardStatus channelStatus : channelStatuses) {
             ChannelStatistics stats = client.getStatistics(channelStatus.getChannelId());
             builder.append(channelStatus.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + stats.getQueued() + ", " + stats.getSent() + ", " + stats.getError() + ", " + stats.getAlerted() + "\n");
         }
@@ -1224,8 +1266,8 @@ public class CommandLineInterface {
 
         try {
             importChannel = (Channel) serializer.fromXML(channelXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"));
-            PropertyVerifier.checkChannelProperties(importChannel);
-            PropertyVerifier.checkConnectorProperties(importChannel, client.getConnectorMetaData());
+//            PropertyVerifier.checkChannelProperties(importChannel);
+//            PropertyVerifier.checkConnectorProperties(importChannel, client.getConnectorMetaData());
 
         } catch (Exception e) {
             error("invalid channel file.", e);
