@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>STF</name>
+    <description>Staff Identification</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>STF.1</name>
+            <description>Primary Key Value</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.2</name>
+            <description>Staff ID Code</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.3</name>
+            <description>Staff Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.4</name>
+            <description>Staff Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.5</name>
+            <description>Sex</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.6</name>
+            <description>Date/Time of Birth</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.7</name>
+            <description>Active/Inactive Flag</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.8</name>
+            <description>Department</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.9</name>
+            <description>Service</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.10</name>
+            <description>Phone</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.11</name>
+            <description>Office/Home Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.12</name>
+            <description>Activation Date</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.13</name>
+            <description>Inactivation Date</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.14</name>
+            <description>Backup Person ID</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.15</name>
+            <description>E-mail Address</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.16</name>
+            <description>Preferred Method of Contact</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.17</name>
+            <description>Marital Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.18</name>
+            <description>Job Title</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.19</name>
+            <description>Job Code/Class</description>
+            <datatype>JCC</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.20</name>
+            <description>Employment Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.21</name>
+            <description>Additional Insured on Auto</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.22</name>
+            <description>Driver's License Number - Staff</description>
+            <datatype>DLN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.23</name>
+            <description>Copy Auto Ins</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.24</name>
+            <description>Auto Ins. Expires</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.25</name>
+            <description>Date Last DMV Review</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STF.26</name>
+            <description>Date Next DMV Review</description>
+            <datatype>DT</datatype>
+        </field>
+    </elements>
+</segment>

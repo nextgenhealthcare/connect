@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>MA</name>
+    <description>Multi-Plexed Array</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>MA.1</name>
+            <description>Channel 1 Sample</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>MA.2</name>
+            <description>Channel 2 Sample</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>MA.3</name>
+            <description>Channel 3 Sample</description>
+            <datatype>NM</datatype>
+        </field>
+    </elements>
+</segment>

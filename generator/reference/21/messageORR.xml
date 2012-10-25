@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ORR</name>
+    <description>No Description.</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+        <group minOccurs="0">
+            <segment minOccurs="0">PID</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            <group maxOccurs="unbounded">
+                <segment>ORC</segment>
+                <group maxOccurs="unbounded" minOccurs="0">
+                    <segment>ORO</segment>
+                    <segment>OBR</segment>
+                    <segment>RX1</segment>
+                </group>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+        </group>
+    </segments>
+</message>

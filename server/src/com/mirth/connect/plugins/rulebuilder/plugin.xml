@@ -1,0 +1,12 @@
+<pluginMetaData path="rulebuilder">
+	<name>Rule Builder Filter Rule</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>2.2.1</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides a Rule Builder type for Mirth Connect filters</description>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.rulebuilder.RuleBuilderPlugin</string>
+	</clientClasses>
+	<library type="CLIENT" path="rulebuilder-client.jar" />
+</pluginMetaData>

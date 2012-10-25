@@ -1,0 +1,40 @@
+<project name="mirth-ant" basedir="." default="build">
+	<target name="init">
+		<property file="build.properties" />
+
+		<path id="classpath">
+			<fileset dir="${lib}" includes="*.jar" />
+		</path>
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="${classes}" />
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="compile" depends="clean, init">
+		<mkdir dir="${classes}" />
+
+		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
+			<classpath refid="classpath" />
+		</javac>
+
+		<!-- copy xml file for ant task -->
+		<copy todir="${classes}/com/mirth/connect/ant">
+			<fileset file="${src}/com/mirth/connect/ant/antlib.xml" />
+		</copy>
+	</target>
+
+	<target name="build" depends="compile">
+		<mkdir dir="${build}" />
+
+		<copy todir="${build}">
+			<fileset dir="${lib}" />
+		</copy>
+
+		<jar destfile="${build}/${ant.jar}" basedir="${classes}" />
+
+		<delete dir="${classes}" />
+	</target>
+</project>

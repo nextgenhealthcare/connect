@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MFNM02</name>
+    <description>Master File - Staff Practitioner</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MFI</segment>
+        <group maxOccurs="unbounded">
+            <segment>MFE</segment>
+            <segment>STF</segment>
+            <segment minOccurs="0">PRA</segment>
+            <segment minOccurs="0">ORG</segment>
+        </group>
+    </segments>
+</message>

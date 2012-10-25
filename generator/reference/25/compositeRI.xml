@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>RI</name>
+    <description>Repeat Interval</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RI.1</name>
+            <description>Repeat Pattern</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RI.2</name>
+            <description>Explicit Time Interval</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

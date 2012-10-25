@@ -1,0 +1,12 @@
+<pluginMetaData path="rtfviewer">
+	<name>RTF Viewer</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>2.2.1</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides RTF attachment viewing capability in message browser.</description>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.rtfviewer.RTFViewer</string>
+	</clientClasses>
+	<library type="CLIENT" path="rtfviewer-client.jar" />
+</pluginMetaData>

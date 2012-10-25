@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>NMQN01</name>
+    <description>Application Management Query Message</description>
+    <segments>
+        <segment>MSH</segment>
+        <group minOccurs="0">
+            <segment>QRD</segment>
+            <segment minOccurs="0">QRF</segment>
+        </group>
+        <group maxOccurs="unbounded">
+            <segment minOccurs="0">NCK</segment>
+            <segment minOccurs="0">NST</segment>
+            <segment minOccurs="0">NSC</segment>
+        </group>
+    </segments>
+</message>

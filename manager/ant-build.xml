@@ -1,0 +1,52 @@
+<project name="mirth-manager" basedir="." default="help">
+	<target name="help">
+		<echo>Mirth Manager Build Help</echo>
+		<echo>-----------------------</echo>
+	</target>
+
+	<target name="init">
+		<property file="build.properties" />
+
+		<path id="classpath">
+			<fileset dir="${lib}" includes="*.jar" />
+		</path>
+
+		<mkdir dir="${logs}" />
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="${classes}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="compile" depends="clean, init">
+		<mkdir dir="${classes}" />
+		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
+			<classpath refid="classpath" />
+		</javac>
+		
+		<!-- include log4j.properties in the jar -->
+		<copy todir="${classes}">
+			<fileset file="${src}/log4j.properties" />
+		</copy>
+
+		<!-- copy the image files so they will be included in jar -->
+		<copy todir="${classes}/com/mirth/connect/manager/images">
+			<fileset dir="${src}/com/mirth/connect/manager/images" />
+		</copy>
+	</target>
+
+	<target name="build" depends="compile">
+		<mkdir dir="${dist}" />
+
+		<jar destfile="${dist}/${manager.jar}" basedir="${classes}">
+			<manifest>
+				<attribute name="Manifest-Version" value="1.0" />
+				<attribute name="Main-Class" value="com.mirth.connect.manager.Manager" />
+				<attribute name="Class-Path" value="manager-lib/looks-2.3.1.jar manager-lib/commons-codec-1.6.jar manager-lib/commons-collections-3.2.1.jar manager-lib/commons-configuration-1.7.jar manager-lib/commons-httpclient-3.0.1.jar manager-lib/commons-lang-2.6.jar manager-lib/commons-logging-1.1.1.jar manager-lib/commons-io-2.1.jar manager-lib/log4j-1.2.15.jar manager-lib/not-yet-commons-ssl-0.3.11.jar manager-lib/xstream-1.3.jar manager-lib/mirth-client-core.jar manager-lib/mirth-crypto.jar" />
+			</manifest>
+		</jar>
+
+		<delete dir="${classes}" />
+	</target>
+</project>
