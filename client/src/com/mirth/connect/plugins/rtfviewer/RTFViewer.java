@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -22,7 +22,7 @@ import javax.swing.JScrollPane;
 
 import org.apache.commons.codec.binary.Base64;
 
-import com.mirth.connect.model.Attachment;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.plugins.AttachmentViewer;
 
 public class RTFViewer extends AttachmentViewer {
@@ -42,7 +42,7 @@ public class RTFViewer extends AttachmentViewer {
     }
 
     @Override
-    public void viewAttachments(List<String> attachmentIds) {
+    public void viewAttachments(List<String> attachmentIds, String channelId) {
         // do viewing code
 
         Frame frame = new Frame("RTF Viewer");
@@ -51,13 +51,14 @@ public class RTFViewer extends AttachmentViewer {
 
         try {
 
-            Attachment attachment = parent.mirthClient.getAttachment(attachmentIds.get(0));
-            byte[] rawRTF = Base64.decodeBase64(attachment.getData());
+            Attachment attachment = parent.mirthClient.getAttachment(channelId, attachmentIds.get(0));
+            byte[] rawRTF = Base64.decodeBase64(attachment.getContent());
+            //TODO set character encoding
             JEditorPane jEditorPane = new JEditorPane("text/rtf", new String(rawRTF));
 
             if (jEditorPane.getDocument().getLength() == 0) {
                 // decoded when it should not have been.  i.e.) the attachment data was not encoded.
-                jEditorPane.setText(new String(attachment.getData()));
+                jEditorPane.setText(new String(attachment.getContent()));
             }
 
             jEditorPane.setEditable(false);

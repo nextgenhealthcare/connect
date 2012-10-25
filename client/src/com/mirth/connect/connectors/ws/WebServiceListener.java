@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,21 +9,13 @@
 
 package com.mirth.connect.connectors.ws;
 
+import com.mirth.connect.client.ui.Frame;
 import java.awt.Point;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.EventObject;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 import java.util.prefs.Preferences;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -36,91 +28,67 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
-import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
-import com.mirth.connect.connectors.ConnectorClass;
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.Step;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.client.ui.panels.connectors.ListenerSettingsPanel;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
-/**
- * A form that extends from ConnectorClass. All methods implemented are
- * described in ConnectorClass.
- */
-public class WebServiceListener extends ConnectorClass {
+public class WebServiceListener extends ConnectorSettingsPanel {
 
     private final int USERNAME_COLUMN_NUMBER = 0;
     private final int PASSWORD_COLUMN_NUMBER = 1;
     private final String USERNAME_COLUMN_NAME = "Username";
     private final String PASSWORD_COLUMN_NAME = "Password";
+    private Frame parent;
 
     public WebServiceListener() {
-        name = WebServiceListenerProperties.name;
+        this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         wsdlURLField.setEditable(false);
         methodField.setEditable(false);
     }
 
-    public Properties getProperties() {
-        Properties properties = new Properties();
-        properties.put(WebServiceListenerProperties.DATATYPE, name);
-        properties.put(WebServiceListenerProperties.WEBSERVICE_HOST, listenerAddressField.getText());
-        properties.put(WebServiceListenerProperties.WEBSERVICE_PORT, portField.getText());
-        properties.put(WebServiceListenerProperties.WEBSERVICE_CLASS_NAME, classNameField.getText());
-        properties.put(WebServiceListenerProperties.WEBSERVICE_SERVICE_NAME, serviceNameField.getText());
-        properties.put(WebServiceListenerProperties.WEBSERVICE_RESPONSE_VALUE, (String) respondFromComboBox.getSelectedItem());
+    @Override
+    public String getConnectorName() {
+        return new WebServiceReceiverProperties().getName();
+    }
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    @Override
+    public ConnectorProperties getProperties() {
+        WebServiceReceiverProperties properties = new WebServiceReceiverProperties();
+        properties.setClassName(classNameField.getText());
+        properties.setServiceName(serviceNameField.getText());
         ArrayList<ArrayList<String>> credentials = getCredentials();
-        properties.put(WebServiceListenerProperties.WEBSERVICE_USERNAMES, serializer.toXML(credentials.get(0)));
-        properties.put(WebServiceListenerProperties.WEBSERVICE_PASSWORDS, serializer.toXML(credentials.get(1)));
+        properties.setUsernames(credentials.get(0));
+        properties.setPasswords(credentials.get(1));
 
         return properties;
     }
 
-    public void setProperties(Properties props) {
-        resetInvalidProperties();
+    @Override
+    public void setProperties(ConnectorProperties properties) {
+        WebServiceReceiverProperties props = (WebServiceReceiverProperties) properties;
 
-        listenerAddressField.setText(props.getProperty(WebServiceListenerProperties.WEBSERVICE_HOST));
-        updateListenerAddressRadio();
-
-        portField.setText(props.getProperty(WebServiceListenerProperties.WEBSERVICE_PORT));
-
-        classNameField.setText(props.getProperty(WebServiceListenerProperties.WEBSERVICE_CLASS_NAME));
+        classNameField.setText(props.getClassName());
         updateClassNameRadio();
 
-        serviceNameField.setText(props.getProperty(WebServiceListenerProperties.WEBSERVICE_SERVICE_NAME));
-        updateResponseDropDown();
-
-        if (parent.channelEditPanel.synchronousCheckBox.isSelected()) {
-            respondFromComboBox.setSelectedItem(props.getProperty(WebServiceListenerProperties.WEBSERVICE_RESPONSE_VALUE));
-        }
+        serviceNameField.setText(props.getServiceName());
 
         updateWSDL();
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        ArrayList<ArrayList<String>> credentials = new ArrayList<ArrayList<String>>();
-        credentials.add((ArrayList<String>) serializer.fromXML((String) props.get(WebServiceListenerProperties.WEBSERVICE_USERNAMES)));
-        credentials.add((ArrayList<String>) serializer.fromXML((String) props.get(WebServiceListenerProperties.WEBSERVICE_PASSWORDS)));
+        List<List<String>> credentials = new ArrayList<List<String>>();
+
+        credentials.add(props.getUsernames());
+        credentials.add(props.getPasswords());
         setCredentials(credentials);
     }
 
-    public Properties getDefaults() {
-        return new WebServiceListenerProperties().getDefaults();
-    }
-
-    private void updateListenerAddressRadio() {
-        if (listenerAddressField.getText().equals(getDefaults().getProperty(WebServiceListenerProperties.WEBSERVICE_HOST))) {
-            listenerAllRadio.setSelected(true);
-            listenerAllRadioActionPerformed(null);
-        } else {
-            listenerSpecificRadio.setSelected(true);
-            listenerSpecificRadioActionPerformed(null);
-        }
+    @Override
+    public ConnectorProperties getDefaults() {
+        return new WebServiceReceiverProperties();
     }
 
     private void updateClassNameRadio() {
-        if (classNameField.getText().equals(getDefaults().getProperty(WebServiceListenerProperties.WEBSERVICE_CLASS_NAME))) {
+        if (classNameField.getText().equals(new WebServiceReceiverProperties().getClassName())) {
             classNameDefaultRadio.setSelected(true);
             classNameDefaultRadioActionPerformed(null);
         } else {
@@ -137,35 +105,23 @@ public class WebServiceListener extends ConnectorClass {
             // ignore exceptions getting the server ip
         }
 
-        wsdlURLField.setText("http://" + server + ":" + portField.getText() + "/services/" + serviceNameField.getText() + "?wsdl");
+        wsdlURLField.setText("http://" + server + ":" + ((WebServiceReceiverProperties) getFilledProperties()).getListenerConnectorProperties().getPort() + "/services/" + serviceNameField.getText() + "?wsdl");
     }
 
-    public boolean checkProperties(Properties props, boolean highlight) {
-        resetInvalidProperties();
+    @Override
+    public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
+        WebServiceReceiverProperties props = (WebServiceReceiverProperties) properties;
+
         boolean valid = true;
 
-        if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_HOST)).length() == 0) {
-            valid = false;
-            if (highlight) {
-                listenerAddressField.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
-
-        if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_PORT)).length() == 0) {
-            valid = false;
-            if (highlight) {
-                portField.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
-
-        if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_CLASS_NAME)).length() == 0) {
+        if (props.getClassName().length() == 0) {
             valid = false;
             if (highlight) {
                 classNameField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
-        if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_SERVICE_NAME)).length() == 0) {
+        if (props.getServiceName().length() == 0) {
             valid = false;
             if (highlight) {
                 serviceNameField.setBackground(UIConstants.INVALID_COLOR);
@@ -175,27 +131,16 @@ public class WebServiceListener extends ConnectorClass {
         return valid;
     }
 
-    private void resetInvalidProperties() {
-        listenerAddressField.setBackground(null);
-        portField.setBackground(null);
+    @Override
+    public void resetInvalidProperties() {
         classNameField.setBackground(null);
         serviceNameField.setBackground(null);
     }
 
-    public String doValidate(Properties props, boolean highlight) {
-        String error = null;
+    private void setCredentials(List<List<String>> credentials) {
 
-        if (!checkProperties(props, highlight)) {
-            error = "Error in the form for connector \"" + getName() + "\".\n\n";
-        }
-
-        return error;
-    }
-
-    public void setCredentials(ArrayList<ArrayList<String>> credentials) {
-
-        ArrayList<String> usernames = credentials.get(0);
-        ArrayList<String> passwords = credentials.get(1);
+        List<String> usernames = credentials.get(0);
+        List<String> passwords = credentials.get(1);
 
         Object[][] tableData = new Object[usernames.size()][2];
 
@@ -250,18 +195,18 @@ public class WebServiceListener extends ConnectorClass {
             @Override
             public boolean isCellEditable(EventObject evt) {
                 boolean editable = super.isCellEditable(evt);
-                
+
                 if (editable) {
                     deleteButton.setEnabled(false);
                 }
 
-                return editable; 
+                return editable;
             }
 
             @Override
             protected boolean valueChanged(String value) {
                 deleteButton.setEnabled(true);
-                
+
                 if (checkUnique && (value.length() == 0 || checkUnique(value))) {
                     return false;
                 }
@@ -291,7 +236,7 @@ public class WebServiceListener extends ConnectorClass {
         deleteButton.setEnabled(false);
     }
 
-    public ArrayList<ArrayList<String>> getCredentials() {
+    private ArrayList<ArrayList<String>> getCredentials() {
         ArrayList<ArrayList<String>> credentials = new ArrayList<ArrayList<String>>();
 
         ArrayList<String> usernames = new ArrayList<String>();
@@ -310,7 +255,7 @@ public class WebServiceListener extends ConnectorClass {
         return credentials;
     }
 
-    public void stopCellEditing() {
+    private void stopCellEditing() {
         if (credentialsTable.isEditing()) {
             credentialsTable.getColumnModel().getColumn(credentialsTable.convertColumnIndexToModel(credentialsTable.getEditingColumn())).getCellEditor().stopCellEditing();
         }
@@ -338,90 +283,11 @@ public class WebServiceListener extends ConnectorClass {
         return "";
     }
 
-    public void updateResponseDropDown() {
-        boolean enabled = parent.isSaveEnabled();
-
-        String selectedItem = (String) respondFromComboBox.getSelectedItem();
-
-        Channel channel = parent.channelEditPanel.currentChannel;
-
-        Set<String> variables = new LinkedHashSet<String>();
-
-        variables.add("None");
-
-        List<Step> stepsToCheck = new ArrayList<Step>();
-        stepsToCheck.addAll(channel.getSourceConnector().getTransformer().getSteps());
-
-        List<String> scripts = new ArrayList<String>();
-
-        for (Connector connector : channel.getDestinationConnectors()) {
-            if (connector.getTransportName().equals("Database Writer")) {
-                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION)) {
-                    scripts.add(connector.getProperties().getProperty("script"));
-                }
-
-            } else if (connector.getTransportName().equals("JavaScript Writer")) {
-                scripts.add(connector.getProperties().getProperty("script"));
-            }
-
-            variables.add(connector.getName());
-            stepsToCheck.addAll(connector.getTransformer().getSteps());
+    @Override
+    public void updatedField(String field) {
+        if (ListenerSettingsPanel.FIELD_PORT.equals(field)) {
+            updateWSDL();
         }
-
-        Pattern pattern = Pattern.compile(RESULT_PATTERN);
-
-        int i = 0;
-        for (Iterator it = stepsToCheck.iterator(); it.hasNext();) {
-            Step step = (Step) it.next();
-            Map data;
-            data = (Map) step.getData();
-
-            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)) {
-                Matcher matcher = pattern.matcher(step.getScript());
-                while (matcher.find()) {
-                    String key = matcher.group(1);
-                    variables.add(key);
-                }
-            } else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
-                if (data.containsKey(UIConstants.IS_GLOBAL)) {
-                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE)) {
-                        variables.add((String) data.get("Variable"));
-                    }
-                }
-            }
-        }
-
-        scripts.add(channel.getPreprocessingScript());
-        scripts.add(channel.getPostprocessingScript());
-
-        for (String script : scripts) {
-            if (script != null && script.length() > 0) {
-                Matcher matcher = pattern.matcher(script);
-                while (matcher.find()) {
-                    String key = matcher.group(1);
-                    variables.add(key);
-                }
-            }
-        }
-
-        respondFromComboBox.setModel(new DefaultComboBoxModel(variables.toArray()));
-
-        if (variables.contains(selectedItem)) {
-            respondFromComboBox.setSelectedItem(selectedItem);
-        } else {
-            respondFromComboBox.setSelectedIndex(0);
-        }
-
-        if (!parent.channelEditPanel.synchronousCheckBox.isSelected()) {
-            respondFromComboBox.setEnabled(false);
-            responseFromLabel.setEnabled(false);
-            respondFromComboBox.setSelectedIndex(0);
-        } else {
-            respondFromComboBox.setEnabled(true);
-            responseFromLabel.setEnabled(true);
-        }
-
-        parent.setSaveEnabled(enabled);
     }
 
     /**
@@ -433,22 +299,13 @@ public class WebServiceListener extends ConnectorClass {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        listenerAddressButtonGroup = new javax.swing.ButtonGroup();
         classNameButtonGroup = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
         serviceNameField = new com.mirth.connect.client.ui.components.MirthTextField();
-        portField = new com.mirth.connect.client.ui.components.MirthTextField();
-        portLabel = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         URL1 = new javax.swing.JLabel();
-        listenerAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
-        listenerAddressLabel = new javax.swing.JLabel();
         methodField = new javax.swing.JTextField();
         wsdlURLField = new javax.swing.JTextField();
-        responseFromLabel = new javax.swing.JLabel();
-        respondFromComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        listenerSpecificRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        listenerAllRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         webServiceLabel = new javax.swing.JLabel();
         classNameDefaultRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         classNameCustomRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -472,56 +329,14 @@ public class WebServiceListener extends ConnectorClass {
             }
         });
 
-        portField.setToolTipText("The port on which the web service should listen for connections.");
-        portField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                portFieldKeyReleased(evt);
-            }
-        });
-
-        portLabel.setText("Port:");
-
         jLabel2.setText("Method:");
 
         URL1.setText("WSDL URL:");
-
-        listenerAddressField.setToolTipText("The DNS domain name or IP address on which the web service should listen for connections.");
-
-        listenerAddressLabel.setText("Listener Address:");
 
         methodField.setText("String acceptMessage(String message)");
         methodField.setToolTipText("Displays the generated web service operation signature the client will call.");
 
         wsdlURLField.setToolTipText("<html>Displays the generated WSDL URL for the web service.<br>The client that sends messages to the service can download this file to determine how to call the web service.</html>");
-
-        responseFromLabel.setText("Respond from:");
-
-        respondFromComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        respondFromComboBox.setToolTipText("<html>Select \"None\" to send no response.<br>Select a destination of this channel that will supply a return value using the Response Map.<br>Select a variable that has been added to the Response Map.</html>");
-
-        listenerSpecificRadio.setBackground(new java.awt.Color(255, 255, 255));
-        listenerSpecificRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        listenerAddressButtonGroup.add(listenerSpecificRadio);
-        listenerSpecificRadio.setText("Specific interface:");
-        listenerSpecificRadio.setToolTipText("<html>If checked, the connector will listen on the specific interface address defined.</html>");
-        listenerSpecificRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        listenerSpecificRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                listenerSpecificRadioActionPerformed(evt);
-            }
-        });
-
-        listenerAllRadio.setBackground(new java.awt.Color(255, 255, 255));
-        listenerAllRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        listenerAddressButtonGroup.add(listenerAllRadio);
-        listenerAllRadio.setText("Listen on all interfaces");
-        listenerAllRadio.setToolTipText("<html>If checked, the connector will listen on all interfaces, using address 0.0.0.0.</html>");
-        listenerAllRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        listenerAllRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                listenerAllRadioActionPerformed(evt);
-            }
-        });
 
         webServiceLabel.setText("Web Service:");
 
@@ -595,16 +410,13 @@ public class WebServiceListener extends ConnectorClass {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(portLabel)
-                    .addComponent(listenerAddressLabel)
-                    .addComponent(URL)
-                    .addComponent(URL1)
-                    .addComponent(jLabel2)
-                    .addComponent(responseFromLabel)
-                    .addComponent(webServiceLabel)
-                    .addComponent(credentialsLabel)
-                    .addComponent(classNameLabel))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(webServiceLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(URL, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(URL1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(classNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(credentialsLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -613,9 +425,7 @@ public class WebServiceListener extends ConnectorClass {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(deleteButton)))
-                    .addComponent(respondFromComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(serviceNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(wsdlURLField, javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(methodField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE))
@@ -623,28 +433,12 @@ public class WebServiceListener extends ConnectorClass {
                         .addComponent(classNameDefaultRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(classNameCustomRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(listenerAllRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(listenerSpecificRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(classNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(listenerAddressLabel)
-                    .addComponent(listenerAllRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(listenerSpecificRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(portLabel)
-                    .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(classNameDefaultRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(classNameCustomRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -666,40 +460,23 @@ public class WebServiceListener extends ConnectorClass {
                     .addComponent(jLabel2)
                     .addComponent(methodField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(responseFromLabel)
-                    .addComponent(respondFromComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(credentialsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
                     .addComponent(credentialsLabel)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(newButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(deleteButton))
-                    .addComponent(credentialsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE))
+                        .addComponent(deleteButton)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void portFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_portFieldKeyReleased
-        updateWSDL();
-    }//GEN-LAST:event_portFieldKeyReleased
 
     private void serviceNameFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_serviceNameFieldKeyReleased
         updateWSDL();
     }//GEN-LAST:event_serviceNameFieldKeyReleased
 
-    private void listenerSpecificRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_listenerSpecificRadioActionPerformed
-        listenerAddressField.setEnabled(true);
-    }//GEN-LAST:event_listenerSpecificRadioActionPerformed
-
-    private void listenerAllRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_listenerAllRadioActionPerformed
-        listenerAddressField.setText(getDefaults().getProperty(WebServiceListenerProperties.WEBSERVICE_HOST));
-        listenerAddressField.setEnabled(false);
-    }//GEN-LAST:event_listenerAllRadioActionPerformed
-
     private void classNameDefaultRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_classNameDefaultRadioActionPerformed
-        classNameField.setText(getDefaults().getProperty(WebServiceListenerProperties.WEBSERVICE_CLASS_NAME));
+        classNameField.setText(new WebServiceReceiverProperties().getClassName());
         methodField.setText("String acceptMessage(String message)");
         classNameLabel.setEnabled(false);
         classNameField.setEnabled(false);
@@ -756,17 +533,8 @@ public class WebServiceListener extends ConnectorClass {
     private com.mirth.connect.client.ui.components.MirthTable credentialsTable;
     private javax.swing.JButton deleteButton;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.ButtonGroup listenerAddressButtonGroup;
-    private com.mirth.connect.client.ui.components.MirthTextField listenerAddressField;
-    private javax.swing.JLabel listenerAddressLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton listenerAllRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton listenerSpecificRadio;
     private javax.swing.JTextField methodField;
     private javax.swing.JButton newButton;
-    private com.mirth.connect.client.ui.components.MirthTextField portField;
-    private javax.swing.JLabel portLabel;
-    private com.mirth.connect.client.ui.components.MirthComboBox respondFromComboBox;
-    private javax.swing.JLabel responseFromLabel;
     private com.mirth.connect.client.ui.components.MirthTextField serviceNameField;
     private javax.swing.JLabel webServiceLabel;
     private javax.swing.JTextField wsdlURLField;

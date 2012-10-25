@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,46 +9,47 @@
 
 package com.mirth.connect.connectors.vm;
 
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.PlatformUI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
-import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Channel;
 
-/**
- * A form that extends from ConnectorClass. All methods implemented are
- * described in ConnectorClass.
- */
-public class ChannelWriter extends ConnectorClass {
+public class ChannelWriter extends ConnectorSettingsPanel {
 
+    private Frame parent;
     private Map<String, String> channelList;
 
     public ChannelWriter() {
-        name = ChannelWriterProperties.name;
+        parent = PlatformUI.MIRTH_FRAME;
         initComponents();
     }
 
-    public Properties getProperties() {
-        Properties properties = new Properties();
-        properties.put(ChannelWriterProperties.DATATYPE, name);
-        properties.put(ChannelWriterProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
-        properties.put(ChannelWriterProperties.CHANNEL_TEMPLATE, template.getText());
+    @Override
+    public String getConnectorName() {
+        return new VmSenderProperties().getName();
+    }
 
-        if (channelResponseYesButton.isSelected()) {
-            properties.put(ChannelWriterProperties.CHANNEL_SYNCHRONOUS, UIConstants.YES_OPTION);
-        } else {
-            properties.put(ChannelWriterProperties.CHANNEL_SYNCHRONOUS, UIConstants.NO_OPTION);
-        }
+    @Override
+    public ConnectorProperties getProperties() {
+        VmSenderProperties properties = new VmSenderProperties();
+
+        properties.setChannelId(channelList.get((String) channelNames.getSelectedItem()));
+        properties.setChannelTemplate(template.getText());
+
+        properties.setWaitForDestinations(channelResponseYesButton.isSelected());
 
         return properties;
     }
 
-    public void setProperties(Properties props) {
-        resetInvalidProperties();
+    @Override
+    public void setProperties(ConnectorProperties properties) {
+        VmSenderProperties props = (VmSenderProperties) properties;
 
         ArrayList<String> channelNameArray = new ArrayList<String>();
         channelList = new HashMap<String, String>();
@@ -57,7 +58,7 @@ public class ChannelWriter extends ConnectorClass {
         String selectedChannelName = "None";
 
         for (Channel channel : parent.channels.values()) {
-            if (((String) props.get(ChannelWriterProperties.CHANNEL_ID)).equalsIgnoreCase(channel.getId())) {
+            if (props.getChannelId().equalsIgnoreCase(channel.getId())) {
                 selectedChannelName = channel.getName();
             }
 
@@ -77,39 +78,29 @@ public class ChannelWriter extends ConnectorClass {
 
         channelNames.setSelectedItem(selectedChannelName);
 
-        if (((String) props.get(ChannelWriterProperties.CHANNEL_SYNCHRONOUS)).equals(UIConstants.YES_OPTION)) {
+        if (props.isWaitForDestinations()) {
             channelResponseYesButton.setSelected(true);
         } else {
             channelResponseNoButton.setSelected(true);
         }
 
-        template.setText((String) props.get(ChannelWriterProperties.CHANNEL_TEMPLATE));
+        template.setText(props.getChannelTemplate());
 
         parent.setSaveEnabled(enabled);
     }
 
-    public Properties getDefaults() {
-        return new ChannelWriterProperties().getDefaults();
+    @Override
+    public ConnectorProperties getDefaults() {
+        return new VmSenderProperties();
     }
 
-    public boolean checkProperties(Properties props, boolean highlight) {
-        resetInvalidProperties();
-        boolean valid = true;
-
-        return valid;
+    @Override
+    public boolean checkProperties(ConnectorProperties props, boolean highlight) {
+        return true;
     }
 
-    private void resetInvalidProperties() {
-    }
-
-    public String doValidate(Properties props, boolean highlight) {
-        String error = null;
-
-        if (!checkProperties(props, highlight)) {
-            error = "Error in the form for connector \"" + getName() + "\".\n\n";
-        }
-
-        return error;
+    @Override
+    public void resetInvalidProperties() {
     }
 
     /**
@@ -215,7 +206,6 @@ public class ChannelWriter extends ConnectorClass {
             channelResponseNoButton.setEnabled(true);
         }
     }//GEN-LAST:event_channelNamesActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;
     private javax.swing.ButtonGroup buttonGroup1;

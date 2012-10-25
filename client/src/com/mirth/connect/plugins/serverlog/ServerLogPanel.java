@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -259,73 +259,13 @@ public class ServerLogPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        logSizeChange = new javax.swing.JButton();
-        clearLog = new javax.swing.JButton();
-        pauseResume = new javax.swing.JButton();
         logSizeTextField = new javax.swing.JTextField();
         logSizeText = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         logTable = null;
-
-        logSizeChange.setBorderPainted(false);
-        logSizeChange.setContentAreaFilled(false);
-        logSizeChange.setMargin(new java.awt.Insets(4, 4, 4, 4));
-        logSizeChange.setMaximumSize(new java.awt.Dimension(24, 24));
-        logSizeChange.setMinimumSize(new java.awt.Dimension(24, 24));
-        logSizeChange.setPreferredSize(new java.awt.Dimension(24, 24));
-        logSizeChange.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                logSizeChangeActionPerformed(evt);
-            }
-        });
-        logSizeChange.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                logSizeChangeMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                logSizeChangeMouseExited(evt);
-            }
-        });
-
-        clearLog.setBorderPainted(false);
-        clearLog.setContentAreaFilled(false);
-        clearLog.setMargin(new java.awt.Insets(4, 4, 4, 4));
-        clearLog.setMaximumSize(new java.awt.Dimension(24, 24));
-        clearLog.setMinimumSize(new java.awt.Dimension(24, 24));
-        clearLog.setPreferredSize(new java.awt.Dimension(24, 24));
-        clearLog.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clearLogActionPerformed(evt);
-            }
-        });
-        clearLog.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                clearLogMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                clearLogMouseExited(evt);
-            }
-        });
-
-        pauseResume.setBorderPainted(false);
-        pauseResume.setContentAreaFilled(false);
-        pauseResume.setMargin(new java.awt.Insets(4, 4, 4, 4));
-        pauseResume.setMaximumSize(new java.awt.Dimension(24, 24));
-        pauseResume.setMinimumSize(new java.awt.Dimension(24, 24));
-        pauseResume.setPreferredSize(new java.awt.Dimension(24, 24));
-        pauseResume.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pauseResumeActionPerformed(evt);
-            }
-        });
-        pauseResume.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                pauseResumeMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                pauseResumeMouseExited(evt);
-            }
-        });
+        clearLog = new com.mirth.connect.client.ui.components.IconButton();
+        logSizeChange = new com.mirth.connect.client.ui.components.IconButton();
+        pauseResume = new com.mirth.connect.client.ui.components.IconButton();
 
         logSizeTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         logSizeTextField.setMaximumSize(new java.awt.Dimension(45, 19));
@@ -336,41 +276,57 @@ public class ServerLogPanel extends javax.swing.JPanel {
 
         jScrollPane1.setViewportView(logTable);
 
+        clearLog.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearLogActionPerformed(evt);
+            }
+        });
+
+        logSizeChange.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                logSizeChangeActionPerformed(evt);
+            }
+        });
+
+        pauseResume.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pauseResumeActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(2, 2, 2)
+                .addContainerGap()
                 .addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(2, 2, 2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 336, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 316, Short.MAX_VALUE)
                 .addComponent(logSizeText)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(2, 2, 2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(2, 2, 2))
+                .addGap(5, 5, 5))
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
-                .addGap(0, 0, 0)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(logSizeText)))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(clearLog, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(logSizeChange, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(logSizeText)))
+                    .addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void pauseResumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseResumeActionPerformed
-        adjustPauseResumeButton();
-    }//GEN-LAST:event_pauseResumeActionPerformed
 
     private void clearLogActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearLogActionPerformed
         // "clear log" only affects on the client side.
@@ -399,42 +355,17 @@ public class ServerLogPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_logSizeChangeActionPerformed
 
-    private void logSizeChangeMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logSizeChangeMouseExited
-        logSizeChange.setBorderPainted(false);
-        logSizeChange.setContentAreaFilled(false);
-    }//GEN-LAST:event_logSizeChangeMouseExited
+    private void pauseResumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseResumeActionPerformed
+        adjustPauseResumeButton();
+    }//GEN-LAST:event_pauseResumeActionPerformed
 
-    private void logSizeChangeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logSizeChangeMouseEntered
-        logSizeChange.setBorderPainted(true);
-        logSizeChange.setContentAreaFilled(true);
-    }//GEN-LAST:event_logSizeChangeMouseEntered
-
-    private void clearLogMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_clearLogMouseExited
-        clearLog.setBorderPainted(false);
-        clearLog.setContentAreaFilled(false);
-    }//GEN-LAST:event_clearLogMouseExited
-
-    private void clearLogMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_clearLogMouseEntered
-        clearLog.setBorderPainted(true);
-        clearLog.setContentAreaFilled(true);
-    }//GEN-LAST:event_clearLogMouseEntered
-
-    private void pauseResumeMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pauseResumeMouseExited
-        pauseResume.setBorderPainted(false);
-        pauseResume.setContentAreaFilled(false);
-    }//GEN-LAST:event_pauseResumeMouseExited
-
-    private void pauseResumeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pauseResumeMouseEntered
-        pauseResume.setBorderPainted(true);
-        pauseResume.setContentAreaFilled(true);
-    }//GEN-LAST:event_pauseResumeMouseEntered
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton clearLog;
+    private com.mirth.connect.client.ui.components.IconButton clearLog;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JButton logSizeChange;
+    private com.mirth.connect.client.ui.components.IconButton logSizeChange;
     private javax.swing.JLabel logSizeText;
     private javax.swing.JTextField logSizeTextField;
     private com.mirth.connect.client.ui.components.MirthTable logTable;
-    private javax.swing.JButton pauseResume;
+    private com.mirth.connect.client.ui.components.IconButton pauseResume;
     // End of variables declaration//GEN-END:variables
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -16,9 +16,10 @@ import java.awt.Point;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
-import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Base64InputStream;
+import org.apache.commons.codec.binary.StringUtils;
 
-import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.plugins.AttachmentViewer;
 
 public class DICOMViewer extends AttachmentViewer {
@@ -35,15 +36,14 @@ public class DICOMViewer extends AttachmentViewer {
         return true;
     }
 
-    public void viewAttachments(List<String> attachmentIds) {
+    public void viewAttachments(List<String> attachmentIds, String channelId) {
         // do viewing code
         try {
-            String messageId = parent.mirthClient.getAttachment(attachmentIds.get(0)).getMessageId();
-            MessageObject message = parent.messageBrowser.getMessageObjectById(messageId);
-            byte[] rawImage = Base64.decodeBase64(parent.mirthClient.getDICOMMessage(message).getBytes());
+            ConnectorMessage message = parent.messageBrowser.getSelectedConnectorMessage();
+            byte[] rawImage = StringUtils.getBytesUsAscii(parent.mirthClient.getDICOMMessage(message));
             ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
-            DICOM dcm = new DICOM(bis);
-            dcm.run(message.getType());
+            DICOM dcm = new DICOM(new Base64InputStream(bis));
+            dcm.run("DICOM");
             dcm.show();
             Dimension dlgSize = dcm.getWindow().getSize();
             Dimension frmSize = parent.getSize();

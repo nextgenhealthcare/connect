@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -20,6 +20,8 @@ import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.InputEvent;
@@ -30,12 +32,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
@@ -76,6 +78,7 @@ import org.syntax.jedit.JEditTextArea;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.RequestAbortedException;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.core.UpdateClient;
@@ -84,29 +87,28 @@ import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionUpdateDialog;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
+import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.ChannelProperties;
-import com.mirth.connect.model.ChannelStatistics;
-import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.DashboardStatus;
+import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.model.EncryptionSettings;
-import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateInfo;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
+import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.model.filters.MessageObjectFilter;
+import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
-import com.mirth.connect.util.PropertyVerifier;
 
 /**
  * The main content frame for the Mirth Client Application. Extends JXFrame and
@@ -128,7 +130,8 @@ public class Frame extends JXFrame {
     public GlobalScriptsPanel globalScriptsPanel = null;
     public ExtensionManagerPanel extensionsPanel = null;
     public JXTaskPaneContainer taskPaneContainer;
-    public List<ChannelStatus> status = null;
+    public ChannelFilter channelFilter = null;
+    public List<DashboardStatus> status = null;
     public Map<String, Channel> channels = null;
     public List<User> users = null;
     public List<Alert> alerts = null;
@@ -178,14 +181,16 @@ public class Frame extends JXFrame {
     private List<String> charsetEncodings = null;
     private boolean isEditingChannel = false;
     private LinkedHashMap<String, String> workingStatuses = new LinkedHashMap<String, String>();
-    public LinkedHashMap<MessageObject.Protocol, String> protocols;
+    public LinkedHashMap<String, String> dataTypes;
     private Map<String, PluginMetaData> loadedPlugins;
     private Map<String, ConnectorMetaData> loadedConnectors;
     private UpdateClient updateClient = null;
     private boolean refreshingStatuses = false;
+    private boolean queueRefreshStatus = false;
     private Map<String, Integer> safeErrorFailCountMap = new HashMap<String, Integer>();
     private Map<Component, String> componentTaskMap = new HashMap<Component, String>();
     private boolean acceleratorKeyPressed = false;
+    private Set<String> allChannelTags;
     
     public Frame() {
         rightContainer = new JXTitledPanel();
@@ -193,15 +198,15 @@ public class Frame extends JXFrame {
 
         taskPaneContainer = new JXTaskPaneContainer();
 
-        protocols = new LinkedHashMap<MessageObject.Protocol, String>();
-        protocols.put(MessageObject.Protocol.HL7V2, "HL7 v2.x");
-        protocols.put(MessageObject.Protocol.HL7V3, "HL7 v3.0");
-        protocols.put(MessageObject.Protocol.X12, "X12");
-        protocols.put(MessageObject.Protocol.EDI, "EDI");
-        protocols.put(MessageObject.Protocol.XML, "XML");
-        protocols.put(MessageObject.Protocol.NCPDP, "NCPDP");
-        protocols.put(MessageObject.Protocol.DICOM, "DICOM");
-        protocols.put(MessageObject.Protocol.DELIMITED, "Delimited Text");
+        dataTypes = new LinkedHashMap<String, String>();
+        dataTypes.put(DataTypeFactory.HL7V2, "HL7 v2.x");
+        dataTypes.put(DataTypeFactory.HL7V3, "HL7 v3.0");
+        dataTypes.put(DataTypeFactory.X12, "X12");
+        dataTypes.put(DataTypeFactory.EDI, "EDI");
+        dataTypes.put(DataTypeFactory.XML, "XML");
+        dataTypes.put(DataTypeFactory.NCPDP, "NCPDP");
+        dataTypes.put(DataTypeFactory.DICOM, "DICOM");
+        dataTypes.put(DataTypeFactory.DELIMITED, "Delimited Text");
 
         setTitle(UIConstants.TITLE_TEXT + " - " + PlatformUI.SERVER_NAME);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -767,15 +772,16 @@ public class Frame extends JXFrame {
         dashboardTasks.setFocusable(false);
 
         addTask(TaskConstants.DASHBOARD_REFRESH, "Refresh", "Refresh the list of statuses.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), dashboardTasks, dashboardPopupMenu);
-
+        
         addTask(TaskConstants.DASHBOARD_SEND_MESSAGE, "Send Message", "Send messages to the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/email_go.png")), dashboardTasks, dashboardPopupMenu);
         addTask(TaskConstants.DASHBOARD_SHOW_MESSAGES, "View Messages", "Show the messages for the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_stack.png")), dashboardTasks, dashboardPopupMenu);
         addTask(TaskConstants.DASHBOARD_REMOVE_ALL_MESSAGES, "Remove All Messages", "Remove all Messages in this channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/email_delete.png")), dashboardTasks, dashboardPopupMenu);
         addTask(TaskConstants.DASHBOARD_CLEAR_STATS, "Clear Statistics", "Reset the statistics for this channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/chart_bar_delete.png")), dashboardTasks, dashboardPopupMenu);
 
-        addTask(TaskConstants.DASHBOARD_START, "Start Channel", "Start the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png")), dashboardTasks, dashboardPopupMenu);
-        addTask(TaskConstants.DASHBOARD_PAUSE, "Pause Channel", "Pause the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_pause_blue.png")), dashboardTasks, dashboardPopupMenu);
-        addTask(TaskConstants.DASHBOARD_STOP, "Stop Channel", "Stop the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_stop_blue.png")), dashboardTasks, dashboardPopupMenu);
+        addTask(TaskConstants.DASHBOARD_START, "Start", "Start the currently selected channel/connector.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png")), dashboardTasks, dashboardPopupMenu);
+        addTask(TaskConstants.DASHBOARD_PAUSE, "Pause", "Pause the currently selected channel/connector.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_pause_blue.png")), dashboardTasks, dashboardPopupMenu);
+        addTask(TaskConstants.DASHBOARD_STOP, "Stop", "Stop the currently selected channel/connector.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_stop_blue.png")), dashboardTasks, dashboardPopupMenu);
+        addTask(TaskConstants.DASHBOARD_HALT, "Halt", "Halt the currently selected channel/connector.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/stop.png")), dashboardTasks, dashboardPopupMenu);
 
         addTask(TaskConstants.DASHBOARD_UNDEPLOY, "Undeploy Channel", "Undeploys the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_undo.png")), dashboardTasks, dashboardPopupMenu);
 
@@ -1663,13 +1669,25 @@ public class Frame extends JXFrame {
         if (!confirmLeave()) {
             return;
         }
+        
+        if (channelFilter == null) {
+            channelFilter = new ChannelFilter();
+        }
 
+        channelFilter.setOnSave(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                doRefreshStatuses(true);
+            }
+        });
+        
         setBold(viewPane, 0);
         setPanelName("Dashboard");
         setCurrentContentPage(dashboardPanel);
         setFocus(dashboardTasks);
+        retrieveAllChannelTags();
 
-        doRefreshStatuses();
+        doRefreshStatuses(true);
     }
 
     public void doShowChannel() {
@@ -1680,11 +1698,23 @@ public class Frame extends JXFrame {
         if (!confirmLeave()) {
             return;
         }
+        
+        if (channelFilter == null) {
+            channelFilter = new ChannelFilter();
+        }
+        
+        channelFilter.setOnSave(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                doRefreshChannels();
+            }
+        });
 
         setBold(viewPane, 1);
         setPanelName("Channels");
         setCurrentContentPage(channelPanel);
         setFocus(channelTasks);
+        retrieveAllChannelTags();
 
         doRefreshChannels();
     }
@@ -1863,8 +1893,6 @@ public class Frame extends JXFrame {
         }
 
         channel.setName("");
-        channel.setEnabled(true);
-        channel.getProperties().setProperty("initialState", "Started");
         setupChannel(channel);
     }
 
@@ -2107,33 +2135,28 @@ public class Frame extends JXFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                try {
-                    status = mirthClient.getChannelStatusList();
-                } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                }
+                // was this code necessary?
+//                try {
+//                    status = mirthClient.getChannelStatusList();
+//                } catch (ClientException e) {
+//                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+//                }
 
                 retrieveChannels();
                 return null;
             }
 
             public void done() {
-                int enabled = 0;
-                for (Channel channel : channels.values()) {
-                    if (channel.isEnabled()) {
-                        enabled++;
-                    }
-                }
-                
-                statusBar.setStatusText(channels.size() + " Channels, " + enabled + " Enabled");
-                
-                channelPanel.updateChannelTable();
+                channelPanel.updateChannelTable(new ArrayList<Channel>(channels.values()));
 
                 setVisibleTasks(channelTasks, channelPopupMenu, 1, 2, false);
                 setVisibleTasks(channelTasks, channelPopupMenu, 7, -1, false);
 
                 if (channels.size() > 0) {
-                    setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, true);
+                    if (!channelFilter.isTagFilterEnabled()) {
+                        setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, true);
+                    }
+                    
                     setVisibleTasks(channelTasks, channelPopupMenu, 7, 7, true);
                 }
 
@@ -2148,7 +2171,13 @@ public class Frame extends JXFrame {
 
     public void retrieveChannels() {
         try {
-            List<ChannelSummary> changedChannels = mirthClient.getChannelSummary(getChannelHeaders());
+            Map<String, Integer> channelHeaders = new HashMap<String, Integer>();
+
+            for (Channel channel : channels.values()) {
+                channelHeaders.put(channel.getId(), channel.getRevision());
+            }
+            
+            List<ChannelSummary> changedChannels = mirthClient.getChannelSummary(channelHeaders);
 
             if (changedChannels.size() == 0) {
                 return;
@@ -2176,16 +2205,6 @@ public class Frame extends JXFrame {
         } catch (ClientException e) {
             alertException(this, e.getStackTrace(), e.getMessage());
         }
-    }
-
-    public Map<String, Integer> getChannelHeaders() {
-        HashMap<String, Integer> channelHeaders = new HashMap<String, Integer>();
-
-        for (Channel channel : channels.values()) {
-            channelHeaders.put(channel.getId(), channel.getRevision());
-        }
-
-        return channelHeaders;
     }
 
     public void clearChannelCache() {
@@ -2220,12 +2239,19 @@ public class Frame extends JXFrame {
             return 0;
         }
     }
-
+    
     public void doRefreshStatuses() {
+        doRefreshStatuses(true);
+    }
+
+    public void doRefreshStatuses(boolean queue) {
         // Don't allow anything to be getting or setting refreshingStatuses
         // while this block is being executed.
         synchronized (this) {
             if (isRefreshingStatuses()) {
+                if (queue) {
+                    queueRefreshStatus = true;
+                }
                 return;
             }
 
@@ -2243,218 +2269,165 @@ public class Frame extends JXFrame {
         // background.
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            Object[][] tableData = null;
-
             public Void doInBackground() {
                 try {
                     status = mirthClient.getChannelStatusList();
                     resetSafeErrorFailCount(TaskConstants.DASHBOARD_REFRESH);
-
+                    
                     if (status != null) {
                         for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
                             plugin.tableUpdate(status);
-                        }
-
-                        tableData = new Object[status.size()][10 + LoadedExtensions.getInstance().getDashboardColumnPlugins().size()];
-                        for (int i = 0; i < status.size(); i++) {
-                            ChannelStatus tempStatus = status.get(i);
-                            int statusColumn = 0;
-                            try {
-                                ChannelStatistics tempStats = mirthClient.getStatistics(tempStatus.getChannelId());
-                                int j = 0;
-                                for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
-                                    if (plugin.isDisplayFirst()){
-                                        tableData[i][j] = plugin.getTableData(tempStatus);
-                                        j++;
-                                    }
-                                }
-                                statusColumn = j;
-                                j += 2;
-
-                                tableData[i][j] = tempStatus.getDeployedRevisionDelta();
-                                tableData[i][++j] = tempStatus.getDeployedDate();
-                                tableData[i][++j] = tempStats.getReceived();
-                                tableData[i][++j] = tempStats.getFiltered();
-                                tableData[i][++j] = tempStats.getQueued();
-                                tableData[i][++j] = tempStats.getSent();
-                                tableData[i][++j] = tempStats.getError();
-                                tableData[i][++j] = tempStats.getAlerted();
-                                j++;
-                                for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
-                                    if (!plugin.isDisplayFirst()) {
-                                        tableData[i][j] = plugin.getTableData(tempStatus);
-                                        j++;
-                                    }
-                                }
-
-                            } catch (ClientException ex) {
-                                alertException(PlatformUI.MIRTH_FRAME, ex.getStackTrace(), ex.getMessage());
-                            }
-
-                            if (tempStatus.getState() == ChannelStatus.State.STARTED) {
-                                tableData[i][statusColumn] = new CellData(UIConstants.ICON_BULLET_GREEN, "Started");
-                            } else if (tempStatus.getState() == ChannelStatus.State.STOPPED) {
-                                tableData[i][statusColumn] = new CellData(UIConstants.ICON_BULLET_RED, "Stopped");
-                            } else if (tempStatus.getState() == ChannelStatus.State.PAUSED) {
-                                tableData[i][statusColumn] = new CellData(UIConstants.ICON_BULLET_YELLOW, "Paused");
-                            }
-
-                            tableData[i][statusColumn + 1] = tempStatus.getName();
                         }
                     }
                 } catch (ClientException e) {
                     status = null;
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage(), TaskConstants.DASHBOARD_REFRESH);
                 }
-
+                
                 return null;
             }
 
             public void done() {
                 stopWorking(workingId);
+                
                 if (status != null) {
-                    statusBar.setStatusText(status.size() + " Deployed Channels");
-                    dashboardPanel.updateTable(tableData);
+                    dashboardPanel.updateTable(status);
                     dashboardPanel.updateCurrentPluginPanel();
                 }
+                
                 setRefreshingStatuses(false);
-            }
-        };
-        worker.execute();
-    }
-
-    public void doStartAll() {
-        final String workingId = startWorking("Starting all channels...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                try {
-                    for (int i = 0; i < status.size(); i++) {
-                        if (status.get(i).getState() == ChannelStatus.State.STOPPED) {
-                            mirthClient.startChannel(status.get(i).getChannelId());
-                        } else if (status.get(i).getState() == ChannelStatus.State.PAUSED) {
-                            mirthClient.resumeChannel(status.get(i).getChannelId());
-                        }
-                    }
-                } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                
+                // Perform another refresh if any were queued up to ensure the dashboard is up to date.
+                if (queueRefreshStatus) {
+                    queueRefreshStatus = false;
+                    doRefreshStatuses(false);
                 }
-                return null;
-            }
-
-            public void done() {
-                doRefreshStatuses();
-                stopWorking(workingId);
             }
         };
-
-        worker.execute();
-    }
-
-    public void doStopAll() {
-        final String workingId = startWorking("Stopping all channels...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                try {
-                    for (int i = 0; i < status.size(); i++) {
-                        if (status.get(i).getState() == ChannelStatus.State.STARTED || status.get(i).getState() == ChannelStatus.State.PAUSED) {
-                            mirthClient.stopChannel(status.get(i).getChannelId());
-                        }
-                    }
-                } catch (ClientException e) {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                }
-                return null;
-            }
-
-            public void done() {
-                doRefreshStatuses();
-                stopWorking(workingId);
-            }
-        };
-
+        
         worker.execute();
     }
 
     public void doStart() {
-        List<ChannelStatus> selectedChannelStatuses = dashboardPanel.getSelectedStatuses();
-
-        if (selectedChannelStatuses.size() == 0) {
+        Set<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedChannelStatuses();
+        
+        if (selectedStatuses.size() == 0) {
             return;
         }
-
-        for (final ChannelStatus channelStatus : selectedChannelStatuses) {
+        
+        for (final DashboardStatus status : selectedStatuses) {
+            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 5, 5, false);   // Hide Start
+            
             final String workingId = startWorking("Starting channel...");
-
+            
+            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 6, 7, true);    // Show Pause & Stop
+            
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
                 public Void doInBackground() {
                     try {
-                        if (channelStatus.getState() == ChannelStatus.State.STOPPED) {
-                            mirthClient.startChannel(channelStatus.getChannelId());
-                        } else if (channelStatus.getState() == ChannelStatus.State.PAUSED) {
-                            mirthClient.resumeChannel(channelStatus.getChannelId());
+                        if (status.getState() == ChannelState.PAUSED) {
+                            mirthClient.resumeChannel(status.getChannelId());
+                        } else {
+                            mirthClient.startChannel(status.getChannelId());
                         }
                     } catch (ClientException e) {
                         alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
+                    
                     return null;
                 }
-
+                
                 public void done() {
-                    doRefreshStatuses();
+                    doRefreshStatuses(true);
                     stopWorking(workingId);
                 }
             };
-
+            
             worker.execute();
         }
     }
 
     public void doStop() {
-        List<ChannelStatus> selectedChannelStatuses = dashboardPanel.getSelectedStatuses();
-
-        if (selectedChannelStatuses.size() == 0) {
+        Set<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedChannelStatuses();
+        
+        if (selectedStatuses.size() == 0) {
             return;
         }
-
-        for (final ChannelStatus channelStatus : selectedChannelStatuses) {
+        
+        for (final DashboardStatus status : selectedStatuses) {
+            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 6, 7, false);    // Hide Pause & Stop
+            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 5, 5, true);     // Show Start
+            
             final String workingId = startWorking("Stopping channel...");
-
+            
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
                 public Void doInBackground() {
                     try {
-                        mirthClient.stopChannel(channelStatus.getChannelId());
+                        mirthClient.stopChannel(status.getChannelId());
                     } catch (ClientException e) {
                         alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
+                    
                     return null;
                 }
-
+                
                 public void done() {
-                    doRefreshStatuses();
+                    doRefreshStatuses(true);
                     stopWorking(workingId);
                 }
             };
-
+            
+            worker.execute();
+        }
+    }
+    
+    public void doHalt() {
+        Set<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedChannelStatuses();
+        
+        if (selectedStatuses.size() == 0) {
+            return;
+        }
+        
+        for (final DashboardStatus status : selectedStatuses) {
+            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 6, 7, false);    // Hide Pause & Stop
+            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 5, 5, true);     // Show Start
+            
+            final String workingId = startWorking("Halting channel...");
+            
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                public Void doInBackground() {
+                    try {
+                        mirthClient.haltChannel(status.getChannelId());
+                    } catch (ClientException e) {
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    }
+                    
+                    return null;
+                }
+                
+                public void done() {
+                    doRefreshStatuses(true);
+                    stopWorking(workingId);
+                }
+            };
+            
             worker.execute();
         }
     }
 
     public void doPause() {
-        List<ChannelStatus> selectedChannelStatuses = dashboardPanel.getSelectedStatuses();
+        Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
 
         if (selectedChannelStatuses.size() == 0) {
             return;
         }
 
-        for (final ChannelStatus channelStatus : selectedChannelStatuses) {
+        for (final DashboardStatus channelStatus : selectedChannelStatuses) {
             final String workingId = startWorking("Pausing channel...");
+            
+            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 6, 6, false);    // Hide Pause
+            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 5, 5, true);     // Show Start
+            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 7, 7, true);     // Show Stop
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -2468,7 +2441,7 @@ public class Frame extends JXFrame {
                 }
 
                 public void done() {
-                    doRefreshStatuses();
+                    doRefreshStatuses(true);
                     stopWorking(workingId);
                 }
             };
@@ -2677,6 +2650,7 @@ public class Frame extends JXFrame {
     public void doRedeployAll() {
         final String workingId = startWorking("Deploying channels...");
         dashboardPanel.deselectRows();
+        doShowDashboard();
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -2691,7 +2665,7 @@ public class Frame extends JXFrame {
 
             public void done() {
                 stopWorking(workingId);
-                doShowDashboard();
+                doRefreshStatuses(true);
             }
         };
 
@@ -2724,6 +2698,7 @@ public class Frame extends JXFrame {
         final String workingId = startWorking("Deploying channel" + plural + "...");
 
         dashboardPanel.deselectRows();
+        doShowDashboard();
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -2738,7 +2713,7 @@ public class Frame extends JXFrame {
 
             public void done() {
                 stopWorking(workingId);
-                doShowDashboard();
+                doRefreshStatuses(true);
             }
         };
 
@@ -2746,7 +2721,7 @@ public class Frame extends JXFrame {
     }
 
     public void doUndeployChannel() {
-        final List<ChannelStatus> selectedChannelStatuses = dashboardPanel.getSelectedStatuses();
+        final Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
 
         if (selectedChannelStatuses.size() == 0) {
             return;
@@ -2763,7 +2738,7 @@ public class Frame extends JXFrame {
                 try {
                     List<String> channelIds = new ArrayList<String>();
                     
-                    for (ChannelStatus channelStatus : selectedChannelStatuses) {
+                    for (DashboardStatus channelStatus : selectedChannelStatuses) {
                         channelIds.add(channelStatus.getChannelId());
                     }
                     
@@ -2776,7 +2751,7 @@ public class Frame extends JXFrame {
 
             public void done() {
                 stopWorking(workingId);
-                doRefreshStatuses();
+                doRefreshStatuses(true);
             }
         };
 
@@ -2832,23 +2807,31 @@ public class Frame extends JXFrame {
             messageBrowser = new MessageBrowser();
         }
 
-        List<ChannelStatus> selectedChannelStatuses = dashboardPanel.getSelectedStatuses();
+        List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
 
-        if (selectedChannelStatuses.size() == 0) {
+        if (selectedStatuses.size() == 0) {
             return;
         }
 
-        if (selectedChannelStatuses.size() > 1) {
-            JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
-            return;
+        String channelId = selectedStatuses.get(0).getChannelId();
+        
+        for (DashboardStatus status : selectedStatuses) {
+            if (status.getChannelId() != channelId) {
+                JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
+                return;
+            }
         }
-
+        
+        retrieveChannels();
+        Channel channel = channels.get(channelId);
+        
         setBold(viewPane, -1);
-        setPanelName("Channel Messages - " + selectedChannelStatuses.get(0).getName());
+        setPanelName("Channel Messages - " + channel.getName());
         setCurrentContentPage(messageBrowser);
         setFocus(messageTasks);
-
-        messageBrowser.loadNew();
+        
+        messageBrowser.loadChannel(channel);
+        messageBrowser.runSearch();
     }
 
     public void doShowEvents() {
@@ -3032,8 +3015,8 @@ public class Frame extends JXFrame {
             }
         } else {
             try {
-                PropertyVerifier.checkChannelProperties(importChannel);
-                PropertyVerifier.checkConnectorProperties(importChannel, getConnectorMetaData());
+//                PropertyVerifier.checkChannelProperties(importChannel);
+//                PropertyVerifier.checkConnectorProperties(importChannel, getConnectorMetaData());
                 updateChannel(importChannel, overwrite);
                 doShowChannel();
             } catch (Exception e) {
@@ -3089,24 +3072,28 @@ public class Frame extends JXFrame {
         File exportDirectory = null;
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
+            boolean tagFilteredEnabled = channelFilter.isTagFilterEnabled();
+            Set<String> visibleTags = channelFilter.getVisibleTags();
 
             userPreferences.put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
             try {
                 exportDirectory = exportFileChooser.getSelectedFile();
 
                 for (Channel channel : channels.values()) {
-                    ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                    String channelXML = serializer.toXML(channel);
-
-                    exportFile = new File(exportDirectory.getAbsolutePath() + "/" + channel.getName() + ".xml");
-
-                    if (exportFile.exists()) {
-                        if (!alertOption(this, "The file " + channel.getName() + ".xml already exists.  Would you like to overwrite it?")) {
-                            continue;
+                    if (!tagFilteredEnabled || CollectionUtils.containsAny(visibleTags, channel.getTags())) {
+                        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                        String channelXML = serializer.toXML(channel);
+    
+                        exportFile = new File(exportDirectory.getAbsolutePath() + "/" + channel.getName() + ".xml");
+    
+                        if (exportFile.exists()) {
+                            if (!alertOption(this, "The file " + channel.getName() + ".xml already exists.  Would you like to overwrite it?")) {
+                                continue;
+                            }
                         }
+    
+                        FileUtils.writeStringToFile(exportFile, channelXML, UIConstants.CHARSET);
                     }
-
-                    FileUtils.writeStringToFile(exportFile, channelXML, UIConstants.CHARSET);
                 }
                 alertInformation(this, "All files were written successfully to " + exportDirectory.getPath() + ".");
             } catch (IOException ex) {
@@ -3253,7 +3240,7 @@ public class Frame extends JXFrame {
             try {
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 Connector connector = (Connector) serializer.fromXML(ImportConverter.convertConnector(content));
-                PropertyVerifier.checkConnectorProperties(connector, getConnectorMetaData());
+//                PropertyVerifier.checkConnectorProperties(connector, getConnectorMetaData());
                 channelEditPanel.importConnector(connector);
             } catch (Exception e) {
                 alertException(this, e.getStackTrace(), e.getMessage());
@@ -3332,7 +3319,7 @@ public class Frame extends JXFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                messageBrowser.refresh();
+                messageBrowser.refresh(false, null);
                 return null;
             }
 
@@ -3345,41 +3332,37 @@ public class Frame extends JXFrame {
     }
 
     public void doSendMessage() {
-        try {
-            retrieveChannels();
+        retrieveChannels();
 
-            List<ChannelStatus> selectedChannelStatuses = dashboardPanel.getSelectedStatuses();
-
-            if (selectedChannelStatuses.size() == 0) {
-                return;
-            }
-
-            if (selectedChannelStatuses.size() > 1) {
+        List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
+        String channelId = selectedStatuses.get(0).getChannelId();
+        List<Integer> selectedMetaDataIds = new ArrayList<Integer>();
+        
+        for (DashboardStatus status : selectedStatuses) {
+            if (status.getChannelId() != channelId) {
                 JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
                 return;
             }
-
-            Channel channel = channels.get(selectedChannelStatuses.get(0).getChannelId());
-
-            if (channel == null) {
-                alertError(this, "Channel no longer exists!");
-                return;
+            
+            if (status.getStatusType() == StatusType.CHANNEL) {
+                selectedMetaDataIds = null;
+            } else if (selectedMetaDataIds != null) {
+                Integer metaDataId = status.getMetaDataId();
+                
+                if (metaDataId != null) {
+                    selectedMetaDataIds.add(metaDataId);
+                }
             }
-
-            MessageObject messageObject = new MessageObject();
-            messageObject.setId(mirthClient.getGuid());
-            messageObject.setServerId(PlatformUI.SERVER_ID);
-            messageObject.setChannelId(channel.getId());
-            messageObject.setRawDataProtocol(channel.getSourceConnector().getTransformer().getInboundProtocol());
-            messageObject.setDateCreated(Calendar.getInstance());
-            messageObject.setConnectorName("Source");
-            messageObject.setEncrypted(Boolean.valueOf(channel.getProperties().getProperty(ChannelProperties.ENCRYPT_DATA)).booleanValue());
-            messageObject.setRawData("");
-
-            new EditMessageDialog(messageObject);
-        } catch (ClientException e) {
-            alertException(this, e.getStackTrace(), e.getMessage());
         }
+        
+        Channel channel = channels.get(channelId);
+        
+        if (channel == null) {
+            alertError(this, "Channel no longer exists!");
+            return;
+        }
+
+        new EditMessageDialog("", channel.getSourceConnector().getTransformer().getInboundDataType(), channel.getId(), dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds);
     }
 
     public void doImportMessages() {
@@ -3422,9 +3405,9 @@ public class Frame extends JXFrame {
         if (alertOption(this, "Are you sure you would like to remove all messages in the selected channel(s)?")) {
             final boolean clearStats = alertOption(PlatformUI.MIRTH_FRAME, "Would you also like to clear all statistics?");
 
-            List<ChannelStatus> selectedChannelStatuses = dashboardPanel.getSelectedStatuses();
+            Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
 
-            for (final ChannelStatus channelStatus : selectedChannelStatuses) {
+            for (final DashboardStatus channelStatus : selectedChannelStatuses) {
 
                 final String workingId = startWorking("Removing messages...");
 
@@ -3441,15 +3424,16 @@ public class Frame extends JXFrame {
 
                     public void done() {
                         if (clearStats) {
-                            List<ChannelStatus> channelStatuses = new ArrayList<ChannelStatus>();
+                            List<DashboardStatus> channelStatuses = new ArrayList<DashboardStatus>();
                             channelStatuses.add(channelStatus);
-                            clearStats(channelStatuses, true, true, true, true, true, true);
+                            channelStatuses.addAll(dashboardPanel.getAllChildStatuses(channelStatus));
+                            clearStats(channelStatuses, true, true, true, true, true);
+                        } else if (currentContentPage == dashboardPanel) {
+                            doRefreshStatuses(true);
                         }
-
-                        if (currentContentPage == dashboardPanel) {
-                            doRefreshStatuses();
-                        } else if (currentContentPage == messageBrowser) {
-                            messageBrowser.refresh();
+                        
+                        if (currentContentPage == messageBrowser) {
+                            messageBrowser.refresh(true, 1);
                         }
                         stopWorking(workingId);
                     }
@@ -3461,7 +3445,7 @@ public class Frame extends JXFrame {
     }
 
     public void doClearStats() {
-        List<ChannelStatus> channelStatuses = dashboardPanel.getSelectedStatuses();
+        List<DashboardStatus> channelStatuses = dashboardPanel.getSelectedStatusesRecursive();
 
         if (channelStatuses.size() != 0) {
             new DeleteStatisticsDialog(channelStatuses);
@@ -3470,16 +3454,31 @@ public class Frame extends JXFrame {
         }
     }
 
-    public void clearStats(final List<ChannelStatus> statusesToClear, final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored, final boolean deleteAlerted) {
+    public void clearStats(List<DashboardStatus> statusesToClear, final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteSent, final boolean deleteErrored, final boolean deleteAlerted) {
         final String workingId = startWorking("Clearing statistics...");
-
+        Map<String, List<Integer>> channelConnectorMap = new HashMap<String, List<Integer>>();
+        
+        for (DashboardStatus status : statusesToClear) {
+            String channelId = status.getChannelId();
+            Integer metaDataId = status.getMetaDataId();
+            
+            List<Integer> metaDataIds = channelConnectorMap.get(channelId);
+            
+            if (metaDataIds == null) {
+                metaDataIds = new ArrayList<Integer>();
+                channelConnectorMap.put(channelId, metaDataIds);
+            }
+            
+            metaDataIds.add(metaDataId);
+        }
+        
+        final Map<String, List<Integer>> channelConnectorMapFinal = channelConnectorMap;
+        
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
-                    for (ChannelStatus channelStatus : statusesToClear) {
-                        mirthClient.clearStatistics(channelStatus.getChannelId(), deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored, deleteAlerted);
-                    }
+                    mirthClient.clearStatistics(channelConnectorMapFinal, deleteReceived, deleteFiltered, deleteSent, deleteErrored, deleteAlerted);
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
@@ -3487,7 +3486,7 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                doRefreshStatuses();
+                doRefreshStatuses(true);
                 stopWorking(workingId);
             }
         };
@@ -3503,18 +3502,22 @@ public class Frame extends JXFrame {
 
                 public Void doInBackground() {
                     try {
-                        mirthClient.removeMessages(messageBrowser.getCurrentFilter());
+                        mirthClient.removeMessages(messageBrowser.getChannel().getId(), messageBrowser.getMessageFilter());
                     } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        if (e.getCause() instanceof RequestAbortedException) {
+                            // The client is no longer waiting for the delete request
+                        } else {
+                            alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        }
                     }
                     return null;
                 }
 
                 public void done() {
                     if (currentContentPage == dashboardPanel) {
-                        doRefreshStatuses();
+                        doRefreshStatuses(true);
                     } else if (currentContentPage == messageBrowser) {
-                        messageBrowser.refresh();
+                        messageBrowser.refresh(true, 1);
                     }
                     stopWorking(workingId);
                 }
@@ -3532,9 +3535,18 @@ public class Frame extends JXFrame {
 
                 public Void doInBackground() {
                     try {
-                        MessageObjectFilter filter = new MessageObjectFilter();
-                        filter.setId(messageBrowser.getSelectedMessageID());
-                        mirthClient.removeMessages(filter);
+                        Integer metaDataId = messageBrowser.getSelectedMetaDataId();
+                        MessageFilter filter = new MessageFilter();
+                        if (metaDataId == 0) {
+                            filter.setMessageId(messageBrowser.getSelectedMessageId());
+                            mirthClient.removeMessages(messageBrowser.getChannel().getId(), filter);
+                        } else if (metaDataId > 0) {
+                            filter.setMessageId(messageBrowser.getSelectedMessageId());
+                            List<Integer> metaDataIds = new ArrayList<Integer>();
+                            metaDataIds.add(metaDataId);
+                            filter.setMetaDataIds(metaDataIds);
+                            mirthClient.removeConnectorMessages(messageBrowser.getChannel().getId(), filter);
+                        }
                     } catch (ClientException e) {
                         alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
@@ -3543,9 +3555,9 @@ public class Frame extends JXFrame {
 
                 public void done() {
                     if (currentContentPage == dashboardPanel) {
-                        doRefreshStatuses();
+                        doRefreshStatuses(true);
                     } else if (currentContentPage == messageBrowser) {
-                        messageBrowser.refresh();
+                        messageBrowser.refresh(false, null);
                     }
                     stopWorking(workingId);
                 }
@@ -3556,31 +3568,19 @@ public class Frame extends JXFrame {
     }
 
     public void doReprocessFilteredMessages() {
-        final String workingId = startWorking("Retrieving Channels...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                if (channels == null || channels.values().size() == 0) {
-                    retrieveChannels();
-                }
-
-                return null;
-            }
-
-            public void done() {
-                stopWorking(workingId);
-                new ReprocessMessagesDialog(messageBrowser.getCurrentFilter());
-            }
-        };
-        worker.execute();
+        doReprocess(messageBrowser.getMessageFilter(), null);
     }
 
     public void doReprocessMessage() {
+        MessageFilter filter = new MessageFilter();
+        filter.setMessageId(messageBrowser.getSelectedMessageId());
+        doReprocess(filter, messageBrowser.getSelectedMetaDataId());
+    }
+    
+    private void doReprocess(final MessageFilter filter, final Integer selectedMetaDataId) {
         final String workingId = startWorking("Retrieving Channels...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
             public Void doInBackground() {
                 if (channels == null || channels.values().size() == 0) {
                     retrieveChannels();
@@ -3591,23 +3591,22 @@ public class Frame extends JXFrame {
 
             public void done() {
                 stopWorking(workingId);
-                MessageObjectFilter filter = new MessageObjectFilter();
-                filter.setChannelId(getSelectedChannelIdFromDashboard());
-                filter.setId(messageBrowser.getSelectedMessageID());
-                new ReprocessMessagesDialog(filter);
+                Map<Integer, String> destinationConnectors = new HashMap<Integer, String>();
+                destinationConnectors.putAll(dashboardPanel.getDestinationConnectorNames(messageBrowser.getChannel().getId()));
+                new ReprocessMessagesDialog(messageBrowser.getChannel().getId(), filter, destinationConnectors, selectedMetaDataId);
             }
         };
+        
         worker.execute();
     }
 
-    public void reprocessMessage(final MessageObjectFilter filter, final boolean replace, final List<String> destinations) {
+    public void reprocessMessage(final String channelId, final MessageFilter filter, final boolean replace, final List<Integer> reprocessMetaDataIds) {
         final String workingId = startWorking("Reprocessing messages...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
             public Void doInBackground() {
                 try {
-                    mirthClient.reprocessMessages(filter, replace, destinations);
+                    mirthClient.reprocessMessages(channelId, filter, replace, reprocessMetaDataIds);
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
@@ -3615,7 +3614,7 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                messageBrowser.refresh();
+                messageBrowser.refresh(replace, null);
                 stopWorking(workingId);
             }
         };
@@ -3641,14 +3640,14 @@ public class Frame extends JXFrame {
         worker.execute();
     }
 
-    public void processMessage(final MessageObject message) {
+    public void processMessage(final String channelId, final String message, final List<Integer> metaDataIds) {
         final String workingId = startWorking("Processing message...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
-                    mirthClient.processMessage(message);
+                    mirthClient.processMessage(channelId, message, metaDataIds);
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
@@ -3656,7 +3655,10 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                messageBrowser.refresh();
+                // TODO: does the message browser need to be refreshed when sending a message on the dashboard?
+                // Disabled this again for now. It needs to be called when sending a message from MessageBrowser,
+                // but not the dashboard. They both call this same method currently so we need to handle that case.
+                // messageBrowser.refresh(false);
                 stopWorking(workingId);
             }
         };
@@ -4327,6 +4329,27 @@ public class Frame extends JXFrame {
         retrieveChannels();
         return channels.get(getSelectedChannelIdFromDashboard());
     }
+    
+    public List<Integer> getSelectedMetaDataIdsFromDashboard(String channelId) {
+        List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
+        List<Integer> metaDataIds = new ArrayList<Integer>();
+        
+        if (selectedStatuses.size() == 0) {
+            return metaDataIds;
+        }
+
+        for (DashboardStatus status : selectedStatuses) {
+            if (status.getChannelId() == channelId) {
+                Integer metaDataId = status.getMetaDataId();
+                
+                if (metaDataId != null) {
+                    metaDataIds.add(metaDataId);
+                }
+            }
+        }
+        
+        return metaDataIds;
+    }
 
     public void retrieveUsers() throws ClientException {
         users = mirthClient.getUser(null);
@@ -4338,5 +4361,17 @@ public class Frame extends JXFrame {
     
     public synchronized boolean isAcceleratorKeyPressed() {
         return acceleratorKeyPressed;
+    }
+    
+    public void retrieveAllChannelTags() {
+        try {
+            allChannelTags = mirthClient.getChannelTags();
+        } catch (ClientException e) {
+            alertException(this, e.getStackTrace(), e.getMessage());
+        }
+    }
+
+    public Set<String> getAllChannelTags() {
+        return allChannelTags;
     }
 }

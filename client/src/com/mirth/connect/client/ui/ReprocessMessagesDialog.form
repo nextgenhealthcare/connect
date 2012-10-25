@@ -131,7 +131,7 @@
         </Container>
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Reprocess to the following destinations:"/>
+            <Property name="text" type="java.lang.String" value="Reprocess through the following destinations:"/>
           </Properties>
         </Component>
       </SubComponents>

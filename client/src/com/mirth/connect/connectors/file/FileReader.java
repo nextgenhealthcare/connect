@@ -1,191 +1,124 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
-package com.mirth.connect.connectors.file;
 
-import java.util.Properties;
+package com.mirth.connect.connectors.file;
 
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
-import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.util.ConnectionTestResponse;
 
-/**
- * A form that extends from ConnectorClass. All methods implemented are
- * described in ConnectorClass.
- */
-public class FileReader extends ConnectorClass {
+public class FileReader extends ConnectorSettingsPanel {
 
     private Logger logger = Logger.getLogger(this.getClass());
+    private Frame parent;
 
-    /** Creates new form FileReader */
     public FileReader() {
-        name = FileReaderProperties.name;
+        this.parent = PlatformUI.MIRTH_FRAME;
+
         initComponents();
-        pollingFrequency.setDocument(new MirthFieldConstraints(0, false, false, true));
+
         fileAge.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
-    /** Converts the values of the form fields to a Properties */
-    public Properties getProperties() {
-        Properties properties = new Properties();
-        properties.put(FileReaderProperties.DATATYPE, name);
+    @Override
+    public String getConnectorName() {
+        return new FileReceiverProperties().getName();
+    }
 
-        if (((String) schemeComboBox.getSelectedItem()).equals("file")) {
-            properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_FILE);
-        } else if (((String) schemeComboBox.getSelectedItem()).equals("ftp")) {
-            properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_FTP);
-        } else if (((String) schemeComboBox.getSelectedItem()).equals("sftp")) {
-            properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_SFTP);
-        } else if (((String) schemeComboBox.getSelectedItem()).equals("smb")) {
-            properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_SMB);
-        } else if (((String) schemeComboBox.getSelectedItem()).equals("webdav")) {
-            properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_WEBDAV);
+    @Override
+    public ConnectorProperties getProperties() {
+        FileReceiverProperties properties = new FileReceiverProperties();
+
+        properties.setScheme(FileScheme.fromDisplayName((String) schemeComboBox.getSelectedItem()));
+
+        if (schemeComboBox.getSelectedItem().equals(FileScheme.FILE.getDisplayName())) {
+            properties.setHost(directoryField.getText().replace('\\', '/'));
         } else {
-            // This "can't happen"
-            logger.error("Unrecognized this.schemeComboBox value '" + schemeComboBox.getSelectedItem() + "', using 'file' instead");
-            properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_FILE);
+            properties.setHost(hostField.getText() + "/" + pathField.getText());
         }
 
-        if (schemeComboBox.getSelectedItem().equals("file")) {
-            properties.put(FileReaderProperties.FILE_HOST, directoryField.getText().replace('\\', '/'));
-        } else {
-            properties.put(FileReaderProperties.FILE_HOST, hostField.getText() + "/" + pathField.getText());
-        }
-        
-        if (ignoreDotFilesYesRadio.isSelected()) {
-            properties.put(FileReaderProperties.FILE_IGNORE_DOT, UIConstants.YES_OPTION);
-        } else {
-            properties.put(FileReaderProperties.FILE_IGNORE_DOT, UIConstants.NO_OPTION);
-        }
+        properties.setIgnoreDot(ignoreDotFilesYesRadio.isSelected());
 
         if (anonymousYes.isSelected()) {
-            properties.put(FileReaderProperties.FILE_ANONYMOUS, UIConstants.YES_OPTION);
-            if (((String) schemeComboBox.getSelectedItem()).equals(FileReaderProperties.SCHEME_WEBDAV)) {
-                properties.put(FileReaderProperties.FILE_USERNAME, "null");
-                properties.put(FileReaderProperties.FILE_PASSWORD, "null");
-            }
+            properties.setAnonymous(true);
         } else {
-            properties.put(FileReaderProperties.FILE_ANONYMOUS, UIConstants.NO_OPTION);
+            properties.setAnonymous(false);
         }
 
-        properties.put(FileReaderProperties.FILE_USERNAME, usernameField.getText());
-        properties.put(FileReaderProperties.FILE_PASSWORD, new String(passwordField.getPassword()));
+        properties.setUsername(usernameField.getText());
+        properties.setPassword(new String(passwordField.getPassword()));
 
-        properties.put(FileReaderProperties.FILE_TIMEOUT, timeoutField.getText());
+        properties.setTimeout(timeoutField.getText());
 
-        if (secureModeYes.isSelected()) {
-            properties.put(FileReaderProperties.FILE_SECURE_MODE, UIConstants.YES_OPTION);
-        } else {
-            properties.put(FileReaderProperties.FILE_SECURE_MODE, UIConstants.NO_OPTION);
-        }
+        properties.setSecure(secureModeYes.isSelected());
+        properties.setPassive(passiveModeYes.isSelected());
+        properties.setValidateConnection(validateConnectionYes.isSelected());
 
-        if (passiveModeYes.isSelected()) {
-            properties.put(FileReaderProperties.FILE_PASSIVE_MODE, UIConstants.YES_OPTION);
-        } else {
-            properties.put(FileReaderProperties.FILE_PASSIVE_MODE, UIConstants.NO_OPTION);
-        }
+        properties.setMoveToPattern(moveToPattern.getText());
+        properties.setMoveToDirectory(moveToDirectory.getText().replace('\\', '/'));
+        properties.setMoveToErrorDirectory(errorMoveToDirectory.getText().replace('\\', '/'));
 
-        if (validateConnectionYes.isSelected()) {
-            properties.put(FileReaderProperties.FILE_VALIDATE_CONNECTION, UIConstants.YES_OPTION);
-        } else {
-            properties.put(FileReaderProperties.FILE_VALIDATE_CONNECTION, UIConstants.NO_OPTION);
-        }
+        properties.setAutoDelete(deleteAfterReadYes.isSelected());
 
-        properties.put(FileReaderProperties.FILE_MOVE_TO_PATTERN, moveToPattern.getText());
-        properties.put(FileReaderProperties.FILE_MOVE_TO_DIRECTORY, moveToDirectory.getText().replace('\\', '/'));
-        properties.put(FileReaderProperties.FILE_MOVE_TO_ERROR_DIRECTORY, errorMoveToDirectory.getText().replace('\\', '/'));
-
-        if (deleteAfterReadYes.isSelected()) {
-            properties.put(FileReaderProperties.FILE_DELETE_AFTER_READ, UIConstants.YES_OPTION);
-        } else {
-            properties.put(FileReaderProperties.FILE_DELETE_AFTER_READ, UIConstants.NO_OPTION);
-        }
-
-        if (checkFileAgeYes.isSelected()) {
-            properties.put(FileReaderProperties.FILE_CHECK_FILE_AGE, UIConstants.YES_OPTION);
-        } else {
-            properties.put(FileReaderProperties.FILE_CHECK_FILE_AGE, UIConstants.NO_OPTION);
-        }
-
-        properties.put(FileReaderProperties.FILE_FILE_AGE, fileAge.getText());
+        properties.setCheckFileAge(checkFileAgeYes.isSelected());
+        properties.setFileAge(fileAge.getText());
 
         if (((String) sortBy.getSelectedItem()).equals("Name")) {
-            properties.put(FileReaderProperties.FILE_SORT_BY, FileReaderProperties.SORT_BY_NAME);
+            properties.setSortBy(FileReceiverProperties.SORT_BY_NAME);
         } else if (((String) sortBy.getSelectedItem()).equals("Size")) {
-            properties.put(FileReaderProperties.FILE_SORT_BY, FileReaderProperties.SORT_BY_SIZE);
+            properties.setSortBy(FileReceiverProperties.SORT_BY_SIZE);
         } else if (((String) sortBy.getSelectedItem()).equals("Date")) {
-            properties.put(FileReaderProperties.FILE_SORT_BY, FileReaderProperties.SORT_BY_DATE);
+            properties.setSortBy(FileReceiverProperties.SORT_BY_DATE);
         }
 
-        properties.put(FileReaderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
-
-        properties.put(FileReaderProperties.FILE_FILTER, fileNameFilter.getText());
-
-        if (filenameFilterRegexCheckBox.isSelected()) {
-            properties.put(FileReaderProperties.FILE_REGEX, UIConstants.YES_OPTION);
-        } else {
-            properties.put(FileReaderProperties.FILE_REGEX, UIConstants.NO_OPTION);
-        }
-
-        if (processBatchFilesYes.isSelected()) {
-            properties.put(FileReaderProperties.FILE_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);
-        } else {
-            properties.put(FileReaderProperties.FILE_PROCESS_BATCH_FILES, UIConstants.NO_OPTION);
-        }
-
-        if (fileTypeBinary.isSelected()) {
-            properties.put(FileReaderProperties.FILE_TYPE, UIConstants.YES_OPTION);
-        } else {
-            properties.put(FileReaderProperties.FILE_TYPE, UIConstants.NO_OPTION);
-        }
-
-        if (pollingIntervalButton.isSelected()) {
-            properties.put(FileReaderProperties.FILE_POLLING_TYPE, "interval");
-            properties.put(FileReaderProperties.FILE_POLLING_FREQUENCY, pollingFrequency.getText());
-        } else {
-            properties.put(FileReaderProperties.FILE_POLLING_TYPE, "time");
-            properties.put(FileReaderProperties.FILE_POLLING_TIME, pollingTime.getDate());
-        }
+        properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
+        properties.setFileFilter(fileNameFilter.getText());
+        properties.setRegex(filenameFilterRegexCheckBox.isSelected());
+        properties.setProcessBatch(processBatchFilesYes.isSelected());
+        properties.setBinary(fileTypeBinary.isSelected());
 
         logger.debug("getProperties: properties=" + properties);
 
         return properties;
     }
 
-    /** Parses the scheme and URL to determine the values for the
-     * directory, host and path fields, optionally storing them to
-     * the fields, highlighting field errors, or just testing for
-     * valid values.
-     * 
-     * @param props The connector properties from which to take the
-     * values.
-     * @param store If true, the parsed values are stored to the
-     * corresponding form controls.
-     * @param highlight If true, fields for which the parsed values
-     * are invalid are highlighted.
+    /**
+     * Parses the scheme and URL to determine the values for the directory, host
+     * and path fields, optionally storing them to the fields, highlighting
+     * field errors, or just testing for valid values.
+     *
+     * @param props The connector properties from which to take the values.
+     * @param store If true, the parsed values are stored to the corresponding
+     * form controls.
+     * @param highlight If true, fields for which the parsed values are invalid
+     * are highlighted.
      */
-    public boolean setDirHostPath(Properties props, boolean store, boolean highlight) {
+    private boolean setDirHostPath(FileReceiverProperties props, boolean store, boolean highlight) {
 
         boolean valid = true;
-        Object schemeValue = props.get(FileReaderProperties.FILE_SCHEME);
-        String hostPropValue = (String) props.get(FileReaderProperties.FILE_HOST);
+        FileScheme scheme = props.getScheme();
+        String hostPropValue = props.getHost();
         String directoryValue = "";
         String hostValue = "";
         String pathValue = "";
-        if (schemeValue.equals(FileReaderProperties.SCHEME_FILE)) {
+        if (scheme.equals(FileScheme.FILE)) {
 
             directoryValue = hostPropValue;
             if (directoryValue.length() <= 0) {
@@ -222,40 +155,25 @@ public class FileReader extends ConnectorClass {
         return valid;
     }
 
-    /** Converts a Properties to values of the form fields */
-    public void setProperties(Properties props) {
-        logger.debug("setProperties: props=" + props);
+    @Override
+    public void setProperties(ConnectorProperties properties) {
+        logger.debug("setProperties: props=" + properties);
+        FileReceiverProperties props = (FileReceiverProperties) properties;
 
-        resetInvalidProperties();
-
-        Object schemeValue = props.get(FileReaderProperties.FILE_SCHEME);
-        if (schemeValue.equals(FileReaderProperties.SCHEME_FILE)) {
-            schemeComboBox.setSelectedItem("file");
-        } else if (schemeValue.equals(FileReaderProperties.SCHEME_FTP)) {
-            schemeComboBox.setSelectedItem("ftp");
-        } else if (schemeValue.equals(FileReaderProperties.SCHEME_SFTP)) {
-            schemeComboBox.setSelectedItem("sftp");
-        } else if (schemeValue.equals(FileReaderProperties.SCHEME_SMB)) {
-            schemeComboBox.setSelectedItem("smb");
-        } else if (schemeValue.equals(FileReaderProperties.SCHEME_WEBDAV)) {
-            schemeComboBox.setSelectedItem("webdav");
-        } else {
-            // This "can't happen"
-            logger.error("Unrecognized props[\"scheme\"] value '" + schemeValue + "', using 'file' instead");
-            schemeComboBox.setSelectedItem("file");
-        }
+        FileScheme scheme = props.getScheme();
+        schemeComboBox.setSelectedItem(props.getScheme().getDisplayName());
 
         schemeComboBoxActionPerformed(null);
 
         setDirHostPath(props, true, false);
 
-        if (props.getProperty(FileReaderProperties.FILE_IGNORE_DOT).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+        if (props.isIgnoreDot()) {
             ignoreDotFilesYesRadio.setSelected(true);
         } else {
             ignoreDotFilesNoRadio.setSelected(true);
         }
-        
-        if (((String) props.get(FileReaderProperties.FILE_ANONYMOUS)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+
+        if (props.isAnonymous()) {
             anonymousYes.setSelected(true);
             anonymousNo.setSelected(false);
             anonymousYesActionPerformed(null);
@@ -263,27 +181,27 @@ public class FileReader extends ConnectorClass {
             anonymousYes.setSelected(false);
             anonymousNo.setSelected(true);
             anonymousNoActionPerformed(null);
-            usernameField.setText((String) props.get(FileReaderProperties.FILE_USERNAME));
-            passwordField.setText((String) props.get(FileReaderProperties.FILE_PASSWORD));
+            usernameField.setText(props.getUsername());
+            passwordField.setText(props.getPassword());
         }
 
-        timeoutField.setText((String) props.get(FileReaderProperties.FILE_TIMEOUT));
+        timeoutField.setText(props.getTimeout());
 
-        if (((String) props.get(FileReaderProperties.FILE_SECURE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+        if (props.isSecure()) {
             secureModeYes.setSelected(true);
             secureModeNo.setSelected(false);
-            if (schemeValue.equals(FileReaderProperties.SCHEME_WEBDAV)) {
+            if (scheme.equals(FileScheme.WEBDAV)) {
                 hostLabel.setText("https://");
             }
         } else {
             secureModeYes.setSelected(false);
             secureModeNo.setSelected(true);
-            if (schemeValue.equals(FileReaderProperties.SCHEME_WEBDAV)) {
+            if (scheme.equals(FileScheme.WEBDAV)) {
                 hostLabel.setText("http://");
             }
         }
 
-        if (((String) props.get(FileReaderProperties.FILE_PASSIVE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+        if (props.isPassive()) {
             passiveModeYes.setSelected(true);
             passiveModeNo.setSelected(false);
         } else {
@@ -291,7 +209,7 @@ public class FileReader extends ConnectorClass {
             passiveModeNo.setSelected(true);
         }
 
-        if (((String) props.get(FileReaderProperties.FILE_VALIDATE_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+        if (props.isValidateConnection()) {
             validateConnectionYes.setSelected(true);
             validateConnectionNo.setSelected(false);
         } else {
@@ -299,11 +217,11 @@ public class FileReader extends ConnectorClass {
             validateConnectionNo.setSelected(true);
         }
 
-        moveToPattern.setText((String) props.get(FileReaderProperties.FILE_MOVE_TO_PATTERN));
-        moveToDirectory.setText((String) props.get(FileReaderProperties.FILE_MOVE_TO_DIRECTORY));
-        errorMoveToDirectory.setText((String) props.get(FileReaderProperties.FILE_MOVE_TO_ERROR_DIRECTORY));
+        moveToPattern.setText(props.getMoveToPattern());
+        moveToDirectory.setText(props.getMoveToDirectory());
+        errorMoveToDirectory.setText(props.getMoveToErrorDirectory());
 
-        if (((String) props.get(FileReaderProperties.FILE_DELETE_AFTER_READ)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+        if (props.isAutoDelete()) {
             deleteAfterReadYes.setSelected(true);
             deleteAfterReadNo.setSelected(false);
             deleteAfterReadYesActionPerformed(null);
@@ -312,7 +230,8 @@ public class FileReader extends ConnectorClass {
             deleteAfterReadNo.setSelected(true);
             deleteAfterReadNoActionPerformed(null);
         }
-        if (((String) props.get(FileReaderProperties.FILE_CHECK_FILE_AGE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+
+        if (props.isCheckFileAge()) {
             checkFileAgeYes.setSelected(true);
             checkFileAgeNo.setSelected(false);
             checkFileAgeYesActionPerformed(null);
@@ -322,27 +241,27 @@ public class FileReader extends ConnectorClass {
             checkFileAgeNoActionPerformed(null);
         }
 
-        fileAge.setText((String) props.get(FileReaderProperties.FILE_FILE_AGE));
+        fileAge.setText(props.getFileAge());
 
-        if (props.get(FileReaderProperties.FILE_SORT_BY).equals(FileReaderProperties.SORT_BY_NAME)) {
+        if (props.getSortBy().equals(FileReceiverProperties.SORT_BY_NAME)) {
             sortBy.setSelectedItem("Name");
-        } else if (props.get(FileReaderProperties.FILE_SORT_BY).equals(FileReaderProperties.SORT_BY_SIZE)) {
+        } else if (props.getSortBy().equals(FileReceiverProperties.SORT_BY_SIZE)) {
             sortBy.setSelectedItem("Size");
-        } else if (props.get(FileReaderProperties.FILE_SORT_BY).equals(FileReaderProperties.SORT_BY_DATE)) {
+        } else if (props.getSortBy().equals(FileReceiverProperties.SORT_BY_DATE)) {
             sortBy.setSelectedItem("Date");
         }
 
-        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(FileReaderProperties.CONNECTOR_CHARSET_ENCODING));
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharsetEncoding());
 
-        fileNameFilter.setText((String) props.get(FileReaderProperties.FILE_FILTER));
+        fileNameFilter.setText(props.getFileFilter());
 
-        if (((String) props.get(FileReaderProperties.FILE_REGEX)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+        if (props.isRegex()) {
             filenameFilterRegexCheckBox.setSelected(true);
         } else {
             filenameFilterRegexCheckBox.setSelected(false);
         }
 
-        if (((String) props.get(FileReaderProperties.FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+        if (props.isBinary()) {
             fileTypeBinary.setSelected(true);
             fileTypeASCII.setSelected(false);
             fileTypeBinaryActionPerformed(null);
@@ -352,67 +271,43 @@ public class FileReader extends ConnectorClass {
             fileTypeASCIIActionPerformed(null);
         }
 
-        if (((String) props.get(FileReaderProperties.FILE_PROCESS_BATCH_FILES)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+        if (props.isProcessBatch()) {
             processBatchFilesYes.setSelected(true);
             processBatchFilesNo.setSelected(false);
         } else {
             processBatchFilesYes.setSelected(false);
             processBatchFilesNo.setSelected(true);
         }
-
-        if (((String) props.get(FileReaderProperties.FILE_POLLING_TYPE)).equalsIgnoreCase("interval")) {
-            pollingIntervalButton.setSelected(true);
-            pollingTimeButton.setSelected(false);
-            pollingIntervalButtonActionPerformed(null);
-            pollingFrequency.setText((String) props.get(FileReaderProperties.FILE_POLLING_FREQUENCY));
-        } else {
-            pollingIntervalButton.setSelected(false);
-            pollingTimeButton.setSelected(true);
-            pollingTimeButtonActionPerformed(null);
-            pollingTime.setDate((String) props.get(FileReaderProperties.FILE_POLLING_TIME));
-        }
     }
 
-    /** Returns the default Properties */
-    public Properties getDefaults() {
-        return new FileReaderProperties().getDefaults();
+    @Override
+    public ConnectorProperties getDefaults() {
+        return new FileReceiverProperties();
     }
 
-    /** Tests if the specified Properties are valid, optionally highlighting fields
-     * with invalid entries.
-     */
-    public boolean checkProperties(Properties props, boolean highlight) {
-        resetInvalidProperties();
+    @Override
+    public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
+        FileReceiverProperties props = (FileReceiverProperties) properties;
+
         boolean valid = true;
 
         valid = setDirHostPath(props, false, highlight);
 
-        if (((String) props.get(FileReaderProperties.FILE_FILTER)).length() == 0) {
+        if (props.getFileFilter().length() == 0) {
             valid = false;
             if (highlight) {
                 fileNameFilter.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (((String) props.get(FileReaderProperties.FILE_POLLING_TYPE)).equalsIgnoreCase("interval") && ((String) props.get(FileReaderProperties.FILE_POLLING_FREQUENCY)).length() == 0) {
-            valid = false;
-            if (highlight) {
-                pollingFrequency.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
-        if (((String) props.get(FileReaderProperties.FILE_POLLING_TYPE)).equalsIgnoreCase("time") && ((String) props.get(FileReaderProperties.FILE_POLLING_TIME)).length() == 0) {
-            valid = false;
-            if (highlight) {
-                pollingTime.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
-        if (((String) props.get(FileReaderProperties.FILE_ANONYMOUS)).equals(UIConstants.NO_OPTION)) {
-            if (((String) props.get(FileReaderProperties.FILE_USERNAME)).length() == 0) {
+
+        if (!props.isAnonymous()) {
+            if (props.getUsername().length() == 0) {
                 valid = false;
                 if (highlight) {
                     usernameField.setBackground(UIConstants.INVALID_COLOR);
                 }
             }
-            if (((String) props.get(FileReaderProperties.FILE_PASSWORD)).length() == 0) {
+            if (props.getPassword().length() == 0) {
                 valid = false;
                 if (highlight) {
                     passwordField.setBackground(UIConstants.INVALID_COLOR);
@@ -420,18 +315,18 @@ public class FileReader extends ConnectorClass {
             }
         }
 
-        Object scheme = props.get(FileReaderProperties.FILE_SCHEME);
-        if (scheme.equals(FileReaderProperties.SCHEME_FTP) || scheme.equals(FileReaderProperties.SCHEME_SFTP) || scheme.equals(FileReaderProperties.SCHEME_SMB)) {
-            if (((String) props.get(FileReaderProperties.FILE_TIMEOUT)).length() == 0) {
+        FileScheme scheme = props.getScheme();
+        if (scheme.equals(FileScheme.FTP) || scheme.equals(FileScheme.SFTP) || scheme.equals(FileScheme.SMB)) {
+            if (props.getTimeout().length() == 0) {
                 valid = false;
                 if (highlight) {
                     timeoutField.setBackground(UIConstants.INVALID_COLOR);
                 }
             }
         }
-        
-        if (((String) props.get(FileReaderProperties.FILE_CHECK_FILE_AGE)).equals(UIConstants.YES_OPTION)) {
-            if (((String) props.get(FileReaderProperties.FILE_FILE_AGE)).length() == 0) {
+
+        if (props.isCheckFileAge()) {
+            if (props.getFileAge().length() == 0) {
                 valid = false;
                 if (highlight) {
                     fileAge.setBackground(UIConstants.INVALID_COLOR);
@@ -442,28 +337,16 @@ public class FileReader extends ConnectorClass {
         return valid;
     }
 
-    /** Turns off all invalid property value highlighting */
-    private void resetInvalidProperties() {
+    @Override
+    public void resetInvalidProperties() {
         directoryField.setBackground(null);
         hostField.setBackground(null);
         pathField.setBackground(null);
         fileNameFilter.setBackground(null);
-        pollingFrequency.setBackground(null);
-        pollingTime.setBackground(null);
         fileAge.setBackground(null);
         usernameField.setBackground(null);
         passwordField.setBackground(null);
         timeoutField.setBackground(null);
-    }
-
-    public String doValidate(Properties props, boolean highlight) {
-        String error = null;
-
-        if (!checkProperties(props, highlight)) {
-            error = "Error in the form for connector \"" + getName() + "\".\n\n";
-        }
-
-        return error;
     }
 
     /**
@@ -478,7 +361,6 @@ public class FileReader extends ConnectorClass {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
-        buttonGroup4 = new javax.swing.ButtonGroup();
         buttonGroup5 = new javax.swing.ButtonGroup();
         buttonGroup6 = new javax.swing.ButtonGroup();
         buttonGroup7 = new javax.swing.ButtonGroup();
@@ -495,13 +377,6 @@ public class FileReader extends ConnectorClass {
         pathField = new com.mirth.connect.client.ui.components.MirthTextField();
         filenameFilterLabel = new javax.swing.JLabel();
         fileNameFilter = new com.mirth.connect.client.ui.components.MirthTextField();
-        pollingTypeLabel = new javax.swing.JLabel();
-        pollingIntervalButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        pollingTimeButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        pollingFrequencyLabel = new javax.swing.JLabel();
-        pollingFrequency = new com.mirth.connect.client.ui.components.MirthTextField();
-        pollingTimeLabel = new javax.swing.JLabel();
-        pollingTime = new com.mirth.connect.client.ui.components.MirthTimePicker();
         moveToDirectoryLabel = new javax.swing.JLabel();
         moveToPattern = new com.mirth.connect.client.ui.components.MirthTextField();
         moveToDirectory = new com.mirth.connect.client.ui.components.MirthTextField();
@@ -513,7 +388,6 @@ public class FileReader extends ConnectorClass {
         deleteAfterReadNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         checkFileAgeYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         checkFileAgeNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        mirthVariableList1 = new com.mirth.connect.client.ui.components.MirthVariableList();
         fileAge = new com.mirth.connect.client.ui.components.MirthTextField();
         sortFilesByLabel = new javax.swing.JLabel();
         sortBy = new com.mirth.connect.client.ui.components.MirthComboBox();
@@ -550,6 +424,8 @@ public class FileReader extends ConnectorClass {
         ignoreDotFilesYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         ignoreDotFilesNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         ignoreDotFilesLabel = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        mirthVariableList1 = new com.mirth.connect.client.ui.components.MirthVariableList();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -579,40 +455,6 @@ public class FileReader extends ConnectorClass {
         filenameFilterLabel.setText("Filename Filter Pattern:");
 
         fileNameFilter.setToolTipText("<html>The pattern which names of files must match in order to be read.<br>Files with names that do not match the pattern will be ignored.</html>");
-
-        pollingTypeLabel.setText("Polling Type:");
-
-        pollingIntervalButton.setBackground(new java.awt.Color(255, 255, 255));
-        pollingIntervalButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(pollingIntervalButton);
-        pollingIntervalButton.setText("Interval");
-        pollingIntervalButton.setToolTipText("Records that the time at which polling for files to be read will be specified as the time between polling attempts.");
-        pollingIntervalButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        pollingIntervalButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pollingIntervalButtonActionPerformed(evt);
-            }
-        });
-
-        pollingTimeButton.setBackground(new java.awt.Color(255, 255, 255));
-        pollingTimeButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(pollingTimeButton);
-        pollingTimeButton.setText("Time");
-        pollingTimeButton.setToolTipText("Records that the time at which polling for files to be read will be specified as the time of day at which a polling attempt will occur each day.");
-        pollingTimeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        pollingTimeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pollingTimeButtonActionPerformed(evt);
-            }
-        });
-
-        pollingFrequencyLabel.setText("Polling Frequency (ms):");
-
-        pollingFrequency.setToolTipText("If the Interval Polling Type is selected, enter the number of milliseconds between polling attempts here.");
-
-        pollingTimeLabel.setText("Polling Time (daily):");
-
-        pollingTime.setToolTipText("If the Time Polling Type is selected, enter the time of day for polling attempts here.");
 
         moveToDirectoryLabel.setText("Move-to Directory:");
 
@@ -676,13 +518,6 @@ public class FileReader extends ConnectorClass {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 checkFileAgeNoActionPerformed(evt);
             }
-        });
-
-        mirthVariableList1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        mirthVariableList1.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "DATE", "COUNT", "UUID", "SYSTIME", "ORIGINALNAME" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
         });
 
         fileAge.setToolTipText("If Check File Age Yes is selected, only the files created that are older than the specified value in milliseconds will be processed.");
@@ -887,56 +722,54 @@ public class FileReader extends ConnectorClass {
 
         ignoreDotFilesLabel.setText("Ignore . files:");
 
+        jScrollPane1.setBorder(null);
+        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+
+        mirthVariableList1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        mirthVariableList1.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "DATE", "COUNT", "UUID", "SYSTIME", "ORIGINALNAME" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(mirthVariableList1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(anonymousLabel)
-                    .addComponent(filenameFilterLabel)
-                    .addComponent(directoryLabel)
-                    .addComponent(hostLabel)
-                    .addComponent(schemeLabel)
-                    .addComponent(secureModeLabel)
-                    .addComponent(passwordLabel)
-                    .addComponent(validateConnectionLabel)
-                    .addComponent(pollingTypeLabel)
-                    .addComponent(pollingFrequencyLabel)
-                    .addComponent(moveToFileLabel)
-                    .addComponent(moveToDirectoryLabel)
-                    .addComponent(errorMoveToDirectoryLabel)
-                    .addComponent(usernameLabel)
-                    .addComponent(pollingTimeLabel)
-                    .addComponent(passiveModeLabel)
-                    .addComponent(deleteAfterReadLabel)
-                    .addComponent(processBatchFilesLabel)
-                    .addComponent(checkFileAgeLabel)
-                    .addComponent(fileAgeLabel)
-                    .addComponent(sortFilesByLabel)
-                    .addComponent(fileTypeLabel)
-                    .addComponent(encodingLabel)
-                    .addComponent(timeoutLabel)
-                    .addComponent(ignoreDotFilesLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(10, 10, 10)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(encodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(processBatchFilesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(errorMoveToDirectoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(fileTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(ignoreDotFilesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(moveToFileLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(deleteAfterReadLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(checkFileAgeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(fileAgeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(schemeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(hostLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(sortFilesByLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(directoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(passiveModeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(moveToDirectoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(timeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(anonymousLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(filenameFilterLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(validateConnectionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(secureModeLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(ignoreDotFilesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(ignoreDotFilesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fileAge, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(processBatchFilesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(processBatchFilesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(hostField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -957,7 +790,6 @@ public class FileReader extends ConnectorClass {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(anonymousNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pollingFrequency, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(passiveModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -972,9 +804,20 @@ public class FileReader extends ConnectorClass {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(pollingIntervalButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pollingTimeButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(processBatchFilesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(processBatchFilesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(deleteAfterReadYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(deleteAfterReadNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(fileAge, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -983,15 +826,10 @@ public class FileReader extends ConnectorClass {
                                 .addComponent(checkFileAgeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(errorMoveToDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(moveToPattern, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(moveToDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(deleteAfterReadYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(deleteAfterReadNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(pollingTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(moveToDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(mirthVariableList1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(20, Short.MAX_VALUE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1054,19 +892,6 @@ public class FileReader extends ConnectorClass {
                     .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pollingTypeLabel)
-                    .addComponent(pollingIntervalButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pollingTimeButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pollingFrequencyLabel)
-                    .addComponent(pollingFrequency, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pollingTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pollingTimeLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(deleteAfterReadLabel)
                     .addComponent(deleteAfterReadYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(deleteAfterReadNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -1088,30 +913,30 @@ public class FileReader extends ConnectorClass {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(checkFileAgeLabel)
                             .addComponent(checkFileAgeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(checkFileAgeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(fileAgeLabel)
-                            .addComponent(fileAge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(sortFilesByLabel)
-                            .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(fileTypeLabel)
-                            .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(encodingLabel)
-                            .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(processBatchFilesLabel)
-                            .addComponent(processBatchFilesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(processBatchFilesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(mirthVariableList1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(checkFileAgeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fileAgeLabel)
+                    .addComponent(fileAge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sortFilesByLabel)
+                    .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fileTypeLabel)
+                    .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(encodingLabel)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(processBatchFilesLabel)
+                    .addComponent(processBatchFilesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(processBatchFilesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -1138,7 +963,7 @@ public class FileReader extends ConnectorClass {
 
     }//GEN-LAST:event_anonymousYesActionPerformed
 
-    private void onSchemeChange(boolean enableHost, boolean anonymous, String scheme) {
+    private void onSchemeChange(boolean enableHost, boolean anonymous, FileScheme scheme) {
         // act like the appropriate Anonymous button was selected.
         if (anonymous) {
             anonymousNo.setSelected(false);
@@ -1173,7 +998,7 @@ public class FileReader extends ConnectorClass {
         timeoutLabel.setEnabled(false);
         timeoutField.setEnabled(false);
 
-        if (scheme.equals(FileReaderProperties.SCHEME_FTP)) {
+        if (scheme.equals(FileScheme.FTP)) {
             anonymousLabel.setEnabled(true);
             anonymousYes.setEnabled(true);
             anonymousNo.setEnabled(true);
@@ -1185,10 +1010,10 @@ public class FileReader extends ConnectorClass {
             validateConnectionNo.setEnabled(true);
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
-        } else if (scheme.equals(FileReaderProperties.SCHEME_SFTP)) {
+        } else if (scheme.equals(FileScheme.SFTP)) {
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
-        } else if (scheme.equals(FileReaderProperties.SCHEME_WEBDAV)) {
+        } else if (scheme.equals(FileScheme.WEBDAV)) {
             anonymousLabel.setEnabled(true);
             anonymousYes.setEnabled(true);
             anonymousNo.setEnabled(true);
@@ -1199,7 +1024,7 @@ public class FileReader extends ConnectorClass {
             // set Passive Mode and validate connection to No.
             passiveModeNo.setSelected(true);
             validateConnectionNo.setSelected(true);
-        } else if (scheme.equals(FileReaderProperties.SCHEME_SMB)) {
+        } else if (scheme.equals(FileScheme.SMB)) {
             timeoutLabel.setEnabled(true);
             timeoutField.setEnabled(true);
         }
@@ -1210,29 +1035,29 @@ public class FileReader extends ConnectorClass {
         String text = (String) schemeComboBox.getSelectedItem();
 
         // if File is selected
-        if (text.equals(FileReaderProperties.SCHEME_FILE)) {
+        if (text.equals(FileScheme.FILE.getDisplayName())) {
 
-            onSchemeChange(false, true, FileReaderProperties.SCHEME_FILE);
+            onSchemeChange(false, true, FileScheme.FILE);
             hostField.setText("");
         } // else if FTP is selected
-        else if (text.equals(FileReaderProperties.SCHEME_FTP)) {
+        else if (text.equals(FileScheme.FTP.getDisplayName())) {
 
-            onSchemeChange(true, anonymousYes.isSelected(), FileReaderProperties.SCHEME_FTP);
+            onSchemeChange(true, anonymousYes.isSelected(), FileScheme.FTP);
             hostLabel.setText("ftp://");
         } // else if SFTP is selected
-        else if (text.equals(FileReaderProperties.SCHEME_SFTP)) {
+        else if (text.equals(FileScheme.SFTP.getDisplayName())) {
 
-            onSchemeChange(true, false, FileReaderProperties.SCHEME_SFTP);
+            onSchemeChange(true, false, FileScheme.SFTP);
             hostLabel.setText("sftp://");
         } // else if SMB is selected
-        else if (text.equals(FileReaderProperties.SCHEME_SMB)) {
+        else if (text.equals(FileScheme.SMB.getDisplayName())) {
 
-            onSchemeChange(true, false, FileReaderProperties.SCHEME_SMB);
+            onSchemeChange(true, false, FileScheme.SMB);
             hostLabel.setText("smb://");
         } // else if WEBDAV is selected
-        else if (text.equals(FileReaderProperties.SCHEME_WEBDAV)) {
+        else if (text.equals(FileScheme.WEBDAV.getDisplayName())) {
 
-            onSchemeChange(true, anonymousYes.isSelected(), FileReaderProperties.SCHEME_WEBDAV);
+            onSchemeChange(true, anonymousYes.isSelected(), FileScheme.WEBDAV);
             if (secureModeYes.isSelected()) {
                 hostLabel.setText("https://");
             } else {
@@ -1244,23 +1069,6 @@ public class FileReader extends ConnectorClass {
     private void sortByActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sortByActionPerformed
 // TODO add your handling code here:
     }//GEN-LAST:event_sortByActionPerformed
-
-    private void pollingTimeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_pollingTimeButtonActionPerformed
-    {//GEN-HEADEREND:event_pollingTimeButtonActionPerformed
-        pollingFrequencyLabel.setEnabled(false);
-        pollingTimeLabel.setEnabled(true);
-        pollingFrequency.setEnabled(false);
-        pollingTime.setEnabled(true);
-
-    }//GEN-LAST:event_pollingTimeButtonActionPerformed
-
-    private void pollingIntervalButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_pollingIntervalButtonActionPerformed
-    {//GEN-HEADEREND:event_pollingIntervalButtonActionPerformed
-        pollingFrequencyLabel.setEnabled(true);
-        pollingTimeLabel.setEnabled(false);
-        pollingFrequency.setEnabled(true);
-        pollingTime.setEnabled(false);
-    }//GEN-LAST:event_pollingIntervalButtonActionPerformed
 
     private void deleteAfterReadYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_deleteAfterReadYesActionPerformed
     {//GEN-HEADEREND:event_deleteAfterReadYesActionPerformed
@@ -1313,7 +1121,7 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
         public Void doInBackground() {
 
             try {
-                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testRead", getProperties());
+                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(getConnectorName(), "testRead", getProperties());
 
                 if (response == null) {
                     throw new ClientException("Failed to invoke service.");
@@ -1377,7 +1185,6 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
-    private javax.swing.ButtonGroup buttonGroup4;
     private javax.swing.ButtonGroup buttonGroup5;
     private javax.swing.ButtonGroup buttonGroup6;
     private javax.swing.ButtonGroup buttonGroup7;
@@ -1409,6 +1216,7 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JLabel ignoreDotFilesLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton ignoreDotFilesNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton ignoreDotFilesYesRadio;
+    private javax.swing.JScrollPane jScrollPane1;
     private com.mirth.connect.client.ui.components.MirthVariableList mirthVariableList1;
     private com.mirth.connect.client.ui.components.MirthTextField moveToDirectory;
     private javax.swing.JLabel moveToDirectoryLabel;
@@ -1421,13 +1229,6 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JLabel passwordLabel;
     private com.mirth.connect.client.ui.components.MirthTextField pathField;
     private javax.swing.JLabel pathLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField pollingFrequency;
-    private javax.swing.JLabel pollingFrequencyLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton pollingIntervalButton;
-    private com.mirth.connect.client.ui.components.MirthTimePicker pollingTime;
-    private com.mirth.connect.client.ui.components.MirthRadioButton pollingTimeButton;
-    private javax.swing.JLabel pollingTimeLabel;
-    private javax.swing.JLabel pollingTypeLabel;
     private javax.swing.JLabel processBatchFilesLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton processBatchFilesNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton processBatchFilesYes;

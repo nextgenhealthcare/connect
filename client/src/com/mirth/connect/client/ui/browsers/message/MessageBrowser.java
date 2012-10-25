@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,38 +9,60 @@
 
 package com.mirth.connect.client.ui.browsers.message;
 
+import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 import javax.swing.text.DateFormatter;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jdesktop.swingx.table.ColumnFactory;
+import org.jdesktop.swingx.table.TableColumnExt;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
@@ -48,26 +70,40 @@ import org.syntax.jedit.tokenmarker.X12TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.core.MessageListHandler;
+import com.mirth.connect.client.core.Operation;
+import com.mirth.connect.client.core.Operations;
+import com.mirth.connect.client.core.RequestAbortedException;
 import com.mirth.connect.client.ui.EditMessageDialog;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.Mirth;
-import com.mirth.connect.client.ui.MirthFileFilter;
+import com.mirth.connect.client.ui.PaginatedMessageList;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
+import com.mirth.connect.client.ui.SortableHeaderCellRenderer;
+import com.mirth.connect.client.ui.SortableTreeTableModel;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.ViewContentDialog;
+import com.mirth.connect.client.ui.components.MirthDatePicker;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.components.MirthTimePicker;
 import com.mirth.connect.client.ui.util.DisplayUtil;
-import com.mirth.connect.model.Attachment;
+import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ContentType;
+import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.MessageContent;
+import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.MessageObject.Protocol;
-import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.model.filters.MessageObjectFilter;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.converters.DataTypeFactory;
+import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
+import com.mirth.connect.model.filters.elements.MetaDataSearchOperator;
 import com.mirth.connect.plugins.AttachmentViewer;
 import com.mirth.connect.util.XmlUtil;
 
@@ -75,68 +111,48 @@ import com.mirth.connect.util.XmlUtil;
  * The message browser panel.
  */
 public class MessageBrowser extends javax.swing.JPanel {
-
-    private final int FIRST_PAGE = 0;
-    private final int PREVIOUS_PAGE = -1;
-    private final int NEXT_PAGE = 1;
-    private final String MESSAGE_ID_COLUMN_NAME = "Message ID";
-    private final String DATE_COLUMN_NAME = "Date & Time";
-    private final String CONNECTOR_COLUMN_NAME = "Connector";
-    private final String STATUS_COLUMN_NAME = "Status";
     private final String SCOPE_COLUMN_NAME = "Scope";
     private final String KEY_COLUMN_NAME = "Variable";
     private final String VALUE_COLUMN_NAME = "Value";
     private final String TYPE_COLUMN_NAME = "Type";
-    private final String SOURCE_COLUMN_NAME = "Source";
-    private final String PROTOCOL_COLUMN_NAME = "Protocol";
     private final String NUMBER_COLUMN_NAME = "#";
     private final String ATTACHMENTID_COLUMN_NAME = "Attachment Id";
+    private String lastUserSelectedMessageType = "Raw";
     private Frame parent;
-    private MessageListHandler messageListHandler;
-    private List<MessageObject> messageObjectList;
-    private MessageObjectFilter messageObjectFilter;
-    private int messageCount = -1;
-    private int currentPage = 0;
-    private int pageSize;
-    private MessageBrowserAdvancedFilter advSearchFilterPopup;
+    private Channel channel;
+    private MessageBrowserTableModel tableModel;
+    private PaginatedMessageList messages;
+    private Map<Long, Message> messageCache;
+    private Map<Long, List<Attachment>> attachmentCache;
+    private MessageFilter messageFilter;
+    private MessageBrowserAdvancedFilter advancedSearchPopup;
+    private MessageBrowserExportResults exportResultsPopup;
     private JPopupMenu attachmentPopupMenu;
+    private final String[] columns = new String[] { "ID", "Connector", "Status", "Date & Time" };
+    // Worker used for loading a page and counting the total number of messages
+    private SwingWorker<Void, Void> worker;
 
     /**
      * Constructs the new message browser and sets up its default
-     * information/layout.
+     * information/layout
      */
     public MessageBrowser() {
         this.parent = PlatformUI.MIRTH_FRAME;
+        messageCache = new ConcurrentHashMap<Long, Message>();
+        attachmentCache = new ConcurrentHashMap<Long, List<Attachment>>();
+
+        // Generated by Netbeans
         initComponents();
+        // Add additional initializations here
+        initComponentsManual();
+
+        //Initialize the message table
         makeMessageTable();
+        //Initialize the mappings table
         makeMappingsTable();
-        updateAttachmentsTable(null, true);
-        descriptionTabbedPane.remove(attachmentsPane);
+    }
 
-        this.addMouseListener(new java.awt.event.MouseAdapter() {
-
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                if (evt.isPopupTrigger()) {
-                    parent.messagePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
-                }
-            }
-
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                if (evt.isPopupTrigger()) {
-                    parent.messagePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
-                }
-            }
-        });
-
-        String[] statusValues = new String[MessageObject.Status.values().length + 1];
-        statusValues[0] = UIConstants.ALL_OPTION;
-        for (int i = 1; i < statusValues.length; i++) {
-            statusValues[i] = MessageObject.Status.values()[i - 1].toString();
-        }
-        statusComboBox.setModel(new javax.swing.DefaultComboBoxModel(statusValues));
-
-        pageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
-
+    public void initComponentsManual() {
         attachmentPopupMenu = new JPopupMenu();
         JMenuItem viewAttach = new JMenuItem("View Attachment");
         viewAttach.setIcon(new ImageIcon(Frame.class.getResource("images/attach.png")));
@@ -148,380 +164,693 @@ public class MessageBrowser extends javax.swing.JPanel {
         });
         attachmentPopupMenu.add(viewAttach);
 
-        advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true, true);
-        advSearchFilterPopup.setVisible(false);
-    }
+        pageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
+        pageNumberField.setDocument(new MirthFieldConstraints(7, false, false, true));
 
-    public Object[][] updateAttachmentList(MessageObject message) {
-        if (message == null) {
-            return null;
-        }
-        try {
-            String attachMessId;
-            if (message.getCorrelationId() != null) {
-                attachMessId = message.getCorrelationId();
-            } else {
-                attachMessId = message.getId();
-            }
-            List<Attachment> attachments = parent.mirthClient.getAttachmentIdsByMessageId(attachMessId);
-            Iterator i = attachments.iterator();
-            ArrayList attachData = new ArrayList();
-            int count = 1;
-            ArrayList<String> types = new ArrayList();
-            // get arraylist of all types
-            while (i.hasNext()) {
-                Attachment a = (Attachment) i.next();
-                String type = a.getType();
-                if (!types.contains(type)) {
-                    types.add(type);
-                }
-            }
-            Iterator typesIterator = types.iterator();
-            while (typesIterator.hasNext()) {
-                String type = (String) typesIterator.next();
-                Iterator attachmentIterator = attachments.iterator();
-                // If handle multiples
-                if (getAttachmentViewer(type) != null && getAttachmentViewer(type).handleMultiple()) {
-                    String number = Integer.toString(count);
-                    String attachment_Ids = "";
-                    int j = 0;
-                    while (attachmentIterator.hasNext()) {
-                        Attachment a = (Attachment) attachmentIterator.next();
-                        if (type.equals(a.getType())) {
-                            if (attachment_Ids.equals("")) {
-                                attachment_Ids = a.getAttachmentId();
-                            } else {
-                                count++;
-                                attachment_Ids = attachment_Ids + ", " + a.getAttachmentId();
-                            }
-                        }
-                    }
-                    if (!number.equals(Integer.toString(count))) {
-                        number = number + " - " + Integer.toString(count);
-                    }
-                    Object[] rowData = new Object[3];
-                    // add to attach Data
-                    rowData[0] = number;
-                    rowData[1] = type;
-                    rowData[2] = attachment_Ids;
-                    attachData.add(rowData);
-                } // else do them seperate
-                else {
-                    while (attachmentIterator.hasNext()) {
-                        Attachment a = (Attachment) attachmentIterator.next();
-                        if (a.getType().equals(type)) {
-                            Object[] rowData = new Object[3];
-                            rowData[0] = Integer.toString(count);
-                            rowData[1] = a.getType();
-                            rowData[2] = a.getAttachmentId();
-                            attachData.add(rowData);
-                            count++;
-                        }
-                    }
-                }
-            }
-            Object[][] temp = new Object[attachData.size()][3];
-            Iterator varIter = attachData.iterator();
-            int rowCount = 0;
-            while (varIter.hasNext()) {
-                temp[rowCount] = (Object[]) varIter.next();
-                rowCount++;
-            }
-            return temp;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+        advancedSearchPopup = new MessageBrowserAdvancedFilter(parent, this, "Advanced Search Filter", true, true);
+        advancedSearchPopup.setVisible(false);
 
-    public AttachmentViewer getAttachmentViewer(String type) {
-        if (LoadedExtensions.getInstance().getAttachmentViewerPlugins().size() > 0) {
-            for (AttachmentViewer plugin : LoadedExtensions.getInstance().getAttachmentViewerPlugins().values()) {
-                if (type.toUpperCase().contains(plugin.getViewerType().toUpperCase())) {
-                    return plugin;
-                }
-            }
-        }
-        return null;
-    }
+        exportResultsPopup = new MessageBrowserExportResults(parent, false);
+        exportResultsPopup.setVisible(false);
 
-    /**
-     * Loads up a clean message browser as if a new one was constructed.
-     */
-    public void loadNew() {
-        // Set the default page size
-        pageSize = Preferences.userNodeForPackage(Mirth.class).getInt("messageBrowserPageSize", 20);
-        pageSizeField.setText(pageSize + "");
-        
+        //Set the FormatXmlCheckboxes to their default setting
         boolean formatXmlSelected = Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserFormatXml", true);
-        formatXmlRawCheckBox.setSelected(formatXmlSelected);
-        formatXmlTransformedCheckBox.setSelected(formatXmlSelected);
-        formatXmlEncodedCheckBox.setSelected(formatXmlSelected);
-        
-        disableFormatXmlCheckBox();
+        formatXmlMessageCheckBox.setSelected(formatXmlSelected);
 
-        // use the start filters and make the table.
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, false);
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, true);
-        messageListHandler = null;
+        LineBorder lineBorder = new LineBorder(new Color(0, 0, 0));
+        TitledBorder titledBorder = new TitledBorder("Last Search");
+        titledBorder.setBorder(lineBorder);
 
-        statusComboBox.setSelectedIndex(0);
-        quickSearchField.setText("");
-        
-        Channel selectedChannel = parent.getSelectedChannelFromDashboard();
-        
-        // Channel could be null if user doesn't have permission to get channels, so default to true.
-        boolean allowSearch = true;
-        if (selectedChannel != null) {
-            allowSearch = !((String) selectedChannel.getProperties().get("encryptData")).equalsIgnoreCase("true");
-        }
-        
-        quickSearchLabel.setEnabled(allowSearch);
-        quickSearchField.setEnabled(allowSearch);
-        advSearchFilterPopup.reset(allowSearch);
-        advSearchButton.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
+        lastSearchCriteriaPane.setBorder(titledBorder);
+        lastSearchCriteriaPane.setBackground(Color.white);
+        lastSearchCriteria.setBackground(Color.white);
 
-        Calendar calendar = Calendar.getInstance();
-        mirthDatePicker1.setDate(calendar.getTime());
-        calendar.add(Calendar.DATE, 1);
-        mirthDatePicker2.setDate(calendar.getTime());
-
-        mirthTimePicker1.setDate("00:00 am");
-        mirthTimePicker2.setDate("00:00 am");
-
-        filterButtonActionPerformed(null);
-        descriptionTabbedPane.setSelectedIndex(0);
-    }
-
-    /**
-     * Refreshes the panel with the curent filter information.
-     */
-    public void refresh() {
-        filterButtonActionPerformed(null);
-    }
-
-    public MessageObject getMessageObjectById(String messageId) {
-        if (messageObjectList != null) {
-            for (MessageObject message : messageObjectList) {
-                if (message.getId().equals(messageId)) {
-                    return message;
-                }
-            }
-        }
-        
-        return null;
-    }
-
-    public void importMessages() {
-        File file = parent.browseForFile("XML");
-        String channelId = parent.getSelectedChannelIdFromDashboard();
-        
-        try {
-            int count = parent.mirthClient.importMessages(channelId, file, UIConstants.CHARSET);
-            
-            if (count > 0) {
-                parent.alertInformation(this, count + " messages have been successfully imported.");
-                refresh();
-            } else {
-                parent.alertError(this, "No messages were found in the file.");
-            }
-        } catch (ClientException e) {
-            parent.alertException(this, e.getStackTrace(), "Error importing messages. " + e.getMessage());
-        }
-    }
-
-    /**
-     * Export the current messages to be imported at a later time
-     */
-    public void exportMessages() {
-        String[] formatOptions = new String[] {"Message Object XML", "Plain Text", "Cancel"};
-        String[] plainTextOptions = new String[] {"Raw", "Transformed", "Encoded"};
-        
-        int plainTextResponse = 0;
-        int formatResponse = 0;
-
-        formatResponse = JOptionPane.showOptionDialog(parent, "Which of the following formats would you like to export the messages to?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, formatOptions, -1);
-
-        if ((formatResponse == -1) || (formatResponse == 2)) {
-            return;
-        } else if (formatResponse == 1) {
-            plainTextResponse = JOptionPane.showOptionDialog(parent, "Which message data would you like to export?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, plainTextOptions, -1);
-
-            if (plainTextResponse == -1) {
-                return;
-            }
-        }
-
-        JFileChooser exportFileChooser = new JFileChooser();
-        File currentDir = new File(Preferences.userNodeForPackage(Mirth.class).get("currentDirectory", ""));
-        
-        if (currentDir.exists()) {
-            exportFileChooser.setCurrentDirectory(currentDir);
-        }
-        
-        exportFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        String fileExtension = null;
-        
-        if (formatResponse == 1) {
-            exportFileChooser.setFileFilter(new MirthFileFilter("TXT"));
-            fileExtension = ".txt";
-        } else {
-            exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
-            fileExtension = ".xml";
-        }
-
-        // they clicked OK, so do the export
-        if (exportFileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION) {
-            File file = exportFileChooser.getSelectedFile();
-
-            if (file.exists()) {
-                if (!parent.alertOption(parent, "The file " + file.getName() + " already exists. Would you like to overwrite it?")) {
-                    return;
-                }
-            }
-
-            if (file.getName().length() < 4 || !file.getName().endsWith(fileExtension)) {
-                file = new File(file.getAbsolutePath() + fileExtension);
-            }
-
-            try {
-                int count = parent.mirthClient.exportMessages(formatResponse, plainTextResponse, messageListHandler.getFilter(), pageSize, file, UIConstants.CHARSET);
-                
-                if (count > 0) {
-                    parent.alertInformation(parent, count + " messages were sucessfully exported to " + file.getPath());    
-                }
-            } catch (Exception e) {
-                parent.alertException(parent, e.getStackTrace(), "Error exporting messages.");
-            }
-        }
-    }
-
-    public void updateMessageTable(List<MessageObject> messageObjectList) {
-        Object[][] tableData = null;
-
-        if (messageObjectList != null) {
-            tableData = new Object[messageObjectList.size()][7];
-
-            for (int i = 0; i < messageObjectList.size(); i++) {
-                MessageObject messageObject = messageObjectList.get(i);
-
-                tableData[i][0] = messageObject.getId();
-
-                Calendar calendar = messageObject.getDateCreated();
-
-                tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", calendar);
-                tableData[i][2] = messageObject.getConnectorName();
-
-                tableData[i][3] = messageObject.getType();
-                tableData[i][4] = messageObject.getSource();
-                tableData[i][5] = messageObject.getStatus();
-                tableData[i][6] = messageObject.getRawDataProtocol();
-            }
-        } else {
-            tableData = new Object[0][7];
-        }
-
-        int messageObjectListSize = 0;
-        if (messageObjectList != null) {
-            messageObjectListSize = messageObjectList.size();
-        }
-        if (currentPage == 0) {
-            previousPageButton.setEnabled(false);
-        } else {
-            previousPageButton.setEnabled(true);
-        }
-        int numberOfPages = getNumberOfPages(pageSize, messageCount);
-        if (messageObjectListSize < pageSize || pageSize == 0) {
-            nextPageButton.setEnabled(false);
-        } else if (currentPage == numberOfPages) {
-            nextPageButton.setEnabled(false);
-        } else {
-            nextPageButton.setEnabled(true);
-        }
-        int startResult;
-        if (messageObjectListSize == 0) {
-            startResult = 0;
-        } else {
-            startResult = (currentPage * pageSize) + 1;
-        }
-        int endResult;
-        if (pageSize == 0) {
-            endResult = messageObjectListSize;
-        } else {
-            endResult = (currentPage + 1) * pageSize;
-        }
-        if (messageObjectListSize < pageSize) {
-            endResult = endResult - (pageSize - messageObjectListSize);
-        }
-        if (messageCount == -1) {
-            resultsLabel.setText("Results " + DisplayUtil.formatNumber(startResult) + " - " + DisplayUtil.formatNumber(endResult));
-        } else {
-            resultsLabel.setText("Results " + DisplayUtil.formatNumber(startResult) + " - " + DisplayUtil.formatNumber(endResult) + " of " + DisplayUtil.formatNumber(messageCount));
-        }
-        if (messageTable != null) {
-            //lastRow = messageTable.getSelectedRow();
-            RefreshTableModel model = (RefreshTableModel) messageTable.getModel();
-            model.refreshDataVector(tableData);
-        } else {
-            messageTable = new MirthTable();
-            messageTable.setModel(new RefreshTableModel(tableData, new String[]{MESSAGE_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, TYPE_COLUMN_NAME, SOURCE_COLUMN_NAME, STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME}) {
-
-                boolean[] canEdit = new boolean[]{false, false, false, false, false, false, false};
-
-                public boolean isCellEditable(int rowIndex, int columnIndex) {
-                    return canEdit[columnIndex];
-                }
-            });
-        }
-
-        /*if (lastRow >= 0 && lastRow < messageTable.getRowCount())
-        messageTable.setRowSelectionInterval(lastRow, lastRow);
-        else
-        lastRow = UIConstants.ERROR_CONSTANT;*/
-
-        // Set highlighter.
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-            messageTable.setHighlighters(highlighter);
-        }
-
-        deselectRows();
-    }
-
-    /**
-     * Creates the table with all of the information given after being filtered
-     * by the specified 'filter'
-     */
-    private void makeMessageTable() {
-        updateMessageTable(null);
-
-        messageTable.setSelectionMode(0);
-
-        messageTable.getColumnExt(MESSAGE_ID_COLUMN_NAME).setVisible(false);
-        messageTable.getColumnExt(DATE_COLUMN_NAME).setMinWidth(140);
-        messageTable.getColumnExt(DATE_COLUMN_NAME).setMaxWidth(140);
-
-        messageTable.setRowHeight(UIConstants.ROW_HEIGHT);
-        messageTable.setOpaque(true);
-        messageTable.setRowSelectionAllowed(true);
-        deselectRows();
-
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-            messageTable.setHighlighters(highlighter);
-        }
-
-        messagePane.setViewportView(messageTable);
-        jSplitPane1.setLeftComponent(messagePane);
-
-        messageTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-            public void valueChanged(ListSelectionEvent evt) {
-                MessageListSelected(evt);
+        mirthDatePicker1.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent arg0) {
+                allDayCheckBox.setEnabled(mirthDatePicker1.getDate() != null || mirthDatePicker2.getDate() != null);
+                mirthTimePicker1.setEnabled(mirthDatePicker1.getDate() != null && !allDayCheckBox.isSelected());
             }
         });
 
-        messageTable.addMouseListener(new java.awt.event.MouseAdapter() {
+        mirthDatePicker2.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent arg0) {
+                allDayCheckBox.setEnabled(mirthDatePicker1.getDate() != null || mirthDatePicker2.getDate() != null);
+                mirthTimePicker2.setEnabled(mirthDatePicker2.getDate() != null && !allDayCheckBox.isSelected());
+            }
+        });
+
+        pageNumberField.addKeyListener(new KeyAdapter() {
+
+            @Override
+            public void keyReleased(KeyEvent arg0) {
+                if (arg0.getKeyCode() == KeyEvent.VK_ENTER && pageGoButton.isEnabled()) {
+                    jumpToPageNumber();
+                }
+            }
+        });
+
+        this.addAncestorListener(new AncestorListener() {
+
+            @Override
+            public void ancestorAdded(AncestorEvent event) {}
+
+            @Override
+            public void ancestorMoved(AncestorEvent event) {}
+
+            @Override
+            public void ancestorRemoved(AncestorEvent event) {
+                // Stop waiting for message browser requests when the message browser 
+                // is no longer being displayed
+                parent.mirthClient.getServerConnection().abort(getAbortOperations());
+            }
+
+        });
+    }
+
+    public void loadChannel(Channel channel) {
+        this.channel = channel;
+        tableModel.clear();
+        clearCache();
+        advancedSearchPopup.loadChannel(channel);
+        exportResultsPopup.loadChannel(channel.getId());
+        resetSearchCriteria();
+        lastUserSelectedMessageType = "Raw";
+        updateMessageRadioGroup();
+
+        // Remove all columns
+        for (int i = messageTreeTable.getColumnCount() - 1; i >= 0; i--) {
+            messageTreeTable.removeColumn(messageTreeTable.getColumn(0));
+        }
+
+        List<String> columnList = new ArrayList<String>();
+        // Add standard columns
+        columnList.addAll(Arrays.asList(columns));
+        // Add custom columns
+        columnList.addAll(getMetaDataColumns());
+        tableModel.setColumnIdentifiers(columnList);
+
+        // Create the column objects and add them to the message table
+        ColumnFactory columnFactory = messageTreeTable.getColumnFactory();
+        for (int modelIndex = 0; modelIndex < columnList.size(); modelIndex++) {
+            messageTreeTable.addColumn(columnFactory.createAndConfigureTableColumn(messageTreeTable.getModel(), modelIndex));
+        }
+    }
+
+    public List<Operation> getAbortOperations() {
+        List<Operation> operations = new ArrayList<Operation>();
+
+        operations.add(Operations.GET_MESSAGES);
+        operations.add(Operations.GET_MESSAGE_CONTENT);
+        operations.add(Operations.GET_SEARCH_COUNT);
+        operations.add(Operations.MESSAGE_REMOVE);
+
+        return operations;
+    }
+
+    public void resetSearchCriteria() {
+        mirthDatePicker1.setDate(null);
+        mirthDatePicker2.setDate(null);
+        quickSearchField.setText("");
+        allDayCheckBox.setSelected(false);
+        statusBoxReceived.setSelected(false);
+        statusBoxTransformed.setSelected(false);
+        statusBoxFiltered.setSelected(false);
+        statusBoxQueued.setSelected(false);
+        statusBoxSent.setSelected(false);
+        statusBoxError.setSelected(false);
+        pageSizeField.setText("10");
+
+        advancedSearchPopup.resetSelections();
+        updateAdvancedSearchButtonFont();
+    }
+
+    public void updateAdvancedSearchButtonFont() {
+        Font font = advSearchButton.getFont();
+        if (advancedSearchPopup.hasAdvancedCriteria()) {
+            advSearchButton.setFont(new Font(font.getName(), Font.BOLD, font.getSize()));
+        } else {
+            advSearchButton.setFont(new Font(font.getName(), Font.PLAIN, font.getSize()));
+        }
+    }
+
+    public List<String> getMetaDataColumns() {
+        List<String> metaDataColumnNames = new ArrayList<String>();
+        for (MetaDataColumn column : channel.getProperties().getMetaDataColumns()) {
+            metaDataColumnNames.add(column.getName());
+        }
+
+        return metaDataColumnNames;
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public MessageFilter getMessageFilter() {
+        return messageFilter;
+    }
+
+    private Calendar getCalendar(MirthDatePicker datePicker, MirthTimePicker timePicker) throws ParseException {
+        DateFormatter timeFormatter = new DateFormatter(new SimpleDateFormat("hh:mm aa"));
+        Date date = datePicker.getDate();
+        String time = timePicker.getDate();
+
+        if (date != null && time != null) {
+            Calendar dateCalendar = Calendar.getInstance();
+            Calendar timeCalendar = Calendar.getInstance();
+            Calendar dateTimeCalendar = Calendar.getInstance();
+
+            dateCalendar.setTime(date);
+            timeCalendar.setTime((Date) timeFormatter.stringToValue(time));
+            dateTimeCalendar.setTime(date);
+
+            // Only set the time if the time picker is enabled. Otherwise, it will default to 00:00:00
+            if (timePicker.isEnabled()) {
+                dateTimeCalendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
+                dateTimeCalendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
+                dateTimeCalendar.set(Calendar.SECOND, timeCalendar.get(Calendar.SECOND));
+            }
+
+            return dateTimeCalendar;
+        }
+
+        return null;
+    }
+
+    /**
+     * Constructs the MessageFilter (this.filter) based on the current form
+     * selections
+     */
+    private void generateMessageFilter() {
+        messageFilter = new MessageFilter();
+
+        // set start/end date
+        try {
+            messageFilter.setStartDate(getCalendar(mirthDatePicker1, mirthTimePicker1));
+            Calendar endCalendar = getCalendar(mirthDatePicker2, mirthTimePicker2);
+
+            if (endCalendar != null && !mirthTimePicker2.isEnabled()) {
+                // If the end time picker is disabled, it will be set to 00:00:00 of the day provided.
+                // Since our query is using <= instead of <, we add one day and then subtract a millisecond 
+                // in order to set the time to the last millisecond of the day we want to search on
+                endCalendar.add(Calendar.DATE, 1);
+                endCalendar.add(Calendar.MILLISECOND, -1);
+            }
+            messageFilter.setEndDate(endCalendar);
+        } catch (ParseException e) {
+            parent.alertError(parent, "Invalid date.");
+            return;
+        }
+
+        Calendar startDate = messageFilter.getStartDate();
+        Calendar endDate = messageFilter.getEndDate();
+
+        if (startDate != null && endDate != null && startDate.getTimeInMillis() > endDate.getTimeInMillis()) {
+            parent.alertError(parent, "Start date cannot be after the end date.");
+            return;
+        }
+
+        // set quick search
+        String quickSearch = StringUtils.trim(quickSearchField.getText());
+
+        if (quickSearch.length() > 0) {
+            messageFilter.setQuickSearch(quickSearch);
+        }
+
+        // set status
+        Set<Status> statuses = new HashSet<Status>();
+
+        if (statusBoxReceived.isSelected()) {
+            statuses.add(Status.RECEIVED);
+        }
+
+        if (statusBoxTransformed.isSelected()) {
+            statuses.add(Status.TRANSFORMED);
+        }
+
+        if (statusBoxFiltered.isSelected()) {
+            statuses.add(Status.FILTERED);
+        }
+
+        if (statusBoxSent.isSelected()) {
+            statuses.add(Status.SENT);
+        }
+
+        if (statusBoxError.isSelected()) {
+            statuses.add(Status.ERROR);
+        }
+
+        if (statusBoxQueued.isSelected()) {
+            statuses.add(Status.QUEUED);
+        }
+
+        if (!statuses.isEmpty()) {
+            messageFilter.setStatuses(statuses);
+        }
+
+        advancedSearchPopup.applySelectionsToFilter(messageFilter);
+        exportResultsPopup.setMessageFilter(messageFilter);
+
+        try {
+            Long maxMessageId = parent.mirthClient.getMaxMessageId(channel.getId());
+            messageFilter.setMaxMessageId(maxMessageId);
+        } catch (ClientException e) {
+            parent.alertException(parent, e.getStackTrace(), e.getMessage());
+            return;
+        }
+    }
+
+    public void runSearch() {
+        generateMessageFilter();
+
+        messages = new PaginatedMessageList();
+        messages.setClient(parent.mirthClient);
+        messages.setChannelId(channel.getId());
+        messages.setMessageFilter(messageFilter);
+
+        try {
+            messages.setPageSize(Integer.parseInt(pageSizeField.getText()));
+        } catch (NumberFormatException e) {
+            parent.alertError(parent, "Invalid page size.");
+            return;
+        }
+
+        countButton.setVisible(true);
+        loadPageNumber(1);
+        exportResultsPopup.setPageSize(messages.getPageSize());
+
+        updateSearchCriteriaPane();
+    }
+
+    private void updateSearchCriteriaPane() {
+        StringBuilder text = new StringBuilder();
+        Calendar startDate = messageFilter.getStartDate();
+        Calendar endDate = messageFilter.getEndDate();
+        String padding = "\n";
+
+        text.append("ID <= ");
+        text.append(messageFilter.getMaxMessageId());
+
+        String startDateFormatString = mirthTimePicker1.isEnabled() ? "yyyy-MM-dd HH:mm" : "yyyy-MM-dd";
+        String endDateFormatString = mirthTimePicker2.isEnabled() ? "yyyy-MM-dd HH:mm" : "yyyy-MM-dd";
+
+        DateFormat startDateFormat = new SimpleDateFormat(startDateFormatString);
+        DateFormat endDateFormat = new SimpleDateFormat(endDateFormatString);
+
+        text.append(padding + "Date Range: ");
+
+        if (startDate == null) {
+            text.append("(any)");
+        } else {
+            text.append(startDateFormat.format(startDate.getTime()));
+            if (!mirthTimePicker1.isEnabled()) {
+                text.append(" (all day)");
+            }
+        }
+
+        text.append(" to ");
+
+        if (endDate == null) {
+            text.append("(any)");
+        } else {
+            text.append(endDateFormat.format(endDate.getTime()));
+            if (!mirthTimePicker2.isEnabled()) {
+                text.append(" (all day)");
+            }
+        }
+
+        text.append(padding + "Statuses: ");
+
+        if (messageFilter.getStatuses() == null) {
+            text.append("(any)");
+        } else {
+            text.append(StringUtils.join(messageFilter.getStatuses(), ", "));
+        }
+
+        if (messageFilter.getQuickSearch() != null) {
+            text.append(padding + "Quick Search: " + messageFilter.getQuickSearch());
+        }
+
+        text.append(padding + "Connectors: ");
+
+        if (messageFilter.getMetaDataIds() == null) {
+            text.append("(any)");
+        } else if (messageFilter.getMetaDataIds().isEmpty()) {
+            text.append("(none)");
+        } else {
+            List<Integer> metaDataIds = messageFilter.getMetaDataIds();
+            List<String> connectorNames = new ArrayList<String>();
+
+            if (metaDataIds.contains(0)) {
+                connectorNames.add("Source");
+            }
+
+            for (Connector connector : channel.getDestinationConnectors()) {
+                if (metaDataIds.contains(connector.getMetaDataId())) {
+                    connectorNames.add(connector.getName());
+                }
+            }
+
+            text.append(StringUtils.join(connectorNames, ", "));
+        }
+
+        if (messageFilter.getMessageId() != null) {
+            text.append(padding + "Message ID: " + messageFilter.getMessageId());
+        }
+
+        if (messageFilter.getServerId() != null) {
+            text.append(padding + "Server ID: " + messageFilter.getServerId());
+        }
+
+        Integer sendAttemptsLower = messageFilter.getSendAttemptsLower();
+        Integer sendAttemptsUpper = messageFilter.getSendAttemptsUpper();
+
+        if (sendAttemptsLower != null || sendAttemptsUpper != null) {
+            text.append(padding + "# of Send Attempts: ");
+
+            if (sendAttemptsLower != null) {
+                text.append(sendAttemptsLower);
+            } else {
+                text.append("(any)");
+            }
+
+            text.append(" - ");
+
+            if (sendAttemptsUpper != null) {
+                text.append(sendAttemptsUpper);
+            } else {
+                text.append("(any)");
+            }
+        }
+
+        if (messageFilter.getContentSearch() != null) {
+            Map<ContentType, String> contentSearch = messageFilter.getContentSearch();
+
+            for (Entry<ContentType, String> entry : contentSearch.entrySet()) {
+                text.append(padding + entry.getKey() + " contains \"" + entry.getValue() + "\"");
+            }
+        }
+        
+        if (messageFilter.getMetaDataSearch() != null) {
+            List<MetaDataSearchElement> elements = messageFilter.getMetaDataSearch();
+            
+            for (MetaDataSearchElement element : elements) {
+                text.append(padding + element.getColumnName() + " " + MetaDataSearchOperator.fromString(element.getOperator()).toString() + " " + element.getValue());
+                if (element.getIgnoreCase()) {
+                    text.append(" (Ignore Case)");
+                }
+            }
+        }
+        
+        if (messageFilter.getAttachment()) {
+            text.append(padding + "Has Attachment");
+        }
+
+        lastSearchCriteria.setText(text.toString());
+    }
+
+    public void jumpToPageNumber() {
+        if (messages.getPageCount() != null && messages.getPageCount() > 0 && StringUtils.isNotEmpty(pageNumberField.getText())) {
+            loadPageNumber(Math.min(Math.max(Integer.parseInt(pageNumberField.getText()), 1), messages.getPageCount()));
+        }
+    }
+
+    public void loadPageNumber(final int pageNumber) {
+        final String workingId = parent.startWorking("Loading page...");
+
+        if (worker != null && !worker.isDone()) {
+            parent.mirthClient.getServerConnection().abort(getAbortOperations());
+            worker.cancel(true);
+        }
+
+        filterButton.setEnabled(false);
+        nextPageButton.setEnabled(false);
+        previousPageButton.setEnabled(false);
+        countButton.setEnabled(false);
+        pageGoButton.setEnabled(false);
+
+        worker = new SwingWorker<Void, Void>() {
+            private boolean foundItems = false;
+            private int retrievedPageNumber = 1;
+
+            public Void doInBackground() {
+
+                try {
+                    foundItems = messages.loadPageNumber(pageNumber);
+                } catch (Throwable t) { // catch Throwable in case the client runs out of memory
+
+                    if (t.getMessage().contains("Java heap space")) {
+                        parent.alertError(parent, "There was an out of memory error when trying to retrieve messages.\nIncrease your heap size or decrease your page size and search again.");
+                    } else if (t.getCause() instanceof RequestAbortedException) {
+                        // The client is no longer waiting for the search request
+                    } else {
+                        parent.alertException(parent, t.getStackTrace(), t.getMessage());
+                    }
+                    cancel(true);
+                }
+
+                return null;
+            }
+
+            public void done() {
+                if (!isCancelled()) {
+                    boolean enableCountButton = (messages.getItemCount() == null);
+
+                    deselectRows();
+                    tableModel.clear();
+
+                    if (foundItems) {
+
+                        // if there are no results for pageNumber, loadPageNumber will recursively check previous pages
+                        // so we must get the retrievedPageNumber from messages to use below.
+                        retrievedPageNumber = messages.getPageNumber();
+                        pageNumberField.setText(String.valueOf(retrievedPageNumber));
+
+                        for (Message message : messages) {
+                            tableModel.addMessage(message);
+                        }
+
+                        if (!messages.hasNextPage()) {
+                            messages.setItemCount(new Long(((retrievedPageNumber - 1) * messages.getPageSize()) + messages.size()));
+                            enableCountButton = false;
+                        }
+                    } else {
+                        messages.setItemCount(new Long((retrievedPageNumber - 1) * messages.getPageSize()));
+                        enableCountButton = false;
+                        pageNumberField.setText("0");
+                    }
+
+                    messageTreeTable.expandAll();
+
+                    updatePagination();
+
+                    if (enableCountButton) {
+                        countButton.setEnabled(true);
+                    }
+                    filterButton.setEnabled(true);
+                }
+                parent.stopWorking(workingId);
+            }
+        };
+
+        worker.execute();
+    }
+
+    public void updatePagination() {
+        int pageNumber = messages.getPageNumber();
+        Integer pageCount = messages.getPageCount();
+        int startOffset, endOffset;
+
+        if (messages.size() == 0) {
+            startOffset = 0;
+            endOffset = 0;
+        } else {
+            startOffset = messages.getOffset(pageNumber) + 1;
+            endOffset = startOffset + messages.size() - 1;
+        }
+
+        String resultText = "Results " + DisplayUtil.formatNumber(startOffset) + " - " + DisplayUtil.formatNumber(endOffset) + " of ";
+
+        // enable the previous page button if the page number is > 1
+        // Now that we have hasNextPage, we no longer need any additional logic
+        previousPageButton.setEnabled(pageNumber > 1);
+        nextPageButton.setEnabled(messages.hasNextPage());
+
+        if (pageCount != null) {
+            resultsLabel.setText(resultText + DisplayUtil.formatNumber(messages.getItemCount()));
+            pageTotalLabel.setText("of " + DisplayUtil.formatNumber(messages.getPageCount()));
+            pageTotalLabel.setEnabled(true);
+            pageGoButton.setEnabled(true);
+            pageNumberLabel.setEnabled(true);
+            pageNumberField.setEnabled(true);
+        } else {
+            resultsLabel.setText(resultText + "?");
+            pageTotalLabel.setText("of " + "?");
+            pageGoButton.setEnabled(false);
+            pageTotalLabel.setEnabled(false);
+            pageNumberLabel.setEnabled(false);
+            pageNumberField.setEnabled(false);
+        }
+    }
+
+    //TODO double check references to see whether cache should be cleared in those cases
+    /**
+     * Refreshes the panel with the current filter information and clears the
+     * message cache if needed
+     */
+    public void refresh(boolean clearCache, Integer page) {
+        if (clearCache) {
+            clearCache();
+        }
+
+        if (page == null) {
+            loadPageNumber(messages.getPageNumber());
+        } else {
+            loadPageNumber(page);
+        }
+    }
+
+    public void clearCache() {
+        messageCache.clear();
+        attachmentCache.clear();
+    }
+
+    /**
+     * Shows or hides message tabs depending on what part of the message is
+     * selected
+     */
+    public void updateDescriptionTabs(Integer metaDataId, boolean attachment) {
+        //Save the current open tab
+        String title = descriptionTabbedPane.getTitleAt(descriptionTabbedPane.getSelectedIndex());
+        //Remove all tabs
+        descriptionTabbedPane.removeAll();
+        descriptionTabbedPane.addTab("Messages", MessagesPanel);
+        descriptionTabbedPane.addTab("Mappings", mappingsPane);
+        descriptionTabbedPane.addTab("Errors", ErrorsPanel);
+
+        //Add tabs depending on what part of the message is selected
+        if (metaDataId == 0) {
+            //The source connector is selected
+            descriptionTabbedPane.addTab("Meta Data", metaDataPane);
+        }
+
+        if (attachment) {
+            descriptionTabbedPane.addTab("Attachments", attachmentsPane);
+        }
+
+        //Reopen the saved tab if it was re-added. Otherwise, open the Raw Message tab
+        int tabIndex = Math.max(descriptionTabbedPane.indexOfTab(title), 0);
+        descriptionTabbedPane.setSelectedIndex(tabIndex);
+    }
+
+    public void updateMessageRadioGroup() {
+        JRadioButton button = getRadioButtonForPane(lastUserSelectedMessageType);
+
+        if (!button.isShowing()) {
+            button = RawMessageRadioButton;
+        }
+
+        button.setSelected(true);
+        showMessagePane(button.getText());
+    }
+
+    private JRadioButton getRadioButtonForPane(String messagePaneName) {
+        if (messagePaneName.equals("Raw")) {
+            return RawMessageRadioButton;
+        } else if (messagePaneName.equals("Processed Raw")) {
+            return ProcessedRawMessageRadioButton;
+        } else if (messagePaneName.equals("Transformed")) {
+            return TransformedMessageRadioButton;
+        } else if (messagePaneName.equals("Encoded")) {
+            return EncodedMessageRadioButton;
+        } else if (messagePaneName.equals("Sent")) {
+            return SentMessageRadioButton;
+        } else if (messagePaneName.equals("Response")) {
+            return ResponseRadioButton;
+        } else if (messagePaneName.equals("Processed Response")) {
+            return ProcessedResponseRadioButton;
+        } else {
+
+            return null;
+        }
+    }
+
+    private void setCorrectDocument(MirthSyntaxTextArea textPane, String message, String dataType) {
+        SyntaxDocument newDoc = new SyntaxDocument();
+
+        if (message != null) {
+            if (dataType != null) {
+
+                if (dataType.equals(DataTypeFactory.HL7V2) || dataType.equals(DataTypeFactory.NCPDP) || dataType.equals(DataTypeFactory.DICOM)) {
+                    newDoc.setTokenMarker(new HL7TokenMarker());
+                } else if (dataType.equals(DataTypeFactory.XML) || dataType.equals(DataTypeFactory.HL7V3)) {
+                    newDoc.setTokenMarker(new XMLTokenMarker());
+
+                    if (formatXmlMessageCheckBox.isSelected()) {
+                        try {
+                            message = XmlUtil.prettyPrint(message);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
+                    }
+                } else if (dataType.equals(DataTypeFactory.X12)) {
+                    newDoc.setTokenMarker(new X12TokenMarker());
+                } else if (dataType.equals(DataTypeFactory.EDI)) {
+                    newDoc.setTokenMarker(new EDITokenMarker());
+                }
+            }
+
+            textPane.setDocument(newDoc);
+            textPane.setText(message);
+        } else {
+            textPane.setDocument(newDoc);
+            textPane.setText("");
+        }
+
+        textPane.setCaretPosition(0);
+    }
+
+    /**
+     * Sets the properties and adds the listeners for the Message Table. No data
+     * is loaded at this point.
+     */
+    private void makeMessageTable() {
+        messageTreeTable.setDragEnabled(false);
+        //messageTreeTable.setFocusable(false);
+        messageTreeTable.setSortable(false);
+        messageTreeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        messageTreeTable.setColumnFactory(new MessageBrowserTableColumnFactory());
+        messageTreeTable.setLeafIcon(null);
+        messageTreeTable.setOpenIcon(null);
+        messageTreeTable.setClosedIcon(null);
+        messageTreeTable.setAutoCreateColumnsFromModel(false);
+        messageTreeTable.setColumnControlVisible(true);
+
+        tableModel = new MessageBrowserTableModel();
+        // Add a blank column to the column initially, otherwise it return an exception on load
+        // Columns will be re-generated when the message browser is viewed
+        tableModel.setColumnIdentifiers(Arrays.asList(new String[] { "" }));
+        messageTreeTable.setTreeTableModel(tableModel);
+
+        // Sets the alternating highlighter for the table
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            messageTreeTable.setHighlighters(highlighter);
+        }
+
+        // Add the listener for when the table selection changes
+        messageTreeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent evt) {
+                MessageListSelected(evt);
+            }
+
+        });
+
+        // Add the mouse listener
+        messageTreeTable.addMouseListener(new java.awt.event.MouseAdapter() {
 
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 checkMessageSelectionAndPopupMenu(evt);
@@ -531,90 +860,220 @@ public class MessageBrowser extends javax.swing.JPanel {
                 checkMessageSelectionAndPopupMenu(evt);
             }
 
+            // Opens the send message dialog when a message is double clicked.
+            // If the root message or source connector is selected, select all destination connectors initially
+            // If a destination connector is selected, select only that destination connector initially
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 if (evt.getClickCount() >= 2) {
                     int row = getSelectedMessageIndex();
                     if (row >= 0) {
-                        MessageObject currentMessage = messageObjectList.get(row);
-                        new EditMessageDialog(currentMessage);
+                        MessageBrowserTableNode messageNode = (MessageBrowserTableNode) messageTreeTable.getPathForRow(row).getLastPathComponent();
+                        if (messageNode.isNodeActive()) {
+                            Long messageId = messageNode.getMessageId();
+                            Integer metaDataId = messageNode.getMetaDataId();
+
+                            Message currentMessage = messageCache.get(messageId);
+
+                            ConnectorMessage connectorMessage;
+                            List<Integer> selectedMetaDataIds = new ArrayList<Integer>();
+
+                            connectorMessage = currentMessage.getConnectorMessages().get(metaDataId);
+                            if (metaDataId == 0) {
+                                selectedMetaDataIds = null;
+                            } else {
+                                selectedMetaDataIds.add(metaDataId);
+                            }
+
+                            new EditMessageDialog(connectorMessage.getRaw().getContent(), channel.getSourceConnector().getTransformer().getInboundDataType(), channel.getId(), parent.dashboardPanel.getDestinationConnectorNames(channel.getId()), selectedMetaDataIds);
+                        }
                     }
                 }
             }
         });
 
         // Key Listener trigger for DEL
-        messageTable.addKeyListener(new KeyListener() {
+        messageTreeTable.addKeyListener(new KeyAdapter() {
 
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-                    parent.doRemoveMessage();
+                int row = getSelectedMessageIndex();
+                if (row >= 0) {
+                    if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                        MessageBrowserTableNode messageNode = (MessageBrowserTableNode) messageTreeTable.getPathForRow(row).getLastPathComponent();
+
+                        if (messageNode.isNodeActive()) {
+                            parent.doRemoveMessage();
+                        }
+
+                    } else if (descriptionTabbedPane.getTitleAt(descriptionTabbedPane.getSelectedIndex()).equals("Messages")) {
+                        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                            List<AbstractButton> buttons = Collections.list(messagesGroup.getElements());
+                            boolean passedSelected = false;
+                            for (int i = buttons.size() - 1; i >= 0; i--) {
+                                AbstractButton button = buttons.get(i);
+                                if (passedSelected && button.isShowing()) {
+                                    lastUserSelectedMessageType = buttons.get(i).getText();
+                                    updateMessageRadioGroup();
+                                    break;
+                                } else if (button.isSelected()) {
+                                    passedSelected = true;
+                                }
+                            }
+                        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                            List<AbstractButton> buttons = Collections.list(messagesGroup.getElements());
+                            boolean passedSelected = false;
+                            for (int i = 0; i < buttons.size(); i++) {
+                                AbstractButton button = buttons.get(i);
+                                if (passedSelected && button.isShowing()) {
+                                    lastUserSelectedMessageType = buttons.get(i).getText();
+                                    updateMessageRadioGroup();
+                                    break;
+                                } else if (button.isSelected()) {
+                                    passedSelected = true;
+                                }
+                            }
+                        }
+                    }
                 }
-            }
 
-            public void keyReleased(KeyEvent e) {
             }
+        });
 
-            public void keyTyped(KeyEvent e) {
+        // Add custom table header renderer to generate sorting arrows
+        JTableHeader header = messageTreeTable.getTableHeader();
+        header.setDefaultRenderer(new SortableHeaderCellRenderer(header.getDefaultRenderer()));
+
+        // Add mouse listener to detect clicks on column header
+        header.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isLeftMouseButton(e)) {
+
+                    //TODO Disabling sorting for now. Revisit the question once custom columns are added.
+                    /*
+                     * JTableHeader h = (JTableHeader) e.getSource();
+                     * TableColumnModel columnModel = h.getColumnModel();
+                     * 
+                     * int viewColumn = h.columnAtPoint(e.getPoint());
+                     * int column =
+                     * columnModel.getColumn(viewColumn).getModelIndex();
+                     * 
+                     * if (column != -1 &&
+                     * messageTreeTable.getColumnExt(messageTreeTable
+                     * .getTreeTableModel().getColumnName(column)).isSortable())
+                     * {
+                     * // Toggle sort order (ascending <-> descending)
+                     * SortableTreeTableModel model = (SortableTreeTableModel)
+                     * messageTreeTable.getTreeTableModel();
+                     * model.setColumnAndToggleSortOrder(column);
+                     * 
+                     * // Set sorting icon and current column index
+                     * ((SortableHeaderCellRenderer)
+                     * messageTreeTable.getTableHeader
+                     * ().getDefaultRenderer()).setSortingIcon
+                     * (model.getSortOrder());
+                     * ((SortableHeaderCellRenderer)
+                     * messageTreeTable.getTableHeader
+                     * ().getDefaultRenderer()).setColumnIndex(column);
+                     * }
+                     */
+                } else if (SwingUtilities.isRightMouseButton(e)) {
+                    // Use this model in order to get the total number of columns.
+                    // If the column model is used, it getColumnCount only returns the number of visible columns
+                    SortableTreeTableModel model = (SortableTreeTableModel) messageTreeTable.getTreeTableModel();
+                    JPopupMenu columnMenu = new JPopupMenu();
+
+                    for (int i = 0; i < model.getColumnCount(); i++) {
+                        String columnName = model.getColumnName(i);
+                        // Get the column object by name. Using an index may not return the column object if the column is hidden
+                        TableColumnExt column = messageTreeTable.getColumnExt(columnName);
+
+                        // Create the menu item
+                        final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(columnName);
+                        // Show or hide the checkbox
+                        menuItem.setSelected(column.isVisible());
+
+                        menuItem.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent arg0) {
+                                TableColumnExt column = messageTreeTable.getColumnExt(menuItem.getText());
+                                // Determine whether to show or hide the selected column
+                                boolean enable = !column.isVisible();
+                                // Do not hide a column if it is the last remaining visible column              
+                                if (enable) {
+                                    column.setVisible(true);
+                                } else {
+                                    if (messageTreeTable.getColumnCount() > 1) {
+                                        column.setVisible(false);
+                                    }
+                                }
+                            }
+                        });
+
+                        columnMenu.add(menuItem);
+                    }
+
+                    columnMenu.addSeparator();
+
+                    JMenuItem menuItem = new JMenuItem("Collapse All");
+                    menuItem.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent arg0) {
+                            messageTreeTable.collapseAll();
+                        }
+
+                    });
+                    columnMenu.add(menuItem);
+
+                    menuItem = new JMenuItem("Expand All");
+                    menuItem.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent arg0) {
+                            messageTreeTable.expandAll();
+                        }
+
+                    });
+                    columnMenu.add(menuItem);
+
+                    // Show the popup menu at the mouse clicked location
+                    columnMenu.show(e.getComponent(), e.getX(), e.getY());
+                }
             }
         });
     }
 
-    private void getMessageTableData(MessageListHandler handler, int page) {
-        if (handler != null) {
-            // Do all paging information below.
-            try {
-                messageCount = handler.getSize();
-                currentPage = handler.getCurrentPage();
-                pageSize = handler.getPageSize();
+    /**
+     * Sets the properties and adds the listeners for the Mappings Table. No
+     * data
+     * is loaded at this point.
+     */
+    private void makeMappingsTable() {
+        updateMappingsTable(null, true);
 
-                if (page == FIRST_PAGE) {
-                    messageObjectList = handler.getFirstPage();
-                    currentPage = handler.getCurrentPage();
-                } else if (page == PREVIOUS_PAGE) {
-                    if (currentPage == 0) {
-                        return;
-                    }
-                    messageObjectList = handler.getPreviousPage();
-                    currentPage = handler.getCurrentPage();
-                } else if (page == NEXT_PAGE) {
-                    int numberOfPages = getNumberOfPages(pageSize, messageCount);
-                    if (currentPage == numberOfPages) {
-                        return;
-                    }
-                    messageObjectList = handler.getNextPage();
-                    if (messageObjectList.size() == 0) {
-                        messageObjectList = handler.getPreviousPage();
-                    }
-                    currentPage = handler.getCurrentPage();
+        // listen for trigger button and double click to edit channel.
+        mappingsTable.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (mappingsTable.rowAtPoint(new Point(evt.getX(), evt.getY())) == -1) {
+                    return;
                 }
 
-            } catch (Throwable t) {  // catch Throwable in case the client runs out of memory
-                messageObjectList = null;
-                
-                if (t.getMessage().contains("Java heap space")) {
-                    parent.alertError(parent, "There was an out of memory error when trying to retrieve messages.\nIncrease your heap size or decrease your page size and search again.");
-                } else {
-                    parent.alertException(this, t.getStackTrace(), t.getMessage());
+                if (evt.getClickCount() >= 2) {
+                    new ViewContentDialog((String) mappingsTable.getModel().getValueAt(mappingsTable.convertRowIndexToModel(mappingsTable.getSelectedRow()), 2));
                 }
             }
-        }
-    }
+        });
 
-    private int getNumberOfPages(int pageSize, int messageCount) {
-        int numberOfPages;
-        if (messageCount == -1) {
-            return -1;
-        }
-        if (pageSize == 0) {
-            numberOfPages = 0;
-        } else {
-            numberOfPages = messageCount / pageSize;
-            if ((messageCount != 0) && ((messageCount % pageSize) == 0)) {
-                numberOfPages--;
-            }
-        }
+        mappingsTable.setSelectionMode(0);
+        mappingsTable.getColumnExt(SCOPE_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        mappingsTable.getColumnExt(SCOPE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
 
-        return numberOfPages;
+        // Disable HTML in a column.
+        DefaultTableCellRenderer noHTMLRenderer = new DefaultTableCellRenderer();
+        noHTMLRenderer.putClientProperty("html.disable", Boolean.TRUE);
+        mappingsTable.getColumnExt(VALUE_COLUMN_NAME).setCellRenderer(noHTMLRenderer);
+
+        mappingsPane.setViewportView(mappingsTable);
     }
 
     public void updateMappingsTable(String[][] tableData, boolean cleared) {
@@ -635,9 +1094,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         } else {
             mappingsTable = new MirthTable();
 
-            mappingsTable.setModel(new RefreshTableModel(tableData, new String[]{SCOPE_COLUMN_NAME, KEY_COLUMN_NAME, VALUE_COLUMN_NAME}) {
+            mappingsTable.setModel(new RefreshTableModel(tableData, new String[] { SCOPE_COLUMN_NAME, KEY_COLUMN_NAME, VALUE_COLUMN_NAME }) {
 
-                boolean[] canEdit = new boolean[]{false, false, false};
+                boolean[] canEdit = new boolean[] { false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -645,18 +1104,16 @@ public class MessageBrowser extends javax.swing.JPanel {
             });
         }
 
-
         // Set highlighter.
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
             mappingsTable.setHighlighters(highlighter);
         }
-
     }
 
-    public void updateAttachmentsTable(MessageObject currentMessage, boolean cleared) {
+    public void updateAttachmentsTable(Long messageId) {
 
-        Object[][] tableData = updateAttachmentList(currentMessage);
+        Object[][] tableData = updateAttachmentList(messageId);
 
         // Create attachment Table if it has not been created yet. 
         if (attachmentTable != null) {
@@ -666,9 +1123,9 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         } else {
             attachmentTable = new MirthTable();
-            attachmentTable.setModel(new RefreshTableModel(tableData, new String[]{NUMBER_COLUMN_NAME, TYPE_COLUMN_NAME, ATTACHMENTID_COLUMN_NAME}) {
+            attachmentTable.setModel(new RefreshTableModel(tableData, new String[] { NUMBER_COLUMN_NAME, TYPE_COLUMN_NAME, ATTACHMENTID_COLUMN_NAME }) {
 
-                boolean[] canEdit = new boolean[]{false, false, false};
+                boolean[] canEdit = new boolean[] { false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -721,48 +1178,98 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
     }
 
-    private void makeMappingsTable() {
-        updateMappingsTable(null, true);
-
-        // listen for trigger button and double click to edit channel.
-        mappingsTable.addMouseListener(new java.awt.event.MouseAdapter() {
-
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                if (mappingsTable.rowAtPoint(new Point(evt.getX(), evt.getY())) == -1) {
-                    return;
-                }
-
-                if (evt.getClickCount() >= 2) {
-                    new ViewContentDialog((String) mappingsTable.getModel().getValueAt(mappingsTable.convertRowIndexToModel(mappingsTable.getSelectedRow()), 2));
+    public Object[][] updateAttachmentList(Long messageId) {
+        if (messageId == null) {
+            return null;
+        }
+        try {
+            List<Attachment> attachments = attachmentCache.get(messageId);
+            ArrayList<Object[]> attachData = new ArrayList<Object[]>();
+            int count = 1;
+            ArrayList<String> types = new ArrayList<String>();
+            // get arraylist of all types
+            for (Attachment attachment : attachments) {
+                String type = attachment.getType();
+                if (!types.contains(type)) {
+                    types.add(type);
                 }
             }
-        });
 
-        mappingsTable.setSelectionMode(0);
-        mappingsTable.getColumnExt(SCOPE_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
-        mappingsTable.getColumnExt(SCOPE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+            for (String type : types) {
+                // If handle multiples
+                if (getAttachmentViewer(type) != null && getAttachmentViewer(type).handleMultiple()) {
+                    String number = Integer.toString(count);
+                    String attachment_Ids = "";
+                    for (Attachment attachment : attachments) {
+                        if (type.equals(attachment.getType())) {
+                            if (attachment_Ids.equals("")) {
+                                attachment_Ids = attachment.getId();
+                            } else {
+                                count++;
+                                attachment_Ids = attachment_Ids + ", " + attachment.getId();
+                            }
+                        }
+                    }
+                    if (!number.equals(Integer.toString(count))) {
+                        number = number + " - " + Integer.toString(count);
+                    }
+                    Object[] rowData = new Object[3];
+                    // add to attach Data
+                    rowData[0] = number;
+                    rowData[1] = type;
+                    rowData[2] = attachment_Ids;
+                    attachData.add(rowData);
+                } // else do them seperate
+                else {
+                    for (Attachment attachment : attachments) {
+                        if (attachment.getType().equals(type)) {
+                            Object[] rowData = new Object[3];
+                            rowData[0] = Integer.toString(count);
+                            rowData[1] = attachment.getType();
+                            rowData[2] = attachment.getId();
+                            attachData.add(rowData);
+                            count++;
+                        }
+                    }
+                }
+            }
+            Object[][] temp = new Object[attachData.size()][3];
+            int rowCount = 0;
+            for (Object[] objects : attachData) {
+                temp[rowCount] = objects;
+                rowCount++;
+            }
+            return temp;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-        // Disable HTML in a column.
-        DefaultTableCellRenderer noHTMLRenderer = new DefaultTableCellRenderer();
-        noHTMLRenderer.putClientProperty("html.disable", Boolean.TRUE);
-        mappingsTable.getColumnExt(VALUE_COLUMN_NAME).setCellRenderer(noHTMLRenderer);
-
-        mappingsPane.setViewportView(mappingsTable);
+    public AttachmentViewer getAttachmentViewer(String type) {
+        if (LoadedExtensions.getInstance().getAttachmentViewerPlugins().size() > 0) {
+            for (AttachmentViewer plugin : LoadedExtensions.getInstance().getAttachmentViewerPlugins().values()) {
+                if (type.toUpperCase().contains(plugin.getViewerType().toUpperCase())) {
+                    return plugin;
+                }
+            }
+        }
+        return null;
     }
 
     /**
      * Shows the popup menu when the trigger button (right-click) has been
-     * pushed.  Deselects the rows if no row was selected.
+     * pushed. Deselects the rows if no row was selected.
      */
     private void checkMessageSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
-        int row = messageTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        int row = messageTreeTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
         if (row == -1) {
             deselectRows();
         }
 
         if (evt.isPopupTrigger()) {
             if (row != -1) {
-                messageTable.setRowSelectionInterval(row, row);
+                messageTreeTable.setRowSelectionInterval(row, row);
             }
             parent.messagePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
@@ -770,7 +1277,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
     /**
      * Shows the popup menu when the trigger button (right-click) has been
-     * pushed.  Deselects the rows if no row was selected.
+     * pushed. Deselects the rows if no row was selected.
      */
     private void checkAttachmentSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = attachmentTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
@@ -790,13 +1297,11 @@ public class MessageBrowser extends javax.swing.JPanel {
      * Deselects all rows in the table and clears the description information.
      */
     public void deselectRows() {
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, false);
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, true);
-        if (messageTable != null) {
-            messageTable.clearSelection();
-            clearDescription();
+        if (messageTreeTable != null) {
+            messageTreeTable.clearSelection();
         }
-        disableFormatXmlCheckBox();
+
+        clearDescription(null);
     }
 
     /**
@@ -814,33 +1319,161 @@ public class MessageBrowser extends javax.swing.JPanel {
     /**
      * Clears all description information.
      */
-    public void clearDescription() {
+    public void clearDescription(String text) {
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, true);
+
         RawMessageTextPane.setDocument(new SyntaxDocument());
-        RawMessageTextPane.setText("Select a message to view the raw message.");
+        RawMessageTextPane.setText(text != null ? text : "Select a message to view the raw message.");
+        ProcessedRawMessageTextPane.setDocument(new SyntaxDocument());
+        ProcessedRawMessageTextPane.setText(text != null ? text : "Select a message to view the processed raw message.");
         TransformedMessageTextPane.setDocument(new SyntaxDocument());
-        TransformedMessageTextPane.setText("Select a message to view the transformed message.");
+        TransformedMessageTextPane.setText(text != null ? text : "Select a message to view the transformed message.");
         EncodedMessageTextPane.setDocument(new SyntaxDocument());
-        EncodedMessageTextPane.setText("Select a message to view the encoded message.");
+        EncodedMessageTextPane.setText(text != null ? text : "Select a message to view the encoded message.");
+        SentMessageTextPane.setDocument(new SyntaxDocument());
+        SentMessageTextPane.setText(text != null ? text : "Select a message to view the sent message.");
+        ResponseTextPane.setDocument(new SyntaxDocument());
+        ResponseTextPane.setText(text != null ? text : "Select a message to view the response message.");
+        ProcessedResponseTextPane.setDocument(new SyntaxDocument());
+        ProcessedResponseTextPane.setText(text != null ? text : "Select a message to view the processed response message.");
         ErrorsTextPane.setDocument(new SyntaxDocument());
-        ErrorsTextPane.setText("Select a message to view any errors.");
+        ErrorsTextPane.setText(text != null ? text : "Select a message to view any errors.");
         messageIdField.setText("");
         correlationIdField.setText("");
         serverIdField.setText("");
         updateMappingsTable(new String[0][0], true);
-        updateAttachmentsTable(null, true);
+        updateAttachmentsTable(null);
         descriptionTabbedPane.remove(attachmentsPane);
+        formatXmlMessageCheckBox.setEnabled(false);
+    }
+
+    public Message getSelectedMessage() {
+        Long messageId = getSelectedMessageId();
+
+        if (messageId != null) {
+            return messageCache.get(messageId);
+        }
+
+        return null;
+    }
+    
+    public ConnectorMessage getSelectedConnectorMessage() {
+        Message message = getSelectedMessage();
+        Integer metaDataId = getSelectedMetaDataId();
+
+        if (message != null && metaDataId != null) {
+            return message.getConnectorMessages().get(metaDataId);
+        }
+
+        return null;
+    }
+
+    public Long getSelectedMessageId() {
+        int row = getSelectedMessageIndex();
+
+        if (row >= 0) {
+            MessageBrowserTableNode messageNode = (MessageBrowserTableNode) messageTreeTable.getPathForRow(row).getLastPathComponent();
+            return messageNode.getMessageId();
+        }
+
+        return null;
+    }
+
+    public Integer getSelectedMetaDataId() {
+        int row = getSelectedMessageIndex();
+
+        if (row >= 0) {
+            MessageBrowserTableNode messageNode = (MessageBrowserTableNode) messageTreeTable.getPathForRow(row).getLastPathComponent();
+            return messageNode.getMetaDataId();
+        }
+
+        return null;
+    }
+    
+    // if we enable multiple row selection in the message browser at some point, then we may want to use this method
+//    public List<Integer> getSelectedMetaDataIds() {
+//        List<Integer> metaDataIds = new ArrayList<Integer>();
+//        
+//        for (int row : messageTreeTable.getSelectedRows()) {
+//            row = messageTreeTable.convertRowIndexToModel(row);
+//            MessageBrowserTableNode messageNode = (MessageBrowserTableNode) messageTreeTable.getPathForRow(row).getLastPathComponent();
+//            metaDataIds.add(messageNode.getMetaDataId());
+//        }
+//        
+//        return metaDataIds;
+//    }
+
+    public void viewAttachment() {
+        String attachId = (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 2);
+        final String attachType = (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 1);
+        String[] attachmentIdArray = attachId.split(", ");
+        ArrayList<String> attachmentIds = new ArrayList<String>();
+        for (int i = 0; i < attachmentIdArray.length; i++) {
+            attachmentIds.add(attachmentIdArray[i]);
+        }
+        try {
+            final AttachmentViewer attachmentViewer = getAttachmentViewer(attachType);
+            final ArrayList<String> finalAttachmentIds = attachmentIds;
+            if (attachmentViewer != null) {
+
+                final String workingId = parent.startWorking("Loading " + attachType + " viewer...");
+
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+                    public Void doInBackground() {
+                        attachmentViewer.viewAttachments(finalAttachmentIds, channel.getId());
+                        return null;
+                    }
+
+                    public void done() {
+                        parent.stopWorking(workingId);
+                    }
+                };
+                worker.execute();
+            } else {
+                parent.alertInformation(this, "No Attachment Viewer plugin installed for type: " + attachType);
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    public void importMessages() {
+        File file = parent.browseForFile("XML");
+
+        if (file != null) {
+            int importCount = 0;
+
+            try {
+                importCount = parent.mirthClient.importMessages(channel.getId(), file, UIConstants.CHARSET);
+            } catch (ClientException e) {
+                parent.alertException(this, e.getStackTrace(), "Error importing messages. " + e.getMessage());
+                return;
+            }
+
+            if (importCount > 0) {
+                parent.alertInformation(this, importCount + " messages have been successfully imported.");
+                refresh(true, null);
+            } else {
+                parent.alertError(this, "No messages were found in the file.");
+            }
+        }
+    }
+
+    public void exportMessages() {
+        exportResultsPopup.setVisible(true);
     }
 
     private int getSelectedMessageIndex() {
         int row = -1;
-        if (messageTable.getSelectedRow() > -1) {
-            row = messageTable.convertRowIndexToModel(messageTable.getSelectedRow());
+        if (messageTreeTable.getSelectedRow() > -1) {
+            row = messageTreeTable.convertRowIndexToModel(messageTreeTable.getSelectedRow());
         }
         return row;
     }
 
     /**
-     * An action for when a row is selected in the table.
+     * An action for when a row is selected in the table
      */
     private void MessageListSelected(ListSelectionEvent evt) {
         if (!evt.getValueIsAdjusting()) {
@@ -850,216 +1483,313 @@ public class MessageBrowser extends javax.swing.JPanel {
                 parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, true);
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-                MessageObject currentMessage = messageObjectList.get(row);
+                // Get the table node
+                MessageBrowserTableNode messageNode = (MessageBrowserTableNode) messageTreeTable.getPathForRow(row).getLastPathComponent();
 
-                setCorrectDocument(RawMessageTextPane, currentMessage.getRawData(), currentMessage.getRawDataProtocol());
-                setCorrectDocument(TransformedMessageTextPane, currentMessage.getTransformedData(), currentMessage.getTransformedDataProtocol());
-                setCorrectDocument(EncodedMessageTextPane, currentMessage.getEncodedData(), currentMessage.getEncodedDataProtocol());
-                setCorrectDocument(ErrorsTextPane, currentMessage.getErrors(), null);
-                messageIdField.setText(currentMessage.getId());
-                
-                if (currentMessage.getCorrelationId() == null) {
-                    correlationIdField.setText(currentMessage.getId());
-                } else {
-                    correlationIdField.setText(currentMessage.getCorrelationId());
-                }
+                if (messageNode.isNodeActive()) {
+                    // Get the messageId from the message node
+                    Long messageId = messageNode.getMessageId();
+                    // Get the metaDataId from the message node
+                    Integer metaDataId = messageNode.getMetaDataId();
 
-                serverIdField.setText(currentMessage.getServerId());
-                
-                if (currentMessage.isAttachment()) {
-                    if (descriptionTabbedPane.indexOfTab("Attachments") == -1) {
-                        descriptionTabbedPane.addTab("Attachments", attachmentsPane);
+                    // Attempt to get the message from the message cache
+                    Message message = messageCache.get(messageId);
+                    List<Attachment> attachments = attachmentCache.get(messageId);
+
+                    // If the message is not in the cache, retrieve it from the server
+                    if (message == null) {
+                        try {
+                            message = parent.mirthClient.getMessageContent(channel.getId(), messageId);
+                            // If the message was not found (ie. it may have been deleted during the request), do nothing
+                            if (message == null || message.getConnectorMessages().size() == 0) {
+                                clearDescription("Could not retrieve message content. The message may have been deleted.");
+                                this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                return;
+                            }
+
+                            attachments = parent.mirthClient.getAttachmentIdsByMessageId(channel.getId(), messageId);
+                        } catch (Throwable t) {
+                            if (t.getMessage().contains("Java heap space")) {
+                                parent.alertError(parent, "There was an out of memory error when trying to retrieve message content.\nIncrease your heap size and try again.");
+                            } else if (t.getCause() instanceof RequestAbortedException) {
+                                // The client is no longer waiting for the message content request
+                            } else {
+                                parent.alertException(parent, t.getStackTrace(), t.getMessage());
+                            }
+                            this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                            return;
+                        }
+                        // Add the retrieved message to the message cache
+                        messageCache.put(messageId, message);
+                        attachmentCache.put(messageId, attachments);
                     }
-                    updateAttachmentsTable(currentMessage, true);
+
+                    ConnectorMessage connectorMessage = message.getConnectorMessages().get(metaDataId);
+
+                    // Update the message tabs
+                    updateDescriptionMessages(connectorMessage, metaDataId);
+                    // Update the mappings tab
+                    updateDescriptionMappings(connectorMessage, metaDataId);
+                    // Update the attachments tab
+                    updateAttachmentsTable(messageId);
+                    // Update the errors tab
+                    setCorrectDocument(ErrorsTextPane, connectorMessage.getErrors(), null);
+                    // Show relevant tabs
+                    updateDescriptionTabs(metaDataId, attachments.size() > 0);
+                    updateMessageRadioGroup();
+
+                    if (attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1) {
+                        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 9, false);
+                    }
                 } else {
-                    descriptionTabbedPane.remove(attachmentsPane);
-                }
-                Map connectorMap = currentMessage.getConnectorMap();
-                Map channelMap = currentMessage.getChannelMap();
-                Map responseMap = currentMessage.getResponseMap();
-
-                String[][] tableData = new String[connectorMap.size() + channelMap.size() + responseMap.size()][3];
-                int i = 0;
-
-                Iterator connectorMapSetIterator = connectorMap.entrySet().iterator();
-                for (; connectorMapSetIterator.hasNext(); i++) {
-                    Entry variableMapEntry = (Entry) connectorMapSetIterator.next();
-                    tableData[i][0] = "Connector";
-                    tableData[i][1] = variableMapEntry.getKey().toString();
-                    tableData[i][2] = variableMapEntry.getValue().toString();
+                    clearDescription(null);
                 }
 
-                Iterator channelMapSetIterator = channelMap.entrySet().iterator();
-                for (; channelMapSetIterator.hasNext(); i++) {
-                    Entry variableMapEntry = (Entry) channelMapSetIterator.next();
-                    tableData[i][0] = "Channel";
-                    tableData[i][1] = variableMapEntry.getKey().toString();
-                    tableData[i][2] = variableMapEntry.getValue().toString();
-                }
-
-                Iterator responseMapSetIterator = responseMap.entrySet().iterator();
-                for (; responseMapSetIterator.hasNext(); i++) {
-                    Entry variableMapEntry = (Entry) responseMapSetIterator.next();
-                    tableData[i][0] = "Response";
-                    tableData[i][1] = variableMapEntry.getKey().toString();
-                    tableData[i][2] = variableMapEntry.getValue().toString();
-                }
-
-
-                updateMappingsTable(tableData, false);
-
-                if (attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1) {
-                    parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 9, false);
-                }
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
             }
         }
     }
 
-    private void setCorrectDocument(MirthSyntaxTextArea textPane, String message, MessageObject.Protocol protocol) {
-        SyntaxDocument newDoc = new SyntaxDocument();
+    /**
+     * Helper function to update the message tabs
+     */
+    private void updateDescriptionMessages(ConnectorMessage connectorMessage, Integer metaDataId) {
+        MessageContent rawMessage = connectorMessage.getRaw();
+        MessageContent processedRawMessage = connectorMessage.getProcessedRaw();
+        MessageContent transformedMessage = connectorMessage.getTransformed();
+        MessageContent encodedMessage = connectorMessage.getEncoded();
+        MessageContent sentMessage = connectorMessage.getSent();
+        MessageContent responseMessage = connectorMessage.getResponse();
+        MessageContent processedResponseMessage = connectorMessage.getProcessedResponse();
 
-        if (message != null) {
-            if (protocol != null) {
-                if (protocol.equals(MessageObject.Protocol.XML) || protocol.equals(Protocol.HL7V3)) {
-                    getFormatXmlCheckBox(textPane).setEnabled(true);
-                } else {
-                    getFormatXmlCheckBox(textPane).setEnabled(false);
+        MessagesRadioPane.removeAll();
+
+        //TODO update data types for response and processed response
+
+        String inboundDataType = null;
+        String outboundDataType = null;
+
+        if (metaDataId == 0) {
+            inboundDataType = channel.getSourceConnector().getTransformer().getInboundDataType();
+            outboundDataType = channel.getSourceConnector().getTransformer().getOutboundDataType();
+        } else {
+
+            inboundDataType = channel.getSourceConnector().getTransformer().getOutboundDataType();
+            for (Connector destinationConnector : channel.getDestinationConnectors()) {
+                if (metaDataId.equals(destinationConnector.getMetaDataId())) {
+                    outboundDataType = destinationConnector.getTransformer().getOutboundDataType();
+                    break;
                 }
-                
-                if (protocol.equals(MessageObject.Protocol.HL7V2) || protocol.equals(MessageObject.Protocol.NCPDP) || protocol.equals(MessageObject.Protocol.DICOM)) {
-                    newDoc.setTokenMarker(new HL7TokenMarker());
-                } else if (protocol.equals(MessageObject.Protocol.XML) || protocol.equals(Protocol.HL7V3)) {
-                    newDoc.setTokenMarker(new XMLTokenMarker());
+            }
+        }
 
-                    if (getFormatXmlCheckBox(textPane).isSelected()) {
-                        DocumentSerializer serializer = new DocumentSerializer(true);
+        String content;
 
-                        try {
-                            message = XmlUtil.prettyPrint(message);
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
+        content = (rawMessage == null) ? null : rawMessage.getContent();
+        if (content != null) {
+            MessagesRadioPane.add(RawMessageRadioButton);
+        }
+        setCorrectDocument(RawMessageTextPane, content, inboundDataType);
+
+        content = (processedRawMessage == null) ? null : processedRawMessage.getContent();
+        if (content != null) {
+            MessagesRadioPane.add(ProcessedRawMessageRadioButton);
+        }
+        setCorrectDocument(ProcessedRawMessageTextPane, content, inboundDataType);
+
+        content = (transformedMessage == null) ? null : transformedMessage.getContent();
+        if (content != null) {
+            MessagesRadioPane.add(TransformedMessageRadioButton);
+        }
+        setCorrectDocument(TransformedMessageTextPane, content, DataTypeFactory.XML);
+
+        content = (encodedMessage == null) ? null : encodedMessage.getContent();
+        if (content != null) {
+            MessagesRadioPane.add(EncodedMessageRadioButton);
+        }
+        setCorrectDocument(EncodedMessageTextPane, content, outboundDataType);
+
+        content = (sentMessage == null) ? null : sentMessage.getContent();
+        if (content != null) {
+            MessagesRadioPane.add(SentMessageRadioButton);
+        }
+        setCorrectDocument(SentMessageTextPane, content, outboundDataType);
+
+        content = (responseMessage == null) ? null : responseMessage.getContent();
+        if (content != null) {
+            MessagesRadioPane.add(ResponseRadioButton);
+        }
+        setCorrectDocument(ResponseTextPane, content, outboundDataType);
+
+        content = (processedResponseMessage == null) ? null : processedResponseMessage.getContent();
+        if (content != null) {
+            MessagesRadioPane.add(ProcessedResponseRadioButton);
+        }
+        setCorrectDocument(ProcessedResponseTextPane, content, outboundDataType);
+    }
+
+    /**
+     * Helper function to update the mappings
+     */
+    private void updateDescriptionMappings(ConnectorMessage connectorMessage, Integer metaDataId) {
+        Map<String, Object> connectorMap = connectorMessage.getConnectorMap();
+        Map<String, Object> channelMap = connectorMessage.getChannelMap();
+        Map<String, Response> responseMap = connectorMessage.getResponseMap();
+
+        String[][] tableData = new String[connectorMap.size() + channelMap.size() + responseMap.size()][3];
+        int row = 0;
+
+        for (Entry<String, Object> variableMapEntry : connectorMap.entrySet()) {
+            tableData[row][0] = "Connector";
+            tableData[row][1] = variableMapEntry.getKey().toString();
+            tableData[row][2] = variableMapEntry.getValue().toString();
+            row++;
+        }
+
+        for (Entry<String, Object> variableMapEntry : channelMap.entrySet()) {
+            tableData[row][0] = "Channel";
+            tableData[row][1] = variableMapEntry.getKey().toString();
+            tableData[row][2] = variableMapEntry.getValue().toString();
+            row++;
+        }
+
+        for (Entry<String, Response> variableMapEntry : responseMap.entrySet()) {
+            tableData[row][0] = "Response";
+            tableData[row][1] = variableMapEntry.getKey().toString();
+            tableData[row][2] = variableMapEntry.getValue().toString();
+            row++;
+        }
+
+        updateMappingsTable(tableData, false);
+    }
+
+    private void messagesRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        JRadioButton messagesRadioButton = (JRadioButton) evt.getSource();
+
+        showMessagePane(messagesRadioButton.getText());
+
+        lastUserSelectedMessageType = messagesRadioButton.getText();
+    }
+
+    private void showMessagePane(String messagePaneName) {
+        CardLayout cardLayout = (CardLayout) MessagesCardPane.getLayout();
+        updateXmlCheckBoxEnabled(messagePaneName);
+
+        cardLayout.show(MessagesCardPane, messagePaneName);
+    }
+
+    private void updateXmlCheckBoxEnabled(String messagePaneName) {
+        int row = getSelectedMessageIndex();
+
+        if (row >= 0) {
+            MessageBrowserTableNode messageNode = (MessageBrowserTableNode) messageTreeTable.getPathForRow(row).getLastPathComponent();
+
+            if (messageNode.isNodeActive()) {
+                Integer metaDataId = messageNode.getMetaDataId();
+
+                String dataType = null;
+
+                if (messagePaneName.equals("Raw") || messagePaneName.equals("Processed Raw")) {
+                    if (metaDataId == 0) {
+                        dataType = channel.getSourceConnector().getTransformer().getInboundDataType();
+                    } else {
+                        dataType = channel.getSourceConnector().getTransformer().getOutboundDataType();
+                    }
+                } else if (messagePaneName.equals("Transformed")) {
+                    dataType = DataTypeFactory.XML;
+                } else if (messagePaneName.equals("Sent") || messagePaneName.equals("Encoded")) {
+                    if (metaDataId == 0) {
+                        dataType = channel.getSourceConnector().getTransformer().getOutboundDataType();
+                    } else {
+                        for (Connector destinationConnector : channel.getDestinationConnectors()) {
+                            if (metaDataId.equals(destinationConnector.getMetaDataId())) {
+                                dataType = destinationConnector.getTransformer().getOutboundDataType();
+                                break;
+                            }
                         }
                     }
-                } else if (protocol.equals(MessageObject.Protocol.X12)) {
-                    newDoc.setTokenMarker(new X12TokenMarker());
-                } else if (protocol.equals(MessageObject.Protocol.EDI)) {
-                    newDoc.setTokenMarker(new EDITokenMarker());
+                } else if (messagePaneName.equals("Response") || messagePaneName.equals("Processed Response")) {
+                    //TODO update this logic once response and processed response are added
+                    if (metaDataId == 0) {
+                        dataType = channel.getSourceConnector().getTransformer().getOutboundDataType();
+                    } else {
+                        for (Connector destinationConnector : channel.getDestinationConnectors()) {
+                            if (metaDataId.equals(destinationConnector.getMetaDataId())) {
+                                dataType = destinationConnector.getTransformer().getOutboundDataType();
+                                break;
+                            }
+                        }
+                    }
                 }
-            }
 
-            textPane.setDocument(newDoc);
-            textPane.setText(message);
-        } else {
-            textPane.setDocument(newDoc);
-            textPane.setText("");
-        }
-
-        textPane.setCaretPosition(0);
-    }
-
-    /**
-     * Returns the ID of the selected message in the table.
-     */
-    public String getSelectedMessageID() {
-        int column = -1;
-        for (int i = 0; i < messageTable.getModel().getColumnCount(); i++) {
-            if (messageTable.getModel().getColumnName(i).equals(MESSAGE_ID_COLUMN_NAME)) {
-                column = i;
+                if (dataType.equals(DataTypeFactory.XML) || dataType.equals(DataTypeFactory.HL7V3)) {
+                    formatXmlMessageCheckBox.setEnabled(true);
+                } else {
+                    formatXmlMessageCheckBox.setEnabled(false);
+                }
+            } else {
+                formatXmlMessageCheckBox.setEnabled(false);
             }
         }
-        return ((String) messageTable.getModel().getValueAt(messageTable.convertRowIndexToModel(messageTable.getSelectedRow()), column));
-    }
-
-    /**
-     * Returns the current MessageObjectFilter that is set.
-     */
-    public MessageObjectFilter getCurrentFilter() {
-        return messageObjectFilter;
     }
 
     private void formatXmlCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {
-        JCheckBox formatXmlCheckBox = (JCheckBox) evt.getSource();
-        boolean selected = formatXmlCheckBox.isSelected();
-        
-        if (!formatXmlCheckBox.equals(formatXmlRawCheckBox)) {
-            formatXmlRawCheckBox.setSelected(selected);
-        }
-        if (!formatXmlCheckBox.equals(formatXmlTransformedCheckBox)) {
-            formatXmlTransformedCheckBox.setSelected(selected);
-        }
-        if (!formatXmlCheckBox.equals(formatXmlEncodedCheckBox)) {
-            formatXmlEncodedCheckBox.setSelected(selected);
-        }
-        
         int row = getSelectedMessageIndex();
 
         if (row >= 0) {
             this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            MessageObject currentMessage = messageObjectList.get(row);
+            MessageBrowserTableNode messageNode = (MessageBrowserTableNode) messageTreeTable.getPathForRow(row).getLastPathComponent();
+            Long messageId = messageNode.getMessageId();
+            Integer metaDataId = messageNode.getMetaDataId();
 
-            setCorrectDocument(RawMessageTextPane, currentMessage.getRawData(), currentMessage.getRawDataProtocol());
-            setCorrectDocument(TransformedMessageTextPane, currentMessage.getTransformedData(), currentMessage.getTransformedDataProtocol());
-            setCorrectDocument(EncodedMessageTextPane, currentMessage.getEncodedData(), currentMessage.getEncodedDataProtocol());
-            
+            Message message = messageCache.get(messageId);
+            ConnectorMessage connectorMessage;
+
+            connectorMessage = message.getConnectorMessages().get(metaDataId);
+
+            updateDescriptionMessages(connectorMessage, metaDataId);
+
             this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
-    
-    private JCheckBox getFormatXmlCheckBox(MirthSyntaxTextArea textPane) {
-        if (textPane.equals(RawMessageTextPane)) {
-            return formatXmlRawCheckBox;
-        } else if (textPane.equals(TransformedMessageTextPane)) {
-            return formatXmlTransformedCheckBox;
-        } else if (textPane.equals(EncodedMessageTextPane)) {
-            return formatXmlEncodedCheckBox;
-        } else {
-            return null;
-        }
+
+    protected void nextPageButtonActionPerformed(ActionEvent evt) {
+        loadPageNumber(messages.getPageNumber() + 1);
     }
-    
-    private void disableFormatXmlCheckBox() {
-        formatXmlRawCheckBox.setEnabled(false);
-        formatXmlTransformedCheckBox.setEnabled(false);
-        formatXmlEncodedCheckBox.setEnabled(false);
+
+    protected void previousPageButtonActionPerformed(ActionEvent evt) {
+        loadPageNumber(messages.getPageNumber() - 1);
     }
 
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        filterPanel = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
-        resultsLabel = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        pageSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
-        previousPageButton = new javax.swing.JButton();
-        nextPageButton = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
-        mirthDatePicker1 = new com.mirth.connect.client.ui.components.MirthDatePicker();
-        jLabel3 = new javax.swing.JLabel();
-        mirthDatePicker2 = new com.mirth.connect.client.ui.components.MirthDatePicker();
-        jLabel2 = new javax.swing.JLabel();
-        filterButton = new javax.swing.JButton();
-        advSearchButton = new javax.swing.JButton();
-        jLabel5 = new javax.swing.JLabel();
-        statusComboBox = new javax.swing.JComboBox();
-        mirthTimePicker1 = new com.mirth.connect.client.ui.components.MirthTimePicker();
-        mirthTimePicker2 = new com.mirth.connect.client.ui.components.MirthTimePicker();
-        quickSearchField = new javax.swing.JTextField();
-        quickSearchLabel = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList();
+        messagesGroup = new javax.swing.ButtonGroup();
         jSplitPane1 = new javax.swing.JSplitPane();
         descriptionTabbedPane = new javax.swing.JTabbedPane();
-        RawMessagePanel = new javax.swing.JPanel();
+        MessagesPanel = new javax.swing.JPanel();
+        MessagesRadioPane = new javax.swing.JPanel();
+        RawMessageRadioButton = new javax.swing.JRadioButton();
+        ProcessedRawMessageRadioButton = new javax.swing.JRadioButton();
+        TransformedMessageRadioButton = new javax.swing.JRadioButton();
+        EncodedMessageRadioButton = new javax.swing.JRadioButton();
+        SentMessageRadioButton = new javax.swing.JRadioButton();
+        ResponseRadioButton = new javax.swing.JRadioButton();
+        ProcessedResponseRadioButton = new javax.swing.JRadioButton();
+        MessagesCardPane = new javax.swing.JPanel();
         RawMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
-        formatXmlRawCheckBox = new javax.swing.JCheckBox();
-        TransformedMessagePanel = new javax.swing.JPanel();
+        ProcessedRawMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         TransformedMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
-        formatXmlTransformedCheckBox = new javax.swing.JCheckBox();
-        EncodedMessagePanel = new javax.swing.JPanel();
         EncodedMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
-        formatXmlEncodedCheckBox = new javax.swing.JCheckBox();
+        SentMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        ResponseTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        ProcessedResponseTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        formatXmlMessageCheckBox = new javax.swing.JCheckBox();
         mappingsPane = new javax.swing.JScrollPane();
         mappingsTable = null;
         ErrorsPanel = new javax.swing.JPanel();
@@ -1074,169 +1804,55 @@ public class MessageBrowser extends javax.swing.JPanel {
         serverIdLabel = new javax.swing.JLabel();
         attachmentsPane = new javax.swing.JScrollPane();
         attachmentTable = null;
-        messagePane = new javax.swing.JScrollPane();
-        messageTable = null;
+        messageScrollPane = new javax.swing.JScrollPane();
+        messageTreeTable = new com.mirth.connect.client.ui.components.MirthTreeTable();
+        statusBoxError = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        statusBoxQueued = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        statusBoxSent = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        statusBoxFiltered = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        statusBoxTransformed = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        statusBoxReceived = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        advSearchButton = new javax.swing.JButton();
+        filterButton = new javax.swing.JButton();
+        quickSearchField = new javax.swing.JTextField();
+        mirthTimePicker2 = new com.mirth.connect.client.ui.components.MirthTimePicker();
+        mirthTimePicker1 = new com.mirth.connect.client.ui.components.MirthTimePicker();
+        mirthDatePicker1 = new com.mirth.connect.client.ui.components.MirthDatePicker();
+        mirthDatePicker2 = new com.mirth.connect.client.ui.components.MirthDatePicker();
+        quickSearchLabel = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        resultsLabel = new javax.swing.JLabel();
+        countButton = new com.mirth.connect.client.ui.components.MirthButton();
+        pageSizeLabel = new javax.swing.JLabel();
+        pageSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
+        previousPageButton = new javax.swing.JButton();
+        nextPageButton = new javax.swing.JButton();
+        pageGoButton = new javax.swing.JButton();
+        lastSearchCriteriaPane = new javax.swing.JScrollPane();
+        lastSearchCriteria = new javax.swing.JTextArea();
+        resetButton = new javax.swing.JButton();
+        allDayCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        pageNumberField = new com.mirth.connect.client.ui.components.MirthTextField();
+        pageNumberLabel = new javax.swing.JLabel();
+        pageTotalLabel = new javax.swing.JLabel();
+
+        jList1.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+
+            public int getSize() {
+                return strings.length;
+            }
+
+            public Object getElementAt(int i) {
+                return strings[i];
+            }
+        });
+        jScrollPane1.setViewportView(jList1);
 
         setBackground(new java.awt.Color(255, 255, 255));
-
-        filterPanel.setBackground(new java.awt.Color(255, 255, 255));
-        filterPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-
-        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1)));
-
-        resultsLabel.setForeground(new java.awt.Color(204, 0, 0));
-        resultsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        resultsLabel.setText("Results");
-
-        jLabel6.setText("Page Size:");
-
-        pageSizeField.setToolTipText("After changing the page size, a new search must be performed for the changes to take effect.  The default page size can also be configured on the Settings panel.");
-
-        previousPageButton.setText("<");
-        previousPageButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                previousPageButtonActionPerformed(evt);
-            }
-        });
-
-        nextPageButton.setText(">");
-        nextPageButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nextPageButtonActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(36, Short.MAX_VALUE)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(resultsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(previousPageButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(nextPageButton))))
-        );
-
-        jPanel3Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {nextPageButton, previousPageButton});
-
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addComponent(resultsLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(previousPageButton)
-                    .addComponent(nextPageButton)))
-        );
-
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
-
-        jLabel3.setText("Start Time:");
-
-        jLabel2.setText("End Time:");
-
-        filterButton.setText("Search");
-        filterButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                filterButtonActionPerformed(evt);
-            }
-        });
-
-        advSearchButton.setText("Advanced...");
-        advSearchButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                advSearchButtonActionPerformed(evt);
-            }
-        });
-
-        jLabel5.setText("Status:");
-
-        quickSearchLabel.setText("Quick Search:");
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel5)
-                    .addComponent(jLabel3)
-                    .addComponent(quickSearchLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(statusComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(mirthDatePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(mirthDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(mirthTimePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(mirthTimePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(advSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(quickSearchField, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(filterButton)
-                .addContainerGap(27, Short.MAX_VALUE))
-        );
-
-        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {advSearchButton, mirthTimePicker1, mirthTimePicker2});
-
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(mirthDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(mirthTimePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(mirthDatePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(mirthTimePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(quickSearchField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(quickSearchLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(statusComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(advSearchButton)
-                    .addComponent(filterButton)))
-        );
-
-        javax.swing.GroupLayout filterPanelLayout = new javax.swing.GroupLayout(filterPanel);
-        filterPanel.setLayout(filterPanelLayout);
-        filterPanelLayout.setHorizontalGroup(
-            filterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(filterPanelLayout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-        filterPanelLayout.setVerticalGroup(
-            filterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        );
+        setFocusable(false);
+        setRequestFocusEnabled(false);
 
         jSplitPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jSplitPane1.setDividerLocation(200);
@@ -1246,119 +1862,143 @@ public class MessageBrowser extends javax.swing.JPanel {
         descriptionTabbedPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         descriptionTabbedPane.setFocusable(false);
 
-        RawMessagePanel.setBackground(new java.awt.Color(255, 255, 255));
-        RawMessagePanel.setFocusable(false);
+        MessagesPanel.setBackground(new java.awt.Color(255, 255, 255));
+        MessagesPanel.setFocusable(false);
+
+        MessagesRadioPane.setBackground(new java.awt.Color(255, 255, 255));
+        MessagesRadioPane.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 5, 0));
+
+        RawMessageRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        messagesGroup.add(RawMessageRadioButton);
+        RawMessageRadioButton.setSelected(true);
+        RawMessageRadioButton.setText("Raw");
+        RawMessageRadioButton.setFocusable(false);
+        RawMessageRadioButton.setRequestFocusEnabled(false);
+        RawMessageRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RawMessageRadioButtonActionPerformed(evt);
+            }
+        });
+        MessagesRadioPane.add(RawMessageRadioButton);
+
+        ProcessedRawMessageRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        messagesGroup.add(ProcessedRawMessageRadioButton);
+        ProcessedRawMessageRadioButton.setText("Processed Raw");
+        ProcessedRawMessageRadioButton.setFocusable(false);
+        ProcessedRawMessageRadioButton.setRequestFocusEnabled(false);
+        ProcessedRawMessageRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ProcessedRawMessageRadioButtonActionPerformed(evt);
+            }
+        });
+        MessagesRadioPane.add(ProcessedRawMessageRadioButton);
+
+        TransformedMessageRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        messagesGroup.add(TransformedMessageRadioButton);
+        TransformedMessageRadioButton.setText("Transformed");
+        TransformedMessageRadioButton.setFocusable(false);
+        TransformedMessageRadioButton.setRequestFocusEnabled(false);
+        TransformedMessageRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TransformedMessageRadioButtonActionPerformed(evt);
+            }
+        });
+        MessagesRadioPane.add(TransformedMessageRadioButton);
+
+        EncodedMessageRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        messagesGroup.add(EncodedMessageRadioButton);
+        EncodedMessageRadioButton.setText("Encoded");
+        EncodedMessageRadioButton.setFocusable(false);
+        EncodedMessageRadioButton.setRequestFocusEnabled(false);
+        EncodedMessageRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                EncodedMessageRadioButtonActionPerformed(evt);
+            }
+        });
+        MessagesRadioPane.add(EncodedMessageRadioButton);
+
+        SentMessageRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        messagesGroup.add(SentMessageRadioButton);
+        SentMessageRadioButton.setText("Sent");
+        SentMessageRadioButton.setFocusable(false);
+        SentMessageRadioButton.setRequestFocusEnabled(false);
+        SentMessageRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SentMessageRadioButtonActionPerformed(evt);
+            }
+        });
+        MessagesRadioPane.add(SentMessageRadioButton);
+
+        ResponseRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        messagesGroup.add(ResponseRadioButton);
+        ResponseRadioButton.setText("Response");
+        ResponseRadioButton.setFocusable(false);
+        ResponseRadioButton.setRequestFocusEnabled(false);
+        ResponseRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ResponseRadioButtonActionPerformed(evt);
+            }
+        });
+        MessagesRadioPane.add(ResponseRadioButton);
+
+        ProcessedResponseRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        messagesGroup.add(ProcessedResponseRadioButton);
+        ProcessedResponseRadioButton.setText("Processed Response");
+        ProcessedResponseRadioButton.setFocusable(false);
+        ProcessedResponseRadioButton.setRequestFocusEnabled(false);
+        ProcessedResponseRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ProcessedResponseRadioButtonActionPerformed(evt);
+            }
+        });
+        MessagesRadioPane.add(ProcessedResponseRadioButton);
+
+        MessagesCardPane.setBackground(new java.awt.Color(255, 255, 255));
+        MessagesCardPane.setLayout(new java.awt.CardLayout());
 
         RawMessageTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         RawMessageTextPane.setEditable(false);
+        MessagesCardPane.add(RawMessageTextPane, "Raw");
 
-        formatXmlRawCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        formatXmlRawCheckBox.setText("Format XML Messages");
-        formatXmlRawCheckBox.setToolTipText("Pretty print messages that are XML.");
-        formatXmlRawCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                formatXmlRawCheckBoxActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout RawMessagePanelLayout = new javax.swing.GroupLayout(RawMessagePanel);
-        RawMessagePanel.setLayout(RawMessagePanelLayout);
-        RawMessagePanelLayout.setHorizontalGroup(
-            RawMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(RawMessagePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(RawMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(formatXmlRawCheckBox)
-                    .addComponent(RawMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 717, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        RawMessagePanelLayout.setVerticalGroup(
-            RawMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(RawMessagePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(RawMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(formatXmlRawCheckBox)
-                .addContainerGap())
-        );
-
-        descriptionTabbedPane.addTab("Raw Message", RawMessagePanel);
-
-        TransformedMessagePanel.setBackground(new java.awt.Color(255, 255, 255));
-        TransformedMessagePanel.setFocusable(false);
+        ProcessedRawMessageTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        ProcessedRawMessageTextPane.setEditable(false);
+        MessagesCardPane.add(ProcessedRawMessageTextPane, "Processed Raw");
 
         TransformedMessageTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         TransformedMessageTextPane.setEditable(false);
-
-        formatXmlTransformedCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        formatXmlTransformedCheckBox.setText("Format XML Messages");
-        formatXmlTransformedCheckBox.setToolTipText("Pretty print messages that are XML.");
-        formatXmlTransformedCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                formatXmlTransformedCheckBoxActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout TransformedMessagePanelLayout = new javax.swing.GroupLayout(TransformedMessagePanel);
-        TransformedMessagePanel.setLayout(TransformedMessagePanelLayout);
-        TransformedMessagePanelLayout.setHorizontalGroup(
-            TransformedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(TransformedMessagePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(TransformedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(formatXmlTransformedCheckBox)
-                    .addComponent(TransformedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 717, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        TransformedMessagePanelLayout.setVerticalGroup(
-            TransformedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(TransformedMessagePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(TransformedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(formatXmlTransformedCheckBox)
-                .addContainerGap())
-        );
-
-        descriptionTabbedPane.addTab("Transformed Message", TransformedMessagePanel);
-
-        EncodedMessagePanel.setBackground(new java.awt.Color(255, 255, 255));
-        EncodedMessagePanel.setFocusable(false);
+        MessagesCardPane.add(TransformedMessageTextPane, "Transformed");
 
         EncodedMessageTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         EncodedMessageTextPane.setEditable(false);
+        MessagesCardPane.add(EncodedMessageTextPane, "Encoded");
 
-        formatXmlEncodedCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        formatXmlEncodedCheckBox.setText("Format XML Messages");
-        formatXmlEncodedCheckBox.setToolTipText("Pretty print messages that are XML.");
-        formatXmlEncodedCheckBox.addActionListener(new java.awt.event.ActionListener() {
+        SentMessageTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        SentMessageTextPane.setEditable(false);
+        MessagesCardPane.add(SentMessageTextPane, "Sent");
+
+        ResponseTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        ResponseTextPane.setEditable(false);
+        MessagesCardPane.add(ResponseTextPane, "Response");
+
+        ProcessedResponseTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        ProcessedResponseTextPane.setEditable(false);
+        MessagesCardPane.add(ProcessedResponseTextPane, "Processed Response");
+
+        formatXmlMessageCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        formatXmlMessageCheckBox.setText("Format XML Messages");
+        formatXmlMessageCheckBox.setToolTipText("Pretty print messages that are XML.");
+        formatXmlMessageCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                formatXmlEncodedCheckBoxActionPerformed(evt);
+                formatXmlMessageCheckBoxActionPerformed(evt);
             }
         });
 
-        javax.swing.GroupLayout EncodedMessagePanelLayout = new javax.swing.GroupLayout(EncodedMessagePanel);
-        EncodedMessagePanel.setLayout(EncodedMessagePanelLayout);
-        EncodedMessagePanelLayout.setHorizontalGroup(
-            EncodedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(EncodedMessagePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(EncodedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(formatXmlEncodedCheckBox)
-                    .addComponent(EncodedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 717, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        EncodedMessagePanelLayout.setVerticalGroup(
-            EncodedMessagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(EncodedMessagePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(EncodedMessageTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(formatXmlEncodedCheckBox)
-                .addContainerGap())
-        );
+        javax.swing.GroupLayout MessagesPanelLayout = new javax.swing.GroupLayout(MessagesPanel);
+        MessagesPanel.setLayout(MessagesPanelLayout);
+        MessagesPanelLayout.setHorizontalGroup(MessagesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(MessagesPanelLayout.createSequentialGroup().addContainerGap().addGroup(MessagesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addGroup(MessagesPanelLayout.createSequentialGroup().addComponent(formatXmlMessageCheckBox).addGap(0, 0, Short.MAX_VALUE)).addComponent(MessagesRadioPane, javax.swing.GroupLayout.DEFAULT_SIZE, 767, Short.MAX_VALUE)).addContainerGap()));
+        MessagesPanelLayout.setVerticalGroup(MessagesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(MessagesPanelLayout.createSequentialGroup().addContainerGap().addComponent(MessagesRadioPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(formatXmlMessageCheckBox).addContainerGap()));
 
-        descriptionTabbedPane.addTab("Encoded Message", EncodedMessagePanel);
+        descriptionTabbedPane.addTab("Messages", MessagesPanel);
 
         mappingsPane.setViewportView(mappingsTable);
 
@@ -1372,20 +2012,8 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         javax.swing.GroupLayout ErrorsPanelLayout = new javax.swing.GroupLayout(ErrorsPanel);
         ErrorsPanel.setLayout(ErrorsPanelLayout);
-        ErrorsPanelLayout.setHorizontalGroup(
-            ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ErrorsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 717, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        ErrorsPanelLayout.setVerticalGroup(
-            ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ErrorsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+        ErrorsPanelLayout.setHorizontalGroup(ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(ErrorsPanelLayout.createSequentialGroup().addContainerGap().addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 767, Short.MAX_VALUE).addContainerGap()));
+        ErrorsPanelLayout.setVerticalGroup(ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(ErrorsPanelLayout.createSequentialGroup().addContainerGap().addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE).addContainerGap()));
 
         descriptionTabbedPane.addTab("Errors", ErrorsPanel);
 
@@ -1408,38 +2036,8 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         javax.swing.GroupLayout metaDataPanelLayout = new javax.swing.GroupLayout(metaDataPanel);
         metaDataPanel.setLayout(metaDataPanelLayout);
-        metaDataPanelLayout.setHorizontalGroup(
-            metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(metaDataPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(messageIdLabel)
-                    .addComponent(correlationIdLabel)
-                    .addComponent(serverIdLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(serverIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(correlationIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(messageIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(461, Short.MAX_VALUE))
-        );
-        metaDataPanelLayout.setVerticalGroup(
-            metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(metaDataPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(messageIdLabel)
-                    .addComponent(messageIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(correlationIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(correlationIdLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(serverIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(serverIdLabel))
-                .addContainerGap(87, Short.MAX_VALUE))
-        );
+        metaDataPanelLayout.setHorizontalGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(metaDataPanelLayout.createSequentialGroup().addContainerGap().addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(messageIdLabel).addComponent(correlationIdLabel).addComponent(serverIdLabel)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(serverIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(correlationIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(messageIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)).addContainerGap(985, Short.MAX_VALUE)));
+        metaDataPanelLayout.setVerticalGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(metaDataPanelLayout.createSequentialGroup().addContainerGap().addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(messageIdLabel).addComponent(messageIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(correlationIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(correlationIdLabel)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(serverIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(serverIdLabel)).addContainerGap(337, Short.MAX_VALUE)));
 
         metaDataPane.setViewportView(metaDataPanel);
 
@@ -1451,344 +2049,357 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         jSplitPane1.setRightComponent(descriptionTabbedPane);
 
-        messagePane.setViewportView(messageTable);
+        messageScrollPane.setViewportView(messageTreeTable);
 
-        jSplitPane1.setLeftComponent(messagePane);
+        jSplitPane1.setLeftComponent(messageScrollPane);
+
+        statusBoxError.setBackground(new java.awt.Color(255, 255, 255));
+        statusBoxError.setText("ERROR");
+        statusBoxError.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxError.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                statusBoxErrorActionPerformed(evt);
+            }
+        });
+
+        statusBoxQueued.setBackground(new java.awt.Color(255, 255, 255));
+        statusBoxQueued.setText("QUEUED");
+        statusBoxQueued.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxQueued.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                statusBoxQueuedActionPerformed(evt);
+            }
+        });
+
+        statusBoxSent.setBackground(new java.awt.Color(255, 255, 255));
+        statusBoxSent.setText("SENT");
+        statusBoxSent.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+
+        statusBoxFiltered.setBackground(new java.awt.Color(255, 255, 255));
+        statusBoxFiltered.setText("FILTERED");
+        statusBoxFiltered.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxFiltered.setMaximumSize(new java.awt.Dimension(83, 23));
+        statusBoxFiltered.setMinimumSize(new java.awt.Dimension(83, 23));
+        statusBoxFiltered.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                statusBoxFilteredActionPerformed(evt);
+            }
+        });
+
+        statusBoxTransformed.setBackground(new java.awt.Color(255, 255, 255));
+        statusBoxTransformed.setText("TRANSFORMED");
+        statusBoxTransformed.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxTransformed.setMaximumSize(new java.awt.Dimension(83, 23));
+        statusBoxTransformed.setMinimumSize(new java.awt.Dimension(83, 23));
+
+        statusBoxReceived.setBackground(new java.awt.Color(255, 255, 255));
+        statusBoxReceived.setText("RECEIVED");
+        statusBoxReceived.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxReceived.setPreferredSize(new java.awt.Dimension(90, 22));
+        statusBoxReceived.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                statusBoxReceivedActionPerformed(evt);
+            }
+        });
+
+        advSearchButton.setText("Advanced...");
+        advSearchButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                advSearchButtonActionPerformed(evt);
+            }
+        });
+
+        filterButton.setText("Search");
+        filterButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filterButtonActionPerformed(evt);
+            }
+        });
+
+        quickSearchLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        quickSearchLabel.setText("Quick Search:");
+
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel2.setText("End Time:");
+        jLabel2.setMaximumSize(new java.awt.Dimension(78, 15));
+
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel3.setText("Start Time:");
+        jLabel3.setMaximumSize(new java.awt.Dimension(78, 15));
+
+        resultsLabel.setForeground(new java.awt.Color(204, 0, 0));
+        resultsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        resultsLabel.setText("Results");
+
+        countButton.setText("Count");
+        countButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                countButtonActionPerformed(evt);
+            }
+        });
+
+        pageSizeLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        pageSizeLabel.setText("Page Size:");
+        pageSizeLabel.setMaximumSize(new java.awt.Dimension(78, 15));
+
+        pageSizeField.setToolTipText("After changing the page size, a new search must be performed for the changes to take effect.  The default page size can also be configured on the Settings panel.");
+        pageSizeField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pageSizeFieldActionPerformed(evt);
+            }
+        });
+
+        previousPageButton.setText("< Prev");
+        previousPageButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                previousPageButtonActionPerformed(evt);
+            }
+        });
+
+        nextPageButton.setText("Next >");
+        nextPageButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nextPageButtonActionPerformed(evt);
+            }
+        });
+
+        pageGoButton.setText("Go");
+        pageGoButton.setNextFocusableComponent(messageTreeTable);
+        pageGoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pageGoButtonActionPerformed(evt);
+            }
+        });
+
+        lastSearchCriteriaPane.setBorder(null);
+        lastSearchCriteriaPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        lastSearchCriteria.setColumns(20);
+        lastSearchCriteria.setEditable(false);
+        lastSearchCriteria.setForeground(new java.awt.Color(96, 96, 96));
+        lastSearchCriteria.setLineWrap(true);
+        lastSearchCriteria.setRows(5);
+        lastSearchCriteria.setAlignmentX(0.0F);
+        lastSearchCriteria.setDisabledTextColor(new java.awt.Color(255, 255, 255));
+        lastSearchCriteriaPane.setViewportView(lastSearchCriteria);
+
+        resetButton.setText("Reset");
+        resetButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                resetButtonActionPerformed(evt);
+            }
+        });
+
+        allDayCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        allDayCheckBox.setText("All Day");
+        allDayCheckBox.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        allDayCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                allDayCheckBoxActionPerformed(evt);
+            }
+        });
+
+        pageNumberField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        pageNumberField.setToolTipText("Enter a page number and press Enter to jump to that page.");
+        pageNumberField.setPreferredSize(new java.awt.Dimension(40, 22));
+        pageNumberField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pageNumberFieldActionPerformed(evt);
+            }
+        });
+
+        pageNumberLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        pageNumberLabel.setText("Page");
+
+        pageTotalLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        pageTotalLabel.setText("of ?");
+        pageTotalLabel.setAlignmentY(0.0F);
+        pageTotalLabel.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(filterPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 742, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(filterPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE))
-        );
+        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jSplitPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE).addGroup(layout.createSequentialGroup().addContainerGap().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false).addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(pageSizeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(quickSearchLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addComponent(pageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(advSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(resetButton, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addComponent(mirthDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(mirthTimePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addComponent(mirthDatePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(mirthTimePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(quickSearchField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE))).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(statusBoxQueued, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(statusBoxSent, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(statusBoxError, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false).addComponent(statusBoxReceived, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(statusBoxFiltered, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(statusBoxTransformed, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(lastSearchCriteriaPane, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addGroup(layout.createSequentialGroup().addComponent(previousPageButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(nextPageButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(resultsLabel).addGap(5, 5, 5).addComponent(countButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(pageNumberLabel).addGap(4, 4, 4).addComponent(pageNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(6, 6, 6).addComponent(pageTotalLabel).addGap(5, 5, 5).addComponent(pageGoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))).addContainerGap()));
+
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] { mirthTimePicker1, mirthTimePicker2 });
+
+        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGap(4, 4, 4).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGap(31, 31, 31).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(countButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(resultsLabel)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(pageGoButton).addComponent(pageTotalLabel).addComponent(pageNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(pageNumberLabel)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(nextPageButton).addComponent(previousPageButton))).addComponent(lastSearchCriteriaPane, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(mirthTimePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(mirthDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(mirthTimePicker2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(mirthDatePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(quickSearchField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(quickSearchLabel)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(pageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(pageSizeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(advSearchButton).addComponent(resetButton).addComponent(filterButton))).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(statusBoxReceived, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(statusBoxTransformed, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(statusBoxFiltered, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(statusBoxQueued, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(statusBoxSent, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(statusBoxError, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)));
     }// </editor-fold>//GEN-END:initComponents
 
-    public void viewAttachment() {
-        String attachId = (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 2);
-        final String attachType = (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 1);
-        String[] attachmentIdArray = attachId.split(", ");
-        ArrayList<String> attachmentIds = new ArrayList<String>();
-        for (int i = 0; i < attachmentIdArray.length; i++) {
-            attachmentIds.add(attachmentIdArray[i]);
-        }
-        try {
-            final AttachmentViewer attachmentViewer = getAttachmentViewer(attachType);
-            final ArrayList<String> finalAttachmentIds = attachmentIds;
-            if (attachmentViewer != null) {
-
-                final String workingId = parent.startWorking("Loading " + attachType + " viewer...");
-
-                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-                    public Void doInBackground() {
-                        attachmentViewer.viewAttachments(finalAttachmentIds);
-                        return null;
-                    }
-
-                    public void done() {
-                        parent.stopWorking(workingId);
-                    }
-                };
-                worker.execute();
-            } else {
-                parent.alertInformation(this, "No Attachment Viewer plugin installed for type: " + attachType);
-            }
-        } catch (Exception e) {
-        }
-
-    }
+    private void pageSizeFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pageSizeFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pageSizeFieldActionPerformed
 
     private void advSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advSearchButtonActionPerformed
+        advancedSearchPopup.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
+        advancedSearchPopup.setLocationRelativeTo(parent);
+        advancedSearchPopup.setVisible(true);
 
-        // display the advanced search filter pop up window.
-        String connector = advSearchFilterPopup.getConnector();
-        String messageSource = advSearchFilterPopup.getMessageSource();
-        String messageType = advSearchFilterPopup.getMessageType();
-        String containingKeyword = advSearchFilterPopup.getContainingKeyword();
-        String messageId = advSearchFilterPopup.getMessageId();
-        String correlationId = advSearchFilterPopup.getCorrelationId();
-        boolean includeRawMessage = advSearchFilterPopup.isIncludeRawMessage();
-        boolean includeTransformedMessage = advSearchFilterPopup.isIncludeTransformedMessage();
-        boolean includeEncodedMessage = advSearchFilterPopup.isIncludeEncodedMessage();
-        boolean includeErrors = advSearchFilterPopup.isIncludeErrors();
-        String protocol = advSearchFilterPopup.getProtocol();
-
-        Channel selectedChannel = parent.getSelectedChannelFromDashboard();
-        
-        // Channel could be null if user doesn't have permission to get channels, so default to true.
-        boolean allowSearch = true;
-        if (selectedChannel != null) {
-            allowSearch = !((String) selectedChannel.getProperties().get("encryptData")).equalsIgnoreCase("true");
-        }
-        
-        advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true, allowSearch);
-        advSearchFilterPopup.setFieldValues(connector, messageSource, messageType, containingKeyword, messageId, correlationId, includeRawMessage, includeTransformedMessage, includeEncodedMessage, includeErrors, protocol);
-
-        advSearchFilterPopup.setVisible(true);
-        
-        // Highlight the Advanced button if anything is not set to its default
-        if (StringUtils.isNotEmpty(advSearchFilterPopup.getConnector()) ||
-            StringUtils.isNotEmpty(advSearchFilterPopup.getMessageType()) ||
-            StringUtils.isNotEmpty(advSearchFilterPopup.getContainingKeyword()) ||
-            StringUtils.isNotEmpty(advSearchFilterPopup.getMessageId()) ||
-            StringUtils.isNotEmpty(advSearchFilterPopup.getCorrelationId()) ||
-            StringUtils.isNotEmpty(advSearchFilterPopup.getMessageSource()) ||
-            !advSearchFilterPopup.getProtocol().equalsIgnoreCase(UIConstants.ALL_OPTION) ||
-            advSearchFilterPopup.isIncludeRawMessage() ||
-            advSearchFilterPopup.isIncludeTransformedMessage() ||
-            advSearchFilterPopup.isIncludeEncodedMessage() ||
-            advSearchFilterPopup.isIncludeErrors())
-        {
-            advSearchButton.setBackground(UIConstants.LIGHT_YELLOW);
-        } else {
-            advSearchButton.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
-        }
-
+        updateAdvancedSearchButtonFont();
     }//GEN-LAST:event_advSearchButtonActionPerformed
 
-    private void formatXmlRawCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatXmlRawCheckBoxActionPerformed
-        formatXmlCheckBoxActionPerformed(evt);
-    }//GEN-LAST:event_formatXmlRawCheckBoxActionPerformed
+    private void filterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterButtonActionPerformed
+        runSearch();
+    }//GEN-LAST:event_filterButtonActionPerformed
 
-    private void formatXmlTransformedCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatXmlTransformedCheckBoxActionPerformed
-        formatXmlCheckBoxActionPerformed(evt);
-    }//GEN-LAST:event_formatXmlTransformedCheckBoxActionPerformed
+    private void statusBoxReceivedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_statusBoxReceivedActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_statusBoxReceivedActionPerformed
 
-    private void formatXmlEncodedCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatXmlEncodedCheckBoxActionPerformed
-        formatXmlCheckBoxActionPerformed(evt);
-    }//GEN-LAST:event_formatXmlEncodedCheckBoxActionPerformed
+    private void statusBoxErrorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_statusBoxErrorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_statusBoxErrorActionPerformed
 
-    private void nextPageButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_nextPageButtonActionPerformed
-        final String workingId = parent.startWorking("Loading next page...");
+    private void statusBoxFilteredActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_statusBoxFilteredActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_statusBoxFilteredActionPerformed
 
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+    private void statusBoxQueuedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_statusBoxQueuedActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_statusBoxQueuedActionPerformed
 
-            public Void doInBackground() {
-                getMessageTableData(messageListHandler, NEXT_PAGE);
-                return null;
-            }
+    private void countButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_countButtonActionPerformed
+        final String workingId = parent.startWorking("Counting search result size...");
+        filterButton.setEnabled(false);
+        nextPageButton.setEnabled(false);
+        previousPageButton.setEnabled(false);
+        countButton.setEnabled(false);
+        pageGoButton.setEnabled(false);
+        final MessageBrowser messageBrowser = this;
 
-            public void done() {
-                if (messageListHandler != null) {
-                    updateMessageTable(messageObjectList);
-                } else {
-                    updateMessageTable(null);
-                }
-                parent.stopWorking(workingId);
-            }
-        };
-        worker.execute();
-
-    }// GEN-LAST:event_nextPageButtonActionPerformed
-
-    private void previousPageButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_previousPageButtonActionPerformed
-        final String workingId = parent.startWorking("Loading previous page...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                getMessageTableData(messageListHandler, PREVIOUS_PAGE);
-                return null;
-            }
-
-            public void done() {
-                if (messageListHandler != null) {
-                    updateMessageTable(messageObjectList);
-                } else {
-                    updateMessageTable(null);
-                }
-                parent.stopWorking(workingId);
-            }
-        };
-        worker.execute();
-    }// GEN-LAST:event_previousPageButtonActionPerformed
-
-    /**
-     * An action when the filter button is pressed. Creates the actual filter
-     * and remakes the table with that filter.
-     */
-    private void filterButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_filterButtonActionPerformed      
-        messageObjectFilter = new MessageObjectFilter();
-
-        if (mirthDatePicker1.getDate() != null && mirthDatePicker2.getDate() != null
-                && mirthTimePicker1.getDate() != null && mirthTimePicker2.getDate() != null) {
-            SimpleDateFormat timeDateFormat = new SimpleDateFormat("hh:mm aa");
-            DateFormatter timeFormatter = new DateFormatter(timeDateFormat);
-
-            Date startDate = mirthDatePicker1.getDate();
-            Date endDate = mirthDatePicker2.getDate();
-
-            String startTime = mirthTimePicker1.getDate();
-            String endTime = mirthTimePicker2.getDate();
-
-            Date startTimeDate;
-            Date endTimeDate;
-
-            try {
-                startTimeDate = (Date) timeFormatter.stringToValue(startTime);
-                endTimeDate = (Date) timeFormatter.stringToValue(endTime);
-            } catch (Exception e) {
-                parent.alertError(parent, "Invalid date.");
-                return;
-            }
-
-            Calendar startDateCalendar = Calendar.getInstance();
-            Calendar endDateCalendar = Calendar.getInstance();
-            Calendar startTimeCalendar = Calendar.getInstance();
-            Calendar endTimeCalendar = Calendar.getInstance();
-
-            startDateCalendar.setTime(startDate);
-            endDateCalendar.setTime(endDate);
-            startTimeCalendar.setTime(startTimeDate);
-            endTimeCalendar.setTime(endTimeDate);
-
-            Calendar startCalendar = Calendar.getInstance();
-            Calendar endCalendar = Calendar.getInstance();
-
-            startCalendar.set(startDateCalendar.get(Calendar.YEAR), startDateCalendar.get(Calendar.MONTH), startDateCalendar.get(Calendar.DATE), startTimeCalendar.get(Calendar.HOUR_OF_DAY), startTimeCalendar.get(Calendar.MINUTE), startTimeCalendar.get(Calendar.SECOND));
-            endCalendar.set(endDateCalendar.get(Calendar.YEAR), endDateCalendar.get(Calendar.MONTH), endDateCalendar.get(Calendar.DATE), endTimeCalendar.get(Calendar.HOUR_OF_DAY), endTimeCalendar.get(Calendar.MINUTE), endTimeCalendar.get(Calendar.SECOND));
-
-            if (startCalendar.getTimeInMillis() > endCalendar.getTimeInMillis()) {
-                parent.alertError(parent, "Start date cannot be after the end date.");
-                return;
-            }
-
-            messageObjectFilter.setStartDate(startCalendar);
-            messageObjectFilter.setEndDate(endCalendar);
-
+        if (worker != null && !worker.isDone()) {
+            worker.cancel(true);
         }
 
-        messageObjectFilter.setChannelId(parent.getSelectedChannelIdFromDashboard());
-
-        if (!((String) statusComboBox.getSelectedItem()).equalsIgnoreCase(UIConstants.ALL_OPTION)) {
-            for (int i = 0; i < MessageObject.Status.values().length; i++) {
-                if (((String) statusComboBox.getSelectedItem()).equalsIgnoreCase(MessageObject.Status.values()[i].toString())) {
-                    messageObjectFilter.setStatus(MessageObject.Status.values()[i]);
-                }
-            }
-        }
-
-        // Get the advanced search criteria.        
-        if (!advSearchFilterPopup.getConnector().equals("")) {
-            messageObjectFilter.setConnectorName(advSearchFilterPopup.getConnector());
-        }
-        if (!advSearchFilterPopup.getMessageSource().equals("")) {
-            messageObjectFilter.setSource(advSearchFilterPopup.getMessageSource());
-        }
-        if (!advSearchFilterPopup.getMessageType().equals("")) {
-            messageObjectFilter.setType(advSearchFilterPopup.getMessageType());
-        }
-        if (!advSearchFilterPopup.getContainingKeyword().equals("")) {
-            messageObjectFilter.setSearchCriteria(advSearchFilterPopup.getContainingKeyword());
-        }
-        if (!advSearchFilterPopup.getMessageId().equals("")) {
-            messageObjectFilter.setId(advSearchFilterPopup.getMessageId());
-        }
-        if (!advSearchFilterPopup.getCorrelationId().equals("")) {
-            messageObjectFilter.setCorrelationId(advSearchFilterPopup.getCorrelationId());
-        }
-        if (advSearchFilterPopup.isIncludeRawMessage()) {
-            messageObjectFilter.setSearchRawData(true);
-        }
-        if (advSearchFilterPopup.isIncludeTransformedMessage()) {
-            messageObjectFilter.setSearchTransformedData(true);
-        }
-        if (advSearchFilterPopup.isIncludeEncodedMessage()) {
-            messageObjectFilter.setSearchEncodedData(true);
-        }
-        if (advSearchFilterPopup.isIncludeErrors()) {
-            messageObjectFilter.setSearchErrors(true);
-        }
-
-        if (!quickSearchField.getText().equals("")) {
-            messageObjectFilter.setQuickSearch(quickSearchField.getText());
-        }
-
-        if (advSearchFilterPopup.getProtocol().equalsIgnoreCase(UIConstants.ALL_OPTION)) {
-            // clear the protocol search criteria.
-            messageObjectFilter.setProtocol(null);
-        } else {
-            for (int i = 0; i < MessageObject.Protocol.values().length; i++) {
-                if (advSearchFilterPopup.getProtocol().equalsIgnoreCase(MessageObject.Protocol.values()[i].toString())) {
-                    messageObjectFilter.setProtocol(MessageObject.Protocol.values()[i]);
-                }
-            }
-        }
-
-        if (!pageSizeField.getText().equals("")) {
-            pageSize = Integer.parseInt(pageSizeField.getText());
-        }
-        final String workingId = parent.startWorking("Loading messages...");
-
-        if (messageListHandler == null) {
-            updateMessageTable(null);
-        }
-        class MessageWorker extends SwingWorker<Void, Void> {
+        worker = new SwingWorker<Void, Void>() {
+            private Exception e;
 
             public Void doInBackground() {
                 try {
-                    messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize, false);
+                    messages.setItemCount(parent.mirthClient.getMessageCount(channel.getId(), messageFilter));
                 } catch (ClientException e) {
-                    parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                    if (e.getCause() instanceof RequestAbortedException) {
+                        // The client is no longer waiting for the count request
+                    } else {
+                        parent.alertException(parent, e.getStackTrace(), e.getMessage());
+                    }
+                    cancel(true);
                 }
-                getMessageTableData(messageListHandler, FIRST_PAGE);
+
                 return null;
             }
 
             public void done() {
-                if (messageListHandler != null) {
-                    updateMessageTable(messageObjectList);
-                } else {
-                    updateMessageTable(null);
+                if (!isCancelled()) {
+                    if (e != null) {
+                        countButton.setEnabled(true);
+                        parent.alertException(messageBrowser, e.getStackTrace(), e.getMessage());
+                    } else {
+                        updatePagination();
+                        countButton.setEnabled(false);
+                    }
+                    filterButton.setEnabled(true);
                 }
+
                 parent.stopWorking(workingId);
             }
-        }
-        ;
-        MessageWorker worker = new MessageWorker();
+        };
+
         worker.execute();
-    }// GEN-LAST:event_filterButtonActionPerformed
+    }//GEN-LAST:event_countButtonActionPerformed
+
+    private void formatXmlMessageCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatXmlMessageCheckBoxActionPerformed
+        formatXmlCheckBoxActionPerformed(evt);
+    }//GEN-LAST:event_formatXmlMessageCheckBoxActionPerformed
+
+    private void RawMessageRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RawMessageRadioButtonActionPerformed
+        messagesRadioButtonActionPerformed(evt);
+    }//GEN-LAST:event_RawMessageRadioButtonActionPerformed
+
+    private void ProcessedRawMessageRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ProcessedRawMessageRadioButtonActionPerformed
+        messagesRadioButtonActionPerformed(evt);
+    }//GEN-LAST:event_ProcessedRawMessageRadioButtonActionPerformed
+
+    private void TransformedMessageRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TransformedMessageRadioButtonActionPerformed
+        messagesRadioButtonActionPerformed(evt);
+    }//GEN-LAST:event_TransformedMessageRadioButtonActionPerformed
+
+    private void EncodedMessageRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EncodedMessageRadioButtonActionPerformed
+        messagesRadioButtonActionPerformed(evt);
+    }//GEN-LAST:event_EncodedMessageRadioButtonActionPerformed
+
+    private void SentMessageRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SentMessageRadioButtonActionPerformed
+        messagesRadioButtonActionPerformed(evt);
+    }//GEN-LAST:event_SentMessageRadioButtonActionPerformed
+
+    private void ResponseRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResponseRadioButtonActionPerformed
+        messagesRadioButtonActionPerformed(evt);
+    }//GEN-LAST:event_ResponseRadioButtonActionPerformed
+
+    private void ProcessedResponseRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ProcessedResponseRadioButtonActionPerformed
+        messagesRadioButtonActionPerformed(evt);
+    }//GEN-LAST:event_ProcessedResponseRadioButtonActionPerformed
+
+    private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
+        resetSearchCriteria();
+    }//GEN-LAST:event_resetButtonActionPerformed
+
+    private void allDayCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_allDayCheckBoxActionPerformed
+        mirthTimePicker1.setEnabled(mirthDatePicker1.getDate() != null && !allDayCheckBox.isSelected());
+        mirthTimePicker2.setEnabled(mirthDatePicker2.getDate() != null && !allDayCheckBox.isSelected());
+    }//GEN-LAST:event_allDayCheckBoxActionPerformed
+
+    private void pageNumberFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pageNumberFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pageNumberFieldActionPerformed
+
+    private void pageGoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pageGoButtonActionPerformed
+        jumpToPageNumber();
+    }//GEN-LAST:event_pageGoButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel EncodedMessagePanel;
+    private javax.swing.JRadioButton EncodedMessageRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea EncodedMessageTextPane;
     private javax.swing.JPanel ErrorsPanel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ErrorsTextPane;
-    private javax.swing.JPanel RawMessagePanel;
+    private javax.swing.JPanel MessagesCardPane;
+    private javax.swing.JPanel MessagesPanel;
+    private javax.swing.JPanel MessagesRadioPane;
+    private javax.swing.JRadioButton ProcessedRawMessageRadioButton;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ProcessedRawMessageTextPane;
+    private javax.swing.JRadioButton ProcessedResponseRadioButton;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ProcessedResponseTextPane;
+    private javax.swing.JRadioButton RawMessageRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea RawMessageTextPane;
-    private javax.swing.JPanel TransformedMessagePanel;
+    private javax.swing.JRadioButton ResponseRadioButton;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ResponseTextPane;
+    private javax.swing.JRadioButton SentMessageRadioButton;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea SentMessageTextPane;
+    private javax.swing.JRadioButton TransformedMessageRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea TransformedMessageTextPane;
     private javax.swing.JButton advSearchButton;
+    private com.mirth.connect.client.ui.components.MirthCheckBox allDayCheckBox;
     private com.mirth.connect.client.ui.components.MirthTable attachmentTable;
     private javax.swing.JScrollPane attachmentsPane;
     private javax.swing.JTextField correlationIdField;
     private javax.swing.JLabel correlationIdLabel;
+    private com.mirth.connect.client.ui.components.MirthButton countButton;
     private javax.swing.JTabbedPane descriptionTabbedPane;
     private javax.swing.JButton filterButton;
-    private javax.swing.JPanel filterPanel;
-    private javax.swing.JCheckBox formatXmlEncodedCheckBox;
-    private javax.swing.JCheckBox formatXmlRawCheckBox;
-    private javax.swing.JCheckBox formatXmlTransformedCheckBox;
+    private javax.swing.JCheckBox formatXmlMessageCheckBox;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel3;
+    private javax.swing.JList jList1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JTextArea lastSearchCriteria;
+    private javax.swing.JScrollPane lastSearchCriteriaPane;
     private javax.swing.JScrollPane mappingsPane;
     private com.mirth.connect.client.ui.components.MirthTable mappingsTable;
     private javax.swing.JTextField messageIdField;
     private javax.swing.JLabel messageIdLabel;
-    private javax.swing.JScrollPane messagePane;
-    private com.mirth.connect.client.ui.components.MirthTable messageTable;
+    private javax.swing.JScrollPane messageScrollPane;
+    private com.mirth.connect.client.ui.components.MirthTreeTable messageTreeTable;
+    private javax.swing.ButtonGroup messagesGroup;
     private javax.swing.JScrollPane metaDataPane;
     private javax.swing.JPanel metaDataPanel;
     private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker1;
@@ -1796,13 +2407,24 @@ public class MessageBrowser extends javax.swing.JPanel {
     private com.mirth.connect.client.ui.components.MirthTimePicker mirthTimePicker1;
     private com.mirth.connect.client.ui.components.MirthTimePicker mirthTimePicker2;
     private javax.swing.JButton nextPageButton;
+    private javax.swing.JButton pageGoButton;
+    private com.mirth.connect.client.ui.components.MirthTextField pageNumberField;
+    private javax.swing.JLabel pageNumberLabel;
     private com.mirth.connect.client.ui.components.MirthTextField pageSizeField;
+    private javax.swing.JLabel pageSizeLabel;
+    private javax.swing.JLabel pageTotalLabel;
     private javax.swing.JButton previousPageButton;
     private javax.swing.JTextField quickSearchField;
     private javax.swing.JLabel quickSearchLabel;
+    private javax.swing.JButton resetButton;
     private javax.swing.JLabel resultsLabel;
     private javax.swing.JTextField serverIdField;
     private javax.swing.JLabel serverIdLabel;
-    private javax.swing.JComboBox statusComboBox;
+    private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxError;
+    private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxFiltered;
+    private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxQueued;
+    private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxReceived;
+    private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxSent;
+    private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxTransformed;
     // End of variables declaration//GEN-END:variables
 }

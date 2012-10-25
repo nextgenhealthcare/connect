@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry excluding="com/mirth/connect/connectors/jms/|com/mirth/connect/connectors/mllp/" kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Server"/>
 	<classpathentry kind="lib" path="lib/databinding-0.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/l2fprod-common-sheet.jar"/>
@@ -11,22 +11,37 @@
 	<classpathentry kind="lib" path="lib/xpp3_min-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/xstream-1.3.jar"/>
-	<classpathentry kind="lib" path="lib/swingx-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/looks-2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api-2.6/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/hapi-1.1.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dicomviewer/ij.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/pdfviewer/PDFRenderer.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk16-144.jar"/>
+	<classpathentry kind="lib" path="lib/swingx-core-1.6.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.jarvana.com/jarvana/view/org/swinglabs/swingx-core/1.6.2-2/swingx-core-1.6.2-2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/dcm4che-core-2.0.25.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-crypto.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Donkey">
+		<accessrules>
+			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/model/**"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/util/**"/>
+			<accessrule kind="nonaccessible" pattern="*/**"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

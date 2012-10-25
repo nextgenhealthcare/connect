@@ -1,4 +1,4 @@
-<?xml version="1.1" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
@@ -35,68 +35,42 @@
           <Group type="102" attributes="0">
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="responseFromLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="messageContentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="listenerAddressLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="httpUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="receiveTimeoutLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseContentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="charsetEncodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="contextPathLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="receiveTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="listenerPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseContentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="receiveTimeoutLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="messageContentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="listenerPortField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Component id="contextPathField" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
-                  <Component id="receiveTimeoutField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
                   <Component id="httpUrlField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                  <Component id="responseFromTransformer" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                  <Component id="receiveTimeoutField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
+                  <Component id="contextPathField" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
                   <Component id="responseContentTypeField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="responseStatusCodeField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
+                  <Component id="responseHeadersPane" alignment="0" pref="337" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="messageContentBodyOnlyRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="messageContentHeadersQueryAndBodyRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="listenerAllRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="listenerSpecificRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="listenerAddressField" min="-2" pref="155" max="-2" attributes="1"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="responseHeadersPane" pref="337" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="responseHeadersNewButton" max="32767" attributes="1"/>
-                          <Component id="responseHeadersDeleteButton" alignment="0" max="32767" attributes="1"/>
-                      </Group>
-                  </Group>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="responseHeadersNewButton" max="32767" attributes="1"/>
+                  <Component id="responseHeadersDeleteButton" alignment="0" max="32767" attributes="1"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="listenerAllRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="listenerSpecificRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="listenerAddressField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="listenerAddressLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="listenerPortField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="listenerPortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="contextPathLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="contextPathField" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -117,12 +91,7 @@
                   <Component id="httpUrlField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="httpUrlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="responseFromTransformer" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseFromLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="responseContentTypeField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="responseContentTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -140,12 +109,12 @@
               <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="headersLabel" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="responseHeadersNewButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="responseHeadersDeleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="responseHeadersPane" pref="85" max="32767" attributes="2"/>
+                  <Component id="responseHeadersPane" alignment="0" pref="71" max="32767" attributes="2"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -153,27 +122,6 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="responseFromLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Respond from:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="responseFromTransformer">
-      <Properties>
-        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="4">
-            <StringItem index="0" value="Item 1"/>
-            <StringItem index="1" value="Item 2"/>
-            <StringItem index="2" value="Item 3"/>
-            <StringItem index="3" value="Item 4"/>
-          </StringArray>
-        </Property>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select None or the name of a destination of this channel that will generate the response to the request.&lt;br&gt;If None is selected, the response will always be &quot;200 OK&quot; if the message is successfully processed &lt;br&gt;or &quot;500 Server Error&quot; if there is an error processing the message.&lt;/html&gt;"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="responseFromTransformerActionPerformed"/>
-      </Events>
-    </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="messageContentBodyOnlyRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -223,75 +171,6 @@
     <Component class="javax.swing.JLabel" name="messageContentLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Message Content:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="listenerAddressLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Listener Address:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="listenerAllRadio">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="listenerAddressButtonGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Listen on all interfaces"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will listen on all interfaces, using address 0.0.0.0.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="listenerAllRadioActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="listenerSpecificRadio">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="listenerAddressButtonGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Specific interface:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will listen on the specific interface address defined.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="listenerSpecificRadioActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerAddressField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The DNS domain name or IP address on which the server should listen for connections."/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerPortField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The port on which the server should listen for connections."/>
-      </Properties>
-      <Events>
-        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="listenerPortFieldKeyReleased"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="listenerPortLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Port:"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="responseContentTypeField">

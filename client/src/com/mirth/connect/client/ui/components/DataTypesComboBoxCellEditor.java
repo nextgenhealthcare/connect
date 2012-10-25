@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -22,7 +22,7 @@ import org.apache.commons.collections.MapUtils;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
 
 public class DataTypesComboBoxCellEditor extends MirthComboBoxCellEditor {
@@ -38,33 +38,33 @@ public class DataTypesComboBoxCellEditor extends MirthComboBoxCellEditor {
     public void actionPerformed(ActionEvent e) {
         if (super.table.getEditingRow() != -1) {
             int selectedRow = super.table.convertRowIndexToModel(super.table.getEditingRow());
-            String dataType = (String)((JComboBox)super.getComponent()).getSelectedItem();
+            String dataTypeDisplayName = (String)((JComboBox)super.getComponent()).getSelectedItem();
             Channel currentChannel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
-            MessageObject.Protocol protocol = getProtocol(dataType);
-            Properties defaultProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
+            String dataType = getDataTypeFromDisplayName(dataTypeDisplayName);
+            Properties defaultProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(dataType));
             
             // Set the new data type and default properties for that data type
             if (source) {
                 if (selectedRow == 0) {
-                    if (!currentChannel.getSourceConnector().getTransformer().getInboundProtocol().equals(protocol)) {
-                        currentChannel.getSourceConnector().getTransformer().setInboundProtocol(protocol);
+                    if (!currentChannel.getSourceConnector().getTransformer().getInboundDataType().equals(dataType)) {
+                        currentChannel.getSourceConnector().getTransformer().setInboundDataType(dataType);
                         currentChannel.getSourceConnector().getTransformer().setInboundProperties(defaultProperties);
                     }
                 } else {
-                    if (!currentChannel.getSourceConnector().getTransformer().getOutboundProtocol().equals(protocol)) {
-                        currentChannel.getSourceConnector().getTransformer().setOutboundProtocol(protocol);
+                    if (!currentChannel.getSourceConnector().getTransformer().getOutboundDataType().equals(dataType)) {
+                        currentChannel.getSourceConnector().getTransformer().setOutboundDataType(dataType);
                         currentChannel.getSourceConnector().getTransformer().setOutboundProperties(defaultProperties);
                         
                         // Also set the inbound data type and properties for all destinations
                         for (Connector connector : currentChannel.getDestinationConnectors()) {
-                            connector.getTransformer().setInboundProtocol(protocol);
+                            connector.getTransformer().setInboundDataType(dataType);
                             connector.getTransformer().setInboundProperties(defaultProperties);
                         }
                     }
                 }
             } else {
-                if (!currentChannel.getDestinationConnectors().get(selectedRow).getTransformer().getOutboundProtocol().equals(protocol)) {
-                    currentChannel.getDestinationConnectors().get(selectedRow).getTransformer().setOutboundProtocol(protocol);
+                if (!currentChannel.getDestinationConnectors().get(selectedRow).getTransformer().getOutboundDataType().equals(dataType)) {
+                    currentChannel.getDestinationConnectors().get(selectedRow).getTransformer().setOutboundDataType(dataType);
                     currentChannel.getDestinationConnectors().get(selectedRow).getTransformer().setOutboundProperties(defaultProperties);
                 }
             }
@@ -73,10 +73,10 @@ public class DataTypesComboBoxCellEditor extends MirthComboBoxCellEditor {
         PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
     }
     
-    private MessageObject.Protocol getProtocol(String dataType) {
-        for (MessageObject.Protocol protocol : MessageObject.Protocol.values()) {
-            if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(dataType)) {
-                return protocol;
+    private String getDataTypeFromDisplayName(String dataTypeDisplayName) {
+        for (String dataType : DataTypeFactory.getDataTypeNames()) {
+            if (PlatformUI.MIRTH_FRAME.dataTypes.get(dataType).equals(dataTypeDisplayName)) {
+                return dataType;
             }
         }
         
@@ -96,7 +96,7 @@ public class DataTypesComboBoxCellEditor extends MirthComboBoxCellEditor {
                 }
             }
         }
-        
+
         return editable;
     }
 

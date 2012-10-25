@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -24,9 +24,9 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 
-import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Base64InputStream;
 
-import com.mirth.connect.model.Attachment;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.plugins.AttachmentViewer;
 
 public class ImageViewer extends AttachmentViewer {
@@ -45,18 +45,17 @@ public class ImageViewer extends AttachmentViewer {
         return false;
     }
 
-    public void viewAttachments(List<String> attachmentIds) {
+    public void viewAttachments(List<String> attachmentIds, String channelId) {
 
         JFrame frame = new JFrame("Image Viewer");
 
         try {
 
-            Attachment attachment = parent.mirthClient.getAttachment(attachmentIds.get(0));
-            byte[] rawData = attachment.getData();
-            byte[] rawImage = Base64.decodeBase64(rawData);
-            ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
+            Attachment attachment = parent.mirthClient.getAttachment(channelId, attachmentIds.get(0));
+            byte[] rawData = attachment.getContent();
+            ByteArrayInputStream bis = new ByteArrayInputStream(rawData);
 
-            image = ImageIO.read(bis);
+            image = ImageIO.read(new Base64InputStream(bis));
 
             JScrollPane pictureScrollPane = new JScrollPane(new JLabel(new ImageIcon(image)));
             pictureScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);

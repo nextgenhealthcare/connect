@@ -1,4 +1,4 @@
-<?xml version="1.1" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
@@ -7,8 +7,6 @@
     <Component class="javax.swing.ButtonGroup" name="buttonGroup2">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="buttonGroup3">
-    </Component>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup4">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="buttonGroup5">
     </Component>
@@ -47,56 +45,40 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="anonymousLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="filenameFilterLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="directoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="hostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="schemeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="secureModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="validateConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingFrequencyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="moveToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="moveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="errorMoveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingTimeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passiveModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="deleteAfterReadLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+          <Group type="102" attributes="0">
+              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="processBatchFilesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="errorMoveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="ignoreDotFilesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="moveToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="deleteAfterReadLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="checkFileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="fileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="schemeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="hostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="sortFilesByLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="timeoutLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="ignoreDotFilesLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="directoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passiveModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="moveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="timeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="anonymousLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="filenameFilterLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="validateConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="secureModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="ignoreDotFilesYesRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="ignoreDotFilesNoRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="timeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Component id="fileAge" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
-                  <Component id="sortBy" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="processBatchFilesNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="hostField" min="-2" pref="200" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -121,7 +103,6 @@
                       <Component id="anonymousNo" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
-                  <Component id="pollingFrequency" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -139,10 +120,23 @@
                       <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="pollingIntervalButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="pollingTimeButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="processBatchFilesNo" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="deleteAfterReadYes" min="-2" max="-2" attributes="1"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="deleteAfterReadNo" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="fileAge" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
+                  <Component id="sortBy" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
@@ -153,18 +147,12 @@
                           <Component id="errorMoveToDirectory" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                           <Component id="moveToPattern" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                           <Component id="moveToDirectory" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="deleteAfterReadYes" min="-2" max="-2" attributes="1"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="deleteAfterReadNo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="pollingTime" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
+                      <Component id="jScrollPane1" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="20" max="32767" attributes="0"/>
+              <EmptySpace pref="21" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -239,22 +227,6 @@
                   <Component id="validateConnectionYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="validateConnectionNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="pollingTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingIntervalButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingTimeButton" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="pollingFrequencyLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingFrequency" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="pollingTime" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingTimeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="deleteAfterReadLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -273,7 +245,7 @@
                           <Component id="moveToFileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="moveToPattern" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="errorMoveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="errorMoveToDirectory" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -284,35 +256,35 @@
                           <Component id="checkFileAgeYes" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="checkFileAgeNo" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="fileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileAge" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="sortFilesByLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="sortBy" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="fileTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="processBatchFilesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="processBatchFilesYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="processBatchFilesNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
                   </Group>
-                  <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jScrollPane1" alignment="0" min="-2" pref="84" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="fileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileAge" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="sortFilesByLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sortBy" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="fileTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="processBatchFilesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="processBatchFilesYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="processBatchFilesNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
@@ -380,77 +352,6 @@
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="fileNameFilter">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The pattern which names of files must match in order to be read.&lt;br&gt;Files with names that do not match the pattern will be ignored.&lt;/html&gt;"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="pollingTypeLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Polling Type:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="pollingIntervalButton">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup4"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Interval"/>
-        <Property name="toolTipText" type="java.lang.String" value="Records that the time at which polling for files to be read will be specified as the time between polling attempts."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pollingIntervalButtonActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="pollingTimeButton">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup4"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Time"/>
-        <Property name="toolTipText" type="java.lang.String" value="Records that the time at which polling for files to be read will be specified as the time of day at which a polling attempt will occur each day."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pollingTimeButtonActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="pollingFrequencyLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Polling Frequency (ms):"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="pollingFrequency">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If the Interval Polling Type is selected, enter the number of milliseconds between polling attempts here."/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="pollingTimeLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Polling Time (daily):"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="pollingTime">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If the Time Polling Type is selected, enter the time of day for polling attempts here."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="moveToDirectoryLabel">
@@ -581,24 +482,6 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkFileAgeNoActionPerformed"/>
       </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthVariableList" name="mirthVariableList1">
-      <Properties>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
-            <EtchetBorder/>
-          </Border>
-        </Property>
-        <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
-          <StringArray count="5">
-            <StringItem index="0" value="DATE"/>
-            <StringItem index="1" value="COUNT"/>
-            <StringItem index="2" value="UUID"/>
-            <StringItem index="3" value="SYSTIME"/>
-            <StringItem index="4" value="ORIGINALNAME"/>
-          </StringArray>
-        </Property>
-      </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="fileAge">
       <Properties>
@@ -1048,5 +931,39 @@
         <Property name="text" type="java.lang.String" value="Ignore . files:"/>
       </Properties>
     </Component>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="null"/>
+        </Property>
+        <Property name="horizontalScrollBarPolicy" type="int" value="31"/>
+        <Property name="verticalScrollBarPolicy" type="int" value="21"/>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="com.mirth.connect.client.ui.components.MirthVariableList" name="mirthVariableList1">
+          <Properties>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+                <EtchetBorder/>
+              </Border>
+            </Property>
+            <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
+              <StringArray count="5">
+                <StringItem index="0" value="DATE"/>
+                <StringItem index="1" value="COUNT"/>
+                <StringItem index="2" value="UUID"/>
+                <StringItem index="3" value="SYSTIME"/>
+                <StringItem index="4" value="ORIGINALNAME"/>
+              </StringArray>
+            </Property>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
   </SubComponents>
 </Form>

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -133,7 +133,13 @@ public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInt
      * Mirth sets the text of a field.
      */
     public void setText(String t) {
+        boolean visible = parent.changesHaveBeenMade();
         super.setText(t);
-        parent.setSaveEnabled(false);
+        
+        if (visible) {
+            parent.setSaveEnabled(true);
+        } else {
+            parent.setSaveEnabled(false);
+        }
     }
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -22,13 +22,12 @@ import com.mirth.connect.client.ui.CellData;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.ImageCellRenderer;
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 
 public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 
-    private static final String _SOURCE_CONNECTOR = "_source_connector";
+    private static final String _SOURCE_CONNECTOR = "_0";
     private static final String GET_STATES = "getStates";
     private static final String DASHBOARD_SERVICE_PLUGINPOINT = "Dashboard Connector Service";
     private HashMap<String, String[]> currentStates;
@@ -71,8 +70,8 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     }
 
     @Override
-    public Object getTableData(ChannelStatus status) {
-        String connectorName = status.getChannelId() + _SOURCE_CONNECTOR;
+    public Object getTableData(String channelId) {
+        String connectorName = channelId + _SOURCE_CONNECTOR;
         if (currentStates != null && currentStates.containsKey(connectorName)) {
             String[] stateData = currentStates.get(connectorName);
             return new CellData(iconMap.get(stateData[0]), stateData[1]);
@@ -87,7 +86,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     }
 
     @Override
-    public void tableUpdate(List<ChannelStatus> status) {
+    public void tableUpdate(List<DashboardStatus> status) {
         // get states from server
         try {
             currentStates = (HashMap<String, String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(DASHBOARD_SERVICE_PLUGINPOINT, GET_STATES, null);

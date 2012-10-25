@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -10,7 +10,6 @@
 package com.mirth.connect.connectors.jdbc;
 
 import java.util.List;
-import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -28,24 +27,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.util.SQLParserUtil;
-import com.mirth.connect.connectors.ConnectorClass;
 import com.mirth.connect.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.DriverInfo;
-import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.DocumentSerializer;
 
-/**
- * A form that extends from ConnectorClass. All methods implemented are
- * described in ConnectorClass.
- */
-public class DatabaseReader extends ConnectorClass {
+public class DatabaseReader extends ConnectorSettingsPanel {
 
-    /** Creates new form DatabaseReader */
     private static SyntaxDocument sqlMappingDoc;
     private static SyntaxDocument sqlUpdateMappingDoc;
     private static SyntaxDocument jsMappingDoc;
@@ -53,9 +48,11 @@ public class DatabaseReader extends ConnectorClass {
     private List<DriverInfo> drivers;
     private Timer timer;
 
-    public DatabaseReader() {
-        name = DatabaseReaderProperties.name;
+    private Frame parent;
 
+    public DatabaseReader() {
+        this.parent = PlatformUI.MIRTH_FRAME;
+        
         try {
             drivers = this.parent.mirthClient.getDatabaseDrivers();
         } catch (ClientException e) {
@@ -64,7 +61,7 @@ public class DatabaseReader extends ConnectorClass {
 
         initComponents();
 
-        drivers.add(0, new DriverInfo("Please Select One", "Please Select One", "", ""));
+        drivers.add(0, new DriverInfo(DatabaseReceiverProperties.DRIVER_DEFAULT, DatabaseReceiverProperties.DRIVER_DEFAULT, "", ""));
         String[] driverNames = new String[drivers.size()];
 
         for (int i = 0; i < drivers.size(); i++) {
@@ -112,160 +109,117 @@ public class DatabaseReader extends ConnectorClass {
                 update();
             }
         });
-
-        pollingFrequency.setDocument(new MirthFieldConstraints(0, false, false, true));
+    }
+    
+    @Override
+    public String getConnectorName() {
+        return new DatabaseReceiverProperties().getName();
     }
 
-    public Properties getProperties() {
-        Properties properties = new Properties();
-        properties.put(DatabaseReaderProperties.DATATYPE, name);
-        properties.put(DatabaseReaderProperties.DATABASE_HOST, DatabaseReaderProperties.DATABASE_HOST_VALUE);
-
+    @Override
+    public ConnectorProperties getProperties() {
+        DatabaseReceiverProperties properties = new DatabaseReceiverProperties();
+        
         for (int i = 0; i < drivers.size(); i++) {
             DriverInfo driver = drivers.get(i);
             if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
-                properties.put(DatabaseReaderProperties.DATABASE_DRIVER, driver.getClassName());
+                properties.setDriver(driver.getClassName());
             }
         }
 
-        properties.put(DatabaseReaderProperties.DATABASE_URL, databaseURLField.getText());
-        properties.put(DatabaseReaderProperties.DATABASE_USERNAME, databaseUsernameField.getText());
-        properties.put(DatabaseReaderProperties.DATABASE_PASSWORD, new String(databasePasswordField.getPassword()));
+        properties.setUrl(databaseURLField.getText());
+        properties.setUsername(databaseUsernameField.getText());
+        properties.setPassword(new String(databasePasswordField.getPassword()));
 
-        if (processResultsInOrderYesButton.isSelected()) {
-            properties.put(DatabaseReaderProperties.DATABASE_PROCESS_RESULTS_IN_ORDER, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DatabaseReaderProperties.DATABASE_PROCESS_RESULTS_IN_ORDER, UIConstants.NO_OPTION);
-        }
+        properties.setCacheResults(cacheResultsYesButton.isSelected());
 
-        if (useJavaScriptYes.isSelected()) {
-            properties.put(DatabaseReaderProperties.DATABASE_USE_JS, UIConstants.YES_OPTION);
-            properties.put(DatabaseReaderProperties.DATABASE_JS_SQL_STATEMENT, databaseSQLTextPane.getText());
-            properties.put(DatabaseReaderProperties.DATABASE_JS_ACK, databaseUpdateSQLTextPane.getText());
-            properties.put(DatabaseReaderProperties.DATABASE_SQL_STATEMENT, "");
-            properties.put(DatabaseReaderProperties.DATABASE_ACK, "");
-        } else {
-            properties.put(DatabaseReaderProperties.DATABASE_USE_JS, UIConstants.NO_OPTION);
-            properties.put(DatabaseReaderProperties.DATABASE_SQL_STATEMENT, databaseSQLTextPane.getText());
-            properties.put(DatabaseReaderProperties.DATABASE_ACK, databaseUpdateSQLTextPane.getText());
-            properties.put(DatabaseReaderProperties.DATABASE_JS_SQL_STATEMENT, "");
-            properties.put(DatabaseReaderProperties.DATABASE_JS_ACK, "");
-        }
+        properties.setUseScript(useJavaScriptYes.isSelected());
+        properties.setQuery(databaseSQLTextPane.getText());
+        properties.setAck(databaseUpdateSQLTextPane.getText());
 
-        if (readOnUpdateYes.isSelected()) {
-            properties.put(DatabaseReaderProperties.DATABASE_USE_ACK, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DatabaseReaderProperties.DATABASE_USE_ACK, UIConstants.NO_OPTION);
-        }
-
-        if (pollingIntervalButton.isSelected()) {
-            properties.put(DatabaseReaderProperties.DATABASE_POLLING_TYPE, "interval");
-            properties.put(DatabaseReaderProperties.DATABASE_POLLING_FREQUENCY, pollingFrequency.getText());
-        } else {
-            properties.put(DatabaseReaderProperties.DATABASE_POLLING_TYPE, "time");
-            properties.put(DatabaseReaderProperties.DATABASE_POLLING_TIME, pollingTime.getDate());
-        }
+        properties.setUseAck(readOnUpdateYes.isSelected());
 
         return properties;
     }
 
-    public void setProperties(Properties props) {
-        resetInvalidProperties();
+    @Override
+    public void setProperties(ConnectorProperties properties) {
+        DatabaseReceiverProperties props = (DatabaseReceiverProperties) properties;
 
         boolean enabled = parent.isSaveEnabled();
 
         for (int i = 0; i < drivers.size(); i++) {
             DriverInfo driver = drivers.get(i);
-            if (driver.getClassName().equalsIgnoreCase(((String) props.get(DatabaseReaderProperties.DATABASE_DRIVER)))) {
+            if (driver.getClassName().equalsIgnoreCase(props.getDriver())) {
                 databaseDriverCombobox.setSelectedItem(driver.getName());
             }
         }
 
         parent.setSaveEnabled(enabled);
-        databaseURLField.setText((String) props.get(DatabaseReaderProperties.DATABASE_URL));
-        databaseUsernameField.setText((String) props.get(DatabaseReaderProperties.DATABASE_USERNAME));
-        databasePasswordField.setText((String) props.get(DatabaseReaderProperties.DATABASE_PASSWORD));
-        databaseSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_SQL_STATEMENT));
+        
+        databaseURLField.setText(props.getUrl());
+        databaseUsernameField.setText(props.getUsername());
+        databasePasswordField.setText(props.getPassword());
 
-        if (((String) props.get(DatabaseReaderProperties.DATABASE_PROCESS_RESULTS_IN_ORDER)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
-            processResultsInOrderYesButton.setSelected(true);
+        if (props.isCacheResults()) {
+            cacheResultsYesButton.setSelected(true);
         } else {
-            processResultsInOrderNoButton.setSelected(true);
+            cacheResultsNoButton.setSelected(true);
         }
 
-        if (((String) props.get(DatabaseReaderProperties.DATABASE_USE_JS)).equals(UIConstants.YES_OPTION)) {
+        if (props.isUseScript()) {
             useJavaScriptYes.setSelected(true);
             useJavaScriptYesActionPerformed(null);
-            databaseSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_JS_SQL_STATEMENT));
-            databaseUpdateSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_JS_ACK));
         } else {
             useJavaScriptNo.setSelected(true);
             useJavaScriptNoActionPerformed(null);
-            databaseSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_SQL_STATEMENT));
-            databaseUpdateSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_ACK));
         }
+        
+        databaseSQLTextPane.setText(props.getQuery());
+        databaseUpdateSQLTextPane.setText(props.getAck());
 
-        if (((String) props.get(DatabaseReaderProperties.DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+        if (props.isUseAck()) {
             readOnUpdateYes.setSelected(true);
             readOnUpdateYesActionPerformed(null);
         } else {
             readOnUpdateNo.setSelected(true);
             readOnUpdateNoActionPerformed(null);
         }
-
-        if (((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_TYPE)).equalsIgnoreCase("interval")) {
-            pollingIntervalButton.setSelected(true);
-            pollingIntervalButtonActionPerformed(null);
-            pollingFrequency.setText((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_FREQUENCY));
-        } else {
-            pollingTimeButton.setSelected(true);
-            pollingTimeButtonActionPerformed(null);
-            pollingTime.setDate((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_TIME));
-        }
     }
 
-    public Properties getDefaults() {
-        return new DatabaseReaderProperties().getDefaults();
+    @Override
+    public ConnectorProperties getDefaults() {
+        return new DatabaseReceiverProperties();
     }
 
-    public boolean checkProperties(Properties props, boolean highlight) {
-        resetInvalidProperties();
+    @Override
+    public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
+        DatabaseReceiverProperties props = (DatabaseReceiverProperties) properties;
+        
         boolean valid = true;
 
-        if (((String) props.get(DatabaseReaderProperties.DATABASE_URL)).length() == 0) {
+        if (props.getUrl().length() == 0) {
             valid = false;
             if (highlight) {
                 databaseURLField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_TYPE)).equalsIgnoreCase("interval") && ((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_FREQUENCY)).length() == 0) {
-            valid = false;
-            if (highlight) {
-                pollingFrequency.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
-        if (((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_TYPE)).equalsIgnoreCase("time") && ((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_TIME)).length() == 0) {
-            valid = false;
-            if (highlight) {
-                pollingTime.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
-        if ((((String) props.get(DatabaseReaderProperties.DATABASE_SQL_STATEMENT)).length() == 0) && (((String) props.get(DatabaseReaderProperties.DATABASE_JS_SQL_STATEMENT)).length() == 0)) {
+
+        if (props.getQuery().length() == 0) {
             valid = false;
             if (highlight) {
                 databaseSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
-        if (((String) props.get(DatabaseReaderProperties.DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
-            if (((((String) props.get(DatabaseReaderProperties.DATABASE_JS_ACK)).length() == 0) && (((String) props.get(DatabaseReaderProperties.DATABASE_ACK)).length() == 0))) {
-                valid = false;
-                if (highlight) {
-                    databaseUpdateSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
-                }
+        if (props.isUseAck() && (props.getAck().length() == 0)) {
+            valid = false;
+            if (highlight) {
+                databaseUpdateSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if ((((String) props.get(DatabaseReaderProperties.DATABASE_DRIVER)).equals("Please Select One"))) {
+        
+        if (props.getDriver().equals(DatabaseReceiverProperties.DRIVER_DEFAULT)) {
             valid = false;
             if (highlight) {
                 databaseDriverCombobox.setBackground(UIConstants.INVALID_COLOR);
@@ -275,64 +229,72 @@ public class DatabaseReader extends ConnectorClass {
         return valid;
     }
 
-    private void resetInvalidProperties() {
+    @Override
+    public void resetInvalidProperties() {
         databaseURLField.setBackground(null);
-        pollingFrequency.setBackground(null);
-        pollingTime.setBackground(null);
         databaseSQLTextPane.setBackground(null);
         databaseUpdateSQLTextPane.setBackground(null);
         databaseDriverCombobox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
     }
 
-    public String doValidate(Properties props, boolean highlight) {
+    @Override
+    public String doValidate(ConnectorProperties properties, boolean highlight) {
+        DatabaseReceiverProperties props = (DatabaseReceiverProperties) properties;
+        
         String error = null;
 
-        if (!checkProperties(props, highlight)) {
-            error = "Error in the form for connector \"" + getName() + "\".\n\n";
-        }
-
-        String script = ((String) props.get(DatabaseReaderProperties.DATABASE_JS_SQL_STATEMENT));
-        String onUpdateScript = ((String) props.get(DatabaseReaderProperties.DATABASE_JS_ACK));
-
-        if (script.length() != 0) {
-            Context context = Context.enter();
-            try {
-                context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
-            } catch (EvaluatorException e) {
-                if (error == null) {
-                    error = "";
+        if (props.isUseScript()) {
+            String script = props.getQuery();
+            if (script.length() != 0) {
+                Context context = Context.enter();
+                try {
+                    context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
+                } catch (EvaluatorException e) {
+                    if (error == null) {
+                        error = "";
+                    }
+                    error += "Error in connector \"" + getConnectorName() + "\" at Javascript:\nError on line " + e.lineNumber() + ": " + e.getMessage() + ".\n\n";
+                } catch (Exception e) {
+                    if (error == null) {
+                        error = "";
+                    }
+                    error += "Error in connector \"" + getConnectorName() + "\" at Javascript:\nUnknown error occurred during validation.";
                 }
-                error += "Error in connector \"" + getName() + "\" at Javascript:\nError on line " + e.lineNumber() + ": " + e.getMessage() + ".\n\n";
-            } catch (Exception e) {
-                if (error == null) {
-                    error = "";
-                }
-                error += "Error in connector \"" + getName() + "\" at Javascript:\nUnknown error occurred during validation.";
+
+                Context.exit();
             }
+            
+            if (props.isUseAck()) {
+                String onUpdateScript = props.getAck();
+                
+                if (onUpdateScript.length() != 0) {
+                    Context context = Context.enter();
+                    try {
+                        context.compileString("function rhinoWrapper() {" + onUpdateScript + "\n}", UUID.randomUUID().toString(), 1, null);
+                    } catch (EvaluatorException e) {
+                        if (error == null) {
+                            error = "";
+                        }
+                        error += "Error in connector \"" + getConnectorName() + "\" at On-Update Javascript:\nError on line " + e.lineNumber() + ": " + e.getMessage() + ".\n\n";
+                    } catch (Exception e) {
+                        if (error == null) {
+                            error = "";
+                        }
+                        error += "Error in connector \"" + getConnectorName() + "\" at Javascript:\nUnknown error occurred during validation.";
+                    }
 
-            Context.exit();
-        }
-
-        if (((String) props.get(DatabaseReaderProperties.DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION) && onUpdateScript.length() != 0) {
-            Context context = Context.enter();
-            try {
-                context.compileString("function rhinoWrapper() {" + onUpdateScript + "\n}", UUID.randomUUID().toString(), 1, null);
-            } catch (EvaluatorException e) {
-                if (error == null) {
-                    error = "";
+                    Context.exit();
                 }
-                error += "Error in connector \"" + getName() + "\" at On-Update Javascript:\nError on line " + e.lineNumber() + ": " + e.getMessage() + ".\n\n";
-            } catch (Exception e) {
-                if (error == null) {
-                    error = "";
-                }
-                error += "Error in connector \"" + getName() + "\" at Javascript:\nUnknown error occurred during validation.";
+                
             }
-
-            Context.exit();
         }
-
+        
         return error;
+    }
+    
+    @Override
+    public boolean requiresXmlDataType() {
+        return true;
     }
 
     private void update() {
@@ -388,7 +350,7 @@ public class DatabaseReader extends ConnectorClass {
 //            parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));  // Not required with current text area
             parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml);
 
-            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundProtocol() == MessageObject.Protocol.XML
+            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundDataType().equals(DataTypeFactory.XML)
                     && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null
                     && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0) {
                 List<Connector> list = parent.channelEditPanel.currentChannel.getDestinationConnectors();
@@ -412,7 +374,6 @@ public class DatabaseReader extends ConnectorClass {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
-        buttonGroup3 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -424,8 +385,6 @@ public class DatabaseReader extends ConnectorClass {
         databaseUsernameField = new com.mirth.connect.client.ui.components.MirthTextField();
         databasePasswordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
         onUpdateLabel = new javax.swing.JLabel();
-        pollingFrequencyLabel = new javax.swing.JLabel();
-        pollingFrequency = new com.mirth.connect.client.ui.components.MirthTextField();
         readOnUpdateYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         readOnUpdateNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel8 = new javax.swing.JLabel();
@@ -438,17 +397,12 @@ public class DatabaseReader extends ConnectorClass {
         useJavaScriptNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         generateConnection = new javax.swing.JButton();
         generateUpdateConnection = new javax.swing.JButton();
-        pollingTimeButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        pollingIntervalButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        jLabel5 = new javax.swing.JLabel();
-        pollingTimeLabel = new javax.swing.JLabel();
-        pollingTime = new com.mirth.connect.client.ui.components.MirthTimePicker();
         generateSelect = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         generateUpdateSelect = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
-        processResultsInOrderNoButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        processResultsInOrderYesButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        cacheResultsNoButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        cacheResultsYesButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel10 = new javax.swing.JLabel();
         insertURLTemplateButton = new javax.swing.JButton();
 
@@ -475,10 +429,6 @@ public class DatabaseReader extends ConnectorClass {
         databasePasswordField.setToolTipText("<html>The password to connect to the database. This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
 
         onUpdateLabel.setText("On-Update SQL:");
-
-        pollingFrequencyLabel.setText("Polling Frequency (ms):");
-
-        pollingFrequency.setToolTipText("<html>If the \"Interval\" Polling Type is selected, the number of milliseconds between polls must be entered here.<br>Avoid extremely small values because polling can be a somewhat time-consuming operation.</html>");
 
         readOnUpdateYes.setBackground(new java.awt.Color(255, 255, 255));
         readOnUpdateYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -556,36 +506,6 @@ public class DatabaseReader extends ConnectorClass {
             }
         });
 
-        pollingTimeButton.setBackground(new java.awt.Color(255, 255, 255));
-        pollingTimeButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup3.add(pollingTimeButton);
-        pollingTimeButton.setText("Time");
-        pollingTimeButton.setToolTipText("The connector will poll once a day at the time specified in the Polling Time control.");
-        pollingTimeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        pollingTimeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pollingTimeButtonActionPerformed(evt);
-            }
-        });
-
-        pollingIntervalButton.setBackground(new java.awt.Color(255, 255, 255));
-        pollingIntervalButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup3.add(pollingIntervalButton);
-        pollingIntervalButton.setText("Interval");
-        pollingIntervalButton.setToolTipText("The connector will poll every n milliseconds, where n is specified in the Polling Frequency control.");
-        pollingIntervalButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        pollingIntervalButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pollingIntervalButtonActionPerformed(evt);
-            }
-        });
-
-        jLabel5.setText("Polling Type:");
-
-        pollingTimeLabel.setText("Polling Time (daily):");
-
-        pollingTime.setToolTipText("If the \"Time\" Polling Type is selected, the time of day to poll must be entered here.");
-
         generateSelect.setText("Select");
         generateSelect.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -604,21 +524,21 @@ public class DatabaseReader extends ConnectorClass {
 
         jLabel9.setText("Generate:");
 
-        processResultsInOrderNoButton.setBackground(new java.awt.Color(255, 255, 255));
-        processResultsInOrderNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(processResultsInOrderNoButton);
-        processResultsInOrderNoButton.setText("No");
-        processResultsInOrderNoButton.setToolTipText("Specify the SQL statements to get messages to be processed and mark messages in the database as processed.");
-        processResultsInOrderNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        cacheResultsNoButton.setBackground(new java.awt.Color(255, 255, 255));
+        cacheResultsNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup4.add(cacheResultsNoButton);
+        cacheResultsNoButton.setText("No");
+        cacheResultsNoButton.setToolTipText("Specify the SQL statements to get messages to be processed and mark messages in the database as processed.");
+        cacheResultsNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        processResultsInOrderYesButton.setBackground(new java.awt.Color(255, 255, 255));
-        processResultsInOrderYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(processResultsInOrderYesButton);
-        processResultsInOrderYesButton.setText("Yes");
-        processResultsInOrderYesButton.setToolTipText("Implement JavaScript code using JDBC to get the messages to be processed and mark messages in the database as processed.");
-        processResultsInOrderYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        cacheResultsYesButton.setBackground(new java.awt.Color(255, 255, 255));
+        cacheResultsYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup4.add(cacheResultsYesButton);
+        cacheResultsYesButton.setText("Yes");
+        cacheResultsYesButton.setToolTipText("Implement JavaScript code using JDBC to get the messages to be processed and mark messages in the database as processed.");
+        cacheResultsYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabel10.setText("Process Results in Order:");
+        jLabel10.setText("Cache Results:");
 
         insertURLTemplateButton.setText("Insert URL Template");
         insertURLTemplateButton.addActionListener(new java.awt.event.ActionListener() {
@@ -632,76 +552,61 @@ public class DatabaseReader extends ConnectorClass {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(sqlLabel)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel4)
-                    .addComponent(pollingFrequencyLabel)
-                    .addComponent(jLabel8)
-                    .addComponent(onUpdateLabel)
-                    .addComponent(jLabel6)
-                    .addComponent(pollingTimeLabel)
-                    .addComponent(jLabel5)
-                    .addComponent(jLabel10))
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel8, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel10, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(sqlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(onUpdateLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(pollingIntervalButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(databasePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(databaseUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(databaseURLField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(databaseDriverCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(insertURLTemplateButton)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(readOnUpdateYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pollingTimeButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(272, 272, 272))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(databaseUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(databaseURLField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(databaseDriverCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(insertURLTemplateButton))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                    .addComponent(readOnUpdateYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(readOnUpdateNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 81, Short.MAX_VALUE)
-                                    .addComponent(jLabel9)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(generateUpdateConnection)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(generateUpdateSelect))
-                                .addComponent(databaseSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(databaseUpdateSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addContainerGap())
-                        .addComponent(databasePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(pollingTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(processResultsInOrderYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(processResultsInOrderNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addGap(75, 75, 75))
-                                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                                .addComponent(useJavaScriptYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(useJavaScriptNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 6, Short.MAX_VALUE)
-                                    .addComponent(jLabel7)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(generateConnection)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(generateSelect))
-                                .addComponent(pollingFrequency, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addContainerGap()))))
+                        .addComponent(readOnUpdateNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 81, Short.MAX_VALUE)
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(generateUpdateConnection)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(generateUpdateSelect))
+                    .addComponent(databaseSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(databaseUpdateSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(cacheResultsYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cacheResultsNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(useJavaScriptYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(useJavaScriptNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(generateConnection)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(generateSelect)))
+                .addContainerGap())
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {generateConnection, generateSelect});
@@ -711,42 +616,29 @@ public class DatabaseReader extends ConnectorClass {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(databaseDriverCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(insertURLTemplateButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(databaseURLField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(databaseUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(databasePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(databaseDriverCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1)
-                            .addComponent(insertURLTemplateButton))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(databaseURLField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(databaseUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(databasePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel5)
-                            .addComponent(pollingIntervalButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(pollingTimeButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(pollingFrequency, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(pollingFrequencyLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(pollingTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(pollingTimeLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel10)
-                            .addComponent(processResultsInOrderYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(processResultsInOrderNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(cacheResultsYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cacheResultsNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
@@ -776,22 +668,6 @@ public class DatabaseReader extends ConnectorClass {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void pollingIntervalButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_pollingIntervalButtonActionPerformed
-    {//GEN-HEADEREND:event_pollingIntervalButtonActionPerformed
-        pollingFrequencyLabel.setEnabled(true);
-        pollingTimeLabel.setEnabled(false);
-        pollingFrequency.setEnabled(true);
-        pollingTime.setEnabled(false);
-    }//GEN-LAST:event_pollingIntervalButtonActionPerformed
-
-    private void pollingTimeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_pollingTimeButtonActionPerformed
-    {//GEN-HEADEREND:event_pollingTimeButtonActionPerformed
-        pollingFrequencyLabel.setEnabled(false);
-        pollingTimeLabel.setEnabled(true);
-        pollingFrequency.setEnabled(false);
-        pollingTime.setEnabled(true);
-    }//GEN-LAST:event_pollingTimeButtonActionPerformed
 
     private void generateUpdateConnectionActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_generateUpdateConnectionActionPerformed
     {//GEN-HEADEREND:event_generateUpdateConnectionActionPerformed
@@ -835,21 +711,21 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
 }//GEN-LAST:event_insertURLTemplateButtonActionPerformed
 
     public void showDatabaseMetaData(STATEMENT_TYPE type) {
-        Properties connectionProperties = getProperties();
-        if (((String) connectionProperties.get(DatabaseWriterProperties.DATABASE_URL)).length() == 0 || (((String) connectionProperties.get(DatabaseWriterProperties.DATABASE_DRIVER)).equals("Please Select One"))) {
+        DatabaseReceiverProperties properties = (DatabaseReceiverProperties) getProperties();
+        
+        if (properties.getUrl().length() == 0 || properties.getDriver().equals(DatabaseReceiverProperties.DRIVER_DEFAULT)) {
             parent.alertError(parent, "A valid Driver and URL are required to perform this operation.");
         } else {
-            
-            // Add the selectLimit to the connectionProperties
+            String selectLimit = null;
+                
             for (int i = 0; i < drivers.size(); i++) {
                 DriverInfo driver = drivers.get(i);
                 if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
-                    // Although this property is not persisted, it is used by the JdbcConnectorService
-                    connectionProperties.put(DatabaseReaderProperties.DATABASE_SELECT_LIMIT, driver.getSelectLimit());
+                    selectLimit = driver.getSelectLimit();
                 }
             }
             
-            new DatabaseMetadataDialog(this, type, connectionProperties);
+            new DatabaseMetadataDialog(this, type, new DatabaseConnectionInfo(properties.getDriver(), properties.getUrl(), properties.getUsername(), properties.getPassword(), "", selectLimit));
         }
     }
 
@@ -967,8 +843,9 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
-    private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
+    private com.mirth.connect.client.ui.components.MirthRadioButton cacheResultsNoButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton cacheResultsYesButton;
     private com.mirth.connect.client.ui.components.MirthComboBox databaseDriverCombobox;
     private com.mirth.connect.client.ui.components.MirthPasswordField databasePasswordField;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea databaseSQLTextPane;
@@ -986,21 +863,12 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel onUpdateLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField pollingFrequency;
-    private javax.swing.JLabel pollingFrequencyLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton pollingIntervalButton;
-    private com.mirth.connect.client.ui.components.MirthTimePicker pollingTime;
-    private com.mirth.connect.client.ui.components.MirthRadioButton pollingTimeButton;
-    private javax.swing.JLabel pollingTimeLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton processResultsInOrderNoButton;
-    private com.mirth.connect.client.ui.components.MirthRadioButton processResultsInOrderYesButton;
     private com.mirth.connect.client.ui.components.MirthRadioButton readOnUpdateNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton readOnUpdateYes;
     private javax.swing.JLabel sqlLabel;

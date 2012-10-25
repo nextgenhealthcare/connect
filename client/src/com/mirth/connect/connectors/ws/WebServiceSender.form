@@ -36,38 +36,41 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
-              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="URL1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="soapActionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="portLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="queuePollIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="invocationTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="serviceLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="useMtomLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="portLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="serviceLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="invocationTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="wsdlUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="wsdlUrlField" pref="291" max="32767" attributes="2"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="wsdlUrlField" pref="281" max="32767" attributes="2"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Component id="getOperationsButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="serviceField" alignment="0" pref="402" max="32767" attributes="2"/>
-                  <Component id="portField" alignment="0" pref="402" max="32767" attributes="2"/>
-                  <Component id="soapEnvelope" pref="402" max="32767" attributes="2"/>
-                  <Component id="soapActionField" alignment="0" pref="402" max="32767" attributes="2"/>
-                  <Component id="queuePollIntervalField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Component id="attachmentsPane" pref="323" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="newButton" alignment="1" max="32767" attributes="1"/>
+                          <Component id="deleteButton" alignment="1" min="-2" max="-2" attributes="1"/>
+                      </Group>
+                  </Group>
+                  <Component id="serviceField" alignment="0" pref="392" max="32767" attributes="2"/>
+                  <Component id="portField" alignment="0" pref="392" max="32767" attributes="2"/>
+                  <Component id="soapEnvelope" pref="392" max="32767" attributes="2"/>
+                  <Component id="soapActionField" alignment="0" pref="392" max="32767" attributes="2"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="authenticationYesRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -76,36 +79,14 @@
                   <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="operationComboBox" min="-2" pref="186" max="-2" attributes="1"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="generateEnvelope" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="reconnectIntervalField" min="-2" pref="75" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="usePersistentQueuesNoRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="rotateMessagesCheckBox" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="channelNames" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                      </Group>
-                      <EmptySpace min="-2" pref="64" max="-2" attributes="0"/>
+                      <Component id="operationComboBox" min="-2" pref="186" max="-2" attributes="1"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="generateEnvelope" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="invocationTwoWayRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="invocationOneWayRadio" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="1" attributes="0">
-                      <Component id="attachmentsPane" pref="333" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="newButton" alignment="1" max="32767" attributes="1"/>
-                          <Component id="deleteButton" alignment="1" min="-2" max="-2" attributes="1"/>
-                      </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="useMtomYesRadio" min="-2" max="-2" attributes="0"/>
@@ -113,7 +94,7 @@
                       <Component id="useMtomNoRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -135,7 +116,7 @@
                   <Component id="portLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="portField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="authenticationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -153,28 +134,6 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="channelNames" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="URL1" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="usePersistentQueuesYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="usePersistentQueuesNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="rotateMessagesCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="queuePollIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="queuePollIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="reconnectIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="reconnectIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="invocationTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="invocationTwoWayRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="invocationOneWayRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -185,17 +144,17 @@
                   <Component id="operationComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="generateEnvelope" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="soapActionField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="soapActionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                  <Component id="soapEnvelope" pref="125" max="32767" attributes="0"/>
+                  <Component id="soapEnvelope" pref="115" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="useMtomLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="useMtomYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -211,7 +170,7 @@
                   </Group>
                   <Component id="attachmentsPane" alignment="0" min="-2" pref="90" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -300,95 +259,6 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateEnvelopeActionPerformed"/>
       </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="channelNames">
-      <Properties>
-        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="4">
-            <StringItem index="0" value="Item 1"/>
-            <StringItem index="1" value="Item 2"/>
-            <StringItem index="2" value="Item 3"/>
-            <StringItem index="3" value="Item 4"/>
-          </StringArray>
-        </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Select None to ignore the response from the web service method, or select a channel to send to as a new inbound message."/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="URL1">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Send Response to:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="rotateMessagesCheckBox">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Rotate Messages in Queue"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, upon unsuccessful re-try, it will rotate and put the queued message to the back of the queue&lt;br&gt; in order to prevent it from clogging the queue and to let the other subsequent messages in queue be processed.&lt;br&gt;If the order of messages processed is important, this should be unchecked.&lt;/html&gt;"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="usePersistentQueuesNoRadio">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="userPersistentQueuesButtonGroup"/>
-        </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="If checked, no queues will be used."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="usePersistentQueuesNoRadioActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="usePersistentQueuesYesRadio">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="userPersistentQueuesButtonGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will store any messages that are unable to be successfully processed in a file-based queue.&lt;br&gt;Messages will be automatically resent until the queue is manually cleared or the message is successfully sent.&lt;br&gt;The default queue location is (Mirth Directory)/.mule/queuestore/(ChannelID),&lt;br&gt; where (Mirth Directory) is the main Mirth install root and (ChannelID) is the unique id of the current channel.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="usePersistentQueuesYesRadioActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectIntervalField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The amount of time that should elapse between retry attempts to send messages in the queue.&lt;/html&gt;"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="reconnectIntervalLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Reconnect Interval (ms):"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel36">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Use Persistent Queues:"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="attachmentsLabel">
       <Properties>
@@ -599,16 +469,6 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useMtomNoRadioActionPerformed"/>
       </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="queuePollIntervalLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Queue Poll Interval (ms):"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="queuePollIntervalField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The amount of time that should elapse between polls of an empty queue to check for queued messages.&lt;/html&gt;"/>
-      </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="soapActionField">
       <Properties>

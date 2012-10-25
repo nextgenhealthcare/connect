@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -50,8 +50,7 @@ import com.mirth.connect.client.ui.components.MirthTree.FilterTreeModel;
 import com.mirth.connect.client.ui.components.MirthTreeNode;
 import com.mirth.connect.client.ui.editors.MessageTreePanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
-import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.SerializerFactory;
 import com.mirth.connect.model.dicom.DICOMVocabulary;
@@ -338,7 +337,7 @@ public class TreePanel extends javax.swing.JPanel {
         PlatformUI.MIRTH_FRAME.stopWorking(workingId);
     }
 
-    public void setMessage(Properties protocolProperties, String messageType, String source, String ignoreText, Properties dataProperties) {
+    public void setMessage(Properties dataTypeProperties, String messageType, String source, String ignoreText, Properties dataProperties) {
         Document xmlDoc = null;
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder;
@@ -347,45 +346,45 @@ public class TreePanel extends javax.swing.JPanel {
         version = "";
         type = "";
         String messageDescription = "";
-        Protocol protocol = null;
+        String dataType = null;
         if (source.length() > 0 && !source.equals(ignoreText)) {
-            IXMLSerializer<String> serializer;
-            if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2).equals(messageType)) {
-                protocol = Protocol.HL7V2;
+            IXMLSerializer serializer;
+            if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V2).equals(messageType)) {
+                dataType = DataTypeFactory.HL7V2;
                 // The \n to \r conversion is ONLY valid for HL7
                 boolean convertLFtoCR = true;
-                if (protocolProperties != null && protocolProperties.get("convertLFtoCR") != null) {
-                    convertLFtoCR = Boolean.parseBoolean((String) protocolProperties.get("convertLFtoCR"));
+                if (dataTypeProperties != null && dataTypeProperties.get("convertLFtoCR") != null) {
+                    convertLFtoCR = Boolean.parseBoolean((String) dataTypeProperties.get("convertLFtoCR"));
                 }
                 if (convertLFtoCR) {
                     source = StringUtil.convertLFtoCR(source).trim();
                 }
-            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP).equals(messageType)) {
-                protocol = Protocol.NCPDP;
-            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM).equals(messageType)) {
-                protocol = Protocol.DICOM;
-            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3).equals(messageType)) {
-                protocol = Protocol.HL7V3;
-            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12).equals(messageType)) {
-                protocol = Protocol.X12;
-            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.XML).equals(messageType)) {
-                protocol = Protocol.XML;
-            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI).equals(messageType)) {
-                protocol = Protocol.EDI;
-            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DELIMITED).equals(messageType)) {
-                protocol = Protocol.DELIMITED;
+            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.NCPDP).equals(messageType)) {
+                dataType = DataTypeFactory.NCPDP;
+            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.DICOM).equals(messageType)) {
+                dataType = DataTypeFactory.DICOM;
+            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V3).equals(messageType)) {
+                dataType = DataTypeFactory.HL7V3;
+            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.X12).equals(messageType)) {
+                dataType = DataTypeFactory.X12;
+            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.XML).equals(messageType)) {
+                dataType = DataTypeFactory.XML;
+            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.EDI).equals(messageType)) {
+                dataType = DataTypeFactory.EDI;
+            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.DELIMITED).equals(messageType)) {
+                dataType = DataTypeFactory.DELIMITED;
             } else {
-                logger.error("Invalid protocol");
+                logger.error("Invalid data type");
                 return;
             }
 
             try {
-                serializer = SerializerFactory.getSerializer(protocol, protocolProperties);
+                serializer = SerializerFactory.getSerializer(dataType, dataTypeProperties);
                 docBuilder = docFactory.newDocumentBuilder();
 
                 String message;
                 
-                if (protocol.equals(Protocol.DICOM)) {
+                if (dataType.equals(DataTypeFactory.DICOM)) {
                     message = source;
                 } else {
                     message = serializer.toXML(source);
@@ -409,7 +408,7 @@ public class TreePanel extends javax.swing.JPanel {
                     }
                     
                     messageName = type + " (" + version + ")";
-                    vocabulary = MessageVocabularyFactory.getInstance(PlatformUI.MIRTH_FRAME.mirthClient).getVocabulary(protocol, version, type);
+                    vocabulary = MessageVocabularyFactory.getInstance(PlatformUI.MIRTH_FRAME.mirthClient).getVocabulary(dataType, version, type);
                     messageDescription = vocabulary.getDescription(type.replaceAll("-", ""));
 
                 }
@@ -418,7 +417,7 @@ public class TreePanel extends javax.swing.JPanel {
             }
 
             if (xmlDoc != null) {
-                createTree(protocol, xmlDoc, messageName, messageDescription);
+                createTree(dataType, xmlDoc, messageName, messageDescription);
                 filter();
             } else {
                 setInvalidMessage(messageType);
@@ -443,7 +442,7 @@ public class TreePanel extends javax.swing.JPanel {
     /**
      * Updates the panel with a new Message.
      */
-    private void createTree(Protocol protocol, Document document, String messageName, String messageDescription) {
+    private void createTree(String dataType, Document document, String messageName, String messageDescription) {
         Element element = document.getDocumentElement();
         MirthTreeNode top;
         
@@ -456,7 +455,7 @@ public class TreePanel extends javax.swing.JPanel {
         NodeList children = element.getChildNodes();
         
         for (int i = 0; i < children.getLength(); i++) {
-            processElement(protocol, children.item(i), top);
+            processElement(dataType, children.item(i), top);
         }
 
         tree = new MirthTree(top, _dropPrefix, _dropSuffix);
@@ -520,7 +519,7 @@ public class TreePanel extends javax.swing.JPanel {
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
-    private void processElement(Protocol protocol, Object elo, MirthTreeNode mtn) {
+    private void processElement(String dataType, Object elo, MirthTreeNode mtn) {
         if (elo instanceof Element) {
             Element element = (Element) elo;
             String description;
@@ -553,11 +552,11 @@ public class TreePanel extends javax.swing.JPanel {
                 }
             } else {
                 // Check if we are in the format SEG.N.N
-                if (protocol.equals(Protocol.HL7V3) || protocol.equals(Protocol.XML) || element.getNodeName().matches(".*\\..*\\..*") || protocol.equals(Protocol.DICOM)) {
+                if (dataType.equals(DataTypeFactory.HL7V3) || dataType.equals(DataTypeFactory.XML) || element.getNodeName().matches(".*\\..*\\..*") || dataType.equals(DataTypeFactory.DICOM)) {
                     // We already at the last possible child segment, so just
                     // add empty node
                     currentNode.add(new MirthTreeNode(EMPTY));
-                } else if (protocol.equals(Protocol.DELIMITED)) {
+                } else if (dataType.equals(DataTypeFactory.DELIMITED)) {
                     // We have empty column node
                     currentNode.add(new MirthTreeNode(EMPTY));
                 } else {
@@ -583,7 +582,7 @@ public class TreePanel extends javax.swing.JPanel {
 
             NodeList children = element.getChildNodes();
             for (int i = 0; i < children.getLength(); i++) {
-                processElement(protocol, children.item(i), currentNode);
+                processElement(dataType, children.item(i), currentNode);
             }
             mtn.add(currentNode);
         }

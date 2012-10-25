@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,8 +9,8 @@
 
 package com.mirth.connect.connectors.js;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
 
 import org.mozilla.javascript.Context;
@@ -19,21 +19,14 @@ import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.connectors.ConnectorClass;
-import com.mirth.connect.model.DriverInfo;
+import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
-/**
- * A form that extends from ConnectorClass. All methods implemented are
- * described in ConnectorClass.
- */
-public class JavaScriptWriter extends ConnectorClass {
+public class JavaScriptWriter extends ConnectorSettingsPanel {
 
     private static SyntaxDocument jsMappingDoc;
-    private List<DriverInfo> drivers;
 
     public JavaScriptWriter() {
-        name = JavaScriptWriterProperties.name;
-
         initComponents();
 
         jsMappingDoc = new SyntaxDocument();
@@ -42,30 +35,39 @@ public class JavaScriptWriter extends ConnectorClass {
         javaScriptTextPane.setDocument(jsMappingDoc);
     }
 
-    public Properties getProperties() {
-        Properties properties = new Properties();
-        properties.put(JavaScriptWriterProperties.DATATYPE, name);
-        properties.put(JavaScriptWriterProperties.JAVASCRIPT_HOST, "sink");
-        properties.put(JavaScriptWriterProperties.JAVASCRIPT_SCRIPT, javaScriptTextPane.getText());
+    @Override
+    public String getConnectorName() {
+        return new JavaScriptDispatcherProperties().getName();
+    }
+
+    @Override
+    public ConnectorProperties getProperties() {
+        JavaScriptDispatcherProperties properties = new JavaScriptDispatcherProperties();
+
+        properties.setScript(javaScriptTextPane.getText());
 
         return properties;
     }
 
-    public void setProperties(Properties props) {
-        resetInvalidProperties();
-        javaScriptTextPane.setText((String) props.get(JavaScriptWriterProperties.JAVASCRIPT_SCRIPT));
+    @Override
+    public void setProperties(ConnectorProperties properties) {
+        JavaScriptDispatcherProperties props = (JavaScriptDispatcherProperties) properties;
 
+        javaScriptTextPane.setText(props.getScript());
     }
 
-    public Properties getDefaults() {
-        return new JavaScriptWriterProperties().getDefaults();
+    @Override
+    public ConnectorProperties getDefaults() {
+        return new JavaScriptDispatcherProperties();
     }
 
-    public boolean checkProperties(Properties props, boolean highlight) {
-        resetInvalidProperties();
+    @Override
+    public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
+        JavaScriptDispatcherProperties props = (JavaScriptDispatcherProperties) properties;
+
         boolean valid = true;
 
-        if (((String) props.get(JavaScriptWriterProperties.JAVASCRIPT_SCRIPT)).length() == 0) {
+        if (props.getScript().length() == 0) {
             valid = false;
             if (highlight) {
                 javaScriptTextPane.setBackground(UIConstants.INVALID_COLOR);
@@ -75,22 +77,28 @@ public class JavaScriptWriter extends ConnectorClass {
         return valid;
     }
 
-    public String[] getDragAndDropCharacters(Properties props) {
-        return new String[]{"$('", "')"};
+    @Override
+    public String getDragAndDropPrefix() {
+        return "$('";
     }
 
-    private void resetInvalidProperties() {
+    @Override
+    public String getDragAndDropSuffix() {
+        return "')";
+    }
+
+    @Override
+    public void resetInvalidProperties() {
         javaScriptTextPane.setBackground(null);
     }
 
-    public String doValidate(Properties props, boolean highlight) {
+    @Override
+    public String doValidate(ConnectorProperties properties, boolean highlight) {
+        JavaScriptDispatcherProperties props = (JavaScriptDispatcherProperties) properties;
+
         String error = null;
 
-        if (!checkProperties(props, highlight)) {
-            error = "Error in the form for connector \"" + getName() + "\".\n\n";
-        }
-
-        String script = ((String) props.get(JavaScriptWriterProperties.JAVASCRIPT_SCRIPT));
+        String script = props.getScript();
 
         if (script.length() != 0) {
             Context context = Context.enter();
@@ -113,6 +121,17 @@ public class JavaScriptWriter extends ConnectorClass {
 
         return error;
     }
+    
+    @Override
+    public List<String> getScripts(ConnectorProperties properties) {
+        JavaScriptDispatcherProperties props = (JavaScriptDispatcherProperties) properties;
+
+        List<String> scripts = new ArrayList<String>();
+        
+        scripts.add(props.getScript());
+        
+        return scripts;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -123,7 +142,6 @@ public class JavaScriptWriter extends ConnectorClass {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        buttonGroup1 = new javax.swing.ButtonGroup();
         jsLabel = new javax.swing.JLabel();
         javaScriptTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
 
@@ -155,7 +173,6 @@ public class JavaScriptWriter extends ConnectorClass {
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup buttonGroup1;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea javaScriptTextPane;
     private javax.swing.JLabel jsLabel;
     // End of variables declaration//GEN-END:variables

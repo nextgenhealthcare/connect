@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -34,11 +34,17 @@ public class ImageCellRenderer extends DefaultTableCellRenderer {
             setForeground(table.getForeground());
             setBackground(table.getBackground());
         }
-        CellData data = (CellData) value;
-
-        setText(data.getText());
-
-        setIcon(data.getIcon());
+        
+        // MIRTH-2186 Java sometimes calls this method with a hard-coded null value so tablecellrenderers must explicitly check for null.
+        // Only observed so far on Mac OSX.
+        // http://stackoverflow.com/questions/3054775/java-swing-jtable-strange-behavior-from-getaccessiblechild-method-resulting
+        if (value != null) {
+            CellData data = (CellData) value;
+    
+            setText(data.getText());
+    
+            setIcon(data.getIcon());
+        }
 
         return this;
     }

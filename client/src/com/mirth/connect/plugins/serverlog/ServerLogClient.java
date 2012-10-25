@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -17,7 +17,7 @@ import javax.swing.JComponent;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
 
 public class ServerLogClient extends DashboardPanelPlugin {
@@ -99,7 +99,7 @@ public class ServerLogClient extends DashboardPanelPlugin {
     }
 
     // used for setting actions to be called for updating when there is a status selected
-    public void update(List<ChannelStatus> statuses) {
+    public void update(List<DashboardStatus> statuses) {
 
         // Mirth Server Log is irrelevant with Channel Status.  so just call the default update() method.
         update();

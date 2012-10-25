@@ -47,8 +47,6 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel11" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel13" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -111,8 +109,6 @@
                   </Group>
                   <Component id="destField" alignment="0" min="-2" pref="103" max="-2" attributes="0"/>
                   <Component id="applicationEntityField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                  <Component id="listenerAddressField" alignment="0" min="-2" pref="189" max="-2" attributes="1"/>
-                  <Component id="listenerPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
                   <Component id="keyPasswordField" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="tls3des" min="-2" max="-2" attributes="0"/>
@@ -173,16 +169,6 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="listenerAddressField" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="listenerPortField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel3" alignment="3" min="-2" pref="16" max="-2" attributes="0"/>
                   <Component id="applicationEntityField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -199,7 +185,7 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="reaperField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel18" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -295,7 +281,7 @@
                   <Component id="tlsno" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -337,32 +323,12 @@
                       </Group>
                   </Group>
               </Group>
-              <EmptySpace pref="50" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="106" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="jLabel1">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Listener Address:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel2">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Listener Port:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerPortField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="Enter the port that we should be listening for incoming connections."/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerAddressField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="Enter the local IP where the DICOM Listener should be listening. "/>
-      </Properties>
-    </Component>
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>
         <Property name="text" type="java.lang.String" value="Max Async operations:"/>

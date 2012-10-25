@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,243 +9,199 @@
 
 package com.mirth.connect.connectors.dimse;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
-import com.mirth.connect.connectors.ConnectorClass;
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.Step;
+import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
-/**
- * A form that extends from ConnectorClass. All methods implemented are
- * described in ConnectorClass.
- */
-public class DICOMSender extends ConnectorClass {
+public class DICOMSender extends ConnectorSettingsPanel {
 
-    /**
-     * Creates new form DICOMListener
-     */
+    private Frame parent;
+    
     public DICOMSender() {
         this.parent = PlatformUI.MIRTH_FRAME;
-        name = DICOMSenderProperties.name;
         initComponents();
+    }
+    
+    @Override
+    public String getConnectorName() {
+        return new DICOMDispatcherProperties().getName();
     }
 
     @Override
-    public Properties getProperties() {
-        Properties properties = new Properties();
-        properties.put(DICOMSenderProperties.DATATYPE, name);
-        properties.put(DICOMSenderProperties.DICOM_ADDRESS, listenerAddressField.getText());
-        properties.put(DICOMSenderProperties.DICOM_PORT, listenerPortField.getText());
-        properties.put(DICOMSenderProperties.DICOM_LOCALADDRESS, localAddressField.getText());
-        properties.put(DICOMSenderProperties.DICOM_LOCALPORT, localPortField.getText());
-        properties.put(DICOMSenderProperties.DICOM_TEMPLATE, fileContentsTextPane.getText());
-        properties.put(DICOMSenderProperties.DICOM_ACCECPTTO, accepttoField.getText());
-        properties.put(DICOMSenderProperties.DICOM_ASYNC, asyncField.getText());
-        properties.put(DICOMSenderProperties.DICOM_BUFSIZE, bufsizeField.getText());
-        properties.put(DICOMSenderProperties.DICOM_CONNECTTO, connecttoField.getText());
-        properties.put(DICOMSenderProperties.DICOM_KEYPW, keyPasswordField.getText());
-        properties.put(DICOMSenderProperties.DICOM_KEYSTORE, keyStoreField.getText());
-        properties.put(DICOMSenderProperties.DICOM_KEYSTOREPW, keyStorePasswordField.getText());
+    public ConnectorProperties getProperties() {
+        DICOMDispatcherProperties properties = new DICOMDispatcherProperties();
+        
+        properties.setHost(listenerAddressField.getText());
+        properties.setPort(listenerPortField.getText());
+        properties.setLocalHost(localAddressField.getText());
+        properties.setLocalPort(localPortField.getText());
+        properties.setTemplate(fileContentsTextPane.getText());
+        properties.setAcceptTo(accepttoField.getText());
+        properties.setAsync(asyncField.getText());
+        properties.setBufSize(bufsizeField.getText());
+        properties.setConnectTo(connecttoField.getText());
+        properties.setKeyPW(keyPasswordField.getText());
+        properties.setKeyStore(keyStoreField.getText());
+        properties.setKeyStorePW(keyStorePasswordField.getText());
 
-        if (noclientauthYes.isSelected()) {
-            properties.put(DICOMSenderProperties.DICOM_NOCLIENTAUTH, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMSenderProperties.DICOM_NOCLIENTAUTH, UIConstants.NO_OPTION);
-        }
-        if (nossl2Yes.isSelected()) {
-            properties.put(DICOMSenderProperties.DICOM_NOSSL2, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMSenderProperties.DICOM_NOSSL2, UIConstants.NO_OPTION);
-        }
-        properties.put(DICOMSenderProperties.DICOM_PASSCODE, passcodeField.getText());
-        if (pdv1Yes.isSelected()) {
-            properties.put(DICOMSenderProperties.DICOM_PDV1, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMSenderProperties.DICOM_PDV1, UIConstants.NO_OPTION);
-        }
+        properties.setNoClientAuth(noclientauthYes.isSelected());
+        properties.setNossl2(nossl2Yes.isSelected());
+        properties.setPasscode(passcodeField.getText());
+        properties.setPdv1(pdv1Yes.isSelected());
         if (lowPriority.isSelected()) {
-            properties.put(DICOMSenderProperties.DICOM_PRIORITY, "low");
+            properties.setPriority("low");
         } else if (mediumPriority.isSelected()) {
-            properties.put(DICOMSenderProperties.DICOM_PRIORITY, "med");
+            properties.setPriority("med");
         } else if (highPriority.isSelected()) {
-            properties.put(DICOMSenderProperties.DICOM_PRIORITY, "high");
+            properties.setPriority("high");
         }
-        properties.put(DICOMSenderProperties.DICOM_RCVPDULEN, rcvpdulenField.getText());
-        properties.put(DICOMSenderProperties.DICOM_REAPER, reaperField.getText());
-        properties.put(DICOMSenderProperties.DICOM_RELEASETO, releasetoField.getText());
-        properties.put(DICOMSenderProperties.DICOM_RSPTO, rsptoField.getText());
-        properties.put(DICOMSenderProperties.DICOM_SHUTDOWNDELAY, shutdowndelayField.getText());
-        properties.put(DICOMSenderProperties.DICOM_SNDPDULEN, sndpdulenField.getText());
-        properties.put(DICOMSenderProperties.DICOM_SOCLOSEDELAY, soclosedelayField.getText());
-        properties.put(DICOMSenderProperties.DICOM_SORCVBUF, sorcvbufField.getText());
-        properties.put(DICOMSenderProperties.DICOM_SOSNDBUF, sosndbufField.getText());
-        if (stgcmtYes.isSelected()) {
-            properties.put(DICOMSenderProperties.DICOM_STGCMT, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMSenderProperties.DICOM_STGCMT, UIConstants.NO_OPTION);
-        }
-        if (tcpdelayYes.isSelected()) {
-            properties.put(DICOMSenderProperties.DICOM_TCPDELAY, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMSenderProperties.DICOM_TCPDELAY, UIConstants.NO_OPTION);
-        }
+        properties.setRcvpdulen(rcvpdulenField.getText());
+        properties.setReaper(reaperField.getText());
+        properties.setReleaseTo(releasetoField.getText());
+        properties.setRspTo(rsptoField.getText());
+        properties.setShutdownDelay(shutdowndelayField.getText());
+        properties.setSndpdulen(sndpdulenField.getText());
+        properties.setSoCloseDelay(soclosedelayField.getText());
+        properties.setSorcvbuf(sorcvbufField.getText());
+        properties.setSosndbuf(sosndbufField.getText());
+        properties.setStgcmt(stgcmtYes.isSelected());
+        properties.setTcpDelay(tcpdelayYes.isSelected());
         if (tlsaes.isSelected()) {
-            properties.put(DICOMSenderProperties.DICOM_TLS, "aes");
+            properties.setTls("aes");
         } else if (tls3des.isSelected()) {
-            properties.put(DICOMSenderProperties.DICOM_TLS, "3des");
+            properties.setTls("3des");
         } else if (tlswithout.isSelected()) {
-            properties.put(DICOMSenderProperties.DICOM_TLS, "without");
+            properties.setTls("without");
         } else {
-            properties.put(DICOMSenderProperties.DICOM_TLS, "notls");
+            properties.setTls("notls");
         }
-        properties.put(DICOMSenderProperties.DICOM_TRUSTSTORE, truststoreField.getText());
-        properties.put(DICOMSenderProperties.DICOM_TRUSTSTOREPW, truststorepwField.getText());
-        if (ts1Yes.isSelected()) {
-            properties.put(DICOMSenderProperties.DICOM_TS1, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMSenderProperties.DICOM_TS1, UIConstants.NO_OPTION);
-        }
-        if (uidnegrspYes.isSelected()) {
-            properties.put(DICOMSenderProperties.DICOM_UIDNEGRSP, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMSenderProperties.DICOM_UIDNEGRSP, UIConstants.NO_OPTION);
-        }
-        properties.put(DICOMSenderProperties.DICOM_USERNAME, usernameField.getText());
-        properties.put(DICOMSenderProperties.DICOM_APPENTITY, applicationEntityField.getText());
-        properties.put(DICOMSenderProperties.DICOM_LOCALAPPENTITY, localApplicationEntityField.getText());
+        properties.setTrustStore(truststoreField.getText());
+        properties.setTrustStorePW(truststorepwField.getText());
+        properties.setTs1(ts1Yes.isSelected());
+        properties.setUidnegrsp(uidnegrspYes.isSelected());
+        
+        properties.setUsername(usernameField.getText());
+        properties.setApplicationEntity(applicationEntityField.getText());
+        properties.setLocalApplicationEntity(localApplicationEntityField.getText());
         return properties;
     }
 
     @Override
-    public void setProperties(Properties props) {
-        resetInvalidProperties();
+    public void setProperties(ConnectorProperties properties) {
+        DICOMDispatcherProperties props = (DICOMDispatcherProperties) properties;
 
-        listenerAddressField.setText((String) props.get(DICOMSenderProperties.DICOM_ADDRESS));
-        listenerPortField.setText((String) props.get(DICOMSenderProperties.DICOM_PORT));
-        localAddressField.setText((String) props.get(DICOMSenderProperties.DICOM_LOCALADDRESS));
-        localPortField.setText((String) props.get(DICOMSenderProperties.DICOM_LOCALPORT));
-        fileContentsTextPane.setText((String) props.get(DICOMSenderProperties.DICOM_TEMPLATE));
-        accepttoField.setText((String) props.get(DICOMSenderProperties.DICOM_ACCECPTTO));
-        asyncField.setText((String) props.get(DICOMSenderProperties.DICOM_ASYNC));
-        bufsizeField.setText((String) props.get(DICOMSenderProperties.DICOM_BUFSIZE));
-        connecttoField.setText((String) props.get(DICOMSenderProperties.DICOM_CONNECTTO));
-        keyPasswordField.setText((String) props.get(DICOMSenderProperties.DICOM_KEYPW));
-        keyStoreField.setText((String) props.get(DICOMSenderProperties.DICOM_KEYSTORE));
-        keyStorePasswordField.setText((String) props.get(DICOMSenderProperties.DICOM_KEYSTOREPW));
-        passcodeField.setText((String) props.get(DICOMSenderProperties.DICOM_PASSCODE));
-        rcvpdulenField.setText((String) props.get(DICOMSenderProperties.DICOM_RCVPDULEN));
-        reaperField.setText((String) props.get(DICOMSenderProperties.DICOM_REAPER));
-        releasetoField.setText((String) props.get(DICOMSenderProperties.DICOM_RELEASETO));
-        rsptoField.setText((String) props.get(DICOMSenderProperties.DICOM_RSPTO));
-        shutdowndelayField.setText((String) props.get(DICOMSenderProperties.DICOM_SHUTDOWNDELAY));
-        sndpdulenField.setText((String) props.get(DICOMSenderProperties.DICOM_SNDPDULEN));
-        soclosedelayField.setText((String) props.get(DICOMSenderProperties.DICOM_SOCLOSEDELAY));
-        sorcvbufField.setText((String) props.get(DICOMSenderProperties.DICOM_SORCVBUF));
-        sosndbufField.setText((String) props.get(DICOMSenderProperties.DICOM_SOSNDBUF));
-        truststoreField.setText((String) props.get(DICOMSenderProperties.DICOM_TRUSTSTORE));
-        truststorepwField.setText((String) props.get(DICOMSenderProperties.DICOM_TRUSTSTOREPW));
-        usernameField.setText((String) props.get(DICOMSenderProperties.DICOM_USERNAME));
-        applicationEntityField.setText((String) props.get(DICOMSenderProperties.DICOM_APPENTITY));
-        localApplicationEntityField.setText((String) props.get(DICOMSenderProperties.DICOM_LOCALAPPENTITY));
+        listenerAddressField.setText(props.getHost());
+        listenerPortField.setText(props.getPort());
+        localAddressField.setText(props.getLocalHost());
+        localPortField.setText(props.getLocalPort());
+        fileContentsTextPane.setText(props.getTemplate());
+        accepttoField.setText(props.getAcceptTo());
+        asyncField.setText(props.getAsync());
+        bufsizeField.setText(props.getBufSize());
+        connecttoField.setText(props.getConnectTo());
+        keyPasswordField.setText(props.getKeyPW());
+        keyStoreField.setText(props.getKeyStore());
+        keyStorePasswordField.setText(props.getKeyStorePW());
+        passcodeField.setText(props.getPasscode());
+        rcvpdulenField.setText(props.getRcvpdulen());
+        reaperField.setText(props.getReaper());
+        releasetoField.setText(props.getReleaseTo());
+        rsptoField.setText(props.getRspTo());
+        shutdowndelayField.setText(props.getShutdownDelay());
+        sndpdulenField.setText(props.getSndpdulen());
+        soclosedelayField.setText(props.getSoCloseDelay());
+        sorcvbufField.setText(props.getSorcvbuf());
+        sosndbufField.setText(props.getSosndbuf());
+        truststoreField.setText(props.getTrustStore());
+        truststorepwField.setText(props.getTrustStorePW());
+        usernameField.setText(props.getUsername());
+        applicationEntityField.setText(props.getApplicationEntity());
+        localApplicationEntityField.setText(props.getLocalApplicationEntity());
 
-        if (((String) props.get(DICOMSenderProperties.DICOM_NOCLIENTAUTH)).equals(UIConstants.YES_OPTION)) {
+        if (props.isNoClientAuth()) {
             noclientauthYes.setSelected(true);
         } else {
             noclientauthNo.setSelected(true);
         }
-        if (((String) props.get(DICOMSenderProperties.DICOM_NOSSL2)).equals(UIConstants.YES_OPTION)) {
+        if (props.isNossl2()) {
             nossl2Yes.setSelected(true);
         } else {
             nossl2No.setSelected(true);
         }
-        if (((String) props.get(DICOMSenderProperties.DICOM_PDV1)).equals(UIConstants.YES_OPTION)) {
+        if (props.isPdv1()) {
             pdv1Yes.setSelected(true);
         } else {
             pdv1No.setSelected(true);
         }
-        if (((String) props.get(DICOMSenderProperties.DICOM_PRIORITY)).equals("low")) {
+        if (props.getPriority().equals("low")) {
             lowPriority.setSelected(true);
-        } else if (((String) props.get(DICOMSenderProperties.DICOM_PRIORITY)).equals("med")) {
+        } else if (props.getPriority().equals("med")) {
             mediumPriority.setSelected(true);
         } else {
             highPriority.setSelected(true);
         }
-        if (((String) props.get(DICOMSenderProperties.DICOM_STGCMT)).equals(UIConstants.YES_OPTION)) {
+        if (props.isStgcmt()) {
             stgcmtYes.setSelected(true);
         } else {
             stgcmtNo.setSelected(true);
         }
-        if (((String) props.get(DICOMSenderProperties.DICOM_TCPDELAY)).equals(UIConstants.YES_OPTION)) {
+        if (props.isTcpDelay()) {
             tcpdelayYes.setSelected(true);
         } else {
             tcpdelayNo.setSelected(true);
         }
-        if (((String) props.get(DICOMSenderProperties.DICOM_TLS)).equals("aes")) {
+        if (props.getTls().equals("aes")) {
             tlsaes.setSelected(true);
             tlsaesActionPerformed(null);
-        } else if (((String) props.get(DICOMSenderProperties.DICOM_TLS)).equals("3des")) {
+        } else if (props.getTls().equals("3des")) {
             tls3des.setSelected(true);
             tls3desActionPerformed(null);
-        } else if (((String) props.get(DICOMSenderProperties.DICOM_TLS)).equals("without")) {
+        } else if (props.getTls().equals("without")) {
             tlswithout.setSelected(true);
             tlswithoutActionPerformed(null);
         } else {
             tlsno.setSelected(true);
             tlsnoActionPerformed(null);
         }
-        if (((String) props.get(DICOMSenderProperties.DICOM_TS1)).equals(UIConstants.YES_OPTION)) {
+        if (props.isTs1()) {
             ts1Yes.setSelected(true);
         } else {
             ts1No.setSelected(true);
         }
-        if (((String) props.get(DICOMSenderProperties.DICOM_UIDNEGRSP)).equals(UIConstants.YES_OPTION)) {
+        if (props.isUidnegrsp()) {
             uidnegrspYes.setSelected(true);
         } else {
             uidnegrspNo.setSelected(true);
         }
-
-        boolean enabled = parent.isSaveEnabled();
-
-        updateResponseDropDown();
-
-        parent.setSaveEnabled(enabled);
     }
 
     @Override
-    public Properties getDefaults() {
-        return new DICOMSenderProperties().getDefaults();
+    public ConnectorProperties getDefaults() {
+        return new DICOMDispatcherProperties();
     }
 
     @Override
-    public boolean checkProperties(Properties props, boolean highlight) {
-        resetInvalidProperties();
+    public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
+        DICOMDispatcherProperties props = (DICOMDispatcherProperties) properties;
+        
         boolean valid = true;
 
-        if (((String) props.get(DICOMSenderProperties.DICOM_ADDRESS)).length() <= 3) {
+        if ((props.getHost()).length() <= 3) {
             valid = false;
             if (highlight) {
                 listenerAddressField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (((String) props.get(DICOMSenderProperties.DICOM_PORT)).length() == 0) {
+        if ((props.getPort()).length() == 0) {
             valid = false;
             if (highlight) {
                 listenerPortField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (((String) props.get(DICOMSenderProperties.DICOM_TEMPLATE)).length() == 0) {
+        if ((props.getTemplate()).length() == 0) {
             valid = false;
             if (highlight) {
                 fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
@@ -255,22 +211,11 @@ public class DICOMSender extends ConnectorClass {
         return valid;
     }
 
-    private void resetInvalidProperties() {
+    @Override
+    public void resetInvalidProperties() {
         listenerAddressField.setBackground(null);
         listenerPortField.setBackground(null);
         fileContentsTextPane.setBackground(null);
-        accepttoField.setBackground(null);
-    }
-
-    @Override
-    public String doValidate(Properties props, boolean highlight) {
-        String error = null;
-
-        if (!checkProperties(props, highlight)) {
-            error = "Error in the form for connector \"" + getName() + "\".\n\n";
-        }
-
-        return error;
     }
 
     /**
@@ -1101,71 +1046,6 @@ public class DICOMSender extends ConnectorClass {
     private void highPriorityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_highPriorityActionPerformed
 // TODO add your handling code here:
     }//GEN-LAST:event_highPriorityActionPerformed
-
-    @Override
-    public void updateResponseDropDown() {
-        boolean enabled = parent.isSaveEnabled();
-
-        Channel channel = parent.channelEditPanel.currentChannel;
-
-        Set<String> variables = new LinkedHashSet<String>();
-
-        variables.add("None");
-
-        List<Step> stepsToCheck = new ArrayList<Step>();
-        stepsToCheck.addAll(channel.getSourceConnector().getTransformer().getSteps());
-
-        List<String> scripts = new ArrayList<String>();
-
-        for (Connector connector : channel.getDestinationConnectors()) {
-            if (connector.getTransportName().equals("Database Writer")) {
-                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION)) {
-                    scripts.add(connector.getProperties().getProperty("script"));
-                }
-            } else if (connector.getTransportName().equals("JavaScript Writer")) {
-                scripts.add(connector.getProperties().getProperty("script"));
-            }
-            variables.add(connector.getName());
-            stepsToCheck.addAll(connector.getTransformer().getSteps());
-        }
-
-        Pattern pattern = Pattern.compile(RESULT_PATTERN);
-
-        int i = 0;
-        for (Iterator it = stepsToCheck.iterator(); it.hasNext();) {
-            Step step = (Step) it.next();
-            Map data;
-            data = (Map) step.getData();
-
-            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)) {
-                Matcher matcher = pattern.matcher(step.getScript());
-                while (matcher.find()) {
-                    String key = matcher.group(1);
-                    variables.add(key);
-                }
-            } else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
-                if (data.containsKey(UIConstants.IS_GLOBAL)) {
-                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE)) {
-                        variables.add((String) data.get("Variable"));
-                    }
-                }
-            }
-        }
-        scripts.add(channel.getPreprocessingScript());
-        scripts.add(channel.getPostprocessingScript());
-
-        for (String script : scripts) {
-            if (script != null && script.length() > 0) {
-                Matcher matcher = pattern.matcher(script);
-                while (matcher.find()) {
-                    String key = matcher.group(1);
-                    variables.add(key);
-                }
-            }
-        }
-
-        parent.setSaveEnabled(enabled);
-    }
 
     private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
     {// GEN-HEADEREND:event_ackOnNewConnectionNoActionPerformed

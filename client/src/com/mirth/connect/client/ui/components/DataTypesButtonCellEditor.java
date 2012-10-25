@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -26,7 +26,7 @@ import com.mirth.connect.client.ui.beans.XMLProperties;
 import com.mirth.connect.client.ui.editors.BoundPropertiesSheetDialog;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.DataTypeFactory;
 
 public class DataTypesButtonCellEditor extends MirthButtonCellEditor {
 
@@ -63,19 +63,19 @@ public class DataTypesButtonCellEditor extends MirthButtonCellEditor {
     }
     
     private void loadPropertiesEditor(String dataType, Properties dataProperties) {
-        if (dataType.equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI))) {
+        if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.EDI))) {
             new BoundPropertiesSheetDialog(dataProperties, new EDIProperties());
-        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12))) {
+        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.X12))) {
             new BoundPropertiesSheetDialog(dataProperties, new X12Properties());
-        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2))) {
+        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V2))) {
             new BoundPropertiesSheetDialog(dataProperties, new HL7Properties());
-        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3))) {
+        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V3))) {
             new BoundPropertiesSheetDialog(dataProperties, new HL7V3Properties());
-        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP))) {
+        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.NCPDP))) {
             new BoundPropertiesSheetDialog(dataProperties, new NCPDPProperties());
-        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DELIMITED))) {
+        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.DELIMITED))) {
             new BoundPropertiesSheetDialog(dataProperties, new DelimitedProperties(), 550, 370);
-        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.XML))) {
+        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.XML))) {
             new BoundPropertiesSheetDialog(dataProperties, new XMLProperties());
         }
     }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -19,7 +19,7 @@ import javax.swing.JComponent;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
 
 public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
@@ -92,9 +92,9 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
     }
 
     // used for setting actions to be called for updating when there is a status selected    
-    public void update(List<ChannelStatus> statuses) {
+    public void update(List<DashboardStatus> statuses) {
         // Keep status as null if there are more than one channels selected
-        ChannelStatus status = null;
+        DashboardStatus status = null;
         if ((statuses != null) && (statuses.size() == 1)) {
             status = statuses.get(0);
         }

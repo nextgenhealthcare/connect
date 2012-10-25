@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -15,7 +15,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
@@ -27,15 +26,17 @@ import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
-import com.mirth.connect.connectors.ConnectorClass;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.util.ConnectionTestResponse;
 
-public class SmtpSender extends ConnectorClass {
+public class SmtpSender extends ConnectorSettingsPanel {
 
     private final int HEADERS_NAME_COLUMN = 0;
     private final int HEADERS_VALUE_COLUMN = 1;
@@ -49,72 +50,73 @@ public class SmtpSender extends ConnectorClass {
     private final String ATTACHMENTS_MIME_TYPE_COLUMN_NAME = "MIME type";
     private int headersLastIndex = -1;
     private int attachmentsLastIndex = -1;
+    
+    private Frame parent;
    
-    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-
     public SmtpSender() {
-        name = SmtpSenderProperties.name;
+        this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
+    
+    @Override
+    public String getConnectorName() {
+        return new SmtpDispatcherProperties().getName();
+    }
 
-    public Properties getProperties() {
-        Properties properties = new Properties();
-        properties.put(SmtpSenderProperties.DATATYPE, name);
-        properties.put(SmtpSenderProperties.SMTP_HOST, smtpHostField.getText());
-        properties.put(SmtpSenderProperties.SMTP_PORT, smtpPortField.getText());
-        properties.put(SmtpSenderProperties.SMTP_TIMEOUT, sendTimeoutField.getText());
+    @Override
+    public ConnectorProperties getProperties() {
+        SmtpDispatcherProperties properties = new SmtpDispatcherProperties();
+
+        properties.setSmtpHost(smtpHostField.getText());
+        properties.setSmtpPort(smtpPortField.getText());
+        properties.setTimeout(sendTimeoutField.getText());
 
         if (encryptionTls.isSelected()) {
-            properties.put(SmtpSenderProperties.SMTP_SECURE, "TLS");
+            properties.setEncryption("TLS");
         } else if (encryptionSsl.isSelected()) {
-            properties.put(SmtpSenderProperties.SMTP_SECURE, "SSL");
+            properties.setEncryption("SSL");
         } else {
-            properties.put(SmtpSenderProperties.SMTP_SECURE, "none");
+            properties.setEncryption("none");
         }
 
-        if (useAuthenticationYes.isSelected()) {
-            properties.put(SmtpSenderProperties.SMTP_AUTHENTICATION, UIConstants.YES_OPTION);
-        } else {
-            properties.put(SmtpSenderProperties.SMTP_AUTHENTICATION, UIConstants.NO_OPTION);
-        }
+        properties.setAuthentication(useAuthenticationYes.isSelected());
 
-        properties.put(SmtpSenderProperties.SMTP_USERNAME, usernameField.getText());
-        properties.put(SmtpSenderProperties.SMTP_PASSWORD, new String(passwordField.getPassword()));
-        properties.put(SmtpSenderProperties.SMTP_TO, toField.getText());
-        properties.put(SmtpSenderProperties.SMTP_FROM, fromField.getText());
-        properties.put(SmtpSenderProperties.SMTP_SUBJECT, subjectField.getText());
+        properties.setUsername(usernameField.getText());
+        properties.setPassword(new String(passwordField.getPassword()));
+        properties.setTo(toField.getText());
+        properties.setFrom(fromField.getText());
+        properties.setSubject(subjectField.getText());
         
-        properties.put(SmtpSenderProperties.SMTP_CHARSET, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
+        properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
-        if (htmlYes.isSelected()) {
-            properties.put(SmtpSenderProperties.SMTP_HTML, UIConstants.YES_OPTION);
-        } else {
-            properties.put(SmtpSenderProperties.SMTP_HTML, UIConstants.NO_OPTION);
-        }
+        properties.setHtml(htmlYes.isSelected());
 
-        properties.put(SmtpSenderProperties.SMTP_BODY, bodyTextPane.getText());
-        properties.put(SmtpSenderProperties.SMTP_HEADERS, serializer.toXML(getHeaders()));
-        properties.put(SmtpSenderProperties.SMTP_ATTACHMENTS, serializer.toXML(getAttachments()));
+        properties.setBody(bodyTextPane.getText());
+        properties.setHeaders(getHeaders());
+        properties.setAttachments(getAttachments());
+        
         return properties;
     }
 
-    public void setProperties(Properties props) {
-        resetInvalidProperties();
+    @Override
+    public void setProperties(ConnectorProperties properties) {
+        SmtpDispatcherProperties props = (SmtpDispatcherProperties) properties;
 
-        smtpHostField.setText((String) props.get(SmtpSenderProperties.SMTP_HOST));
-        smtpPortField.setText((String) props.get(SmtpSenderProperties.SMTP_PORT));
-        sendTimeoutField.setText((String) props.get(SmtpSenderProperties.SMTP_TIMEOUT));
+        smtpHostField.setText(props.getSmtpHost());
+        smtpPortField.setText(props.getSmtpPort());
+        sendTimeoutField.setText(props.getTimeout());
 
-        if (((String) props.getProperty(SmtpSenderProperties.SMTP_SECURE)).equalsIgnoreCase("TLS")) {
+        if (props.getEncryption().equalsIgnoreCase("TLS")) {
             encryptionTls.setSelected(true);
-        } else if (((String) props.getProperty(SmtpSenderProperties.SMTP_SECURE)).equalsIgnoreCase("SSL")) {
+        } else if (props.getEncryption().equalsIgnoreCase("SSL")) {
             encryptionSsl.setSelected(true);
         } else {
             encryptionNone.setSelected(true);
         }
 
-        if (((String) props.get(SmtpSenderProperties.SMTP_AUTHENTICATION)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+        if (props.isAuthentication()) {
             useAuthenticationYesActionPerformed(null);
             useAuthenticationYes.setSelected(true);
         } else {
@@ -122,59 +124,60 @@ public class SmtpSender extends ConnectorClass {
             useAuthenticationNo.setSelected(true);
         }
 
-        usernameField.setText((String) props.get(SmtpSenderProperties.SMTP_USERNAME));
-        passwordField.setText((String) props.get(SmtpSenderProperties.SMTP_PASSWORD));
-        toField.setText((String) props.get(SmtpSenderProperties.SMTP_TO));
-        fromField.setText((String) props.get(SmtpSenderProperties.SMTP_FROM));
-        subjectField.setText((String) props.get(SmtpSenderProperties.SMTP_SUBJECT));
+        usernameField.setText(props.getUsername());
+        passwordField.setText(props.getPassword());
+        toField.setText(props.getTo());
+        fromField.setText(props.getFrom());
+        subjectField.setText(props.getSubject());
 
-        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(SmtpSenderProperties.SMTP_CHARSET));
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharsetEncoding());
         
-        if (((String) props.get(SmtpSenderProperties.SMTP_HTML)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+        if (props.isHtml()) {
             htmlYes.setSelected(true);
         } else {
             htmlNo.setSelected(true);
         }
 
-        bodyTextPane.setText((String) props.get(SmtpSenderProperties.SMTP_BODY));
+        bodyTextPane.setText(props.getBody());
         
-        Map<String, String> headers = (Map<String, String>) serializer.fromXML((String) props.get(SmtpSenderProperties.SMTP_HEADERS));
-        setHeaders(headers);
+        setHeaders(props.getHeaders());
         
-        List<Attachment> attachments = (List<Attachment>) serializer.fromXML((String) props.get(SmtpSenderProperties.SMTP_ATTACHMENTS));
-        setAttachments(attachments);
+        setAttachments(props.getAttachments());
     }
 
-    public Properties getDefaults() {
-        return new SmtpSenderProperties().getDefaults();
+    @Override
+    public ConnectorProperties getDefaults() {
+        return new SmtpDispatcherProperties();
     }
 
-    public boolean checkProperties(Properties props, boolean highlight) {
-        resetInvalidProperties();
+    @Override
+    public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
+        SmtpDispatcherProperties props = (SmtpDispatcherProperties) properties;
+
         boolean valid = true;
 
-        if (((String) props.get(SmtpSenderProperties.SMTP_HOST)).length() == 0) {
+        if (props.getSmtpHost().length() == 0) {
             valid = false;
             if (highlight) {
                 smtpHostField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         
-        if (((String) props.get(SmtpSenderProperties.SMTP_PORT)).length() == 0) {
+        if (props.getSmtpPort().length() == 0) {
             valid = false;
             if (highlight) {
                 smtpPortField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         
-        if (((String) props.get(SmtpSenderProperties.SMTP_TIMEOUT)).length() == 0) {
+        if (props.getTimeout().length() == 0) {
             valid = false;
             if (highlight) {
                 sendTimeoutField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         
-        if (((String) props.get(SmtpSenderProperties.SMTP_TO)).length() == 0) {
+        if (props.getTo().length() == 0) {
             valid = false;
             if (highlight) {
                 toField.setBackground(UIConstants.INVALID_COLOR);
@@ -184,21 +187,12 @@ public class SmtpSender extends ConnectorClass {
         return valid;
     }
 
-    private void resetInvalidProperties() {
+    @Override
+    public void resetInvalidProperties() {
         smtpHostField.setBackground(null);
         smtpPortField.setBackground(null);
         sendTimeoutField.setBackground(null);
         toField.setBackground(null);
-    }
-
-    public String doValidate(Properties props, boolean highlight) {
-        String error = null;
-
-        if (!checkProperties(props, highlight)) {
-            error = "Error in the form for connector \"" + getName() + "\".\n\n";
-        }
-
-        return error;
     }
 
     private void setHeaders(Map<String, String> headers) {
@@ -903,7 +897,7 @@ private void sendTestEmailButtonActionPerformed(java.awt.event.ActionEvent evt) 
         public Void doInBackground() {
             
             try {
-                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "sendTestEmail", getProperties());
+                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(getConnectorName(), "sendTestEmail", getProperties());
                 
                 if (response == null) {
                     parent.alertError(parent, "Failed to send email.");

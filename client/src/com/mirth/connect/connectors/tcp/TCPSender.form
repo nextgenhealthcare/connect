@@ -8,6 +8,8 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="dataTypeButtonGroup">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="frameEncodingButtonGroup">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -36,12 +38,9 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="URL" min="-2" max="-2" attributes="0"/>
                   <Component id="dataTypeLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="encodingLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel19" min="-2" max="-2" attributes="0"/>
-                  <Component id="queuePollIntervalLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel36" min="-2" max="-2" attributes="0"/>
                   <Group type="103" alignment="1" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
                           <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
@@ -52,6 +51,8 @@
                               <Component id="jLabel15" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel14" alignment="1" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel20" alignment="1" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <Component id="reconnectIntervalLabel" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -60,44 +61,54 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="template" pref="337" max="32767" attributes="0"/>
-                  <Component id="reconnectIntervalField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Component id="maximumRetryCountField" alignment="0" min="-2" pref="35" max="-2" attributes="1"/>
+                  <Component id="template" pref="333" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="keepConnectionOpenYesRadio" min="-2" max="-2" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="maximumRetryCountField" alignment="0" min="-2" pref="35" max="-2" attributes="1"/>
+                          <Component id="bufferSizeField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                          <Component id="sendTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="hostAddressField" min="-2" pref="200" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="testConnection" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="hostPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                          <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="dataTypeBinary" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="dataTypeASCII" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="frameEncodingASCIIRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="frameEncodingHexRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="keepConnectionOpenYesRadio" min="-2" pref="43" max="-2" attributes="1"/>
+                              <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
+                              <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="beginBytesField" min="-2" pref="45" max="-2" attributes="1"/>
+                              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
+                              <Component id="jLabel21" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="endBytesField" min="-2" pref="45" max="-2" attributes="1"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                  <Component id="responseTimeoutField" max="32767" attributes="0"/>
+                                  <Component id="reconnectIntervalField" alignment="1" min="-2" pref="75" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="ignoreACKCheckBox" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="bufferSizeField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Component id="serverTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="hostAddressField" min="-2" pref="200" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="testConnection" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="hostPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="usePersistentQueuesNoRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
-                      <Component id="rotateMessagesCheckBox" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="queuePollIntervalField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="ackTimeoutField" min="-2" pref="71" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="ignoreACKCheckBox" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="dataTypeBinary" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="dataTypeASCII" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="channelNames" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -117,12 +128,25 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel16" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="serverTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sendTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="bufferSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel15" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel14" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="frameEncodingASCIIRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="frameEncodingHexRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel20" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="beginBytesField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel21" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="endBytesField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -142,19 +166,7 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="usePersistentQueuesYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="usePersistentQueuesNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="rotateMessagesCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="queuePollIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="queuePollIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="ackTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="ignoreACKCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel19" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -170,16 +182,11 @@
                   <Component id="dataTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="channelNames" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="URL" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                  <Component id="template" pref="125" max="32767" attributes="0"/>
+                  <Component id="template" min="-2" pref="128" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -220,7 +227,7 @@
         <Property name="toolTipText" type="java.lang.String" value="The port on which to connect."/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="serverTimeoutField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="sendTimeoutField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The number of milliseconds to keep the connection to the host open."/>
       </Properties>
@@ -280,7 +287,7 @@
         <Property name="toolTipText" type="java.lang.String" value="The DNS domain name or IP address on which to connect."/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="ackTimeoutField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="responseTimeoutField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The number of milliseconds the connector should wait for a response from the host after sending a message."/>
       </Properties>
@@ -314,57 +321,6 @@
         <Property name="text" type="java.lang.String" value="Encoding:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel36">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Use Persistent Queues:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="usePersistentQueuesYesRadio">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="usePersistenceQueuesGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will store any messages that are unable to be successfully processed in a file-based queue.&lt;br&gt;Messages will be automatically resent until the queue is manually cleared or the message is successfully sent.&lt;br&gt;The default queue location is (Mirth Directory)/.mule/queuestore/(ChannelID),&lt;br&gt; where (Mirth Directory) is the main Mirth install root and (ChannelID) is the unique id of the current channel.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="usePersistentQueuesYesRadioActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="usePersistentQueuesNoRadio">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="usePersistenceQueuesGroup"/>
-        </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="usePersistentQueuesNoRadioActionPerformed"/>
-      </Events>
-    </Component>
     <Component class="javax.swing.JLabel" name="jLabel7">
       <Properties>
         <Property name="text" type="java.lang.String" value="Template:"/>
@@ -377,24 +333,6 @@
             <EtchetBorder/>
           </Border>
         </Property>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="channelNames">
-      <Properties>
-        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="4">
-            <StringItem index="0" value="Item 1"/>
-            <StringItem index="1" value="Item 2"/>
-            <StringItem index="2" value="Item 3"/>
-            <StringItem index="3" value="Item 4"/>
-          </StringArray>
-        </Property>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select None to not process any response received from the host,&lt;br&gt; or select the channel to send the response to as a new inbound message.&lt;/html&gt;"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="URL">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Send Response to:"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectIntervalField">
@@ -479,15 +417,6 @@
         <Property name="text" type="java.lang.String" value="Data Type:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="rotateMessagesCheckBox">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Rotate Messages in Queue"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, upon unsuccessful re-try, it will rotate and put the queued message to the back of the queue&lt;br&gt; in order to prevent it from clogging the queue and to let the other subsequent messages in queue be processed.&lt;br&gt;If the order of messages processed is important, this should be unchecked.&lt;/html&gt;"/>
-      </Properties>
-    </Component>
     <Component class="javax.swing.JButton" name="testConnection">
       <Properties>
         <Property name="text" type="java.lang.String" value="Test Connection"/>
@@ -496,14 +425,75 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="testConnectionActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="queuePollIntervalField">
+    <Component class="javax.swing.JLabel" name="jLabel14">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The amount of time that should elapse between polls of an empty queue to check for queued messages.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Frame Encoding:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="queuePollIntervalLabel">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="frameEncodingASCIIRadio">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Queue Poll Interval (ms):"/>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="frameEncodingButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="ASCII"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select ASCII to encode the beginning and ending frame bytes as US-ASCII. &lt;br&gt;Select Hex to use the literal hexadecimal representation for the beginning and ending frame bytes. &lt;br&gt;Only the characters 0-9, a-f, and A-F are allowed, and the string may optionally be prefixed with &quot;0x&quot;.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="frameEncodingASCIIRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="frameEncodingHexRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="frameEncodingButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Hex"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select ASCII to encode the beginning and ending frame bytes as US-ASCII. &lt;br&gt;Select Hex to use the literal hexadecimal representation for the beginning and ending frame bytes. &lt;br&gt;Only the characters 0-9, a-f, and A-F are allowed, and the string may optionally be prefixed with &quot;0x&quot;.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="frameEncodingHexRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel20">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Beginning Bytes:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel21">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Ending Bytes:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="beginBytesField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to send before the beginning of the actual message. &lt;br&gt;If using hex frame encoding, then only the characters 0-9, a-f, and A-F are allowed, &lt;br&gt;and the string my optionally be prefixed with &quot;0x&quot;.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="endBytesField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to send after the end of the actual message. &lt;br&gt;If using hex frame encoding, then only the characters 0-9, a-f, and A-F are allowed, &lt;br&gt;and the string my optionally be prefixed with &quot;0x&quot;.&lt;/html&gt;"/>
       </Properties>
     </Component>
   </SubComponents>

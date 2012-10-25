@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -182,13 +182,13 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         if (connector.getMode() == Connector.Mode.SOURCE) {
             tabTemplatePanel.setSourceView();
-            tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol()));
+            tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypes.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
         } else if (connector.getMode() == Connector.Mode.DESTINATION) {
             tabTemplatePanel.setDestinationView();
-            if (channel.getSourceConnector().getTransformer().getOutboundProtocol() != null) {
-                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getOutboundProtocol()));
+            if (channel.getSourceConnector().getTransformer().getOutboundDataType() != null) {
+                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypes.get(channel.getSourceConnector().getTransformer().getOutboundDataType()));
             } else {
-                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol()));
+                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypes.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
             }
         }
 

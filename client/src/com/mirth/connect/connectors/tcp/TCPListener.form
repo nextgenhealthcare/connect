@@ -8,6 +8,8 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="ackOnNewConnectionButtonGroup">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="frameEncodingButtonGroup">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -33,20 +35,28 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="dataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseFromLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ackOnNewConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ackIPLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ackPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="keepConnectionOpenLabel" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" attributes="0">
+                              <Component id="encodingLabel3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
+                              <Component id="keepConnectionOpenLabel" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <Group type="103" alignment="0" groupAlignment="1" attributes="0">
+                          <Component id="dataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="ackOnNewConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="ackIPLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="ackPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <Component id="encodingLabel1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -55,12 +65,24 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="listenerAddressField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
-                  <Component id="listenerPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
                   <Component id="receiveTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
                   <Component id="bufferSizeField" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="beginBytesField" alignment="0" max="32767" attributes="1"/>
+                          <Component id="frameEncodingASCIIRadio" alignment="0" max="32767" attributes="1"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="frameEncodingHexRadio" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="encodingLabel2" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="endBytesField" min="-2" pref="46" max="-2" attributes="1"/>
+                          </Group>
+                      </Group>
+                  </Group>
                   <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseFromTransformer" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
                   <Component id="ackAddressField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
                   <Component id="ackPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
@@ -68,29 +90,19 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="ackOnNewConnectionNo" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="dataTypeBinary" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="dataTypeASCII" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="23" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="listenerAddressField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="listenerPortField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="receiveTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -108,6 +120,19 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="encodingLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="frameEncodingASCIIRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="frameEncodingHexRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="encodingLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="beginBytesField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="encodingLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="endBytesField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -116,11 +141,6 @@
                   <Component id="dataTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="dataTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="dataTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="responseFromLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseFromTransformer" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -138,22 +158,12 @@
                   <Component id="ackPortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="ackPortField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="21" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="jLabel1">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Listener Address:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel2">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Listener Port:"/>
-      </Properties>
-    </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
         <Property name="text" type="java.lang.String" value="Receive Timeout (ms):"/>
@@ -172,16 +182,6 @@
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="receiveTimeoutField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The amount of time, in milliseconds, to wait without receiving a message before closing a connection."/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerPortField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The port to listen for connections on."/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerAddressField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The DNS domain name or IP address to listen for connections on."/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
@@ -274,24 +274,6 @@
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="ackAddressField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the DNS domain name or IP address to send message responses to."/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="responseFromLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Respond from:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="responseFromTransformer">
-      <Properties>
-        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="4">
-            <StringItem index="0" value="Item 1"/>
-            <StringItem index="1" value="Item 2"/>
-            <StringItem index="2" value="Item 3"/>
-            <StringItem index="3" value="Item 4"/>
-          </StringArray>
-        </Property>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select &quot;None&quot; to send no response.&lt;br&gt;Select a destination of this channel that will supply a return value using the Response Map.&lt;br&gt;Select a variable that has been added to the Response Map.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="dataTypeASCII">
@@ -390,6 +372,80 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="encodingLabel1">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Beginning Bytes:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="encodingLabel2">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Ending Bytes:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="beginBytesField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to come before the beginning of the actual message. &lt;br&gt;If using hex frame encoding, then only the characters 0-9, a-f, and A-F are allowed, &lt;br&gt;and the string my optionally be prefixed with &quot;0x&quot;.&lt;/html&gt;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="beginBytesFieldActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="endBytesField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to come after the end of the actual message. &lt;br&gt;If using hex frame encoding, then only the characters 0-9, a-f, and A-F are allowed, &lt;br&gt;and the string my optionally be prefixed with &quot;0x&quot;.&lt;/html&gt;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="endBytesFieldActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="encodingLabel3">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Frame Encoding:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="frameEncodingASCIIRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="frameEncodingButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="ASCII"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select ASCII to encode the beginning and ending frame bytes as US-ASCII. &lt;br&gt;Select Hex to use the literal hexadecimal representation for the beginning and ending frame bytes. &lt;br&gt;Only the characters 0-9, a-f, and A-F are allowed, and the string may optionally be prefixed with &quot;0x&quot;.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="frameEncodingHexRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="frameEncodingButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Hex"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select ASCII to encode the beginning and ending frame bytes as US-ASCII. &lt;br&gt;Select Hex to use the literal hexadecimal representation for the beginning and ending frame bytes. &lt;br&gt;Only the characters 0-9, a-f, and A-F are allowed, and the string may optionally be prefixed with &quot;0x&quot;.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="frameEncodingHexRadioActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

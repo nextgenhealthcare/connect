@@ -28,42 +28,21 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="responseFromLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="responseFromTransformer" min="-2" pref="150" max="-2" attributes="0"/>
-              <EmptySpace pref="24" max="32767" attributes="0"/>
+              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="129" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="responseFromLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseFromTransformer" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="32767" attributes="0"/>
-          </Group>
+          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="responseFromTransformer">
+    <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="4">
-            <StringItem index="0" value="Item 1"/>
-            <StringItem index="1" value="Item 2"/>
-            <StringItem index="2" value="Item 3"/>
-            <StringItem index="3" value="Item 4"/>
-          </StringArray>
-        </Property>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select None or the name of a destination of this channel that will generate the response to the request.&lt;br&gt;If None is selected, the response will always be &quot;200 OK&quot; if the message is successfully processed &lt;br&gt;or &quot;500 Server Error&quot; if there is an error processing the message.&lt;/html&gt;"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="responseFromLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Respond from:"/>
+        <Property name="text" type="java.lang.String" value="No configurable settings."/>
       </Properties>
     </Component>
   </SubComponents>

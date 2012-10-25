@@ -39,7 +39,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="dataType" min="-2" max="-2" attributes="0"/>
+                      <Component id="dataTypeComboBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="properties" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -55,11 +55,11 @@
           <Group type="102" attributes="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="properties" linkSize="1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="dataType" linkSize="1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="dataTypeComboBox" linkSize="1" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="openFileButton" linkSize="1" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="pasteBox" pref="185" max="32767" attributes="0"/>
+              <Component id="pasteBox" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
           <Group type="102" attributes="0">
@@ -76,7 +76,7 @@
         <Property name="text" type="java.lang.String" value="Data Type:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JComboBox" name="dataType">
+    <Component class="javax.swing.JComboBox" name="dataTypeComboBox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="4">
@@ -88,7 +88,7 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dataTypeActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dataTypeComboBoxActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="properties">

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -108,20 +108,20 @@ public class MessageTemplatePanel extends javax.swing.JPanel {
         templatePanelOutbound.clearMessage();
     }
 
-    public void setInboundProtocol(String protocol) {
-        templatePanelInbound.setProtocol(protocol);
+    public void setInboundDataType(String dataType) {
+        templatePanelInbound.setDataType(dataType);
     }
 
-    public void setOutboundProtocol(String protocol) {
-        templatePanelOutbound.setProtocol(protocol);
+    public void setOutboundDataType(String dataType) {
+        templatePanelOutbound.setDataType(dataType);
     }
 
-    public String getInboundProtocol() {
-        return templatePanelInbound.getProtocol();
+    public String getInboundDataType() {
+        return templatePanelInbound.getDataType();
     }
 
-    public String getOutboundProtocol() {
-        return templatePanelOutbound.getProtocol();
+    public String getOutboundDataType() {
+        return templatePanelOutbound.getDataType();
     }
 
     public Properties getInboundDataProperties() {

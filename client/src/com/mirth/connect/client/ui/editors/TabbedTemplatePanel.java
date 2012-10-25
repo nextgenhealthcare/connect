@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -102,20 +102,20 @@ public class TabbedTemplatePanel extends javax.swing.JPanel {
         messageTemplatePanel.setOutboundMessage(msg);
     }
 
-    public void setIncomingDataType(String protocol) {
-        messageTemplatePanel.setInboundProtocol(protocol);
+    public void setIncomingDataType(String dataType) {
+        messageTemplatePanel.setInboundDataType(dataType);
     }
 
-    public void setOutgoingDataType(String protocol) {
-        messageTemplatePanel.setOutboundProtocol(protocol);
+    public void setOutgoingDataType(String dataType) {
+        messageTemplatePanel.setOutboundDataType(dataType);
     }
 
     public String getIncomingDataType() {
-        return messageTemplatePanel.getInboundProtocol();
+        return messageTemplatePanel.getInboundDataType();
     }
 
     public String getOutgoingDataType() {
-        return messageTemplatePanel.getOutboundProtocol();
+        return messageTemplatePanel.getOutboundDataType();
     }
 
     public void setIncomingDataProperties(Properties properties) {

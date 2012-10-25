@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -120,8 +120,11 @@ public class UIConstants {
     public static final ImageIcon ICON_CHECK = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/tick.png"));
     // for dashboard statistics
     public static final ImageIcon ICON_BULLET_GREEN = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_green.png"));
+    public static final ImageIcon ICON_BULLET_ORANGE = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_orange.png"));
     public static final ImageIcon ICON_BULLET_YELLOW = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_yellow.png"));
     public static final ImageIcon ICON_BULLET_RED = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_red.png"));
+    public static final ImageIcon ICON_CHANNEL = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/server.png"));
+    public static final ImageIcon ICON_CONNECTOR = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/connect.png"));
     // for events
     public static final ImageIcon ICON_INFORMATION = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/information.png"));
     public static final ImageIcon ICON_WARNING = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/error.png"));

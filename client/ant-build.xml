@@ -18,17 +18,17 @@
 		<property name="extensions" value="${dist}/extensions" />
 
 		<!-- connectors -->
+		<!-- <property name="connectors.jms" value="${extensions}/jms" />
+		<property name="connectors.mllp" value="${extensions}/mllp" /> -->
+		<property name="connectors.jdbc" value="${extensions}/jdbc" />
+		<property name="connectors.dicom" value="${extensions}/dicom" />
+		<property name="connectors.http" value="${extensions}/http" />
 		<property name="connectors.doc" value="${extensions}/doc" />
 		<property name="connectors.smtp" value="${extensions}/smtp" />
-		<property name="connectors.file" value="${extensions}/file" />
-		<property name="connectors.http" value="${extensions}/http" />
-		<property name="connectors.dicom" value="${extensions}/dicom" />
-		<property name="connectors.jdbc" value="${extensions}/jdbc" />
-		<property name="connectors.jms" value="${extensions}/jms" />
-		<property name="connectors.js" value="${extensions}/js" />
-		<property name="connectors.mllp" value="${extensions}/mllp" />
-		<property name="connectors.ws" value="${extensions}/ws" />
 		<property name="connectors.tcp" value="${extensions}/tcp" />
+		<property name="connectors.file" value="${extensions}/file" />
+		<property name="connectors.js" value="${extensions}/js" />
+		<property name="connectors.ws" value="${extensions}/ws" />
 		<property name="connectors.vm" value="${extensions}/vm" />
 
 		<!-- plugins -->
@@ -45,7 +45,7 @@
 		<property name="plugins.rtfviewer" value="${extensions}/rtfviewer" />
 		<property name="plugins.rulebuilder" value="${extensions}/rulebuilder" />
 		<property name="plugins.serverlog" value="${extensions}/serverlog" />
-        <property name="plugins.scriptfilerule" value="${extensions}/scriptfilerule" />
+		<property name="plugins.scriptfilerule" value="${extensions}/scriptfilerule" />
 		<property name="plugins.scriptfilestep" value="${extensions}/scriptfilestep" />
 		<property name="plugins.xsltstep" value="${extensions}/xsltstep" />
 	</target>
@@ -59,6 +59,8 @@
 		<mkdir dir="${classes}" />
 		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="classpath" />
+			<exclude name="com/mirth/connect/connectors/jms/**" />
+			<exclude name="com/mirth/connect/connectors/mllp/**" />
 		</javac>
 
 		<copy todir="${classes}" file="${src}/log4j.properties" />
@@ -82,26 +84,6 @@
 		</jar>
 
 		<!-- connectors -->
-		<mkdir dir="${connectors.doc}" />
-		<jar destfile="${connectors.doc}/doc-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/doc/**" />
-		</jar>
-
-		<mkdir dir="${connectors.smtp}" />
-		<jar destfile="${connectors.smtp}/smtp-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/smtp/**" />
-		</jar>
-
-		<mkdir dir="${connectors.file}" />
-		<jar destfile="${connectors.file}/file-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/file/**" />
-		</jar>
-
-		<mkdir dir="${connectors.http}" />
-		<jar destfile="${connectors.http}/http-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/http/**" />
-		</jar>
-
 		<mkdir dir="${connectors.dicom}" />
 		<jar destfile="${connectors.dicom}/dicom-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/connectors/dimse/**" />
@@ -112,24 +94,29 @@
 			<include name="com/mirth/connect/connectors/jdbc/**" />
 		</jar>
 
-		<mkdir dir="${connectors.jms}" />
+		<!-- <mkdir dir="${connectors.jms}" />
 		<jar destfile="${connectors.jms}/jms-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/connectors/jms/**" />
-		</jar>
-
-		<mkdir dir="${connectors.js}" />
-		<jar destfile="${connectors.js}/js-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/js/**" />
 		</jar>
 
 		<mkdir dir="${connectors.mllp}" />
 		<jar destfile="${connectors.mllp}/mllp-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/connectors/mllp/**" />
+		</jar> -->
+
+		<mkdir dir="${connectors.http}" />
+		<jar destfile="${connectors.http}/http-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/connectors/http/**" />
 		</jar>
 
-		<mkdir dir="${connectors.ws}" />
-		<jar destfile="${connectors.ws}/ws-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/ws/**" />
+		<mkdir dir="${connectors.doc}" />
+		<jar destfile="${connectors.doc}/doc-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/connectors/doc/**" />
+		</jar>
+
+		<mkdir dir="${connectors.smtp}" />
+		<jar destfile="${connectors.smtp}/smtp-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/connectors/smtp/**" />
 		</jar>
 
 		<mkdir dir="${connectors.tcp}" />
@@ -137,12 +124,27 @@
 			<include name="com/mirth/connect/connectors/tcp/**" />
 		</jar>
 
+		<mkdir dir="${connectors.file}" />
+		<jar destfile="${connectors.file}/file-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/connectors/file/**" />
+		</jar>
+
+		<mkdir dir="${connectors.js}" />
+		<jar destfile="${connectors.js}/js-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/connectors/js/**" />
+		</jar>
+
+		<mkdir dir="${connectors.ws}" />
+		<jar destfile="${connectors.ws}/ws-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/connectors/ws/**" />
+		</jar>
+
 		<mkdir dir="${connectors.vm}" />
 		<jar destfile="${connectors.vm}/vm-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/connectors/vm/**" />
 		</jar>
 
-		<!-- plguins -->
+		<!-- plugins -->
 		<mkdir dir="${plugins.messagepruner}" />
 		<jar destfile="${plugins.messagepruner}/messagepruner-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/messagepruner/**" />
@@ -212,7 +214,7 @@
 		<jar destfile="${plugins.scriptfilerule}/scriptfilerule-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/scriptfilerule/**" />
 		</jar>
-        
+
 		<mkdir dir="${plugins.scriptfilestep}" />
 		<jar destfile="${plugins.scriptfilestep}/scriptfilestep-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/scriptfilestep/**" />
@@ -222,7 +224,7 @@
 		<jar destfile="${plugins.xsltstep}/xsltstep-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/xsltstep/**" />
 		</jar>
-		
+
 		<delete dir="${classes}" />
 	</target>
 </project>

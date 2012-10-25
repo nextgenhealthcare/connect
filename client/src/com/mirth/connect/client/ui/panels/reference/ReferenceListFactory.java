@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -15,7 +15,7 @@ import java.util.Map.Entry;
 
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.CodeTemplate.ContextType;
@@ -73,7 +73,7 @@ public class ReferenceListFactory {
         references.put(ListType.UTILITY.getValue(), setupUtilityItems());
         references.put(ListType.DATE.getValue(), setupDateItems());
 
-        for (Entry<String, ConnectorClass> connectorEntry : LoadedExtensions.getInstance().getConnectors().entrySet()) {
+        for (Entry<String, ConnectorSettingsPanel> connectorEntry : LoadedExtensions.getInstance().getConnectors().entrySet()) {
             ArrayList<CodeTemplate> items = connectorEntry.getValue().getReferenceItems();
             if (items.size() > 0) {
                 references.put(connectorEntry.getKey() + " Functions", items);

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,248 +9,171 @@
 
 package com.mirth.connect.connectors.dimse;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
-import com.mirth.connect.connectors.ConnectorClass;
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.Step;
+import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
-/**
- * A form that extends from ConnectorClass. All methods implemented are
- * described in ConnectorClass.
- */
-public class DICOMListener extends ConnectorClass {
+public class DICOMListener extends ConnectorSettingsPanel {
 
-    /**
-     * Creates new form DICOMListener
-     */
+    private Frame parent;
+    
     public DICOMListener() {
         this.parent = PlatformUI.MIRTH_FRAME;
-        name = DICOMListenerProperties.name;
         initComponents();
+    }
+    
+    @Override
+    public String getConnectorName() {
+        return new DICOMReceiverProperties().getName();
     }
 
     @Override
-    public Properties getProperties() {
-        Properties properties = new Properties();
-        properties.put(DICOMListenerProperties.DICOM_ADDRESS, listenerAddressField.getText());
-        properties.put(DICOMListenerProperties.DICOM_PORT, listenerPortField.getText());
-        properties.put(DICOMListenerProperties.DICOM_ASYNC, asyncField.getText());
-        properties.put(DICOMListenerProperties.DICOM_BUFSIZE, bufsizeField.getText());
+    public ConnectorProperties getProperties() {
+        DICOMReceiverProperties properties = new DICOMReceiverProperties();
+        properties.setAsync(asyncField.getText());
+        properties.setBufSize(bufsizeField.getText());
 
-        if (pdv1Yes.isSelected()) {
-            properties.put(DICOMListenerProperties.DICOM_PDV1, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMListenerProperties.DICOM_PDV1, UIConstants.NO_OPTION);
-        }
-        if (bigendianYes.isSelected()) {
-            properties.put(DICOMListenerProperties.DICOM_BIGENDIAN, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMListenerProperties.DICOM_BIGENDIAN, UIConstants.NO_OPTION);
-        }
-        if (deftsYes.isSelected()) {
-            properties.put(DICOMListenerProperties.DICOM_DEFTS, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMListenerProperties.DICOM_DEFTS, UIConstants.NO_OPTION);
-        }
-        if (nativeYes.isSelected()) {
-            properties.put(DICOMListenerProperties.DICOM_NATIVE, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMListenerProperties.DICOM_NATIVE, UIConstants.NO_OPTION);
-        }
-        properties.put(DICOMListenerProperties.DICOM_DEST, destField.getText());
-        properties.put(DICOMListenerProperties.DICOM_RCVPDULEN, rcvpdulenField.getText());
-        properties.put(DICOMListenerProperties.DICOM_SNDPDULEN, sndpdulenField.getText());
-        properties.put(DICOMListenerProperties.DICOM_REAPER, reaperField.getText());
-        properties.put(DICOMListenerProperties.DICOM_RELEASETO, releasetoField.getText());
-        properties.put(DICOMListenerProperties.DICOM_REQUESTTO, requesttoField.getText());
-        properties.put(DICOMListenerProperties.DICOM_RSPDELAY, rspdelayField.getText());
+        properties.setPdv1(pdv1Yes.isSelected());
+        properties.setBigEndian(bigendianYes.isSelected());
+        properties.setDefts(deftsYes.isSelected());
+        properties.setNativeData(nativeYes.isSelected());
+        
+        properties.setDest(destField.getText());
+        properties.setRcvpdulen(rcvpdulenField.getText());
+        properties.setSndpdulen(sndpdulenField.getText());
+        properties.setReaper(reaperField.getText());
+        properties.setReleaseTo(releasetoField.getText());
+        properties.setRequestTo(requesttoField.getText());
+        properties.setRspDelay(rspdelayField.getText());
 
-        properties.put(DICOMListenerProperties.DICOM_IDLETO, idletoField.getText());
-        properties.put(DICOMListenerProperties.DICOM_SOCLOSEDELAY, soclosedelayField.getText());
-        properties.put(DICOMListenerProperties.DICOM_SORCVBUF, sorcvbufField.getText());
-        properties.put(DICOMListenerProperties.DICOM_SOSNDBUF, sosndbufField.getText());
-        if (tcpdelayYes.isSelected()) {
-            properties.put(DICOMListenerProperties.DICOM_TCPDELAY, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMListenerProperties.DICOM_TCPDELAY, UIConstants.NO_OPTION);
-        }
+        properties.setIdleTo(idletoField.getText());
+        properties.setSoCloseDelay(soclosedelayField.getText());
+        properties.setSorcvbuf(sorcvbufField.getText());
+        properties.setSosndbuf(sosndbufField.getText());
+        properties.setTcpDelay(tcpdelayYes.isSelected());
 
+        properties.setKeyPW(keyPasswordField.getText());
+        properties.setKeyStore(keyStoreField.getText());
+        properties.setKeyStorePW(keyStorePasswordField.getText());
+        
+        properties.setNoClientAuth(noclientauthYes.isSelected());
+        properties.setNossl2(nossl2Yes.isSelected());
 
-        properties.put(DICOMListenerProperties.DICOM_KEYPW, keyPasswordField.getText());
-        properties.put(DICOMListenerProperties.DICOM_KEYSTORE, keyStoreField.getText());
-        properties.put(DICOMListenerProperties.DICOM_KEYSTOREPW, keyStorePasswordField.getText());
-
-        if (noclientauthYes.isSelected()) {
-            properties.put(DICOMListenerProperties.DICOM_NOCLIENTAUTH, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMListenerProperties.DICOM_NOCLIENTAUTH, UIConstants.NO_OPTION);
-        }
-        if (nossl2Yes.isSelected()) {
-            properties.put(DICOMListenerProperties.DICOM_NOSSL2, UIConstants.YES_OPTION);
-        } else {
-            properties.put(DICOMListenerProperties.DICOM_NOSSL2, UIConstants.NO_OPTION);
-        }
         if (tlsaes.isSelected()) {
-            properties.put(DICOMListenerProperties.DICOM_TLS, "aes");
+            properties.setTls("aes");
         } else if (tls3des.isSelected()) {
-            properties.put(DICOMListenerProperties.DICOM_TLS, "3des");
+            properties.setTls("3des");
         } else if (tlswithout.isSelected()) {
-            properties.put(DICOMListenerProperties.DICOM_TLS, "without");
+            properties.setTls("without");
         } else {
-            properties.put(DICOMListenerProperties.DICOM_TLS, "notls");
+            properties.setTls("notls");
         }
-        properties.put(DICOMListenerProperties.DICOM_TRUSTSTORE, truststoreField.getText());
-        properties.put(DICOMListenerProperties.DICOM_TRUSTSTOREPW, truststorepwField.getText());
-        properties.put(DICOMListenerProperties.DICOM_APPENTITY, applicationEntityField.getText());
-
+        
+        properties.setTrustStore(truststoreField.getText());
+        properties.setTrustStorePW(truststorepwField.getText());
+        properties.setApplicationEntity(applicationEntityField.getText());
 
         return properties;
     }
 
     @Override
-    public void setProperties(Properties props) {
-        resetInvalidProperties();
+    public void setProperties(ConnectorProperties properties) {
+        DICOMReceiverProperties props = (DICOMReceiverProperties) properties;
+        
+        asyncField.setText(props.getAsync());
+        bufsizeField.setText(props.getBufSize());
+        rcvpdulenField.setText(props.getRcvpdulen());
+        reaperField.setText(props.getReaper());
+        releasetoField.setText(props.getReleaseTo());
+        requesttoField.setText(props.getRequestTo());
+        idletoField.setText(props.getIdleTo());
+        rspdelayField.setText(props.getRspDelay());
+        sndpdulenField.setText(props.getSndpdulen());
+        soclosedelayField.setText(props.getSoCloseDelay());
+        sorcvbufField.setText(props.getSorcvbuf());
+        sosndbufField.setText(props.getSosndbuf());
+        destField.setText(props.getDest());
 
-        listenerAddressField.setText((String) props.get(DICOMListenerProperties.DICOM_ADDRESS));
-        listenerPortField.setText((String) props.get(DICOMListenerProperties.DICOM_PORT));
-
-        listenerAddressField.setText((String) props.get(DICOMListenerProperties.DICOM_ADDRESS));
-        listenerPortField.setText((String) props.get(DICOMListenerProperties.DICOM_PORT));
-        asyncField.setText((String) props.get(DICOMListenerProperties.DICOM_ASYNC));
-        bufsizeField.setText((String) props.get(DICOMListenerProperties.DICOM_BUFSIZE));
-        rcvpdulenField.setText((String) props.get(DICOMListenerProperties.DICOM_RCVPDULEN));
-        reaperField.setText((String) props.get(DICOMListenerProperties.DICOM_REAPER));
-        releasetoField.setText((String) props.get(DICOMListenerProperties.DICOM_RELEASETO));
-        requesttoField.setText((String) props.get(DICOMListenerProperties.DICOM_REQUESTTO));
-        idletoField.setText((String) props.get(DICOMListenerProperties.DICOM_IDLETO));
-        rspdelayField.setText((String) props.get(DICOMListenerProperties.DICOM_RSPDELAY));
-        sndpdulenField.setText((String) props.get(DICOMListenerProperties.DICOM_SNDPDULEN));
-        soclosedelayField.setText((String) props.get(DICOMListenerProperties.DICOM_SOCLOSEDELAY));
-        sorcvbufField.setText((String) props.get(DICOMListenerProperties.DICOM_SORCVBUF));
-        sosndbufField.setText((String) props.get(DICOMListenerProperties.DICOM_SOSNDBUF));
-        destField.setText((String) props.get(DICOMListenerProperties.DICOM_DEST));
-
-        if (((String) props.get(DICOMListenerProperties.DICOM_PDV1)).equals(UIConstants.YES_OPTION)) {
+        if (props.isPdv1()) {
             pdv1Yes.setSelected(true);
         } else {
             pdv1No.setSelected(true);
         }
-        if (((String) props.get(DICOMListenerProperties.DICOM_BIGENDIAN)).equals(UIConstants.YES_OPTION)) {
+        if (props.isBigEndian()) {
             bigendianYes.setSelected(true);
             bigendianYesActionPerformed(null);
         } else {
             bigendianNo.setSelected(true);
             bigendianNoActionPerformed(null);
         }
-        if (((String) props.get(DICOMListenerProperties.DICOM_DEFTS)).equals(UIConstants.YES_OPTION)) {
+        if (props.isDefts()) {
             deftsYes.setSelected(true);
             deftsYesActionPerformed(null);
         } else {
             deftsNo.setSelected(true);
             deftsNoActionPerformed(null);
         }
-        if (((String) props.get(DICOMListenerProperties.DICOM_NATIVE)).equals(UIConstants.YES_OPTION)) {
+        if (props.isNativeData()) {
             nativeYes.setSelected(true);
             nativeYesActionPerformed(null);
         } else {
             nativeNo.setSelected(true);
             nativeNoActionPerformed(null);
         }
-        if (((String) props.get(DICOMListenerProperties.DICOM_TCPDELAY)).equals(UIConstants.YES_OPTION)) {
+        if (props.isTcpDelay()) {
             tcpdelayYes.setSelected(true);
         } else {
             tcpdelayNo.setSelected(true);
         }
 
-        keyPasswordField.setText((String) props.get(DICOMListenerProperties.DICOM_KEYPW));
-        keyStoreField.setText((String) props.get(DICOMListenerProperties.DICOM_KEYSTORE));
-        keyStorePasswordField.setText((String) props.get(DICOMListenerProperties.DICOM_KEYSTOREPW));
-        truststoreField.setText((String) props.get(DICOMListenerProperties.DICOM_TRUSTSTORE));
-        truststorepwField.setText((String) props.get(DICOMListenerProperties.DICOM_TRUSTSTOREPW));
-        if (((String) props.get(DICOMListenerProperties.DICOM_NOCLIENTAUTH)).equals(UIConstants.YES_OPTION)) {
+        keyPasswordField.setText(props.getKeyPW());
+        keyStoreField.setText(props.getKeyStore());
+        keyStorePasswordField.setText(props.getKeyStorePW());
+        truststoreField.setText(props.getTrustStore());
+        truststorepwField.setText(props.getTrustStorePW());
+        if (props.isNoClientAuth()) {
             noclientauthYes.setSelected(true);
         } else {
             noclientauthNo.setSelected(true);
         }
-        if (((String) props.get(DICOMListenerProperties.DICOM_NOSSL2)).equals(UIConstants.YES_OPTION)) {
+        if (props.isNossl2()) {
             nossl2Yes.setSelected(true);
         } else {
             nossl2No.setSelected(true);
         }
-        if (((String) props.get(DICOMListenerProperties.DICOM_TLS)).equals("aes")) {
+        if (props.getTls().equals("aes")) {
             tlsaes.setSelected(true);
             tlsaesActionPerformed(null);
-        } else if (((String) props.get(DICOMListenerProperties.DICOM_TLS)).equals("3des")) {
+        } else if (props.getTls().equals("3des")) {
             tls3des.setSelected(true);
             tls3desActionPerformed(null);
-        } else if (((String) props.get(DICOMListenerProperties.DICOM_TLS)).equals("without")) {
+        } else if (props.getTls().equals("without")) {
             tlswithout.setSelected(true);
             tlswithoutActionPerformed(null);
         } else {
             tlsno.setSelected(true);
             tlsnoActionPerformed(null);
         }
-        applicationEntityField.setText((String) props.get(DICOMListenerProperties.DICOM_APPENTITY));
-        boolean enabled = parent.isSaveEnabled();
-
-        updateResponseDropDown();
-
-        parent.setSaveEnabled(enabled);
+        applicationEntityField.setText(props.getApplicationEntity());
     }
 
     @Override
-    public Properties getDefaults() {
-        return new DICOMListenerProperties().getDefaults();
+    public ConnectorProperties getDefaults() {
+        return new DICOMReceiverProperties();
     }
 
     @Override
-    public boolean checkProperties(Properties props, boolean highlight) {
-        resetInvalidProperties();
+    public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
+        DICOMReceiverProperties props = (DICOMReceiverProperties) properties;
+
         boolean valid = true;
-
-        if (((String) props.get(DICOMListenerProperties.DICOM_ADDRESS)).length() <= 3) {
-            valid = false;
-            if (highlight) {
-                listenerAddressField.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
-        if (((String) props.get(DICOMListenerProperties.DICOM_PORT)).length() == 0) {
-            valid = false;
-            if (highlight) {
-                listenerPortField.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
 
         return valid;
     }
 
-    private void resetInvalidProperties() {
-        listenerAddressField.setBackground(null);
-        listenerPortField.setBackground(null);
-    }
-
     @Override
-    public String doValidate(Properties props, boolean highlight) {
-        String error = null;
-
-        if (!checkProperties(props, highlight)) {
-            error = "Error in the form for connector \"" + getName() + "\".\n\n";
-        }
-
-        return error;
+    public void resetInvalidProperties() {
     }
 
     /**
@@ -270,10 +193,6 @@ public class DICOMListener extends ConnectorClass {
         buttonGroup6 = new javax.swing.ButtonGroup();
         buttonGroup7 = new javax.swing.ButtonGroup();
         buttonGroup8 = new javax.swing.ButtonGroup();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        listenerPortField = new com.mirth.connect.client.ui.components.MirthTextField();
-        listenerAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel5 = new javax.swing.JLabel();
         asyncField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel17 = new javax.swing.JLabel();
@@ -342,14 +261,6 @@ public class DICOMListener extends ConnectorClass {
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         setToolTipText("");
-
-        jLabel1.setText("Listener Address:");
-
-        jLabel2.setText("Listener Port:");
-
-        listenerPortField.setToolTipText("Enter the port that we should be listening for incoming connections.");
-
-        listenerAddressField.setToolTipText("Enter the local IP where the DICOM Listener should be listening. ");
 
         jLabel5.setText("Max Async operations:");
 
@@ -634,8 +545,6 @@ public class DICOMListener extends ConnectorClass {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2)
                     .addComponent(jLabel3)
                     .addComponent(jLabel11)
                     .addComponent(jLabel13)
@@ -690,8 +599,6 @@ public class DICOMListener extends ConnectorClass {
                         .addComponent(deftsNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(destField, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(applicationEntityField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(keyPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(tls3des, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -739,14 +646,6 @@ public class DICOMListener extends ConnectorClass {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(applicationEntityField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -869,7 +768,7 @@ public class DICOMListener extends ConnectorClass {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel34)
                             .addComponent(truststorepwField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addGap(0, 106, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1021,71 +920,6 @@ public class DICOMListener extends ConnectorClass {
 
     }//GEN-LAST:event_nativeYesActionPerformed
 
-    @Override
-    public void updateResponseDropDown() {
-        boolean enabled = parent.isSaveEnabled();
-
-        Channel channel = parent.channelEditPanel.currentChannel;
-
-        Set<String> variables = new LinkedHashSet<String>();
-
-        variables.add("None");
-
-        List<Step> stepsToCheck = new ArrayList<Step>();
-        stepsToCheck.addAll(channel.getSourceConnector().getTransformer().getSteps());
-
-        List<String> scripts = new ArrayList<String>();
-
-        for (Connector connector : channel.getDestinationConnectors()) {
-            if (connector.getTransportName().equals("Database Writer")) {
-                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION)) {
-                    scripts.add(connector.getProperties().getProperty("script"));
-                }
-            } else if (connector.getTransportName().equals("JavaScript Writer")) {
-                scripts.add(connector.getProperties().getProperty("script"));
-            }
-            variables.add(connector.getName());
-            stepsToCheck.addAll(connector.getTransformer().getSteps());
-        }
-
-        Pattern pattern = Pattern.compile(RESULT_PATTERN);
-
-        int i = 0;
-        for (Iterator it = stepsToCheck.iterator(); it.hasNext();) {
-            Step step = (Step) it.next();
-            Map data;
-            data = (Map) step.getData();
-
-            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)) {
-                Matcher matcher = pattern.matcher(step.getScript());
-                while (matcher.find()) {
-                    String key = matcher.group(1);
-                    variables.add(key);
-                }
-            } else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
-                if (data.containsKey(UIConstants.IS_GLOBAL)) {
-                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE)) {
-                        variables.add((String) data.get("Variable"));
-                    }
-                }
-            }
-        }
-        scripts.add(channel.getPreprocessingScript());
-        scripts.add(channel.getPostprocessingScript());
-
-        for (String script : scripts) {
-            if (script != null && script.length() > 0) {
-                Matcher matcher = pattern.matcher(script);
-                while (matcher.find()) {
-                    String key = matcher.group(1);
-                    variables.add(key);
-                }
-            }
-        }
-
-        parent.setSaveEnabled(enabled);
-    }
-
     private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
     {// GEN-HEADEREND:event_ackOnNewConnectionNoActionPerformed
     }// GEN-LAST:event_ackOnNewConnectionNoActionPerformed
@@ -1111,7 +945,6 @@ public class DICOMListener extends ConnectorClass {
     private com.mirth.connect.client.ui.components.MirthRadioButton deftsYes;
     private com.mirth.connect.client.ui.components.MirthTextField destField;
     private com.mirth.connect.client.ui.components.MirthTextField idletoField;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -1120,7 +953,6 @@ public class DICOMListener extends ConnectorClass {
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
@@ -1143,8 +975,6 @@ public class DICOMListener extends ConnectorClass {
     private com.mirth.connect.client.ui.components.MirthTextField keyPasswordField;
     private com.mirth.connect.client.ui.components.MirthTextField keyStoreField;
     private com.mirth.connect.client.ui.components.MirthTextField keyStorePasswordField;
-    private com.mirth.connect.client.ui.components.MirthTextField listenerAddressField;
-    private com.mirth.connect.client.ui.components.MirthTextField listenerPortField;
     private com.mirth.connect.client.ui.components.MirthRadioButton nativeNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton nativeYes;
     private com.mirth.connect.client.ui.components.MirthRadioButton noclientauthNo;

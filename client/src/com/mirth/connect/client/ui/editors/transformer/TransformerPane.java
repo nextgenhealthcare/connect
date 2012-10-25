@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -76,9 +76,9 @@ import com.mirth.connect.client.ui.editors.MirthEditorPane;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
+import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.plugins.TransformerStepPlugin;
@@ -176,18 +176,18 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         if (connector.getMode() == Connector.Mode.SOURCE) {
             tabTemplatePanel.setSourceView();
-            tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol()));
+            tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypes.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
         } else if (connector.getMode() == Connector.Mode.DESTINATION) {
             tabTemplatePanel.setDestinationView();
-            if (channel.getSourceConnector().getTransformer().getOutboundProtocol() != null) {
-                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getOutboundProtocol()));
+            if (channel.getSourceConnector().getTransformer().getOutboundDataType() != null) {
+                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypes.get(channel.getSourceConnector().getTransformer().getOutboundDataType()));
             } else {
-                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol()));
+                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypes.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
             }
         }
 
-        if (transformer.getOutboundProtocol() != null) {
-            tabTemplatePanel.setOutgoingDataType(((String) PlatformUI.MIRTH_FRAME.protocols.get(transformer.getOutboundProtocol())));
+        if (transformer.getOutboundDataType() != null) {
+            tabTemplatePanel.setOutgoingDataType(((String) PlatformUI.MIRTH_FRAME.dataTypes.get(transformer.getOutboundDataType())));
         } else {
             tabTemplatePanel.setOutgoingDataType(tabTemplatePanel.getIncomingDataType());
         }
@@ -869,15 +869,15 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     }
 
     private void importTransformer(String content) {
-        MessageObject.Protocol incomingProtocol = null;
-        MessageObject.Protocol outgoingProtocol = null;
+        String incomingDataType = null;
+        String outgoingDataType = null;
 
-        for (MessageObject.Protocol protocol : MessageObject.Protocol.values()) {
-            if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getIncomingDataType())) {
-                incomingProtocol = protocol;
+        for (String dataType : DataTypeFactory.getDataTypeNames()) {
+            if (PlatformUI.MIRTH_FRAME.dataTypes.get(dataType).equals(tabTemplatePanel.getIncomingDataType())) {
+                incomingDataType = dataType;
             }
-            if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getOutgoingDataType())) {
-                outgoingProtocol = protocol;
+            if (PlatformUI.MIRTH_FRAME.dataTypes.get(dataType).equals(tabTemplatePanel.getOutgoingDataType())) {
+                outgoingDataType = dataType;
             }
         }
         Transformer previousTransformer = connector.getTransformer();
@@ -892,7 +892,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         try {
-            Transformer importTransformer = (Transformer) serializer.fromXML(ImportConverter.convertTransformer(content, incomingProtocol, outgoingProtocol));
+            Transformer importTransformer = (Transformer) serializer.fromXML(ImportConverter.convertTransformer(content, incomingDataType, outgoingDataType));
             prevSelRow = -1;
             modified = true;
             invalidVar = false;
@@ -1074,16 +1074,16 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
             transformer.setSteps(list);
 
-            for (MessageObject.Protocol protocol : MessageObject.Protocol.values()) {
-                if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getIncomingDataType())) {
-                    transformer.setInboundProtocol(protocol);
+            for (String dataType : DataTypeFactory.getDataTypeNames()) {
+                if (PlatformUI.MIRTH_FRAME.dataTypes.get(dataType).equals(tabTemplatePanel.getIncomingDataType())) {
+                    transformer.setInboundDataType(dataType);
                 }
-                if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getOutgoingDataType())) {
-                    transformer.setOutboundProtocol(protocol);
+                if (PlatformUI.MIRTH_FRAME.dataTypes.get(dataType).equals(tabTemplatePanel.getOutgoingDataType())) {
+                    transformer.setOutboundDataType(dataType);
 
                     if (connector.getMode() == Connector.Mode.SOURCE) {
                         for (Connector c : channel.getDestinationConnectors()) {
-                            c.getTransformer().setInboundProtocol(protocol);
+                            c.getTransformer().setInboundDataType(dataType);
                             c.getTransformer().setInboundProperties(tabTemplatePanel.getOutgoingDataProperties());
                         }
                     }

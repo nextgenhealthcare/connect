@@ -1,19 +1,18 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
+
 package com.mirth.connect.connectors.http;
 
-import java.util.ArrayList;
 import java.util.EventObject;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
@@ -26,22 +25,17 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
-import com.mirth.connect.connectors.ConnectorClass;
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.QueuedSenderProperties;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.util.ConnectionTestResponse;
 
-/**
- * A form that extends from ConnectorClass. All methods implemented are
- * described in ConnectorClass.
- */
-public class HttpSender extends ConnectorClass {
+public class HttpSender extends ConnectorSettingsPanel {
 
     private final int NAME_COLUMN = 0;
     private final int VALUE_COLUMN = 1;
@@ -49,14 +43,11 @@ public class HttpSender extends ConnectorClass {
     private final String VALUE_COLUMN_NAME = "Value";
     private int propertiesLastIndex = -1;
     private int headerLastIndex = -1;
-    private HashMap channelList;
+    private Frame parent;
 
     public HttpSender() {
-        name = HttpSenderProperties.name;
+        this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
-
-        reconnectIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
-        queuePollIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
 
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
 
@@ -76,101 +67,76 @@ public class HttpSender extends ConnectorClass {
         headersDeleteButton.setEnabled(false);
     }
 
-    public Properties getProperties() {
-        Properties properties = new Properties();
-        properties.put(HttpSenderProperties.DATATYPE, name);
-        properties.put(HttpSenderProperties.HTTP_URL, urlField.getText());
+    @Override
+    public String getConnectorName() {
+        return new HttpDispatcherProperties().getName();
+    }
+
+    @Override
+    public ConnectorProperties getProperties() {
+        HttpDispatcherProperties properties = new HttpDispatcherProperties();
+
+        properties.setHost(urlField.getText());
 
         if (postButton.isSelected()) {
-            properties.put(HttpSenderProperties.HTTP_METHOD, "post");
+            properties.setMethod("post");
         } else if (getButton.isSelected()) {
-            properties.put(HttpSenderProperties.HTTP_METHOD, "get");
+            properties.setMethod("get");
         } else if (putButton.isSelected()) {
-            properties.put(HttpSenderProperties.HTTP_METHOD, "put");
+            properties.setMethod("put");
         } else if (deleteButton.isSelected()) {
-            properties.put(HttpSenderProperties.HTTP_METHOD, "delete");
+            properties.setMethod("delete");
         }
 
-        if (multipartYesButton.isSelected()) {
-            properties.put(HttpSenderProperties.HTTP_MULTIPART, UIConstants.YES_OPTION);
-        } else {
-            properties.put(HttpSenderProperties.HTTP_MULTIPART, UIConstants.NO_OPTION);
-        }
+        properties.setMultipart(multipartYesButton.isSelected());
 
-        properties.put(HttpSenderProperties.HTTP_SOCKET_TIMEOUT, sendTimeoutField.getText());
+        properties.setSocketTimeout(sendTimeoutField.getText());
 
-        if (authenticationYesRadio.isSelected()) {
-            properties.put(HttpSenderProperties.HTTP_USE_AUTHENTICATION, UIConstants.YES_OPTION);
-        } else {
-            properties.put(HttpSenderProperties.HTTP_USE_AUTHENTICATION, UIConstants.NO_OPTION);
-        }
+        properties.setUseAuthentication(authenticationYesRadio.isSelected());
 
         if (authenticationTypeBasicRadio.isSelected()) {
-            properties.put(HttpSenderProperties.HTTP_AUTHENTICATION_TYPE, "Basic");
+            properties.setAuthenticationType("Basic");
         } else {
-            properties.put(HttpSenderProperties.HTTP_AUTHENTICATION_TYPE, "Digest");
+            properties.setAuthenticationType("Digest");
         }
         
-        properties.put(HttpSenderProperties.HTTP_USERNAME, usernameField.getText());
-        properties.put(HttpSenderProperties.HTTP_PASSWORD, new String(passwordField.getPassword()));
+        properties.setUsername(usernameField.getText());
+        properties.setPassword(new String(passwordField.getPassword()));
 
-        if (responseContentHeadersAndBodyButton.isSelected()) {
-            properties.put(HttpSenderProperties.HTTP_INCLUDE_HEADERS_IN_RESPONSE, UIConstants.YES_OPTION);
-        } else {
-            properties.put(HttpSenderProperties.HTTP_INCLUDE_HEADERS_IN_RESPONSE, UIConstants.NO_OPTION);
-        }
+        properties.setIncludeHeadersInResponse(responseContentHeadersAndBodyButton.isSelected());
 
-        properties.put(HttpSenderProperties.HTTP_REPLY_CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
+        properties.setCharset(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
-        properties.put(QueuedSenderProperties.QUEUE_POLL_INTERVAL, queuePollIntervalField.getText());
-        properties.put(QueuedSenderProperties.RECONNECT_INTERVAL, reconnectIntervalField.getText());
+        properties.setParameters(getAdditionalProperties());
+        properties.setHeaders(getHeaderProperties());
 
-        if (usePersistentQueuesYesRadio.isSelected()) {
-            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
-        } else {
-            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
-        }
-
-        if (rotateMessagesCheckBox.isSelected()) {
-            properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.YES_OPTION);
-        } else {
-            properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.NO_OPTION);
-        }
-
-        properties.put(HttpSenderProperties.HTTP_CHARSET, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
-
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        properties.put(HttpSenderProperties.HTTP_PARAMETERS, serializer.toXML(getAdditionalProperties()));
-        properties.put(HttpSenderProperties.HTTP_HEADERS, serializer.toXML(getHeaderProperties()));
-
-        properties.put(HttpSenderProperties.HTTP_CONTENT_TYPE, contentTypeField.getText());
-        properties.put(HttpSenderProperties.HTTP_CONTENT, contentTextArea.getText());
+        properties.setContentType(contentTypeField.getText());
+        properties.setContent(contentTextArea.getText());
 
         return properties;
     }
 
-    public void setProperties(Properties props) {
-        resetInvalidProperties();
+    @Override
+    public void setProperties(ConnectorProperties properties) {
+        HttpDispatcherProperties props = (HttpDispatcherProperties) properties;
 
-        boolean enabled = parent.isSaveEnabled();
+        urlField.setText(props.getHost());
 
-        urlField.setText((String) props.get(HttpSenderProperties.HTTP_URL));
-
-        if (((String) props.get(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("post")) {
+        if (props.getMethod().equalsIgnoreCase("post")) {
             postButton.setSelected(true);
             postButtonActionPerformed(null);
-        } else if (((String) props.get(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("get")) {
+        } else if (props.getMethod().equalsIgnoreCase("get")) {
             getButton.setSelected(true);
             getButtonActionPerformed(null);
-        } else if (((String) props.get(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("put")) {
+        } else if (props.getMethod().equalsIgnoreCase("put")) {
             putButton.setSelected(true);
             putButtonActionPerformed(null);
-        } else if (((String) props.get(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("delete")) {
+        } else if (props.getMethod().equalsIgnoreCase("delete")) {
             deleteButton.setSelected(true);
             deleteButtonActionPerformed(null);
         }
 
-        if (((String) props.get(HttpSenderProperties.HTTP_MULTIPART)).equals(UIConstants.YES_OPTION)) {
+        if (props.isMultipart()) {
             multipartYesButton.setSelected(true);
         } else {
             multipartNoButton.setSelected(true);
@@ -178,9 +144,9 @@ public class HttpSender extends ConnectorClass {
 
         checkMultipartEnabled();
 
-        sendTimeoutField.setText(props.getProperty(HttpSenderProperties.HTTP_SOCKET_TIMEOUT));
+        sendTimeoutField.setText(props.getSocketTimeout());
 
-        if (((String) props.get(HttpSenderProperties.HTTP_USE_AUTHENTICATION)).equals(UIConstants.YES_OPTION)) {
+        if (props.isUseAuthentication()) {
             authenticationYesRadio.setSelected(true);
             authenticationYesRadioActionPerformed(null);
         } else {
@@ -188,85 +154,46 @@ public class HttpSender extends ConnectorClass {
             authenticationNoRadioActionPerformed(null);
         }
 
-        if (((String) props.get(HttpSenderProperties.HTTP_AUTHENTICATION_TYPE)).equalsIgnoreCase("Basic")) {
+        if (props.getAuthenticationType().equalsIgnoreCase("Basic")) {
             authenticationTypeBasicRadio.setSelected(true);
-        } else if (((String) props.get(HttpSenderProperties.HTTP_AUTHENTICATION_TYPE)).equalsIgnoreCase("Digest")) {
+        } else if (props.getAuthenticationType().equalsIgnoreCase("Digest")) {
             authenticationTypeDigestRadio.setSelected(true);
         }
 
-        usernameField.setText(props.getProperty(HttpSenderProperties.HTTP_USERNAME));
-        passwordField.setText(props.getProperty(HttpSenderProperties.HTTP_PASSWORD));
+        usernameField.setText(props.getUsername());
+        passwordField.setText(props.getPassword());
 
-        if (((String) props.get(HttpSenderProperties.HTTP_INCLUDE_HEADERS_IN_RESPONSE)).equals(UIConstants.YES_OPTION)) {
+        if (props.isIncludeHeadersInResponse()) {
             responseContentHeadersAndBodyButton.setSelected(true);
         } else {
             responseContentBodyOnlyButton.setSelected(true);
         }
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-
-        if (((String) props.get(HttpSenderProperties.HTTP_PARAMETERS)).length() > 0) {
-            setAdditionalProperties((Properties) serializer.fromXML((String) props.get(HttpSenderProperties.HTTP_PARAMETERS)));
+        if (props.getParameters() != null) {
+            setAdditionalProperties(props.getParameters());
         } else {
-            setAdditionalProperties(new Properties());
+            setAdditionalProperties(new LinkedHashMap<String, String>());
         }
 
-        if (((String) props.get(HttpSenderProperties.HTTP_HEADERS)).length() > 0) {
-            setHeaderProperties((Properties) serializer.fromXML((String) props.get(HttpSenderProperties.HTTP_HEADERS)));
+        if (props.getHeaders() != null) {
+            setHeaderProperties(props.getHeaders());
         } else {
-            setHeaderProperties(new Properties());
+            setHeaderProperties(new LinkedHashMap<String, String>());
         }
 
-        contentTypeField.setText((String) props.get(HttpSenderProperties.HTTP_CONTENT_TYPE));
+        contentTypeField.setText(props.getContentType());
 
-        contentTextArea.setText((String) props.get(HttpSenderProperties.HTTP_CONTENT));
+        contentTextArea.setText(props.getContent());
 
-        queuePollIntervalField.setText((String) props.get(QueuedSenderProperties.QUEUE_POLL_INTERVAL));
-        reconnectIntervalField.setText((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL));
-
-        if (((String) props.get(QueuedSenderProperties.USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION)) {
-            usePersistentQueuesYesRadio.setSelected(true);
-            usePersistentQueuesYesRadioActionPerformed(null);
-        } else {
-            usePersistentQueuesNoRadio.setSelected(true);
-            usePersistentQueuesNoRadioActionPerformed(null);
-        }
-
-        if (((String) props.get(QueuedSenderProperties.ROTATE_QUEUE)).equals(UIConstants.YES_OPTION)) {
-            rotateMessagesCheckBox.setSelected(true);
-        } else {
-            rotateMessagesCheckBox.setSelected(false);
-        }
-
-        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(HttpSenderProperties.HTTP_CHARSET));
-
-        ArrayList<String> channelNameArray = new ArrayList<String>();
-        channelList = new HashMap();
-        channelList.put("None", "sink");
-        channelNameArray.add("None");
-
-        String selectedChannelName = "None";
-
-        for (Channel channel : parent.channels.values()) {
-            if (((String) props.get(HttpSenderProperties.HTTP_REPLY_CHANNEL_ID)).equalsIgnoreCase(channel.getId())) {
-                selectedChannelName = channel.getName();
-            }
-
-            channelList.put(channel.getName(), channel.getId());
-            channelNameArray.add(channel.getName());
-        }
-        channelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
-
-        channelNames.setSelectedItem(selectedChannelName);
-
-        parent.setSaveEnabled(enabled);
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharset());
     }
 
-    public Properties getDefaults() {
-        return new HttpSenderProperties().getDefaults();
+    @Override
+    public ConnectorProperties getDefaults() {
+        return new HttpDispatcherProperties();
     }
-
-    public void setAdditionalProperties(Properties properties) {
+    
+    public void setAdditionalProperties(Map<String, String> properties) {
         Object[][] tableData = new Object[properties.size()][2];
 
         queryParametersTable = new MirthTable();
@@ -365,7 +292,7 @@ public class HttpSender extends ConnectorClass {
         queryParametersPane.setViewportView(queryParametersTable);
     }
 
-    public void setHeaderProperties(Properties properties) {
+    public void setHeaderProperties(Map<String, String> properties) {
         Object[][] tableData = new Object[properties.size()][2];
 
         headersTable = new MirthTable();
@@ -464,8 +391,8 @@ public class HttpSender extends ConnectorClass {
         headersPane.setViewportView(headersTable);
     }
 
-    public Map getAdditionalProperties() {
-        Properties properties = new Properties();
+    public Map<String, String> getAdditionalProperties() {
+        Map<String, String> properties = new LinkedHashMap<String, String>();
 
         for (int i = 0; i < queryParametersTable.getRowCount(); i++) {
             if (((String) queryParametersTable.getValueAt(i, NAME_COLUMN)).length() > 0) {
@@ -476,9 +403,9 @@ public class HttpSender extends ConnectorClass {
         return properties;
     }
 
-    public Map getHeaderProperties() {
-        Properties properties = new Properties();
-
+    public Map<String, String> getHeaderProperties() {
+        Map<String, String> properties = new LinkedHashMap<String, String>();
+        
         for (int i = 0; i < headersTable.getRowCount(); i++) {
             if (((String) headersTable.getValueAt(i, NAME_COLUMN)).length() > 0) {
                 properties.put(((String) headersTable.getValueAt(i, NAME_COLUMN)), ((String) headersTable.getValueAt(i, VALUE_COLUMN)));
@@ -523,50 +450,35 @@ public class HttpSender extends ConnectorClass {
         return "";
     }
 
-    public boolean checkProperties(Properties props, boolean highlight) {
-        resetInvalidProperties();
+    @Override
+    public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
+        HttpDispatcherProperties props = (HttpDispatcherProperties) properties;
+        
         boolean valid = true;
 
-        if (((String) props.getProperty(HttpSenderProperties.HTTP_URL)).length() == 0) {
+        if (props.getHost().length() == 0) {
             valid = false;
             if (highlight) {
                 urlField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
-        if (((String) props.getProperty(HttpSenderProperties.HTTP_SOCKET_TIMEOUT)).length() == 0) {
+        if (props.getSocketTimeout().length() == 0) {
             valid = false;
             if (highlight) {
                 sendTimeoutField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
-        if (((String) props.get(QueuedSenderProperties.USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION)) {
-
-            if (((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL)).length() == 0) {
-                valid = false;
-                if (highlight) {
-                    reconnectIntervalField.setBackground(UIConstants.INVALID_COLOR);
-                }
-            }
-
-            if (((String) props.get(QueuedSenderProperties.QUEUE_POLL_INTERVAL)).length() == 0) {
-                valid = false;
-                if (highlight) {
-                    queuePollIntervalField.setBackground(UIConstants.INVALID_COLOR);
-                }
-            }
-        }
-
-        if (((String) props.getProperty(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("post") || ((String) props.getProperty(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("put")) {
-            if (((String) props.getProperty(HttpSenderProperties.HTTP_CONTENT_TYPE)).length() == 0) {
+        if (props.getMethod().equalsIgnoreCase("post") || props.getMethod().equalsIgnoreCase("put")) {
+            if (props.getContentType().length() == 0) {
                 valid = false;
                 if (highlight) {
                     contentTypeField.setBackground(UIConstants.INVALID_COLOR);
                 }
             }
 
-            if (((String) props.getProperty(HttpSenderProperties.HTTP_CONTENT)).length() == 0) {
+            if (props.getContent().length() == 0) {
                 valid = false;
                 if (highlight) {
                     contentTextArea.setBackground(UIConstants.INVALID_COLOR);
@@ -577,23 +489,12 @@ public class HttpSender extends ConnectorClass {
         return valid;
     }
 
-    private void resetInvalidProperties() {
+    @Override
+    public void resetInvalidProperties() {
         urlField.setBackground(null);
         sendTimeoutField.setBackground(null);
-        queuePollIntervalField.setBackground(null);
-        reconnectIntervalField.setBackground(null);
         contentTypeField.setBackground(null);
         contentTextArea.setBackground(null);
-    }
-
-    public String doValidate(Properties props, boolean highlight) {
-        String error = null;
-
-        if (!checkProperties(props, highlight)) {
-            error = "Error in the form for connector \"" + getName() + "\".\n\n";
-        }
-
-        return error;
     }
 
     private void checkMultipartEnabled() {
@@ -670,8 +571,6 @@ public class HttpSender extends ConnectorClass {
         methodLabel = new javax.swing.JLabel();
         postButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         getButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        channelNames = new com.mirth.connect.client.ui.components.MirthComboBox();
-        URL1 = new javax.swing.JLabel();
         headersPane = new javax.swing.JScrollPane();
         headersTable = new com.mirth.connect.client.ui.components.MirthTable();
         headersLabel = new javax.swing.JLabel();
@@ -680,12 +579,6 @@ public class HttpSender extends ConnectorClass {
         responseContentLabel = new javax.swing.JLabel();
         responseContentHeadersAndBodyButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         responseContentBodyOnlyButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        rotateMessagesCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        usePersistentQueuesNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        usePersistentQueuesYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        jLabel36 = new javax.swing.JLabel();
-        reconnectIntervalLabel = new javax.swing.JLabel();
-        reconnectIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
         putButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         deleteButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         testConnection = new javax.swing.JButton();
@@ -710,8 +603,6 @@ public class HttpSender extends ConnectorClass {
         charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
         sendTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
         sendTimeoutLabel = new javax.swing.JLabel();
-        queuePollIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
-        queuePollIntervalLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -773,11 +664,6 @@ public class HttpSender extends ConnectorClass {
             }
         });
 
-        channelNames.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        channelNames.setToolTipText("<html>Selects a channel to send the response from the HTTP server as a new inbound message<br> or None to ignore the response from the HTTP server.</html>");
-
-        URL1.setText("Send Response to:");
-
         headersTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -820,40 +706,6 @@ public class HttpSender extends ConnectorClass {
         responseContentBodyOnlyButton.setText("Body Only");
         responseContentBodyOnlyButton.setToolTipText("<html>If selected, the response content will only include the body as a string.</html>");
         responseContentBodyOnlyButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        rotateMessagesCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        rotateMessagesCheckBox.setText("Rotate Messages in Queue");
-        rotateMessagesCheckBox.setToolTipText("<html>If checked, upon unsuccessful re-try, it will rotate and put the queued message to the back of the queue<br> in order to prevent it from clogging the queue and to let the other subsequent messages in queue be processed.<br>If the order of messages processed is important, this should be unchecked.</html>");
-
-        usePersistentQueuesNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        usePersistentQueuesNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        usePersistantQueuesButtonGroup.add(usePersistentQueuesNoRadio);
-        usePersistentQueuesNoRadio.setSelected(true);
-        usePersistentQueuesNoRadio.setText("No");
-        usePersistentQueuesNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        usePersistentQueuesNoRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                usePersistentQueuesNoRadioActionPerformed(evt);
-            }
-        });
-
-        usePersistentQueuesYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        usePersistentQueuesYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        usePersistantQueuesButtonGroup.add(usePersistentQueuesYesRadio);
-        usePersistentQueuesYesRadio.setText("Yes");
-        usePersistentQueuesYesRadio.setToolTipText("<html>If checked, the connector will store any messages that are unable to be successfully processed in a file-based queue.<br>Messages will be automatically resent until the queue is manually cleared or the message is successfully sent.<br>The default queue location is (Mirth Directory)/.mule/queuestore/(ChannelID),<br> where (Mirth Directory) is the main Mirth install root and (ChannelID) is the unique id of the current channel.</html>");
-        usePersistentQueuesYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        usePersistentQueuesYesRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                usePersistentQueuesYesRadioActionPerformed(evt);
-            }
-        });
-
-        jLabel36.setText("Use Persistent Queues:");
-
-        reconnectIntervalLabel.setText("Reconnect Interval (ms):");
-
-        reconnectIntervalField.setToolTipText("<html>The amount of time that should elapse between retry attempts to send messages in the queue.</html>");
 
         putButton.setBackground(new java.awt.Color(255, 255, 255));
         putButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -970,120 +822,80 @@ public class HttpSender extends ConnectorClass {
 
         sendTimeoutLabel.setText("Send Timeout (ms):");
 
-        queuePollIntervalField.setToolTipText("<html>The amount of time that should elapse between polls of an empty queue to check for queued messages.</html>");
-
-        queuePollIntervalLabel.setText("Queue Poll Interval (ms):");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(multipartLabel)
-                    .addComponent(methodLabel)
-                    .addComponent(URL1)
-                    .addComponent(reconnectIntervalLabel)
-                    .addComponent(queryParametersLabel)
-                    .addComponent(headersLabel)
-                    .addComponent(urlLabel)
-                    .addComponent(contentLabel)
-                    .addComponent(contentTypeLabel)
-                    .addComponent(charsetEncodingLabel)
-                    .addComponent(responseContentLabel)
-                    .addComponent(sendTimeoutLabel)
-                    .addComponent(authenticationLabel)
-                    .addComponent(authenticationTypeLabel)
-                    .addComponent(usernameLabel)
-                    .addComponent(jLabel36)
-                    .addComponent(passwordLabel)
-                    .addComponent(queuePollIntervalLabel))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(sendTimeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(charsetEncodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(authenticationTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(contentTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(authenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(contentLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(multipartLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(responseContentLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(methodLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(queryParametersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(headersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(urlLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(queuePollIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(queryParametersPane)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(queryParametersDeleteButton)
+                            .addComponent(queryParametersNewButton)))
+                    .addComponent(contentTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(contentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(headersPane))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(headersNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(headersDeleteButton)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(usePersistentQueuesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(authenticationTypeBasicRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(usePersistentQueuesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(authenticationTypeDigestRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(rotateMessagesCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap())
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addContainerGap())
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(authenticationTypeBasicRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(authenticationTypeDigestRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addContainerGap())
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addContainerGap())
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addContainerGap())
-                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                .addGroup(layout.createSequentialGroup()
-                                                    .addComponent(responseContentBodyOnlyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(responseContentHeadersAndBodyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                .addGroup(layout.createSequentialGroup()
-                                                    .addComponent(contentTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
-                                                    .addContainerGap())
-                                                .addGroup(layout.createSequentialGroup()
-                                                    .addComponent(multipartYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(multipartNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addContainerGap())
-                                                .addGroup(layout.createSequentialGroup()
-                                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                        .addGroup(layout.createSequentialGroup()
-                                                            .addComponent(urlField, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                            .addComponent(testConnection))
-                                                        .addGroup(layout.createSequentialGroup()
-                                                            .addComponent(postButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                            .addComponent(getButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                            .addComponent(putButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                            .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                        .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                    .addGap(14, 14, 14))
-                                                .addGroup(layout.createSequentialGroup()
-                                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                        .addGroup(layout.createSequentialGroup()
-                                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                .addComponent(contentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                .addComponent(headersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE))
-                                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                                .addComponent(headersNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                                .addComponent(headersDeleteButton)))
-                                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                                            .addComponent(queryParametersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
-                                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                .addComponent(queryParametersDeleteButton)
-                                                                .addComponent(queryParametersNewButton)))
-                                                        .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                    .addContainerGap())))))))
-                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(responseContentBodyOnlyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(responseContentHeadersAndBodyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addContainerGap()))))
+                            .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(urlField, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(testConnection))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(postButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(getButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(putButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(multipartYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(multipartNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(38, 38, 38)))
+                .addContainerGap())
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {queryParametersDeleteButton, queryParametersNewButton});
@@ -1113,10 +925,6 @@ public class HttpSender extends ConnectorClass {
                     .addComponent(sendTimeoutLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(URL1)
-                    .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(responseContentHeadersAndBodyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(responseContentLabel)
                     .addComponent(responseContentBodyOnlyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -1138,20 +946,6 @@ public class HttpSender extends ConnectorClass {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(passwordLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usePersistentQueuesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(usePersistentQueuesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(rotateMessagesCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel36))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(queuePollIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(queuePollIntervalLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(reconnectIntervalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1212,22 +1006,6 @@ public class HttpSender extends ConnectorClass {
         parent.setSaveEnabled(true);
     }//GEN-LAST:event_headersNewButtonActionPerformed
 
-private void usePersistentQueuesNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usePersistentQueuesNoRadioActionPerformed
-    rotateMessagesCheckBox.setEnabled(false);
-    queuePollIntervalLabel.setEnabled(false);
-    queuePollIntervalField.setEnabled(false);
-    reconnectIntervalField.setEnabled(false);
-    reconnectIntervalLabel.setEnabled(false);
-}//GEN-LAST:event_usePersistentQueuesNoRadioActionPerformed
-
-private void usePersistentQueuesYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usePersistentQueuesYesRadioActionPerformed
-    rotateMessagesCheckBox.setEnabled(true);
-    queuePollIntervalLabel.setEnabled(true);
-    queuePollIntervalField.setEnabled(true);
-    reconnectIntervalField.setEnabled(true);
-    reconnectIntervalLabel.setEnabled(true);
-}//GEN-LAST:event_usePersistentQueuesYesRadioActionPerformed
-
 private void postButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_postButtonActionPerformed
     setContentEnabled(true);
     checkMultipartEnabled();
@@ -1260,7 +1038,7 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
         public Void doInBackground() {
 
             try {
-                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testConnection", getProperties());
+                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(getConnectorName(), "testConnection", getProperties());
 
                 if (response == null) {
                     throw new ClientException("Failed to invoke service.");
@@ -1317,7 +1095,6 @@ private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt
     setAuthenticationEnabled(false);
 }//GEN-LAST:event_authenticationNoRadioActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel URL1;
     private javax.swing.ButtonGroup authenticationButtonGroup;
     private javax.swing.JLabel authenticationLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton authenticationNoRadio;
@@ -1326,7 +1103,6 @@ private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt
     private com.mirth.connect.client.ui.components.MirthRadioButton authenticationTypeDigestRadio;
     private javax.swing.JLabel authenticationTypeLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton authenticationYesRadio;
-    private com.mirth.connect.client.ui.components.MirthComboBox channelNames;
     private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private javax.swing.JLabel charsetEncodingLabel;
     private javax.swing.JLabel contentLabel;
@@ -1340,7 +1116,6 @@ private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JButton headersNewButton;
     private javax.swing.JScrollPane headersPane;
     private com.mirth.connect.client.ui.components.MirthTable headersTable;
-    private javax.swing.JLabel jLabel36;
     private javax.swing.ButtonGroup methodButtonGroup;
     private javax.swing.JLabel methodLabel;
     private javax.swing.ButtonGroup multipartButtonGroup;
@@ -1356,23 +1131,16 @@ private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JButton queryParametersNewButton;
     private javax.swing.JScrollPane queryParametersPane;
     private com.mirth.connect.client.ui.components.MirthTable queryParametersTable;
-    private com.mirth.connect.client.ui.components.MirthTextField queuePollIntervalField;
-    private javax.swing.JLabel queuePollIntervalLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField reconnectIntervalField;
-    private javax.swing.JLabel reconnectIntervalLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton responseContentBodyOnlyButton;
     private javax.swing.ButtonGroup responseContentButtonGroup;
     private com.mirth.connect.client.ui.components.MirthRadioButton responseContentHeadersAndBodyButton;
     private javax.swing.JLabel responseContentLabel;
-    private com.mirth.connect.client.ui.components.MirthCheckBox rotateMessagesCheckBox;
     private com.mirth.connect.client.ui.components.MirthTextField sendTimeoutField;
     private javax.swing.JLabel sendTimeoutLabel;
     private javax.swing.JButton testConnection;
     private com.mirth.connect.client.ui.components.MirthTextField urlField;
     private javax.swing.JLabel urlLabel;
     private javax.swing.ButtonGroup usePersistantQueuesButtonGroup;
-    private com.mirth.connect.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton usePersistentQueuesYesRadio;
     private com.mirth.connect.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables

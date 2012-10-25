@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
-  <NonVisualComponents>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup1">
-    </Component>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup2">
-    </Component>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup3">
-    </Component>
-  </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
       <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -34,53 +26,26 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="jsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingTimeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingFrequencyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="pollingIntervalButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="pollingTimeButton" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="pollingFrequency" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Component id="pollingTime" min="-2" max="-2" attributes="0"/>
-                  <Component id="javascriptTextPane" pref="243" max="32767" attributes="0"/>
-              </Group>
+              <Component id="jsLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="javascriptTextPane" pref="298" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingIntervalButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingTimeButton" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="pollingFrequencyLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingFrequency" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="pollingTimeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingTime" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
+          <Group type="102" attributes="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jsLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="javascriptTextPane" pref="186" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="jsLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="67" max="32767" attributes="0"/>
+                  </Group>
+                  <Component id="javascriptTextPane" alignment="0" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -89,16 +54,6 @@
     <Component class="javax.swing.JLabel" name="jsLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="JavaScript:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="pollingFrequencyLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Polling Frequency (ms):"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="pollingFrequency">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If the &quot;Interval&quot; Polling Type is selected, the number of milliseconds between polls must be entered here.&lt;br&gt;Avoid extremely small values because polling can be a somewhat time-consuming operation.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="javascriptTextPane">
@@ -112,67 +67,6 @@
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);"/>
       </AuxValues>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="pollingTimeButton">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup3"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Time"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;A JavaScript reader polls to determine when new messages have arrived.&lt;br&gt;It can be configured when to poll in one of two different ways.&lt;br&gt;If &quot;Interval&quot; is selected, the connector will poll every n milliseconds, where n is specified in the Polling Frequency control.&lt;br&gt;If &quot;Time&quot; is selected, the connector will poll once a day at the time specified in the Polling Time control.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pollingTimeButtonActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="pollingIntervalButton">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup3"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Interval"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;A JavaScript reader polls to determine when new messages have arrived.&lt;br&gt;It can be configured when to poll in one of two different ways.&lt;br&gt;If &quot;Interval&quot; is selected, the connector will poll every n milliseconds, where n is specified in the Polling Frequency control.&lt;br&gt;If &quot;Time&quot; is selected, the connector will poll once a day at the time specified in the Polling Time control.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pollingIntervalButtonActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel5">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Polling Type:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="pollingTimeLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Polling Time (daily):"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="pollingTime">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If the &quot;Time&quot; Polling Type is selected, the time of day to poll must be entered here."/>
-      </Properties>
     </Component>
   </SubComponents>
 </Form>
