@@ -43,7 +43,7 @@
 			<manifest>
 				<attribute name="Manifest-Version" value="1.0" />
 				<attribute name="Main-Class" value="com.mirth.connect.manager.Manager" />
-				<attribute name="Class-Path" value="manager-lib/looks-2.3.1.jar manager-lib/commons-codec-1.6.jar manager-lib/commons-collections-3.2.1.jar manager-lib/commons-configuration-1.7.jar manager-lib/commons-httpclient-3.0.1.jar manager-lib/commons-lang-2.6.jar manager-lib/commons-logging-1.1.1.jar manager-lib/commons-io-2.1.jar manager-lib/log4j-1.2.15.jar manager-lib/not-yet-commons-ssl-0.3.11.jar manager-lib/xstream-1.3.jar manager-lib/mirth-client-core.jar manager-lib/mirth-crypto.jar" />
+				<attribute name="Class-Path" value="manager-lib/looks-2.3.1.jar manager-lib/commons-codec-1.6.jar manager-lib/commons-collections-3.2.1.jar manager-lib/commons-configuration-1.7.jar manager-lib/commons-httpclient-3.0.1.jar manager-lib/commons-lang-2.6.jar manager-lib/commons-logging-1.1.1.jar manager-lib/commons-io-2.1.jar manager-lib/log4j-1.2.15.jar manager-lib/not-yet-commons-ssl-0.3.11.jar manager-lib/xstream-1.4.3.jar manager-lib/mirth-client-core.jar manager-lib/mirth-crypto.jar" />
 			</manifest>
 		</jar>
 
