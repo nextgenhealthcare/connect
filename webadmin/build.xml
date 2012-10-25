@@ -22,7 +22,7 @@
 		<fileset dir="../Server/setup/client-lib">
 			<include name="mirth-client-core.jar" />
 		</fileset>
-		<fileset dir="../Donkey3/setup">
+		<fileset dir="../Donkey/setup">
 			<include name="donkey-model.jar" />
 		</fileset>
 		<path refid="compile.jspc" />

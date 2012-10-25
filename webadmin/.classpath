@@ -15,6 +15,6 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/standard.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/stripes.jar"/>
 	<classpathentry kind="lib" path="/Server/setup/client-lib/mirth-client-core.jar"/>
-	<classpathentry kind="lib" path="/Donkey3/setup/donkey-model.jar"/>
+	<classpathentry kind="lib" path="/Donkey/setup/donkey-model.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
