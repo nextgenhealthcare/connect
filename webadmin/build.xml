@@ -1,0 +1,73 @@
+<project name="webadmin" basedir="." default="dist">
+	<property name="jetty.home" value="../Server/lib/jetty/" />
+	<property name="build" value="build" />
+	<property name="dist" value="dist" />
+	<property name="web" value="WebContent" />
+	<property name="build.web" value="${build}/${web}" />
+	<property name="build.src" value="${build}/src" />
+	<property name="build.classes" value="${build}/classes" />
+	<property name="basedir" value="../webadmin" />
+
+	<path id="compile.jspc">
+		<fileset dir="${jetty.home}">
+			<include name="servlet-api-*.jar" />
+			<include name="jsp/*.jar" />
+		</fileset>
+	</path>
+
+	<path id="compile.classpath">
+		<fileset dir="${build.web}/WEB-INF/lib">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="../Server/setup/client-lib">
+			<include name="mirth-client-core.jar" />
+		</fileset>
+		<fileset dir="../Donkey3/setup">
+			<include name="donkey-model.jar" />
+		</fileset>
+		<path refid="compile.jspc" />
+	</path>
+
+	<!-- jasper2 uses the server dir as the basedir if this is called from the server, so manually specify the webadmin basedir -->
+	<target name="jspc" depends="init">
+		<taskdef classname="org.apache.jasper.JspC" name="jasper2" classpathref="compile.jspc" />
+		<jasper2 validateXml="false"
+            uriroot="${basedir}/${build.web}"
+            addWebXmlMappings="true"
+            webXmlFragment="${basedir}/${build.web}/WEB-INF/generated_web.xml"
+            compilerSourceVM="1.6"
+            compilerTargetVM="1.6"
+            outputDir="${basedir}/${build.src}"
+            verbose="9" />
+	</target>
+
+	<target name="init" depends="clean">
+		<mkdir dir="${build.classes}" />
+		<mkdir dir="${dist}" />
+		<copy todir="${build.src}">
+			<fileset dir="src" includes="**" />
+		</copy>
+		<copy todir="${build.web}">
+			<fileset dir="${web}" includes="**" />
+		</copy>
+	</target>
+
+	<target name="compile" depends="jspc">
+		<javac destdir="${build.classes}" debug="true" srcdir="${build.src}">
+			<classpath refid="compile.classpath" />
+		</javac>
+	</target>
+
+	<target name="dist" depends="compile">
+		<war destfile="${dist}/webadmin.war" webxml="${build.web}/WEB-INF/web.xml">
+			<fileset dir="${build.web}" />
+			<classes dir="${build.classes}" />
+		</war>
+		<copy file="${dist}/webadmin.war" tofile="../Server/webapps/webadmin.war" overwrite="true" />
+	</target>
+
+	<target name="clean">
+		<delete dir="${dist}" />
+		<delete dir="${build}" />
+	</target>
+</project>
