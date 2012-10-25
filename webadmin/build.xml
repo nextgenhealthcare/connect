@@ -1,12 +1,16 @@
 <project name="webadmin" basedir="." default="dist">
-	<property name="jetty.home" value="../Server/lib/jetty/" />
+	<!-- Initialize these values in case the build is not being called form the main Mirth Connect build -->
+	<property name="server.setup" value="../server/setup" />
+	<property name="donkey.setup" value="../donkey/setup" />
+	
+	<property name="jetty.home" value="${server.setup}/lib/jetty/" />
 	<property name="build" value="build" />
 	<property name="dist" value="dist" />
 	<property name="web" value="WebContent" />
 	<property name="build.web" value="${build}/${web}" />
 	<property name="build.src" value="${build}/src" />
 	<property name="build.classes" value="${build}/classes" />
-	<property name="basedir" value="../webadmin" />
+	<property name="webadmin" value="../webadmin" />
 
 	<path id="compile.jspc">
 		<fileset dir="${jetty.home}">
@@ -19,10 +23,10 @@
 		<fileset dir="${build.web}/WEB-INF/lib">
 			<include name="*.jar" />
 		</fileset>
-		<fileset dir="../Server/setup/client-lib">
+		<fileset dir="${server.setup}/client-lib">
 			<include name="mirth-client-core.jar" />
 		</fileset>
-		<fileset dir="../Donkey/setup">
+		<fileset dir="${donkey.setup}">
 			<include name="donkey-model.jar" />
 		</fileset>
 		<path refid="compile.jspc" />
@@ -32,12 +36,12 @@
 	<target name="jspc" depends="init">
 		<taskdef classname="org.apache.jasper.JspC" name="jasper2" classpathref="compile.jspc" />
 		<jasper2 validateXml="false"
-            uriroot="${basedir}/${build.web}"
+            uriroot="${webadmin}/${build.web}"
             addWebXmlMappings="true"
-            webXmlFragment="${basedir}/${build.web}/WEB-INF/generated_web.xml"
+            webXmlFragment="${webadmin}/${build.web}/WEB-INF/generated_web.xml"
             compilerSourceVM="1.6"
             compilerTargetVM="1.6"
-            outputDir="${basedir}/${build.src}"
+            outputDir="${webadmin}/${build.src}"
             verbose="9" />
 	</target>
 
