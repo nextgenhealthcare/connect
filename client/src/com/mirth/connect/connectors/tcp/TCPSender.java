@@ -29,12 +29,12 @@ import com.mirth.connect.util.ConnectionTestResponse;
  * A form that extends from ConnectorClass. All methods implemented are
  * described in ConnectorClass.
  */
-public class TcpSender extends ConnectorSettingsPanel {
+public class TCPSender extends ConnectorSettingsPanel {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private Frame parent;
 
-    public TcpSender() {
+    public TCPSender() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         sendTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
