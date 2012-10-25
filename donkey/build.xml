@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Donkey3" default="build" basedir=".">
+	<target name="init">
+		<property file="build.properties" />
+		
+		<path id="classpath">
+			<fileset dir="${lib}" includes="**/*.jar" />
+		</path>
+	</target>
+	
+	<target name="clean" depends="init">
+		<delete dir="${classes}" />
+		<delete dir="${setup}" />
+	</target>
+	
+	<target name="compile" depends="clean">
+		<mkdir dir="${classes}" />
+		
+		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
+			<classpath refid="classpath" />
+			<src path="${src}" />
+		</javac>
+	</target>
+	
+	<target name="create-setup" depends="init">
+		<mkdir dir="${setup}" />
+		<mkdir dir="${setup.licenses}" />
+		
+		<copy todir="${setup.licenses}">
+			<fileset dir="${licenses}" />
+		</copy>
+	</target>
+	
+	<target name="build-server" depends="compile">
+		<jar destfile="${setup}/${server.jar}" basedir="${classes}">
+			<include name="com/mirth/connect/donkey/server/**" />
+			<fileset dir="${dbconf}" />
+		</jar>
+		<copy todir="${setup.lib}">
+			<fileset dir="${lib}" />
+		</copy>
+	</target>
+	
+	<target name="build-model" depends="compile">
+		<jar destfile="${setup}/${model.jar}" basedir="${classes}">
+			<include name="com/mirth/connect/donkey/model/**" />
+			<include name="com/mirth/connect/donkey/util/**" />
+		</jar>
+	</target>
+	
+	<target name="build" depends="build-model, build-server, create-setup" />
+</project>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="conf"/>
+	<classpathentry kind="src" path="donkeydbconf"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/commons/commons-dbutils-1.4.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/dbutils/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons/commons-io-2.3.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/io/api-release/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons/commons-lang3-3.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons/commons-lang-2.6.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api-2.6/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons/commons-configuration-1.7.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/configuration/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons/commons-collections-3.2.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/collections/api-release/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons/commons-logging-1.1.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/logging/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-codec-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/postgresql-9.1-902.jdbc4.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jdbc.postgresql.org/documentation/publicapi/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.6.6.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.slf4j.org/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons/commons-math3-3.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/math/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/xstream-1.4.3.jar"/>
+	<classpathentry kind="lib" path="lib/cloning/cloning-1.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/cloning/objenesis-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-dbcp-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-pool-1.6.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

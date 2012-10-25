@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<queries>
+	<query id="createMessageTable">
+		CREATE TABLE d_m${localChannelId} (
+	        id bigint NOT NULL PRIMARY KEY,
+	        server_id character varying(36),
+	        date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	        processed boolean NOT NULL DEFAULT FALSE
+	    );
+	</query>
+	
+	<query id="createConnectorMessageTable">
+		CREATE TABLE d_mm${localChannelId} (
+	        id integer NOT NULL,
+	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE,
+	        date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	        status character(1) NOT NULL,
+	        connector_map text,
+	        channel_map text,
+	        response_map text,
+	        errors text,
+	        send_attempts integer NOT NULL DEFAULT 0,
+	        CONSTRAINT mm${localChannelId}_pkey PRIMARY KEY(id, message_id)
+        );
+        
+        CREATE INDEX d_mm${localChannelId}_index1 ON d_mm${localChannelId} USING BTREE (message_id);
+        CREATE INDEX d_mm${localChannelId}_index2 ON d_mm${localChannelId} USING BTREE (id, status);
+	</query>
+	
+	<query id="createMessageContentTable">
+		CREATE TABLE d_mc${localChannelId} (
+	        metadata_id integer NOT NULL,
+	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE,
+	        content_type character(1) NOT NULL,
+	        content text,
+	        is_encrypted boolean NOT NULL,
+	        data_type character varying(255),
+	        CONSTRAINT mc${localChannelId}_pkey PRIMARY KEY(metadata_id, message_id, content_type)
+        );
+        
+        CREATE INDEX d_mc${localChannelId}_index1 ON d_mc${localChannelId} USING BTREE (message_id);
+	</query>
+	
+	<query id="createMessageCustomMetaDataTable">
+		CREATE TABLE d_mcm${localChannelId} (
+	        metadata_id integer NOT NULL,
+	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE,
+	        CONSTRAINT mcm${localChannelId}_pkey PRIMARY KEY(metadata_id, message_id)
+        );
+	</query>
+	
+	<query id="createMessageAttachmentTable">
+		CREATE TABLE d_ma${localChannelId} (
+	        id character varying(255) NOT NULL,
+	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE,
+	        content bytea,
+	        type character varying(40),
+	        CONSTRAINT ma${localChannelId}_pkey PRIMARY KEY(id)
+        );
+        
+        CREATE INDEX d_ma${localChannelId}_index1 ON d_ma${localChannelId} USING BTREE (message_id);
+	</query>
+	
+	<query id="createMessageStatisticsTable">
+		CREATE TABLE d_ms${localChannelId} (
+	        metadata_id integer,
+	        received bigint NOT NULL DEFAULT 0,
+	        received_total bigint NOT NULL DEFAULT 0,
+	        filtered bigint NOT NULL DEFAULT 0,
+	        filtered_total bigint NOT NULL DEFAULT 0,
+	        transformed bigint NOT NULL DEFAULT 0,
+	        transformed_total bigint NOT NULL DEFAULT 0,
+	        pending bigint NOT NULL DEFAULT 0,
+	        pending_total bigint NOT NULL DEFAULT 0,
+	        sent bigint NOT NULL DEFAULT 0,
+	        sent_total bigint NOT NULL DEFAULT 0,
+	        queued bigint NOT NULL DEFAULT 0,
+	        queued_total bigint NOT NULL DEFAULT 0,
+	        error bigint NOT NULL DEFAULT 0,
+	        error_total bigint NOT NULL DEFAULT 0
+        );
+	</query>
+	
+	<query id="createMessageSequence">
+		CREATE SEQUENCE d_msq${localChannelId}
+		INCREMENT 1
+		MINVALUE 1
+		MAXVALUE 9223372036854775807
+		START 1
+		CACHE 1
+	</query>
+	
+	<query id="tableExists">
+		SELECT EXISTS (
+			SELECT 1
+			FROM information_schema.tables t
+			WHERE table_name = ?
+			AND table_schema = 'public'
+		)
+	</query>
+	
+	<query id="createChannelsTable">
+		CREATE TABLE d_channels (
+	        local_channel_id bigint NOT NULL PRIMARY KEY,
+	        channel_id character varying(36) NOT NULL,
+	        CONSTRAINT unique_channel_id UNIQUE (channel_id)
+        )
+	</query>
+	
+	<query id="createEventsTable">
+		CREATE TABLE d_events (
+	        event_id bigserial NOT NULL PRIMARY KEY,
+	        event_type integer NOT NULL,
+	        channel_id character varying(36) NOT NULL,
+	        metadata_id integer,
+	        message_id bigint,
+	        message_status character(1),
+	        event_date timestamp NOT NULL
+        )
+	</query>
+	
+	<query id="removeChannel">
+		DROP TABLE d_ms${localChannelId};
+        DROP TABLE d_ma${localChannelId};
+        DROP TABLE d_mcm${localChannelId};
+        DROP TABLE d_mc${localChannelId};
+        DROP TABLE d_mm${localChannelId};
+        DROP TABLE d_m${localChannelId};
+        DROP SEQUENCE d_msq${localChannelId};
+
+        DELETE FROM d_channels
+        WHERE local_channel_id = ${localChannelId};
+	</query>
+	
+	<query id="getNextMessageId">
+		SELECT NEXTVAL('d_msq${localChannelId}')
+	</query>
+	
+	<query id="addMetaDataColumnString">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} character varying(255);
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId} USING BTREE (${columnName});
+	</query>
+	
+	<query id="addMetaDataColumnBoolean">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} boolean;
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId} USING BTREE (${columnName});
+	</query>
+	
+	<query id="addMetaDataColumnDate">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} date;
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId} USING BTREE (${columnName});
+	</query>
+	
+	<query id="addMetaDataColumnDouble">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} double precision;
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId} USING BTREE (${columnName});
+	</query>
+	
+	<query id="addMetaDataColumnLong">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} bigint;
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId} USING BTREE (${columnName});
+	</query>
+	
+	<query id="addMetaDataColumnTime">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} time without time zone;
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId} USING BTREE (${columnName});
+	</query>
+	
+	<query id="addMetaDataColumnTimestamp">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} timestamp without time zone;
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId} USING BTREE (${columnName});
+	</query>
+</queries>
