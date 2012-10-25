@@ -1,9 +1,10 @@
 <project name="webadmin" basedir="." default="dist">
 	<!-- Initialize these values in case the build is not being called form the main Mirth Connect build -->
+	<property name="server" value="../server" />
 	<property name="server.setup" value="../server/setup" />
 	<property name="donkey.setup" value="../donkey/setup" />
 	
-	<property name="jetty.home" value="${server.setup}/lib/jetty/" />
+	<property name="jetty.home" value="${server}/lib/jetty/" />
 	<property name="build" value="build" />
 	<property name="dist" value="dist" />
 	<property name="web" value="WebContent" />
@@ -67,7 +68,7 @@
 			<fileset dir="${build.web}" />
 			<classes dir="${build.classes}" />
 		</war>
-		<copy file="${dist}/webadmin.war" tofile="../Server/webapps/webadmin.war" overwrite="true" />
+		<copy file="${dist}/webadmin.war" tofile="${server}/webapps/webadmin.war" overwrite="true" />
 	</target>
 
 	<target name="clean">
