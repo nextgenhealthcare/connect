@@ -47,7 +47,6 @@ import org.mule.impl.MuleMessage;
 import org.mule.impl.ResponseOutputStream;
 import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
-import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.MessagingException;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOMessage;
@@ -62,7 +61,7 @@ import org.xml.sax.InputSource;
 
 import com.mirth.connect.connectors.mllp.protocols.LlpProtocol;
 import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.Protocol;
 import com.mirth.connect.model.Response;
 import com.mirth.connect.server.Constants;
 import com.mirth.connect.server.controllers.AlertController;
@@ -71,8 +70,9 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
-import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
+import com.mirth.connect.server.transformers.JavaScriptPostprocessor;
 import com.mirth.connect.server.util.BatchMessageProcessor;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 

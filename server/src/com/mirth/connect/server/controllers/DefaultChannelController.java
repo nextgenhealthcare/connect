@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,15 +9,19 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.ibatis.exceptions.PersistenceException;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Channel;
@@ -26,13 +30,12 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.plugins.ChannelPlugin;
+import com.mirth.connect.server.sqlmap.extensions.MapResultHandler;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.QueueUtil;
 
 public class DefaultChannelController extends ChannelController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 
     // channel cache
@@ -65,9 +68,49 @@ public class DefaultChannelController extends ChannelController {
         logger.debug("getting channel");
 
         try {
-            return SqlConfig.getSqlMapClient().queryForList("Channel.getChannel", channel);
-        } catch (SQLException e) {
+            List<Channel> channels = SqlConfig.getSqlSessionManager().selectList("Channel.getChannel", channel);
+            
+            ChannelTagResultHandler resultHandler = new ChannelTagResultHandler();
+            SqlConfig.getSqlSessionManager().select("Channel.getChannelTags", channel, resultHandler);
+            Map<String, Set<String>> tagMap = resultHandler.getTagMap();
+            
+            for (Channel currentChannel : channels) {
+                Set<String> channelTags = tagMap.get(currentChannel.getId());
+                
+                if (channelTags != null) {
+                    currentChannel.setTags(channelTags);
+                }
+            }
+            
+            return channels;
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
+        }
+    }
+    
+    private class ChannelTagResultHandler implements ResultHandler {
+        private Map<String, Set<String>> tags = new HashMap<String, Set<String>>();
+
+        public Map<String, Set<String>> getTagMap() {
+            return tags;
+        }
+
+        @Override
+        public void handleResult(ResultContext context) {
+            @SuppressWarnings("unchecked")
+            Map<Object, Object> result = (Map<Object, Object>) context.getResultObject();
+            
+            String channelId = (String) result.get("channel_id");
+            String tag = (String) result.get("tag");
+            
+            Set<String> channelTags = tags.get(channelId);
+            
+            if (channelTags == null) {
+                channelTags = new LinkedHashSet<String>();
+                tags.put(channelId, channelTags);
+            }
+            
+            channelTags.add(tag);
         }
     }
 
@@ -76,7 +119,9 @@ public class DefaultChannelController extends ChannelController {
         List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
 
         try {
-            Map<String, Integer> serverChannels = SqlConfig.getSqlMapClient().queryForMap("Channel.getChannelRevision", null, "id", "revision");
+            MapResultHandler<String, Integer> mapResultHandler = new MapResultHandler<String,Integer>("id", "revision");
+            SqlConfig.getSqlSessionManager().select("Channel.getChannelRevision", mapResultHandler);              
+            Map<String, Integer> serverChannels = mapResultHandler.getMap();
 
             /*
              * Iterate through the cached channel list and check if a channel
@@ -134,9 +179,21 @@ public class DefaultChannelController extends ChannelController {
             }
 
             return channelSummaries;
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
+    }
+    
+    @Override
+    public Set<String> getChannelTags() {
+        return getChannelTags(null);
+    }
+    
+    @Override
+    public Set<String> getChannelTags(Set<String> channelIds) {
+        logger.debug("getting channel tags");
+        List<String> tags = SqlConfig.getSqlSessionManager().selectList("Channel.getAllChannelTags", channelIds);
+        return new LinkedHashSet<String>(tags);
     }
 
     public boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
@@ -217,10 +274,22 @@ public class DefaultChannelController extends ChannelController {
             // Put the new channel in the database
             if (getChannel(channelFilter).isEmpty()) {
                 logger.debug("adding channel");
-                SqlConfig.getSqlMapClient().insert("Channel.insertChannel", channel);
+                SqlConfig.getSqlSessionManager().insert("Channel.insertChannel", channel);
             } else {
                 logger.debug("updating channel");
-                SqlConfig.getSqlMapClient().update("Channel.updateChannel", channel);
+                SqlConfig.getSqlSessionManager().update("Channel.updateChannel", channel);
+            }
+            
+            // update channel tags
+            logger.debug("updating channel tags");
+            SqlConfig.getSqlSessionManager().update("Channel.deleteChannelTags", channel.getId());
+            
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("channelId", channel.getId());
+            
+            for (String tag : channel.getTags()) {
+                params.put("tag", tag);
+                SqlConfig.getSqlSessionManager().update("Channel.insertChannelTag", params);
             }
 
             // Update the channel in the channelCache
@@ -246,24 +315,22 @@ public class DefaultChannelController extends ChannelController {
     public void removeChannel(Channel channel, ServerEventContext context) throws ControllerException {
         logger.debug("removing channel");
 
-        if ((channel != null) && channelStatusController.getDeployedIds().contains(channel.getId())) {
+        if ((channel != null) && ControllerFactory.getFactory().createEngineController().isDeployed(channel.getId())) {
             logger.warn("Cannot remove deployed channel.");
             return;
         }
 
         try {
             if (channel != null) {
-                QueueUtil.getInstance().removeAllQueuesForChannel(channel);
                 removeChannelFromCache(channel.getId());
             } else {
-                QueueUtil.getInstance().removeAllQueues();
                 clearChannelCache();
             }
 
-            SqlConfig.getSqlMapClient().delete("Channel.deleteChannel", channel);
+            SqlConfig.getSqlSessionManager().delete("Channel.deleteChannel", channel);
 
             if (DatabaseUtil.statementExists("Channel.vacuumChannelTable")) {
-                SqlConfig.getSqlMapClient().update("Channel.vacuumChannelTable");
+                SqlConfig.getSqlSessionManager().update("Channel.vacuumChannelTable");
             }
 
             // invoke the channel plugins

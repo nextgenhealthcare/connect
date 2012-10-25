@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,12 +9,14 @@
 
 package com.mirth.connect.connectors.file.filesystems;
 
+import java.io.ByteArrayInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -182,9 +184,9 @@ public class WebDavConnection implements FileSystemConnection {
     }
 
     @Override
-    public void writeFile(String file, String toDir, boolean append, byte[] message) throws Exception {
+    public void writeFile(String file, String toDir, boolean append, InputStream is) throws Exception {
         String fullPath = getFullPath(toDir, file);
-
+        
         // first check if the toDir exists.
         client.setPath(toDir);
 
@@ -194,7 +196,7 @@ public class WebDavConnection implements FileSystemConnection {
             client.mkcolMethod(toDir);
             logger.info("Destination directory does not exist. Creating directory: '" + toDir + "'");
 
-            if (!client.putMethod(fullPath, message)) {
+            if (!client.putMethod(fullPath, is)) {
                 logger.error("Unable to write file: '" + fullPath);
             }
 
@@ -205,7 +207,7 @@ public class WebDavConnection implements FileSystemConnection {
                 throw new Exception("The destination directory path is invalid: '" + client.getPath() + "'");
             } else {
                 // valid directory. now write the file.
-                if (!client.putMethod(fullPath, message)) {
+                if (!client.putMethod(fullPath, is)) {
                     logger.error("Unable to write file: '" + fullPath);
                 }
             }

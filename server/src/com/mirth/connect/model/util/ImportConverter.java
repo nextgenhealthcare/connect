@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -48,10 +48,10 @@ import com.mirth.connect.connectors.smtp.Attachment;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.MessageObject.Protocol;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
+import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.CharsetUtils;
@@ -325,9 +325,9 @@ public class ImportConverter {
 
                 updateFilterFor1_4((Element) sourceConnectorRoot.getElementsByTagName("filter").item(0));
                 if (direction == Direction.OUTBOUND)
-                    updateTransformerFor1_4(document, (Element) sourceConnectorRoot.getElementsByTagName("transformer").item(0), Protocol.XML, Protocol.XML);
+                    updateTransformerFor1_4(document, (Element) sourceConnectorRoot.getElementsByTagName("transformer").item(0), DataTypeFactory.XML, DataTypeFactory.XML);
                 else
-                    updateTransformerFor1_4(document, (Element) sourceConnectorRoot.getElementsByTagName("transformer").item(0), Protocol.HL7V2, Protocol.HL7V2);
+                    updateTransformerFor1_4(document, (Element) sourceConnectorRoot.getElementsByTagName("transformer").item(0), DataTypeFactory.HL7V2, DataTypeFactory.HL7V2);
 
                 for (int i = 0; i < destinationsConnectors.getLength(); i++) {
                     modeElement = document.createElement("mode");
@@ -339,9 +339,9 @@ public class ImportConverter {
                     updateFilterFor1_4((Element) destinationsConnector.getElementsByTagName("filter").item(0));
 
                     if (direction == Direction.OUTBOUND)
-                        updateTransformerFor1_4(document, (Element) destinationsConnector.getElementsByTagName("transformer").item(0), Protocol.XML, Protocol.HL7V2);
+                        updateTransformerFor1_4(document, (Element) destinationsConnector.getElementsByTagName("transformer").item(0), DataTypeFactory.XML, DataTypeFactory.HL7V2);
                     else
-                        updateTransformerFor1_4(document, (Element) destinationsConnector.getElementsByTagName("transformer").item(0), Protocol.HL7V2, Protocol.HL7V2);
+                        updateTransformerFor1_4(document, (Element) destinationsConnector.getElementsByTagName("transformer").item(0), DataTypeFactory.HL7V2, DataTypeFactory.HL7V2);
 
                 }
             }
@@ -993,7 +993,6 @@ public class ImportConverter {
                     } else {
                         propertyChanges.put("html", "1");
                     }
-                    
                 } else if (attribute.equals("attachmentNames")) {
                     attachmentNames = (ArrayList<String>) serializer.fromXML(value);
                 } else if (attribute.equals("attachmentContents")) {
@@ -1130,7 +1129,7 @@ public class ImportConverter {
         return connectorXml;
     }
 
-    public static String convertTransformer(String transformerXml, Protocol incoming, Protocol outgoing) throws Exception {
+    public static String convertTransformer(String transformerXml, String incoming, String outgoing) throws Exception {
         transformerXml = convertPackageNames(transformerXml);
         transformerXml = runStringConversions(transformerXml);
 
@@ -1166,7 +1165,7 @@ public class ImportConverter {
     /*
      * Upgrade pre-1.4 channels' transformers and filters to work with 1.4+
      */
-    private static void updateTransformerFor1_4(Document document, Element transformerRoot, Protocol incoming, Protocol outgoing) {
+    private static void updateTransformerFor1_4(Document document, Element transformerRoot, String incoming, String outgoing) {
 
         String template = "";
         Element transformerTemplate = null;
@@ -1192,9 +1191,9 @@ public class ImportConverter {
         }
 
         if (transformerTemplate != null) {
-            if (incoming == Protocol.HL7V2 && outgoing == Protocol.HL7V2) {
+            if (incoming.equals(DataTypeFactory.HL7V2) && outgoing.equals(DataTypeFactory.HL7V2)) {
                 inboundTemplateElement.setTextContent(template);
-            } else if (outgoing == Protocol.HL7V2) {
+            } else if (outgoing.equals(DataTypeFactory.HL7V2)) {
                 outboundTemplateElement.setTextContent(template);
             }
         }

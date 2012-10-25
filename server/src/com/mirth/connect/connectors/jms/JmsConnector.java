@@ -36,7 +36,6 @@ import org.mule.providers.AbstractServiceEnabledConnector;
 import org.mule.providers.ConnectException;
 import org.mule.providers.FatalConnectException;
 import org.mule.providers.ReplyToHandler;
-import org.mule.providers.TemplateValueReplacer;
 import org.mule.transaction.TransactionCoordination;
 import org.mule.umo.TransactionException;
 import org.mule.umo.UMOComponent;
@@ -50,6 +49,7 @@ import org.mule.util.BeanUtils;
 import org.mule.util.ClassHelper;
 
 import com.mirth.connect.connectors.jms.xa.ConnectionFactoryWrapper;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
 import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentHashMap;
 

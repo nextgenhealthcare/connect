@@ -4,7 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.BasicDicomObject;
@@ -14,25 +13,19 @@ import org.dcm4che2.io.DicomOutputStream;
 import org.dcm4che2.net.Association;
 import org.dcm4che2.net.DicomServiceException;
 import org.dcm4che2.net.PDVInputStream;
-import org.mule.impl.MuleMessage;
-import org.mule.providers.AbstractMessageReceiver;
-import org.mule.umo.UMOMessage;
-import org.mule.umo.endpoint.UMOEndpoint;
 
-import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
+import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.server.channel.ChannelException;
+import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.SourceConnector;
 
 public class MirthDcmRcv extends DcmRcv {
     private Logger logger = Logger.getLogger(this.getClass());
-    private AbstractMessageReceiver messageReceiver;
-    private JavaScriptPostprocessor postProcessor;
-    private UMOEndpoint endpoint;
+    private SourceConnector sourceConnector;
 
-    public MirthDcmRcv(AbstractMessageReceiver messageReceiver, JavaScriptPostprocessor postProcessor, UMOEndpoint endpoint) {
+    public MirthDcmRcv(SourceConnector sourceConnector) {
         super("DCMRCV");
-        this.messageReceiver = messageReceiver;
-        this.postProcessor = postProcessor;
-        this.endpoint = endpoint;
+        this.sourceConnector = sourceConnector;
     }
 
     @Override
@@ -55,16 +48,20 @@ public class MirthDcmRcv extends DcmRcv {
             // MIRTH-2072: This needs to be closed here
             dos.close();
 
-            String dicomMessage = new String(Base64.encodeBase64Chunked(baos.toByteArray()));
-            UMOMessage response = messageReceiver.routeMessage(new MuleMessage(dicomMessage), endpoint.isSynchronous());
-
-            // We need to check the message status
-            if ((response != null) && (response instanceof MuleMessage)) {
-                Object payload = response.getPayload();
-
-                if (payload instanceof MessageObject) {
-                    postProcessor.doPostProcess((MessageObject) payload);
-                }
+            byte[] dicomMessage = baos.toByteArray();
+            
+            // Allow the stream buffers to be garbage collected before the message is processed.
+            bos = null;
+            baos = null;
+            MessageResponse messageResponse = null;
+            
+            try {
+                messageResponse = sourceConnector.handleRawMessage(new RawMessage(dicomMessage));
+            } catch (ChannelException e) {
+            } finally {
+                try {
+                    sourceConnector.storeMessageResponse(messageResponse);
+                } catch (ChannelException e) {}
             }
         } catch (Exception e) {
             logger.error(e);

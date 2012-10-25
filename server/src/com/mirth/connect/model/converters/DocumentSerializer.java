@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -12,7 +12,6 @@ package com.mirth.connect.model.converters;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -25,7 +24,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-public class DocumentSerializer implements IXMLSerializer<Document> {
+public class DocumentSerializer {
     private Logger logger = Logger.getLogger(this.getClass());
     private String[] cDataElements = null;
     private boolean omitXmlDeclaration = false;
@@ -114,21 +113,5 @@ public class DocumentSerializer implements IXMLSerializer<Document> {
         }
 
         return document;
-    }
-
-    public Map<String, String> getMetadata() {
-        return null;
-    }
-
-    public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException {
-        return null;
-    }
-
-    public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
-        return null;
-    }
-
-    public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
-        return null;
     }
 }

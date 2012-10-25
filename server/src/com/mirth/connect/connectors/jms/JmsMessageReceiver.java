@@ -37,7 +37,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
-import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
+import com.mirth.connect.server.transformers.JavaScriptPostprocessor;
 
 /**
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -13,8 +13,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -105,6 +108,19 @@ public class ChannelServlet extends MirthServlet {
                     }
 
                     serializer.toXML(channelSummaries, out);
+                } else if (operation.equals(Operations.CHANNEL_GET_TAGS)) {
+                    response.setContentType(APPLICATION_XML);
+                    Set<String> tags = null;
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        tags = new LinkedHashSet<String>();
+                    } else if (doesUserHaveChannelRestrictions(request)) {
+                        tags = channelController.getChannelTags(new HashSet<String>(getAuthorizedChannelIds(request)));
+                    } else {
+                        tags = channelController.getChannelTags();
+                    }
+
+                    serializer.toXML(tags, out);
                 }
             } catch (RuntimeIOException rio) {
                 logger.debug(rio);

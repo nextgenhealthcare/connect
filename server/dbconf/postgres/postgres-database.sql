@@ -42,6 +42,12 @@ CREATE TABLE CHANNEL_STATISTICS
 
 CREATE SEQUENCE MESSAGE_SEQUENCE START WITH 1;
 
+CREATE TABLE CHANNEL_TAGS (
+	CHANNEL_ID CHAR(36) NOT NULL,
+	TAG VARCHAR(255) NOT NULL,
+	CONSTRAINT CHANNEL_TAGS_PKEY PRIMARY KEY (channel_id, tag)
+);
+
 CREATE TABLE ATTACHMENT
     (ID VARCHAR(255) NOT NULL PRIMARY KEY,
      MESSAGE_ID VARCHAR(255) NOT NULL,
@@ -156,6 +162,26 @@ CREATE TABLE CONFIGURATION
 	NAME VARCHAR(255) NOT NULL,
 	VALUE TEXT);
 	
+CREATE TABLE tasks (
+	task_id serial NOT NULL,
+	task_type character varying(255) NOT NULL,
+	task_description character varying(255) NOT NULL,
+	date_created timestamp without time zone NOT NULL DEFAULT now(),
+	CONSTRAINT tasks_pkey PRIMARY KEY (task_id)
+);
+
+CREATE TABLE reprocessing (
+	reprocessing_id serial NOT NULL,
+	user_id integer NOT NULL,
+	message_id bigint NOT NULL,
+	completed boolean NOT NULL DEFAULT false,
+	CONSTRAINT reprocessing_pkey PRIMARY KEY (reprocessing_id)
+);
+
+CREATE INDEX reprocessing_index1 ON reprocessing USING btree (user_id);
+
+CREATE INDEX reprocessing_index2 ON reprocessing USING btree (completed);
+
 INSERT INTO PERSON (USERNAME, LOGGED_IN) VALUES('admin', FALSE);
 
 INSERT INTO PERSON_PASSWORD (PERSON_ID, PASSWORD) VALUES(1, 'YzKZIAnbQ5m+3llggrZvNtf5fg69yX7pAplfYg0Dngn/fESH93OktQ==');

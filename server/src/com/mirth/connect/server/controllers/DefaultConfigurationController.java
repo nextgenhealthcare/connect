@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -63,7 +62,10 @@ import com.mirth.commons.encryption.Digester;
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.commons.encryption.Output;
+import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.DatabaseSettings;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.PasswordRequirements;
@@ -73,10 +75,9 @@ import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.sqlmap.extensions.MapResultHandler;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
-import com.mirth.connect.server.util.JMXConnection;
-import com.mirth.connect.server.util.JMXConnectionFactory;
 import com.mirth.connect.server.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
@@ -100,7 +101,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static PropertiesConfiguration versionConfig = new PropertiesConfiguration();
     private static PropertiesConfiguration mirthConfig = new PropertiesConfiguration();
     private static EncryptionSettings encryptionConfig;
-
+    private static DatabaseSettings databaseConfig;
+    
     private static KeyEncryptor encryptor = null;
     private static Digester digester = null;
 
@@ -270,6 +272,11 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     @Override
+    public DatabaseSettings getDatabaseSettings() throws ControllerException {
+        return databaseConfig;
+    }
+
+    @Override
     public void setServerSettings(ServerSettings settings) throws ControllerException {
         Properties properties = settings.getProperties();
         for (Object name : properties.keySet()) {
@@ -356,66 +363,11 @@ public class DefaultConfigurationController extends ConfigurationController {
     public int getStatus() {
         logger.debug("getting Mirth status");
 
-        // Check if mule engine is running. First check if it is starting.
-        // Also, if it is not running, double-check to see that it was not
-        // starting.
-        // This double-check is not foolproof, but works in most cases.
-        boolean isEngineRunning = false;
-        boolean localIsEngineStarting = false;
-
-        if (isEngineStarting()) {
-            localIsEngineStarting = true;
-        } else {
-            JMXConnection jmxConnection = null;
-
-            try {
-                jmxConnection = JMXConnectionFactory.createJMXConnection();
-                Hashtable<String, String> properties = new Hashtable<String, String>();
-                properties.put("type", "control");
-                properties.put("name", "MuleService");
-
-                if (!((Boolean) jmxConnection.getAttribute(properties, "Stopped"))) {
-                    isEngineRunning = true;
-                }
-            } catch (Exception e) {
-                if (isEngineStarting()) {
-                    localIsEngineStarting = true;
-                } else {
-                    logger.warn("could not retrieve status of engine", e);
-                    isEngineRunning = false;
-                }
-            } finally {
-                if (jmxConnection != null) {
-                    jmxConnection.close();
-                }
-            }
-        }
-
-        // check if database is running
-        boolean isDatabaseRunning = false;
-        Statement statement = null;
-        Connection connection = null;
-
-        try {
-            connection = SqlConfig.getSqlMapClient().getDataSource().getConnection();
-            statement = connection.createStatement();
-            statement.execute("SELECT 'STATUS_OK' FROM CONFIGURATION");
-            isDatabaseRunning = true;
-        } catch (Exception e) {
-            logger.warn("could not retrieve status of database", e);
-            isDatabaseRunning = false;
-        } finally {
-            DbUtils.closeQuietly(statement);
-            DbUtils.closeQuietly(connection);
-        }
-
-        // If the database isn't running or the engine isn't running (only if it
-        // isn't starting) return STATUS_UNAVAILABLE.
-        // If it's starting, return STATUS_ENGINE_STARTING.
-        // All other cases return STATUS_OK.
-        if (!isDatabaseRunning || (!isEngineRunning && !localIsEngineStarting)) {
+        // If the database isn't running or the engine isn't running (only if it isn't starting) return STATUS_UNAVAILABLE.
+        // If it's starting, return STATUS_ENGINE_STARTING. All other cases return STATUS_OK.
+        if (!isDatabaseRunning() || (!ControllerFactory.getFactory().createEngineController().isRunning() && !isEngineStarting)) {
             return STATUS_UNAVAILABLE;
-        } else if (localIsEngineStarting) {
+        } else if (isEngineStarting) {
             return STATUS_ENGINE_STARTING;
         } else {
             return STATUS_OK;
@@ -455,16 +407,15 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     @Override
-    public void setServerConfiguration(ServerConfiguration serverConfiguration) throws ControllerException {
+    public void setServerConfiguration(ServerConfiguration serverConfiguration) throws StartException, StopException, ControllerException, InterruptedException {
         ChannelController channelController = ControllerFactory.getFactory().createChannelController();
         AlertController alertController = ControllerFactory.getFactory().createAlertController();
         CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
-        ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
 
         if (serverConfiguration.getChannels() != null) {
             // Undeploy all channels before updating or removing them
-            engineController.undeployChannels(channelStatusController.getDeployedIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+            engineController.undeployChannels(engineController.getDeployedIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
 
             // Remove channels that don't exist in the new configuration
             for (Channel channel : channelController.getChannel(null)) {
@@ -483,8 +434,8 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             // Update all channels from the server configuration
             for (Channel channel : serverConfiguration.getChannels()) {
-                PropertyVerifier.checkChannelProperties(channel);
-                PropertyVerifier.checkConnectorProperties(channel, ControllerFactory.getFactory().createExtensionController().getConnectorMetaData());
+//                PropertyVerifier.checkChannelProperties(channel);
+//                PropertyVerifier.checkConnectorProperties(channel, ControllerFactory.getFactory().createExtensionController().getConnectorMetaData());
                 channelController.updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
             }
         }
@@ -522,7 +473,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
 
         // Redeploy all channels
-        engineController.redeployAllChannels(ServerEventContext.SYSTEM_USER_EVENT_CONTEXT);
+        engineController.redeployAllChannels();
     }
 
     @Override
@@ -561,9 +512,10 @@ public class DefaultConfigurationController extends ConfigurationController {
         Properties properties = new Properties();
 
         try {
-            @SuppressWarnings("unchecked")
-            Map<String, String> result = SqlConfig.getSqlMapClient().queryForMap("Configuration.selectPropertiesForCategory", category, "name", "value");
-
+            MapResultHandler<String,String> mapResultHandler = new MapResultHandler<String,String>("name", "value");
+            SqlConfig.getSqlSessionManager().select("Configuration.selectPropertiesForCategory", category, mapResultHandler);
+            Map<String,String> result = mapResultHandler.getMap();
+            
             if (!result.isEmpty()) {
                 properties.putAll(result);
             }
@@ -580,7 +532,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", category);
-            SqlConfig.getSqlMapClient().delete("Configuration.deleteProperty", parameterMap);
+            SqlConfig.getSqlSessionManager().delete("Configuration.deleteProperty", parameterMap);
         } catch (Exception e) {
             logger.error("Could not delete properties: category=" + category);
         }
@@ -594,7 +546,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", category);
             parameterMap.put("name", name);
-            return (String) SqlConfig.getSqlMapClient().queryForObject("Configuration.selectProperty", parameterMap);
+            return (String) SqlConfig.getSqlSessionManager().selectOne("Configuration.selectProperty", parameterMap);
         } catch (Exception e) {
             logger.warn("Could not retrieve property: category=" + category + ", name=" + name, e);
         }
@@ -613,13 +565,13 @@ public class DefaultConfigurationController extends ConfigurationController {
             parameterMap.put("value", value);
 
             if (getProperty(category, name) == null) {
-                SqlConfig.getSqlMapClient().insert("Configuration.insertProperty", parameterMap);
+                SqlConfig.getSqlSessionManager().insert("Configuration.insertProperty", parameterMap);
             } else {
-                SqlConfig.getSqlMapClient().insert("Configuration.updateProperty", parameterMap);
+                SqlConfig.getSqlSessionManager().insert("Configuration.updateProperty", parameterMap);
             }
 
             if (DatabaseUtil.statementExists("Configuration.vacuumConfigurationTable")) {
-                SqlConfig.getSqlMapClient().update("Configuration.vacuumConfigurationTable");
+                SqlConfig.getSqlSessionManager().update("Configuration.vacuumConfigurationTable");
             }
         } catch (Exception e) {
             logger.error("Could not store property: category=" + category + ", name=" + name, e);
@@ -634,7 +586,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("category", category);
             parameterMap.put("name", name);
-            SqlConfig.getSqlMapClient().delete("Configuration.deleteProperty", parameterMap);
+            SqlConfig.getSqlSessionManager().delete("Configuration.deleteProperty", parameterMap);
         } catch (Exception e) {
             logger.error("Could not delete property: category=" + category + ", name=" + name, e);
         }
@@ -642,21 +594,16 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public void initializeSecuritySettings() {
-        PropertiesConfiguration properties = new PropertiesConfiguration();
-        properties.setDelimiterParsingDisabled(true);
-
         try {
-            properties.load(ResourceUtil.getResourceStream(this.getClass(), "mirth.properties"));
-
             /*
              * Load the encryption settings so that they can be referenced
              * client side.
              */
             encryptionConfig = new EncryptionSettings(ConfigurationConverter.getProperties(mirthConfig));
 
-            File keyStoreFile = new File(properties.getString("keystore.path"));
-            char[] keyStorePassword = properties.getString("keystore.storepass").toCharArray();
-            char[] keyPassword = properties.getString("keystore.keypass").toCharArray();
+            File keyStoreFile = new File(mirthConfig.getString("keystore.path"));
+            char[] keyStorePassword = mirthConfig.getString("keystore.storepass").toCharArray();
+            char[] keyPassword = mirthConfig.getString("keystore.keypass").toCharArray();
             Provider provider = (Provider) Class.forName(encryptionConfig.getSecurityProvider()).newInstance();
 
             KeyStore keyStore = null;
@@ -684,9 +631,55 @@ public class DefaultConfigurationController extends ConfigurationController {
             keyStore.store(fos, keyStorePassword);
             IOUtils.closeQuietly(fos);
 
-            generateDefaultTrustStore(properties);
+            generateDefaultTrustStore();
         } catch (Exception e) {
             logger.error("Could not initialize security settings.", e);
+        }
+    }
+    
+    @Override
+    public void initializeDatabaseSettings() {
+        try {
+            databaseConfig = new DatabaseSettings(ConfigurationConverter.getProperties(mirthConfig));
+            
+            // dir.base is not included in mirth.properties, so set it manually
+            databaseConfig.setDirBase(getBaseDir());
+            
+            String password = databaseConfig.getDatabasePassword();
+            
+            if (StringUtils.isNotEmpty(password)) {
+                ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+                EncryptionSettings encryptionSettings = configurationController.getEncryptionSettings();
+                Encryptor encryptor = configurationController.getEncryptor();
+
+                if (encryptionSettings.getEncryptProperties()) {
+                    if (StringUtils.startsWith(password, EncryptionSettings.ENCRYPTION_PREFIX)) {
+                        String encryptedPassword = StringUtils.removeStart(password, EncryptionSettings.ENCRYPTION_PREFIX);
+                        String decryptedPassword = encryptor.decrypt(encryptedPassword);
+                        databaseConfig.setDatabasePassword(decryptedPassword);
+                    } else if (StringUtils.isNotBlank(password)){
+                        // encrypt the password and write it back to the file
+                        String encryptedPassword = EncryptionSettings.ENCRYPTION_PREFIX + encryptor.encrypt(password);
+                        mirthConfig.setProperty("database.password", encryptedPassword);
+
+                        /*
+                         * Save using a FileOutputStream so that the file will
+                         * be saved to the proper location, even if running from
+                         * the IDE.
+                         */
+                        File confDir = new File(ControllerFactory.getFactory().createConfigurationController().getConfigurationDir());
+                        OutputStream os = new FileOutputStream(new File(confDir, "mirth.properties"));
+
+                        try {
+                            mirthConfig.save(os);
+                        } finally {
+                            IOUtils.closeQuietly(os);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -841,9 +834,9 @@ public class DefaultConfigurationController extends ConfigurationController {
      * create a new one.
      * 
      */
-    private void generateDefaultTrustStore(PropertiesConfiguration properties) throws Exception {
-        File trustStoreFile = new File(properties.getString("truststore.path"));
-        char[] trustStorePassword = properties.getString("truststore.storepass").toCharArray();
+    private void generateDefaultTrustStore() throws Exception {
+        File trustStoreFile = new File(mirthConfig.getString("truststore.path"));
+        char[] trustStorePassword = mirthConfig.getString("truststore.storepass").toCharArray();
         KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
 
         if (!trustStoreFile.exists()) {
@@ -963,5 +956,27 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
 
         return builder.toString();
+    }
+    
+    private boolean isDatabaseRunning() {
+        Statement statement = null;
+        Connection connection = null;
+        SqlConfig.getSqlSessionManager().startManagedSession();
+        
+        try {
+            connection = SqlConfig.getSqlSessionManager().getConnection();
+            statement = connection.createStatement();
+            statement.execute("SELECT 1 FROM channels");
+            return true;
+        } catch (Exception e) {
+            logger.warn("could not retrieve status of database", e);
+            return false;
+        } finally {
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(connection);
+            if(SqlConfig.getSqlSessionManager().isManagedSessionStarted()){
+                SqlConfig.getSqlSessionManager().close();
+            }
+        }
     }
 }

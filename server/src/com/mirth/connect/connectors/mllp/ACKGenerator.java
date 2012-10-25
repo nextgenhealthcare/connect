@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.Protocol;
 import com.mirth.connect.model.converters.SerializerFactory;
 import com.mirth.connect.server.util.DateUtil;
 

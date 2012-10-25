@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -53,9 +53,9 @@ public class UpdateClient {
     private final static int KEY_SENT = 4;
     private final static int KEY_ERRORED = 5;
     private final static int KEY_INBOUND_TRANSPORT = 6;
-    private final static int KEY_INBOUND_PROTOCOL = 7;
+    private final static int KEY_INBOUND_DATA_TYPE = 7;
     private final static int KEY_OUTBOUND_TRANSPORTS = 8;
-    private final static int KEY_OUTBOUND_PROTOCOLS = 9;
+    private final static int KEY_OUTBOUND_DATA_TYPES = 9;
 
     private Client client;
     private User requestUser;
@@ -270,26 +270,26 @@ public class UpdateClient {
                 usageData.add(new UsageData(channel.getId(), KEY_ERRORED, String.valueOf(statistics.getError())));
             }
 
-            // connector transport and protocol counts
+            // connector transport and data type counts
             usageData.add(new UsageData(channel.getId(), KEY_INBOUND_TRANSPORT, channel.getSourceConnector().getTransportName()));
-            usageData.add(new UsageData(channel.getId(), KEY_INBOUND_PROTOCOL, channel.getSourceConnector().getTransformer().getInboundProtocol().name()));
+            usageData.add(new UsageData(channel.getId(), KEY_INBOUND_DATA_TYPE, channel.getSourceConnector().getTransformer().getInboundDataType()));
 
             StringBuilder outboundTransports = new StringBuilder();
-            StringBuilder outboundProtocols = new StringBuilder();
+            StringBuilder outboundDataTypes = new StringBuilder();
 
             for (Iterator<Connector> iterator = channel.getDestinationConnectors().iterator(); iterator.hasNext();) {
                 Connector connector = iterator.next();
                 outboundTransports.append(connector.getTransportName());
-                outboundProtocols.append(connector.getTransformer().getOutboundProtocol().name());
+                outboundDataTypes.append(connector.getTransformer().getOutboundDataType());
 
                 if (iterator.hasNext()) {
                     outboundTransports.append(",");
-                    outboundProtocols.append(",");
+                    outboundDataTypes.append(",");
                 }
             }
 
             usageData.add(new UsageData(channel.getId(), KEY_OUTBOUND_TRANSPORTS, outboundTransports.toString()));
-            usageData.add(new UsageData(channel.getId(), KEY_OUTBOUND_PROTOCOLS, outboundProtocols.toString()));
+            usageData.add(new UsageData(channel.getId(), KEY_OUTBOUND_DATA_TYPES, outboundDataTypes.toString()));
         }
 
         return usageData;

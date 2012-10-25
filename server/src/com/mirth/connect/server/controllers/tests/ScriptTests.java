@@ -1,0 +1,152 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ * 
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
+package com.mirth.connect.server.controllers.tests;
+
+public class ScriptTests {
+    final private static String TEST_HL7_MESSAGE = "MSH|^~\\&|LABNET|Acme Labs|||20090601105700||ORU^R01|HMCDOOGAL-0088|D|2.2\nPID|1|8890088|8890088^^^72777||McDoogal^Hattie^||19350118|F||2106-3|100 Beach Drive^Apt. 5^Mission Viejo^CA^92691^US^H||(949) 555-0025|||||8890088^^^72|604422825\nPV1|1|R|C3E^C315^B||||2^HIBBARD^JULIUS^|5^ZIMMERMAN^JOE^|9^ZOIDBERG^JOHN^|CAR||||4|||2301^OBRIEN, KEVIN C|I|1783332658^1^1||||||||||||||||||||DISNEY CLINIC||N|||20090514205600\nORC|RE|928272608|056696716^LA||CM||||20090601105600||||  C3E|||^RESULT PERFORMED\nOBR|1|928272608|056696716^LA|1001520^K|||20090601101300|||MLH25|||HEMOLYZED/VP REDRAW|20090601102400||2301^OBRIEN, KEVIN C||||01123085310001100100152023509915823509915800000000101|0000915200932|20090601105600||LAB|F||^^^20090601084100^^ST~^^^^^ST\nOBX|1|NM|1001520^K||5.3|MMOL/L|3.5-5.5||||F|||20090601105600|IIM|IIM";
+    final private static long TEST_SIZE = 1;
+    final private static String CHANNEL_ID = "scriptTests";
+    final private static int NUM_DESTINATIONS = 1;
+    final private static String REPLACEMENT_VALUE = "+";
+    
+//    @Test
+//    public final void testPreProcessorScript() {
+//        System.out.println("testPreProcessorScript()");
+//        EventList eventList = new EventList();
+//        EventBroadcaster.getInstance().addListener(eventList);
+//        
+//        ChannelController.getInstance().deleteAllMessages(CHANNEL_ID);
+//        
+//        Donkey server = Donkey.getInstance();
+//
+//        Channel channel = TestUtils.createChannel(CHANNEL_ID, "testserver", false, NUM_DESTINATIONS, 1);
+//        TestSourceConnector reader = (TestSourceConnector) channel.getSourceConnector();
+//
+//        reader.setChannel(channel);
+//
+//        // Set Channel Pre-Processor Script
+//        channel.setPreprocessingScript(" logger.info('Ran Pre-processor Script'); message=message.replace(/./g, '" + REPLACEMENT_VALUE + "'); return message;");
+//
+//        server.registerChannel(channel);
+//        server.deployChannels();
+//
+//        long startTime = System.currentTimeMillis();
+//
+//        for (int n = 0; n < TEST_SIZE; n++) {
+//            reader.readTestMessage(TEST_HL7_MESSAGE);
+//        }
+//
+//        try {
+//            channel.stop();
+//        } catch (StopException e) {
+//            e.printStackTrace();
+//        }
+//        long endTime = System.currentTimeMillis();
+//
+//        double seconds = ((double) (endTime - startTime)) / 1000.0;
+//
+//        int actualCount = 0;
+//        for (int n = 0; n < NUM_DESTINATIONS; n++) {
+//            TestDestinationConnector testDestinationConnector = (TestDestinationConnector) channel.getDestinationChains().get(1).getDestinationConnectors().get(1);
+//            actualCount += testDestinationConnector.getMessageIds().size();
+//
+//            // FIXME
+////            for (TestConnectorProperties connectorProperties : testDestinationConnector.getConnectorPropertiesList()) {
+////                String destinationRawMsg = connectorProperties.getContent();
+////                System.out.println("\nSource Raw: " + TEST_HL7_MESSAGE);
+////                System.out.println("\nDestination Raw: " + destinationRawMsg);
+////                assertTrue(destinationRawMsg.contains("+++")); // Assert post-processor script replaced all contents of raw msg with '+'
+////            }
+//        }
+//        assertEquals(TEST_SIZE, actualCount); // Assert all messages received
+//    }
+//    
+//    @Test
+//    public void testPostProcessor() throws Exception {
+//        ChannelController.getInstance().deleteAllMessages(TestUtils.CHANNEL_ID);
+//        Channel channel = TestUtils.createChannel(TestUtils.CHANNEL_ID, TestUtils.SERVER_ID, true, 1, 1);
+//        TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
+//        List<MessageResponse> messageResponses = new ArrayList<MessageResponse>();
+//
+//        sourceConnector.setRespondFromName(Constants.RESPONSE_POST_PROCESSOR);
+//
+//        ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
+//        com.mirth.connect.server.controllers.ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+//
+//        scriptController.compileChannelScripts(channelController.getCachedChannelById(channel.getChannelId()));
+//        channel.start();
+//
+//        for (int i = 0; i < TEST_SIZE; i++) {
+//            messageResponses.add(sourceConnector.readTestMessage(TestUtils.TEST_HL7_MESSAGE));
+//        }
+//
+//        channel.stop();
+//
+//        // test that the responses returned by the source connector are the expected responses generated by the post-processor
+//        for (MessageResponse response : messageResponses) {
+//            // FIXME: Response.getMessageId() was removed
+//            //assertEquals(Channel.TEST_RESPONSE_PREFIX + response.getMessageId(), response.getMessage());
+//            assertEquals(Status.SENT, response.getResponse().getStatus());
+//        }
+//    }
+
+    // @Test
+    // @Ignore
+    // public final void testFilterTransformerScript() {
+    // System.out.println("\ntestPostProcessorScript()");
+    // EventList eventList = new EventList();
+    // EventBroadcaster.getInstance().addListener(eventList);
+    // MessageController.getInstance().deleteAllMessages(CHANNEL_ID);
+    //
+    // Donkey server = Donkey.getInstance();
+    //
+    // TestReader reader = new TestReader();
+    // Channel channel = TestUtils.createTestChannel(CHANNEL_ID,
+    // NUM_DESTINATIONS, 1, true, reader);
+    //
+    // reader.setChannel(channel);
+    //
+    // // Set Channel Post-Processor Script
+    // channel.setPostprocessingScript(" logger.info('Ran Post-processor Script'); return;");
+    // server.registerChannel(channel);
+    // server.deployChannels();
+    //
+    // long startTime = System.currentTimeMillis();
+    //
+    // for (int n = 0; n < TEST_SIZE; n++) {
+    // reader.readTestMessage(TestUtils.TEST_HL7_MESSAGE);
+    // }
+    //
+    // channel.stop();
+    //
+    // long endTime = System.currentTimeMillis();
+    // double seconds = ((double) (endTime - startTime)) / 1000.0;
+    //
+    // int actualCount = 0;
+    // for (int n = 0; n < NUM_DESTINATIONS; n++) {
+    // SourceConnector sourceConnector = (SourceConnector)
+    // channel.getSourceConnector();
+    // DestinationConnector destinationConnector = (DestinationConnector)
+    // sourceConnector.getUnsyncDestinationConnectors().get(1);
+    // TestWriter writer = (TestWriter) destinationConnector.getWriter();
+    // actualCount += writer.getMessageCount();
+    //
+    // for(ConnectorMessage connectorMsg : writer.getConnectorMessageList()){
+    // String destinationRawMsg =
+    // connectorMsg.getMessageContentRaw().getContent();
+    // System.out.println("\nSource Raw: " + TestUtils.TEST_HL7_MESSAGE);
+    // System.out.println("\nDestination Raw: " + destinationRawMsg);
+    // assertTrue(destinationRawMsg.contains("+++"));
+    // }
+    // }
+    //
+    // assertEquals(TEST_SIZE, actualCount);
+    // }
+}

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.file.filesystems;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -19,12 +20,12 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.mule.MuleException;
-import org.mule.config.i18n.Message;
-import org.mule.config.i18n.Messages;
 
+import com.mirth.connect.connectors.file.FileConnectorException;
 import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
 /**
@@ -114,7 +115,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
         try {
             readDirectory = new File(fromDir);
         } catch (Exception e) {
-            throw new MuleException(new Message(Messages.FILE_X_DOES_NOT_EXIST, fromDir), e);
+            throw new FileConnectorException("Read directory does not exist: " + fromDir, e);
         }
 
         try {
@@ -133,7 +134,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
                 return result;
             }
         } catch (Exception e) {
-            throw new MuleException(new Message("file", 1), e);
+            throw new FileConnectorException("Error listing files from [" + fromDir + "] for pattern [" + filenamePattern + "]", e);
         }
     }
 
@@ -142,7 +143,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
         File src = new File(path, file);
         return src.exists();
     }
-    
+
     @Override
     public boolean canRead(String readDir) {
         File readDirectory = new File(readDir);
@@ -156,12 +157,12 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
     }
 
     @Override
-    public InputStream readFile(String file, String fromDir) throws MuleException {
+    public InputStream readFile(String file, String fromDir) throws FileConnectorException {
         try {
             File src = new File(fromDir, file);
             return new FileInputStream(src);
         } catch (Exception e) {
-            throw new MuleException(new Message("file", 1), e);
+            throw new FileConnectorException("Error reading file [" + file + "] from dir [" + fromDir + "]", e);
         }
     }
 
@@ -178,7 +179,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
     }
 
     @Override
-    public void writeFile(String file, String toDir, boolean append, byte[] message) throws Exception {
+    public void writeFile(String file, String toDir, boolean append, InputStream is) throws Exception {
         OutputStream os = null;
         File dstDir = new File(toDir);
 
@@ -190,7 +191,8 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
 
         try {
             os = new FileOutputStream(dst, append);
-            os.write(message);
+
+            IOUtils.copy(is, os);
         } finally {
             if (os != null) {
                 os.close();
@@ -199,19 +201,19 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
     }
 
     @Override
-    public void delete(String file, String fromDir, boolean mayNotExist) throws MuleException {
+    public void delete(String file, String fromDir, boolean mayNotExist) throws FileConnectorException {
         File src = new File(fromDir, file);
 
         if (!src.delete()) {
 
             if (!mayNotExist) {
-                throw new MuleException(new Message("file", 3, src.getAbsolutePath()));
+                throw new FileConnectorException("File should not exist after deleting: " + src.getAbsolutePath());
             }
         }
     }
 
     @Override
-    public void move(String fromName, String fromDir, String toName, String toDir) throws MuleException {
+    public void move(String fromName, String fromDir, String toName, String toDir) throws FileConnectorException {
         File src = new File(fromDir, fromName);
         File dst = new File(toDir, toName);
 
@@ -233,7 +235,7 @@ public class FileConnection implements FileSystemConnection, FileIgnoring {
                     ignoreFile(src);
                 }
             } catch (IOException e) {
-                throw new MuleException(new Message("file", 4, src.getAbsolutePath(), dst.getAbsolutePath()), e);
+                throw new FileConnectorException("Error from file from [" + src.getAbsolutePath() + "] to [" + dst.getAbsolutePath() + "]", e);
             }
         }
     }

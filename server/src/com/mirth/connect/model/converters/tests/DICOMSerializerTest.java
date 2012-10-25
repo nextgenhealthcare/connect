@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ * 
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.mirth.connect.model.converters.tests;
 
 import java.io.File;
@@ -8,7 +17,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.util.Base64;
 import org.junit.Test;
 
-import com.mirth.connect.model.converters.DICOMSerializer;
+import com.mirth.connect.model.converters.dicom.DICOMSerializer;
 
 public class DICOMSerializerTest {
     @Test

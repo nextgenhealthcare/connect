@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -10,7 +10,6 @@
 package com.mirth.connect.connectors.file;
 
 import java.net.URI;
-import java.util.Map;
 
 import com.mirth.connect.connectors.ConnectorService;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
@@ -20,39 +19,37 @@ import com.mirth.connect.util.ConnectionTestResponse;
 public class FileReaderService implements ConnectorService {
     public Object invoke(String method, Object object, String sessionsId) throws Exception {
         if (method.equals("testRead")) {
-            Map<String, String> params = (Map<String, String>) object;
+            FileReceiverProperties connectorProperties = (FileReceiverProperties) object;
             String fileHost = null;
-            String scheme = params.get(FileReaderProperties.FILE_SCHEME);
+            FileScheme scheme = connectorProperties.getScheme();
             String host = null;
             int port = 0;
             String dir = null;
 
-            String username = params.get(FileReaderProperties.FILE_USERNAME);
-            String password = params.get(FileReaderProperties.FILE_PASSWORD);
+            String username = connectorProperties.getUsername();
+            String password = connectorProperties.getPassword();
             boolean secure = false;
             boolean passive = false;
-            int timeout = Integer.parseInt(params.get(FileReaderProperties.FILE_TIMEOUT));
+            int timeout = Integer.parseInt(connectorProperties.getTimeout());
 
-            if (scheme.equals(FileReaderProperties.SCHEME_FTP) || scheme.equals(FileReaderProperties.SCHEME_SFTP)) {
-                if ((params.get(FileReaderProperties.FILE_PASSIVE_MODE)).equals("1")) {
-                    passive = true;
-                }
+            if (scheme.equals(FileScheme.FTP) || scheme.equals(FileScheme.SFTP)) {
+                passive = connectorProperties.isPassive();
             }
-            
-            if (scheme.equals(FileReaderProperties.SCHEME_FILE)) {
-                fileHost = params.get(FileReaderProperties.FILE_HOST);
-                dir = params.get(FileReaderProperties.FILE_HOST);
+
+            if (scheme.equals(FileScheme.FILE)) {
+                fileHost = connectorProperties.getHost();
+                dir = connectorProperties.getHost();
             } else {
                 URI address;
-                if (scheme.equals(FileReaderProperties.SCHEME_WEBDAV)) {
-                    if (params.get(FileReaderProperties.FILE_SECURE_MODE).equals("1")) {
+                if (scheme.equals(FileScheme.WEBDAV)) {
+                    if (connectorProperties.isSecure()) {
                         secure = true;
-                        address = new URI("https://" + params.get(FileReaderProperties.FILE_HOST));
+                        address = new URI("https://" + connectorProperties.getHost());
                     } else {
-                        address = new URI("http://" + params.get(FileReaderProperties.FILE_HOST));
+                        address = new URI("http://" + connectorProperties.getHost());
                     }
                 } else {
-                    address = new URI(scheme + "://" + params.get(FileReaderProperties.FILE_HOST));
+                    address = new URI(scheme.getDisplayName() + "://" + connectorProperties.getHost());
                 }
 
                 fileHost = address.toString();

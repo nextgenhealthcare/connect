@@ -2,26 +2,17 @@
 	<name>TCP Sender</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.2.1</mirthVersion>
+	<mirthVersion>3.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send messages to a TCP server.</description>
-	<clientClassName>com.mirth.connect.connectors.tcp.TCPSender</clientClassName>
-	<serverClassName>com.mirth.connect.connectors.tcp.TcpConnector</serverClassName>
-	<sharedClassName>com.mirth.connect.connectors.tcp.TCPSenderProperties</sharedClassName>
-	<serviceClassName>com.mirth.connect.connectors.tcp.TcpConnectorService</serviceClassName>
+	<clientClassName>com.mirth.connect.connectors.tcp.TcpSender</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.tcp.TcpDispatcher</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.tcp.TcpDispatcherProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.tcp.TcpSenderService</serviceClassName>
 	<library type="CLIENT" path="tcp-client.jar" />
 	<library type="SHARED" path="tcp-shared.jar" />
 	<library type="SERVER" path="tcp-server.jar" />
-	<transformers></transformers>
+	<transformers/>
 	<protocol>tcp</protocol>
 	<type>DESTINATION</type>
-	<mule-properties>
-		<property name="connector">com.mirth.connect.connectors.tcp.TcpConnector</property>
-		<property name="dispatcher.factory">com.mirth.connect.connectors.tcp.TcpMessageDispatcherFactory</property>
-		<property name="message.receiver">com.mirth.connect.connectors.tcp.TcpMessageReceiver</property>
-		<property name="message.adapter">com.mirth.connect.connectors.tcp.TcpMessageAdapter</property>
-		<property name="inbound.transformer">org.mule.transformers.simple.ByteArrayToString</property>
-		<property name="outbound.transformer">org.mule.transformers.simple.StringToByteArray</property>
-		<property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>
-	</mule-properties>
 </connectorMetaData>

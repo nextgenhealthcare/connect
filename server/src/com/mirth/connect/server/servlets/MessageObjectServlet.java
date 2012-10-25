@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -25,13 +25,17 @@ import org.eclipse.jetty.io.RuntimeIOException;
 
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
-import com.mirth.connect.model.Attachment;
-import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.server.channel.Channel;
+import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.model.filters.MessageObjectFilter;
+import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.MessageObjectController;
+import com.mirth.connect.server.controllers.MessageController;
 import com.mirth.connect.server.util.DICOMUtil;
+import com.mirth.connect.util.export.MessageExportOptions;
 
 public class MessageObjectServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -39,154 +43,182 @@ public class MessageObjectServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // MIRTH-1745
         response.setCharacterEncoding("UTF-8");
-        
+
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
             try {
-                MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+                MessageController messageController = ControllerFactory.getFactory().createMessageController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 PrintWriter out = response.getWriter();
                 Operation operation = Operations.getOperation(request.getParameter("op"));
-                String uid = null;
-                boolean useNewTempTable = false;
+                // TODO: remove?
+//                String uid = null;
+//                boolean useNewTempTable = false;
+                List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
 
-                if (request.getParameter("uid") != null && !request.getParameter("uid").equals("")) {
-                    uid = request.getParameter("uid");
-                    useNewTempTable = true;
-                } else {
-                    uid = request.getSession().getId();
-                }
+                // TODO: remove?
+//                if (request.getParameter("uid") != null && !request.getParameter("uid").equals("")) {
+//                    uid = request.getParameter("uid");
+//                    useNewTempTable = true;
+//                } else {
+//                    uid = request.getSession().getId();
+//                }
 
-                if (operation.equals(Operations.MESSAGE_CREATE_TEMP_TABLE)) {
-                    MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
-                    redactMessageObjectFilter(request, filter);
-                    parameterMap.put("messageFilter", filter);
+                if (operation.equals(Operations.GET_MAX_MESSAGE_ID)) {
+                    String channelId = request.getParameter("channelId");
+                    
+                    parameterMap.put("channelId", channelId);
 
-                    if (!isUserAuthorized(request, parameterMap)) {
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        response.setContentType(TEXT_PLAIN);
-                        out.println(messageObjectController.createMessagesTempTable(filter, uid, useNewTempTable));
-                    }
-                } else if (operation.equals(Operations.MESSAGE_FILTER_TABLES_REMOVE)) {
-                    if (!isUserAuthorized(request, null)) {
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                    } else {
-                        messageObjectController.removeFilterTable(uid);
-                    }
-                } else if (operation.equals(Operations.MESSAGE_GET_BY_PAGE)) {
-                    if (!isUserAuthorized(request, null)) {
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                    } else {
-                        int page = Integer.parseInt(request.getParameter("page"));
-                        int pageSize = Integer.parseInt(request.getParameter("pageSize"));
-                        int max = Integer.parseInt(request.getParameter("maxMessages"));
                         response.setContentType(APPLICATION_XML);
-                        serializer.toXML(messageObjectController.getMessagesByPage(page, pageSize, max, uid, true), out);
+                        out.print(messageController.getMaxMessageId(channelId));
                     }
+                } else if (operation.equals(Operations.GET_MESSAGES)) {
+                    String channelId = request.getParameter("channelId");
+                    MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
 
-                } else if (operation.equals(Operations.MESSAGE_GET_BY_PAGE_LIMIT)) {
-                    MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
-                    redactMessageObjectFilter(request, filter);
+                    parameterMap.put("channelId", channelId);
                     parameterMap.put("filter", filter);
 
-                    if (!isUserAuthorized(request, parameterMap)) {
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        int page = Integer.parseInt(request.getParameter("page"));
-                        int pageSize = Integer.parseInt(request.getParameter("pageSize"));
-                        int max = Integer.parseInt(request.getParameter("maxMessages"));
+                        Integer offset = null;
+                        Integer limit = null;
+                        boolean includeContent = (request.getParameter("includeContent").equals("y"));
+
+                        try {
+                            offset = Integer.parseInt(request.getParameter("offset"));
+                        } catch (NumberFormatException e) {}
+                        
+                        try {
+                            limit = Integer.parseInt(request.getParameter("limit"));
+                        } catch (NumberFormatException e) {}
+                        
+                        Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
                         response.setContentType(APPLICATION_XML);
-                        serializer.toXML(messageObjectController.getMessagesByPageLimit(page, pageSize, max, uid, filter), out);
+                        serializer.toXML(messageController.getMessages(filter, channel, includeContent, offset, limit), out);
                     }
+                } else if (operation.equals(Operations.GET_SEARCH_COUNT)) {
+                    String channelId = request.getParameter("channelId");
+                    MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
+                    
+                    parameterMap.put("channelId", channelId);
+                    parameterMap.put("filter", filter);
+
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
+                        response.setContentType(APPLICATION_XML);
+                        out.print(messageController.getMessageCount(filter, channel));
+                    }
+                } else if (operation.equals(Operations.GET_MESSAGE_CONTENT)) {
+                	String channelId = request.getParameter("channelId");
+                	Long messageId = (Long) serializer.fromXML(request.getParameter("messageId"));
+                	parameterMap.put("channelId", channelId);
+                	parameterMap.put("messageId", messageId);
+                	
+                	if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
+                		response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                	} else {
+                		serializer.toXML(messageController.getMessageContent(channelId, messageId), out);
+                	}
                 } else if (operation.equals(Operations.MESSAGE_REMOVE)) {
-                    MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
-                    redactMessageObjectFilter(request, filter);
+                    // TODO: update calls to this servlet operation so that they pass channelId
+                    String channelId = request.getParameter("channelId");
+                    MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
+                    
+                    parameterMap.put("channelId", channelId);
                     parameterMap.put("filter", filter);
 
-                    if (!isUserAuthorized(request, parameterMap)) {
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        messageObjectController.removeMessages(filter);
+                        messageController.removeMessages(channelId, filter);
+                    }
+                } else if (operation.equals(Operations.CONNECTOR_MESSAGE_REMOVE)) {
+                    // TODO: update calls to this servlet operation so that they pass channelId
+                    String channelId = request.getParameter("channelId");
+                    MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
+                    
+                    parameterMap.put("channelId", channelId);
+                    parameterMap.put("filter", filter);
+
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        messageController.removeConnectorMessages(channelId, filter);
                     }
                 } else if (operation.equals(Operations.MESSAGE_CLEAR)) {
                     String channelId = request.getParameter("data");
                     parameterMap.put("channelId", channelId);
 
-                    if (!isUserAuthorized(request, parameterMap)) {
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        messageObjectController.clearMessages(channelId);
+                        messageController.clearMessages(channelId);
                     }
                 } else if (operation.equals(Operations.MESSAGE_REPROCESS)) {
-                    MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
-                    redactMessageObjectFilter(request, filter);
+                    String channelId = request.getParameter("channelId");
+                    MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
                     boolean replace = Boolean.valueOf(request.getParameter("replace"));
-                    List<String> destinations = (List<String>) serializer.fromXML(request.getParameter("destinations"));
+                    List<Integer> reprocessMetaDataIds = (List<Integer>) serializer.fromXML(request.getParameter("reprocessMetaDataIds"));
                     parameterMap.put("filter", filter);
                     parameterMap.put("replace", replace);
-                    parameterMap.put("destinations", destinations);
+                    parameterMap.put("destinations", reprocessMetaDataIds);
 
-                    if (!isUserAuthorized(request, parameterMap)) {
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        messageObjectController.reprocessMessages(filter, replace, destinations);
+                        messageController.reprocessMessages(channelId, filter, replace, reprocessMetaDataIds, getCurrentUserId(request));
                     }
                 } else if (operation.equals(Operations.MESSAGE_PROCESS)) {
-                    MessageObject message = (MessageObject) serializer.fromXML(request.getParameter("message"));
-                    parameterMap.put("message", message);
+                    String channelId = request.getParameter("channelId");
+                    String rawData = request.getParameter("message");
 
-                    if (!isUserAuthorized(request, parameterMap)) {
+                    @SuppressWarnings("unchecked")
+                    List<Integer> metaDataIds = (List<Integer>) serializer.fromXML(request.getParameter("metaDataIds"));
+                    
+                    RawMessage rawMessage = new RawMessage(rawData, metaDataIds, null);
+
+                    parameterMap.put("channelId", channelId);
+                    parameterMap.put("message", rawData);
+                    parameterMap.put("metaDataIds", metaDataIds);
+
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        messageObjectController.processMessage(message);
+                        try {
+                            ControllerFactory.getFactory().createEngineController().handleRawMessage(channelId, rawMessage);
+                        } catch (ChannelException e) {
+                            throw new ServletException("An error occurred when attempting to process the message");
+                        }
                     }
                 } else if (operation.equals(Operations.MESSAGE_IMPORT)) {
-                    MessageObject message = (MessageObject) serializer.fromXML(request.getParameter("message"));
+                    Message message = (Message) serializer.fromXML(request.getParameter("message"));
                     parameterMap.put("message", message);
 
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        messageObjectController.importMessage(message);
+                        messageController.importMessage(message);
                     }
-                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET)) {
-                    String attachmentId = request.getParameter("attachmentId");
-                    parameterMap.put("attachmentId", attachmentId);
-
-                    if (!isUserAuthorized(request, parameterMap)) {
+                } else if (operation.equals(Operations.MESSAGE_EXPORT)) {
+                    MessageExportOptions options = (MessageExportOptions) serializer.fromXML(request.getParameter("options"));
+                    parameterMap.put("options", options);
+                    
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(options.getChannelId()))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        response.setContentType(APPLICATION_XML);
-                        Attachment attachment = messageObjectController.getAttachment(attachmentId);
-                        serializer.toXML(attachment,out);
-                    }
-                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID)) {
-                    String messageId = request.getParameter("messageId");
-                    parameterMap.put("messageId", messageId);
-
-                    if (!isUserAuthorized(request, parameterMap)) {
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                    } else {
-                        response.setContentType(APPLICATION_XML);
-                        List<Attachment> list = messageObjectController.getAttachmentsByMessageId(messageId);
-                        serializer.toXML(list,out);out.println("");
-                    }
-                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID)) {
-                    String messageId = request.getParameter("messageId");
-                    parameterMap.put("messageId", messageId);
-
-                    if (!isUserAuthorized(request, parameterMap)) {
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                    } else {
-                        response.setContentType(APPLICATION_XML);
-                        List<Attachment> list = messageObjectController.getAttachmentIdsByMessageId(messageId);
-                        serializer.toXML(list,out);out.println("");
+                        out.print(messageController.exportMessages(options));
                     }
                 } else if (operation.equals(Operations.MESSAGE_DICOM_MESSAGE_GET)) {
-                    MessageObject message = (MessageObject) serializer.fromXML(request.getParameter("message"));
+                    ConnectorMessage message = (ConnectorMessage) serializer.fromXML(request.getParameter("message"));
                     parameterMap.put("message", message);
 
                     if (!isUserAuthorized(request, parameterMap)) {
@@ -195,25 +227,48 @@ public class MessageObjectServlet extends MirthServlet {
                         String dicomMessage = DICOMUtil.getDICOMRawData(message);
                         out.println(dicomMessage);
                     }
+                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID)) {
+                    String channelId = request.getParameter("channelId");
+                    Long messageId = (Long) serializer.fromXML(request.getParameter("messageId"));
+                    parameterMap.put("channelId", channelId);
+                    parameterMap.put("messageId", messageId);
+                    
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        serializer.toXML(messageController.getMessageAttachmentIds(channelId, messageId), out);
+                    }
+                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET)) {
+                    String channelId = request.getParameter("channelId");
+                    String attachmentId = request.getParameter("attachmentId");
+                    parameterMap.put("channelId", channelId);
+                    parameterMap.put("attachmentId", attachmentId);
+                    
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        serializer.toXML(messageController.getMessageAttachment(channelId, attachmentId), out);
+                    }
+                } else if (operation.equals(Operations.MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID)) {
+                    String channelId = request.getParameter("channelId");
+                    Long messageId = (Long) serializer.fromXML(request.getParameter("messageId"));
+                    parameterMap.put("channelId", channelId);
+                    parameterMap.put("messageId", messageId);
+                    
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        serializer.toXML(messageController.getMessageAttachment(channelId, messageId), out);
+                    }
                 }
             } catch (RuntimeIOException rio) {
                 logger.debug(rio);
+            } catch (ServletException se) {
+                throw se;
             } catch (Throwable t) {
                 logger.error(ExceptionUtils.getStackTrace(t));
                 throw new ServletException(t);
             }
-        }
-    }
-    
-    public void redactMessageObjectFilter(HttpServletRequest request, MessageObjectFilter filter) throws ServletException {
-        List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
-
-        if (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(filter.getChannelId())) {
-            /*
-             * TODO: This should remove the channel ID from the list of channel
-             * IDs once that is used.
-             */
-            filter.setChannelId("NONE");
         }
     }
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,17 +9,16 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.log4j.Logger;
 import org.apache.velocity.tools.generic.DateTool;
-import org.mule.providers.TemplateValueReplacer;
 
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
@@ -27,11 +26,10 @@ import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SMTPConnectionFactory;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class DefaultAlertController extends AlertController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
-    private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
     private static DefaultAlertController instance = null;
 
@@ -54,18 +52,18 @@ public class DefaultAlertController extends AlertController {
         logger.debug("getting alert: " + alert);
 
         try {
-            List<Alert> alerts = SqlConfig.getSqlMapClient().queryForList("Alert.getAlert", alert);
+            List<Alert> alerts = SqlConfig.getSqlSessionManager().selectList("Alert.getAlert", alert);
 
             for (Alert currentAlert : alerts) {
-                List<String> channelIds = SqlConfig.getSqlMapClient().queryForList("Alert.getChannelIdsByAlertId", currentAlert.getId());
+                List<String> channelIds = SqlConfig.getSqlSessionManager().selectList("Alert.getChannelIdsByAlertId", currentAlert.getId());
                 currentAlert.setChannels(channelIds);
 
-                List<String> emails = SqlConfig.getSqlMapClient().queryForList("Alert.getEmailsByAlertId", currentAlert.getId());
+                List<String> emails = SqlConfig.getSqlSessionManager().selectList("Alert.getEmailsByAlertId", currentAlert.getId());
                 currentAlert.setEmails(emails);
             }
 
             return alerts;
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }
@@ -75,18 +73,18 @@ public class DefaultAlertController extends AlertController {
         logger.debug("getting alert by channel id: " + channelId);
 
         try {
-            List<Alert> alerts = SqlConfig.getSqlMapClient().queryForList("Alert.getAlertByChannelId", channelId);
+            List<Alert> alerts = SqlConfig.getSqlSessionManager().selectList("Alert.getAlertByChannelId", channelId);
 
             for (Alert currentAlert : alerts) {
-                List<String> channelIds = SqlConfig.getSqlMapClient().queryForList("Alert.getChannelIdsByAlertId", currentAlert.getId());
+                List<String> channelIds = SqlConfig.getSqlSessionManager().selectList("Alert.getChannelIdsByAlertId", currentAlert.getId());
                 currentAlert.setChannels(channelIds);
 
-                List<String> emails = SqlConfig.getSqlMapClient().queryForList("Alert.getEmailsByAlertId", currentAlert.getId());
+                List<String> emails = SqlConfig.getSqlSessionManager().selectList("Alert.getEmailsByAlertId", currentAlert.getId());
                 currentAlert.setEmails(emails);
             }
 
             return alerts;
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }
@@ -106,10 +104,10 @@ public class DefaultAlertController extends AlertController {
             alertFilter.setId(alert.getId());
 
             try {
-                SqlConfig.getSqlMapClient().startTransaction();
+                SqlConfig.getSqlSessionManager().startManagedSession();
 
                 logger.debug("adding alert: " + alert);
-                SqlConfig.getSqlMapClient().insert("Alert.insertAlert", alert);
+                SqlConfig.getSqlSessionManager().insert("Alert.insertAlert", alert);
 
                 logger.debug("adding channel alerts");
 
@@ -117,7 +115,7 @@ public class DefaultAlertController extends AlertController {
                     Map<String, Object> params = new HashMap<String, Object>();
                     params.put("alertId", alert.getId());
                     params.put("channelId", channelId);
-                    SqlConfig.getSqlMapClient().insert("Alert.insertChannelAlert", params);
+                    SqlConfig.getSqlSessionManager().insert("Alert.insertChannelAlert", params);
                 }
 
                 logger.debug("adding alert emails");
@@ -126,14 +124,13 @@ public class DefaultAlertController extends AlertController {
                     Map<String, Object> params = new HashMap<String, Object>();
                     params.put("alertId", alert.getId());
                     params.put("email", email);
-                    SqlConfig.getSqlMapClient().insert("Alert.insertAlertEmail", params);
+                    SqlConfig.getSqlSessionManager().insert("Alert.insertAlertEmail", params);
                 }
-
-                SqlConfig.getSqlMapClient().commitTransaction();
+                SqlConfig.getSqlSessionManager().commit();
             } finally {
-                SqlConfig.getSqlMapClient().endTransaction();
+                SqlConfig.getSqlSessionManager().close();
             }
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }
@@ -142,31 +139,32 @@ public class DefaultAlertController extends AlertController {
         logger.debug("removing alert: " + alert);
 
         try {
-            SqlConfig.getSqlMapClient().delete("Alert.deleteAlert", alert);
+            SqlConfig.getSqlSessionManager().delete("Alert.deleteAlert", alert);
 
             if (DatabaseUtil.statementExists("Alert.vacuumAlertTable")) {
-                SqlConfig.getSqlMapClient().update("Alert.vacuumAlertTable");
+                SqlConfig.getSqlSessionManager().update("Alert.vacuumAlertTable");
             }
 
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }
 
     public void sendAlerts(String channelId, String errorType, String customMessage, Throwable e) {
-        String fullErrorMessage = errorBuilder.buildErrorMessage(errorType, customMessage, e);
-        String shortErrorMessage = (e == null) ? "No exception message." : e.getMessage();
-
-        try {
-            for (Alert alert : getAlertByChannelId(channelId)) {
-                if (alert.isEnabled() && isAlertableError(alert.getExpression(), fullErrorMessage)) {
-                    statisticsController.incrementAlertedCount(channelId);
-                    sendAlertEmails(alert.getSubject(), alert.getEmails(), alert.getTemplate(), fullErrorMessage, shortErrorMessage, channelId);
-                }
-            }
-        } catch (ControllerException ce) {
-            logger.error(ce);
-        }
+// Commented out until we determine how alerts will be handled in 3.0
+//        String fullErrorMessage = errorBuilder.buildErrorMessage(errorType, customMessage, e);
+//        String shortErrorMessage = (e == null) ? "No exception message." : e.getMessage();
+//
+//        try {
+//            for (Alert alert : getAlertByChannelId(channelId)) {
+//                if (alert.isEnabled() && isAlertableError(alert.getExpression(), fullErrorMessage)) {
+//                    statisticsController.incrementAlertedCount(channelId);
+//                    sendAlertEmails(alert.getSubject(), alert.getEmails(), alert.getTemplate(), fullErrorMessage, shortErrorMessage, channelId);
+//                }
+//            }
+//        } catch (ControllerException ce) {
+//            logger.error(ce);
+//        }
     }
 
     private boolean isAlertableError(String expression, String errorMessage) {

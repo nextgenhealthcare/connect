@@ -1,32 +1,25 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-
-<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
-
-<sqlMap namespace="Template">
-	<select id="getTemplate" parameterClass="java.util.Map" resultClass="java.lang.String">
+<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'><mapper namespace='Template'>
+   <select id='getTemplate'
+           parameterType='java.util.Map'
+           resultType='java.lang.String'>
 		SELECT TEMPLATE
 		FROM TEMPLATE
-		WHERE GROUP_ID = #groupId# AND ID = #id#
+		WHERE GROUP_ID = #{groupId} AND ID = #{id}
 	</select>
-	
-	<insert id="insertTemplate" parameterClass="java.util.Map">
+   <insert id='insertTemplate' parameterType='java.util.Map'>
 		INSERT INTO
 		TEMPLATE (GROUP_ID, ID, TEMPLATE)
-		VALUES (#groupId#, #id#, #template#)
+		VALUES (#{groupId}, #{id}, #{template})
 	</insert>
-	
-	<update id="updateTemplate" parameterClass="java.util.Map">
+   <update id='updateTemplate' parameterType='java.util.Map'>
 		UPDATE TEMPLATE
-		SET TEMPLATE = #template#
-		WHERE GROUP_ID = #groupId# AND ID = #id#
+		SET TEMPLATE = #{template}
+		WHERE GROUP_ID = #{groupId} AND ID = #{id}
 	</update>
-	
-	<delete id="deleteTemplate" parameterClass="java.util.Map">
+   <delete id='deleteTemplate' parameterType='java.util.Map'>
 		DELETE FROM TEMPLATE
-		<dynamic prepend="WHERE">
-			<isPropertyAvailable prepend="AND" property="groupId">
-				GROUP_ID = #groupId#
-			</isPropertyAvailable>
-		</dynamic>
-	</delete>
-</sqlMap>
+		<where>
+         <if test='groupId != null'>AND GROUP_ID = #{groupId}</if>
+      </where>
+	  </delete>
+</mapper>

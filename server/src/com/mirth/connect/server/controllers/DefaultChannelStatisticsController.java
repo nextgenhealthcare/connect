@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,16 +9,17 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.server.util.SqlConfig;
 
-public class DefaultChannelStatisticsController extends ChannelStatisticsController {
+@Deprecated
+public class DefaultChannelStatisticsController {
     private Logger logger = Logger.getLogger(this.getClass());
     private Map<String, ChannelStatistics> cache = null;
     private StatisticsUpdater statsUpdater = null;
@@ -33,7 +34,7 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
 
     }
 
-    public static ChannelStatisticsController create() {
+    public static DefaultChannelStatisticsController create() {
         synchronized (DefaultChannelStatisticsController.class) {
             if (instance == null) {
                 instance = new DefaultChannelStatisticsController();
@@ -72,8 +73,8 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("serverId", configurationController.getServerId());
-            cache = SqlConfig.getSqlMapClient().queryForMap("Statistic.getStatistics", parameterMap, "channelId");
-        } catch (SQLException e) {
+            cache = SqlConfig.getSqlSessionManager().selectMap("Statistic.getStatistics", parameterMap, "channelId");
+        } catch (PersistenceException e) {
             logger.error("Could not initialize channel statistics.", e);
         }
     }
@@ -84,8 +85,8 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
         parameterMap.put("channelId", channelId);
 
         try {
-            SqlConfig.getSqlMapClient().insert("Statistic.createStatistics", parameterMap);
-        } catch (SQLException e) {
+            SqlConfig.getSqlSessionManager().insert("Statistic.createStatistics", parameterMap);
+        } catch (PersistenceException e) {
             logger.warn("could not update statistics");
         }
 
@@ -106,12 +107,12 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
             parameterMap.put("serverId", configurationController.getServerId());
             parameterMap.put("channelId", channelId);
 
-            Map<String, ChannelStatistics> channelStatistics = SqlConfig.getSqlMapClient().queryForMap("Statistic.getStatistics", parameterMap, "channelId");
+            Map<String, ChannelStatistics> channelStatistics = SqlConfig.getSqlSessionManager().selectMap("Statistic.getStatistics", parameterMap, "channelId");
 
             if (channelStatistics != null && channelStatistics.size() > 0) {
                 return true;
             }
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             logger.error("Could not get channel statistics.", e);
         }
         
@@ -189,8 +190,8 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
 
     private void updateStatistics(String channelId) {
         try {
-            SqlConfig.getSqlMapClient().update("Statistic.updateStatistics", cache.get(channelId));
-        } catch (SQLException e) {
+            SqlConfig.getSqlSessionManager().update("Statistic.updateStatistics", cache.get(channelId));
+        } catch (PersistenceException e) {
             logger.warn("could not update statistics");
         }
     }

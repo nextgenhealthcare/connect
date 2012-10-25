@@ -1,39 +1,77 @@
+<!doctype html>
 <html>
 <head>
-	<style type="text/css">
-		input.launch {
-				background-color: #B4D671;
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="x-ua-compatible" content="IE=edge">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="cache-control" content="no-store">
+	
+	<title>Sign in</title>
+	
+	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" href="css/main.css" />
+	
+	<script type="text/javascript">
+		/* Break out of frame if inside a frame. */
+		if (window != window.top) {
+			window.top.location = window.location;
 		}
+	</script>
 
-		
-		body, td, p, h1, h3 {
-			font-family: Verdana, Tahoma, Arial, sans-serif;
-		}
-	</style>
-	<title>Launch Mirth Connect Administrator @mirthversion</title>
-	<link rel="shortcut icon" href="mirth_16.ico">
+	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
 </head>
 
-<body background="#FFFFFF">
-	<table cellspacing=5 cellpadding=5 width="100%">
-		<tr>
-			<td align="center"><a href="http://www.mirthcorp.com/products/mirth-connect"><img src="mirthconnectlogowide.png" border=0></a></td>
-		</tr>
-	</table>
-	
-	<hr>
-	
-	<table cellpadding=15>
-		<h2>Mirth Connect Administrator @mirthversion - Java Web Start</h2>
-		
-		<tr>
-			<td>
-				<h3>Overview of Web Start</h3>
-				<p>Java Web Start is a framework developed by Sun Microsystems that enables launching Java applications directly from a browser. Unlike Java applets, Web Start applications do not run inside the browser.</p>
-				<p>Click the big green button below to launch the Mirth Connect Administrator using Java Web Start.<br><br></p>
-				<p align="center"><input type="button" value="Launch Mirth Connect Administrator" STYLE="font-size: 14pt" class="launch" onClick="parent.location='webstart.jnlp?time=' + new Date().getTime()"/></p>
-			</td>
-		</tr>
-	</table>
+<body id="body" style="display:none;" class="subpage">
+	<div id="centerWrapper">
+		<div class="row">
+			<div style="padding: 10px; text-align: center;">
+				<img id="mirthLogo" src="images/mirthconnectlogowide.png"/>
+			</div>
+			
+			<div id="mcadministrator" class="span9">
+				<h1 style="text-align: center;">Mirth Connect Administrator</h1>
+
+				<div class="help-block">
+					<strong>Overview of Web Start:</strong><br /> Java Web Start is a framework developed by Sun Microsystems
+					that enables launching Java applications directly from a browser.
+					Unlike Java applets, Web Start applications do not run inside the
+					browser. 
+				</div>				
+				<div class="help-block">
+					<br/>Click the big green button below to launch the Mirth Connect
+					Administrator using Java Web Start.
+				</div>
+				
+				<div style="text-align: center; margin-top: 10px;">
+					<input class="btn btn-large btn-themebutton" type="submit" value="Launch Mirth Connect Administrator"
+						onClick="parent.location='webstart.jnlp?time=' + new Date().getTime()" />
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<footer class="smallSubPage" style="width:100%;">
+		<table>
+			<tr>
+				<td style="text-align: center;">&copy; 2012 Mirth Corporation | Mirth Connect</td>
+			</tr>
+		</table>
+	</footer>
+
+ 	<script type="text/javascript">
+		$(document).ready(function() {			
+			$.ajax({
+			    type: 'HEAD',
+			    url: 'webadmin',
+				success: function() {
+					window.location.replace("webadmin");
+				},
+				error: function() {
+					$("#body").css("display", "inline");
+				} 
+			});
+		}); 
+	</script>  
 </body>
 </html>

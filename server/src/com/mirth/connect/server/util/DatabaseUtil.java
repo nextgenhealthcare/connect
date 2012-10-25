@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -20,31 +20,26 @@ import java.util.Scanner;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.log4j.Logger;
-
-import com.ibatis.sqlmap.client.SqlMapClient;
-import com.ibatis.sqlmap.client.SqlMapException;
-import com.ibatis.sqlmap.client.SqlMapSession;
-import com.ibatis.sqlmap.engine.impl.SqlMapClientImpl;
-import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
-import com.ibatis.sqlmap.engine.impl.SqlMapSessionImpl;
 
 public class DatabaseUtil {
     private static Logger logger = Logger.getLogger(DatabaseUtil.class);
 
     public static void executeScript(String script, boolean ignoreErrors) throws Exception {
-        SqlMapClient sqlMap = SqlConfig.getSqlMapClient();
+        SqlSessionManager sqlSessionManger = SqlConfig.getSqlSessionManager();
 
         Connection conn = null;
         ResultSet resultSet = null;
         Statement statement = null;
 
         try {
-            conn = sqlMap.getDataSource().getConnection();
+            sqlSessionManger.startManagedSession();
+            conn = sqlSessionManger.getConnection();
 
             /*
-             * Set auto commit to false or an exception will be thrown when
-             * trying to rollback
+             * Set auto commit to false or an exception will be thrown when trying to rollback
              */
             conn.setAutoCommit(false);
 
@@ -90,21 +85,22 @@ public class DatabaseUtil {
             DbUtils.closeQuietly(statement);
             DbUtils.closeQuietly(resultSet);
             DbUtils.closeQuietly(conn);
+            sqlSessionManger.close();
         }
     }
 
     public static void executeScript(List<String> script, boolean ignoreErrors) throws Exception {
-        SqlMapClient sqlMap = SqlConfig.getSqlMapClient();
+        SqlSessionManager sqlSessionManger = SqlConfig.getSqlSessionManager();
 
         Connection conn = null;
         ResultSet resultSet = null;
         Statement statement = null;
 
         try {
-            conn = sqlMap.getDataSource().getConnection();
+            sqlSessionManger.startManagedSession();
+            conn = sqlSessionManger.getConnection();
             /*
-             * Set auto commit to false or an exception will be thrown when
-             * trying to rollback
+             * Set auto commit to false or an exception will be thrown when trying to rollback
              */
             conn.setAutoCommit(false);
             statement = conn.createStatement();
@@ -132,6 +128,7 @@ public class DatabaseUtil {
             DbUtils.closeQuietly(statement);
             DbUtils.closeQuietly(resultSet);
             DbUtils.closeQuietly(conn);
+            sqlSessionManger.close();
         }
     }
 
@@ -144,9 +141,8 @@ public class DatabaseUtil {
      */
     public static boolean statementExists(String statement) {
         try {
-            SqlMapExecutorDelegate delegate = ((SqlMapClientImpl) SqlConfig.getSqlMapClient()).getDelegate();
-            delegate.getMappedStatement(statement);
-        } catch (SqlMapException sme) {
+            SqlConfig.getSqlSessionManager().getConfiguration().getMappedStatement(statement);
+        } catch (IllegalArgumentException e) {
             // The statement does not exist
             return false;
         }
@@ -163,11 +159,10 @@ public class DatabaseUtil {
      *            the SqlMapSession to use
      * @return
      */
-    public static boolean statementExists(String statement, SqlMapSession session) {
+    public static boolean statementExists(String statement, SqlSession session) {
         try {
-            SqlMapExecutorDelegate delegate = ((SqlMapSessionImpl) session).getDelegate();
-            delegate.getMappedStatement(statement);
-        } catch (SqlMapException sme) {
+            session.getConfiguration().getMappedStatement(statement);
+        } catch (IllegalArgumentException e) {
             // The statement does not exist
             return false;
         }

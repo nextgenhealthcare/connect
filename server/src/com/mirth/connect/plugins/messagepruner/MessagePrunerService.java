@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -40,7 +40,7 @@ import com.mirth.connect.model.Event;
 import com.mirth.connect.model.Event.Level;
 import com.mirth.connect.model.Event.Outcome;
 import com.mirth.connect.model.ExtensionPermission;
-import com.mirth.connect.model.filters.MessageObjectFilter;
+import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -197,18 +197,19 @@ public class MessagePrunerService implements ServicePlugin, Job {
 	private Map<String, List<Channel>> getBatchedChannelMap() throws Exception {
 		Map<String, List<Channel>> batchedChannelMap = new HashMap<String, List<Channel>>();
 
-		for (Channel channel : channelController.getChannel(null)) {
-			if ((channel.getProperties().getProperty("store_messages") != null) && channel.getProperties().getProperty("store_messages").equals("true")) {
-				if ((channel.getProperties().getProperty("max_message_age") != null) && !channel.getProperties().getProperty("max_message_age").equals("-1")) {
-					String numDays = channel.getProperties().getProperty("max_message_age");
-					if (batchedChannelMap.get(numDays) == null) {
-						batchedChannelMap.put(numDays, new ArrayList<Channel>());
-					}
-
-					batchedChannelMap.get(numDays).add(channel);
-				}
-			}
-		}
+		// TODO: update to latest changes in ChannelProperties
+//		for (Channel channel : channelController.getChannel(null)) {
+//			if (channel.getProperties().isStoreMessages()) {
+//				if (channel.getProperties().getMaxMessageAge() != null && !channel.getProperties().getMaxMessageAge().equals("-1")) {
+//					String numDays = channel.getProperties().getMaxMessageAge();
+//					if (batchedChannelMap.get(numDays) == null) {
+//						batchedChannelMap.put(numDays, new ArrayList<Channel>());
+//					}
+//
+//					batchedChannelMap.get(numDays).add(channel);
+//				}
+//			}
+//		}
 
 		return batchedChannelMap;
 	}
@@ -217,18 +218,19 @@ public class MessagePrunerService implements ServicePlugin, Job {
 	private Map<String, List<Channel>> getChannelMap() throws Exception {
 		Map<String, List<Channel>> channelMap = new HashMap<String, List<Channel>>();
 
-		for (Channel channel : channelController.getChannel(null)) {
-			if ((channel.getProperties().getProperty("store_messages") != null) && channel.getProperties().getProperty("store_messages").equals("true")) {
-				if ((channel.getProperties().getProperty("max_message_age") != null) && !channel.getProperties().getProperty("max_message_age").equals("-1")) {
-					String key = channel.getId();
-					if (channelMap.get(key) == null) {
-						channelMap.put(key, new ArrayList<Channel>());
-					}
-
-					channelMap.get(key).add(channel);
-				}
-			}
-		}
+		// TODO: update to latest changes in ChannelProperties
+//		for (Channel channel : channelController.getChannel(null)) {
+//			if (channel.getProperties().isStoreMessages()) {
+//				if (channel.getProperties().getMaxMessageAge() != null && !channel.getProperties().getMaxMessageAge().equals("-1")) {
+//					String key = channel.getId();
+//					if (channelMap.get(key) == null) {
+//						channelMap.put(key, new ArrayList<Channel>());
+//					}
+//
+//					channelMap.get(key).add(channel);
+//				}
+//			}
+//		}
 
 		return channelMap;
 	}
@@ -246,42 +248,30 @@ public class MessagePrunerService implements ServicePlugin, Job {
 			}
 
 			for (List<Channel> channels : channelMap.values()) {
-				// just check the first one
-				int numDays = Integer.parseInt(channels.get(0).getProperties().getProperty("max_message_age"));
-				String channelName;
-
-				Calendar endDate = Calendar.getInstance();
-				endDate.set(Calendar.DATE, endDate.get(Calendar.DATE) - numDays);
-
-				MessageObjectFilter filter = new MessageObjectFilter();
+				List<String> channelIdList = new ArrayList<String>();
 
 				if (allowBatchPruning) {
-					List<String> channelIdList = new ArrayList<String>();
 					for (Channel channel : channels) {
 						channelIdList.add(channel.getId());
 					}
-					filter.setChannelIdList(channelIdList);
-					channelName = "Batch pruning: messages older than " + numDays + " days.";
 				} else {
-					filter.setChannelId(channels.get(0).getId());
-					channelName = channels.get(0).getName();
+					channelIdList.add(channels.get(0).getId());
 				}
 
-				filter.setEndDate(endDate);
-				filter.setIgnoreQueued(true);
+				int numMessagesPruned = ControllerFactory.getFactory().createMessageController().pruneMessages(channelIdList, pruningBlockSize);
 
-				int numMessagesPruned = ControllerFactory.getFactory().createMessageObjectController().pruneMessages(filter, pruningBlockSize);
-
-				Event event = new Event();
-				event.setLevel(Level.INFORMATION);
-				event.setOutcome(Outcome.SUCCESS);
-				event.setName(PLUGINPOINT);
-				
-	            Map<String, String> attributes = new HashMap<String, String>();
-	            attributes.put("channel", channelName);
-	            attributes.put("messages pruned", Integer.toString(numMessagesPruned));
-	            event.setAttributes(attributes);
-	            eventController.addEvent(event);
+//				Event event = new Event();
+//				event.setLevel(Level.INFORMATION);
+//				event.setOutcome(Outcome.SUCCESS);
+//				event.setName(PLUGINPOINT);
+//				
+//	            Map<String, String> attributes = new HashMap<String, String>();
+//	            attributes.put("channel", channelName);
+//	            attributes.put("messages pruned", Integer.toString(numMessagesPruned));
+//	            event.setAttributes(attributes);
+//	            eventController.addEvent(event);
+	            
+	            // TODO: submit event
 			}
 		} catch (Exception e) {
 			logger.warn("could not prune message database", e);

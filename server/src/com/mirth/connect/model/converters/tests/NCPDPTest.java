@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -10,12 +10,9 @@
 package com.mirth.connect.model.converters.tests;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -25,11 +22,10 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.model.converters.NCPDPSerializer;
-import com.mirth.connect.model.converters.NCPDPXMLHandler;
-import com.mirth.connect.model.converters.SerializerException;
-import com.mirth.connect.model.converters.Stopwatch;
+import com.mirth.connect.model.converters.ncpdp.NCPDPSerializer;
+import com.mirth.connect.model.converters.ncpdp.NCPDPXMLHandler;
 
 public class NCPDPTest {
 	public static void main(String[] args) throws Exception {
@@ -105,7 +101,7 @@ public class NCPDPTest {
 
                 //System.out.println("Execution time average: " + totalExecutionTime/iterations + " ms");
             }
-            // System.out.println(new X12Serializer().toXML("SEG*1*2**4*5"));
+            // System.out.println(new X12Serializer().serialize("SEG*1*2**4*5"));
             catch (SAXException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -143,7 +139,7 @@ public class NCPDPTest {
         xr.parse(new InputSource(new StringReader(xmloutput)));
 		stopwatch.stop();
 
-		//System.out.println(docser.toXML(doc)); //handler.getOutput());
+		//System.out.println(docser.serialize(doc)); //handler.getOutput());
 		//System.out.println(handler.getOutput());
         //System.out.println(xmloutput);
         if (handler.getOutput().toString().replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {

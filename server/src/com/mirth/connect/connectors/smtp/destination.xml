@@ -2,21 +2,17 @@
 	<name>SMTP Sender</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.2.1</mirthVersion>
+	<mirthVersion>3.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth Connecto to send email messages via SMTP. A template is available to dynamically create messages.</description>
 	<clientClassName>com.mirth.connect.connectors.smtp.SmtpSender</clientClassName>
-	<serverClassName>com.mirth.connect.connectors.smtp.SmtpConnector</serverClassName>
-	<sharedClassName>com.mirth.connect.connectors.smtp.SmtpSenderProperties</sharedClassName>
-	<serviceClassName>com.mirth.connect.connectors.smtp.SmtpConnectorService</serviceClassName>
+	<serverClassName>com.mirth.connect.connectors.smtp.SmtpDispatcher</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.smtp.SmtpDispatcherProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.smtp.SmtpSenderService</serviceClassName>
 	<library type="CLIENT" path="smtp-client.jar" />
 	<library type="SHARED" path="smtp-shared.jar" />
 	<library type="SERVER" path="smtp-server.jar" />
 	<transformers></transformers>
 	<protocol>smtp</protocol>
 	<type>DESTINATION</type>
-	<mule-properties>
-		<property name="connector">com.mirth.connect.connectors.smtp.SmtpConnector</property>
-		<property name="dispatcher.factory">com.mirth.connect.connectors.smtp.SmtpMessageDispatcherFactory</property>
-	</mule-properties>
 </connectorMetaData>

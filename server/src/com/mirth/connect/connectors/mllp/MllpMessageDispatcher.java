@@ -28,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.QueueEnabledMessageDispatcher;
-import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
@@ -49,6 +48,7 @@ import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.BatchMessageProcessor;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.server.util.VMRouter;
 
 public class MllpMessageDispatcher extends AbstractMessageDispatcher implements QueueEnabledMessageDispatcher {

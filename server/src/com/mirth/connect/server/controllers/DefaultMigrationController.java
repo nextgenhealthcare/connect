@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -16,7 +16,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map.Entry;
@@ -27,6 +26,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -78,8 +78,10 @@ public class DefaultMigrationController extends MigrationController {
         Connection conn = null;
         ResultSet resultSet = null;
 
+        SqlConfig.getSqlSessionManager().startManagedSession();
         try {
-            conn = SqlConfig.getSqlMapClient().getDataSource().getConnection();
+            conn = SqlConfig.getSqlSessionManager().getConnection();
+
             // Gets the database metadata
             DatabaseMetaData dbmd = conn.getMetaData();
 
@@ -111,6 +113,9 @@ public class DefaultMigrationController extends MigrationController {
         } finally {
             DbUtils.closeQuietly(resultSet);
             DbUtils.closeQuietly(conn);
+            if(SqlConfig.getSqlSessionManager().isManagedSessionStarted()){
+                SqlConfig.getSqlSessionManager().close();
+            }
         }
 
         // otherwise proceed with migration if necessary
@@ -124,8 +129,8 @@ public class DefaultMigrationController extends MigrationController {
             Object result = null;
 
             try {
-                result = SqlConfig.getSqlMapClient().queryForObject("Configuration.getSchemaVersion");
-            } catch (SQLException e) {
+                result = SqlConfig.getSqlSessionManager().selectOne("Configuration.getSchemaVersion");
+            } catch (PersistenceException e) {
 
             }
 
@@ -139,9 +144,9 @@ public class DefaultMigrationController extends MigrationController {
                 migrate(oldSchemaVersion, newSchemaVersion);
 
                 if (result == null)
-                    SqlConfig.getSqlMapClient().update("Configuration.setInitialSchemaVersion", newSchemaVersion);
+                    SqlConfig.getSqlSessionManager().update("Configuration.setInitialSchemaVersion", newSchemaVersion);
                 else
-                    SqlConfig.getSqlMapClient().update("Configuration.updateSchemaVersion", newSchemaVersion);
+                    SqlConfig.getSqlSessionManager().update("Configuration.updateSchemaVersion", newSchemaVersion);
             }
 
             migrateServerProperties();
@@ -155,8 +160,8 @@ public class DefaultMigrationController extends MigrationController {
             for (Channel channel : channelController.getChannel(null)) {
                 if (!channel.getVersion().equals(configurationController.getServerVersion())) {
                     Channel updatedChannel = ImportConverter.convertChannelObject(channel);
-                    PropertyVerifier.checkChannelProperties(updatedChannel);
-                    PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
+//                    PropertyVerifier.checkChannelProperties(updatedChannel);
+//                    PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
                     updatedChannel.setVersion(configurationController.getServerVersion());
                     channelController.updateChannel(updatedChannel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
                 }
@@ -298,7 +303,8 @@ public class DefaultMigrationController extends MigrationController {
             ResultSet results = null;
 
             try {
-                conn = SqlConfig.getSqlMapClient().getDataSource().getConnection();
+                SqlConfig.getSqlSessionManager().startManagedSession();
+                conn = SqlConfig.getSqlSessionManager().getConnection();
 
                 /*
                  * MIRTH-1667: Derby fails if autoCommit is set to true and
@@ -343,6 +349,9 @@ public class DefaultMigrationController extends MigrationController {
                 DbUtils.closeQuietly(results);
                 DbUtils.closeQuietly(statement);
                 DbUtils.closeQuietly(conn);
+                if(SqlConfig.getSqlSessionManager().isManagedSessionStarted()){
+                    SqlConfig.getSqlSessionManager().close();
+                }
             }
         }
     }

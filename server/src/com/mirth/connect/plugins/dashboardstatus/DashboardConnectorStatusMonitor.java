@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -15,25 +15,15 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.connectors.doc.DocumentWriterProperties;
-import com.mirth.connect.connectors.file.FileWriterProperties;
-import com.mirth.connect.connectors.http.HttpSenderProperties;
-import com.mirth.connect.connectors.jdbc.DatabaseWriterProperties;
-import com.mirth.connect.connectors.jms.JMSWriterProperties;
-import com.mirth.connect.connectors.mllp.LLPSenderProperties;
-import com.mirth.connect.connectors.smtp.SmtpSenderProperties;
-import com.mirth.connect.connectors.tcp.TCPSenderProperties;
-import com.mirth.connect.connectors.vm.ChannelWriterProperties;
-import com.mirth.connect.connectors.ws.WebServiceSenderProperties;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ExtensionPermission;
@@ -87,7 +77,7 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
     public String getPluginPointName() {
         return PLUGINPOINT;
     }
-    
+
     @Override
     public void init(Properties properties) {
         socketSetMap = new HashMap<String, Set<Socket>>();
@@ -113,7 +103,12 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
 
     }
 
-    public void updateStatus(String connectorId, ConnectorType type, Event event, Socket socket) {
+    public void updateStatus(String channelId, int metaDataId, ConnectorType type, Event event, Socket socket, String information) {
+        if (information == null) {
+            information = "";
+        }
+
+        String connectorId = channelId + "_" + metaDataId;
         String stateImage = COLOR_BLACK;
         String stateText = STATE_UNKNOWN;
         boolean updateStatus = true;
@@ -243,18 +238,7 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
             String channelName = "";
             // this will be overwritten down below. If not, something's wrong.
             String connectorType = type.toString();
-            String information = "";
 
-            /*
-             * check 'connectorId' - contains destination_1_connector, etc.
-             * connectorId consists of id_source_connector for sources, and
-             * id_destination_x_connector for destinations. i.e. tokenCount will
-             * be 3 for sources and 4 for destinations. Note that READER and
-             * LISTENER are sources, and WRITER and SENDER are destinations.
-             */
-            StringTokenizer tokenizer = new StringTokenizer(connectorId, "_");
-            String channelId = tokenizer.nextToken();
-            int destinationIndex;
             LinkedList<String[]> channelLog = null;
 
             Channel channel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(channelId);
@@ -269,77 +253,11 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
                     channelLog = new LinkedList<String[]>();
                 }
 
-                Connector connector = null;
-
-                switch (type) {
-                    case READER:
-                        connectorType = "Source: " + channel.getSourceConnector().getTransportName() + "  (" + channel.getSourceConnector().getTransformer().getInboundProtocol().toString() + " -> " + channel.getSourceConnector().getTransformer().getOutboundProtocol().toString() + ")";
-                        break;
-                    case LISTENER:
-                        connectorType = "Source: " + channel.getSourceConnector().getTransportName() + "  (" + channel.getSourceConnector().getTransformer().getInboundProtocol().toString() + " -> " + channel.getSourceConnector().getTransformer().getOutboundProtocol().toString() + ")";
-                        break;
-                    case WRITER:
-                        tokenizer.nextToken();
-                        // destinationId begins from 1, so subtract by 1 for the
-                        // arrayIndex.
-                        destinationIndex = Integer.valueOf(tokenizer.nextToken()) - 1;
-                        connector = channel.getDestinationConnectors().get(destinationIndex);
-                        connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
-
-                        if (connector.getTransportName().equals(FileWriterProperties.name)) {
-                            // Destination - File Writer.
-                            switch (event) {
-                                case BUSY:
-                                    information = FileWriterProperties.getInformation(connector.getProperties());
-                                    break;
-                            }
-                        } else if (connector.getTransportName().equals(DatabaseWriterProperties.name)) {
-                            // Destination - Database Writer.
-                            information = DatabaseWriterProperties.getInformation(connector.getProperties());
-                        } else if (connector.getTransportName().equals(JMSWriterProperties.name)) {
-                            // Destination - JMS Writer.
-                            information = JMSWriterProperties.getInformation(connector.getProperties());
-                        } else if (connector.getTransportName().equals(DocumentWriterProperties.name)) {
-                            // Destination - Document Writer.
-                            information = DocumentWriterProperties.getInformation(connector.getProperties());
-                        }
-                        break;
-                    case SENDER:
-                        tokenizer.nextToken();
-                        // destinationId begins from 1, so subtract by 1 for the
-                        // arrayIndex.
-                        destinationIndex = Integer.valueOf(tokenizer.nextToken()) - 1;
-                        connector = channel.getDestinationConnectors().get(destinationIndex);
-                        connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
-
-                        if (connector.getTransportName().equals(HttpSenderProperties.name)) {
-                            // Destination - HTTP Sender.
-                            information = HttpSenderProperties.getInformation(connector.getProperties());
-                        } else if (connector.getTransportName().equals(ChannelWriterProperties.name)) {
-                            // Destination - Channel Writer.
-                            Channel targetChannel = ControllerFactory.getFactory().createChannelController().getDeployedChannelById(ChannelWriterProperties.getInformation(connector.getProperties()));
-
-                            if (targetChannel == null) {
-                                information = "Target Channel: None";
-                            } else {
-                                information = "Target Channel: " + targetChannel.getName();
-                            }
-                        } else if (connector.getTransportName().equals(SmtpSenderProperties.name)) {
-                            // Destination - SMTP Sender.
-                            information = SmtpSenderProperties.getInformation(connector.getProperties());
-                        } else if (connector.getTransportName().equals(TCPSenderProperties.name)) {
-                            // Destination - TCP Sender.
-                            // The useful info for TCP Sender - host:port will
-                            // be taken care of by the socket below.
-                        } else if (connector.getTransportName().equals(LLPSenderProperties.name)) {
-                            // Destination - LLP Sender.
-                            // The useful info for LLP Sender - host:port will
-                            // be taken care of by the socket below.
-                        } else if (connector.getTransportName().equals(WebServiceSenderProperties.name)) {
-                            // Destination - Web Service Sender.
-                            // information = "";
-                        }
-                        break;
+                if (metaDataId == 0) {
+                    connectorType = "Source: " + channel.getSourceConnector().getTransportName() + "  (" + channel.getSourceConnector().getTransformer().getInboundDataType().toString() + " -> " + channel.getSourceConnector().getTransformer().getOutboundDataType().toString() + ")";
+                } else {
+                    Connector connector = getConnectorFromMetaDataId(channel.getDestinationConnectors(), metaDataId);
+                    connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
                 }
             }
 
@@ -522,7 +440,7 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
                 }
 
                 lastDisplayedLogIndexBySessionId.put(sessionId, lastDisplayedLogIdByChannel);
-                
+
                 try {
                     return SerializationUtils.clone(channelLog);
                 } catch (SerializationException e) {
@@ -560,8 +478,18 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
 
     @Override
     public ExtensionPermission[] getExtensionPermissions() {
-        ExtensionPermission viewPermission = new ExtensionPermission(PLUGINPOINT, "View Connection Status", "Displays the connection status and history of the selected channel on the Dashboard.", new String[] { METHOD_GET_STATES, METHOD_GET_CONNECTION_INFO_LOGS }, new String[] { });
-        
+        ExtensionPermission viewPermission = new ExtensionPermission(PLUGINPOINT, "View Connection Status", "Displays the connection status and history of the selected channel on the Dashboard.", new String[] { METHOD_GET_STATES, METHOD_GET_CONNECTION_INFO_LOGS }, new String[] {});
+
         return new ExtensionPermission[] { viewPermission };
+    }
+
+    private Connector getConnectorFromMetaDataId(List<Connector> connectors, int metaDataId) {
+        for (Connector connector : connectors) {
+            if (connector.getMetaDataId() == metaDataId) {
+                return connector;
+            }
+        }
+
+        return null;
     }
 }

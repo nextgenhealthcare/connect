@@ -1,12 +1,35 @@
 <project name="mirth-connect" basedir="." default="build">
 	<target name="init">
 		<property file="mirth-build.properties" />
+		<property name="donkey.setup" value="${donkey}/setup" />
 		<property name="server.setup" value="${server}/setup" />
 		<property name="server.build" value="${server}/build" />
 	</target>
+	
+	<!-- Donkey -->
+	<target name="build-donkey" depends="init">
+		<ant antfile="${donkey}/build.xml" dir="${donkey}" target="build" />
+	</target>
+	
+	<!-- WebAdmin -->
+	<target name="build-webadmin" depends="init">
+		<ant antfile="${webadmin}/build.xml" dir="${webadmin}" target="dist"/>
+		<copy file="${webadmin}/dist/webadmin.war" todir="${server}/webapps" />
+	</target>
 
 	<!-- Server extensions -->
-	<target name="build-server-extensions" depends="init">
+	<target name="build-server-extensions" depends="build-donkey">
+		<copy file="${donkey.setup}/donkey-model.jar" todir="${server}/lib/donkey" />
+		<copy file="${donkey.setup}/donkey-server.jar" todir="${server}/lib/donkey" />
+		<copy todir="${server}/lib/donkey">
+			<fileset dir="${donkey}/lib">
+				<exclude name="log4j-1.2.16.jar" />
+				<exclude name="postgresql-9.1-902.jdbc4.jar" />
+				<exclude name="xstream-1.4.3.jar" />
+				<exclude name="commons/**" />
+			</fileset>
+		</copy>
+		
 		<ant antfile="${server}/build.xml" dir="${server}" target="create-plugins" />
 
 		<!-- copy the shared extension jars to the client lib -->
@@ -19,6 +42,7 @@
 
 	<!-- Client -->
 	<target name="build-client" depends="build-server-extensions">
+		<copy file="${donkey.setup}/donkey-model.jar" todir="${client}/lib" />
 		<copy file="${server.setup}/lib/mirth-client-core.jar" todir="${client}/lib" />
 		<copy file="${server}/lib/mirth-vocab.jar" todir="${client}/lib" />
 
@@ -57,6 +81,7 @@
 
 	<!-- CLI -->
 	<target name="build-cli" depends="build-client">
+		<copy file="${donkey.setup}/donkey-model.jar" todir="${cli}/lib" />
 		<copy file="${server.setup}/lib/mirth-client-core.jar" todir="${cli}/lib" />
 
 		<ant antfile="${cli}/build.xml" dir="${cli}" target="build">
@@ -84,7 +109,7 @@
 		</copy>
 	</target>
 
-	<target name="build" depends="build-manager, build-cli">
+	<target name="build" depends="build-manager, build-cli, build-webadmin">
 		<ant antfile="${server}/build.xml" dir="${server}" target="create-setup">
 			<property name="version" value="${version}" />
 		</ant>
@@ -98,7 +123,7 @@
 		</copy>
 	</target>
 
-	<target name="dist" depends="build-manager, build-cli">
+	<target name="dist" depends="build-manager, build-cli, build-webadmin">
 		<echo>Application version: ${version}</echo>
 		<echo>Database schema version: ${schemaVersion}</echo>
 
@@ -118,16 +143,24 @@
 			<classpath refid="header.classpath" />
 		</taskdef>
 
-		<header headerFile="${server}/license-header.txt" removeHeader="true" startOfHeader="/*" endOfHeader="*/" removeBlankLines="true">
-			<fileset dir="${server}" includes="**/*.java" excludes="src/org/**/*.java src/com/thoughtworks/**/*.java src/com/mirth/connect/connectors/**/*.java" />
+		<header headerFile="${server}/license-header.txt">
+			<fileset dir="${server}" includes="**/*.java" excludes="src/org/**/*.java src/com/thoughtworks/**/*.java src/com/mirth/connect/util/Entities.java src/com/mirth/connect/server/logging/LogOutputStream.java" />
 		</header>
 
-		<header headerFile="${server}/license-header.txt" removeHeader="true" startOfHeader="/*" endOfHeader="*/" removeBlankLines="true">
-			<fileset dir="${client}" includes="**/*.java" excludes="src/com/mirth/connect/client/ui/BareBonesBrowserLaunch.java src/com/mirth/connect/client/ui/BeanBinder.java src/org/**/*.java" />
+		<header headerFile="${server}/license-header.txt">
+			<fileset dir="${client}" includes="**/*.java" excludes="src/com/mirth/connect/client/ui/BareBonesBrowserLaunch.java src/com/mirth/connect/client/ui/BeanBinder.java src/com/mirth/connect/client/ui/OSXAdapter.java src/org/**/*.java" />
+		</header>
+		
+		<header headerFile="${server}/license-header.txt">
+				<fileset dir="${cli}" includes="**/*.java" />
 		</header>
 
-		<header headerFile="${server}/license-header.txt" removeHeader="true" startOfHeader="/*" endOfHeader="*/" removeBlankLines="true">
+		<header headerFile="${server}/license-header.txt">
 			<fileset dir="${manager}" includes="**/*.java" excludes="src/com/mirth/connect/manager/BareBonesBrowserLaunch.java" />
+		</header>
+		
+		<header headerFile="${server}/license-header.txt">
+			<fileset dir="${donkey}" includes="**/*.java" />
 		</header>
 	</target>
 

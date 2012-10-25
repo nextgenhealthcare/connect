@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -15,6 +15,9 @@ import java.util.Properties;
 
 import com.mirth.commons.encryption.Digester;
 import com.mirth.commons.encryption.Encryptor;
+import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.model.DatabaseSettings;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.PasswordRequirements;
@@ -48,6 +51,11 @@ public abstract class ConfigurationController extends Controller {
      * 
      */
     public abstract void initializeSecuritySettings();
+    
+    /**
+     * Initializes the DatabaseSettings from the properties configuration.
+     */
+    public abstract void initializeDatabaseSettings();
     
     /**
      * Migrates the encryption key from the database to a new JCEKS keystore.
@@ -131,7 +139,15 @@ public abstract class ConfigurationController extends Controller {
      * @throws ControllerException
      */
     public abstract EncryptionSettings getEncryptionSettings() throws ControllerException;
-
+    
+    /**
+     * Returns all database settings.
+     * 
+     * @return encryption settings
+     * @throws ControllerException
+     */
+    public abstract DatabaseSettings getDatabaseSettings() throws ControllerException;
+    
     /**
      * Sets all server settings.
      * 
@@ -213,8 +229,9 @@ public abstract class ConfigurationController extends Controller {
      * 
      * @param serverConfiguration the server configuration to restore
      * @throws ControllerException if the server configuration could not be restored
+     * @throws InterruptedException 
      */
-    public abstract void setServerConfiguration(ServerConfiguration serverConfiguration) throws ControllerException;
+    public abstract void setServerConfiguration(ServerConfiguration serverConfiguration) throws StartException, StopException, ControllerException, InterruptedException;
 
     /**
      * Returns the password requirements specified in the mirth.properties file (ex. min length).

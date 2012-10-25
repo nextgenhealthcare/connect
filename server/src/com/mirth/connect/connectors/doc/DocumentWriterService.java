@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,10 +9,8 @@
 
 package com.mirth.connect.connectors.doc;
 
-import java.util.Map;
-
 import com.mirth.connect.connectors.ConnectorService;
-import com.mirth.connect.connectors.file.FileConnector;
+import com.mirth.connect.connectors.file.FileScheme;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
 import com.mirth.connect.util.ConnectionTestResponse;
@@ -20,10 +18,10 @@ import com.mirth.connect.util.ConnectionTestResponse;
 public class DocumentWriterService implements ConnectorService {
     public Object invoke(String method, Object object, String sessionsId) throws Exception {
         if (method.equals("testWrite")) {
-            Map<String, String> params = (Map<String, String>) object;
-            String directory = params.get(DocumentWriterProperties.FILE_DIRECTORY);
+            DocumentDispatcherProperties props = (DocumentDispatcherProperties) object;
+            String directory = props.getHost();
 
-            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(FileConnector.SCHEME_FILE, null, null, directory, 0, false, false, 0);
+            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(FileScheme.FILE, null, null, directory, 0, false, false, 0);
             FileSystemConnection connection = (FileSystemConnection) factory.makeObject();
 
             try {

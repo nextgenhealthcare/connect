@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -10,11 +10,11 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
-import java.util.Properties;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -31,22 +31,30 @@ public class Connector implements Serializable {
         SOURCE, DESTINATION
     }
 
+    private Integer metaDataId;
     private String name;
-    private Properties properties;
+    private ConnectorProperties properties;
     private Transformer transformer;
+    private Transformer responseTransformer;
     private Filter filter;
     private String transportName;
     private Mode mode;
     private boolean enabled;
     private String version;
+    private boolean waitForPrevious;
 
-    public Connector() {
-        this.properties = new Properties();
-    }
+    public Connector() {}
 
     public Connector(String name) {
-        this.properties = new Properties();
         this.name = name;
+    }
+
+    public Integer getMetaDataId() {
+        return metaDataId;
+    }
+
+    public void setMetaDataId(Integer metaDataId) {
+        this.metaDataId = metaDataId;
     }
 
     public Mode getMode() {
@@ -73,6 +81,14 @@ public class Connector implements Serializable {
         this.transformer = transformer;
     }
 
+    public Transformer getResponseTransformer() {
+        return responseTransformer;
+    }
+
+    public void setResponseTransformer(Transformer responseTransformer) {
+        this.responseTransformer = responseTransformer;
+    }
+
     public Filter getFilter() {
         return this.filter;
     }
@@ -89,11 +105,11 @@ public class Connector implements Serializable {
         this.transportName = transportName;
     }
 
-    public Properties getProperties() {
+    public ConnectorProperties getProperties() {
         return this.properties;
     }
 
-    public void setProperties(Properties properties) {
+    public void setProperties(ConnectorProperties properties) {
         this.properties = properties;
     }
 
@@ -119,5 +135,13 @@ public class Connector implements Serializable {
 
     public String toString() {
         return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());
+    }
+
+    public boolean isWaitForPrevious() {
+        return waitForPrevious;
+    }
+
+    public void setWaitForPrevious(boolean waitForPrevious) {
+        this.waitForPrevious = waitForPrevious;
     }
 }

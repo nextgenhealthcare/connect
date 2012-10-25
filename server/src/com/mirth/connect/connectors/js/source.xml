@@ -2,22 +2,16 @@
 	<name>JavaScript Reader</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.2.1</mirthVersion>
+	<mirthVersion>3.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to execute arbitrary JavaScript to pull in messages to a channel.</description>
 	<clientClassName>com.mirth.connect.connectors.js.JavaScriptReader</clientClassName>
-	<serverClassName>com.mirth.connect.connectors.js.JavaScriptConnector</serverClassName>
-	<sharedClassName>com.mirth.connect.connectors.js.JavaScriptReaderProperties</sharedClassName>
+	<serverClassName>com.mirth.connect.connectors.js.JavaScriptReceiver</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.js.JavaScriptReceiverProperties</sharedClassName>
 	<library type="CLIENT" path="js-client.jar" />
 	<library type="SHARED" path="js-shared.jar" />
 	<library type="SERVER" path="js-server.jar" />
 	<transformers>ResultMapToXML</transformers>
 	<protocol>js</protocol>
 	<type>SOURCE</type>
-	<mule-properties>
-		<property name="connector">com.mirth.connect.connectors.js.JavaScriptConnector</property>
-		<property name="dispatcher.factory">com.mirth.connect.connectors.js.JavaScriptMessageDispatcherFactory</property>
-		<property name="message.receiver">com.mirth.connect.connectors.js.JavaScriptMessageReceiver</property>
-		<property name="message.adapter">com.mirth.connect.connectors.js.JavaScriptMessageAdapter</property>
-	</mule-properties>
 </connectorMetaData>

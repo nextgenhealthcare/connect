@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -207,7 +208,7 @@ public class SftpConnection implements FileSystemConnection {
 	}
 	
 	@Override
-	public void writeFile(String file, String toDir, boolean append, byte[] message) throws Exception
+	public void writeFile(String file, String toDir, boolean append, InputStream is) throws Exception
 	{
 	    lastDir = toDir;
 		cdmake(toDir);
@@ -216,7 +217,8 @@ public class SftpConnection implements FileSystemConnection {
 			mode = ChannelSftp.APPEND;
 		else
 			mode = ChannelSftp.OVERWRITE;
-		client.put(new ByteArrayInputStream(message), file, mode);
+		
+		client.put(is, file, mode);
 	}
 
 	@Override

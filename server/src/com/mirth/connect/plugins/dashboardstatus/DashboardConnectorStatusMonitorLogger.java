@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -30,8 +30,8 @@ public class DashboardConnectorStatusMonitorLogger implements ConnectorStatusPlu
     }
 
     @Override
-    public void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket) {
-        monitor.updateStatus(connectorName, type, event, socket);
+    public void updateStatus(String channelId, int metaDataId, ConnectorType type, Event event, Socket socket, String information) {
+        monitor.updateStatus(channelId, metaDataId, type, event, socket, information);
     }
 
     @Override

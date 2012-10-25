@@ -2,24 +2,16 @@
 	<name>Database Reader</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.2.1</mirthVersion>
+	<mirthVersion>3.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to poll any supported JDBC-compatabile database for data. Rows are returned as XML and JavaScript can be used for advanced logic.</description>
 	<clientClassName>com.mirth.connect.connectors.jdbc.DatabaseReader</clientClassName>
-	<serverClassName>com.mirth.connect.connectors.jdbc.JdbcConnector</serverClassName>
-	<sharedClassName>com.mirth.connect.connectors.jdbc.DatabaseReaderProperties</sharedClassName>
-	<serviceClassName>com.mirth.connect.connectors.jdbc.JdbcConnectorService</serviceClassName>
+	<serverClassName>com.mirth.connect.connectors.jdbc.DatabaseReceiver</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.jdbc.DatabaseReceiverProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.jdbc.DatabaseConnectorService</serviceClassName>
 	<library type="CLIENT" path="jdbc-client.jar" />
 	<library type="SHARED" path="jdbc-shared.jar" />
 	<library type="SERVER" path="jdbc-server.jar" />
-	<transformers>ResultMapToXML</transformers>
 	<protocol>jdbc</protocol>
 	<type>SOURCE</type>
-	<mule-properties>
-		<property name="connector">com.mirth.connect.connectors.jdbc.JdbcConnector</property>
-		<property name="dispatcher.factory">com.mirth.connect.connectors.jdbc.JdbcMessageDispatcherFactory</property>
-		<property name="message.receiver">com.mirth.connect.connectors.jdbc.JdbcMessageReceiver</property>
-		<property name="message.adapter">com.mirth.connect.connectors.jdbc.JdbcMessageAdapter</property>
-		<property name="endpoint.builder">com.mirth.connect.connectors.jdbc.JdbcEndpointBuilder</property>
-	</mule-properties>
 </connectorMetaData>

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -45,14 +45,6 @@ public class DefaultControllerFactory extends ControllerFactory {
         return DefaultChannelController.create();
     }
 
-    public ChannelStatisticsController createChannelStatisticsController() {
-        return DefaultChannelStatisticsController.create();
-    }
-
-    public ChannelStatusController createChannelStatusController() {
-        return DefaultChannelStatusController.create();
-    }
-
     public CodeTemplateController createCodeTemplateController() {
         return DefaultCodeTemplateController.create();
     }
@@ -62,15 +54,15 @@ public class DefaultControllerFactory extends ControllerFactory {
     }
 
     public EngineController createEngineController() {
-        return MuleEngineController.create();
+        return DonkeyEngineController.getInstance();
     }
 
     public ExtensionController createExtensionController() {
         return DefaultExtensionController.create();
     }
 
-    public MessageObjectController createMessageObjectController() {
-        return DefaultMessageObjectController.create();
+    public MessageController createMessageController() {
+        return DonkeyMessageController.create();
     }
 
     public MigrationController createMigrationController() {

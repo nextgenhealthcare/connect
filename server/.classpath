@@ -1,30 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry excluding="com/mirth/connect/connectors/jms/|com/mirth/connect/connectors/mllp/" kind="src" path="src"/>
 	<classpathentry kind="src" path="conf"/>
-	<classpathentry kind="src" path="build"/>
 	<classpathentry kind="src" path="dbconf"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
-	<classpathentry kind="lib" path="lib/mule/activeio-2.1.jar"/>
-	<classpathentry kind="lib" path="lib/mule/antlr-runtime.jar"/>
-	<classpathentry kind="lib" path="lib/mule/dom4j-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/mule/geronimo-spec-ejb-2.1-rc4.jar"/>
-	<classpathentry kind="lib" path="lib/mule/geronimo-spec-j2ee-connector-1.5-rc4.jar"/>
-	<classpathentry kind="lib" path="lib/mule/geronimo-spec-j2ee-management-1.0-rc4.jar"/>
-	<classpathentry kind="lib" path="lib/mule/geronimo-spec-jms-1.1-rc4.jar"/>
-	<classpathentry kind="lib" path="lib/mule/geronimo-spec-jta-1.0.1B-rc4.jar"/>
-	<classpathentry kind="lib" path="lib/mule/jug-1.0.3.jar"/>
-	<classpathentry kind="lib" path="lib/mule/mule-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/mule/ognl-2.6.7.jar"/>
-	<classpathentry kind="lib" path="lib/mule/oro.jar"/>
+	<classpathentry kind="src" path="build"/>
 	<classpathentry kind="lib" path="lib/ibmjcefips.jar"/>
 	<classpathentry kind="lib" path="lib/ibmpkcs.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/jai_imageio.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/core-renderer.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/file/jcifs-1.3.17.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/iText-2.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/mule/axis14-commons-discovery-0.2.jar"/>
-	<classpathentry kind="lib" path="lib/rhino-1.7r3pre.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.8.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-codec-1.6.jar"/>
@@ -34,7 +19,6 @@
 	<classpathentry kind="lib" path="lib/commons/commons-dbutils-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-digester-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-fileupload-1.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons/commons-io-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-jxpath-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-lang-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-logging-1.1.1.jar"/>
@@ -49,7 +33,6 @@
 	<classpathentry kind="lib" path="lib/derby-10.8.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/derbytools-10.8.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dicomviewer/ij.jar"/>
-	<classpathentry kind="lib" path="lib/ibatis-2.3.4.726.jar"/>
 	<classpathentry kind="lib" path="lib/jdom-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/quartz-all-1.6.6.jar"/>
@@ -57,23 +40,13 @@
 	<classpathentry kind="lib" path="lib/backport-util-concurrent-Java60-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3_min-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-vocab.jar"/>
-	<classpathentry kind="lib" path="lib/xstream-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/file/webdavclient4j-core-0.92.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
-	<classpathentry kind="lib" path="lib/database/jtds-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.0.8-bin.jar"/>
-	<classpathentry kind="lib" path="lib/database/sqlitejdbc-v056.jar"/>
-	<classpathentry kind="lib" path="lib/database/postgresql-9.0-801.jdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/xom-1.2.6.jar"/>
 	<classpathentry kind="lib" path="lib/database/ojdbc6.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.44.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-continuation-7.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-http-7.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-io-7.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-security-7.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-server-7.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-servlet-7.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-util-7.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-core-2.0.25.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-filecache-2.0.25.jar"/>
@@ -87,10 +60,48 @@
 	<classpathentry kind="lib" path="lib/hapi-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-crypto.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/mybatis-3.1.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.mybatis.org/core/apidocs/reference/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-io-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-math3-3.0.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="lib/database/jtds-1.2.6.jar"/>
+	<classpathentry kind="lib" path="lib/database/postgresql-9.1-902.jdbc4.jar"/>
+	<classpathentry kind="lib" path="lib/database/sqlite-jdbc-3.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/rhino-1.7r3.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/wsdl4j-1.6.2-fixed.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/xbean-fixed-2.4.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Donkey">
+		<accessrules>
+			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/server/**"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/model/**"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/util/**"/>
+			<accessrule kind="nonaccessible" pattern="*/**"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jetty/jsp/com.sun.el_1.0.0.v201004190952.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jsp/ecj-3.6.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jsp/javax.el_2.1.0.v201004190952.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jsp/javax.servlet.jsp_2.1.0.v201004190952.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jsp/javax.servlet.jsp.jstl_1.2.0.v201004190952.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jsp/jsp-impl-2.1.3-b10.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jsp/org.apache.taglibs.standard.glassfish_1.2.0.v201004190952.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jsp/javax.servlet.jsp-2.1.0.v201105211820.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-continuation-7.6.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-http-7.6.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-io-7.6.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-security-7.6.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-server-7.6.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-servlet-7.6.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-util-7.6.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-webapp-7.6.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-xml-7.6.7.v20120910.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

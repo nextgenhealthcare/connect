@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -26,10 +26,10 @@ import org.eclipse.jetty.io.RuntimeIOException;
 
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
-import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.server.controllers.ChannelStatusController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EngineController;
 
 public class ChannelStatusServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -37,77 +37,65 @@ public class ChannelStatusServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // MIRTH-1745
         response.setCharacterEncoding("UTF-8");
-        
+
         if (!isUserLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else {
-            try {
-                ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                PrintWriter out = response.getWriter();
-                Operation operation = Operations.getOperation(request.getParameter("op"));
-                String channelId = request.getParameter("id");
-                Map<String, Object> parameterMap = new HashMap<String, Object>();
-                parameterMap.put("channelId", channelId);
+            return;
+        }
 
-                if (operation.equals(Operations.CHANNEL_START)) {
-                    if (!isUserAuthorized(request, parameterMap)) {
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                    } else {
-                        channelStatusController.startChannel(channelId);
-                    }
-                } else if (operation.equals(Operations.CHANNEL_STOP)) {
-                    if (!isUserAuthorized(request, parameterMap)) {
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                    } else {
-                        channelStatusController.stopChannel(channelId);
-                    }
-                } else if (operation.equals(Operations.CHANNEL_PAUSE)) {
-                    if (!isUserAuthorized(request, parameterMap)) {
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                    } else {
-                        channelStatusController.pauseChannel(channelId);
-                    }
-                } else if (operation.equals(Operations.CHANNEL_RESUME)) {
-                    if (!isUserAuthorized(request, parameterMap)) {
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                    } else {
-                        channelStatusController.resumeChannel(channelId);
-                    }
-                } else if (operation.equals(Operations.CHANNEL_GET_STATUS)) {
-                    response.setContentType(APPLICATION_XML);
-                    List<ChannelStatus> channelStatuses = null;
+        EngineController engineController = ControllerFactory.getFactory().createEngineController();
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        PrintWriter out = response.getWriter();
+        Operation operation = Operations.getOperation(request.getParameter("op"));
+        String channelId = request.getParameter("id");
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        parameterMap.put("channelId", channelId);
 
-                    if (!isUserAuthorized(request, null)) {
-                        channelStatuses = new ArrayList<ChannelStatus>();
-                    } else if (doesUserHaveChannelRestrictions(request)) {
-                        channelStatuses = redactChannelStatuses(request, channelStatusController.getChannelStatusList());
-                    } else {
-                        channelStatuses = channelStatusController.getChannelStatusList();
-                    }
+        if ((!operation.equals(Operations.CHANNEL_GET_STATUS) && !isUserAuthorized(request, parameterMap)) || (operation.equals(Operations.CHANNEL_GET_STATUS) && (!isUserAuthorized(request, null)))) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        }
 
-                    serializer.toXML(channelStatuses, out);    
+        try {
+            if (operation.equals(Operations.CHANNEL_START)) {
+                engineController.startChannel(channelId);
+            } else if (operation.equals(Operations.CHANNEL_STOP)) {
+                engineController.stopChannel(channelId);
+            } else if (operation.equals(Operations.CHANNEL_HALT)) {
+                engineController.haltChannel(channelId);
+            } else if (operation.equals(Operations.CHANNEL_PAUSE)) {
+                engineController.pauseChannel(channelId);
+            } else if (operation.equals(Operations.CHANNEL_RESUME)) {
+                engineController.resumeChannel(channelId);
+            } else if (operation.equals(Operations.CHANNEL_GET_STATUS)) {
+                response.setContentType(APPLICATION_XML);
+                List<DashboardStatus> channelStatuses = null;
+
+                if (doesUserHaveChannelRestrictions(request)) {
+                    channelStatuses = redactChannelStatuses(request, engineController.getChannelStatusList());
+                } else {
+                    channelStatuses = engineController.getChannelStatusList();
                 }
-            } catch (RuntimeIOException rio) {
-                logger.debug(rio);
-            } catch (Throwable t) {
-                logger.error(ExceptionUtils.getStackTrace(t));
-                throw new ServletException(t);
+
+                serializer.toXML(channelStatuses, out);
             }
+        } catch (RuntimeIOException rio) {
+            logger.debug(rio);
+        } catch (Throwable t) {
+            logger.error(ExceptionUtils.getStackTrace(t));
+            throw new ServletException(t);
         }
-    }
-    
-    private List<ChannelStatus> redactChannelStatuses(HttpServletRequest request, List<ChannelStatus> channelStatuses) throws ServletException {
-        List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
-        List<ChannelStatus> authorizedChannelStatuses = new ArrayList<ChannelStatus>();
-        
-        for (ChannelStatus channelStatus : channelStatuses) {
-            if (authorizedChannelIds.contains(channelStatus.getChannelId())) {
-                authorizedChannelStatuses.add(channelStatus);
-            }
-        }
-        
-        return authorizedChannelStatuses;
     }
 
+    private List<DashboardStatus> redactChannelStatuses(HttpServletRequest request, List<DashboardStatus> channelStatuses) throws ServletException {
+        List<String> authorizedChannelIds = getAuthorizedChannelIds(request);
+        List<DashboardStatus> authorizedStatuses = new ArrayList<DashboardStatus>();
+
+        for (DashboardStatus status : channelStatuses) {
+            if (authorizedChannelIds.contains(status.getChannelId())) {
+                authorizedStatuses.add(status);
+            }
+        }
+
+        return authorizedStatuses;
+    }
 }

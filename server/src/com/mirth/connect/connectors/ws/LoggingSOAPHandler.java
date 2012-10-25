@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -44,7 +44,7 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
 
     public void close(MessageContext mc) {
         logger.debug("Web Service connection closed.");
-        monitoringController.updateStatus(webServiceMessageReceiver.connector, connectorType, Event.DONE);
+        monitoringController.updateStatus(webServiceMessageReceiver.getChannelId(), webServiceMessageReceiver.getMetaDataId(), connectorType, Event.DONE);
     }
 
     public boolean handleFault(SOAPMessageContext smc) {
@@ -56,7 +56,7 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
             Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
             if (!outbound) {
                 logger.debug("Web Service message received.");
-                monitoringController.updateStatus(webServiceMessageReceiver.connector, connectorType, Event.CONNECTED);
+                monitoringController.updateStatus(webServiceMessageReceiver.getChannelId(), webServiceMessageReceiver.getMetaDataId(), connectorType, Event.CONNECTED);
             } else {
                 logger.debug("Web Service returning response.");
             }

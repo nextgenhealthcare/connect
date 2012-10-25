@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -16,10 +16,11 @@ import ij.process.ImageProcessor;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.imageio.IIOImage;
@@ -28,8 +29,9 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Base64InputStream;
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.BasicDicomObject;
 import org.dcm4che2.data.DicomElement;
@@ -40,119 +42,153 @@ import org.dcm4che2.data.VR;
 import org.dcm4che2.io.DicomInputStream;
 import org.dcm4che2.io.DicomOutputStream;
 
-import com.mirth.connect.model.Attachment;
-import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.converters.SerializerException;
-import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.MessageObjectController;
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
+import com.mirth.connect.donkey.model.message.ImmutableMessageContent;
+import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
+import com.mirth.connect.donkey.util.Base64Util;
+import com.mirth.connect.server.controllers.MessageController;
 
 public class DICOMUtil {
     private static Logger logger = Logger.getLogger(AttachmentUtil.class);
 
-    public static String getDICOMRawData(MessageObject message) {
-        String mergedMessage;
-        if (message.isAttachment()) {
-            MessageObjectController mos = ControllerFactory.getFactory().createMessageObjectController();
+    public static String getDICOMRawData(ImmutableConnectorMessage message) {
+        String mergedMessage = null;
+
+        List<Attachment> attachments = MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId());
+
+        if (attachments != null && attachments.size() > 0) {
             try {
-                List<Attachment> attachments = null;
-                
-                if (message.getCorrelationId() != null) {
-                    attachments = mos.getAttachmentsByMessageId(message.getCorrelationId());
-                } else {
-                    attachments = mos.getAttachmentsByMessageId(message.getId());
-                }
-                    
                 if (attachments.get(0).getType().equals("DICOM")) {
-                    mergedMessage = mergeHeaderAttachments(message, attachments);
+                    byte[] mergedMessageBytes = mergeHeaderAttachments(message, attachments);
+                    
+                    // Free the memory from the attachments
+                    attachments = null;
+
+                    // Replace the raw binary with the encoded binary to free up the memory
+                    mergedMessageBytes = Base64Util.encodeBase64(mergedMessageBytes);
+                    
+                    mergedMessage = StringUtils.newStringUsAscii(mergedMessageBytes);
                 } else {
-                    mergedMessage = message.getRawData();
+                    mergedMessage = message.getRaw().getContent();
                 }
             } catch (Exception e) {
                 logger.error("Error merging DICOM data", e);
-                mergedMessage = message.getRawData();
+                mergedMessage = message.getRaw().getContent();
             }
         } else {
-            mergedMessage = message.getRawData();
+            mergedMessage = message.getRaw().getContent();
         }
-        
+
         return mergedMessage;
     }
-
-    public static byte[] getDICOMMessage(MessageObject message) {
-        return Base64.decodeBase64(getDICOMRawData(message).getBytes());
+    
+    public static String getDICOMRawData(ConnectorMessage message) {
+        return getDICOMRawData(new ImmutableConnectorMessage(message));
     }
 
-    public static String mergeHeaderAttachments(MessageObject message, List<Attachment> attachments) throws SerializerException {
-        try {
-            List<byte[]> images = new ArrayList<byte[]>();
+    public static byte[] getDICOMRawBytes(ImmutableConnectorMessage message) {
+        byte[] mergedMessage = null;
 
-            for (Attachment attachment : attachments) {
-                images.add(Base64.decodeBase64(attachment.getData()));
+        List<Attachment> attachments = MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId());
+
+        if (attachments != null && attachments.size() > 0) {
+            try {
+                if (attachments.get(0).getType().equals("DICOM")) {
+                    mergedMessage = mergeHeaderAttachments(message, attachments);
+                } else {
+                    mergedMessage = Base64.decodeBase64(StringUtils.getBytesUsAscii(message.getRaw().getContent()));
+                }
+            } catch (Exception e) {
+                logger.error("Error merging DICOM data", e);
+                mergedMessage = Base64.decodeBase64(StringUtils.getBytesUsAscii(message.getRaw().getContent()));
             }
+        } else {
+            mergedMessage = Base64.decodeBase64(StringUtils.getBytesUsAscii(message.getRaw().getContent()));
+        }
 
+        return mergedMessage;
+    }
+    
+    public static byte[] getDICOMRawBytes(ConnectorMessage message) {
+        return getDICOMRawBytes(new ImmutableConnectorMessage(message));
+    }
+
+    public static byte[] getDICOMMessage(ImmutableConnectorMessage message) {
+        return getDICOMRawBytes(message);
+    }
+
+    public static byte[] mergeHeaderAttachments(ImmutableConnectorMessage message, List<Attachment> attachments) throws SerializerException {
+        try {
             byte[] headerBytes;
 
-            if (message.getEncodedDataProtocol().equals(MessageObject.Protocol.DICOM) && message.getEncodedData() != null) {
-                headerBytes = Base64.decodeBase64(message.getEncodedData().getBytes());
-            } else if (message.getRawDataProtocol().equals(MessageObject.Protocol.DICOM) && message.getRawData() != null) {
-                headerBytes = Base64.decodeBase64(message.getRawData().getBytes());
+            ImmutableMessageContent encoded = message.getEncoded();
+            ImmutableMessageContent raw = message.getRaw();
+
+            //TODO verify the logic here. Is data type required? There are potential problems with using data type from either model or donkey
+            if (encoded != null && encoded.getContent() != null && message.getMetaDataId() > 0) {
+                headerBytes = Base64.decodeBase64(StringUtils.getBytesUsAscii(encoded.getContent()));
+            } else if (raw != null && raw.getContent() != null && message.getMetaDataId() == 0) {
+                headerBytes = Base64.decodeBase64(StringUtils.getBytesUsAscii(raw.getContent()));
             } else {
-                return StringUtils.EMPTY;
+                return new byte[0];
             }
 
-            return mergeHeaderPixelData(headerBytes, images);
+            return mergeHeaderPixelData(headerBytes, attachments);
         } catch (IOException e) {
             throw new SerializerException(e);
         }
     }
 
-    public static String mergeHeaderPixelData(byte[] header, List<byte[]> images) throws IOException {
+    public static byte[] mergeHeaderPixelData(byte[] header, List<Attachment> attachments) throws IOException {
         // 1. read in header
-        DicomObject dcmObj = byteArrayToDicomObject(header);
+        DicomObject dcmObj = byteArrayToDicomObject(header, false);
 
         // 2. Add pixel data to DicomObject
-        if (images != null && !images.isEmpty()) {
-            if (images.size() > 1) {
-                DicomElement dicomElement = dcmObj.putFragments(Tag.PixelData, VR.OB, dcmObj.bigEndian(), images.size());
+        if (attachments != null && !attachments.isEmpty()) {
+            if (attachments.size() > 1) {
+                DicomElement dicomElement = dcmObj.putFragments(Tag.PixelData, VR.OB, dcmObj.bigEndian(), attachments.size());
 
-                for (byte[] image : images) {
-                    dicomElement.addFragment(image);
+                for (Attachment attachment : attachments) {
+                    dicomElement.addFragment(attachment.getContent());
                 }
 
                 dcmObj.add(dicomElement);
             } else {
-                dcmObj.putBytes(Tag.PixelData, VR.OB, images.get(0));
+                dcmObj.putBytes(Tag.PixelData, VR.OB, attachments.get(0).getContent());
             }
         }
 
-        return new String(Base64.encodeBase64Chunked(dicomObjectToByteArray(dcmObj)));
+        return dicomObjectToByteArray(dcmObj);
     }
 
-    public static List<Attachment> getMessageAttachments(MessageObject message) throws SerializerException {
+    public static List<Attachment> getMessageAttachments(ConnectorMessage message) throws SerializerException {
         return AttachmentUtil.getMessageAttachments(message);
     }
 
-    public static String convertDICOM(String imageType, MessageObject message, boolean autoThreshold) {
+    // commented out until we determine how to handle attachments in 3.0
+    public static String convertDICOM(String imageType, ImmutableConnectorMessage message, boolean autoThreshold) {
         return returnOtherImageFormat(message, imageType, autoThreshold);
     }
 
-    public static String convertDICOM(String imageType, MessageObject message) {
+    public static String convertDICOM(String imageType, ImmutableConnectorMessage message) {
         return returnOtherImageFormat(message, imageType, false);
     }
 
-    private static String returnOtherImageFormat(MessageObject message, String format, boolean autoThreshold) {
+    private static String returnOtherImageFormat(ImmutableConnectorMessage message, String format, boolean autoThreshold) {
         // use new method for jpegs
         if (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg")) {
             return new String(Base64.encodeBase64Chunked(dicomToJpg(1, message, autoThreshold)));
         }
 
-        byte[] rawImage = Base64.decodeBase64(getDICOMRawData(message).getBytes());
+        byte[] rawImage = getDICOMRawBytes(message);
         ByteArrayInputStream bais = new ByteArrayInputStream(rawImage);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         try {
             DICOM dicom = new DICOM(bais);
-            dicom.run(message.getType());
+            dicom.run("DICOM"); // TODO: Used to be message.getType(), is this even needed and what does it do?
             BufferedImage image = new BufferedImage(dicom.getWidth(), dicom.getHeight(), BufferedImage.TYPE_INT_RGB);
             Graphics graphics = image.createGraphics();
             graphics.drawImage(dicom.getImage(), 0, 0, null);
@@ -166,15 +202,15 @@ public class DICOMUtil {
             IOUtils.closeQuietly(baos);
         }
 
-        return StringUtils.EMPTY;
+        return org.apache.commons.lang.StringUtils.EMPTY;
     }
 
-    public static String reAttachMessage(MessageObject message) {
+    public static String reAttachMessage(ConnectorMessage message) {
         return AttachmentUtil.reAttachMessage(message);
     }
 
-    public static byte[] dicomToJpg(int sliceIndex, MessageObject message, boolean autoThreshold) {
-        ByteArrayInputStream bais = new ByteArrayInputStream(Base64.decodeBase64(getDICOMRawData(message)));
+    public static byte[] dicomToJpg(int sliceIndex, ImmutableConnectorMessage message, boolean autoThreshold) {
+        ByteArrayInputStream bais = new ByteArrayInputStream(getDICOMRawBytes(message));
 
         try {
             DICOM dicom = new DICOM(bais);
@@ -202,11 +238,11 @@ public class DICOMUtil {
 
     private static byte[] saveAsJpeg(ImagePlus imagePlug, int quality) {
         int imageType = BufferedImage.TYPE_INT_RGB;
-        
+
         if (imagePlug.getProcessor().isDefaultLut()) {
             imageType = BufferedImage.TYPE_BYTE_GRAY;
         }
-            
+
         BufferedImage bufferedImage = new BufferedImage(imagePlug.getWidth(), imagePlug.getHeight(), imageType);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -219,11 +255,11 @@ public class DICOMUtil {
             ImageWriteParam param = writer.getDefaultWriteParam();
             param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             param.setCompressionQuality(quality / 100f);
-            
+
             if (quality == 100) {
                 param.setSourceSubsampling(1, 1, 0, 0);
             }
-                
+
             IIOImage iioImage = new IIOImage(bufferedImage, null, null);
             writer.write(null, iioImage, param);
             return baos.toByteArray();
@@ -232,16 +268,23 @@ public class DICOMUtil {
         } finally {
             IOUtils.closeQuietly(baos);
         }
-        
+
         return null;
     }
 
-    public static DicomObject byteArrayToDicomObject(byte[] bytes) throws IOException {
+    public static DicomObject byteArrayToDicomObject(byte[] bytes, boolean decodeBase64) throws IOException {
         DicomObject basicDicomObject = new BasicDicomObject();
         DicomInputStream dis = null;
 
         try {
-            dis = new DicomInputStream(new ByteArrayInputStream(bytes));
+            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+            InputStream inputStream;
+            if (decodeBase64) {
+                inputStream = new BufferedInputStream(new Base64InputStream(bais));
+            } else {
+                inputStream = bais;
+            }
+            dis = new DicomInputStream(inputStream);
             dis.readDicomObject(basicDicomObject, -1);
         } catch (IOException e) {
             throw e;
@@ -257,8 +300,8 @@ public class DICOMUtil {
         DicomOutputStream dos = null;
 
         try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            dos = new DicomOutputStream(bos);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            dos = new DicomOutputStream(baos);
 
             if (basicDicomObject.fileMetaInfo().isEmpty()) {
                 // Create ACR/NEMA Dump
@@ -267,8 +310,8 @@ public class DICOMUtil {
                 // Create DICOM File
                 dos.writeDicomFile(basicDicomObject);
             }
-
-            return bos.toByteArray();
+            
+            return baos.toByteArray();
         } catch (IOException e) {
             throw e;
         } finally {

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -47,7 +47,6 @@ public class ChannelControllerTest extends TestCase {
             sampleChannel.setId(configurationController.generateGuid());
             sampleChannel.setName("Channel" + i);
             sampleChannel.setDescription("This is a sample channel");
-            sampleChannel.setEnabled(true);
             sampleChannel.setVersion(configurationController.getServerVersion());
             sampleChannel.setRevision(0);
 
@@ -63,10 +62,6 @@ public class ChannelControllerTest extends TestCase {
             sourceConnector.setTransportName("File Reader");
 
             sampleChannel.setSourceConnector(sourceConnector);
-
-            Properties sampleProperties = new Properties();
-            sampleProperties.setProperty("testProperty", "true");
-            sampleChannel.setProperties(sampleProperties);
 
             sampleChannelList.add(sampleChannel);
         }

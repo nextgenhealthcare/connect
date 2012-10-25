@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,7 +9,7 @@
 
 package com.mirth.connect.model.dicom;
 
-import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.util.MessageVocabulary;
 
 public class DICOMVocabulary extends MessageVocabulary {
@@ -27,7 +27,7 @@ public class DICOMVocabulary extends MessageVocabulary {
         return reference.getDescription(elementId, version);
     }
 
-    public MessageObject.Protocol getProtocol() {
-        return MessageObject.Protocol.DICOM;
+    public String getDataType() {
+        return DataTypeFactory.DICOM;
     }
 }

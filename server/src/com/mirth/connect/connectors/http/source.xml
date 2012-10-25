@@ -2,22 +2,16 @@
 	<name>HTTP Listener</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.2.1</mirthVersion>
+	<mirthVersion>3.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to listen for incoming HTTP data. Messages are received as XML and include the full header contents.</description>
 	<clientClassName>com.mirth.connect.connectors.http.HttpListener</clientClassName>
-	<serverClassName>com.mirth.connect.connectors.http.HttpConnector</serverClassName>
-	<sharedClassName>com.mirth.connect.connectors.http.HttpListenerProperties</sharedClassName>
+	<serverClassName>com.mirth.connect.connectors.http.HttpReceiver</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.http.HttpReceiverProperties</sharedClassName>
 	<library type="CLIENT" path="http-client.jar" />
 	<library type="SHARED" path="http-shared.jar" />
 	<library type="SERVER" path="http-server.jar" />
 	<transformers></transformers>
 	<protocol>http</protocol>
 	<type>SOURCE</type>
-	<mule-properties>
-		<property name="connector">com.mirth.connect.connectors.http.HttpConnector</property>
-		<property name="dispatcher.factory">com.mirth.connect.connectors.http.HttpMessageDispatcherFactory</property>
-		<property name="message.receiver">com.mirth.connect.connectors.http.HttpMessageReceiver</property>
-		<property name="message.adapter">com.mirth.connect.connectors.http.HttpMessageAdapter</property>
-	</mule-properties>
 </connectorMetaData>

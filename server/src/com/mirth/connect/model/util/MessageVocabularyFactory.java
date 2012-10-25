@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mirth.connect.client.core.Client;
-import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.dicom.DICOMVocabulary;
 import com.mirth.connect.model.hl7v2.HL7v2Vocabulary;
 import com.mirth.connect.model.ncpdp.NCPDPVocabulary;
@@ -22,7 +22,7 @@ import com.mirth.connect.model.x12.X12Vocabulary;
 
 public class MessageVocabularyFactory {
     private static MessageVocabularyFactory instance = null;
-    private Map<Protocol, Class<? extends MessageVocabulary>> vocabs = new HashMap<Protocol, Class<? extends MessageVocabulary>>();
+    private Map<String, Class<? extends MessageVocabulary>> vocabs = new HashMap<String, Class<? extends MessageVocabulary>>();
 
     public static MessageVocabularyFactory getInstance(Client mirthClient) {
         synchronized (MessageVocabularyFactory.class) {
@@ -35,14 +35,14 @@ public class MessageVocabularyFactory {
     }
 
     private MessageVocabularyFactory(Client mirthClient) {
-        vocabs.put(Protocol.HL7V2, HL7v2Vocabulary.class);
-        vocabs.put(Protocol.X12, X12Vocabulary.class);
-        vocabs.put(Protocol.NCPDP, NCPDPVocabulary.class);
-        vocabs.put(Protocol.DICOM, DICOMVocabulary.class);
+        vocabs.put(DataTypeFactory.HL7V2, HL7v2Vocabulary.class);
+        vocabs.put(DataTypeFactory.X12, X12Vocabulary.class);
+        vocabs.put(DataTypeFactory.NCPDP, NCPDPVocabulary.class);
+        vocabs.put(DataTypeFactory.DICOM, DICOMVocabulary.class);
     }
 
-    public MessageVocabulary getVocabulary(Protocol protocol, String version, String type) {
-        Class<? extends MessageVocabulary> vocabulary = vocabs.get(protocol);
+    public MessageVocabulary getVocabulary(String dataType, String version, String type) {
+        Class<? extends MessageVocabulary> vocabulary = vocabs.get(dataType);
         MessageVocabulary vocab = null;
         
         if (vocabulary != null) {

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -20,10 +20,9 @@ import java.util.Properties;
 import org.xml.sax.SAXException;
 
 import com.mirth.connect.client.core.Client;
+import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.model.Attachment;
-import com.mirth.connect.model.converters.DICOMSerializer;
-import com.mirth.connect.model.converters.SerializerException;
-import com.mirth.connect.model.converters.Stopwatch;
+import com.mirth.connect.model.converters.dicom.DICOMSerializer;
 
 /**
  * Created by IntelliJ IDEA.
@@ -45,32 +44,32 @@ public class DICOMTest {
         //ImageJ ij = new ImageJ(null,ImageJ.EMBEDDED);
         //ImageJ.main(a);
         
-        Client client = new Client("https://localhost:8443");
-        Attachment a = new Attachment();
-        a.setAttachmentId("TEST1");
-        a.setMessageId("TEST2");
-        a.setSize(100);
-        a.setType("TESTING");
-        try {
-            client.login("admin", "admin", "1.5.0");  
-            a.setData(getBytesFromFile(new File("C:\\abdominal.dcm")));
-//            client.insertAttachment(a);
-        
-            Attachment a1 = client.getAttachment("TEST1");
-            List<Attachment> a3 = client.getAttachmentsByMessageId("TEST2");
-            Attachment a2 = a3.get(0);
-            if(a1.equals(a2)){
-                System.out.println("They are the same");
-            }
-            System.out.println("First:" + a1.toString());
-            
-            System.out.println("Second:" + a2.toString());
-                        
-            
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
+//        Client client = new Client("https://localhost:8443");
+//        Attachment a = new Attachment();
+//        a.setAttachmentId("TEST1");
+//        a.setMessageId("TEST2");
+//        a.setSize(100);
+//        a.setType("TESTING");
+//        try {
+//            client.login("admin", "admin", "1.5.0");  
+//            a.setData(getBytesFromFile(new File("C:\\abdominal.dcm")));
+////            client.insertAttachment(a);
+//        
+//            Attachment a1 = client.getAttachment("TEST1");
+//            List<Attachment> a3 = client.getAttachmentsByMessageId("TEST2");
+//            Attachment a2 = a3.get(0);
+//            if(a1.equals(a2)){
+//                System.out.println("They are the same");
+//            }
+//            System.out.println("First:" + a1.toString());
+//            
+//            System.out.println("Second:" + a2.toString());
+//                        
+//            
+//        }
+//        catch(Exception e) {
+//            e.printStackTrace();
+//        }
         
         
         

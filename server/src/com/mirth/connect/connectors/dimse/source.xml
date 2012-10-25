@@ -2,12 +2,12 @@
 	<name>DICOM Listener</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.2.1</mirthVersion>
+	<mirthVersion>3.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to listen for incoming messages over a standard TCP connection.</description>
 	<clientClassName>com.mirth.connect.connectors.dimse.DICOMListener</clientClassName>
-	<serverClassName>com.mirth.connect.connectors.dimse.DICOMConnector</serverClassName>
-	<sharedClassName>com.mirth.connect.connectors.dimse.DICOMListenerProperties</sharedClassName>
+	<serverClassName>com.mirth.connect.connectors.dimse.DICOMReceiver</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.dimse.DICOMReceiverProperties</sharedClassName>
 	<library type="CLIENT" path="dicom-client.jar" />
 	<library type="SHARED" path="dicom-shared.jar" />
 	<library type="SHARED" path="lib/slf4j-api-1.6.1.jar" />
@@ -22,11 +22,4 @@
 	<transformers></transformers>
 	<protocol>dicom</protocol>
 	<type>SOURCE</type>
-	<mule-properties>
-		<property name="connector">com.mirth.connect.connectors.dimse.DICOMConnector</property>
-		<property name="dispatcher.factory">com.mirth.connect.connectors.dimse.DICOMMessageDispatcherFactory</property>
-		<property name="message.receiver">com.mirth.connect.connectors.dimse.DICOMMessageReceiver</property>
-		<property name="message.adapter">com.mirth.connect.connectors.dimse.DICOMMessageAdapter</property>
-		<property name="endpoint.builder">com.mirth.connect.connectors.file.FileEndpointBuilder</property>
-	</mule-properties>
 </connectorMetaData>

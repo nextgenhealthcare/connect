@@ -2,12 +2,12 @@
 	<name>HTTP Sender</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.2.1</mirthVersion>
+	<mirthVersion>3.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send messages to an HTTP server. Custom header properties can be specified.</description>
 	<clientClassName>com.mirth.connect.connectors.http.HttpSender</clientClassName>
-	<serverClassName>com.mirth.connect.connectors.http.HttpConnector</serverClassName>
-	<sharedClassName>com.mirth.connect.connectors.http.HttpSenderProperties</sharedClassName>
+	<serverClassName>com.mirth.connect.connectors.http.HttpDispatcher</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.http.HttpDispatcherProperties</sharedClassName>
 	<serviceClassName>com.mirth.connect.connectors.http.HttpConnectorService</serviceClassName>
 	<library type="CLIENT" path="http-client.jar" />
 	<library type="SHARED" path="http-shared.jar" />
@@ -15,10 +15,4 @@
 	<transformers></transformers>
 	<protocol>http</protocol>
 	<type>DESTINATION</type>
-	<mule-properties>
-		<property name="connector">com.mirth.connect.connectors.http.HttpConnector</property>
-		<property name="dispatcher.factory">com.mirth.connect.connectors.http.HttpMessageDispatcherFactory</property>
-		<property name="message.receiver">com.mirth.connect.connectors.http.HttpMessageReceiver</property>
-		<property name="message.adapter">com.mirth.connect.connectors.http.HttpMessageAdapter</property>
-	</mule-properties>
 </connectorMetaData>

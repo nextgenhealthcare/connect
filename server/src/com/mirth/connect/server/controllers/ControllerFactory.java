@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -28,10 +28,6 @@ public abstract class ControllerFactory {
 
     public abstract ChannelController createChannelController();
 
-    public abstract ChannelStatisticsController createChannelStatisticsController();
-
-    public abstract ChannelStatusController createChannelStatusController();
-
     public abstract CodeTemplateController createCodeTemplateController();
 
     public abstract ConfigurationController createConfigurationController();
@@ -40,7 +36,7 @@ public abstract class ControllerFactory {
 
     public abstract ExtensionController createExtensionController();
 
-    public abstract MessageObjectController createMessageObjectController();
+    public abstract MessageController createMessageController();
 
     public abstract MigrationController createMigrationController();
 

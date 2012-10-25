@@ -2,12 +2,12 @@
 	<name>Web Service Listener</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.2.1</mirthVersion>
+	<mirthVersion>3.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to listen on an HTTP port for incoming Web Service calls. This connector also provides a WSDL for SOAP clients to use.</description>
 	<clientClassName>com.mirth.connect.connectors.ws.WebServiceListener</clientClassName>
-	<sharedClassName>com.mirth.connect.connectors.ws.WebServiceListenerProperties</sharedClassName>
-	<serverClassName>com.mirth.connect.connectors.ws.WebServiceConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.ws.WebServiceReceiverProperties</sharedClassName>
+	<serverClassName>com.mirth.connect.connectors.ws.WebServiceMessageReceiver</serverClassName>
 	<serviceClassName>com.mirth.connect.connectors.ws.WebServiceConnectorService</serviceClassName>
 	<transformers></transformers>
 	<protocol>ws</protocol>
@@ -15,10 +15,4 @@
 	<library type="SERVER" path="ws-server.jar" />
 	<library type="CLIENT" path="ws-client.jar" />
 	<library type="SHARED" path="ws-shared.jar" />
-	<mule-properties>
-		<property name="connector">com.mirth.connect.connectors.ws.WebServiceConnector</property>
-		<property name="dispatcher.factory">com.mirth.connect.connectors.ws.WebServiceMessageDispatcherFactory</property>
-		<property name="message.receiver">com.mirth.connect.connectors.ws.WebServiceMessageReceiver</property>
-		<property name="message.adapter">com.mirth.connect.connectors.ws.WebServiceMessageAdapter</property>
-	</mule-properties>
 </connectorMetaData>

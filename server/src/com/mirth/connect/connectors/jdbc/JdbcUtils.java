@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -18,18 +18,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.dom4j.Node;
-import org.dom4j.io.DOMReader;
-import org.mule.providers.TemplateValueReplacer;
-import org.mule.umo.endpoint.UMOEndpointURI;
 
-import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
-public abstract class JdbcUtils {
+public class JdbcUtils {
     public static void close(Connection con) throws SQLException {
         if (con != null && !con.isClosed()) {
             con.close();
@@ -112,7 +108,7 @@ public abstract class JdbcUtils {
         }
     }
 
-    public static Object[] getParams(UMOEndpointURI uri, List<String> paramNames, Object root) throws Exception {
+    public static Object[] getParams(List<String> paramNames, Object root) throws Exception {
         Object[] params = new Object[paramNames.size()];
 
         for (int i = 0; i < paramNames.size(); i++) {
@@ -124,56 +120,60 @@ public abstract class JdbcUtils {
                 value = new Timestamp(Calendar.getInstance().getTimeInMillis());
             } else if ("payload".equals(name)) {
                 value = root;
-            } else if (root instanceof MessageObject) {
+            } else if (root instanceof ConnectorMessage) {
                 TemplateValueReplacer parser = new TemplateValueReplacer();
-                value = parser.replaceValues(param, (MessageObject) root);
+                value = parser.replaceValues(param, (ConnectorMessage) root);
             } else if (root instanceof Map) {
                 value = ((Map) root).get(name);
-            } else if (root instanceof org.w3c.dom.Document) {
-                org.w3c.dom.Document x3cDoc = (org.w3c.dom.Document) root;
-                org.dom4j.Document dom4jDoc = new DOMReader().read(x3cDoc);
-
-                try {
-                    Node node = dom4jDoc.selectSingleNode(name);
-                    if (node != null) {
-                        value = node.getText();
-                    }
-                } catch (Exception ignored) {
-                    value = null;
-                }
-            } else if (root instanceof org.dom4j.Document) {
-                org.dom4j.Document dom4jDoc = (org.dom4j.Document) root;
-
-                try {
-                    Node node = dom4jDoc.selectSingleNode(name);
-                    if (node != null) {
-                        value = node.getText();
-                    }
-                } catch (Exception ignored) {
-                    value = null;
-                }
-            } else if (root instanceof org.dom4j.Node) {
-                org.dom4j.Node dom4jNode = (org.dom4j.Node) root;
-
-                try {
-                    Node node = dom4jNode.selectSingleNode(name);
-                    if (node != null) {
-                        value = node.getText();
-                    }
-                } catch (Exception ignored) {
-                    value = null;
-                }
-            } else {
-                try {
-                    value = BeanUtils.getProperty(root, name);
-                } catch (Exception ignored) {
-                    value = null;
-                }
             }
+            
+            // TODO: Is this needed?
+//            else if (root instanceof org.w3c.dom.Document) {
+//                org.w3c.dom.Document x3cDoc = (org.w3c.dom.Document) root;
+//                org.dom4j.Document dom4jDoc = new DOMReader().read(x3cDoc);
+//
+//                try {
+//                    Node node = dom4jDoc.selectSingleNode(name);
+//                    if (node != null) {
+//                        value = node.getText();
+//                    }
+//                } catch (Exception ignored) {
+//                    value = null;
+//                }
+//            } else if (root instanceof org.dom4j.Document) {
+//                org.dom4j.Document dom4jDoc = (org.dom4j.Document) root;
+//
+//                try {
+//                    Node node = dom4jDoc.selectSingleNode(name);
+//                    if (node != null) {
+//                        value = node.getText();
+//                    }
+//                } catch (Exception ignored) {
+//                    value = null;
+//                }
+//            } else if (root instanceof org.dom4j.Node) {
+//                org.dom4j.Node dom4jNode = (org.dom4j.Node) root;
+//
+//                try {
+//                    Node node = dom4jNode.selectSingleNode(name);
+//                    if (node != null) {
+//                        value = node.getText();
+//                    }
+//                } catch (Exception ignored) {
+//                    value = null;
+//                }
+//            } else {
+//                try {
+//                    value = BeanUtils.getProperty(root, name);
+//                } catch (Exception ignored) {
+//                    value = null;
+//                }
+//            }
 
-            if (value == null) {
-                value = uri.getParams().getProperty(name);
-            }
+            // TODO: Is this needed?
+//            if (value == null) {
+//                value = uri.getParams().getProperty(name);
+//            }
 
             if (value == null) {
                 throw new IllegalArgumentException("Can not retrieve argument " + name);

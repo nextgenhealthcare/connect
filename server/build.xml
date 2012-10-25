@@ -15,17 +15,17 @@
 		</path>
 
 		<!-- connectors -->
+		<!--<property name="connectors.jms" value="${extensions}/jms" />
+		<property name="connectors.mllp" value="${extensions}/mllp" />-->
+		<property name="connectors.jdbc" value="${extensions}/jdbc" />
+		<property name="connectors.dicom" value="${extensions}/dicom" />
+		<property name="connectors.http" value="${extensions}/http" />
 		<property name="connectors.doc" value="${extensions}/doc" />
 		<property name="connectors.smtp" value="${extensions}/smtp" />
-		<property name="connectors.file" value="${extensions}/file" />
-		<property name="connectors.http" value="${extensions}/http" />
-		<property name="connectors.jdbc" value="${extensions}/jdbc" />
-		<property name="connectors.jms" value="${extensions}/jms" />
-		<property name="connectors.js" value="${extensions}/js" />
-		<property name="connectors.mllp" value="${extensions}/mllp" />
-		<property name="connectors.ws" value="${extensions}/ws" />
 		<property name="connectors.tcp" value="${extensions}/tcp" />
-		<property name="connectors.dicom" value="${extensions}/dicom" />
+		<property name="connectors.file" value="${extensions}/file" />
+		<property name="connectors.js" value="${extensions}/js" />
+		<property name="connectors.ws" value="${extensions}/ws" />
 		<property name="connectors.vm" value="${extensions}/vm" />
 
 		<!-- plugins -->
@@ -62,6 +62,8 @@
 
 		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="classpath" />
+			<exclude name="com/mirth/connect/connectors/jms/**" />
+			<exclude name="com/mirth/connect/connectors/mllp/**" />
 		</javac>
 
 		<!-- create version.properties file -->
@@ -93,7 +95,7 @@
 
 			<include name="version.properties" />
 		</jar>
-		
+
 		<copy file="${lib}/mirth-crypto.jar" todir="${setup.lib}" />
 		<copy file="${lib}/commons/not-yet-commons-ssl-0.3.11.jar" todir="${setup.lib}/commons" />
 	</target>
@@ -110,12 +112,12 @@
 			<fileset dir="${lib.extensions}/doc" />
 		</copy>
 		<jar destfile="${connectors.doc}/doc-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/doc/DocumentWriterProperties.class" />
+			<include name="com/mirth/connect/connectors/doc/DocumentDispatcherProperties.class" />
 		</jar>
 		<jar destfile="${connectors.doc}/doc-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/doc/**" />
-				<exclude name="com/mirth/connect/connectors/doc/DocumentWriterProperties.class" />
+				<exclude name="com/mirth/connect/connectors/doc/DocumentDispatcherProperties.class" />
 			</fileset>
 		</jar>
 
@@ -130,13 +132,13 @@
 			<fileset dir="${lib.extensions}/smtp" />
 		</copy>
 		<jar destfile="${connectors.smtp}/smtp-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/smtp/SmtpSenderProperties.class" />
+			<include name="com/mirth/connect/connectors/smtp/SmtpDispatcherProperties.class" />
 			<include name="com/mirth/connect/connectors/smtp/Attachment.class" />
 		</jar>
 		<jar destfile="${connectors.smtp}/smtp-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/smtp/**" />
-				<exclude name="com/mirth/connect/connectors/smtp/SmtpSenderProperties.class" />
+				<exclude name="com/mirth/connect/connectors/smtp/SmtpDispatcherProperties.class" />
 				<exclude name="com/mirth/connect/connectors/smtp/Attachment.class" />
 			</fileset>
 		</jar>
@@ -152,14 +154,16 @@
 			<fileset dir="${lib.extensions}/file" />
 		</copy>
 		<jar destfile="${connectors.file}/file-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/file/FileReaderProperties.class" />
-			<include name="com/mirth/connect/connectors/file/FileWriterProperties.class" />
+			<include name="com/mirth/connect/connectors/file/FileReceiverProperties.class" />
+			<include name="com/mirth/connect/connectors/file/FileDispatcherProperties.class" />
+			<include name="com/mirth/connect/connectors/file/FileScheme.class" />
 		</jar>
 		<jar destfile="${connectors.file}/file-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/file/**" />
-				<exclude name="com/mirth/connect/connectors/file/FileReaderProperties.class" />
-				<exclude name="com/mirth/connect/connectors/file/FileWriterProperties.class" />
+				<exclude name="com/mirth/connect/connectors/file/FileReceiverProperties.class" />
+				<exclude name="com/mirth/connect/connectors/file/FileDispatcherProperties.class" />
+				<exclude name="com/mirth/connect/connectors/file/FileSchemeclass" />
 			</fileset>
 		</jar>
 
@@ -174,14 +178,14 @@
 			<fileset dir="${lib.extensions}/http" />
 		</copy>
 		<jar destfile="${connectors.http}/http-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/http/HttpListenerProperties.class" />
-			<include name="com/mirth/connect/connectors/http/HttpSenderProperties.class" />
+			<include name="com/mirth/connect/connectors/http/HttpReceiverProperties.class" />
+			<include name="com/mirth/connect/connectors/http/HttpDispatcherProperties.class" />
 		</jar>
 		<jar destfile="${connectors.http}/http-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/http/**" />
-				<exclude name="com/mirth/connect/connectors/http/HttpListenerProperties.class" />
-				<exclude name="com/mirth/connect/connectors/http/HttpSenderProperties.class" />
+				<exclude name="com/mirth/connect/connectors/http/HttpReceiverProperties.class" />
+				<exclude name="com/mirth/connect/connectors/http/HttpDispatcherProperties.class" />
 			</fileset>
 		</jar>
 
@@ -196,23 +200,25 @@
 			<fileset dir="${lib.extensions}/jdbc" />
 		</copy>
 		<jar destfile="${connectors.jdbc}/jdbc-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/jdbc/DatabaseReaderProperties.class" />
-			<include name="com/mirth/connect/connectors/jdbc/DatabaseWriterProperties.class" />
+			<include name="com/mirth/connect/connectors/jdbc/DatabaseReceiverProperties.class" />
+			<include name="com/mirth/connect/connectors/jdbc/DatabaseDispatcherProperties.class" />
+			<include name="com/mirth/connect/connectors/jdbc/DatabaseConnectionInfo.class" />
 			<include name="com/mirth/connect/connectors/jdbc/Table.class" />
 			<include name="com/mirth/connect/connectors/jdbc/Column.class" />
 		</jar>
 		<jar destfile="${connectors.jdbc}/jdbc-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/jdbc/**" />
-				<exclude name="com/mirth/connect/connectors/jdbc/DatabaseReaderProperties.class" />
-				<exclude name="com/mirth/connect/connectors/jdbc/DatabaseWriterProperties.class" />
+				<exclude name="com/mirth/connect/connectors/jdbc/DatabaseReceiverProperties.class" />
+				<exclude name="com/mirth/connect/connectors/jdbc/DatabaseDispatcherProperties.class" />
+				<exclude name="com/mirth/connect/connectors/jdbc/DatabaseConnectionInfo.class" />
 				<exclude name="com/mirth/connect/connectors/jdbc/Table.class" />
 				<exclude name="com/mirth/connect/connectors/jdbc/Column.class" />
 			</fileset>
 		</jar>
 
 		<!-- connectors.jms -->
-		<mkdir dir="${connectors.jms}" />
+		<!--<mkdir dir="${connectors.jms}" />
 		<copy todir="${connectors.jms}">
 			<fileset dir="${src}/com/mirth/connect/connectors/jms">
 				<include name="*.xml" />
@@ -231,7 +237,7 @@
 				<exclude name="com/mirth/connect/connectors/jms/JMSReaderProperties.class" />
 				<exclude name="com/mirth/connect/connectors/jms/JMSWriterProperties.class" />
 			</fileset>
-		</jar>
+		</jar>-->
 
 		<!-- connectors.js -->
 		<mkdir dir="${connectors.js}" />
@@ -244,19 +250,19 @@
 			<fileset dir="${lib.extensions}/js" />
 		</copy>
 		<jar destfile="${connectors.js}/js-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/js/JavaScriptReaderProperties.class" />
-			<include name="com/mirth/connect/connectors/js/JavaScriptWriterProperties.class" />
+			<include name="com/mirth/connect/connectors/js/JavaScriptReceiverProperties.class" />
+			<include name="com/mirth/connect/connectors/js/JavaScriptDispatcherProperties.class" />
 		</jar>
 		<jar destfile="${connectors.js}/js-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/js/**" />
-				<exclude name="com/mirth/connect/connectors/js/JavaScriptReaderProperties.class" />
-				<exclude name="com/mirth/connect/connectors/js/JavaScriptWriterProperties.class" />
+				<exclude name="com/mirth/connect/connectors/js/JavaScriptReceiverProperties.class" />
+				<exclude name="com/mirth/connect/connectors/js/JavaScriptDispatcherProperties.class" />
 			</fileset>
 		</jar>
 
 		<!-- connectors.mllp -->
-		<mkdir dir="${connectors.mllp}" />
+		<!--<mkdir dir="${connectors.mllp}" />
 		<copy todir="${connectors.mllp}">
 			<fileset dir="${src}/com/mirth/connect/connectors/mllp">
 				<include name="*.xml" />
@@ -275,7 +281,7 @@
 				<exclude name="com/mirth/connect/connectors/mllp/LLPListenerProperties.class" />
 				<exclude name="com/mirth/connect/connectors/mllp/LLPSenderProperties.class" />
 			</fileset>
-		</jar>
+		</jar>-->
 
 		<!-- connectors.ws -->
 		<mkdir dir="${connectors.ws}" />
@@ -288,14 +294,14 @@
 			<fileset dir="${lib.extensions}/ws" />
 		</copy>
 		<jar destfile="${connectors.ws}/ws-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/ws/WebServiceListenerProperties.class" />
-			<include name="com/mirth/connect/connectors/ws/WebServiceSenderProperties.class" />
+			<include name="com/mirth/connect/connectors/ws/WebServiceReceiverProperties.class" />
+			<include name="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties.class" />
 		</jar>
 		<jar destfile="${connectors.ws}/ws-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/ws/**" />
-				<exclude name="com/mirth/connect/connectors/ws/WebServiceListenerProperties.class" />
-				<exclude name="com/mirth/connect/connectors/ws/WebServiceSenderProperties.class" />
+				<exclude name="com/mirth/connect/connectors/ws/WebServiceReceiverProperties.class" />
+				<exclude name="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties.class" />
 			</fileset>
 		</jar>
 
@@ -310,14 +316,14 @@
 			<fileset dir="${lib.extensions}/tcp" />
 		</copy>
 		<jar destfile="${connectors.tcp}/tcp-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/tcp/TCPListenerProperties.class" />
-			<include name="com/mirth/connect/connectors/tcp/TCPSenderProperties.class" />
+			<include name="com/mirth/connect/connectors/tcp/TcpReceiverProperties.class" />
+			<include name="com/mirth/connect/connectors/tcp/TcpDispatcherProperties.class" />
 		</jar>
 		<jar destfile="${connectors.tcp}/tcp-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/tcp/**" />
-				<exclude name="com/mirth/connect/connectors/tcp/TCPListenerProperties.class" />
-				<exclude name="com/mirth/connect/connectors/tcp/TCPSenderProperties.class" />
+				<exclude name="com/mirth/connect/connectors/tcp/TcpReceiverProperties.class" />
+				<exclude name="com/mirth/connect/connectors/tcp/TcpDispatcherProperties.class" />
 			</fileset>
 		</jar>
 
@@ -332,15 +338,15 @@
 			<fileset dir="${lib.extensions}/dimse" />
 		</copy>
 		<jar destfile="${connectors.dicom}/dicom-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/dimse/DICOMListenerProperties.class" />
-			<include name="com/mirth/connect/connectors/dimse/DICOMSenderProperties.class" />
+			<include name="com/mirth/connect/connectors/dimse/DICOMReceiverProperties.class" />
+			<include name="com/mirth/connect/connectors/dimse/DICOMDispatcherProperties.class" />
 		</jar>
 		<jar destfile="${connectors.dicom}/dicom-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/dimse/**" />
 				<include name="org/dcm4che2/**" />
-				<exclude name="com/mirth/connect/connectors/dimse/DICOMListenerProperties.class" />
-				<exclude name="com/mirth/connect/connectors/dimse/DICOMSenderProperties.class" />
+				<exclude name="com/mirth/connect/connectors/dimse/DICOMReceiverProperties.class" />
+				<exclude name="com/mirth/connect/connectors/dimse/DICOMDispatcherProperties.class" />
 			</fileset>
 		</jar>
 
@@ -355,14 +361,14 @@
 			<fileset dir="${lib.extensions}/vm" />
 		</copy>
 		<jar destfile="${connectors.vm}/vm-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/vm/ChannelReaderProperties.class" />
-			<include name="com/mirth/connect/connectors/vm/ChannelWriterProperties.class" />
+			<include name="com/mirth/connect/connectors/vm/VmListenerProperties.class" />
+			<include name="com/mirth/connect/connectors/vm/VmSenderProperties.class" />
 		</jar>
 		<jar destfile="${connectors.vm}/vm-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/vm/**" />
-				<exclude name="com/mirth/connect/connectors/vm/ChannelReaderProperties.class" />
-				<exclude name="com/mirth/connect/connectors/vm/ChannelWriterProperties.class" />
+				<exclude name="com/mirth/connect/connectors/vm/VmListenerProperties.class" />
+				<exclude name="com/mirth/connect/connectors/vm/VmSenderProperties.class" />
 			</fileset>
 		</jar>
 
@@ -555,7 +561,7 @@
 
 	<target name="create-setup" depends="init">
 		<echo>Sub-project files have been copied into setup</echo>
-		
+
 		<!-- create the setup directory -->
 		<mkdir dir="${setup}" />
 		<mkdir dir="${setup.conf}" />
@@ -627,7 +633,7 @@
 
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.MirthLauncher" />
-				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar lib/commons/commons-io-2.1.jar conf/" />
+				<attribute name="Class-Path" value="lib/log4j-1.2.16.jar lib/commons/commons-io-2.3.jar conf/" />
 			</manifest>
 		</jar>
 
@@ -643,10 +649,10 @@
 				<pathelement location="${setup}/mirth-server.jar" />
 				<pathelement location="${setup.conf}" />
 				<fileset dir="${lib}">
-					<include name="log4j-1.2.15.jar" />
+					<include name="log4j-1.2.16.jar" />
 					<include name="derby-10.8.2.2.jar" />
 					<include name="derbytools-10.8.2.2.jar" />
-					<include name="commons/commons-io-2.1.jar" />
+					<include name="commons/commons-io-2.3.jar" />
 				</fileset>
 			</classpath>
 			<arg value="dbconf/derby/derby-database.sql" />
@@ -668,13 +674,9 @@
 
 		<parallel>
 			<signjar alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
-				<!-- http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7127374 -->
-				<sysproperty key="jsse.enableSNIExtension" value="false" />
 				<fileset dir="${setup.client.lib}" includes="**/*.jar" />
 			</signjar>
 			<signjar alias="${key.alias}" keystore="${key.keystore}" storepass="${key.storepass}" keypass="${key.keypass}" storetype="${key.storetype}" tsaurl="https://timestamp.geotrust.com/tsa">
-				<!-- http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7127374 -->
-				<sysproperty key="jsse.enableSNIExtension" value="false" />
 				<fileset dir="${setup.extensions}" includes="**/*.jar" />
 			</signjar>
 		</parallel>
@@ -687,18 +689,19 @@
 		<delete dir="${dist.extensions}" />
 		<mkdir dir="${dist.extensions}" />
 
+		<!--<zip destfile="${dist.extensions}/jms-${version}.zip" basedir="${extensions}" includes="jms/**/*" />
+		<zip destfile="${dist.extensions}/mllp-${version}.zip" basedir="${extensions}" includes="mllp/**/*" />-->
+		<zip destfile="${dist.extensions}/jdbc-${version}.zip" basedir="${extensions}" includes="jdbc/**/*" />
+		<zip destfile="${dist.extensions}/dicom-${version}.zip" basedir="${extensions}" includes="dicom/**/*" />
+		<zip destfile="${dist.extensions}/http-${version}.zip" basedir="${extensions}" includes="http/**/*" />
 		<zip destfile="${dist.extensions}/doc-${version}.zip" basedir="${extensions}" includes="doc/**/*" />
 		<zip destfile="${dist.extensions}/smtp-${version}.zip" basedir="${extensions}" includes="smtp/**/*" />
-		<zip destfile="${dist.extensions}/file-${version}.zip" basedir="${extensions}" includes="file/**/*" />
-		<zip destfile="${dist.extensions}/http-${version}.zip" basedir="${extensions}" includes="http/**/*" />
-		<zip destfile="${dist.extensions}/jdbc-${version}.zip" basedir="${extensions}" includes="jdbc/**/*" />
-		<zip destfile="${dist.extensions}/jms-${version}.zip" basedir="${extensions}" includes="jms/**/*" />
-		<zip destfile="${dist.extensions}/js-${version}.zip" basedir="${extensions}" includes="js/**/*" />
-		<zip destfile="${dist.extensions}/mllp-${version}.zip" basedir="${extensions}" includes="mllp/**/*" />
-		<zip destfile="${dist.extensions}/ws-${version}.zip" basedir="${extensions}" includes="ws/**/*" />
 		<zip destfile="${dist.extensions}/tcp-${version}.zip" basedir="${extensions}" includes="tcp/**/*" />
-		<zip destfile="${dist.extensions}/dicom-${version}.zip" basedir="${extensions}" includes="dicom/**/*" />
+		<zip destfile="${dist.extensions}/file-${version}.zip" basedir="${extensions}" includes="file/**/*" />
+		<zip destfile="${dist.extensions}/js-${version}.zip" basedir="${extensions}" includes="js/**/*" />
+		<zip destfile="${dist.extensions}/ws-${version}.zip" basedir="${extensions}" includes="ws/**/*" />
 		<zip destfile="${dist.extensions}/vm-${version}.zip" basedir="${extensions}" includes="vm/**/*" />
+
 		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip" basedir="${extensions}" includes="dashboardstatus/**/*" />
 		<zip destfile="${dist.extensions}/serverlog-${version}.zip" basedir="${extensions}" includes="serverlog/**/*" />
 		<zip destfile="${dist.extensions}/messagepruner-${version}.zip" basedir="${extensions}" includes="messagepruner/**/*" />
@@ -727,10 +730,10 @@
 				<pathelement location="classes" />
 				<pathelement location="${setup.conf}" />
 				<fileset dir="${lib}">
-					<include name="log4j-1.2.15.jar" />
+					<include name="log4j-1.2.16.jar" />
 					<include name="derby-10.8.1.2.jar" />
 					<include name="derbytools-10.8.1.2.jar" />
-					<include name="commons/commons-io-2.1.jar" />
+					<include name="commons/commons-io-2.3.jar" />
 				</fileset>
 			</classpath>
 			<arg value="dbconf/derby/derby-database.sql" />

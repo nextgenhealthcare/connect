@@ -2,25 +2,16 @@
 	<name>TCP Listener</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.2.1</mirthVersion>
+	<mirthVersion>3.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to listen for incoming messages over a standard TCP connection.</description>
-	<clientClassName>com.mirth.connect.connectors.tcp.TCPListener</clientClassName>
-	<serverClassName>com.mirth.connect.connectors.tcp.TcpConnector</serverClassName>
-	<sharedClassName>com.mirth.connect.connectors.tcp.TCPListenerProperties</sharedClassName>
+	<clientClassName>com.mirth.connect.connectors.tcp.TcpListener</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.tcp.TcpReceiver</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.tcp.TcpReceiverProperties</sharedClassName>
 	<library type="CLIENT" path="tcp-client.jar" />
 	<library type="SHARED" path="tcp-shared.jar" />
 	<library type="SERVER" path="tcp-server.jar" />
-	<transformers>ByteArrayToString</transformers>
+	<transformers/>
 	<protocol>tcp</protocol>
 	<type>SOURCE</type>
-	<mule-properties>
-		<property name="connector">com.mirth.connect.connectors.tcp.TcpConnector</property>
-		<property name="dispatcher.factory">com.mirth.connect.connectors.tcp.TcpMessageDispatcherFactory</property>
-		<property name="message.receiver">com.mirth.connect.connectors.tcp.TcpMessageReceiver</property>
-		<property name="message.adapter">com.mirth.connect.connectors.tcp.TcpMessageAdapter</property>
-		<property name="inbound.transformer">org.mule.transformers.simple.ByteArrayToString</property>
-		<property name="outbound.transformer">org.mule.transformers.simple.StringToByteArray</property>
-		<property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>
-	</mule-properties>
 </connectorMetaData>

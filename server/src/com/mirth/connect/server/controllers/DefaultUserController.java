@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,7 +9,6 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Digester;
@@ -50,8 +50,8 @@ public class DefaultUserController extends UserController {
 
     public void resetUserStatus() {
         try {
-            SqlConfig.getSqlMapClient().update("User.resetUserStatus");
-        } catch (SQLException e) {
+            SqlConfig.getSqlSessionManager().update("User.resetUserStatus");
+        } catch (PersistenceException e) {
             logger.error("Could not reset user status.");
         }
     }
@@ -60,8 +60,8 @@ public class DefaultUserController extends UserController {
         logger.debug("getting user: " + user);
 
         try {
-            return SqlConfig.getSqlMapClient().queryForList("User.getUser", user);
-        } catch (SQLException e) {
+            return SqlConfig.getSqlSessionManager().selectList("User.getUser", user);
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }
@@ -78,12 +78,12 @@ public class DefaultUserController extends UserController {
                 }
 
                 logger.debug("adding user: " + user);
-                SqlConfig.getSqlMapClient().insert("User.insertUser", getUserMap(user));
+                SqlConfig.getSqlSessionManager().insert("User.insertUser", getUserMap(user));
             } else {
                 logger.debug("updating user: " + user);
-                SqlConfig.getSqlMapClient().update("User.updateUser", getUserMap(user));
+                SqlConfig.getSqlSessionManager().update("User.updateUser", getUserMap(user));
             }
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }
@@ -116,7 +116,7 @@ public class DefaultUserController extends UserController {
                 userDateMap.put("pruneDate", String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", pruneDate));
 
                 try {
-                    SqlConfig.getSqlMapClient().delete("User.prunePasswords", userDateMap);
+                    SqlConfig.getSqlSessionManager().delete("User.prunePasswords", userDateMap);
                 } catch (Exception e) {
                     // Don't abort changing the password if pruning fails.
                     logger.error("There was an error pruning passwords for user id: " + userId, e);
@@ -126,10 +126,10 @@ public class DefaultUserController extends UserController {
             Map<String, Object> userPasswordMap = new HashMap<String, Object>();
             userPasswordMap.put("id", userId);
             userPasswordMap.put("password", digester.digest(plainPassword));
-            SqlConfig.getSqlMapClient().insert("User.updateUserPassword", userPasswordMap);
+            SqlConfig.getSqlSessionManager().insert("User.updateUserPassword", userPasswordMap);
 
             return null;
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }
@@ -146,12 +146,12 @@ public class DefaultUserController extends UserController {
         }
 
         try {
-            SqlConfig.getSqlMapClient().delete("User.deleteUser", user);
+            SqlConfig.getSqlSessionManager().delete("User.deleteUser", user);
 
             if (DatabaseUtil.statementExists("User.vacuumPersonTable")) {
-                SqlConfig.getSqlMapClient().update("User.vacuumPersonTable");
+                SqlConfig.getSqlSessionManager().update("User.vacuumPersonTable");
             }
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }
@@ -176,7 +176,7 @@ public class DefaultUserController extends UserController {
             User validUser = null;
             if (CollectionUtils.isNotEmpty(userResults)) {
                 validUser = userResults.get(0);
-                credentials = (Credentials) SqlConfig.getSqlMapClient().queryForObject("User.getLatestUserCredentials", validUser.getId());
+                credentials = (Credentials) SqlConfig.getSqlSessionManager().selectOne("User.getLatestUserCredentials", validUser.getId());
 
                 if (credentials != null) {
                     if (Pre22PasswordChecker.isPre22Hash(credentials.getPassword())) {
@@ -211,7 +211,7 @@ public class DefaultUserController extends UserController {
                             long gracePeriodStartTime;
                             if (validUser.getGracePeriodStart() == null) {
                                 gracePeriodStartTime = currentTime;
-                                SqlConfig.getSqlMapClient().update("User.startGracePeriod", validUser.getId());
+                                SqlConfig.getSqlSessionManager().update("User.startGracePeriod", validUser.getId());
                             } else {
                                 gracePeriodStartTime = validUser.getGracePeriodStart().getTimeInMillis();
                             }
@@ -234,7 +234,7 @@ public class DefaultUserController extends UserController {
                          * are disabled.
                          */
                         if ((passwordRequirements.getGracePeriod() <= 0) && (validUser.getGracePeriodStart() != null)) {
-                            SqlConfig.getSqlMapClient().update("User.clearGracePeriod", validUser.getId());
+                            SqlConfig.getSqlSessionManager().update("User.clearGracePeriod", validUser.getId());
                         }
                     }
                 }
@@ -246,7 +246,7 @@ public class DefaultUserController extends UserController {
 
                     // Clear the user's grace period if one exists
                     if (validUser.getGracePeriodStart() != null) {
-                        SqlConfig.getSqlMapClient().update("User.clearGracePeriod", validUser.getId());
+                        SqlConfig.getSqlSessionManager().update("User.clearGracePeriod", validUser.getId());
                     }
                 }
             } else {
@@ -271,7 +271,7 @@ public class DefaultUserController extends UserController {
 
     public void loginUser(User user) throws ControllerException {
         try {
-            SqlConfig.getSqlMapClient().update("User.loginUser", user.getId());
+            SqlConfig.getSqlSessionManager().update("User.loginUser", user.getId());
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -279,7 +279,7 @@ public class DefaultUserController extends UserController {
 
     public void logoutUser(User user) throws ControllerException {
         try {
-            SqlConfig.getSqlMapClient().update("User.logoutUser", user.getId());
+            SqlConfig.getSqlSessionManager().update("User.logoutUser", user.getId());
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -288,7 +288,7 @@ public class DefaultUserController extends UserController {
 
     public boolean isUserLoggedIn(User user) throws ControllerException {
         try {
-            return (Boolean) SqlConfig.getSqlMapClient().queryForObject("User.isUserLoggedIn", user.getId());
+            return (Boolean) SqlConfig.getSqlSessionManager().selectOne("User.isUserLoggedIn", user.getId());
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -330,7 +330,7 @@ public class DefaultUserController extends UserController {
     @Override
     public List<Credentials> getUserCredentials(Integer userId) throws ControllerException {
         try {
-            return SqlConfig.getSqlMapClient().queryForList("User.getUserCredentials", userId);
+            return SqlConfig.getSqlSessionManager().selectList("User.getUserCredentials", userId);
         } catch (Exception e) {
             throw new ControllerException(e);
         }

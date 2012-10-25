@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -23,6 +23,7 @@ public class Operations {
     public static final Operation CHANNEL_UPDATE = new Operation("updateChannel", "Update channel", true);
     public static final Operation CHANNEL_REMOVE = new Operation("removeChannel", "Remove channel", true);
     public static final Operation CHANNEL_GET_SUMMARY = new Operation("getChannelSummary", "Get channel summary", false);
+    public static final Operation CHANNEL_GET_TAGS = new Operation("getChannelTags", "Get channel tags", false);
 
     // Channel Statistics
     public static final Operation CHANNEL_STATS_GET = new Operation("getStatistics", "Get statistics", false);
@@ -31,6 +32,7 @@ public class Operations {
     // Channel Status
     public static final Operation CHANNEL_START = new Operation("startChannel", "Start channel", true);
     public static final Operation CHANNEL_STOP = new Operation("stopChannel", "Stop channel", true);
+    public static final Operation CHANNEL_HALT = new Operation("haltChannel", "Halt channel", true);
     public static final Operation CHANNEL_PAUSE = new Operation("pauseChannel", "Pause channel", true);
     public static final Operation CHANNEL_RESUME = new Operation("resumeChannel", "Resume channel", true);
     public static final Operation CHANNEL_GET_STATUS = new Operation("getChannelStatusList", "Get channel status list", false);
@@ -79,18 +81,23 @@ public class Operations {
 
     // Messages
     public static final Operation MESSAGE_GET_BY_PAGE = new Operation("getMessagesByPage", "Get messages by page", false);
-    public static final Operation MESSAGE_GET_BY_PAGE_LIMIT = new Operation("getMessagesByPageLimit", "Get messages by page limit", true);
+    public static final Operation GET_MAX_MESSAGE_ID = new Operation("getMaxMessageId", "Get max messageId", false);
+    public static final Operation GET_MESSAGES = new Operation("searchMessages", "Get messages by page limit", true);
+    public static final Operation GET_SEARCH_COUNT = new Operation("getSearchCount", "Get search results count", true);
+    public static final Operation GET_MESSAGE_CONTENT = new Operation("getMessageContent", "Get message content", true);
     public static final Operation MESSAGE_REMOVE = new Operation("removeMessages", "Remove messages", true);
     public static final Operation MESSAGE_CLEAR = new Operation("clearMessages", "Clear messages", true);
     public static final Operation MESSAGE_PROCESS = new Operation("processMessages", "Process messages", true);
     public static final Operation MESSAGE_REPROCESS = new Operation("reprocessMessages", "Reprocess messages", true);
     public static final Operation MESSAGE_IMPORT = new Operation("importMessage", "Import message", true);
+    public static final Operation MESSAGE_EXPORT = new Operation("exportMessage", "Export message", true);
     public static final Operation MESSAGE_ATTACHMENT_GET = new Operation("getAttachment", "Get attachment", true);
     public static final Operation MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID = new Operation("getAttachmentsByMessageId", "Get attachments by message ID", false);
     public static final Operation MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID = new Operation("getAttachmentIdsByMessageId", "Get attachment IDs by message ID", false);
     public static final Operation MESSAGE_DICOM_MESSAGE_GET = new Operation("getDICOMMessage", "Get DICOM message", false);
     public static final Operation MESSAGE_CREATE_TEMP_TABLE = new Operation("createMessagesTempTable", "Create message temp table", false);
     public static final Operation MESSAGE_FILTER_TABLES_REMOVE = new Operation("removeFilterTables", "Remove filter tables", false);
+    public static final Operation CONNECTOR_MESSAGE_REMOVE = new Operation("removeConnectorMessage", "Remove connector message", true);
 
     // Events
     public static final Operation EVENT_CREATE_TEMP_TABLE = new Operation("createEventTempTable", "Create event temp tables", false);
@@ -123,10 +130,12 @@ public class Operations {
         operationMap.put(CHANNEL_UPDATE.getName(), CHANNEL_UPDATE);
         operationMap.put(CHANNEL_REMOVE.getName(), CHANNEL_REMOVE);
         operationMap.put(CHANNEL_GET_SUMMARY.getName(), CHANNEL_GET_SUMMARY);
+        operationMap.put(CHANNEL_GET_TAGS.getName(), CHANNEL_GET_TAGS);
         operationMap.put(CHANNEL_STATS_GET.getName(), CHANNEL_STATS_GET);
         operationMap.put(CHANNEL_STATS_CLEAR.getName(), CHANNEL_STATS_CLEAR);
         operationMap.put(CHANNEL_START.getName(), CHANNEL_START);
         operationMap.put(CHANNEL_STOP.getName(), CHANNEL_STOP);
+        operationMap.put(CHANNEL_HALT.getName(), CHANNEL_HALT);
         operationMap.put(CHANNEL_PAUSE.getName(), CHANNEL_PAUSE);
         operationMap.put(CHANNEL_RESUME.getName(), CHANNEL_RESUME);
         operationMap.put(CHANNEL_GET_STATUS.getName(), CHANNEL_GET_STATUS);
@@ -165,18 +174,23 @@ public class Operations {
         operationMap.put(EXTENSION_IS_ENABLED.getName(), EXTENSION_IS_ENABLED);
         operationMap.put(EXTENSION_SET_ENABLED.getName(), EXTENSION_SET_ENABLED);
         operationMap.put(MESSAGE_GET_BY_PAGE.getName(), MESSAGE_GET_BY_PAGE);
-        operationMap.put(MESSAGE_GET_BY_PAGE_LIMIT.getName(), MESSAGE_GET_BY_PAGE_LIMIT);
+        operationMap.put(GET_MAX_MESSAGE_ID.getName(), GET_MAX_MESSAGE_ID);
+        operationMap.put(GET_MESSAGES.getName(), GET_MESSAGES);
+        operationMap.put(GET_SEARCH_COUNT.getName(), GET_SEARCH_COUNT);
+        operationMap.put(GET_MESSAGE_CONTENT.getName(), GET_MESSAGE_CONTENT);
         operationMap.put(MESSAGE_REMOVE.getName(), MESSAGE_REMOVE);
         operationMap.put(MESSAGE_CLEAR.getName(), MESSAGE_CLEAR);
         operationMap.put(MESSAGE_PROCESS.getName(), MESSAGE_PROCESS);
         operationMap.put(MESSAGE_REPROCESS.getName(), MESSAGE_REPROCESS);
         operationMap.put(MESSAGE_IMPORT.getName(), MESSAGE_IMPORT);
+        operationMap.put(MESSAGE_EXPORT.getName(), MESSAGE_EXPORT);
         operationMap.put(MESSAGE_ATTACHMENT_GET.getName(), MESSAGE_ATTACHMENT_GET);
         operationMap.put(MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID.getName(), MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID);
         operationMap.put(MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID.getName(), MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID);
         operationMap.put(MESSAGE_DICOM_MESSAGE_GET.getName(), MESSAGE_DICOM_MESSAGE_GET);
         operationMap.put(MESSAGE_CREATE_TEMP_TABLE.getName(), MESSAGE_CREATE_TEMP_TABLE);
         operationMap.put(MESSAGE_FILTER_TABLES_REMOVE.getName(), MESSAGE_FILTER_TABLES_REMOVE);
+        operationMap.put(CONNECTOR_MESSAGE_REMOVE.getName(), CONNECTOR_MESSAGE_REMOVE);
         operationMap.put(EVENT_CREATE_TEMP_TABLE.getName(), EVENT_CREATE_TEMP_TABLE);
         operationMap.put(EVENT_REMOVE_FILTER_TABLES.getName(), EVENT_REMOVE_FILTER_TABLES);
         operationMap.put(EVENT_GET_BY_PAGE.getName(), EVENT_GET_BY_PAGE);

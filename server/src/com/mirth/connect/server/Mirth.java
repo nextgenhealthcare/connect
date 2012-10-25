@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -10,6 +10,7 @@
 package com.mirth.connect.server;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +30,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.eclipse.jetty.http.ssl.SslContextFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -41,16 +41,16 @@ import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.mirth.connect.model.Event;
 import com.mirth.connect.server.controllers.ChannelController;
-import com.mirth.connect.server.controllers.ChannelStatisticsController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
-import com.mirth.connect.server.controllers.MessageObjectController;
 import com.mirth.connect.server.controllers.MigrationController;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.controllers.UserController;
@@ -87,8 +87,6 @@ public class Mirth extends Thread {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private UserController userController = ControllerFactory.getFactory().createUserController();
-    private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
-    private ChannelStatisticsController channelStatisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private MigrationController migrationController = ControllerFactory.getFactory().createMigrationController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
@@ -114,7 +112,7 @@ public class Mirth extends Thread {
         if (shutdownHooks.contains(hook)) {
             return;
         }
-        
+
         shutdownHooks.add(hook);
     }
 
@@ -165,7 +163,7 @@ public class Mirth extends Thread {
      */
     public boolean initResources() {
         InputStream mirthPropertiesStream = null;
-        
+
         try {
             mirthPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "mirth.properties");
             mirthProperties.setDelimiterParsingDisabled(true);
@@ -177,7 +175,7 @@ public class Mirth extends Thread {
         }
 
         InputStream versionPropertiesStream = null;
-        
+
         try {
             versionPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
             versionProperties.setDelimiterParsingDisabled(true);
@@ -197,32 +195,35 @@ public class Mirth extends Thread {
      */
     public void startup() {
         configurationController.initializeSecuritySettings();
+        configurationController.initializeDatabaseSettings();
 
         /*
          * This needs to happen before instantiating a SqlConfig object so that
          * custom extension SQL maps can be loaded.
          */
         extensionController.loadExtensions();
-        
+
         try {
-            SqlConfig.getSqlMapClient().getDataSource().getConnection();
+            SqlConfig.getSqlSessionManager().startManagedSession();
+            SqlConfig.getSqlSessionManager().getConnection();
         } catch (Exception e) {
             // the getCause is needed since the wrapper exception is from the connection pool
             logger.error("Error establishing connection to database, aborting startup. " + e.getCause().getMessage());
             System.exit(0);
+        } finally {
+            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
+                SqlConfig.getSqlSessionManager().close();
+            }
         }
 
         extensionController.removePropertiesForUninstalledExtensions();
         migrationController.migrate();
         configurationController.migrateKeystore();
         extensionController.setDefaultExtensionStatus();
-        messageObjectController.removeAllFilterTables();
         eventController.removeAllFilterTables();
         extensionController.uninstallExtensions();
         migrationController.migrateExtensions();
         extensionController.initPlugins();
-        channelStatisticsController.loadCache();
-        channelStatisticsController.startUpdaterThread();
         channelController.loadCache();
         migrationController.migrateChannels();
         userController.resetUserStatus();
@@ -231,9 +232,9 @@ public class Mirth extends Thread {
 
         // disable the velocity logging
         Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
-        
+
         eventController.addEvent(new Event("Server startup"));
-        
+
         // Start web server before starting the engine in case there is a 
         // problem starting the engine that causes it to hang
         startWebServer();
@@ -247,23 +248,25 @@ public class Mirth extends Thread {
      */
     public void shutdown() {
         logger.info("shutting down mirth due to normal request");
-        
+
         stopEngine();
-        
+
         try {
             // check for database connection before trying to log shutdown event
-            SqlConfig.getSqlMapClient().getDataSource().getConnection();
+            SqlConfig.getSqlSessionManager().startManagedSession();
+            SqlConfig.getSqlSessionManager().getConnection();
             // add event after stopping the engine, but before stopping the plugins
             eventController.addEvent(new Event("Server shutdown"));
         } catch (Exception e) {
             logger.debug("could not log shutdown even since database is unavailable", e);
+        } finally {
+            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
+                SqlConfig.getSqlSessionManager().close();
+            }
         }
-        
+
         stopWebServer();
         extensionController.stopPlugins();
-        // Stats updater thread will update the stats one more time before
-        // stopping
-        channelStatisticsController.stopUpdaterThread();
         stopDatabase();
         running = false;
     }
@@ -324,17 +327,17 @@ public class Mirth extends Thread {
             sslConnector.setName("sslconnector");
             sslConnector.setHost(mirthProperties.getString("https.host", "0.0.0.0"));
             sslConnector.setPort(mirthProperties.getInt("https.port"));
-            
+
             SslContextFactory contextFactory = sslConnector.getSslContextFactory();
             KeyStore keyStore = KeyStore.getInstance("JCEKS");
             FileInputStream is = new FileInputStream(new File(mirthProperties.getString("keystore.path")));
-            
+
             try {
                 keyStore.load(is, mirthProperties.getString("keystore.storepass").toCharArray());
             } finally {
-                IOUtils.closeQuietly(is);  
+                IOUtils.closeQuietly(is);
             }
-            
+
             contextFactory.setKeyStore(keyStore);
             contextFactory.setKeyManagerPassword(mirthProperties.getString("keystore.keypass"));
             // disabling low and medium strength cipers (see MIRTH-1924)
@@ -345,13 +348,13 @@ public class Mirth extends Thread {
 
             // find the client-lib path
             String clientLibPath = null;
-            
+
             if (ClassPathResource.getResourceURI("client-lib") != null) {
                 clientLibPath = ClassPathResource.getResourceURI("client-lib").getPath() + File.separator;
             } else {
                 clientLibPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "client-lib" + File.separator;
             }
-            
+
             // Create the lib context
             ContextHandler libContextHandler = new ContextHandler();
             libContextHandler.setContextPath(contextPath + "webstart/client-lib");
@@ -383,7 +386,33 @@ public class Mirth extends Thread {
             servletContextHandler.addServlet(new ServletHolder(new WebStartServlet()), "/webstart/extensions/*");
             servletContextHandler.setConnectorNames(new String[] { "connector" });
             handlers.addHandler(servletContextHandler);
+
+            // Load all web apps dynamically
+            List<WebAppContext> webapps = new ArrayList<WebAppContext>();
+
+            FileFilter filter = new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return file.getName().endsWith(".war");
+                }
+            };
+
+            String webAppsDir = "webapps";
+            File[] listOfFiles = new File(webAppsDir).listFiles(filter);
             
+            for (File file : listOfFiles) {
+                logger.debug("webApp File Path: " + file.getAbsolutePath());
+
+                WebAppContext webapp = new WebAppContext();
+                webapp.setContextPath(contextPath + file.getName().substring(0, file.getName().length() - 4));
+
+                logger.debug("webApp Context Path: " + webapp.getContextPath());
+
+                webapp.setWar(file.getPath());
+                handlers.addHandler(webapp);
+                webapps.add(webapp);
+            }
+
             // Create the ssl servlet handler
             ServletContextHandler sslServletContextHandler = new ServletContextHandler();
             sslServletContextHandler.setMaxFormContentSize(0);
@@ -405,14 +434,26 @@ public class Mirth extends Thread {
             sslServletContextHandler.addServlet(new ServletHolder(new UserServlet()), "/users");
             sslServletContextHandler.setConnectorNames(new String[] { "sslconnector" });
             handlers.addHandler(sslServletContextHandler);
-            
+
             // add the default handler for misc requests (favicon, etc.)
             handlers.addHandler(new DefaultHandler());
-            
+
             webServer.setHandler(handlers);
             webServer.setConnectors(new Connector[] { connector, sslConnector });
-            webServer.start();
-
+            try {
+                webServer.start();
+            } catch (Throwable e) {
+                logger.error("Could not load web app", e);
+                try {
+                    webServer.stop();
+                } catch (Throwable t) {
+                    // Ignore exception stopping
+                }
+                for (WebAppContext webapp : webapps) {
+                    handlers.removeHandler(webapp);
+                }
+                webServer.start();
+            }
             logger.debug("started jetty web server on ports: " + connector.getPort() + ", " + sslConnector.getPort());
         } catch (Exception e) {
             logger.warn("Could not start web server.", e);
@@ -428,7 +469,7 @@ public class Mirth extends Thread {
 
         try {
             if (webServer != null) {
-                webServer.stop();    
+                webServer.stop();
             }
         } catch (Exception e) {
             logger.warn("Could not stop web server.", e);

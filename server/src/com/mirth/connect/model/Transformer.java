@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -16,7 +16,6 @@ import java.util.Properties;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.mirth.connect.model.MessageObject.Protocol;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.converters.basic.Base64StringConverter;
@@ -37,8 +36,8 @@ public class Transformer implements Serializable {
     @XStreamConverter(Base64StringConverter.class)
     private String outboundTemplate;
 
-    private Protocol inboundProtocol;
-    private Protocol outboundProtocol;
+    private String inboundDataType;
+    private String outboundDataType;
     private Properties inboundProperties;
     private Properties outboundProperties;
 
@@ -46,12 +45,12 @@ public class Transformer implements Serializable {
         this.steps = new ArrayList<Step>();
     }
 
-    public Protocol getInboundProtocol() {
-        return this.inboundProtocol;
+    public String getInboundDataType() {
+        return this.inboundDataType;
     }
 
-    public void setInboundProtocol(Protocol inboundProtocol) {
-        this.inboundProtocol = inboundProtocol;
+    public void setInboundDataType(String inboundDataType) {
+        this.inboundDataType = inboundDataType;
     }
 
     public String getInboundTemplate() {
@@ -62,12 +61,12 @@ public class Transformer implements Serializable {
         this.inboundTemplate = inboundTemplate;
     }
 
-    public Protocol getOutboundProtocol() {
-        return outboundProtocol;
+    public String getOutboundDataType() {
+        return outboundDataType;
     }
 
-    public void setOutboundProtocol(Protocol outboundProtocol) {
-        this.outboundProtocol = outboundProtocol;
+    public void setOutboundDataType(String outboundDataType) {
+        this.outboundDataType = outboundDataType;
     }
 
     public String getOutboundTemplate() {
@@ -97,7 +96,7 @@ public class Transformer implements Serializable {
 
         Transformer transformer = (Transformer) that;
 
-        return ObjectUtils.equals(this.getSteps(), transformer.getSteps()) && ObjectUtils.equals(this.getInboundTemplate(), transformer.getInboundTemplate()) && ObjectUtils.equals(this.getOutboundTemplate(), transformer.getOutboundTemplate()) && ObjectUtils.equals(this.getInboundProtocol(), transformer.getInboundProtocol()) && ObjectUtils.equals(this.getOutboundProtocol(), transformer.getOutboundProtocol()) && ObjectUtils.equals(this.getInboundProperties(), transformer.getInboundProperties()) && ObjectUtils.equals(this.getOutboundProperties(), transformer.getOutboundProperties());
+        return ObjectUtils.equals(this.getSteps(), transformer.getSteps()) && ObjectUtils.equals(this.getInboundTemplate(), transformer.getInboundTemplate()) && ObjectUtils.equals(this.getOutboundTemplate(), transformer.getOutboundTemplate()) && ObjectUtils.equals(this.getInboundDataType(), transformer.getInboundDataType()) && ObjectUtils.equals(this.getOutboundDataType(), transformer.getOutboundDataType()) && ObjectUtils.equals(this.getInboundProperties(), transformer.getInboundProperties()) && ObjectUtils.equals(this.getOutboundProperties(), transformer.getOutboundProperties());
     }
 
     public Properties getInboundProperties() {

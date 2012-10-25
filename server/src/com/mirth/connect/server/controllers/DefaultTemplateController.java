@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,10 +9,10 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.server.util.DatabaseUtil;
@@ -56,11 +56,11 @@ public class DefaultTemplateController extends TemplateController {
             parameterMap.put("template", template);
 
             if (getTemplate(groupId, id) == null) {
-                SqlConfig.getSqlMapClient().insert("Template.insertTemplate", parameterMap);
+                SqlConfig.getSqlSessionManager().insert("Template.insertTemplate", parameterMap);
             } else {
-                SqlConfig.getSqlMapClient().update("Template.updateTemplate", parameterMap);
+                SqlConfig.getSqlSessionManager().update("Template.updateTemplate", parameterMap);
             }
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }
@@ -80,8 +80,8 @@ public class DefaultTemplateController extends TemplateController {
             parameterMap.put("groupId", groupId);
             parameterMap.put("id", id);
 
-            return (String) SqlConfig.getSqlMapClient().queryForObject("Template.getTemplate", parameterMap);
-        } catch (SQLException e) {
+            return (String) SqlConfig.getSqlSessionManager().selectOne("Template.getTemplate", parameterMap);
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }
@@ -93,8 +93,8 @@ public class DefaultTemplateController extends TemplateController {
         parameterMap.put("groupId", groupId);
         
         try {
-            SqlConfig.getSqlMapClient().delete("Template.deleteTemplate", parameterMap);
-        } catch (SQLException e) {
+            SqlConfig.getSqlSessionManager().delete("Template.deleteTemplate", parameterMap);
+        } catch (PersistenceException e) {
             throw new ControllerException("error clearing templates", e);
         }
     }
@@ -103,12 +103,12 @@ public class DefaultTemplateController extends TemplateController {
         logger.debug("clearing templates table");
 
         try {
-            SqlConfig.getSqlMapClient().delete("Template.deleteTemplate");
+            SqlConfig.getSqlSessionManager().delete("Template.deleteTemplate");
             
             if (DatabaseUtil.statementExists("Template.vacuumTemplateTable")) {
-                SqlConfig.getSqlMapClient().update("Template.vacuumTemplateTable");
+                SqlConfig.getSqlSessionManager().update("Template.vacuumTemplateTable");
             }
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException("error clearing templates", e);
         }
     }

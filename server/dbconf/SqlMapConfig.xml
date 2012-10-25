@@ -1,39 +1,55 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
-<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+<configuration>
+	<settings>
+		<setting name="cacheEnabled" value="true" />
+	</settings>
+	
+	<typeAliases>
+		<!-- <typeAlias alias="MapTypeHandler" type="com.mirth.connect.server.sqlmap.extensions.MapTypeHandler" /> -->
+		<typeAlias alias="MapTypeHandler" type="com.mirth.connect.server.sqlmap.extensions.SerializableHandler" />
+		<package name="com.mirth.connect.donkey.model.message" />
+		<package name="com.mirth.connect.donkey.model.message.attachment" />
+	</typeAliases>
 
-<sqlMapConfig>
-	<settings cacheModelsEnabled="true" enhancementEnabled="true" lazyLoadingEnabled="true" maxRequests="32" maxSessions="10" maxTransactions="5" useStatementNamespaces="true" />
-	<typeHandler javaType="com.mirth.connect.model.MessageObject$Protocol" callback="com.mirth.connect.server.sqlmap.extensions.MessageProtocolTypeHandler" />
-	<typeHandler javaType="com.mirth.connect.model.MessageObject$Status" callback="com.mirth.connect.server.sqlmap.extensions.MessageStatusTypeHandler" />
-	<typeHandler javaType="com.mirth.connect.model.CodeTemplate$CodeSnippetType" callback="com.mirth.connect.server.sqlmap.extensions.CodeSnippetTypeHandler" />
-	<typeHandler javaType="com.mirth.connect.model.Event$Level" callback="com.mirth.connect.server.sqlmap.extensions.EventLevelTypeHandler" />
-	<typeHandler javaType="com.mirth.connect.model.Event$Outcome" callback="com.mirth.connect.server.sqlmap.extensions.EventOutcomeTypeHandler" />
-	<typeHandler javaType="com.mirth.connect.model.Connector" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
-	<typeHandler javaType="java.util.List" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
-	<typeHandler javaType="java.util.Properties" callback="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
-	<typeHandler javaType="java.util.Map" callback="com.mirth.connect.server.sqlmap.extensions.MapTypeHandler" />
-	<typeHandler javaType="java.util.Calendar" callback="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />
-	
-	<transactionManager type="JDBC">
-		<dataSource type="DBCP">
-			<property name="driverClassName" value="${database.driver}" />
-			<property name="url" value="${database.url}" />
-			<property name="username" value="${database.username}" />
-			<property name="password" value="${database.password}" />
-			<property name="defaultAutoCommit" value="true" />
-			<property name="maxActive" value="32" />
-		</dataSource>
-	</transactionManager>
-	
-	<sqlMap resource="${database}/${database}-user.xml" />
-	<sqlMap resource="${database}/${database}-channel.xml" />
-	<sqlMap resource="${database}/${database}-message.xml" />
-	<sqlMap resource="${database}/${database}-script.xml" />
-	<sqlMap resource="${database}/${database}-template.xml" />
-	<sqlMap resource="${database}/${database}-configuration.xml" />
-	<sqlMap resource="${database}/${database}-event.xml" />
-	<sqlMap resource="${database}/${database}-statistic.xml" />
-	<sqlMap resource="${database}/${database}-alert.xml" />
-	<sqlMap resource="${database}/${database}-codeTemplate.xml" />
-</sqlMapConfig>
+	<typeHandlers>
+		<typeHandler javaType="java.util.Calendar" handler="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />
+		<typeHandler javaType="java.util.GregorianCalendar" handler="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />
+		<typeHandler javaType="Status" handler="com.mirth.connect.server.sqlmap.extensions.StatusTypeHandler" />
+		<typeHandler javaType="ContentType" handler="com.mirth.connect.server.sqlmap.extensions.ContentTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.CodeTemplate$CodeSnippetType" handler="com.mirth.connect.server.sqlmap.extensions.CodeSnippetTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.Event$Level" handler="com.mirth.connect.server.sqlmap.extensions.EventLevelTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.Event$Outcome" handler="com.mirth.connect.server.sqlmap.extensions.EventOutcomeTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.Connector" handler="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
+		<typeHandler javaType="com.mirth.connect.model.ChannelProperties" handler="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
+		<typeHandler javaType="java.util.List" handler="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
+		<typeHandler javaType="java.util.Properties" handler="com.mirth.connect.server.sqlmap.extensions.SerializedObjectTypeHandler" />
+	</typeHandlers>
+
+	<environments default="all">
+		<environment id="all">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="${database.driver}" />
+				<property name="url" value="${database.url}" />
+				<property name="username" value="${database.username}" />
+				<property name="password" value="${database.password}" />
+				<property name="poolMaximumActiveConnections" value="32" />
+			</dataSource>
+		</environment>
+	</environments>
+
+	<mappers>
+		<mapper resource="${database}/${database}-user.xml" />
+		<mapper resource="${database}/${database}-channel.xml" />
+		<mapper resource="${database}/${database}-message.xml" />
+		<mapper resource="${database}/${database}-script.xml" />
+		<mapper resource="${database}/${database}-template.xml" />
+		<mapper resource="${database}/${database}-configuration.xml" />
+		<mapper resource="${database}/${database}-event.xml" />
+		<mapper resource="${database}/${database}-statistic.xml" />
+		<mapper resource="${database}/${database}-alert.xml" />
+		<mapper resource="${database}/${database}-codeTemplate.xml" />
+	</mappers>
+</configuration>

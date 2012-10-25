@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Event;
@@ -53,7 +54,8 @@ public class DefaultEventController extends EventController {
         ResultSet resultSet = null;
 
         try {
-            conn = SqlConfig.getSqlMapClient().getDataSource().getConnection();
+            SqlConfig.getSqlSessionManager().startManagedSession();
+            conn = SqlConfig.getSqlSessionManager().getConnection();
             // Gets the database metadata
             DatabaseMetaData dbmd = conn.getMetaData();
 
@@ -82,6 +84,9 @@ public class DefaultEventController extends EventController {
         } finally {
             DbUtils.closeQuietly(resultSet);
             DbUtils.closeQuietly(conn);
+            if(SqlConfig.getSqlSessionManager().isManagedSessionStarted()){
+                SqlConfig.getSqlSessionManager().close();
+            }
         }
     }
 
@@ -89,7 +94,7 @@ public class DefaultEventController extends EventController {
         logger.debug("adding event: " + event);
 
         try {
-            SqlConfig.getSqlMapClient().insert("Event.insertEvent", event);
+            SqlConfig.getSqlSessionManager().insert("Event.insertEvent", event);
         } catch (Exception e) {
             logger.error("Error adding event.", e);
         }
@@ -99,12 +104,12 @@ public class DefaultEventController extends EventController {
         logger.debug("removing all events");
 
         try {
-            SqlConfig.getSqlMapClient().delete("Event.deleteEvent");
+            SqlConfig.getSqlSessionManager().delete("Event.deleteEvent");
 
             if (DatabaseUtil.statementExists("Event.vacuumEventTable")) {
-                SqlConfig.getSqlMapClient().update("Event.vacuumEventTable");
+                SqlConfig.getSqlSessionManager().update("Event.vacuumEventTable");
             }
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException("Error removing all events.", e);
         }
     }
@@ -203,13 +208,13 @@ public class DefaultEventController extends EventController {
 
         try {
             if (DatabaseUtil.statementExists("Event.createTempEventTableSequence")) {
-                SqlConfig.getSqlMapClient().update("Event.createTempEventTableSequence", uid);
+                SqlConfig.getSqlSessionManager().update("Event.createTempEventTableSequence", uid);
             }
 
-            SqlConfig.getSqlMapClient().update("Event.createTempEventTable", uid);
-            SqlConfig.getSqlMapClient().update("Event.createTempEventTableIndex", uid);
-            return SqlConfig.getSqlMapClient().update("Event.populateTempEventTable", getEventFilterMap(filter, uid));
-        } catch (SQLException e) {
+            SqlConfig.getSqlSessionManager().update("Event.createTempEventTable", uid);
+            SqlConfig.getSqlSessionManager().update("Event.createTempEventTableIndex", uid);
+            return SqlConfig.getSqlSessionManager().update("Event.populateTempEventTable", getEventFilterMap(filter, uid));
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }
@@ -219,23 +224,23 @@ public class DefaultEventController extends EventController {
 
         try {
             if (DatabaseUtil.statementExists("Event.dropTempEventTableSequence")) {
-                SqlConfig.getSqlMapClient().update("Event.dropTempEventTableSequence", uid);
+                SqlConfig.getSqlSessionManager().update("Event.dropTempEventTableSequence", uid);
             }
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             logger.debug(e);
         }
 
         try {
             if (DatabaseUtil.statementExists("Event.deleteTempEventTableIndex")) {
-                SqlConfig.getSqlMapClient().update("Event.deleteTempEventTableIndex", uid);
+                SqlConfig.getSqlSessionManager().update("Event.deleteTempEventTableIndex", uid);
             }
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             logger.debug(e);
         }
 
         try {
-            SqlConfig.getSqlMapClient().update("Event.dropTempEventTable", uid);
-        } catch (SQLException e) {
+            SqlConfig.getSqlSessionManager().update("Event.dropTempEventTable", uid);
+        } catch (PersistenceException e) {
             logger.debug(e);
         }
     }
@@ -253,7 +258,7 @@ public class DefaultEventController extends EventController {
         }
 
         try {
-            return SqlConfig.getSqlMapClient().queryForList("Event.getEventsByPage", parameterMap);
+            return SqlConfig.getSqlSessionManager().selectList("Event.getEventsByPage", parameterMap);
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -269,7 +274,7 @@ public class DefaultEventController extends EventController {
         parameterMap.putAll(getEventFilterMap(filter, uid));
 
         try {
-            return SqlConfig.getSqlMapClient().queryForList("Event.getEventsByPageLimit", parameterMap);
+            return SqlConfig.getSqlSessionManager().selectList("Event.getEventsByPageLimit", parameterMap);
         } catch (Exception e) {
             throw new ControllerException(e);
         }

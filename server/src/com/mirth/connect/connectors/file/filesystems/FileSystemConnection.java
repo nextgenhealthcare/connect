@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -63,7 +63,7 @@ public interface FileSystemConnection {
 	 * @param message The message to be written.
 	 * @throws Exception
 	 */
-	public void writeFile(String file, String toDir, boolean append, byte[] message)
+	public void writeFile(String file, String toDir, boolean append, InputStream message)
 		throws Exception;
 	
 	/** Removes the specified file from the specified directory.

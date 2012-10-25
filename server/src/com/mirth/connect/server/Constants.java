@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -32,4 +32,6 @@ public class Constants {
 	public static final String ERROR_413 = "ERROR-413: Email Connector error";
 	public static final String ERROR_414 = "ERROR-414: JavaScript Connector error";
 	public static final String ERROR_415 = "ERROR-415: DICOM Connector error";
+	public static final String ERROR_500 = "ERROR-500: XML conversion error";
+	public static final String ERROR_600 = "ERROR-600: Response error";
 }

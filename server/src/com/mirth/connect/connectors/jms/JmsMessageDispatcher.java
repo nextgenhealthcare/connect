@@ -21,7 +21,6 @@ import org.mule.MuleException;
 import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
-import org.mule.providers.TemplateValueReplacer;
 import org.mule.transaction.IllegalTransactionStateException;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
@@ -41,6 +40,7 @@ import com.mirth.connect.server.controllers.MessageObjectController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 

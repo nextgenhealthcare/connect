@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -18,7 +18,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.mirth.connect.model.converters.NCPDPSerializer;
+import com.mirth.connect.model.converters.ncpdp.NCPDPSerializer;
 
 public class NCPDPSerializerTest {
     private Properties defaultProperties;

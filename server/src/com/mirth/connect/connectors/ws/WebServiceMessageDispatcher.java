@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -42,37 +42,30 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.mule.providers.AbstractMessageDispatcher;
-import org.mule.providers.QueueEnabledMessageDispatcher;
-import org.mule.providers.TemplateValueReplacer;
-import org.mule.umo.UMOEvent;
-import org.mule.umo.UMOException;
-import org.mule.umo.UMOMessage;
-import org.mule.umo.endpoint.UMOEndpointURI;
 
-import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.QueuedMessage;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.AlertController;
-import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.MessageObjectController;
-import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
-import com.mirth.connect.server.controllers.MonitoringController.Event;
-import com.mirth.connect.server.util.VMRouter;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
-public class WebServiceMessageDispatcher extends AbstractMessageDispatcher implements QueueEnabledMessageDispatcher {
+public class WebServiceMessageDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
-    protected WebServiceConnector connector;
-    private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    protected WebServiceDispatcherProperties connectorProperties;
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();
-    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
-    private ConnectorType connectorType = ConnectorType.WRITER;
 
     /*
      * Dispatch object used for pooling the soap connection, and the current
@@ -85,106 +78,24 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
     private String currentServiceName = null;
     private String currentPortName = null;
 
-    public WebServiceMessageDispatcher(WebServiceConnector connector) {
-        super(connector);
-        this.connector = connector;
+    @Override
+    public void onDeploy() throws DeployException {
+        this.connectorProperties = (WebServiceDispatcherProperties) getConnectorProperties();
     }
 
-    public void doDispatch(UMOEvent event) throws Exception {
-        monitoringController.updateStatus(connector, connectorType, Event.BUSY);
-        MessageObject mo = messageObjectController.getMessageObjectFromEvent(event);
-
-        if (mo == null) {
-            return;
-        }
-
-        try {
-            if (connector.isUsePersistentQueues()) {
-                connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), mo);
-                return;
-            } else {
-                processMessage(mo);
-            }
-        } catch (Exception e) {
-            alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_410, "Error connecting to web service.", e);
-            messageObjectController.setError(mo, Constants.ERROR_410, "Error connecting to web service.", e, null);
-            connector.handleException(new Exception(e));
-        } finally {
-            monitoringController.updateStatus(connector, connectorType, Event.DONE);
-        }
+    @Override
+    public void onUndeploy() throws UndeployException {
+        // TODO Auto-generated method stub
     }
 
-    private void processMessage(MessageObject mo) throws Exception {
-        /*
-         * Initialize the dispatch object if it hasn't been initialized yet, or
-         * create a new one if the connector properties have changed due to
-         * variables.
-         */
-        createDispatch(mo);
+    @Override
+    public void onStart() throws StartException {
+        // TODO Auto-generated method stub
+    }
 
-        SOAPBinding soapBinding = (SOAPBinding) dispatch.getBinding();
-
-        if (connector.isDispatcherUseAuthentication()) {
-            dispatch.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, currentUsername);
-            dispatch.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, currentPassword);
-            logger.debug("Using authentication: username=" + currentUsername + ", password length=" + currentPassword.length());
-        }
-
-        // See: http://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383528
-        String soapAction = replacer.replaceValues(connector.getDispatcherSoapAction(), mo);
-
-        if (StringUtils.isNotEmpty(soapAction)) {
-            dispatch.getRequestContext().put(BindingProvider.SOAPACTION_URI_PROPERTY, soapAction);
-        }
-
-        // build the message
-        logger.debug("Creating SOAP envelope.");
-        String content = replacer.replaceValues(connector.getDispatcherEnvelope(), mo);
-        Source source = new StreamSource(new StringReader(content));
-        SOAPMessage message = soapBinding.getMessageFactory().createMessage();
-        message.getSOAPPart().setContent(source);
-
-        if (connector.isDispatcherUseMtom()) {
-            soapBinding.setMTOMEnabled(true);
-
-            List<String> attachmentIds = connector.getDispatcherAttachmentNames();
-            List<String> attachmentContents = connector.getDispatcherAttachmentContents();
-            List<String> attachmentTypes = connector.getDispatcherAttachmentTypes();
-
-            for (int i = 0; i < attachmentIds.size(); i++) {
-                String attachmentContentId = replacer.replaceValues(attachmentIds.get(i), mo);
-                String attachmentContentType = replacer.replaceValues(attachmentTypes.get(i), mo);
-                String attachmentContent = replacer.replaceValues(attachmentContents.get(i), mo);
-
-                AttachmentPart attachment = message.createAttachmentPart();
-                attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentContentType);
-                attachment.setContentId(attachmentContentId);
-                message.addAttachmentPart(attachment);
-            }
-        }
-
-        message.saveChanges();
-
-        // make the call
-        String response = null;
-        if (connector.isDispatcherOneWay()) {
-            logger.debug("Invoking one way service...");
-            dispatch.invokeOneWay(message);
-            response = "Invoked one way operation successfully.";
-        } else {
-            logger.debug("Invoking web service...");
-            SOAPMessage result = dispatch.invoke(message);
-            response = sourceToXmlString(result.getSOAPPart().getContent());
-        }
-        logger.debug("Finished invoking web service, got result.");
-
-        // process the result
-        messageObjectController.setSuccess(mo, response, null);
-
-        // send to reply channel
-        if (connector.getDispatcherReplyChannelId() != null && !connector.getDispatcherReplyChannelId().equals("sink")) {
-            new VMRouter().routeMessageByChannelId(connector.getDispatcherReplyChannelId(), response, true);
-        }
+    @Override
+    public void onStop() throws StopException {
+        // TODO Auto-generated method stub
     }
 
     private String sourceToXmlString(Source source) throws TransformerConfigurationException, TransformerException {
@@ -196,56 +107,12 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
         return writer.toString();
     }
 
-    public void doDispose() {
-
-    }
-
-    public UMOMessage doSend(UMOEvent event) throws Exception {
-        doDispatch(event);
-        return event.getMessage();
-    }
-
-    public Object getDelegateSession() throws UMOException {
-        return null;
-    }
-
-    public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
-        return null;
-    }
-
-    public boolean sendPayload(QueuedMessage thePayload) throws Exception {
-        monitoringController.updateStatus(connector, connectorType, Event.BUSY);
-        try {
-            processMessage(thePayload.getMessageObject());
-        } catch (Exception e) {
-            /*
-             * If there's an exception getting the dispatch WSDL from the
-             * connector, ConnectException will be the root exception class. If
-             * the dispatch has already been retrieved and then the destination
-             * goes down, ConnectException will be inside of a
-             * ClientTransportException.
-             */
-            if ((e.getClass() == ConnectException.class) || ((e.getCause() != null) && (e.getCause().getClass() == ConnectException.class))) {
-                logger.warn("Can't connect to the queued endpoint: " + channelController.getDeployedChannelById(connector.getChannelId()).getName() + " - " + channelController.getDeployedDestinationName(connector.getName()) + " \r\n'" + e.getMessage());
-                messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_410, "Connection refused", e, null);
-                throw e;
-            }
-            messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_410, "Error connecting to web service.", e, null);
-            alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_410, "Error connecting to web service.", e);
-            connector.handleException(new Exception(e));
-        } finally {
-            monitoringController.updateStatus(connector, connectorType, Event.DONE);
-        }
-
-        return true;
-    }
-
-    private void createDispatch(MessageObject mo) throws Exception {
-        String wsdlUrl = replacer.replaceValues(connector.getDispatcherWsdlUrl(), mo);
-        String username = replacer.replaceValues(connector.getDispatcherUsername(), mo);
-        String password = replacer.replaceValues(connector.getDispatcherPassword(), mo);
-        String serviceName = replacer.replaceValues(connector.getDispatcherService(), mo);
-        String portName = replacer.replaceValues(connector.getDispatcherPort(), mo);
+    private void createDispatch(WebServiceDispatcherProperties webServiceDispatcherProperties) throws Exception {
+        String wsdlUrl = webServiceDispatcherProperties.getWsdlUrl();
+        String username = webServiceDispatcherProperties.getUsername();
+        String password = webServiceDispatcherProperties.getPassword();
+        String serviceName = webServiceDispatcherProperties.getService();
+        String portName = webServiceDispatcherProperties.getPort();
 
         /*
          * The dispatch needs to be created if it hasn't been created yet
@@ -309,5 +176,122 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
         }
 
         return uri.toURL();
+    }
+
+    @Override
+    public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {
+        WebServiceDispatcherProperties webServiceDispatcherProperties = (WebServiceDispatcherProperties) SerializationUtils.clone(connectorProperties);
+
+        // Replace all values in connector properties
+        webServiceDispatcherProperties.setWsdlUrl(replacer.replaceValues(webServiceDispatcherProperties.getWsdlUrl(), connectorMessage));
+        webServiceDispatcherProperties.setUsername(replacer.replaceValues(webServiceDispatcherProperties.getUsername(), connectorMessage));
+        webServiceDispatcherProperties.setPassword(replacer.replaceValues(webServiceDispatcherProperties.getPassword(), connectorMessage));
+        webServiceDispatcherProperties.setService(replacer.replaceValues(webServiceDispatcherProperties.getService(), connectorMessage));
+        webServiceDispatcherProperties.setPort(replacer.replaceValues(webServiceDispatcherProperties.getPort(), connectorMessage));
+
+        webServiceDispatcherProperties.setSoapAction(replacer.replaceValues(webServiceDispatcherProperties.getSoapAction(), connectorMessage));
+        webServiceDispatcherProperties.setEnvelope(replacer.replaceValues(webServiceDispatcherProperties.getEnvelope(), connectorMessage));
+
+        if (webServiceDispatcherProperties.isUseMtom()) {
+            replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentNames(), connectorMessage);
+            replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentContents(), connectorMessage);
+            replacer.replaceValuesInList(webServiceDispatcherProperties.getAttachmentTypes(), connectorMessage);
+        }
+
+        return webServiceDispatcherProperties;
+    }
+
+    @Override
+    public Response send(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
+        WebServiceDispatcherProperties webServiceDispatcherProperties = (WebServiceDispatcherProperties) connectorProperties;
+        String responseData = null;
+        String responseError = null;
+        Status responseStatus = Status.QUEUED;
+
+        try {
+            /*
+             * Initialize the dispatch object if it hasn't been initialized yet,
+             * or create a new one if the connector properties have changed due
+             * to variables.
+             */
+            createDispatch(webServiceDispatcherProperties);
+
+            SOAPBinding soapBinding = (SOAPBinding) dispatch.getBinding();
+
+            if (webServiceDispatcherProperties.isUseAuthentication()) {
+                dispatch.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, currentUsername);
+                dispatch.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, currentPassword);
+                logger.debug("Using authentication: username=" + currentUsername + ", password length=" + currentPassword.length());
+            }
+
+            // See: http://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383528
+            String soapAction = webServiceDispatcherProperties.getSoapAction();
+
+            if (StringUtils.isNotEmpty(soapAction)) {
+                dispatch.getRequestContext().put(BindingProvider.SOAPACTION_URI_PROPERTY, soapAction);
+            }
+
+            // build the message
+            logger.debug("Creating SOAP envelope.");
+            String content = webServiceDispatcherProperties.getEnvelope();
+            Source source = new StreamSource(new StringReader(content));
+            SOAPMessage message = soapBinding.getMessageFactory().createMessage();
+            message.getSOAPPart().setContent(source);
+
+            if (webServiceDispatcherProperties.isUseMtom()) {
+                soapBinding.setMTOMEnabled(true);
+
+                List<String> attachmentIds = webServiceDispatcherProperties.getAttachmentNames();
+                List<String> attachmentContents = webServiceDispatcherProperties.getAttachmentContents();
+                List<String> attachmentTypes = webServiceDispatcherProperties.getAttachmentTypes();
+
+                for (int i = 0; i < attachmentIds.size(); i++) {
+                    String attachmentContentId = attachmentIds.get(i);
+                    String attachmentContentType = attachmentTypes.get(i);
+                    String attachmentContent = attachmentContents.get(i);
+
+                    AttachmentPart attachment = message.createAttachmentPart();
+                    attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentContentType);
+                    attachment.setContentId(attachmentContentId);
+                    message.addAttachmentPart(attachment);
+                }
+            }
+
+            message.saveChanges();
+
+            try {
+                // Make the call
+                if (webServiceDispatcherProperties.isOneWay()) {
+                    logger.debug("Invoking one way service...");
+                    dispatch.invokeOneWay(message);
+                    responseData = "Invoked one way operation successfully.";
+                } else {
+                    logger.debug("Invoking web service...");
+                    SOAPMessage result = dispatch.invoke(message);
+                    responseData = sourceToXmlString(result.getSOAPPart().getContent());
+                }
+                logger.debug("Finished invoking web service, got result.");
+
+                // Automatically accept message; leave it up to the response transformer to find SOAP faults
+                responseStatus = Status.SENT;
+            } catch (Exception e) {
+                // Leave the response status as QUEUED for ConnectException, otherwise ERROR
+                if ((e.getClass() == ConnectException.class) || ((e.getCause() != null) && (e.getCause().getClass() == ConnectException.class))) {
+                    alertController.sendAlerts(getChannelId(), Constants.ERROR_410, "Connection refused.", e);
+                } else {
+                    responseData = ErrorMessageBuilder.buildErrorResponse("Error invoking web service", e);
+                    responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_410, "Error invoking web service", e);
+                    alertController.sendAlerts(getChannelId(), Constants.ERROR_410, "Error invoking web service.", e);
+                }
+            }
+
+        } catch (Exception e) {
+            // Set the response status to ERROR if it failed to create the dispatch
+            responseData = ErrorMessageBuilder.buildErrorResponse("Error creating web service dispatch", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_410, "Error creating web service dispatch", e);
+            alertController.sendAlerts(getChannelId(), Constants.ERROR_410, "Error creating web service dispatch.", e);
+        }
+
+        return new Response(responseStatus, responseData, responseError);
     }
 }

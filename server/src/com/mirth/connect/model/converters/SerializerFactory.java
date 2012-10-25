@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -12,23 +12,31 @@ package com.mirth.connect.model.converters;
 import java.util.Map;
 import java.util.Properties;
 
-import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.converters.delimited.DelimitedSerializer;
+import com.mirth.connect.model.converters.dicom.DICOMSerializer;
+import com.mirth.connect.model.converters.edi.EDISerializer;
+import com.mirth.connect.model.converters.hl7v2.ER7Serializer;
+import com.mirth.connect.model.converters.hl7v3.HL7V3Serializer;
+import com.mirth.connect.model.converters.ncpdp.NCPDPSerializer;
+import com.mirth.connect.model.converters.x12.X12Serializer;
+import com.mirth.connect.model.converters.xml.DefaultXMLSerializer;
+
 
 public class SerializerFactory {
-    public static IXMLSerializer<String> getSerializer(Protocol protocol, Map<?, ?> properties) {
-        if (protocol.equals(Protocol.HL7V2)) {
+    public static IXMLSerializer getSerializer(String dataType, Map<?, ?> properties) {
+        if (dataType.equals(DataTypeFactory.HL7V2)) {
             return new ER7Serializer(properties);
-        } else if (protocol.equals(Protocol.HL7V3)) {
+        } else if (dataType.equals(DataTypeFactory.HL7V3)) {
             return new HL7V3Serializer(properties);
-        } else if (protocol.equals(Protocol.X12)) {
+        } else if (dataType.equals(DataTypeFactory.X12)) {
             return new X12Serializer(properties);
-        } else if (protocol.equals(Protocol.EDI)) {
+        } else if (dataType.equals(DataTypeFactory.EDI)) {
             return new EDISerializer(properties);
-        } else if (protocol.equals(Protocol.NCPDP)) {
+        } else if (dataType.equals(DataTypeFactory.NCPDP)) {
             return new NCPDPSerializer(properties);
-        } else if (protocol.equals(Protocol.DICOM)) {
+        } else if (dataType.equals(DataTypeFactory.DICOM)) {
             return new DICOMSerializer(properties);
-        } else if (protocol.equals(Protocol.DELIMITED)) {
+        } else if (dataType.equals(DataTypeFactory.DELIMITED)) {
             return new DelimitedSerializer(properties);
         } else {
             return new DefaultXMLSerializer(properties);
@@ -85,7 +93,7 @@ public class SerializerFactory {
         properties.put("inferDelimiters", Boolean.toString(inferDelimiters));
         return new X12Serializer(properties);
     }
-    
+
     @Deprecated
     public static EDISerializer getEDISerializer(String segmentDelim, String elementDelim, String subelementDelim) {
         Properties properties = new Properties();

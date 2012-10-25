@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -17,13 +17,11 @@ import junit.framework.TestCase;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.server.controllers.ChannelController;
-import com.mirth.connect.server.controllers.ChannelStatisticsController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.tools.ScriptRunner;
 
 public class StatisticsControllerTest extends TestCase {
-    private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private Channel sampleChannel;
@@ -38,15 +36,10 @@ public class StatisticsControllerTest extends TestCase {
         sampleChannel.setId(configurationController.generateGuid());
         sampleChannel.setName("Sample Channel");
         sampleChannel.setDescription("This is a sample channel");
-        sampleChannel.setEnabled(true);
         sampleChannel.setVersion(configurationController.getServerVersion());
         sampleChannel.setRevision(0);
         sampleChannel.setSourceConnector(new Connector());
         sampleChannel.setPreprocessingScript("return 1;");
-
-        Properties sampleProperties = new Properties();
-        sampleProperties.setProperty("testProperty", "true");
-        sampleChannel.setProperties(sampleProperties);
 
         channelController.updateChannel(sampleChannel, null, true);
     }

@@ -14,11 +14,11 @@ import javax.jms.Message;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.transformer.TransformerException;
 
 import com.mirth.connect.connectors.jms.JmsConnector;
 import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class MessageObjectToJMSMessage extends AbstractJmsTransformer {
     private static transient Log logger = LogFactory.getLog(MessageObjectToJMSMessage.class);

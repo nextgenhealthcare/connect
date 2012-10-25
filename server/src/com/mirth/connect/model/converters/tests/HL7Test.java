@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -18,10 +18,9 @@ import java.util.Properties;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.model.converters.ER7Serializer;
-import com.mirth.connect.model.converters.SerializerException;
-import com.mirth.connect.model.converters.Stopwatch;
+import com.mirth.connect.model.converters.hl7v2.ER7Serializer;
 
 public class HL7Test {
 
@@ -49,7 +48,7 @@ public class HL7Test {
 			
 			System.out.println("Execution time average: " + totalExecutionTime/iterations + " ms");
 		}
-		// System.out.println(new X12Serializer().toXML("SEG*1*2**4*5"));
+		// System.out.println(new X12Serializer().serialize("SEG*1*2**4*5"));
 		catch (SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -16,7 +16,7 @@ import org.mozilla.javascript.RhinoException;
 public class ErrorMessageBuilder {
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
-    public String buildErrorMessage(String errorType, String customMessage, Throwable e) {
+    public static String buildErrorMessage(String errorType, String customMessage, Throwable e) {
         String errorSourceLine = null;
 
         // if the exception occured during execution of the script, get the
@@ -49,5 +49,14 @@ public class ErrorMessageBuilder {
         }
 
         return builder.toString();
+    }
+    
+    public static String buildErrorResponse(String customMessage, Throwable e) {
+        String responseException = new String();
+        if (e != null) {
+            responseException = "\t" + e.getClass().getSimpleName() + "\t" + e.getMessage();
+        }
+        
+        return customMessage + responseException;
     }
 }

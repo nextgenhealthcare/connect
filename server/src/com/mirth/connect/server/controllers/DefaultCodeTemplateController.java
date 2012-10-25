@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,9 +9,9 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.CodeTemplate;
@@ -41,7 +41,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         logger.debug("getting codeTemplate: " + codeTemplate);
 
         try {
-            List<CodeTemplate> codeTemplates = SqlConfig.getSqlMapClient().queryForList("CodeTemplate.getCodeTemplate", codeTemplate);
+            List<CodeTemplate> codeTemplates = SqlConfig.getSqlSessionManager().selectList("CodeTemplate.getCodeTemplate", codeTemplate);
 
             // The version is not stored in the database, so set it when pulling code templates out.
             for (CodeTemplate singleCodeTemplate : codeTemplates) {
@@ -49,7 +49,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             }
 
             return codeTemplates;
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }
@@ -69,17 +69,17 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
             codeTemplateFilter.setId(codeTemplate.getId());
 
             try {
-                SqlConfig.getSqlMapClient().startTransaction();
+                SqlConfig.getSqlSessionManager().startManagedSession();
 
                 // insert the codeTemplate and its properties
                 logger.debug("adding codeTemplate: " + codeTemplate);
-                SqlConfig.getSqlMapClient().insert("CodeTemplate.insertCodeTemplate", codeTemplate);
+                SqlConfig.getSqlSessionManager().insert("CodeTemplate.insertCodeTemplate", codeTemplate);
 
-                SqlConfig.getSqlMapClient().commitTransaction();
+                SqlConfig.getSqlSessionManager().commit();
             } finally {
-                SqlConfig.getSqlMapClient().endTransaction();
+                SqlConfig.getSqlSessionManager().close();
             }
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }
@@ -88,13 +88,13 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         logger.debug("removing codeTemplate: " + codeTemplate);
 
         try {
-            SqlConfig.getSqlMapClient().delete("CodeTemplate.deleteCodeTemplate", codeTemplate);
+            SqlConfig.getSqlSessionManager().delete("CodeTemplate.deleteCodeTemplate", codeTemplate);
 
             if (DatabaseUtil.statementExists("CodeTemplate.vacuumCodeTemplateTable")) {
-                SqlConfig.getSqlMapClient().update("CodeTemplate.vacuumCodeTemplateTable");
+                SqlConfig.getSqlSessionManager().update("CodeTemplate.vacuumCodeTemplateTable");
             }
 
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ControllerException(e);
         }
     }

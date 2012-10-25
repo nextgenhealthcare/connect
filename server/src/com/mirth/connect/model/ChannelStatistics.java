@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -20,12 +20,12 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 public class ChannelStatistics implements Serializable {
     private String serverId;
     private String channelId;
-    private int received = 0;
-    private int sent = 0;
-    private int error = 0;
-    private int filtered = 0;
-    private int queued = 0;
-    private int alerted = 0;
+    private long received = 0L;
+    private long sent = 0L;
+    private long error = 0L;
+    private long filtered = 0L;
+    private long queued = 0L;
+    private long alerted = 0L;
 
     public String getServerId() {
         return serverId;
@@ -43,51 +43,51 @@ public class ChannelStatistics implements Serializable {
         this.channelId = channelId;
     }
 
-    public int getReceived() {
+    public long getReceived() {
         return this.received;
     }
 
-    public void setReceived(int receivedCount) {
+    public void setReceived(long receivedCount) {
         this.received = receivedCount;
     }
 
-    public int getFiltered() {
+    public long getFiltered() {
         return filtered;
     }
 
-    public void setFiltered(int filteredCount) {
+    public void setFiltered(long filteredCount) {
         this.filtered = filteredCount;
     }
 
-    public int getQueued() {
+    public long getQueued() {
         return this.queued;
     }
 
-    public void setQueued(int queuedCount) {
+    public void setQueued(long queuedCount) {
         this.queued = queuedCount;
     }
 
-    public int getSent() {
+    public long getSent() {
         return this.sent;
     }
 
-    public void setSent(int sentCount) {
+    public void setSent(long sentCount) {
         this.sent = sentCount;
     }
 
-    public int getError() {
+    public long getError() {
         return this.error;
     }
 
-    public void setError(int errorCount) {
+    public void setError(long errorCount) {
         this.error = errorCount;
     }
 
-    public int getAlerted() {
+    public long getAlerted() {
         return this.alerted;
     }
 
-    public void setAlerted(int alerted) {
+    public void setAlerted(long alerted) {
         this.alerted = alerted;
     }
 

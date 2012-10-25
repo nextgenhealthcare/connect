@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -12,13 +12,12 @@ package com.mirth.connect.client.core;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.security.Provider;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.crypto.SecretKey;
@@ -27,23 +26,24 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.commons.encryption.KeyEncryptor;
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.MessageContent;
+import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.Alert;
-import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
-import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.LoginStatus;
-import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.ServerConfiguration;
@@ -52,8 +52,10 @@ import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
-import com.mirth.connect.model.filters.MessageObjectFilter;
-import com.mirth.connect.model.util.ImportConverter;
+import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.util.export.MessageExportOptions;
+import com.mirth.connect.util.export.MessageExporter;
+import com.mirth.connect.util.export.MessageRetriever;
 
 public class Client {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -75,8 +77,7 @@ public class Client {
     public final static String ENGINE_SERVLET = "/engine";
 
     /**
-     * Instantiates a new Mirth client with a connection to the specified
-     * server.
+     * Instantiates a new Mirth client with a connection to the specified server.
      * 
      * @param address
      */
@@ -159,8 +160,7 @@ public class Client {
     }
 
     /**
-     * Returns a ServerConfiguration object which contains all of the channels,
-     * users, alerts and properties stored on the Mirth server.
+     * Returns a ServerConfiguration object which contains all of the channels, users, alerts and properties stored on the Mirth server.
      * 
      * @return
      * @throws ClientException
@@ -172,8 +172,7 @@ public class Client {
     }
 
     /**
-     * Sets a ServerConfiguration object which sets all of the channels, alerts
-     * and properties stored on the Mirth server.
+     * Sets a ServerConfiguration object which sets all of the channels, alerts and properties stored on the Mirth server.
      * 
      * @return
      * @throws ClientException
@@ -201,7 +200,13 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_SUMMARY.getName()), new NameValuePair("cachedChannels", serializer.toXML(cachedChannels)) };
         return (List<ChannelSummary>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_SERVLET, params));
     }
-
+    
+    public Set<String> getChannelTags() throws ClientException {
+        logger.debug("getting channel tags");
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_TAGS.getName()) };
+        return (Set<String>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_SERVLET, params));
+    }
+    
     /**
      * Updates the specified channel.
      * 
@@ -347,10 +352,9 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", Operations.USER_UPDATE.getName()), new NameValuePair("user", serializer.toXML(user)) };
         serverConnection.executePostMethod(USER_SERVLET, params);
     }
-    
+
     /**
-     * Checks the password against the configured password policies if a null
-     * user id is passed in. If a user with an id is passed in their password is also updated.
+     * Checks the password against the configured password policies if a null user id is passed in. If a user with an id is passed in their password is also updated.
      * 
      * @param userId
      * @param plainPassword
@@ -495,7 +499,7 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", Operations.CONFIGURATION_SERVER_SETTINGS_SET.getName()), new NameValuePair("data", serializer.toXML(settings)) };
         serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
-    
+
     /**
      * Returns an UpdateSettings object with all update settings.
      * 
@@ -531,14 +535,14 @@ public class Client {
     }
 
     /**
-     * Deploys all channels.
+     * Re-deploys all channels.
      * 
      * @throws ClientException
      */
-    public synchronized void redeployAllChannels() throws ClientException {
+    public void redeployAllChannels() throws ClientException {
         logger.debug("deploying channels");
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_REDEPLOY.getName()) };
-        serverConnection.executePostMethod(ENGINE_SERVLET, params);
+        serverConnection.executePostMethodChannel(ENGINE_SERVLET, params);
     }
 
     /**
@@ -546,10 +550,10 @@ public class Client {
      * 
      * @throws ClientException
      */
-    public synchronized void deployChannels(List<String> channelIds) throws ClientException {
+    public void deployChannels(List<String> channelIds) throws ClientException {
         logger.debug("deploying channels");
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_DEPLOY.getName()), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
-        serverConnection.executePostMethod(ENGINE_SERVLET, params);
+        serverConnection.executePostMethodChannel(ENGINE_SERVLET, params);
     }
 
     /**
@@ -557,10 +561,10 @@ public class Client {
      * 
      * @throws ClientException
      */
-    public synchronized void undeployChannels(List<String> channelIds) throws ClientException {
+    public void undeployChannels(List<String> channelIds) throws ClientException {
         logger.debug("undeploying channels");
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_UNDEPLOY.getName()), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
-        serverConnection.executePostMethod(ENGINE_SERVLET, params);
+        serverConnection.executePostMethodChannel(ENGINE_SERVLET, params);
     }
 
     /**
@@ -569,10 +573,10 @@ public class Client {
      * @param channelId
      * @throws ClientException
      */
-    public synchronized void startChannel(String channelId) throws ClientException {
+    public void startChannel(String channelId) throws ClientException {
         logger.debug("starting channel: channelId=" + channelId);
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_START.getName()), new NameValuePair("id", channelId) };
-        serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);
+        serverConnection.executePostMethodChannel(CHANNEL_STATUS_SERVLET, params);
     }
 
     /**
@@ -581,10 +585,22 @@ public class Client {
      * @param channelId
      * @throws ClientException
      */
-    public synchronized void stopChannel(String channelId) throws ClientException {
+    public void stopChannel(String channelId) throws ClientException {
         logger.debug("stopping channel: channelId=" + channelId);
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STOP.getName()), new NameValuePair("id", channelId) };
-        serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);
+        serverConnection.executePostMethodChannel(CHANNEL_STATUS_SERVLET, params);
+    }
+    
+    /**
+     * Halts the channel with the specified id.
+     * 
+     * @param channelId
+     * @throws ClientException
+     */
+    public void haltChannel(String channelId) throws ClientException {
+        logger.debug("halting channel: channelId=" + channelId);
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_HALT.getName()), new NameValuePair("id", channelId) };
+        serverConnection.executePostMethodAsync(CHANNEL_STATUS_SERVLET, params);
     }
 
     /**
@@ -593,10 +609,10 @@ public class Client {
      * @param channelId
      * @throws ClientException
      */
-    public synchronized void pauseChannel(String channelId) throws ClientException {
+    public void pauseChannel(String channelId) throws ClientException {
         logger.debug("pausing channel: channelId=" + channelId);
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_PAUSE.getName()), new NameValuePair("id", channelId) };
-        serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);
+        serverConnection.executePostMethodChannel(CHANNEL_STATUS_SERVLET, params);
     }
 
     /**
@@ -605,10 +621,10 @@ public class Client {
      * @param channelId
      * @throws ClientException
      */
-    public synchronized void resumeChannel(String channelId) throws ClientException {
+    public void resumeChannel(String channelId) throws ClientException {
         logger.debug("resuming channel: channelId=" + channelId);
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_RESUME.getName()), new NameValuePair("id", channelId) };
-        serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);
+        serverConnection.executePostMethodChannel(CHANNEL_STATUS_SERVLET, params);
     }
 
     /**
@@ -624,14 +640,16 @@ public class Client {
     }
 
     /**
-     * Clears the Statistics for the channel with the specified id.
+     * Clears the statistics for the given connectors and/or channels
      * 
+     * @param channelConnectorMap
+     *            Channel IDs mapped to lists of metaDataIds (connectors). If the metaDataId list is null, then all statistics for the channel will be cleared.
      * @return
      * @throws ClientException
      */
-    public void clearStatistics(String channelId, boolean received, boolean filtered, boolean queued, boolean sent, boolean error, boolean alerted) throws ClientException {
-        logger.debug("clearing channel statistics: channelId=" + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STATS_CLEAR.getName()), new NameValuePair("id", channelId), new NameValuePair("deleteReceived", new Boolean(received).toString()), new NameValuePair("deleteFiltered", new Boolean(filtered).toString()), new NameValuePair("deleteQueued", new Boolean(queued).toString()), new NameValuePair("deleteSent", new Boolean(sent).toString()), new NameValuePair("deleteErrored", new Boolean(error).toString()), new NameValuePair("deleteAlerted", new Boolean(alerted).toString()) };
+    public void clearStatistics(Map<String, List<Integer>> channelConnectorMap, boolean received, boolean filtered, boolean sent, boolean error, boolean alerted) throws ClientException {
+        logger.debug("clearing statistics");
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STATS_CLEAR.getName()), new NameValuePair("channelConnectorMap", serializer.toXML(channelConnectorMap)), new NameValuePair("deleteReceived", new Boolean(received).toString()), new NameValuePair("deleteFiltered", new Boolean(filtered).toString()), new NameValuePair("deleteSent", new Boolean(sent).toString()), new NameValuePair("deleteErrored", new Boolean(error).toString()), new NameValuePair("deleteAlerted", new Boolean(alerted).toString()) };
         serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params);
     }
 
@@ -646,34 +664,44 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_EXPORT_ALL.getName()) };
         return (String) serverConnection.executePostMethod(EVENT_SERVLET, params);
     }
-    
+
     public String exportAndRemoveAllEvents() throws ClientException {
         logger.debug("exporting and removing all events");
         NameValuePair[] params = { new NameValuePair("op", Operations.EVENT_EXPORT_AND_REMOVE_ALL.getName()) };
         return (String) serverConnection.executePostMethod(EVENT_SERVLET, params);
     }
-    
-    public void removeMessages(MessageObjectFilter filter) throws ClientException {
+
+    public void removeMessages(String channelId, MessageFilter filter) throws ClientException {
         logger.debug("removing messages");
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_REMOVE.getName()), new NameValuePair("filter", serializer.toXML(filter)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_REMOVE.getName()), new NameValuePair("channelId", channelId), new NameValuePair("filter", serializer.toXML(filter)) };
+        serverConnection.executePostMethod(MESSAGE_SERVLET, params);
+    }
+    
+    public void removeConnectorMessages(String channelId, MessageFilter filter) throws ClientException {
+        logger.debug("removing messages");
+        NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_MESSAGE_REMOVE.getName()), new NameValuePair("channelId", channelId), new NameValuePair("filter", serializer.toXML(filter)) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
-    public void reprocessMessages(MessageObjectFilter filter, boolean replace, List<String> destinations) throws ClientException {
+    public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds) throws ClientException {
         logger.debug("reprocessing messages");
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_REPROCESS.getName()), new NameValuePair("filter", serializer.toXML(filter)), new NameValuePair("replace", String.valueOf(replace)), new NameValuePair("destinations", serializer.toXML(destinations)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_REPROCESS.getName()), new NameValuePair("channelId", channelId), new NameValuePair("filter", serializer.toXML(filter)), new NameValuePair("replace", String.valueOf(replace)), new NameValuePair("reprocessMetaDataIds", serializer.toXML(reprocessMetaDataIds)) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
-    public void processMessage(MessageObject message) throws ClientException {
+    public void processMessage(String channelId, String rawMessage) throws ClientException {
+        processMessage(channelId, rawMessage, null);
+    }
+
+    public void processMessage(String channelId, String rawMessage, List<Integer> metaDataIds) throws ClientException {
         logger.debug("processing message");
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_PROCESS.getName()), new NameValuePair("message", serializer.toXML(message)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_PROCESS.getName()), new NameValuePair("channelId", channelId), new NameValuePair("message", rawMessage), new NameValuePair("metaDataIds", serializer.toXML(metaDataIds)) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
     public Encryptor getEncryptor() {
         KeyEncryptor encryptor = null;
-        
+
         try {
             EncryptionSettings encryptionSettings = getEncryptionSettings();
             encryptor = new KeyEncryptor();
@@ -686,7 +714,7 @@ public class Client {
 
         return encryptor;
     }
-    
+
     public boolean isEncryptExport() {
         try {
             return getEncryptionSettings().getEncryptExport();
@@ -697,153 +725,142 @@ public class Client {
         return false;
     }
     
+    public void encryptMessage(Message message) {
+        Encryptor encryptor = getEncryptor();
+        
+        for (ConnectorMessage destinationMessage : message.getConnectorMessages().values()) {
+            encryptConnectorMessage(destinationMessage, encryptor);
+        }
+    }
+
+    private void encryptConnectorMessage(ConnectorMessage connectorMessage, Encryptor encryptor) {
+        encryptMessageContent(connectorMessage.getRaw(), encryptor);
+        encryptMessageContent(connectorMessage.getProcessedRaw(), encryptor);
+        encryptMessageContent(connectorMessage.getTransformed(), encryptor);
+        encryptMessageContent(connectorMessage.getEncoded(), encryptor);
+        encryptMessageContent(connectorMessage.getSent(), encryptor);
+        encryptMessageContent(connectorMessage.getResponse(), encryptor);
+        encryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
+    }
+
+    private void encryptMessageContent(MessageContent content, Encryptor encryptor) {
+        if (content != null && !content.isEncrypted()) {
+            content.setContent(encryptor.encrypt(content.getContent()));
+        }
+    }
+    
+    public void decryptMessage(Message message) {
+        Encryptor encryptor = getEncryptor();
+        
+        for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
+            decryptConnectorMessage(connectorMessage, encryptor);
+        }
+    }
+
+    private void decryptConnectorMessage(ConnectorMessage connectorMessage, Encryptor encryptor) {
+        if (connectorMessage != null) {
+            decryptMessageContent(connectorMessage.getRaw(), encryptor);
+            decryptMessageContent(connectorMessage.getProcessedRaw(), encryptor);
+            decryptMessageContent(connectorMessage.getTransformed(), encryptor);
+            decryptMessageContent(connectorMessage.getEncoded(), encryptor);
+            decryptMessageContent(connectorMessage.getSent(), encryptor);
+            decryptMessageContent(connectorMessage.getResponse(), encryptor);
+            decryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
+        }
+    }
+
+    private void decryptMessageContent(MessageContent content, Encryptor encryptor) {
+        if (content != null && content.isEncrypted()) {
+            content.setContent(encryptor.decrypt(content.getContent()));
+            content.setEncrypted(false);
+        }
+    }
+    
     public int importMessages(String channelId, File file, String charset) throws ClientException {
-        int messageCount = 0;
+        final String openElement = "<message>";
+        final String closeElement = "</message>";
         BufferedReader reader = null;
-
+        int importCount = 0;
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        
         try {
-            final String deprecatedOpenElement2 = "<com.webreach.mirth.model.MessageObject>";
-            final String deprecatedCloseElement2 = "</com.webreach.mirth.model.MessageObject>";
-            final String deprecatedOpenElement = "<com.mirth.connect.model.MessageObject>";
-            final String deprecatedCloseElement = "</com.mirth.connect.model.MessageObject>";
-            final String openElement = "<messageObject>";
-            final String closeElement = "</messageObject>";
-
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
-            StringBuilder output = new StringBuilder();
-            String line = null;
+            String line;
+            StringBuilder serializedMessage = new StringBuilder();
             boolean enteredMessage = false;
 
             while ((line = reader.readLine()) != null) {
-                if (line.equals(openElement) || line.equals(deprecatedOpenElement) || line.equals(deprecatedOpenElement2)) {
+                if (line.equals(openElement)) {
                     enteredMessage = true;
                 }
-
+                
                 if (enteredMessage) {
-                    output.append(line);
-
-                    if (line.equals(closeElement) || line.equals(deprecatedCloseElement) || line.equals(deprecatedCloseElement2)) {
-                        MessageObject messageObject = (MessageObject) serializer.fromXML(ImportConverter.convertMessage(output.toString()));
-                        messageObject.setChannelId(channelId);
-                        messageObject.setId(getGuid());
+                    serializedMessage.append(line);
+                    
+                    if (line.equals(closeElement)) {
+                        Message message = (Message) serializer.fromXML(serializedMessage.toString());
                         
-                        
-                        if (StringUtils.startsWith(messageObject.getRawData(), EncryptionSettings.ENCRYPTION_PREFIX)) {
-                            messageObject.setRawData(StringUtils.removeStart(getEncryptor().decrypt(messageObject.getRawData()), EncryptionSettings.ENCRYPTION_PREFIX));
+                        // if the message is being imported into a different channel than the one it came from, set the message id to null so that a new message id will be given to it by the server
+                        if (!message.getChannelId().equals(channelId)) {
+                            message.setChannelId(channelId);
+                            message.setMessageId(null);
                         }
                         
-                        if (StringUtils.startsWith(messageObject.getTransformedData(), EncryptionSettings.ENCRYPTION_PREFIX)) {
-                            messageObject.setTransformedData(StringUtils.removeStart(getEncryptor().decrypt(messageObject.getTransformedData()), EncryptionSettings.ENCRYPTION_PREFIX));
-                        }
-                        
-                        if (StringUtils.startsWith(messageObject.getEncodedData(), EncryptionSettings.ENCRYPTION_PREFIX)) {
-                            messageObject.setEncodedData(StringUtils.removeStart(getEncryptor().decrypt(messageObject.getEncodedData()), EncryptionSettings.ENCRYPTION_PREFIX));
-                        }
-
-                        try {
-                            importMessage(messageObject);
-                            messageCount++;
-                        } catch (Exception e) {
-                            throw new ClientException("Unable to connect to server. Stopping message import.", e);
-                        }
-
-                        output.delete(0, output.length());
+                        decryptMessage(message);
+                        importMessage(message);
+                        importCount++;
+                        serializedMessage.delete(0, serializedMessage.length());
                         enteredMessage = false;
                     }
                 }
             }
-
-            return messageCount;
         } catch (Exception e) {
             throw new ClientException("Invalid message file. Stopping message import.", e);
         } finally {
             IOUtils.closeQuietly(reader);
         }
-    }
 
-    private void importMessage(MessageObject message) throws ClientException {
+        return importCount;
+     }
+
+    public void importMessage(Message message) throws ClientException {
         logger.debug("importing message");
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_IMPORT.getName()), new NameValuePair("message", serializer.toXML(message)) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
     
-    public int exportMessages(int exportMode, int plainTextMode, MessageObjectFilter filter, int pageSize, File file, String charset) throws ClientException {
-        MessageListHandler messageListHandler = null;
-        int messageCount = 0;
-
+    public int exportMessagesLocal(MessageExportOptions options) throws ClientException {
+        final Client client = this;
+        
+        MessageExporter messageExporter = new MessageExporter();
+        messageExporter.setOptions(options);
+        messageExporter.setSerializer(serializer);
+        messageExporter.setEncryptor(getEncryptor());
+        messageExporter.setMessageRetriever(new MessageRetriever() {
+            @Override
+            public List<Message> getMessages(String channelId, MessageFilter filter, boolean includeContent, Integer offset, Integer limit) throws Exception {
+                return client.getMessages(channelId, filter, includeContent, offset, limit);
+            }
+        });
+        
         try {
-            messageListHandler = getMessageListHandler(filter, pageSize, true);
-            List<MessageObject> messageObjectList = messageListHandler.getFirstPage();
-            StringBuilder output = new StringBuilder();
-
-            while (messageObjectList.size() > 0) {
-                for (MessageObject messageObject : messageObjectList) {
-                    
-                    if (isEncryptExport()) {
-                        messageObject.setRawData(EncryptionSettings.ENCRYPTION_PREFIX + getEncryptor().encrypt(messageObject.getRawData()));
-                        messageObject.setTransformedData(EncryptionSettings.ENCRYPTION_PREFIX + getEncryptor().encrypt(messageObject.getTransformedData()));
-                        messageObject.setEncodedData(EncryptionSettings.ENCRYPTION_PREFIX + getEncryptor().encrypt(messageObject.getEncodedData()));
-                    }
-                    
-                    if (exportMode == 1) {
-                        switch (plainTextMode) {
-                            case 0:
-                                if (StringUtils.isNotBlank(messageObject.getRawData())) {
-                                    output.append(messageObject.getRawData());
-                                }
-
-                                break;
-                            case 1:
-                                if (StringUtils.isNotBlank(messageObject.getTransformedData())) {
-                                    output.append(messageObject.getTransformedData());
-                                }
-
-                                break;
-                            case 2:
-                                if (StringUtils.isNotBlank(messageObject.getEncodedData())) {
-                                    output.append(messageObject.getEncodedData());
-                                }
-
-                                break;
-                            default:
-                                break;
-                        }
-                        
-                        output.append(IOUtils.LINE_SEPARATOR);
-                    } else {
-                        output.append(serializer.toXML(messageObject));
-                    }
-
-                    messageCount++;
-                    output.append(IOUtils.LINE_SEPARATOR);
-                }
-
-                OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file, true), charset);
-
-                try {
-                    writer.write(output.toString());
-                    writer.flush();
-                } finally {
-                    IOUtils.closeQuietly(writer);
-                }
-
-                output.delete(0, output.length());
-                messageObjectList = messageListHandler.getNextPage();
-            }
-
-            return messageCount;
+            return messageExporter.export();
         } catch (Exception e) {
-            throw new ClientException("Message export file could not be written.", e);
-        } finally {
-            if (messageListHandler != null) {
-                try {
-                    messageListHandler.removeFilterTables();
-                } catch (ClientException e) {
-                    throw new ClientException(e);
-                }
-            }
+            throw new ClientException(e);
         }
     }
+    
+    public int exportMessagesServer(MessageExportOptions options) throws ClientException {
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_EXPORT.getName()), new NameValuePair("options", serializer.toXML(options)) };
+        
+        try {
+            return Integer.parseInt(serverConnection.executePostMethod(Client.MESSAGE_SERVLET, params));
+        } catch (NumberFormatException e) {
+            logger.error(e);
+            return 0;
+        }
+    }
+    
 
     public Map<String, String> getGlobalScripts() throws ClientException {
         logger.debug("getting global scripts");
@@ -905,12 +922,56 @@ public class Client {
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
-    public MessageListHandler getMessageListHandler(MessageObjectFilter filter, int pageSize, boolean newInstance) throws ClientException {
-        return new MessageListHandler(filter, pageSize, (newInstance ? (System.currentTimeMillis() + "") : null), serverConnection);
+    // TODO: replace with calls to getMessages()
+    @Deprecated
+    public MessageListHandler getMessageListHandler(String channelId, MessageFilter filter, int pageSize, boolean newInstance) throws ClientException {
+        return new MessageListHandler(channelId, filter, pageSize, (newInstance ? (System.currentTimeMillis() + "") : null), serverConnection);
     }
 
     public EventListHandler getEventListHandler(EventFilter filter, int pageSize, boolean newInstance) throws ClientException {
         return new EventListHandler(filter, pageSize, (newInstance ? (System.currentTimeMillis() + "") : null), serverConnection);
+    }
+    
+    public Long getMaxMessageId(String channelId) throws ClientException {
+        NameValuePair[] params = { new NameValuePair("op", Operations.GET_MAX_MESSAGE_ID.getName()), new NameValuePair("channelId", channelId)};
+        Long maxMessageId = null;
+        
+        try {
+            maxMessageId = Long.parseLong(serverConnection.executePostMethod(Client.MESSAGE_SERVLET, params));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        
+        return maxMessageId;
+    }
+    
+    public List<Message> getMessages(String channelId, MessageFilter filter, Boolean includeContent, Integer offset, Integer limit) throws ClientException {
+        NameValuePair[] params = { new NameValuePair("op", Operations.GET_MESSAGES.getName()),
+                new NameValuePair("channelId", channelId),
+                new NameValuePair("filter", serializer.toXML(filter)),
+                new NameValuePair("includeContent", (includeContent) ? "y" : "n"),
+                new NameValuePair("offset", (offset == null) ? "" : offset.toString()),
+                new NameValuePair("limit", (limit == null) ? "" : limit.toString()) };
+
+        return (List<Message>) serializer.fromXML(serverConnection.executePostMethod(Client.MESSAGE_SERVLET, params));
+    }
+    
+    public Long getMessageCount(String channelId, MessageFilter filter) throws ClientException {
+        NameValuePair[] params = { new NameValuePair("op", Operations.GET_SEARCH_COUNT.getName()), new NameValuePair("channelId", channelId), new NameValuePair("filter", serializer.toXML(filter)) };
+        Long count = null;
+        
+        try {
+            count = Long.parseLong(serverConnection.executePostMethod(Client.MESSAGE_SERVLET, params));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        
+        return count;
+    }
+    
+    public Message getMessageContent(String channelId, Long messageId) throws ClientException {
+        NameValuePair[] params = { new NameValuePair("op", Operations.GET_MESSAGE_CONTENT.getName()), new NameValuePair("channelId", channelId), new NameValuePair("messageId", serializer.toXML(messageId)) };
+        return (Message) serializer.fromXML(serverConnection.executePostMethod(Client.MESSAGE_SERVLET, params));
     }
 
     /**
@@ -919,10 +980,10 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public List<ChannelStatus> getChannelStatusList() throws ClientException {
+    public List<DashboardStatus> getChannelStatusList() throws ClientException {
         logger.debug("retrieving channel status list");
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_STATUS.getName()) };
-        return (List<ChannelStatus>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params));
+        return (List<DashboardStatus>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params));
     }
 
     /**
@@ -997,25 +1058,25 @@ public class Client {
         serverConnection.executePostMethod(USER_SERVLET, params);
     }
 
-    public Attachment getAttachment(String attachmentId) throws ClientException {
+    public Attachment getAttachment(String channelId, String attachmentId) throws ClientException {
         logger.debug("getting Attachment: " + attachmentId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET.getName()), new NameValuePair("attachmentId", attachmentId) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET.getName()), new NameValuePair("channelId", channelId), new NameValuePair("attachmentId", attachmentId) };
         return (Attachment) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET, params));
     }
 
-    public List<Attachment> getAttachmentsByMessageId(String messageId) throws ClientException {
+    public List<Attachment> getAttachmentsByMessageId(String channelId, Long messageId) throws ClientException {
         logger.debug("getting Attachments for message: " + messageId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID.getName()), new NameValuePair("messageId", messageId) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET_BY_MESSAGE_ID.getName()), new NameValuePair("channelId", channelId), new NameValuePair("messageId", serializer.toXML(messageId)) };
         return (List<Attachment>) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET, params));
     }
 
-    public List<Attachment> getAttachmentIdsByMessageId(String messageId) throws ClientException {
+    public List<Attachment> getAttachmentIdsByMessageId(String channelId, Long messageId) throws ClientException {
         logger.debug("getting Attachments for message: " + messageId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID.getName()), new NameValuePair("messageId", messageId) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_ATTACHMENT_GET_ID_BY_MESSAGE_ID.getName()), new NameValuePair("channelId", channelId), new NameValuePair("messageId", serializer.toXML(messageId)) };
         return (List<Attachment>) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET, params));
     }
 
-    public String getDICOMMessage(MessageObject message) throws ClientException {
+    public String getDICOMMessage(ConnectorMessage message) throws ClientException {
         logger.debug("Getting DICOM message for message: " + message);
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_DICOM_MESSAGE_GET.getName()), new NameValuePair("message", serializer.toXML(message)) };
         return serverConnection.executePostMethod(MESSAGE_SERVLET, params);

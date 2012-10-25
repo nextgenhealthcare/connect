@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -21,7 +21,7 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.util.MessageVocabulary;
 
 public class X12Vocabulary extends MessageVocabulary {
@@ -151,7 +151,7 @@ public class X12Vocabulary extends MessageVocabulary {
     }
 
     @Override
-    public Protocol getProtocol() {
-        return Protocol.X12;
+    public String getDataType() {
+        return DataTypeFactory.X12;
     }
 }

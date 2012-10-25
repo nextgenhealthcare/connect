@@ -13,6 +13,9 @@ public class ConcurrentHashMapConverter extends MapConverter {
     @Override
     @SuppressWarnings("rawtypes")
     public boolean canConvert(Class clazz) {
-        return clazz.equals(ConcurrentHashMap.class);
+        if (clazz.equals(ConcurrentHashMap.class)) {
+            return true;
+        }
+        return false;
     }
 }

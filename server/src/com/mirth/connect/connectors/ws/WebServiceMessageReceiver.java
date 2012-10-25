@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.ws;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
@@ -21,51 +22,57 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.handler.Handler;
 
 import org.apache.log4j.Logger;
-import org.mule.MuleException;
-import org.mule.config.i18n.Message;
-import org.mule.config.i18n.Messages;
-import org.mule.impl.MuleMessage;
-import org.mule.providers.AbstractMessageReceiver;
-import org.mule.umo.UMOComponent;
-import org.mule.umo.UMOException;
-import org.mule.umo.UMOMessage;
-import org.mule.umo.endpoint.UMOEndpoint;
-import org.mule.umo.lifecycle.InitialisationException;
-import org.mule.umo.provider.UMOConnector;
-import org.mule.umo.provider.UMOMessageAdapter;
 
-import com.sun.net.httpserver.BasicAuthenticator;
-import com.sun.net.httpserver.HttpContext;
-import com.sun.net.httpserver.HttpServer;
-import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.Response;
+import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.channel.ChannelException;
+import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
-import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
+import com.sun.net.httpserver.BasicAuthenticator;
+import com.sun.net.httpserver.HttpContext;
+import com.sun.net.httpserver.HttpServer;
 
-public class WebServiceMessageReceiver extends AbstractMessageReceiver {
+public class WebServiceMessageReceiver extends SourceConnector {
     private Logger logger = Logger.getLogger(this.getClass());
-    protected WebServiceConnector connector;
-    private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
+    protected WebServiceReceiverProperties connectorProperties;
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private ConnectorType connectorType = ConnectorType.LISTENER;
     private HttpServer server;
     private ExecutorService threads;
     private Endpoint webServiceEndpoint;
 
-    public WebServiceMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
-        super(connector, component, endpoint);
-        this.connector = (WebServiceConnector) connector;
+    @Override
+    public void onDeploy() {
+        this.connectorProperties = (WebServiceReceiverProperties) getConnectorProperties();
     }
 
-    public void doConnect() throws Exception {
-        logger.debug("starting Web Service HTTP server on port: " + endpoint.getEndpointURI().getUri().getPort());
+    @Override
+    public void onUndeploy() throws UndeployException {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void onStart() throws StartException {
+        // TODO: TemplateValueReplacer
+        String host = connectorProperties.getListenerConnectorProperties().getHost();
+        int port = Integer.parseInt(connectorProperties.getListenerConnectorProperties().getPort());
+
+        logger.debug("starting Web Service HTTP server on port: " + port);
 
         java.util.logging.Logger.getLogger("javax.enterprise.resource.webservices.jaxws.server").setLevel(java.util.logging.Level.OFF);
 
-        server = HttpServer.create(new InetSocketAddress(endpoint.getEndpointURI().getUri().getHost(), endpoint.getEndpointURI().getUri().getPort()), 5);
+        try {
+            server = HttpServer.create(new InetSocketAddress(host, port), 5);
+        } catch (IOException e) {
+            throw new StartException("Error creating HTTP Server.", e.getCause());
+        }
 
         threads = Executors.newFixedThreadPool(5);
         server.setExecutor(threads);
@@ -74,7 +81,7 @@ public class WebServiceMessageReceiver extends AbstractMessageReceiver {
         AcceptMessage acceptMessageWebService = null;
 
         try {
-            Class<?> clazz = Class.forName(connector.getReceiverClassName());
+            Class<?> clazz = Class.forName(connectorProperties.getClassName());
 
             if (clazz.getSuperclass().equals(AcceptMessage.class)) {
                 Constructor<?>[] constructors = clazz.getDeclaredConstructors();
@@ -105,14 +112,14 @@ public class WebServiceMessageReceiver extends AbstractMessageReceiver {
         List<Handler> handlerChain = new LinkedList<Handler>();
         handlerChain.add(new LoggingSOAPHandler(this));
         binding.setHandlerChain(handlerChain);
-        HttpContext context = server.createContext("/services/" + connector.getReceiverServiceName());
+        HttpContext context = server.createContext("/services/" + connectorProperties.getServiceName());
 
-        if (connector.getReceiverUsernames().size() > 0) {
-            context.setAuthenticator(new BasicAuthenticator("/services/" + connector.getReceiverServiceName()) {
+        if (connectorProperties.getUsernames().size() > 0) {
+            context.setAuthenticator(new BasicAuthenticator("/services/" + connectorProperties.getServiceName()) {
                 @Override
                 public boolean checkCredentials(String username, String password) {
-                    List<String> usernames = connector.getReceiverUsernames();
-                    List<String> passwords = connector.getReceiverPasswords();
+                    List<String> usernames = connectorProperties.getUsernames();
+                    List<String> passwords = connectorProperties.getPasswords();
                     if (usernames.contains(username) && passwords.get(usernames.indexOf(username)).equals(password)) {
                         return true;
                     } else {
@@ -124,49 +131,42 @@ public class WebServiceMessageReceiver extends AbstractMessageReceiver {
 
         webServiceEndpoint.publish(context);
 
-        monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
     }
 
-    public void doDisconnect() throws Exception {
-
-    }
-
-    public void doStop() throws UMOException {
-        super.doStop();
-
+    @Override
+    public void onStop() throws StopException {
         try {
             logger.debug("stopping Web Service HTTP server");
             webServiceEndpoint.stop();
             server.stop(1);
             threads.shutdown();
         } catch (Exception e) {
-            throw new MuleException(new Message(Messages.FAILED_TO_STOP_X, "Web Service Listener"), e.getCause());
+            throw new StopException("Failed to stop Web Service Listener", e.getCause());
         }
     }
 
-    public String processData(String message) {
+    @Override
+    public void handleRecoveredResponse(MessageResponse messageResponse) {
+        // TODO Auto-generated method stub
+    }
+
+    public Response processData(String message) {
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY);
+
+        RawMessage rawMessage = new RawMessage(message);
+        MessageResponse messageResponse = null;
+        
         try {
-            monitoringController.updateStatus(connector, connectorType, Event.BUSY);
-            UMOMessageAdapter adapter = connector.getMessageAdapter(message);
-            UMOMessage response = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
-
-            if ((response != null) && (response instanceof MuleMessage)) {
-                Object payload = response.getPayload();
-
-                if (payload instanceof MessageObject) {
-                    MessageObject messageObjectResponse = (MessageObject) payload;
-                    postProcessor.doPostProcess(messageObjectResponse);
-
-                    if (!connector.getReceiverResponseValue().equalsIgnoreCase("None")) {
-                        return ((Response) messageObjectResponse.getResponseMap().get(connector.getReceiverResponseValue())).getMessage();
-                    } else {
-                        return null;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Error processing message in web service.  Channel: " + connector.getChannelId(), e);
+            messageResponse = super.handleRawMessage(rawMessage);
+        } catch (ChannelException e) {
+        } finally {
+            // TODO: response should be returned before it is marked as finished
+            try {
+                storeMessageResponse(messageResponse);
+            } catch (ChannelException e) {}
         }
-        return null;
+
+        return messageResponse.getResponse();
     }
 }

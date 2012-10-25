@@ -2,12 +2,12 @@
 	<name>Document Writer</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>2.2.1</mirthVersion>
+	<mirthVersion>3.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to create RTF or PDF documents based on an HTML template. PDF files can be password protected.</description>
 	<clientClassName>com.mirth.connect.connectors.doc.DocumentWriter</clientClassName>
-	<serverClassName>com.mirth.connect.connectors.doc.DocumentConnector</serverClassName>
-	<sharedClassName>com.mirth.connect.connectors.doc.DocumentWriterProperties</sharedClassName>
+	<serverClassName>com.mirth.connect.connectors.doc.DocumentDispatcher</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.doc.DocumentDispatcherProperties</sharedClassName>
 	<serviceClassName>com.mirth.connect.connectors.doc.DocumentWriterService</serviceClassName>
 	<library type="CLIENT" path="doc-client.jar" />
 	<library type="SHARED" path="doc-shared.jar" />
@@ -17,9 +17,4 @@
 	<transformers></transformers>
 	<protocol>doc</protocol>
 	<type>DESTINATION</type>
-	<mule-properties>
-		<property name="connector">com.mirth.connect.connectors.doc.DocumentConnector</property>
-		<property name="dispatcher.factory">com.mirth.connect.connectors.doc.DocumentMessageDispatcherFactory</property>
-		<property name="endpoint.builder">org.mule.providers.file.FileEndpointBuilder</property>
-	</mule-properties>
 </connectorMetaData>

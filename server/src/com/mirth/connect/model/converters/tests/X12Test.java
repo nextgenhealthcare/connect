@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -18,10 +18,9 @@ import junit.framework.Assert;
 
 import org.xml.sax.SAXException;
 
+import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.model.converters.SerializerException;
-import com.mirth.connect.model.converters.Stopwatch;
-import com.mirth.connect.model.converters.X12Serializer;
+import com.mirth.connect.model.converters.x12.X12Serializer;
 
 public class X12Test {
 	public static void main(String[] args) {
@@ -43,7 +42,7 @@ public class X12Test {
 
 			System.out.println("Execution time average: " + totalExecutionTime / iterations + " ms");
 		}
-		// System.out.println(new X12Serializer().toXML("SEG*1*2**4*5"));
+		// System.out.println(new X12Serializer().serialize("SEG*1*2**4*5"));
 		catch (SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -63,7 +62,7 @@ public class X12Test {
 		String x12 = serializer.fromXML(xmloutput);
 		stopwatch.stop();
 
-		// System.out.println(docser.toXML(doc)); // handler.getOutput());
+		// System.out.println(docser.serialize(doc)); // handler.getOutput());
 		// System.out.println(x12);
 	    Assert.assertTrue(x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim()));
 

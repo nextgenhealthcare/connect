@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -15,5 +15,5 @@ import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
 
 public interface ConnectorStatusPlugin extends ServerPlugin {
-    public void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket);
+    public void updateStatus(String channelId, int metaDataId, ConnectorType type, Event event, Socket socket, String information);
 }
