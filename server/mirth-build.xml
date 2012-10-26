@@ -14,7 +14,8 @@
 	<!-- WebAdmin -->
 	<target name="build-webadmin" depends="init">
 		<ant antfile="${webadmin}/build.xml" dir="${webadmin}" target="dist"/>
-		<copy file="${webadmin}/dist/webadmin.war" todir="${server}/webapps" />
+		<copy file="${webadmin}/dist/webadmin.war" todir="${server.build}/webapps" />
+		<copy file="${webadmin}/dist/webadmin.war" todir="${server.setup}/webapps" />
 	</target>
 
 	<!-- Server extensions -->

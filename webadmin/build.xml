@@ -68,7 +68,6 @@
 			<fileset dir="${build.web}" />
 			<classes dir="${build.classes}" />
 		</war>
-		<copy file="${dist}/webadmin.war" tofile="${server}/webapps/webadmin.war" overwrite="true" />
 	</target>
 
 	<target name="clean">

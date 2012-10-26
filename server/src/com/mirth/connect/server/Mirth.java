@@ -397,20 +397,33 @@ public class Mirth extends Thread {
                 }
             };
 
-            String webAppsDir = "webapps";
-            File[] listOfFiles = new File(webAppsDir).listFiles(filter);
+            /*
+             * If in an IDE, webapps will be on the classpath as a resource. If
+             * that's the case, use that directory. Otherwise, use the mirth
+             * home directory and append webapps.
+             */
+            String webappsDir = null;
+            if (ClassPathResource.getResourceURI("webapps") != null) {
+                webappsDir = ClassPathResource.getResourceURI("webapps").getPath() + File.separator;
+            } else {
+                webappsDir = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "webapps" + File.separator;
+            }
             
-            for (File file : listOfFiles) {
-                logger.debug("webApp File Path: " + file.getAbsolutePath());
+            File[] listOfFiles = new File(webappsDir).listFiles(filter);
 
-                WebAppContext webapp = new WebAppContext();
-                webapp.setContextPath(contextPath + file.getName().substring(0, file.getName().length() - 4));
-
-                logger.debug("webApp Context Path: " + webapp.getContextPath());
-
-                webapp.setWar(file.getPath());
-                handlers.addHandler(webapp);
-                webapps.add(webapp);
+            if (listOfFiles != null) {
+                for (File file : listOfFiles) {
+                    logger.debug("webApp File Path: " + file.getAbsolutePath());
+    
+                    WebAppContext webapp = new WebAppContext();
+                    webapp.setContextPath(contextPath + file.getName().substring(0, file.getName().length() - 4));
+    
+                    logger.debug("webApp Context Path: " + webapp.getContextPath());
+    
+                    webapp.setWar(file.getPath());
+                    handlers.addHandler(webapp);
+                    webapps.add(webapp);
+                }
             }
 
             // Create the ssl servlet handler
