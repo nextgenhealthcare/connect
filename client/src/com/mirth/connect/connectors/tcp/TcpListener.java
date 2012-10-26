@@ -21,17 +21,13 @@ import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
-/**
- * A form that extends from ConnectorClass. All methods implemented are
- * described in ConnectorClass.
- */
-public class TCPListener extends ConnectorSettingsPanel {
+public class TcpListener extends ConnectorSettingsPanel {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private Frame parent;
 
-    /** Creates new form TCPListener */
-    public TCPListener() {
+    /** Creates new form TcpListener */
+    public TcpListener() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         receiveTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));

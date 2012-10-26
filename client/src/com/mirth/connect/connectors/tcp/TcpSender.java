@@ -25,16 +25,12 @@ import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.util.ConnectionTestResponse;
 
-/**
- * A form that extends from ConnectorClass. All methods implemented are
- * described in ConnectorClass.
- */
-public class TCPSender extends ConnectorSettingsPanel {
+public class TcpSender extends ConnectorSettingsPanel {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private Frame parent;
 
-    public TCPSender() {
+    public TcpSender() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         sendTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
