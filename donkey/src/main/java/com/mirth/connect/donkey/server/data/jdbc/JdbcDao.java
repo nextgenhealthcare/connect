@@ -1271,7 +1271,7 @@ public class JdbcDao implements DonkeyDao {
                 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
                 int columnCount = resultSetMetaData.getColumnCount();
 
-                for (int i = 0; i < columnCount; i++) {
+                for (int i = 1; i <= columnCount; i++) {
                     metaDataMap.put(resultSetMetaData.getColumnName(i), resultSet.getObject(i));
                 }
             }
