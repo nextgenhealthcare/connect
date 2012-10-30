@@ -37,6 +37,10 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
     @Override
     public ConnectorProperties getProperties() {
+        if (channelList == null) {
+            return null;
+        }
+        
         VmSenderProperties properties = new VmSenderProperties();
 
         properties.setChannelId(channelList.get((String) channelNames.getSelectedItem()));

@@ -14,20 +14,25 @@ import java.awt.Component;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import com.mirth.connect.client.ui.ChannelSetup;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.model.MessageStorageMode;
 
 public class ConnectorPanel extends JPanel {
-
     private ConnectorSettingsPanel currentPanel;
 
     public ConnectorPanel() {
         initComponents();
     }
-
+    
+    public void setChannelSetup(ChannelSetup channelSetup) {
+        queueSettingsPanel.setChannelSetup(channelSetup);
+    }
+    
     public void setConnectorSettingsPanel(ConnectorSettingsPanel panel) {
         if (currentPanel != null) {
             connectorSettingsContainer.remove(currentPanel);
@@ -57,7 +62,13 @@ public class ConnectorPanel extends JPanel {
     }
 
     public ConnectorProperties getProperties() {
-        ConnectorProperties connectorProperties = getConnectorSettingsPanel().getProperties();
+        ConnectorSettingsPanel connectorSettingsPanel = getConnectorSettingsPanel();
+        
+        if (connectorSettingsPanel == null) {
+            return null;
+        }
+        
+        ConnectorProperties connectorProperties = connectorSettingsPanel.getProperties();
 
         if (connectorProperties instanceof PollConnectorPropertiesInterface) {
             pollingSettingsPanel.fillProperties(((PollConnectorPropertiesInterface) connectorProperties).getPollConnectorProperties());
@@ -195,6 +206,10 @@ public class ConnectorPanel extends JPanel {
 
     public void updatedField(String field) {
         getConnectorSettingsPanel().updatedField(field);
+    }
+    
+    public void updateQueueWarning(MessageStorageMode messageStorageMode) {
+        queueSettingsPanel.updateQueueWarning(messageStorageMode);
     }
 
     /**

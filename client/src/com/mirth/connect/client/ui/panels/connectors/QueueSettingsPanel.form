@@ -41,32 +41,36 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
+          <Group type="102" attributes="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="retryIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="queueMessagesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="retryCountLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="retryIntervalField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Component id="queueAlwaysRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="queueAttemptFirstRadio" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="retryCountField" min="-2" pref="75" max="-2" attributes="0"/>
-                      </Group>
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+                      <Component id="queueMessagesLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="queueAlwaysRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="queueAttemptFirstRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="queueNeverRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="regenerateTemplateCheckbox" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="retryIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="retryCountLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="retryCountField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                          <Component id="retryIntervalField" min="-2" pref="75" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="queueWarningLabel" min="-2" pref="200" max="-2" attributes="0"/>
+                  </Group>
               </Group>
-              <EmptySpace pref="23" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -80,16 +84,25 @@
                   <Component id="queueNeverRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="regenerateTemplateCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="retryCountLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="retryCountField" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="retryCountLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="retryCountField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="retryIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="retryIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="queueWarningLabel" min="-2" pref="42" max="-2" attributes="0"/>
+                  </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="retryIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="retryIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
+              <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -199,6 +212,15 @@
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Regenerate Template"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="queueWarningLabel">
+      <Properties>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="0" green="0" red="ff" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="&lt;html&gt;test text&lt;/html&gt;"/>
+        <Property name="verticalAlignment" type="int" value="1"/>
       </Properties>
     </Component>
   </SubComponents>

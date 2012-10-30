@@ -11,17 +11,23 @@ package com.mirth.connect.client.ui.panels.connectors;
 
 import org.apache.commons.lang.math.NumberUtils;
 
+import com.mirth.connect.client.ui.ChannelSetup;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
+import com.mirth.connect.model.MessageStorageMode;
 
 public class QueueSettingsPanel extends javax.swing.JPanel {
-
+    private ChannelSetup channelSetup;
+    
     public QueueSettingsPanel() {
         initComponents();
-
         retryIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
         retryCountField.setDocument(new MirthFieldConstraints(0, false, false, true));
+    }
+
+    public void setChannelSetup(ChannelSetup channelSetup) {
+        this.channelSetup = channelSetup;
     }
 
     public void setProperties(QueueConnectorProperties properties) {
@@ -92,6 +98,22 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
         retryIntervalField.setBackground(null);
         retryCountField.setBackground(null);
     }
+    
+    public void updateQueueWarning(MessageStorageMode messageStorageMode) {
+        switch (messageStorageMode) {
+            case RAW: case METADATA: case DISABLED:
+                if (queueAlwaysRadio.isSelected() || queueAttemptFirstRadio.isSelected()) {
+                    queueWarningLabel.setText("<html>Queueing is not supported by the current message storage mode</html>");
+                } else {
+                    queueWarningLabel.setText("");
+                }
+                break;
+                
+            default:
+                queueWarningLabel.setText("");
+                break;
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -114,6 +136,7 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
         retryCountLabel = new javax.swing.JLabel();
         retryCountField = new com.mirth.connect.client.ui.components.MirthTextField();
         regenerateTemplateCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        queueWarningLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Queue/Retry Settings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
@@ -175,31 +198,39 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
         regenerateTemplateCheckbox.setBackground(new java.awt.Color(255, 255, 255));
         regenerateTemplateCheckbox.setText("Regenerate Template");
 
+        queueWarningLabel.setForeground(new java.awt.Color(255, 0, 0));
+        queueWarningLabel.setText("<html>test text</html>");
+        queueWarningLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(retryIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(queueMessagesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(retryCountLabel, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(retryIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(queueAlwaysRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(queueAttemptFirstRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(retryCountField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(20, 20, 20)
+                        .addComponent(queueMessagesLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(queueAlwaysRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(queueAttemptFirstRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(queueNeverRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(regenerateTemplateCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(23, Short.MAX_VALUE))
+                        .addComponent(regenerateTemplateCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(retryIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(retryCountLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(retryCountField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(retryIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(queueWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -210,14 +241,20 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
                     .addComponent(queueAttemptFirstRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(queueNeverRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(regenerateTemplateCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(retryCountLabel)
-                    .addComponent(retryCountField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(retryIntervalLabel)
-                    .addComponent(retryIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(5, 5, 5)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(retryCountLabel)
+                            .addComponent(retryCountField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(retryIntervalLabel)
+                            .addComponent(retryIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(queueWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(13, 13, 13))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -225,6 +262,11 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
         regenerateTemplateCheckbox.setEnabled(true);
         retryIntervalField.setEnabled(true);
         retryIntervalLabel.setEnabled(true);
+        channelSetup.saveDestinationPanel();
+        
+        MessageStorageMode messageStorageMode = channelSetup.getMessageStorageMode();
+        channelSetup.updateQueueWarning(messageStorageMode);
+        updateQueueWarning(messageStorageMode);
     }//GEN-LAST:event_queueAlwaysRadioActionPerformed
 
     private void queueNeverRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queueNeverRadioActionPerformed
@@ -234,12 +276,23 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
             retryIntervalField.setEnabled(false);
             retryIntervalLabel.setEnabled(false);
         }
+        
+        channelSetup.saveDestinationPanel();
+
+        MessageStorageMode messageStorageMode = channelSetup.getMessageStorageMode();
+        channelSetup.updateQueueWarning(messageStorageMode);
+        updateQueueWarning(messageStorageMode);
     }//GEN-LAST:event_queueNeverRadioActionPerformed
 
     private void queueAttemptFirstRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queueAttemptFirstRadioActionPerformed
         regenerateTemplateCheckbox.setEnabled(true);
         retryIntervalField.setEnabled(true);
         retryIntervalLabel.setEnabled(true);
+        channelSetup.saveDestinationPanel();
+        
+        MessageStorageMode messageStorageMode = channelSetup.getMessageStorageMode();
+        channelSetup.updateQueueWarning(messageStorageMode);
+        updateQueueWarning(messageStorageMode);
     }//GEN-LAST:event_queueAttemptFirstRadioActionPerformed
 
     private void retryCountFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_retryCountFieldKeyReleased
@@ -258,6 +311,7 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
     private javax.swing.ButtonGroup queueButtonGroup;
     private javax.swing.JLabel queueMessagesLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton queueNeverRadio;
+    private javax.swing.JLabel queueWarningLabel;
     private javax.swing.ButtonGroup regenerateTemplateButtonGroup;
     private com.mirth.connect.client.ui.components.MirthCheckBox regenerateTemplateCheckbox;
     private javax.swing.ButtonGroup retryButtonGroup;
