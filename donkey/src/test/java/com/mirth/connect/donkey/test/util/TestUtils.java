@@ -1107,6 +1107,10 @@ public class TestUtils {
         long duration = 0;
 
         if (testMillis != null) {
+            if (warmupMillis == null) {
+                warmupMillis = 0;
+            }
+            
             testMillis += warmupMillis;
             long testBeginTime = testStartTime + warmupMillis;
             long testEndTime = testStartTime + testMillis;
@@ -1300,6 +1304,7 @@ public class TestUtils {
 
             case RAW:
                 storageSettings.setMessageRecoveryEnabled(false);
+                storageSettings.setDurable(false);
                 storageSettings.setStoreCustomMetaData(false);
                 storageSettings.setStoreMaps(false);
                 storageSettings.setStoreProcessedRaw(false);
@@ -1317,6 +1322,8 @@ public class TestUtils {
 
             case METADATA:
                 storageSettings.setMessageRecoveryEnabled(false);
+                storageSettings.setDurable(false);
+                storageSettings.setRawDurable(false);
                 storageSettings.setStoreAttachments(false);
                 storageSettings.setStoreCustomMetaData(false);
                 storageSettings.setStoreMaps(false);
@@ -1333,6 +1340,8 @@ public class TestUtils {
             case DISABLED:
                 storageSettings.setEnabled(false);
                 storageSettings.setMessageRecoveryEnabled(false);
+                storageSettings.setDurable(false);
+                storageSettings.setRawDurable(false);
                 storageSettings.setStoreAttachments(false);
                 storageSettings.setStoreCustomMetaData(false);
                 storageSettings.setStoreMaps(false);

@@ -790,6 +790,8 @@ public class Channel implements Startable, Stoppable, Runnable {
             Response response = messageResponse.getResponse();
 
             if (response != null || messageResponse.isMarkAsProcessed()) {
+                StorageSettings storageSettings = sourceConnector.getStorageSettings();
+                
                 /*
                  * TRANSACTION: Store Response
                  * - store the response that was sent by the source
@@ -798,7 +800,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                  */
                 dao = sourceDaoFactory.getDao();
 
-                if (response != null && sourceConnector.getStorageSettings().isStoreSentResponse()) {
+                if (response != null && storageSettings.isStoreSentResponse()) {
                     ThreadUtils.checkInterruptedStatus();
                     dao.insertMessageContent(new MessageContent(getChannelId(), messageResponse.getMessageId(), 0, ContentType.RESPONSE, messageResponse.getResponse().toString(), false));
                 }
@@ -811,7 +813,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     }
                 }
 
-                dao.commit();
+                dao.commit(storageSettings.isDurable());
             }
         } catch (InterruptedException e) {
             throw new ChannelException(true, true, e);
@@ -904,7 +906,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
 
                 ThreadUtils.checkInterruptedStatus();
-                dao.commit();
+                dao.commit(storageSettings.isDurable());
                 dao.close();
                 finishMessage(finalMessage, false, markAsProcessed);
                 return finalMessage;
@@ -1158,7 +1160,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             }
         }
 
-        dao.commit();
+        dao.commit(storageSettings.isDurable());
         dao.close();
     }
 
@@ -1188,6 +1190,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
 
                 sourceDaoFactory = sourceConnector.getDaoFactory();
+                
                 deployedMetaDataIds.add(0);
                 sourceConnector.onDeploy();
 

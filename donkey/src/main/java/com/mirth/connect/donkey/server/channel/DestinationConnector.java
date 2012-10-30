@@ -349,7 +349,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
                         }
 
                         ThreadUtils.checkInterruptedStatus();
-                        dao.commit();
+                        dao.commit(storageSettings.isDurable());
 
                         if (connectorMessage.getStatus() != Status.QUEUED) {
                             ThreadUtils.checkInterruptedStatus();
@@ -409,7 +409,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
             message.setStatus(Status.PENDING);
 
             dao.updateStatus(message, previousStatus);
-            dao.commit();
+            dao.commit(storageSettings.isDurable());
 
             previousStatus = message.getStatus();
 

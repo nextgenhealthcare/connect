@@ -227,7 +227,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
 
                     // if the next destination has the same DAO factory as the current one, then use the same DAO, otherwise, get a new one
                     if (!nextDestinationConnector.getDaoFactory().equals(destinationConnector.getDaoFactory())) {
-                        dao.commit();
+                        dao.commit(storageSettings.isDurable());
                         dao.close();
 
                         dao = nextDestinationConnector.getDaoFactory().getDao();
@@ -237,7 +237,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                 }
 
                 ThreadUtils.checkInterruptedStatus();
-                dao.commit();
+                dao.commit(storageSettings.isDurable());
 
                 if (message.getStatus() == Status.QUEUED) {
                     destinationConnector.getQueue().put(message);

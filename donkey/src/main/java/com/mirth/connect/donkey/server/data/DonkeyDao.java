@@ -94,6 +94,8 @@ public interface DonkeyDao {
     public Statistics getChannelTotalStatistics();
 
     public void commit();
+    
+    public void commit(boolean durable);
 
     public void rollback();
 

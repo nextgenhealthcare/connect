@@ -21,11 +21,29 @@ import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 
 public class JdbcDaoFactory implements DonkeyDaoFactory {
+    public static JdbcDaoFactory getInstance() {
+        return getInstance(null);
+    }
+    
+    public static JdbcDaoFactory getInstance(String database) {
+        if (database == null) {
+            return new JdbcDaoFactory();
+        } else if (database.equals("postgres")) {
+            return new PostgresqlDaoFactory();
+        } else if (database.equals("oracle")) {
+            return new OracleDaoFactory();
+        }
+        
+        return new JdbcDaoFactory();
+    }
+
     private ConnectionPool connectionPool;
     private QuerySource querySource;
     private Serializer serializer;
     private Map<Connection, PreparedStatementSource> statementSources = new ConcurrentHashMap<Connection, PreparedStatementSource>();
     private Logger logger = Logger.getLogger(getClass());
+    
+    protected JdbcDaoFactory() {}
     
     public ConnectionPool getConnectionPool() {
         return connectionPool;

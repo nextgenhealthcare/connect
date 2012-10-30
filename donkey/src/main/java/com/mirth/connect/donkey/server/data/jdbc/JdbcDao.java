@@ -59,6 +59,7 @@ public class JdbcDao implements DonkeyDao {
     private Map<String, Map<Integer, Set<Status>>> resetStats = new HashMap<String, Map<Integer, Set<Status>>>();
     private List<String> removedChannelIds = new ArrayList<String>();
     private ChannelController channelController = ChannelController.getInstance();
+    private String asyncCommitCommand;
     private Logger logger = Logger.getLogger(this.getClass());
 
     protected JdbcDao(Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer) {
@@ -66,6 +67,7 @@ public class JdbcDao implements DonkeyDao {
         this.querySource = querySource;
         this.statementSource = statementSource;
         this.serializer = serializer;
+        
         currentStats = channelController.getStatistics();
         totalStats = channelController.getTotalStatistics();
     }
@@ -1001,9 +1003,14 @@ public class JdbcDao implements DonkeyDao {
 
         return statistics;
     }
-
+    
     @Override
     public void commit() {
+        commit(true);
+    }
+    
+    @Override
+    public void commit(boolean durable) {
         // get the stats changes that happened in this transaction
         Map<String, Map<Integer, Map<Status, Long>>> stats = transactionStats.getStats();
 
@@ -1020,7 +1027,18 @@ public class JdbcDao implements DonkeyDao {
         }
 
         try {
-            connection.commit();
+            if (!durable && asyncCommitCommand != null) {
+                Statement statement = null;
+                
+                try {
+                    statement = connection.createStatement();
+                    statement.execute(asyncCommitCommand);
+                } finally {
+                    close(statement);
+                }
+            } else {
+                connection.commit();
+            }
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         }
@@ -1136,6 +1154,18 @@ public class JdbcDao implements DonkeyDao {
             close(resultSet);
             close(statement);
         }
+    }
+
+    public Connection getConnection() {
+        return connection;
+    }
+
+    public String getAsyncCommitCommand() {
+        return asyncCommitCommand;
+    }
+
+    public void setAsyncCommitCommand(String asyncCommitCommand) {
+        this.asyncCommitCommand = asyncCommitCommand;
     }
 
     private Message getMessageFromResultSet(String channelId, ResultSet resultSet) {

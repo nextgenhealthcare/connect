@@ -82,6 +82,7 @@ public class Donkey {
 
     private void initDaoFactory() throws StartException {
         Properties dbProperties = donkeyConfiguration.getDatabaseProperties();
+        String database = dbProperties.getProperty("database");
         String driver = dbProperties.getProperty("database.driver");
         String url = dbProperties.getProperty("database.url");
         String username = dbProperties.getProperty("database.username");
@@ -102,7 +103,7 @@ public class Donkey {
             }
         }
 
-        JdbcDaoFactory jdbcDaoFactory = new JdbcDaoFactory();
+        JdbcDaoFactory jdbcDaoFactory = JdbcDaoFactory.getInstance(database);
         jdbcDaoFactory.setConnectionPool(new DBCPConnectionPool(url, username, password, maxConnections));
         jdbcDaoFactory.setSerializer(serializer);
 

@@ -84,7 +84,7 @@ final class MessageProcessTask implements Callable<MessageResponse> {
             ThreadUtils.checkInterruptedStatus();
 
             if (waitForDestinations) {
-                dao.commit();
+                dao.commit(storageSettings.isRawDurable());
                 messagePersisted = true;
                 dao.close();
 
@@ -93,7 +93,7 @@ final class MessageProcessTask implements Callable<MessageResponse> {
             } else {
                 // Block other threads from adding to the source queue until both the current commit and queue addition finishes
                 synchronized (channel.getSourceQueue()) {
-                    dao.commit();
+                    dao.commit(storageSettings.isRawDurable());
                     messagePersisted = true;
                     dao.close();
                     channel.queue(sourceMessage);

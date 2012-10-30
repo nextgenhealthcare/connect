@@ -421,7 +421,7 @@ public class DonkeyEngineController implements EngineController {
     
     public static StorageSettings getStorageSettings(MessageStorageMode messageStorageMode, boolean isDestination) {
         StorageSettings storageSettings = new StorageSettings();
-        
+
         // we assume that all storage settings are enabled by default
         switch (messageStorageMode) {
             case PRODUCTION:
@@ -429,9 +429,10 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setStoreTransformed(false);
                 storageSettings.setStoreProcessedResponse(false);
                 break;
-                
+
             case RAW:
                 storageSettings.setMessageRecoveryEnabled(false);
+                storageSettings.setDurable(false);
                 storageSettings.setStoreCustomMetaData(false);
                 storageSettings.setStoreMaps(false);
                 storageSettings.setStoreProcessedRaw(false);
@@ -441,14 +442,16 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setStoreProcessedResponse(false);
                 storageSettings.setStoreResponse(false);
                 storageSettings.setStoreSentResponse(false);
-                
+
                 if (isDestination) {
                     storageSettings.setStoreRaw(false);
                 }
                 break;
-                
+
             case METADATA:
                 storageSettings.setMessageRecoveryEnabled(false);
+                storageSettings.setDurable(false);
+                storageSettings.setRawDurable(false);
                 storageSettings.setStoreAttachments(false);
                 storageSettings.setStoreCustomMetaData(false);
                 storageSettings.setStoreMaps(false);
@@ -461,10 +464,12 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setStoreResponse(false);
                 storageSettings.setStoreSentResponse(false);
                 break;
-                
+
             case DISABLED:
                 storageSettings.setEnabled(false);
                 storageSettings.setMessageRecoveryEnabled(false);
+                storageSettings.setDurable(false);
+                storageSettings.setRawDurable(false);
                 storageSettings.setStoreAttachments(false);
                 storageSettings.setStoreCustomMetaData(false);
                 storageSettings.setStoreMaps(false);
@@ -478,7 +483,7 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setStoreSentResponse(false);
                 break;
         }
-        
+
         return storageSettings;
     }
     

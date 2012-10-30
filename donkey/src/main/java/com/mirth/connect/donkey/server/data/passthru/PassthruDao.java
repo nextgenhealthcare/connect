@@ -32,6 +32,9 @@ public class PassthruDao implements DonkeyDao {
 
     @Override
     public void commit() {}
+    
+    @Override
+    public void commit(boolean durable) {}
 
     @Override
     public void rollback() {}

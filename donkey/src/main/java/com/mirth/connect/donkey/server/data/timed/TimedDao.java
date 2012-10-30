@@ -53,6 +53,11 @@ public class TimedDao implements DonkeyDao {
     public void commit() {
         dao.commit();
     }
+    
+    @Override
+    public void commit(boolean durable) {
+        dao.commit(durable);
+    }
 
     @Override
     public void rollback() {

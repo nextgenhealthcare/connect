@@ -11,6 +11,9 @@ package com.mirth.connect.donkey.server.channel;
 
 public class StorageSettings {
     private boolean enabled = true;
+    private boolean durable = true;
+    private boolean rawDurable = true;
+    
     private boolean messageRecoveryEnabled = true;
 
     private boolean storeAttachments = true;
@@ -35,6 +38,37 @@ public class StorageSettings {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    /**
+     * Tell whether or not storage operations are durable (see setDurable())
+     */
+    public boolean isDurable() {
+        return durable;
+    }
+
+    /**
+     * If enabled, storage operations will guarantee (as much as possible) that the data is written
+     * to the storage medium upon return (fsync and synchronous commits should be enabled for
+     * database storage engines).
+     */
+    public void setDurable(boolean durable) {
+        this.durable = durable;
+    }
+
+    /**
+     * Tell whether or not the initial raw message storage operation is durable
+     */
+    public boolean isRawDurable() {
+        return rawDurable;
+    }
+
+    /**
+     * See setDurable(). This setting defines durability specifically for the transaction that
+     * stores the initial raw message
+     */
+    public void setRawDurable(boolean rawDurable) {
+        this.rawDurable = rawDurable;
     }
 
     public boolean isMessageRecoveryEnabled() {

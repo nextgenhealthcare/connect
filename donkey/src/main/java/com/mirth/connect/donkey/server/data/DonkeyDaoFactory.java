@@ -10,5 +10,8 @@
 package com.mirth.connect.donkey.server.data;
 
 public interface DonkeyDaoFactory {
+    /**
+     * Get a DonkeyDao instance.
+     */
     public DonkeyDao getDao();
 }
