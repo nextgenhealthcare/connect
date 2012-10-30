@@ -14,21 +14,19 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.donkey.server.Serializer;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 
 public class JdbcDaoFactory implements DonkeyDaoFactory {
-    public enum CacheMode {
-        DISABLED, INSTANCE, CONNECTION
-    };
-
     private ConnectionPool connectionPool;
     private QuerySource querySource;
     private Serializer serializer;
-    private CacheMode cacheMode = CacheMode.DISABLED;
     private Map<Connection, PreparedStatementSource> statementSources = new ConcurrentHashMap<Connection, PreparedStatementSource>();
-
+    private Logger logger = Logger.getLogger(getClass());
+    
     public ConnectionPool getConnectionPool() {
         return connectionPool;
     }
@@ -53,12 +51,8 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
         this.serializer = serializer;
     }
 
-    public CacheMode getCacheMode() {
-        return cacheMode;
-    }
-
-    public void setCacheMode(CacheMode cacheMode) {
-        this.cacheMode = cacheMode;
+    public Map<Connection, PreparedStatementSource> getStatementSources() {
+        return statementSources;
     }
 
     @Override
@@ -73,28 +67,29 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
 
         PreparedStatementSource statementSource = null;
         Connection connection = pooledConnection.getConnection();
+        Connection internalConnection = pooledConnection.getInternalConnection();
+        statementSource = statementSources.get(internalConnection);
 
-        switch (cacheMode) {
-            case DISABLED:
-                statementSource = new DefaultPreparedStatementSource(connection, querySource);
-                break;
-
-            case INSTANCE:
-                statementSource = new CachedPreparedStatementSource(connection, querySource);
-                break;
-
-            case CONNECTION:
-                Connection internalConnection = pooledConnection.getInternalConnection();
-                statementSource = statementSources.get(internalConnection);
-
-                if (statementSource == null) {
-                    statementSource = new CachedPreparedStatementSource(internalConnection, querySource);
-                    statementSources.put(internalConnection, statementSource);
+        if (statementSource == null) {
+            statementSource = new CachedPreparedStatementSource(internalConnection, querySource);
+            statementSources.put(internalConnection, statementSource);
+            
+            Integer maxConnections = connectionPool.getMaxConnections();
+            
+            // TODO: find a more efficient way of cleaning up old connections
+            if (maxConnections == null || statementSources.size() > maxConnections) {
+                logger.debug("cleaning up prepared statement cache");
+                
+                try {
+                    for (Connection currentConnection : statementSources.keySet()) {
+                        if (currentConnection.isClosed()) {
+                            statementSources.remove(currentConnection);
+                        }
+                    }
+                } catch (SQLException e) {
+                    throw new DonkeyDaoException(e);
                 }
-                break;
-
-            default:
-                throw new DonkeyDaoException("Unrecognized cache mode");
+            }
         }
 
         return new JdbcDao(connection, querySource, statementSource, serializer);

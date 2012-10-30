@@ -31,7 +31,6 @@ import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.data.jdbc.DBCPConnectionPool;
 import com.mirth.connect.donkey.server.data.jdbc.JdbcDao;
 import com.mirth.connect.donkey.server.data.jdbc.JdbcDaoFactory;
-import com.mirth.connect.donkey.server.data.jdbc.JdbcDaoFactory.CacheMode;
 import com.mirth.connect.donkey.server.data.jdbc.XmlQuerySource;
 import com.mirth.connect.donkey.server.data.jdbc.XmlQuerySource.XmlQuerySourceException;
 
@@ -106,7 +105,6 @@ public class Donkey {
         JdbcDaoFactory jdbcDaoFactory = new JdbcDaoFactory();
         jdbcDaoFactory.setConnectionPool(new DBCPConnectionPool(url, username, password, maxConnections));
         jdbcDaoFactory.setSerializer(serializer);
-        jdbcDaoFactory.setCacheMode(CacheMode.CONNECTION);
 
         XmlQuerySource xmlQuerySource = new XmlQuerySource();
 

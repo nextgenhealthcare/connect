@@ -21,8 +21,10 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 
 public class DBCPConnectionPool implements ConnectionPool {
     private PoolingDataSource dataSource;
+    private int maxConnections;
 
     public DBCPConnectionPool(String url, String username, String password, int maxConnections) {
+        this.maxConnections = maxConnections;
         GenericObjectPool connectionPool = new GenericObjectPool(null);
         connectionPool.setMaxActive(maxConnections);
         ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(url, username, password);
@@ -35,5 +37,10 @@ public class DBCPConnectionPool implements ConnectionPool {
     public PooledConnection getConnection() throws SQLException {
         Connection connection = dataSource.getConnection();
         return new PooledConnection(connection, ((DelegatingConnection) connection).getInnermostDelegate());
+    }
+
+    @Override
+    public Integer getMaxConnections() {
+        return maxConnections;
     }
 }

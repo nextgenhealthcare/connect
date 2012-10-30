@@ -40,4 +40,9 @@ public class DisabledConnectionPool implements ConnectionPool {
         connection.setAutoCommit(false);
         return new PooledConnection(connection, connection);
     }
+
+    @Override
+    public Integer getMaxConnections() {
+        return null;
+    }
 }

@@ -52,6 +52,7 @@ import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.server.data.jdbc.JdbcDaoFactory;
 import com.mirth.connect.donkey.server.data.timed.TimedDaoFactory;
 import com.mirth.connect.donkey.test.util.TestChannel;
 import com.mirth.connect.donkey.test.util.TestSourceConnector;
@@ -1624,6 +1625,31 @@ public class DonkeyDaoTests {
             channel.undeploy();
             ChannelController.getInstance().removeChannel(channel.getChannelId());
         }
+    }
+    
+    /**
+     * Sends messages through 5 channels with (maxConnections * 2) asynchronous destinations for 10 seconds and
+     * verifies that the number of connection caches created is not greater than the maximum number
+     * of connections in the connection pool
+     * 
+     * @throws Exception
+     */
+    @Test
+    public final void testJdbcDaoStatementCache() throws Exception {
+        DonkeyDaoFactory daoFactory = ((TimedDaoFactory) Donkey.getInstance().getDaoFactory()).getDelegateFactory();
+        
+        if (!(daoFactory instanceof JdbcDaoFactory)) {
+            System.out.println("Skipping testJdbcDaoStatementCache() because the current DonkeyDaoFactory is not an instance of JdbcDaoFactory");
+            return;
+        }
+        
+        Integer maxConnections = Integer.parseInt(Donkey.getInstance().getConfiguration().getDatabaseProperties().getProperty("database.max-connections"));
+        
+        JdbcDaoFactory jdbcDaoFactory = (JdbcDaoFactory) daoFactory;
+        
+        TestUtils.runChannelTest(testMessage, channelId, serverId, "testJdbcDaoStatementCache", 5, maxConnections * 2, 1, true, null, 10000, null, null, null);
+        
+        assertTrue(jdbcDaoFactory.getStatementSources().size() + " connection caches were created, but the max # of connections is " + maxConnections, jdbcDaoFactory.getStatementSources().size() <= maxConnections);
     }
 
 //    @Test
