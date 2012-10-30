@@ -31,12 +31,13 @@
 	<query id="createMessageContentTable">
 		CREATE TABLE d_mc${localChannelId} (
 	        metadata_id integer NOT NULL,
-	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE,
+	        message_id bigint NOT NULL,
 	        content_type character(1) NOT NULL,
 	        content text,
 	        is_encrypted boolean NOT NULL,
 	        data_type character varying(255),
-	        CONSTRAINT mc${localChannelId}_pkey PRIMARY KEY(metadata_id, message_id, content_type)
+	        CONSTRAINT mc${localChannelId}_pkey PRIMARY KEY(metadata_id, message_id, content_type),
+	        CONSTRAINT mc${localChannelId}_fkey FOREIGN KEY(metadata_id, message_id) REFERENCES d_mm${localChannelId}(id, message_id) ON DELETE CASCADE
         );
         
         CREATE INDEX d_mc${localChannelId}_index1 ON d_mc${localChannelId} USING BTREE (message_id);
@@ -45,8 +46,9 @@
 	<query id="createMessageCustomMetaDataTable">
 		CREATE TABLE d_mcm${localChannelId} (
 	        metadata_id integer NOT NULL,
-	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE,
-	        CONSTRAINT mcm${localChannelId}_pkey PRIMARY KEY(metadata_id, message_id)
+	        message_id bigint NOT NULL,
+	        CONSTRAINT mcm${localChannelId}_pkey PRIMARY KEY(metadata_id, message_id),
+	        CONSTRAINT mcm${localChannelId}_fkey FOREIGN KEY(metadata_id, message_id) REFERENCES d_mm${localChannelId}(id, message_id) ON DELETE CASCADE
         );
 	</query>
 	
