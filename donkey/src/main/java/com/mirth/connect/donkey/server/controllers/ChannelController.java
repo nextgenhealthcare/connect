@@ -97,10 +97,11 @@ public class ChannelController {
 
                 for (Integer metaDataId : metaDataIds) {
                     dao.resetStatistics(channelId, metaDataId, statuses);
+                    
+                    // Each update here must have its own transaction, otherwise deadlocks may occur.
+                    dao.commit();
                 }
             }
-
-            dao.commit();
         } finally {
             dao.close();
         }
