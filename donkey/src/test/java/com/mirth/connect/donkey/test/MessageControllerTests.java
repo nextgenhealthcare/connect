@@ -284,7 +284,7 @@ public class MessageControllerTests {
         Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
         messages.put(message.getMessageId(), null);
         MessageController.getInstance().deleteMessages(channelId, messages, false);
-        channel.removeMessagesFromQueues(messages);
+        channel.invalidateQueues();
 
         // assert that the message does not exist in the database
         TestUtils.assertMessageDoesNotExist(message);

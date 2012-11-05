@@ -906,7 +906,6 @@ public class TestUtils {
                 connectorStats.put(Status.TRANSFORMED, result.getLong("transformed"));
                 connectorStats.put(Status.PENDING, result.getLong("pending"));
                 connectorStats.put(Status.SENT, result.getLong("sent"));
-                connectorStats.put(Status.QUEUED, result.getLong("queued"));
                 connectorStats.put(Status.ERROR, result.getLong("error"));
                 Integer metaDataId = result.getInt("metadata_id");
                 if (result.wasNull()) {

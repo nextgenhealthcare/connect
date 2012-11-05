@@ -160,13 +160,13 @@ public class ChannelControllerTests {
                 statement = connection.prepareStatement("TRUNCATE d_ms" + localChannelId + " CASCADE");
                 statement.executeUpdate();
                 for (Integer metaDataId : new Integer[] { null, 0, 1 }) {
-                    statement = connection.prepareStatement("INSERT INTO d_ms" + localChannelId + " (metadata_id, received, filtered, transformed, pending, sent, queued, error) VALUES (?,?,?,?,?,?,?,?)");
+                    statement = connection.prepareStatement("INSERT INTO d_ms" + localChannelId + " (metadata_id, received, filtered, transformed, pending, sent, error) VALUES (?,?,?,?,?,?,?)");
                     if (metaDataId != null) {
                         statement.setInt(1, metaDataId);
                     } else {
                         statement.setNull(1, Types.INTEGER);
                     }
-                    for (int i = 2; i <= 8; i++) {
+                    for (int i = 2; i <= 7; i++) {
                         statement.setInt(i, (int) (Math.random() * 100));
                     }
                     statement.executeUpdate();
@@ -211,13 +211,15 @@ public class ChannelControllerTests {
             Map<Status, Long> connectorStats = new HashMap<Status, Long>();
 
             for (Status status : Status.values()) {
-                connectorStats.put(status, 0L);
-                if (minuend.containsKey(metaDataId) && minuend.get(metaDataId).containsKey(status)) {
-                    connectorStats.put(status, minuend.get(metaDataId).get(status));
-                }
-                if (subtrahend.containsKey(metaDataId) && subtrahend.get(metaDataId).containsKey(status)) {
-                    connectorStats.put(status, connectorStats.get(status) - subtrahend.get(metaDataId).get(status));
-                }
+            	if (status != Status.QUEUED) {
+	                connectorStats.put(status, 0L);
+	                if (minuend.containsKey(metaDataId) && minuend.get(metaDataId).containsKey(status)) {
+	                    connectorStats.put(status, minuend.get(metaDataId).get(status));
+	                }
+	                if (subtrahend.containsKey(metaDataId) && subtrahend.get(metaDataId).containsKey(status)) {
+	                    connectorStats.put(status, connectorStats.get(status) - subtrahend.get(metaDataId).get(status));
+	                }
+            	}
             }
 
             stats.put(metaDataId, connectorStats);

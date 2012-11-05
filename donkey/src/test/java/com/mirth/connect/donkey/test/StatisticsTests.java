@@ -98,12 +98,12 @@ public class StatisticsTests {
 
         // Assert the source connector stats are correct
 
-        statsEqual(channel.getChannelId(), 0, TEST_SIZE, 0l, TEST_SIZE, 0l, 0l, 0l, 0l);
+        statsEqual(channel.getChannelId(), 0, TEST_SIZE, 0l, TEST_SIZE, 0l, 0l, 0l);
         // Assert that destination connector stats are correct
-        statsEqual(channel.getChannelId(), 1, TEST_SIZE, 0l, 0l, 0l, TEST_SIZE, 0l, 0l);
-        statsEqual(channel.getChannelId(), 2, TEST_SIZE, 0l, 0l, 0l, TEST_SIZE, 0l, 0l);
-        statsEqual(channel.getChannelId(), 3, TEST_SIZE, 0l, 0l, 0l, TEST_SIZE, 0l, 0l);
-        statsEqual(channel.getChannelId(), 4, TEST_SIZE, 0l, 0l, 0l, TEST_SIZE, 0l, 0l);
+        statsEqual(channel.getChannelId(), 1, TEST_SIZE, 0l, 0l, 0l, TEST_SIZE, 0l);
+        statsEqual(channel.getChannelId(), 2, TEST_SIZE, 0l, 0l, 0l, TEST_SIZE, 0l);
+        statsEqual(channel.getChannelId(), 3, TEST_SIZE, 0l, 0l, 0l, TEST_SIZE, 0l);
+        statsEqual(channel.getChannelId(), 4, TEST_SIZE, 0l, 0l, 0l, TEST_SIZE, 0l);
         // Assert the aggregate stats are correct
         assertTrue(channelStatsCorrect());
 
@@ -151,12 +151,12 @@ public class StatisticsTests {
         assertEquals(TEST_SIZE, channel.getNumMessages());
 
         // Assert the source connector stats are correct
-        statsEqual(channel.getChannelId(), 0, TEST_SIZE, TEST_SIZE, 0L, 0L, 0L, 0L, 0L);
+        statsEqual(channel.getChannelId(), 0, TEST_SIZE, TEST_SIZE, 0L, 0L, 0L, 0L);
         // Assert that destination connector stats are correct
-        statsEqual(channel.getChannelId(), 1, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
-        statsEqual(channel.getChannelId(), 2, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
-        statsEqual(channel.getChannelId(), 3, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
-        statsEqual(channel.getChannelId(), 4, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
+        statsEqual(channel.getChannelId(), 1, 0L, 0L, 0L, 0L, 0L, 0L);
+        statsEqual(channel.getChannelId(), 2, 0L, 0L, 0L, 0L, 0L, 0L);
+        statsEqual(channel.getChannelId(), 3, 0L, 0L, 0L, 0L, 0L, 0L);
+        statsEqual(channel.getChannelId(), 4, 0L, 0L, 0L, 0L, 0L, 0L);
         // Assert the aggregate stats are correct
         assertTrue(channelStatsCorrect());
 
@@ -259,12 +259,12 @@ public class StatisticsTests {
         assertEquals(TEST_SIZE, channel.getNumMessages());
 
         // Assert the source connector stats are correct
-        statsEqual(channel.getChannelId(), 0, TEST_SIZE, 0L, TEST_SIZE, 0L, 0L, 0L, 0L);
+        statsEqual(channel.getChannelId(), 0, TEST_SIZE, 0L, TEST_SIZE, 0L, 0L, 0L);
         // Assert that destination connector stats are correct
-        statsEqual(channel.getChannelId(), 1, TEST_SIZE, TEST_SIZE, 0L, 0L, 0L, 0L, 0L);
-        statsEqual(channel.getChannelId(), 2, TEST_SIZE, 0L, 0L, 0L, TEST_SIZE, 0L, 0L);
-        statsEqual(channel.getChannelId(), 3, TEST_SIZE, 0L, 0L, 0L, 0L, TEST_SIZE, 0L);
-        statsEqual(channel.getChannelId(), 4, TEST_SIZE, 0L, 0L, 0L, 0L, 0L, TEST_SIZE);
+        statsEqual(channel.getChannelId(), 1, TEST_SIZE, TEST_SIZE, 0L, 0L, 0L, 0L);
+        statsEqual(channel.getChannelId(), 2, TEST_SIZE, 0L, 0L, 0L, TEST_SIZE, 0L);
+        statsEqual(channel.getChannelId(), 3, TEST_SIZE, 0L, 0L, 0L, 0L, 0L);
+        statsEqual(channel.getChannelId(), 4, TEST_SIZE, 0L, 0L, 0L, 0L, TEST_SIZE);
         // Assert the aggregate stats are correct
         assertTrue(channelStatsCorrect());
 
@@ -442,7 +442,7 @@ public class StatisticsTests {
             logger.info(String.format("%-140s", String.format("%-50s", "   - After second wait (should be " + returnStatus + "): ") + (stats = ChannelController.getInstance().getStatistics().getConnectorStats(channelId, 1))));
 
             // Assert the source connector stats are correct
-            statsEqual(channel.getChannelId(), 0, i, 0L, i, 0L, 0L, 0L, 0L);
+            statsEqual(channel.getChannelId(), 0, i, 0L, i, 0L, 0L, 0L);
 
             // Assert that destination connector stats are correct
             assertDestinationStatsCorrect(stats, i, returnStatus, returnStatus);
@@ -457,7 +457,7 @@ public class StatisticsTests {
         assertEquals(testSize, channel.getNumMessages());
 
         // Assert the source connector stats are correct
-        statsEqual(channel.getChannelId(), 0, testSize, 0L, testSize, 0L, 0L, 0L, 0L);
+        statsEqual(channel.getChannelId(), 0, testSize, 0L, testSize, 0L, 0L, 0L);
         // Assert that destination connector stats are correct
         destinationStatsCorrect(channel.getChannelId(), 1, testSize, returnStatus, returnStatus);
         // Assert the aggregate stats are correct
@@ -469,20 +469,19 @@ public class StatisticsTests {
         ChannelController.getInstance().removeChannel(channel.getChannelId());
     }
 
-    private void statsEqual(String channelId, Integer metaDataId, Long received, Long filtered, Long transformed, Long pending, Long sent, Long queued, Long error) {
+    private void statsEqual(String channelId, Integer metaDataId, Long received, Long filtered, Long transformed, Long pending, Long sent, Long error) {
         DonkeyDao dao = daoFactory.getDao();
         Map<Status, Long> stats = ChannelController.getInstance().getStatistics().getConnectorStats(channelId, metaDataId);
         dao.close();
-        assertStatsEqual(stats, received, filtered, transformed, pending, sent, queued, error);
+        assertStatsEqual(stats, received, filtered, transformed, pending, sent, error);
     }
 
-    private void assertStatsEqual(Map<Status, Long> stats, Long received, Long filtered, Long transformed, Long pending, Long sent, Long queued, Long error) {
+    private void assertStatsEqual(Map<Status, Long> stats, Long received, Long filtered, Long transformed, Long pending, Long sent, Long error) {
         assertEquals(received, stats.get(Status.RECEIVED));
         assertEquals(filtered, stats.get(Status.FILTERED));
         assertEquals(transformed, stats.get(Status.TRANSFORMED));
         assertEquals(pending, stats.get(Status.PENDING));
         assertEquals(sent, stats.get(Status.SENT));
-        assertEquals(queued, stats.get(Status.QUEUED));
         assertEquals(error, stats.get(Status.ERROR));
     }
 
@@ -562,19 +561,19 @@ public class StatisticsTests {
 
         switch (returnStatus) {
             case FILTERED:
-                assertStatsEqual(stats, numMessages, remainder, 0L, pending, 0L, queued, 0L);
+                assertStatsEqual(stats, numMessages, remainder, 0L, pending, 0L, 0L);
                 break;
 
             case SENT:
-                assertStatsEqual(stats, numMessages, 0L, 0L, pending, remainder, queued, 0L);
+                assertStatsEqual(stats, numMessages, 0L, 0L, pending, remainder, 0L);
                 break;
 
             case QUEUED:
-                assertStatsEqual(stats, numMessages, 0L, 0L, pending, 0L, remainder + queued, 0L);
+                assertStatsEqual(stats, numMessages, 0L, 0L, pending, 0L, 0L);
                 break;
 
             case ERROR:
-                assertStatsEqual(stats, numMessages, 0L, 0L, pending, 0L, queued, remainder);
+                assertStatsEqual(stats, numMessages, 0L, 0L, pending, 0L, remainder);
                 break;
         }
     }
@@ -586,7 +585,6 @@ public class StatisticsTests {
         connectorStats.put(Status.TRANSFORMED, 0L);
         connectorStats.put(Status.PENDING, 0L);
         connectorStats.put(Status.SENT, 0L);
-        connectorStats.put(Status.QUEUED, 0L);
         connectorStats.put(Status.ERROR, 0L);
 
         return connectorStats;
