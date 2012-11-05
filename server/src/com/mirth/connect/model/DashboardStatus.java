@@ -44,6 +44,7 @@ public class DashboardStatus implements Serializable {
     private Map<Status, Long> overallStatistics;
     private List<DashboardStatus> childStatuses = new ArrayList<DashboardStatus>();
     private Integer metaDataId;
+    private Long queued = 0L;
     private boolean waitForPrevious = false;
     private Set<String> tags = new LinkedHashSet<String>();
     private StatusType statusType;
@@ -120,7 +121,15 @@ public class DashboardStatus implements Serializable {
         this.metaDataId = metaDataId;
     }
 
-    public boolean isWaitForPrevious() {
+    public Long getQueued() {
+		return queued;
+	}
+
+	public void setQueued(Long queued) {
+		this.queued = queued;
+	}
+
+	public boolean isWaitForPrevious() {
         return waitForPrevious;
     }
 

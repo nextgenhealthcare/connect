@@ -314,13 +314,13 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         return metaDataIds;
     }
-
-    public void removeMessagesFromQueues(Map<Long, Set<Integer>> messages) {
-        sourceQueue.removeMessages(messages);
+    
+    public void invalidateQueues() {
+        sourceQueue.invalidate();
 
         for (DestinationChain chain : destinationChains) {
             for (Integer metaDataId : chain.getMetaDataIds()) {
-                chain.getDestinationConnectors().get(metaDataId).getQueue().removeMessages(messages);
+                chain.getDestinationConnectors().get(metaDataId).getQueue().invalidate();
             }
         }
     }
@@ -1190,6 +1190,12 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
 
                 sourceDaoFactory = sourceConnector.getDaoFactory();
+
+                // set the source queue data source
+                sourceQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED));
+
+                // manually refresh the source queue size from it's data source
+                sourceQueue.updateSize();
                 
                 deployedMetaDataIds.add(0);
                 sourceConnector.onDeploy();
@@ -1206,6 +1212,12 @@ public class Channel implements Startable, Stoppable, Runnable {
                         } else {
                             destinationConnector.setDaoFactory(new PassthruDaoFactory());
                         }
+                        
+                        // set the queue data source
+                        destinationConnector.getQueue().setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), destinationConnector.getMetaDataId(), Status.QUEUED));
+
+                        // refresh the queue size from it's data source
+                        destinationConnector.getQueue().updateSize();
 
                         deployedMetaDataIds.add(metaDataId);
 
@@ -1285,78 +1297,79 @@ public class Channel implements Startable, Stoppable, Runnable {
         @Override
         public Void call() throws Exception {
             if (currentState != ChannelState.STARTED) {
-                setCurrentState(ChannelState.STARTING);
-                responseSent.set(true);
-                channelTasks.clear();
-                forceStop = false;
-
-                // set the source queue data source if needed
-                if (sourceQueue.getDataSource() == null) {
-                    sourceQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED));
-                }
-
-                // manually refresh the source queue size from it's data source
-                sourceQueue.updateSize();
-
-                // enable all destination connectors in each chain
-                for (DestinationChain chain : destinationChains) {
-                    chain.getEnabledMetaDataIds().clear();
-                    chain.getEnabledMetaDataIds().addAll(chain.getMetaDataIds());
-                }
-                List<Integer> startedMetaDataIds = new ArrayList<Integer>();
-
-                try {
-                    destinationChainExecutor = Executors.newCachedThreadPool();
-                    queueExecutor = Executors.newSingleThreadExecutor();
-                    channelExecutor = Executors.newSingleThreadExecutor();
-
-                    // start the destination connectors
-                    for (DestinationChain chain : destinationChains) {
-                        for (Integer metaDataId : chain.getMetaDataIds()) {
-                            DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
-
-                            if (!destinationConnector.isRunning()) {
-                                startedMetaDataIds.add(metaDataId);
-                                destinationConnector.start();
-                            }
-                        }
-                    }
-
-                    ThreadUtils.checkInterruptedStatus();
-//                    try {
-//                        processUnfinishedMessages();
-//                    } catch (InterruptedException e) {
-//                        logger.error("Startup recovery interrupted");
-//                        Thread.currentThread().interrupt();
-//                    } catch (Exception e) {
-//                        logger.error("Startup recovery failed");
-//                    }
-
-                    ThreadUtils.checkInterruptedStatus();
-                    // start up the worker thread that will process queued messages
-                    if (!sourceConnector.isWaitForDestinations()) {
-                        queueExecutor.execute(Channel.this);
-                    }
-
-                    ThreadUtils.checkInterruptedStatus();
-                    // start up the source connector
-                    if (!sourceConnector.isRunning()) {
-                        startedMetaDataIds.add(0);
-                        sourceConnector.start();
-                    }
-
-                    setCurrentState(ChannelState.STARTED);
-                } catch (StartException e) {
-                    // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
-                    try {
-                        stop(startedMetaDataIds);
-                        setCurrentState(ChannelState.STOPPED);
-                    } catch (StopException e2) {
-                        setCurrentState(ChannelState.UNKNOWN);
-                    }
-
-                    throw e;
-                }
+            	// Prevent the channel for being started while messages are being deleted.
+            	synchronized (Channel.this) {
+	                setCurrentState(ChannelState.STARTING);
+	                responseSent.set(true);
+	                channelTasks.clear();
+	                forceStop = false;
+	
+	                // Remove any items in the queue's buffer because they may be outdated.
+	                sourceQueue.invalidate();
+	                // manually refresh the source queue size from it's data source
+	                sourceQueue.updateSize();
+	
+	                // enable all destination connectors in each chain
+	                for (DestinationChain chain : destinationChains) {
+	                    chain.getEnabledMetaDataIds().clear();
+	                    chain.getEnabledMetaDataIds().addAll(chain.getMetaDataIds());
+	                }
+	                List<Integer> startedMetaDataIds = new ArrayList<Integer>();
+	
+	                try {
+	                    destinationChainExecutor = Executors.newCachedThreadPool();
+	                    queueExecutor = Executors.newSingleThreadExecutor();
+	                    channelExecutor = Executors.newSingleThreadExecutor();
+	
+	                    // start the destination connectors
+	                    for (DestinationChain chain : destinationChains) {
+	                        for (Integer metaDataId : chain.getMetaDataIds()) {
+	                            DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
+	
+	                            if (!destinationConnector.isRunning()) {
+	                                startedMetaDataIds.add(metaDataId);
+	                                destinationConnector.start();
+	                            }
+	                        }
+	                    }
+	
+	                    ThreadUtils.checkInterruptedStatus();
+//	                    try {
+//	                        processUnfinishedMessages();
+//	                    } catch (InterruptedException e) {
+//	                        logger.error("Startup recovery interrupted");
+//	                        Thread.currentThread().interrupt();
+//	                    } catch (Exception e) {
+//	                        logger.error("Startup recovery failed");
+//	                    }
+	
+	                    ThreadUtils.checkInterruptedStatus();
+	                    // start up the worker thread that will process queued messages
+	                    if (!sourceConnector.isWaitForDestinations()) {
+	                        queueExecutor.execute(Channel.this);
+	                    }
+	
+	                    ThreadUtils.checkInterruptedStatus();
+	                    // start up the source connector
+	                    if (!sourceConnector.isRunning()) {
+	                        startedMetaDataIds.add(0);
+	                        sourceConnector.start();
+	                    }
+	
+	                    setCurrentState(ChannelState.STARTED);
+	                    
+	                } catch (StartException e) {
+	                    // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
+	                    try {
+	                        stop(startedMetaDataIds);
+	                        setCurrentState(ChannelState.STOPPED);
+	                    } catch (StopException e2) {
+	                        setCurrentState(ChannelState.UNKNOWN);
+	                    }
+	
+	                    throw e;
+	                }
+            	}
             } else {
                 setCurrentState(ChannelState.STARTED);
                 logger.warn("Failed to start channel " + name + " (" + channelId + "): The channel is already running.");

@@ -44,7 +44,6 @@ public class Statistics {
             connectorStats.put(Status.TRANSFORMED, 0L);
             connectorStats.put(Status.PENDING, 0L);
             connectorStats.put(Status.SENT, 0L);
-            connectorStats.put(Status.QUEUED, 0L);
             connectorStats.put(Status.ERROR, 0L);
 
             channelStats.put(metaDataId, connectorStats);
@@ -76,12 +75,11 @@ public class Statistics {
             Status status = statsEntry.getKey();
             Long count = statsEntry.getValue();
 
-            connectorStats.put(status, connectorStats.get(status) + count);
-
             // update the channel statistics
             switch (status) {
-            // update the following statuses based on the source connector
+            	// update the following statuses based on the source connector
                 case RECEIVED:
+                	connectorStats.put(status, connectorStats.get(status) + count);
                     if (metaDataId == 0) {
                         channelStats.put(status, channelStats.get(status) + count);
                     }
@@ -91,17 +89,23 @@ public class Statistics {
                 case FILTERED:
                 case TRANSFORMED:
                 case ERROR:
+                	connectorStats.put(status, connectorStats.get(status) + count);
                     channelStats.put(status, channelStats.get(status) + count);
                     break;
 
                 // update the following statuses based on the destination connectors
                 case PENDING:
                 case SENT:
-                case QUEUED:
+                	connectorStats.put(status, connectorStats.get(status) + count);
                     if (metaDataId > 0) {
                         channelStats.put(status, channelStats.get(status) + count);
                     }
                     break;
+                  
+                // Queued statistics are managed by the queue itself. Neither the channel nor connector should store them.
+                // This case is added here for readability.
+                case QUEUED:
+                	break;
             }
         }
     }

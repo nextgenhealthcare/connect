@@ -24,13 +24,13 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
+import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Channel;
@@ -242,78 +242,77 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public int removeMessages(String channelId, MessageFilter filter) {
-        Map<String, Object> params = getParameters(filter, channelId, null, null);
-
-        // Perform a search using the message filter parameters
-        List<Map<String, Object>> rows = SqlConfig.getSqlSessionManager().selectList("Message.searchMessages", params);
-        Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
-        
-        // For each message that was retrieved
-        for (Map<String, Object> row : rows) {
-            Long messageId = (Long) row.get("message_id");
-            Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
-
-            if (metaDataIds.contains(0)) {
-                // Delete the entire message if the source connector message is to be deleted
-                messages.put(messageId, null);
-            } else {
-                // Otherwise only deleted the destination connector message
-                messages.put(messageId, metaDataIds);
-            }
-        }
-
-        com.mirth.connect.donkey.server.controllers.MessageController.getInstance().deleteMessages(channelId, messages, false);
+    	// Perform the deletes in batches rather than all in one transaction.
+    	//TODO Tune the limit to use for each batch in the delete.
+        Map<String, Object> params = getParameters(filter, channelId, null, 100000);
         
         Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
-        
         if (channel != null) {
-            channel.removeMessagesFromQueues(messages);
+	        List<Map<String, Object>> rows = null;
+	        do {
+		        // Perform a search using the message filter parameters
+		        rows = SqlConfig.getSqlSessionManager().selectList("Message.searchMessages", params);
+		        Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
+		        
+		        // Prevent the delete from occurring at the same time as the channel being started. 
+		        synchronized (channel) {
+			        // For each message that was retrieved
+			        for (Map<String, Object> row : rows) {
+			            Long messageId = (Long) row.get("message_id");
+			            Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
+			            Boolean processed = (Boolean) row.get("processed");
+			
+			            // Allow unprocessed messages to be deleted only if the channel is stopped.
+			            if (channel.getCurrentState() == ChannelState.STOPPED || processed) {
+				            if (metaDataIds.contains(0)) {
+				                // Delete the entire message if the source connector message is to be deleted
+				                messages.put(messageId, null);
+				            } else {
+				                // Otherwise only deleted the destination connector message
+				                messages.put(messageId, metaDataIds);
+				            }
+			            }
+			        }
+			
+			        com.mirth.connect.donkey.server.controllers.MessageController.getInstance().deleteMessages(channelId, messages, false);
+		        }
+	        } while (rows != null && rows.size() > 0);
+	        
+	        // Invalidate the queue buffer to ensure stats are updated.
+            channel.invalidateQueues();
         }
-
         //TODO Decide what to return
         return 0;
     }
 
     @Override
-    public int removeConnectorMessages(String channelId, MessageFilter filter) {
-        Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
-        messages.put(filter.getMessageId(), new HashSet<Integer>(filter.getMetaDataIds()));
-        com.mirth.connect.donkey.server.controllers.MessageController.getInstance().deleteMessages(channelId, messages, false);
-        
-        Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
-        
-        if (channel != null) {
-            channel.removeMessagesFromQueues(messages);
-        }
-        
-        //TODO Decide what to return
-        return 0;
-    }
-
-    @Override
-    public void clearMessages(String channelId) throws ControllerException {
+    public boolean clearMessages(String channelId) throws ControllerException {
         logger.debug("clearing messages: channelId=" + channelId);
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-        
-        try {
-            dao.deleteAllMessages(channelId);
-            
-            // Reset the queued statistic if all messages are being cleared
-            Set<Status> statuses = new HashSet<Status>();
-            statuses.add(Status.QUEUED);
-            dao.resetStatistics(channelId, null, statuses);
-            
-            Channel channel = Donkey.getInstance().getDeployedChannels().get(channelId);
-            if (channel != null) {
-                for (Integer metaDataId : channel.getMetaDataIds()) {
-                    dao.resetStatistics(channelId, metaDataId, statuses);
+        Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
+        boolean cleared = false;
+        if (channel != null) {
+        	// Prevent the delete from occurring at the same time as the channel being started. 
+        	synchronized (channel) {
+        		// Only allow the messages to be cleared if the channel is stopped.
+        		if (channel.getCurrentState() == ChannelState.STOPPED) {
+		        	DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+			        try {
+			            dao.deleteAllMessages(channelId);
+			            dao.commit();
+			            cleared = true;
+			            
+		            	// Invalidate the queue buffer to ensure stats are updated.
+		                channel.invalidateQueues();
+			        } finally {
+			            dao.close();
+			        }
+        		} else {
+        			logger.warn("Cannot remove all messages for channel " + channel.getName() + " (" + channel.getChannelId() + ") because the channel is not stopped.");
                 }
-            }
-            
-            dao.commit();
-        } finally {
-            dao.close();
+        	}
         }
+        
+        return cleared;
     }
 
     // TODO: move this method somewhere better?

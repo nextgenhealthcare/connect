@@ -9,9 +9,6 @@
 
 package com.mirth.connect.donkey.server.queue;
 
-import java.util.Map;
-import java.util.Set;
-
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.Constants;
 
@@ -32,23 +29,6 @@ public class ConnectorMessageQueue extends PersistedBlockingQueue<ConnectorMessa
     public class InvalidDataSourceException extends RuntimeException {
         public InvalidDataSourceException(String message) {
             super(message);
-        }
-    }
-
-    public synchronized void removeMessages(Map<Long, Set<Integer>> messages) {
-        Object[] objects = toArray();
-
-        for (Object object : objects) {
-            ConnectorMessage connectorMessage = (ConnectorMessage) object;
-            long messageId = connectorMessage.getMessageId();
-
-            if (messages.containsKey(messageId)) {
-                Set<Integer> metaDataIds = messages.get(messageId);
-
-                if (metaDataIds == null || metaDataIds.contains(connectorMessage.getMetaDataId())) {
-                    remove(connectorMessage);
-                }
-            }
         }
     }
 }

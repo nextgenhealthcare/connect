@@ -40,9 +40,7 @@ public abstract class MessageController {
 
     public abstract int removeMessages(String channelId, MessageFilter filter);
     
-    public abstract int removeConnectorMessages(String channelId, MessageFilter filter);
-
-    public abstract void clearMessages(String channelId) throws ControllerException;
+    public abstract boolean clearMessages(String channelId) throws ControllerException;
 
     public abstract void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds, int userId);
 

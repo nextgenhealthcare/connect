@@ -28,16 +28,6 @@
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
-	<query id="deleteConnectorMessageMetaData">
-		DELETE FROM d_mcm${localChannelId}
-		WHERE message_id = ?
-	</query>
-	
-	<query id="deleteMessageContent">
-		DELETE FROM d_mc${localChannelId}
-		WHERE message_id = ?
-	</query>
-	
 	<query id="deleteConnectorMessage">
 		DELETE FROM d_mm${localChannelId}
 		WHERE message_id = ?
@@ -46,18 +36,6 @@
 	<query id="deleteMessage">
 		DELETE FROM d_m${localChannelId}
 		WHERE id = ?
-	</query>
-	
-	<query id="deleteConnectorMessageMetaDataByMetaDataIds">
-		DELETE FROM d_mcm${localChannelId}
-		WHERE message_id = ?
-		AND metadata_id IN (${metaDataIds})
-	</query>
-	
-	<query id="deleteMessageContentByMetaDataIds">
-		DELETE FROM d_mc${localChannelId}
-		WHERE message_id = ?
-		AND metadata_id IN (${metaDataIds})
 	</query>
 	
 	<query id="deleteConnectorMessageByMetaDataIds">
@@ -150,18 +128,18 @@
 	</query>
 	
 	<query id="getChannelStatistics">
-		SELECT metadata_id, received, filtered, transformed, pending, sent, queued, error
+		SELECT metadata_id, received, filtered, transformed, pending, sent, error
 		FROM d_ms${localChannelId}
 	</query>
 	
 	<query id="getChannelTotalStatistics">
-		SELECT metadata_id, received_total AS received, filtered_total AS filtered, transformed_total AS transformed, pending_total AS pending, sent_total AS sent, queued_total AS queued, error_total AS error
+		SELECT metadata_id, received_total AS received, filtered_total AS filtered, transformed_total AS transformed, pending_total AS pending, sent_total AS sent, error_total AS error
 		FROM d_ms${localChannelId}
 	</query>
 	
 	<query id="insertChannelStatistics">
-		INSERT INTO d_ms${localChannelId} (metadata_id, received, received_total, filtered, filtered_total, transformed, transformed_total, pending, pending_total, sent, sent_total, queued, queued_total, error, error_total)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO d_ms${localChannelId} (metadata_id, received, received_total, filtered, filtered_total, transformed, transformed_total, pending, pending_total, sent, sent_total, error, error_total)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="updateChannelStatistics">
@@ -176,8 +154,6 @@
 			pending_total = pending_total + ?,
 			sent = sent + ?,
 			sent_total = sent_total + ?,
-			queued = queued + ?,
-			queued_total = queued_total + ?,
 			error = error + ?,
 			error_total = error_total + ?
 		
@@ -196,8 +172,6 @@
 			pending_total = pending_total + ?,
 			sent = sent + ?,
 			sent_total = sent_total + ?,
-			queued = queued + ?,
-			queued_total = queued_total + ?,
 			error = error + ?,
 			error_total = error_total + ?
 		
@@ -254,7 +228,7 @@
 		FROM d_mm${localChannelId} mm
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
 		WHERE mm.id = ? AND mm.status = ?
-		ORDER BY m.id
+		ORDER BY mm.message_id
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithRange">

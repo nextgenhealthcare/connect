@@ -44,13 +44,17 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
     }
 
     public void setDataSource(PersistedBlockingQueueDataSource<E> dataSource) {
-        buffer.clear();
         this.dataSource = dataSource;
-        size = null;
+        invalidate();
     }
 
     public void updateSize() {
         size = dataSource.getSize();
+    }
+    
+    public synchronized void invalidate() {
+    	buffer.clear();
+        size = null;
     }
 
     @Override
@@ -208,6 +212,9 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
     @Override
     public int size() {
         if (size == null) {
+        	if (dataSource == null) {
+        		return 0;
+        	}
             updateSize();
         }
 
@@ -234,10 +241,6 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
         for (E e : nextItems) {
             buffer.add(e);
         }
-    }
-
-    public synchronized void clearBuffer() {
-        buffer.clear();
     }
 
     @Override

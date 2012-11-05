@@ -77,8 +77,6 @@
 	        pending_total bigint NOT NULL DEFAULT 0,
 	        sent bigint NOT NULL DEFAULT 0,
 	        sent_total bigint NOT NULL DEFAULT 0,
-	        queued bigint NOT NULL DEFAULT 0,
-	        queued_total bigint NOT NULL DEFAULT 0,
 	        error bigint NOT NULL DEFAULT 0,
 	        error_total bigint NOT NULL DEFAULT 0
         );

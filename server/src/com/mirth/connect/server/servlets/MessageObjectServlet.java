@@ -141,19 +141,6 @@ public class MessageObjectServlet extends MirthServlet {
                     } else {
                         messageController.removeMessages(channelId, filter);
                     }
-                } else if (operation.equals(Operations.CONNECTOR_MESSAGE_REMOVE)) {
-                    // TODO: update calls to this servlet operation so that they pass channelId
-                    String channelId = request.getParameter("channelId");
-                    MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
-                    
-                    parameterMap.put("channelId", channelId);
-                    parameterMap.put("filter", filter);
-
-                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                    } else {
-                        messageController.removeConnectorMessages(channelId, filter);
-                    }
                 } else if (operation.equals(Operations.MESSAGE_CLEAR)) {
                     String channelId = request.getParameter("data");
                     parameterMap.put("channelId", channelId);
@@ -161,7 +148,7 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        messageController.clearMessages(channelId);
+                    	out.print(messageController.clearMessages(channelId));
                     }
                 } else if (operation.equals(Operations.MESSAGE_REPROCESS)) {
                     String channelId = request.getParameter("channelId");

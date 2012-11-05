@@ -33,7 +33,6 @@ import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
-import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public abstract class DestinationConnector extends Connector implements ConnectorInterface, Runnable {
@@ -134,11 +133,8 @@ public abstract class DestinationConnector extends Connector implements Connecto
         setCurrentState(ChannelState.STARTING);
 
         if (isQueueEnabled()) {
-            // set the queue data source if needed
-            if (queue.getDataSource() == null) {
-                queue.setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), getMetaDataId(), Status.QUEUED));
-            }
-
+        	// Remove any items in the queue's buffer because they may be outdated.
+            queue.invalidate();
             // refresh the queue size from it's data source
             queue.updateSize();
 
@@ -354,15 +350,21 @@ public abstract class DestinationConnector extends Connector implements Connecto
                         if (connectorMessage.getStatus() != Status.QUEUED) {
                             ThreadUtils.checkInterruptedStatus();
 
-                            // We only peeked before, so this time actually remove the head of the queue, which is the message we just finished
-                            queue.poll();
-
-                            // Get the next message in the queue
-                            connectorMessage = queue.peek();
+                            // We only peeked before, so this time actually remove the head of the queue.
+                            // If the queue was invalidated, a different message could have been inserted to the front of the queue.
+                            // Therefore, only poll the queue if the head is the same as the current message
+                            synchronized (queue) {
+                            	ConnectorMessage firstMessage = queue.peek();
+                            	if (connectorMessage.getMessageId() == firstMessage.getMessageId() && connectorMessage.getMetaDataId() == firstMessage.getMetaDataId()) {
+                            		queue.poll();
+                            	}
+                            }
                         }
                     } catch (RuntimeException e) {
-                        logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + getChannelId() + " (" + destinationName + ").", e);
-                        dao.rollback();
+                        logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + getChannelId() + " (" + destinationName + "). This error is expected if the message was manually removed from the queue.", e);
+                        // Invalidate the queue's buffer if any errors occurred. If the message being processed by the queue was deleted,
+                        // This will prevent the queue from trying to process that message repeatedly.
+                        queue.invalidate();
                     } finally {
                         if (dao != null) {
                             dao.close();
@@ -376,7 +378,9 @@ public abstract class DestinationConnector extends Connector implements Connecto
         } catch (Exception e) {
             logger.error(e);
         } finally {
-            queue.clearBuffer();
+        	// Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
+        	// unsynchronized with the data store.
+            queue.invalidate();
             currentState = ChannelState.STOPPED;
 
             if (dao != null) {

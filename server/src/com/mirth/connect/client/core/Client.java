@@ -676,12 +676,6 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_REMOVE.getName()), new NameValuePair("channelId", channelId), new NameValuePair("filter", serializer.toXML(filter)) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
-    
-    public void removeConnectorMessages(String channelId, MessageFilter filter) throws ClientException {
-        logger.debug("removing messages");
-        NameValuePair[] params = { new NameValuePair("op", Operations.CONNECTOR_MESSAGE_REMOVE.getName()), new NameValuePair("channelId", channelId), new NameValuePair("filter", serializer.toXML(filter)) };
-        serverConnection.executePostMethod(MESSAGE_SERVLET, params);
-    }
 
     public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds) throws ClientException {
         logger.debug("reprocessing messages");
@@ -916,10 +910,10 @@ public class Client {
      * @param channelId
      * @throws ClientException
      */
-    public void clearMessages(String channelId) throws ClientException {
+    public boolean clearMessages(String channelId) throws ClientException {
         logger.debug("clearing messages: " + channelId);
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_CLEAR.getName()), new NameValuePair("data", channelId) };
-        serverConnection.executePostMethod(MESSAGE_SERVLET, params);
+        return Boolean.valueOf(serverConnection.executePostMethod(MESSAGE_SERVLET, params));
     }
 
     // TODO: replace with calls to getMessages()

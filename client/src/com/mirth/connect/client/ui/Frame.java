@@ -3402,8 +3402,8 @@ public class Frame extends JXFrame {
     }
 
     public void doRemoveAllMessages() {
-        if (alertOption(this, "Are you sure you would like to remove all messages in the selected channel(s)?")) {
-            final boolean clearStats = alertOption(PlatformUI.MIRTH_FRAME, "Would you also like to clear all statistics?");
+        if (alertOption(this, "Are you sure you would like to remove all messages in the selected channel(s)?\n(Only stopped channels will be affected)")) {
+            final boolean clearStats = alertOption(PlatformUI.MIRTH_FRAME, "Would you also like to clear all statistics?\n(Only stopped channels will be affected)");
 
             Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
 
@@ -3412,10 +3412,11 @@ public class Frame extends JXFrame {
                 final String workingId = startWorking("Removing messages...");
 
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                	private boolean cleared = false;
 
                     public Void doInBackground() {
                         try {
-                            mirthClient.clearMessages(channelStatus.getChannelId());
+                            cleared = mirthClient.clearMessages(channelStatus.getChannelId());
                         } catch (ClientException e) {
                             alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                         }
@@ -3423,7 +3424,9 @@ public class Frame extends JXFrame {
                     }
 
                     public void done() {
-                        if (clearStats) {
+                    	// If the channel was running, the messages will not be cleared. Only clear the stats for channels
+                    	// where the messages were cleared.
+                        if (clearStats && cleared) {
                             List<DashboardStatus> channelStatuses = new ArrayList<DashboardStatus>();
                             channelStatuses.add(channelStatus);
                             channelStatuses.addAll(dashboardPanel.getAllChildStatuses(channelStatus));
@@ -3434,6 +3437,10 @@ public class Frame extends JXFrame {
                         
                         if (currentContentPage == messageBrowser) {
                             messageBrowser.refresh(true, 1);
+                            // Warn the user that the messages were not cleared if the channel was running.
+                            if (!cleared) {
+                            	alertWarning(Frame.this, "Cannot remove all messages for channel " + channelStatus.getName() + " (" + channelStatus.getChannelId() + ") because the channel is not stopped.");
+                            }
                         }
                         stopWorking(workingId);
                     }
@@ -3495,7 +3502,7 @@ public class Frame extends JXFrame {
     }
 
     public void doRemoveFilteredMessages() {
-        if (alertOption(this, "Are you sure you would like to remove all currently filtered messages in this channel?")) {
+        if (alertOption(this, "Are you sure you would like to remove all currently filtered messages in this channel?\n(Messages currently being processed can only be removed if the channel is stopped)")) {
             final String workingId = startWorking("Removing messages...");
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -3528,25 +3535,22 @@ public class Frame extends JXFrame {
     }
 
     public void doRemoveMessage() {
-        if (alertOption(this, "Are you sure you would like to remove the selected message?")) {
+    	final Integer metaDataId = messageBrowser.getSelectedMetaDataId();
+    	final Long messageId = messageBrowser.getSelectedMessageId();
+    	final String channelId = messageBrowser.getChannel().getId();
+        if (alertOption(this, "Are you sure you would like to remove the selected message?\n(Messages currently being processed can only be removed if the channel is stopped)")) {
             final String workingId = startWorking("Removing message...");
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
                     try {
-                        Integer metaDataId = messageBrowser.getSelectedMetaDataId();
                         MessageFilter filter = new MessageFilter();
-                        if (metaDataId == 0) {
-                            filter.setMessageId(messageBrowser.getSelectedMessageId());
-                            mirthClient.removeMessages(messageBrowser.getChannel().getId(), filter);
-                        } else if (metaDataId > 0) {
-                            filter.setMessageId(messageBrowser.getSelectedMessageId());
-                            List<Integer> metaDataIds = new ArrayList<Integer>();
-                            metaDataIds.add(metaDataId);
-                            filter.setMetaDataIds(metaDataIds);
-                            mirthClient.removeConnectorMessages(messageBrowser.getChannel().getId(), filter);
-                        }
+                        filter.setMessageId(messageId);
+                        List<Integer> metaDataIds = new ArrayList<Integer>();
+                        metaDataIds.add(metaDataId);
+                        filter.setMetaDataIds(metaDataIds);
+                        mirthClient.removeMessages(channelId, filter);
                     } catch (ClientException e) {
                         alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
