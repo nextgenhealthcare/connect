@@ -250,6 +250,11 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
 
         Integer sendAttemptsLower = (Integer) this.sendAttemptsLower.getValue();
         Integer sendAttemptsUpper = this.sendAttemptsUpper.getIntegerValue();
+        
+        // There is no need to test this criteria if it is zero or less, because this should be the lowest value allowed.
+        if (sendAttemptsLower <= 0) {
+        	sendAttemptsLower = null;
+        }
 
         if (sendAttemptsLower != null && sendAttemptsUpper != null && sendAttemptsLower > sendAttemptsUpper) {
             sendAttemptsLower = null;
@@ -269,7 +274,11 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     }
 
     private List<Integer> getSelectedMetaDataIds() {
-        return ((ItemSelectionTableModel<Integer, String>) connectorTable.getModel()).getSelectedKeys();
+    	List<Integer> selectedMetaDataIds = ((ItemSelectionTableModel<Integer, String>) connectorTable.getModel()).getSelectedKeys();
+    	if (selectedMetaDataIds.size() == connectorTable.getRowCount()) {
+    		return null;
+    	}
+        return selectedMetaDataIds;
     }
 
     private String getServerId() {

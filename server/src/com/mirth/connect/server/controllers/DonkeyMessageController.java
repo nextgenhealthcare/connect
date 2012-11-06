@@ -109,7 +109,7 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public Long getMessageCount(MessageFilter filter, Channel channel) {
-        if (filter.getMetaDataIds().isEmpty()) {
+        if (filter.getMetaDataIds() != null && filter.getMetaDataIds().isEmpty()) {
             return 0L;
         }
 
@@ -136,7 +136,7 @@ public class DonkeyMessageController extends MessageController {
         List<Message> messages = new ArrayList<Message>();
         SqlSession session = SqlConfig.getSqlSessionManager();
 
-        if (filter.getMetaDataIds().isEmpty()) {
+        if (filter.getMetaDataIds() != null && filter.getMetaDataIds().isEmpty()) {
             return messages;
         }
 
