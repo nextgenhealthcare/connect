@@ -171,4 +171,8 @@
 		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} timestamp without time zone;
 		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId} USING BTREE (${columnName});
 	</query>
+	
+	<query id="deleteAllMessages">
+        TRUNCATE TABLE d_m${localChannelId} CASCADE;
+	</query>
 </queries>

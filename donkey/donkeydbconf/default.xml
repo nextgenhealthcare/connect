@@ -88,14 +88,6 @@
 		FROM d_channels
 	</query>
 	
-	<query id="deleteAllMessages">
-		TRUNCATE TABLE d_ma${localChannelId};
-        TRUNCATE TABLE d_mcm${localChannelId};
-        TRUNCATE TABLE d_mc${localChannelId};
-        TRUNCATE TABLE d_mm${localChannelId};
-        TRUNCATE TABLE d_m${localChannelId};
-	</query>
-	
 	<query id="removeMetaDataColumn">
 		ALTER TABLE d_mcm${localChannelId} DROP COLUMN ${columnName}
 	</query>
@@ -273,4 +265,5 @@
 	<query id="addMetaDataColumnLong"></query>
 	<query id="addMetaDataColumnTime"></query>
 	<query id="addMetaDataColumnTimestamp"></query>
+	<query id="deleteAllMessages"></query>
 </queries>
