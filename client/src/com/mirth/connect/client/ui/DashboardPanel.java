@@ -355,6 +355,8 @@ public class DashboardPanel extends javax.swing.JPanel {
         
         DashboardTreeTableModel model = (DashboardTreeTableModel) statusTable.getTreeTableModel();
         model.setStatuses(statuses);
+        model.setShowOverallStats(showOverallStatsButton.isSelected());
+        
         // The ListSelectionListener is not notified that the tree table model has changed so we must update the menu items manually.
         // If we switch everything to use a TreeSelectionListener then we should remove this.
         if (statusTable.getSelectedRowCount() == 0) {
