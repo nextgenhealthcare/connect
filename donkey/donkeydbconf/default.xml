@@ -89,11 +89,11 @@
 	</query>
 	
 	<query id="deleteAllMessages">
-		TRUNCATE TABLE d_ma${localChannelId} CASCADE;
-        TRUNCATE TABLE d_mcm${localChannelId} CASCADE;
-        TRUNCATE TABLE d_mc${localChannelId} CASCADE;
-        TRUNCATE TABLE d_mm${localChannelId} CASCADE;
-        TRUNCATE TABLE d_m${localChannelId} CASCADE;
+		TRUNCATE TABLE d_ma${localChannelId};
+        TRUNCATE TABLE d_mcm${localChannelId};
+        TRUNCATE TABLE d_mc${localChannelId};
+        TRUNCATE TABLE d_mm${localChannelId};
+        TRUNCATE TABLE d_m${localChannelId};
 	</query>
 	
 	<query id="removeMetaDataColumn">
