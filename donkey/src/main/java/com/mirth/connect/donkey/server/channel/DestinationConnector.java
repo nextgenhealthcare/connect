@@ -250,12 +250,6 @@ public abstract class DestinationConnector extends Connector implements Connecto
                     responseStatus = response.getStatus();
                 } while ((responseStatus == Status.ERROR || responseStatus == Status.QUEUED) && (sendAttempts - 1) < retryCount);
 
-                // Insert errors if necessary
-                if (StringUtils.isNotBlank(response.getError())) {
-                    message.setErrors(response.getError());
-                    dao.updateErrors(message);
-                }
-
                 afterSend(dao, message, response, previousStatus);
             } else {
                 dao.updateStatus(message, previousStatus);
@@ -394,6 +388,12 @@ public abstract class DestinationConnector extends Connector implements Connecto
     }
 
     private void afterSend(DonkeyDao dao, ConnectorMessage message, Response response, Status previousStatus) throws InterruptedException {
+    	// Insert errors if necessary
+        if (StringUtils.isNotBlank(response.getError())) {
+            message.setErrors(response.getError());
+            dao.updateErrors(message);
+        }
+    	
         MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, response.toString(), false);
 
         if (storageSettings.isStoreResponse()) {
