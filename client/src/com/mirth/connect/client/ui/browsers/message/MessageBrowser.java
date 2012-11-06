@@ -557,7 +557,13 @@ public class MessageBrowser extends javax.swing.JPanel {
             List<MetaDataSearchElement> elements = messageFilter.getMetaDataSearch();
             
             for (MetaDataSearchElement element : elements) {
-                text.append(padding + element.getColumnName() + " " + MetaDataSearchOperator.fromString(element.getOperator()).toString() + " " + element.getValue());
+                text.append(padding + element.getColumnName() + " " + MetaDataSearchOperator.fromString(element.getOperator()).toString() + " ");
+                if (element.getValue() instanceof Calendar) {
+                	Calendar date = (Calendar) element.getValue();
+                	text.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date.getTime()));
+                } else {
+                	text.append(element.getValue());
+                }
                 if (element.getIgnoreCase()) {
                     text.append(" (Ignore Case)");
                 }

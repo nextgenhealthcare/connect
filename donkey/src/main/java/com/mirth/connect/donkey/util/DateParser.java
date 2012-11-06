@@ -27,7 +27,9 @@ public class DateParser {
         "MM-dd-yyyy",
         "MM dd yyyy",
         "MM.dd.yyyy",
-        "HH:mm:ss"};
+        "HH:mm:ss",
+        "yyyyMMddHHmm",
+        "yyyyMMddHHmmss",};
     // @formatter:on
 
     private List<String> patterns = Arrays.asList(DEFAULT_PATTERNS);

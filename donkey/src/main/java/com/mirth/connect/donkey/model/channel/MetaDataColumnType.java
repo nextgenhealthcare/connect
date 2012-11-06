@@ -53,7 +53,9 @@ public enum MetaDataColumnType {
             }
             // @formatter:on
         } catch (DateParserException e) {
-            throw new MetaDataColumnException("Invalid value given for meta data column type: " + this);
+            throw new MetaDataColumnException("Invalid value '" + value + "' given for meta data column type: " + this);
+        } catch (NumberFormatException e) {
+            throw new MetaDataColumnException("Invalid value '" + value + "' given for meta data column type: " + this);
         }
     }
 }
