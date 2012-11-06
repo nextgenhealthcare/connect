@@ -12,8 +12,30 @@ package com.mirth.connect.donkey.server.data.passthru;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 
 public class PassthruDaoFactory implements DonkeyDaoFactory {
+    private StatisticsUpdater statisticsUpdater;
+
+    public PassthruDaoFactory() {}
+    
+    public PassthruDaoFactory(StatisticsUpdater statisticsUpdater) {
+        this.statisticsUpdater = statisticsUpdater;
+    }
+    
+    public StatisticsUpdater getStatisticsUpdater() {
+        return statisticsUpdater;
+    }
+
+    public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater) {
+        this.statisticsUpdater = statisticsUpdater;
+    }
+
     @Override
     public PassthruDao getDao() {
-        return new PassthruDao();
+        PassthruDao dao = new PassthruDao();
+        
+        if (statisticsUpdater != null) {
+            dao.setStatisticsUpdater(statisticsUpdater);
+        }
+        
+        return dao;
     }
 }

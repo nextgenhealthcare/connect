@@ -43,8 +43,8 @@ public abstract class DestinationConnector extends Connector implements Connecto
     private boolean enabled;
     private ResponseTransformer responseTransformer;
     private StorageSettings storageSettings = new StorageSettings();
+    private DonkeyDaoFactory daoFactory;
     private ChannelState currentState = ChannelState.STOPPED;
-    private boolean removeContentOnCompletion = false;
     private Logger logger = Logger.getLogger(getClass());
 
     public abstract ConnectorProperties getReplacedConnectorProperties(ConnectorMessage message);
@@ -97,12 +97,12 @@ public abstract class DestinationConnector extends Connector implements Connecto
         this.responseTransformer = responseTransformer;
     }
 
-    public StorageSettings getStorageSettings() {
-        return storageSettings;
-    }
-
-    public void setStorageSettings(StorageSettings storageSettings) {
+    protected void setStorageSettings(StorageSettings storageSettings) {
         this.storageSettings = storageSettings;
+    }
+    
+    protected void setDaoFactory(DonkeyDaoFactory daoFactory) {
+        this.daoFactory = daoFactory;
     }
 
     public ChannelState getCurrentState() {
@@ -111,14 +111,6 @@ public abstract class DestinationConnector extends Connector implements Connecto
 
     public void setCurrentState(ChannelState currentState) {
         this.currentState = currentState;
-    }
-
-    public boolean isRemoveContentOnCompletion() {
-        return removeContentOnCompletion;
-    }
-
-    public void setRemoveContentOnCompletion(boolean removeContentOnCompletion) {
-        this.removeContentOnCompletion = removeContentOnCompletion;
     }
 
     /**
@@ -273,7 +265,6 @@ public abstract class DestinationConnector extends Connector implements Connecto
         DonkeyDao dao = null;
         try {
             Serializer serializer = Donkey.getInstance().getSerializer();
-            DonkeyDaoFactory daoFactory = getDaoFactory();
             ConnectorMessage connectorMessage = null;
             int retryIntervalMillis = queueProperties.getRetryIntervalMillis();
             long lastMessageId = -1;
@@ -327,7 +318,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
                          * retrieve a list of the other connector messages for this message id and
                          * check if the message is "completed"
                          */
-                        if (removeContentOnCompletion) {
+                        if (storageSettings.isRemoveContentOnCompletion()) {
                             Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(getChannelId(), connectorMessage.getMessageId());
 
                             // update the map with the message that was just sent

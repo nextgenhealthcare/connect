@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.util.Properties;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -49,7 +50,7 @@ public class TestUtils {
     final public static String TEST_HL7_MESSAGE = "MSH|^~\\&|LABNET|Acme Labs|||20090601105700||ORU^R01|HMCDOOGAL-0088|D|2.2\nPID|1|8890088|8890088^^^72777||McDoogal^Hattie^||19350118|F||2106-3|100 Beach Drive^Apt. 5^Mission Viejo^CA^92691^US^H||(949) 555-0025|||||8890088^^^72|604422825\nPV1|1|R|C3E^C315^B||||2^HIBBARD^JULIUS^|5^ZIMMERMAN^JOE^|9^ZOIDBERG^JOHN^|CAR||||4|||2301^OBRIEN, KEVIN C|I|1783332658^1^1||||||||||||||||||||DISNEY CLINIC||N|||20090514205600\nORC|RE|928272608|056696716^LA||CM||||20090601105600||||  C3E|||^RESULT PERFORMED\nOBR|1|928272608|056696716^LA|1001520^K|||20090601101300|||MLH25|||HEMOLYZED/VP REDRAW|20090601102400||2301^OBRIEN, KEVIN C||||01123085310001100100152023509915823509915800000000101|0000915200932|20090601105600||LAB|F||^^^20090601084100^^ST~^^^^^ST\nOBX|1|NM|1001520^K||5.3|MMOL/L|3.5-5.5||||F|||20090601105600|IIM|IIM";
     final public static String CHANNEL_ID = "newtestchannel";
     final public static String SERVER_ID = "testserver";
-
+    
     public static Channel createChannel(String channelId, String serverId, SourceConnector sourceConnector, DestinationConnector destinationConnector) {
         Channel channel = new Channel();
         channel.setChannelId(channelId);
@@ -74,7 +75,7 @@ public class TestUtils {
         destinationConnector.setResponseTransformer(new TestResponseTransformer());
 
         ConnectorMessageQueue queue = new ConnectorMessageQueue();
-        queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 1, Status.QUEUED));
+        queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 1, Status.QUEUED, Donkey.getInstance().getDaoFactory()));
         destinationConnector.setQueue(queue);
 
         return channel;
@@ -103,7 +104,7 @@ public class TestUtils {
 
             for (int j = 0; j < destinationsPerChain; j++) {
                 ConnectorMessageQueue queue = new ConnectorMessageQueue();
-                queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED));
+                queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, Donkey.getInstance().getDaoFactory()));
 
                 TestDestinationConnector testDestinationConnector = new TestDestinationConnector();
                 testDestinationConnector.setChannelId(channelId);
@@ -202,5 +203,35 @@ public class TestUtils {
         dao.insertConnectorMessage(sourceMessage, true);
         dao.insertMessageContent(sourceMessage.getRaw());
         return message;
+    }
+    
+    public static int getNumMessages(String channelId) throws Exception {
+        return getNumMessages(channelId, false);
+    }
+    
+    public static int getNumMessages(String channelId, boolean onlyCountMessagesWithContent) throws Exception {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        
+        try {
+            long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
+            
+            StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM d_m" + localChannelId + " m");
+            
+            if (onlyCountMessagesWithContent) {
+                query.append(" WHERE EXISTS (SELECT 1 FROM d_mc" + localChannelId + " WHERE message_id = m.id)");
+            }
+            
+            connection = getConnection();
+            statement = connection.prepareStatement(query.toString());
+            result = statement.executeQuery();
+            result.next();
+            return result.getInt(1);
+        } finally {
+            DbUtils.close(result);
+            DbUtils.close(statement);
+            DbUtils.close(connection);
+        }
     }
 }

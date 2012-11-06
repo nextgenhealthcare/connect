@@ -580,7 +580,7 @@ public class ChannelTests {
 
     private void testContentRemoval(boolean removeContentOnCompletion, boolean useQueue) throws Exception {
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
-        channel.setRemoveContentOnCompletion(removeContentOnCompletion);
+        channel.getStorageSettings().setRemoveContentOnCompletion(removeContentOnCompletion);
 
         if (useQueue) {
             QueueConnectorProperties queueConnectorProperties = ((QueueConnectorPropertiesInterface) channel.getDestinationConnector(1).getConnectorProperties()).getQueueConnectorProperties();
@@ -627,29 +627,28 @@ public class ChannelTests {
 
     @Test
     public final void testContentStorageDevelopment() throws Exception {
-        testContentStorageSettings(TestUtils.getStorageSettings(MessageStorageMode.DEVELOPMENT, false), TestUtils.getStorageSettings(MessageStorageMode.DEVELOPMENT, true));
+        testContentStorageSettings(TestUtils.getStorageSettings(MessageStorageMode.DEVELOPMENT));
     }
 
     @Test
     public final void testContentStorageProduction() throws Exception {
-        testContentStorageSettings(TestUtils.getStorageSettings(MessageStorageMode.PRODUCTION, false), TestUtils.getStorageSettings(MessageStorageMode.PRODUCTION, true));
+        testContentStorageSettings(TestUtils.getStorageSettings(MessageStorageMode.PRODUCTION));
     }
 
     @Test
     public final void testContentStorageMetadata() throws Exception {
-        testContentStorageSettings(TestUtils.getStorageSettings(MessageStorageMode.METADATA, false), TestUtils.getStorageSettings(MessageStorageMode.METADATA, true));
+        testContentStorageSettings(TestUtils.getStorageSettings(MessageStorageMode.METADATA));
     }
 
     @Test
     public final void testContentStorageDisabled() throws Exception {
-        testContentStorageSettings(TestUtils.getStorageSettings(MessageStorageMode.DISABLED, false), TestUtils.getStorageSettings(MessageStorageMode.DISABLED, true));
+        testContentStorageSettings(TestUtils.getStorageSettings(MessageStorageMode.DISABLED));
     }
 
-    private void testContentStorageSettings(StorageSettings sourceStorageSettings, StorageSettings destinationStorageSettings) throws Exception {
+    private void testContentStorageSettings(StorageSettings storageSettings) throws Exception {
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
+        channel.setStorageSettings(storageSettings);
         SourceConnector sourceConnector = channel.getSourceConnector();
-        sourceConnector.setStorageSettings(sourceStorageSettings);
-        channel.getDestinationConnector(1).setStorageSettings(destinationStorageSettings);
 
         channel.deploy();
         channel.start();
@@ -666,60 +665,47 @@ public class ChannelTests {
         assertNotNull(sourceMessage);
         assertNotNull(destinationMessage);
 
-        if (sourceStorageSettings.isStoreRaw()) {
+        if (storageSettings.isStoreRaw()) {
             TestUtils.assertMessageContentExists(sourceMessage.getRaw());
-            TestUtils.assertMessageContentExists(sourceMessage.getEncoded());
         } else {
-            if (!sourceStorageSettings.isStoreEncoded()) {
-                TestUtils.assertMessageContentDoesNotExist(sourceMessage.getRaw());
-            }
-
-            TestUtils.assertMessageContentDoesNotExist(sourceMessage.getEncoded());
+            TestUtils.assertMessageContentDoesNotExist(sourceMessage.getRaw());
         }
 
-        if (sourceStorageSettings.isStoreProcessedRaw()) {
+        if (storageSettings.isStoreProcessedRaw()) {
             TestUtils.assertMessageContentExists(sourceMessage.getProcessedRaw());
         } else {
             TestUtils.assertMessageContentDoesNotExist(sourceMessage.getProcessedRaw());
         }
 
-        if (sourceStorageSettings.isStoreTransformed()) {
+        if (storageSettings.isStoreTransformed()) {
             TestUtils.assertMessageContentExists(sourceMessage.getTransformed());
-        } else {
-            TestUtils.assertMessageContentDoesNotExist(sourceMessage.getTransformed());
-        }
-
-        if (destinationStorageSettings.isStoreTransformed()) {
             TestUtils.assertMessageContentExists(destinationMessage.getTransformed());
         } else {
+            TestUtils.assertMessageContentDoesNotExist(sourceMessage.getTransformed());
             TestUtils.assertMessageContentDoesNotExist(destinationMessage.getTransformed());
         }
 
-        if (sourceStorageSettings.isStoreEncoded()) {
+        if (storageSettings.isStoreSourceEncoded()) {
             TestUtils.assertMessageContentExists(sourceMessage.getEncoded());
-        } else if (!sourceStorageSettings.isStoreRaw()) {
+        } else {
             TestUtils.assertMessageContentDoesNotExist(sourceMessage.getEncoded());
         }
 
-        if (destinationStorageSettings.isStoreEncoded()) {
-            TestUtils.assertMessageContentExists(destinationMessage.getEncoded());
-        } else {
-            TestUtils.assertMessageContentDoesNotExist(destinationMessage.getEncoded());
-        }
-
-        if (destinationStorageSettings.isStoreSent()) {
+        if (storageSettings.isStoreSent()) {
             TestUtils.assertMessageContentExists(destinationMessage.getSent());
         } else {
             TestUtils.assertMessageContentDoesNotExist(new MessageContent(channelId, messageResponse.getMessageId(), 1, ContentType.SENT, null, false));
         }
 
-        if (destinationStorageSettings.isStoreResponse()) {
+        if (storageSettings.isStoreResponse()) {
+            TestUtils.assertMessageContentExists(sourceMessage.getResponse());
             TestUtils.assertMessageContentExists(destinationMessage.getResponse());
         } else {
+            TestUtils.assertMessageContentDoesNotExist(sourceMessage.getResponse());
             TestUtils.assertMessageContentDoesNotExist(destinationMessage.getResponse());
         }
 
-        if (destinationStorageSettings.isStoreProcessedResponse()) {
+        if (storageSettings.isStoreProcessedResponse()) {
             TestUtils.assertMessageContentExists(destinationMessage.getProcessedResponse());
         } else {
             TestUtils.assertMessageContentDoesNotExist(destinationMessage.getProcessedResponse());

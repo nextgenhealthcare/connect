@@ -15,6 +15,8 @@ public class StorageSettings {
     private boolean rawDurable = true;
     
     private boolean messageRecoveryEnabled = true;
+    private boolean removeContentOnCompletion = false;
+    private boolean encryptContent = false;
 
     private boolean storeAttachments = true;
     private boolean storeCustomMetaData = true;
@@ -22,7 +24,8 @@ public class StorageSettings {
     private boolean storeRaw = true;
     private boolean storeProcessedRaw = true;
     private boolean storeTransformed = true;
-    private boolean storeEncoded = true;
+    private boolean storeSourceEncoded = true;
+    private boolean storeDestinationEncoded = true;
     private boolean storeResponse = true;
     private boolean storeSent = true;
     private boolean storeProcessedResponse = true;
@@ -79,6 +82,22 @@ public class StorageSettings {
         this.messageRecoveryEnabled = messageRecoveryEnabled;
     }
 
+    public boolean isRemoveContentOnCompletion() {
+        return removeContentOnCompletion;
+    }
+
+    public void setRemoveContentOnCompletion(boolean removeContentOnCompletion) {
+        this.removeContentOnCompletion = removeContentOnCompletion;
+    }
+
+    public boolean isEncryptContent() {
+        return encryptContent;
+    }
+
+    public void setEncryptContent(boolean encryptContent) {
+        this.encryptContent = encryptContent;
+    }
+
     public boolean isStoreAttachments() {
         return storeAttachments;
     }
@@ -119,12 +138,20 @@ public class StorageSettings {
         this.storeTransformed = storeTransformed;
     }
 
-    public boolean isStoreEncoded() {
-        return storeEncoded;
+    public boolean isStoreSourceEncoded() {
+        return storeSourceEncoded;
     }
 
-    public void setStoreEncoded(boolean storeEncoded) {
-        this.storeEncoded = storeEncoded;
+    public void setStoreSourceEncoded(boolean storeEncoded) {
+        this.storeSourceEncoded = storeEncoded;
+    }
+
+    public boolean isStoreDestinationEncoded() {
+        return storeDestinationEncoded;
+    }
+
+    public void setStoreDestinationEncoded(boolean storeDestinationEncoded) {
+        this.storeDestinationEncoded = storeDestinationEncoded;
     }
 
     public boolean isStoreResponse() {

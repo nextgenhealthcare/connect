@@ -28,6 +28,7 @@ import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
+import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.util.DonkeyCloner;
 import com.mirth.connect.donkey.util.DonkeyClonerFactory;
 import com.mirth.connect.donkey.util.ThreadUtils;
@@ -42,6 +43,8 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
     private MetaDataReplacer metaDataReplacer;
     private List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
     private DonkeyCloner cloner = DonkeyClonerFactory.getInstance().getCloner();
+    private DonkeyDaoFactory daoFactory;
+    private StorageSettings storageSettings;
     private Logger logger = Logger.getLogger(getClass());
 
     public String getChannelId() {
@@ -105,6 +108,14 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
         this.metaDataColumns = metaDataColumns;
     }
 
+    protected void setDaoFactory(DonkeyDaoFactory daoFactory) {
+        this.daoFactory = daoFactory;
+    }
+
+    protected void setStorageSettings(StorageSettings storageSettings) {
+        this.storageSettings = storageSettings;
+    }
+
     @Override
     public List<ConnectorMessage> call() throws Exception {
         List<ConnectorMessage> messages = new ArrayList<ConnectorMessage>();
@@ -128,7 +139,6 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
             Integer nextMetaDataId = (enabledMetaDataIds.size() > (i + 1)) ? enabledMetaDataIds.get(i + 1) : null;
             ConnectorMessage nextMessage = null;
             DestinationConnector destinationConnector = destinationConnectors.get(metaDataId);
-            StorageSettings storageSettings = destinationConnector.getStorageSettings();
 
             /*
              * TRANSACTION: Process Destination
@@ -143,7 +153,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
              * message (done in the next transaction if a response transformer
              * is used)
              */
-            DonkeyDao dao = destinationConnector.getDaoFactory().getDao();
+            DonkeyDao dao = daoFactory.getDao();
 
             try {
                 Status previousStatus = message.getStatus();
@@ -179,7 +189,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                                     dao.insertMessageContent(message.getTransformed());
                                 }
 
-                                if (storageSettings.isStoreEncoded() && message.getEncoded() != null) {
+                                if (storageSettings.isStoreSourceEncoded() && message.getEncoded() != null) {
                                     ThreadUtils.checkInterruptedStatus();
                                     dao.insertMessageContent(message.getEncoded());
                                 }
@@ -223,17 +233,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                     nextMessage.setRaw(new MessageContent(message.getChannelId(), message.getMessageId(), nextMetaDataId, ContentType.RAW, message.getRaw().getContent(), message.getRaw().isEncrypted()));
 
                     ThreadUtils.checkInterruptedStatus();
-                    DestinationConnector nextDestinationConnector = destinationConnectors.get(nextMetaDataId);
-
-                    // if the next destination has the same DAO factory as the current one, then use the same DAO, otherwise, get a new one
-                    if (!nextDestinationConnector.getDaoFactory().equals(destinationConnector.getDaoFactory())) {
-                        dao.commit(storageSettings.isDurable());
-                        dao.close();
-
-                        dao = nextDestinationConnector.getDaoFactory().getDao();
-                    }
-
-                    dao.insertConnectorMessage(nextMessage, nextDestinationConnector.getStorageSettings().isStoreMaps());
+                    dao.insertConnectorMessage(nextMessage, storageSettings.isStoreMaps());
                 }
 
                 ThreadUtils.checkInterruptedStatus();

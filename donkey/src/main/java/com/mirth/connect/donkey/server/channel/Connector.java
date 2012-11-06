@@ -11,7 +11,6 @@ package com.mirth.connect.donkey.server.channel;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.message.DataType;
-import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 
 public class Connector {
     private String channelId;
@@ -19,7 +18,6 @@ public class Connector {
     private DataType inboundDataType;
     private DataType outboundDataType;
     private ConnectorProperties connectorProperties;
-    private DonkeyDaoFactory daoFactory;
 
     public String getChannelId() {
         return channelId;
@@ -59,13 +57,5 @@ public class Connector {
 
     public void setConnectorProperties(ConnectorProperties connectorProperties) {
         this.connectorProperties = connectorProperties;
-    }
-
-    public DonkeyDaoFactory getDaoFactory() {
-        return daoFactory;
-    }
-
-    public void setDaoFactory(DonkeyDaoFactory daoFactory) {
-        this.daoFactory = daoFactory;
     }
 }

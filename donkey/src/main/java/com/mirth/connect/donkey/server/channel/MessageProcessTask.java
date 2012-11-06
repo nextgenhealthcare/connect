@@ -37,7 +37,7 @@ final class MessageProcessTask implements Callable<MessageResponse> {
     private RawMessage rawMessage;
     private Channel channel;
     private StorageSettings storageSettings;
-    private DonkeyDaoFactory sourceDaoFactory;
+    private DonkeyDaoFactory daoFactory;
     private ResponseSelector responseSelector;
     private boolean waitForDestinations;
     private Logger logger = Logger.getLogger(getClass());
@@ -47,8 +47,8 @@ final class MessageProcessTask implements Callable<MessageResponse> {
     MessageProcessTask(RawMessage rawMessage, Channel channel) {
         this.rawMessage = rawMessage;
         this.channel = channel;
-        this.storageSettings = channel.getSourceConnector().getStorageSettings();
-        this.sourceDaoFactory = channel.getSourceConnector().getDaoFactory();
+        this.storageSettings = channel.getStorageSettings();
+        this.daoFactory = channel.getDaoFactory();
         this.waitForDestinations = channel.getSourceConnector().isWaitForDestinations();
         this.responseSelector = channel.getResponseSelector();
     }
@@ -77,7 +77,7 @@ final class MessageProcessTask implements Callable<MessageResponse> {
              * status as RECEIVED
              * - store attachments
              */
-            dao = sourceDaoFactory.getDao();
+            dao = daoFactory.getDao();
             ConnectorMessage sourceMessage = createAndStoreSourceMessage(dao, rawMessage);
             Message processedMessage = null;
             Response response = null;

@@ -29,10 +29,10 @@ import com.mirth.connect.donkey.util.ActionTimer;
 
 public class PerformanceTests {
     private final static String TEST_MESSAGE = "src/test/java/com/mirth/connect/donkey/test/hl7/large.hl7";
-    private final static int DEFAULT_TEST_MILLIS = 5000;
+    private final static int DEFAULT_TEST_MILLIS = 3000;
     private final static int DEFAULT_WARMUP_MILLIS = 0;
     private final static int DEFAULT_CHANNELS = 1;
-    private final static int DEFAULT_CHAINS = 10;
+    private final static int DEFAULT_CHAINS = 4;
     private final static int DEFAULT_DEST_PER_CHAIN = 1;
     private final static boolean DEFAULT_WAIT_FOR_DESTINATIONS = true;
 
@@ -93,7 +93,7 @@ public class PerformanceTests {
     private void testStorageMode(MessageStorageMode mode) throws Exception {
         //TestUtils.showContent(testMessage, channelId, serverId, TestUtils.getStorageSettings(mode, false), TestUtils.getStorageSettings(mode, true));
 
-        TestUtils.runChannelTest(testMessage, channelId, serverId, null, DEFAULT_CHANNELS, DEFAULT_CHAINS, DEFAULT_DEST_PER_CHAIN, DEFAULT_WAIT_FOR_DESTINATIONS, null, DEFAULT_TEST_MILLIS, DEFAULT_WARMUP_MILLIS, TestUtils.getStorageSettings(mode, false), TestUtils.getStorageSettings(mode, true));
+        TestUtils.runChannelTest(testMessage, channelId, serverId, null, DEFAULT_CHANNELS, DEFAULT_CHAINS, DEFAULT_DEST_PER_CHAIN, DEFAULT_WAIT_FOR_DESTINATIONS, null, DEFAULT_TEST_MILLIS, DEFAULT_WARMUP_MILLIS, TestUtils.getStorageSettings(mode));
     }
 
     @Test

@@ -85,7 +85,7 @@ public class QueueTests {
 
         ConnectorMessageQueue queue = new ConnectorMessageQueue();
         queue.setBufferCapacity(bufferCapacity);
-        queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED));
+        queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, daoFactory));
         queue.updateSize();
         queue.fillBuffer();
 

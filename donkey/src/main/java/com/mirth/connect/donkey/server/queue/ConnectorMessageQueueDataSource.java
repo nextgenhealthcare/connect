@@ -13,7 +13,6 @@ import java.util.List;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 
@@ -23,17 +22,14 @@ public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDa
     private int metaDataId;
     private Status status;
 
-    public ConnectorMessageQueueDataSource(String channelId, int metaDataId, Status status) {
+    public ConnectorMessageQueueDataSource(String channelId, int metaDataId, Status status, DonkeyDaoFactory daoFactory) {
         this.channelId = channelId;
         this.metaDataId = metaDataId;
         this.status = status;
+        this.daoFactory = daoFactory;
     }
 
     public DonkeyDaoFactory getDaoFactory() {
-        if (daoFactory == null) {
-            daoFactory = Donkey.getInstance().getDaoFactory();
-        }
-
         return daoFactory;
     }
 

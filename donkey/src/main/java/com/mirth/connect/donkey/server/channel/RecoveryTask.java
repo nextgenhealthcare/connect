@@ -19,9 +19,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Constants;
-import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
-import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public class RecoveryTask implements Callable<List<Message>> {
@@ -34,14 +32,14 @@ public class RecoveryTask implements Callable<List<Message>> {
     @Override
     public List<Message> call() throws Exception {
         ThreadUtils.checkInterruptedStatus();
-        DonkeyDao dao = new BufferedDaoFactory(Donkey.getInstance().getDaoFactory()).getDao();
+        DonkeyDao dao = channel.getDaoFactory().getDao();
+        StorageSettings storageSettings = channel.getStorageSettings();
 
         try {
             // step 1: recover messages for each destination (RECEIVED or PENDING on destination)
             for (DestinationChain chain : channel.getDestinationChains()) {
                 for (Entry<Integer, DestinationConnector> destinationConnectorEntry : chain.getDestinationConnectors().entrySet()) {
                     Integer metaDataId = destinationConnectorEntry.getKey();
-                    StorageSettings storageSettings = destinationConnectorEntry.getValue().getStorageSettings();
 
                     if (storageSettings.isMessageRecoveryEnabled()) {
                         ThreadUtils.checkInterruptedStatus();
@@ -78,7 +76,7 @@ public class RecoveryTask implements Callable<List<Message>> {
             }
 
             // step 2: recover messages for each source (RECEIVED)
-            if (channel.getSourceConnector().isWaitForDestinations() && channel.getSourceConnector().getStorageSettings().isMessageRecoveryEnabled()) {
+            if (channel.getSourceConnector().isWaitForDestinations() && storageSettings.isMessageRecoveryEnabled()) {
                 channel.processSourceQueue(0);
             }
 

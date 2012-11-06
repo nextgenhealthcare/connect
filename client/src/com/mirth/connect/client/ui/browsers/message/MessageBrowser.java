@@ -1642,29 +1642,49 @@ public class MessageBrowser extends javax.swing.JPanel {
         Map<String, Object> connectorMap = connectorMessage.getConnectorMap();
         Map<String, Object> channelMap = connectorMessage.getChannelMap();
         Map<String, Response> responseMap = connectorMessage.getResponseMap();
+        
+        int rowCount = 0;
+        
+        if (connectorMap != null) {
+            rowCount += connectorMap.size();
+        }
+        
+        if (channelMap != null) {
+            rowCount += channelMap.size();
+        }
+        
+        if (responseMap != null) {
+            rowCount += responseMap.size();
+        }
 
-        String[][] tableData = new String[connectorMap.size() + channelMap.size() + responseMap.size()][3];
+        String[][] tableData = new String[rowCount][3];
         int row = 0;
 
-        for (Entry<String, Object> variableMapEntry : connectorMap.entrySet()) {
-            tableData[row][0] = "Connector";
-            tableData[row][1] = variableMapEntry.getKey().toString();
-            tableData[row][2] = variableMapEntry.getValue().toString();
-            row++;
+        if (connectorMap != null) {
+            for (Entry<String, Object> variableMapEntry : connectorMap.entrySet()) {
+                tableData[row][0] = "Connector";
+                tableData[row][1] = variableMapEntry.getKey().toString();
+                tableData[row][2] = variableMapEntry.getValue().toString();
+                row++;
+            }
         }
 
-        for (Entry<String, Object> variableMapEntry : channelMap.entrySet()) {
-            tableData[row][0] = "Channel";
-            tableData[row][1] = variableMapEntry.getKey().toString();
-            tableData[row][2] = variableMapEntry.getValue().toString();
-            row++;
+        if (channelMap != null) {
+            for (Entry<String, Object> variableMapEntry : channelMap.entrySet()) {
+                tableData[row][0] = "Channel";
+                tableData[row][1] = variableMapEntry.getKey().toString();
+                tableData[row][2] = variableMapEntry.getValue().toString();
+                row++;
+            }
         }
 
-        for (Entry<String, Response> variableMapEntry : responseMap.entrySet()) {
-            tableData[row][0] = "Response";
-            tableData[row][1] = variableMapEntry.getKey().toString();
-            tableData[row][2] = variableMapEntry.getValue().toString();
-            row++;
+        if (responseMap != null) {
+            for (Entry<String, Response> variableMapEntry : responseMap.entrySet()) {
+                tableData[row][0] = "Response";
+                tableData[row][1] = variableMapEntry.getKey().toString();
+                tableData[row][2] = variableMapEntry.getValue().toString();
+                row++;
+            }
         }
 
         updateMappingsTable(tableData, false);

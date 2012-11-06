@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -47,7 +46,6 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.PauseException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.Startable;
@@ -60,8 +58,6 @@ import com.mirth.connect.donkey.server.channel.components.PreProcessor;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
-import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
-import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
 import com.mirth.connect.donkey.util.DonkeyCloner;
@@ -72,17 +68,28 @@ public class Channel implements Startable, Stoppable, Runnable {
     private String channelId;
     private String name;
     private String serverId;
-    private boolean enabled;
-    private Properties properties = new Properties();
+    private String version;
+    private int revision;
+    private Calendar deployDate;
+
+    private boolean enabled = false;
     private ChannelState initialState;
     private ChannelState currentState = ChannelState.STOPPED;
+
+    private StorageSettings storageSettings = new StorageSettings();
+    private DonkeyDaoFactory daoFactory;
+    private DonkeyCloner cloner = DonkeyClonerFactory.getInstance().getCloner();
+
+    private AttachmentHandler attachmentHandler;
+    private List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
     private SourceConnector sourceConnector;
+    private ConnectorMessageQueue sourceQueue = new ConnectorMessageQueue();
     private FilterTransformerExecutor sourceFilterTransformerExecutor;
     private PreProcessor preProcessor;
     private PostProcessor postProcessor;
-    private ResponseSelector responseSelector = new ResponseSelector();
     private List<DestinationChain> destinationChains = new ArrayList<DestinationChain>();
-    private ConnectorMessageQueue sourceQueue = new ConnectorMessageQueue();
+    private ResponseSelector responseSelector = new ResponseSelector();
+
     private ExecutorService controlExecutor = Executors.newSingleThreadExecutor();
     private ExecutorService channelExecutor;
     private ExecutorService queueExecutor;
@@ -90,20 +97,13 @@ public class Channel implements Startable, Stoppable, Runnable {
     private ExecutorService recoveryExecutor;
     private Set<Future<MessageResponse>> channelTasks = new HashSet<Future<MessageResponse>>();
     private Set<Future<?>> controlTasks = new LinkedHashSet<Future<?>>();
-    private boolean forceStop = false;
-    private int revision;
-    private String version;
-    private Calendar deployDate;
-    private List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
-    private DonkeyDaoFactory sourceDaoFactory;
-    private AttachmentHandler attachmentHandler;
-    private DonkeyCloner cloner = DonkeyClonerFactory.getInstance().getCloner();
-    private Logger logger = Logger.getLogger(getClass());
-    private boolean storeSourceEncoded = false;
-    private final AtomicBoolean responseSent = new AtomicBoolean(true);
-    private boolean removeContentOnCompletion = false;
-    private ChannelLock lock = ChannelLock.UNLOCKED;
 
+    private boolean forceStop = false;
+    private final AtomicBoolean responseSent = new AtomicBoolean(true);
+    private ChannelLock lock = ChannelLock.UNLOCKED;
+    
+    private Logger logger = Logger.getLogger(getClass());
+    
     public String getChannelId() {
         return channelId;
     }
@@ -127,6 +127,30 @@ public class Channel implements Startable, Stoppable, Runnable {
     public void setServerId(String serverId) {
         this.serverId = serverId;
     }
+    
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+    
+    public int getRevision() {
+        return revision;
+    }
+
+    public void setRevision(int revision) {
+        this.revision = revision;
+    }
+    
+    public Calendar getDeployDate() {
+        return deployDate;
+    }
+
+    public void setDeployDate(Calendar deployedDate) {
+        this.deployDate = deployedDate;
+    }
 
     public boolean isEnabled() {
         return enabled;
@@ -134,14 +158,6 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public Properties getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Properties properties) {
-        this.properties = properties;
     }
 
     public ChannelState getInitialState() {
@@ -160,12 +176,63 @@ public class Channel implements Startable, Stoppable, Runnable {
         this.currentState = currentState;
     }
 
+    public StorageSettings getStorageSettings() {
+        return storageSettings;
+    }
+
+    public void setStorageSettings(StorageSettings storageSettings) {
+        this.storageSettings = storageSettings;
+    }
+
+    public DonkeyDaoFactory getDaoFactory() {
+        return daoFactory;
+    }
+
+    public void setDaoFactory(DonkeyDaoFactory daoFactory) {
+        this.daoFactory = daoFactory;
+    }
+    
+    public DonkeyCloner getCloner() {
+        return cloner;
+    }
+
+    public void setCloner(DonkeyCloner cloner) {
+        this.cloner = cloner;
+    }
+    
+    public AttachmentHandler getAttachmentHandler() {
+        return attachmentHandler;
+    }
+
+    public void setAttachmentHandler(AttachmentHandler attachmentHandler) {
+        this.attachmentHandler = attachmentHandler;
+    }
+    
+    public List<MetaDataColumn> getMetaDataColumns() {
+        return metaDataColumns;
+    }
+
+    public void setMetaDataColumns(List<MetaDataColumn> metaDataColumns) {
+        this.metaDataColumns = metaDataColumns;
+    }
+
     public SourceConnector getSourceConnector() {
         return sourceConnector;
     }
 
     public void setSourceConnector(SourceConnector sourceConnector) {
         this.sourceConnector = sourceConnector;
+    }
+    
+    /**
+     * Get the queue that holds messages waiting to be processed
+     */
+    public ConnectorMessageQueue getSourceQueue() {
+        return sourceQueue;
+    }
+
+    public void setSourceQueue(ConnectorMessageQueue sourceQueue) {
+        this.sourceQueue = sourceQueue;
     }
 
     public FilterTransformerExecutor getSourceFilterTransformer() {
@@ -191,41 +258,21 @@ public class Channel implements Startable, Stoppable, Runnable {
     public void setPostProcessor(PostProcessor postProcessor) {
         this.postProcessor = postProcessor;
     }
+    
+    public List<DestinationChain> getDestinationChains() {
+        return destinationChains;
+    }
 
     public ResponseSelector getResponseSelector() {
         return responseSelector;
     }
 
-    /**
-     * Get the queue that holds messages waiting to be processed
-     */
-    public ConnectorMessageQueue getSourceQueue() {
-        return sourceQueue;
+    public void lock(ChannelLock lock) {
+        this.lock = lock;
     }
 
-    public void setSourceQueue(ConnectorMessageQueue sourceQueue) {
-        this.sourceQueue = sourceQueue;
-    }
-
-    public List<DestinationChain> getDestinationChains() {
-        return destinationChains;
-    }
-
-    /**
-     * Get a specific DestinationConnector by metadata id. A convenience method
-     * that searches the destination chains for the destination connector with
-     * the given metadata id.
-     */
-    public DestinationConnector getDestinationConnector(int metaDataId) {
-        for (DestinationChain chain : destinationChains) {
-            DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
-
-            if (destinationConnector != null) {
-                return destinationConnector;
-            }
-        }
-
-        return null;
+    public void unlock() {
+        this.lock = ChannelLock.UNLOCKED;
     }
 
     @Deprecated
@@ -245,55 +292,15 @@ public class Channel implements Startable, Stoppable, Runnable {
     public boolean isPaused() {
         return (isRunning() && !sourceConnector.isRunning());
     }
-
-    public int getRevision() {
-        return revision;
+    
+    /**
+     * Tell whether or not the channel is configured correctly and is able to be deployed
+     */
+    public boolean isConfigurationValid() {
+        // these are the required class variables that must be defined before deploying the channel
+        return (channelId != null && daoFactory != null && sourceConnector != null && sourceFilterTransformerExecutor != null);
     }
-
-    public void setRevision(int revision) {
-        this.revision = revision;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public Calendar getDeployDate() {
-        return deployDate;
-    }
-
-    public void setDeployDate(Calendar deployedDate) {
-        this.deployDate = deployedDate;
-    }
-
-    public List<MetaDataColumn> getMetaDataColumns() {
-        return metaDataColumns;
-    }
-
-    public void setMetaDataColumns(List<MetaDataColumn> metaDataColumns) {
-        this.metaDataColumns = metaDataColumns;
-    }
-
-    public AttachmentHandler getAttachmentHandler() {
-        return attachmentHandler;
-    }
-
-    public void setAttachmentHandler(AttachmentHandler attachmentHandler) {
-        this.attachmentHandler = attachmentHandler;
-    }
-
-    public boolean isRemoveContentOnCompletion() {
-        return removeContentOnCompletion;
-    }
-
-    public void setRemoveContentOnCompletion(boolean removeContentOnCompletion) {
-        this.removeContentOnCompletion = removeContentOnCompletion;
-    }
-
+    
     public int getDestinationCount() {
         int numDestinations = 0;
 
@@ -302,6 +309,23 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
 
         return numDestinations;
+    }
+
+    /**
+     * Get a specific DestinationConnector by metadata id. A convenience method
+     * that searches the destination chains for the destination connector with
+     * the given metadata id.
+     */
+    public DestinationConnector getDestinationConnector(int metaDataId) {
+        for (DestinationChain chain : destinationChains) {
+            DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
+
+            if (destinationConnector != null) {
+                return destinationConnector;
+            }
+        }
+
+        return null;
     }
 
     public List<Integer> getMetaDataIds() {
@@ -325,56 +349,11 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
     }
 
-    private void updateMetaDataColumns() throws SQLException {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-
-        try {
-            Map<String, MetaDataColumnType> existingColumnsMap = new HashMap<String, MetaDataColumnType>();
-            List<String> columnsToRemove = new ArrayList<String>();
-            List<MetaDataColumn> existingColumns = dao.getMetaDataColumns(channelId);
-
-            for (MetaDataColumn existingColumn : existingColumns) {
-                existingColumnsMap.put(existingColumn.getName().toLowerCase(), existingColumn.getType());
-                columnsToRemove.add(existingColumn.getName().toLowerCase());
-            }
-
-            for (MetaDataColumn column : metaDataColumns) {
-                String columnName = column.getName().toLowerCase();
-
-                if (existingColumnsMap.containsKey(columnName)) {
-                    // The column name already exists in the table
-                    if (existingColumnsMap.get(columnName) != column.getType()) {
-                        // The column name is in the table, but the column type has changed
-                        dao.removeMetaDataColumn(channelId, columnName);
-                        dao.addMetaDataColumn(channelId, column);
-                    }
-                } else {
-                    // The column name does not exist in the table
-                    dao.addMetaDataColumn(channelId, column);
-                }
-
-                columnsToRemove.remove(columnName);
-            }
-
-            for (String columnToRemove : columnsToRemove) {
-                dao.removeMetaDataColumn(channelId, columnToRemove);
-            }
-
-            dao.commit();
-        } finally {
-            dao.close();
-        }
-    }
-
-    public void lock(ChannelLock lock) {
-        this.lock = lock;
-    }
-
-    public void unlock() {
-        this.lock = ChannelLock.UNLOCKED;
-    }
-
     public void deploy() throws DeployException {
+        if (!isConfigurationValid()) {
+            throw new DeployException("Failed to deploy channel. The channel configuration is incomplete.");
+        }
+        
         Future<?> task = null;
 
         try {
@@ -783,32 +762,36 @@ public class Channel implements Startable, Stoppable, Runnable {
         DonkeyDao dao = null;
 
         try {
-            if (!sourceConnector.isWaitForDestinations() || messageResponse == null || !sourceConnector.getStorageSettings().isEnabled()) {
+            ConnectorMessage sourceMessage = null;
+            Response response = messageResponse.getResponse();
+            
+            if (response != null) {
+                sourceMessage = messageResponse.getProcessedMessage().getConnectorMessages().get(0);
+                sourceMessage.setContent(new MessageContent(getChannelId(), messageResponse.getMessageId(), 0, ContentType.RESPONSE, response.toString(), false));
+            }
+            
+            if (!sourceConnector.isWaitForDestinations() || messageResponse == null || !storageSettings.isEnabled()) {
                 return;
             }
 
-            Response response = messageResponse.getResponse();
-
             if (response != null || messageResponse.isMarkAsProcessed()) {
-                StorageSettings storageSettings = sourceConnector.getStorageSettings();
-                
                 /*
                  * TRANSACTION: Store Response
                  * - store the response that was sent by the source
                  * connector as the source's response content
                  * - mark the message as processed
                  */
-                dao = sourceDaoFactory.getDao();
+                dao = daoFactory.getDao();
 
                 if (response != null && storageSettings.isStoreSentResponse()) {
                     ThreadUtils.checkInterruptedStatus();
-                    dao.insertMessageContent(new MessageContent(getChannelId(), messageResponse.getMessageId(), 0, ContentType.RESPONSE, messageResponse.getResponse().toString(), false));
+                    dao.insertMessageContent(sourceMessage.getResponse());
                 }
 
                 if (messageResponse.isMarkAsProcessed()) {
                     dao.markAsProcessed(getChannelId(), messageResponse.getMessageId());
 
-                    if (removeContentOnCompletion && MessageController.getInstance().isMessageCompleted(messageResponse.getProcessedMessage())) {
+                    if (storageSettings.isRemoveContentOnCompletion() && MessageController.getInstance().isMessageCompleted(messageResponse.getProcessedMessage())) {
                         dao.deleteAllContent(channelId, messageResponse.getMessageId());
                     }
                 }
@@ -894,8 +877,7 @@ public class Channel implements Startable, Stoppable, Runnable {
          * status and maps
          */
         ThreadUtils.checkInterruptedStatus();
-        StorageSettings storageSettings = sourceConnector.getStorageSettings();
-        DonkeyDao dao = sourceDaoFactory.getDao();
+        DonkeyDao dao = daoFactory.getDao();
 
         try {
             if (sourceMessage.getStatus() == Status.ERROR) {
@@ -969,7 +951,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 insertedContent = true;
             }
 
-            if (storeSourceEncoded && sourceMessage.getEncoded() != null) {
+            if (storageSettings.isStoreSourceEncoded() && sourceMessage.getEncoded() != null) {
                 dao.batchInsertMessageContent(sourceMessage.getEncoded());
                 insertedContent = true;
             }
@@ -995,7 +977,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             if (sourceMessage.getChannelMap().containsKey(Constants.DESTINATION_META_DATA_IDS_KEY)) {
                 metaDataIds = (List<Integer>) sourceMessage.getChannelMap().get(Constants.DESTINATION_META_DATA_IDS_KEY);
             }
-
+            
             for (DestinationChain chain : destinationChains) {
                 // if we are only processing the message for specific destinations, enable only the appropriate destinations in the chain
                 if (metaDataIds != null && metaDataIds.size() > 0) {
@@ -1016,12 +998,8 @@ public class Channel implements Startable, Stoppable, Runnable {
                     message.setResponseMap((Map<String, Response>) cloner.clone(sourceMessage.getResponseMap()));
                     message.setRaw(raw);
 
-                    StorageSettings destinationStorageSettings = chain.getDestinationConnectors().get(metaDataId).getStorageSettings();
-
-                    if (destinationStorageSettings.isEnabled()) {
-                        // store the new message, but we don't need to store the content because we will reference the source's encoded content
-                        dao.insertConnectorMessage(message, destinationStorageSettings.isStoreMaps());
-                    }
+                    // store the new message, but we don't need to store the content because we will reference the source's encoded content
+                    dao.insertConnectorMessage(message, storageSettings.isStoreMaps());
 
                     destinationMessages.put(metaDataId, message);
                 }
@@ -1141,8 +1119,7 @@ public class Channel implements Startable, Stoppable, Runnable {
          * - mark the message as processed
          */
         ThreadUtils.checkInterruptedStatus();
-        StorageSettings storageSettings = sourceConnector.getStorageSettings();
-        DonkeyDao dao = sourceDaoFactory.getDao();
+        DonkeyDao dao = daoFactory.getDao();
 
         if (runPostProcessor || markAsProcessed) {
             if (runPostProcessor && storageSettings.isStoreMergedResponseMap()) {
@@ -1154,7 +1131,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 dao.markAsProcessed(channelId, finalMessage.getMessageId());
                 finalMessage.setProcessed(true);
 
-                if (removeContentOnCompletion && MessageController.getInstance().isMessageCompleted(finalMessage)) {
+                if (storageSettings.isRemoveContentOnCompletion() && MessageController.getInstance().isMessageCompleted(finalMessage)) {
                     dao.deleteAllContent(channelId, finalMessage.getMessageId());
                 }
             }
@@ -1168,9 +1145,6 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         @Override
         public Void call() throws Exception {
-            Donkey donkey = Donkey.getInstance();
-            DonkeyDaoFactory daoFactory = donkey.getDaoFactory();
-
             try {
                 updateMetaDataColumns();
             } catch (SQLException e) {
@@ -1181,62 +1155,32 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             // Call the connector onDeploy() methods so they can run their onDeploy logic
             try {
-                StorageSettings sourceStorageSettings = sourceConnector.getStorageSettings();
-
-                if (sourceStorageSettings.isEnabled()) {
-                    sourceConnector.setDaoFactory(new BufferedDaoFactory(daoFactory));
-                } else {
-                    sourceConnector.setDaoFactory(new PassthruDaoFactory());
-                }
-
-                sourceDaoFactory = sourceConnector.getDaoFactory();
-
                 // set the source queue data source
-                sourceQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED));
+                sourceQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, daoFactory));
 
                 // manually refresh the source queue size from it's data source
                 sourceQueue.updateSize();
-                
+
                 deployedMetaDataIds.add(0);
                 sourceConnector.onDeploy();
 
-                storeSourceEncoded = sourceStorageSettings.isStoreEncoded();
-
                 for (DestinationChain chain : destinationChains) {
+                    chain.setDaoFactory(daoFactory);
+                    chain.setStorageSettings(storageSettings);
+                    
                     for (Integer metaDataId : chain.getMetaDataIds()) {
                         DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
-                        StorageSettings destinationStorageSettings = destinationConnector.getStorageSettings();
-
-                        if (destinationStorageSettings.isEnabled()) {
-                            destinationConnector.setDaoFactory(new BufferedDaoFactory(daoFactory));
-                        } else {
-                            destinationConnector.setDaoFactory(new PassthruDaoFactory());
-                        }
+                        destinationConnector.setDaoFactory(daoFactory);
+                        destinationConnector.setStorageSettings(storageSettings);
                         
                         // set the queue data source
-                        destinationConnector.getQueue().setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), destinationConnector.getMetaDataId(), Status.QUEUED));
+                        destinationConnector.getQueue().setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), destinationConnector.getMetaDataId(), Status.QUEUED, daoFactory));
 
                         // refresh the queue size from it's data source
                         destinationConnector.getQueue().updateSize();
 
                         deployedMetaDataIds.add(metaDataId);
-
-                        destinationConnector.setRemoveContentOnCompletion(removeContentOnCompletion);
                         destinationConnector.onDeploy();
-
-                        /*
-                         * if any of the destination connector's storage settings
-                         * has
-                         * store raw enabled, then we must set a flag to indicate
-                         * that
-                         * we must store the source encoded content, since the
-                         * destination raw content is typically selected from the
-                         * source
-                         * encoded content (depends on the DonkeyDao implementation)
-                         */
-                        if (destinationStorageSettings.isStoreRaw()) {
-                            storeSourceEncoded = true;
-                        }
                     }
                 }
             } catch (DeployException e) {
@@ -1254,6 +1198,47 @@ public class Channel implements Startable, Stoppable, Runnable {
             responseSelector.setNumDestinations(getDestinationCount());
 
             return null;
+        }
+        
+        private void updateMetaDataColumns() throws SQLException {
+            DonkeyDao dao = daoFactory.getDao();
+
+            try {
+                Map<String, MetaDataColumnType> existingColumnsMap = new HashMap<String, MetaDataColumnType>();
+                List<String> columnsToRemove = new ArrayList<String>();
+                List<MetaDataColumn> existingColumns = dao.getMetaDataColumns(channelId);
+
+                for (MetaDataColumn existingColumn : existingColumns) {
+                    existingColumnsMap.put(existingColumn.getName().toLowerCase(), existingColumn.getType());
+                    columnsToRemove.add(existingColumn.getName().toLowerCase());
+                }
+
+                for (MetaDataColumn column : metaDataColumns) {
+                    String columnName = column.getName().toLowerCase();
+
+                    if (existingColumnsMap.containsKey(columnName)) {
+                        // The column name already exists in the table
+                        if (existingColumnsMap.get(columnName) != column.getType()) {
+                            // The column name is in the table, but the column type has changed
+                            dao.removeMetaDataColumn(channelId, columnName);
+                            dao.addMetaDataColumn(channelId, column);
+                        }
+                    } else {
+                        // The column name does not exist in the table
+                        dao.addMetaDataColumn(channelId, column);
+                    }
+
+                    columnsToRemove.remove(columnName);
+                }
+
+                for (String columnToRemove : columnsToRemove) {
+                    dao.removeMetaDataColumn(channelId, columnToRemove);
+                }
+
+                dao.commit();
+            } finally {
+                dao.close();
+            }
         }
     }
 
@@ -1297,79 +1282,78 @@ public class Channel implements Startable, Stoppable, Runnable {
         @Override
         public Void call() throws Exception {
             if (currentState != ChannelState.STARTED) {
-            	// Prevent the channel for being started while messages are being deleted.
-            	synchronized (Channel.this) {
-	                setCurrentState(ChannelState.STARTING);
-	                responseSent.set(true);
-	                channelTasks.clear();
-	                forceStop = false;
-	
-	                // Remove any items in the queue's buffer because they may be outdated.
-	                sourceQueue.invalidate();
-	                // manually refresh the source queue size from it's data source
-	                sourceQueue.updateSize();
-	
-	                // enable all destination connectors in each chain
-	                for (DestinationChain chain : destinationChains) {
-	                    chain.getEnabledMetaDataIds().clear();
-	                    chain.getEnabledMetaDataIds().addAll(chain.getMetaDataIds());
-	                }
-	                List<Integer> startedMetaDataIds = new ArrayList<Integer>();
-	
-	                try {
-	                    destinationChainExecutor = Executors.newCachedThreadPool();
-	                    queueExecutor = Executors.newSingleThreadExecutor();
-	                    channelExecutor = Executors.newSingleThreadExecutor();
-	
-	                    // start the destination connectors
-	                    for (DestinationChain chain : destinationChains) {
-	                        for (Integer metaDataId : chain.getMetaDataIds()) {
-	                            DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
-	
-	                            if (!destinationConnector.isRunning()) {
-	                                startedMetaDataIds.add(metaDataId);
-	                                destinationConnector.start();
-	                            }
-	                        }
-	                    }
-	
-	                    ThreadUtils.checkInterruptedStatus();
-//	                    try {
-//	                        processUnfinishedMessages();
-//	                    } catch (InterruptedException e) {
-//	                        logger.error("Startup recovery interrupted");
-//	                        Thread.currentThread().interrupt();
-//	                    } catch (Exception e) {
-//	                        logger.error("Startup recovery failed");
-//	                    }
-	
-	                    ThreadUtils.checkInterruptedStatus();
-	                    // start up the worker thread that will process queued messages
-	                    if (!sourceConnector.isWaitForDestinations()) {
-	                        queueExecutor.execute(Channel.this);
-	                    }
-	
-	                    ThreadUtils.checkInterruptedStatus();
-	                    // start up the source connector
-	                    if (!sourceConnector.isRunning()) {
-	                        startedMetaDataIds.add(0);
-	                        sourceConnector.start();
-	                    }
-	
-	                    setCurrentState(ChannelState.STARTED);
-	                    
-	                } catch (StartException e) {
-	                    // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
-	                    try {
-	                        stop(startedMetaDataIds);
-	                        setCurrentState(ChannelState.STOPPED);
-	                    } catch (StopException e2) {
-	                        setCurrentState(ChannelState.UNKNOWN);
-	                    }
-	
-	                    throw e;
-	                }
-            	}
+                // Prevent the channel for being started while messages are being deleted.
+                synchronized (Channel.this) {
+                    setCurrentState(ChannelState.STARTING);
+                    responseSent.set(true);
+                    channelTasks.clear();
+                    forceStop = false;
+    
+                    // Remove any items in the queue's buffer because they may be outdated.
+                    sourceQueue.invalidate();
+                    // manually refresh the source queue size from it's data source
+                    sourceQueue.updateSize();
+    
+                    // enable all destination connectors in each chain
+                    for (DestinationChain chain : destinationChains) {
+                        chain.getEnabledMetaDataIds().clear();
+                        chain.getEnabledMetaDataIds().addAll(chain.getMetaDataIds());
+                    }
+                    List<Integer> startedMetaDataIds = new ArrayList<Integer>();
+    
+                    try {
+                        destinationChainExecutor = Executors.newCachedThreadPool();
+                        queueExecutor = Executors.newSingleThreadExecutor();
+                        channelExecutor = Executors.newSingleThreadExecutor();
+    
+                        // start the destination connectors
+                        for (DestinationChain chain : destinationChains) {
+                            for (Integer metaDataId : chain.getMetaDataIds()) {
+                                DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
+    
+                                if (!destinationConnector.isRunning()) {
+                                    startedMetaDataIds.add(metaDataId);
+                                    destinationConnector.start();
+                                }
+                            }
+                        }
+    
+                        ThreadUtils.checkInterruptedStatus();
+    //                    try {
+    //                        processUnfinishedMessages();
+    //                    } catch (InterruptedException e) {
+    //                        logger.error("Startup recovery interrupted");
+    //                        Thread.currentThread().interrupt();
+    //                    } catch (Exception e) {
+    //                        logger.error("Startup recovery failed");
+    //                    }
+    
+                        ThreadUtils.checkInterruptedStatus();
+                        // start up the worker thread that will process queued messages
+                        if (!sourceConnector.isWaitForDestinations()) {
+                            queueExecutor.execute(Channel.this);
+                        }
+    
+                        ThreadUtils.checkInterruptedStatus();
+                        // start up the source connector
+                        if (!sourceConnector.isRunning()) {
+                            startedMetaDataIds.add(0);
+                            sourceConnector.start();
+                        }
+    
+                        setCurrentState(ChannelState.STARTED);
+                    } catch (StartException e) {
+                        // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
+                        try {
+                            stop(startedMetaDataIds);
+                            setCurrentState(ChannelState.STOPPED);
+                        } catch (StopException e2) {
+                            setCurrentState(ChannelState.UNKNOWN);
+                        }
+    
+                        throw e;
+                    }
+                }
             } else {
                 setCurrentState(ChannelState.STARTED);
                 logger.warn("Failed to start channel " + name + " (" + channelId + "): The channel is already running.");

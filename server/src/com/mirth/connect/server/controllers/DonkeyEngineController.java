@@ -50,6 +50,9 @@ import com.mirth.connect.donkey.server.channel.components.FilterTransformerExecu
 import com.mirth.connect.donkey.server.channel.components.PostProcessor;
 import com.mirth.connect.donkey.server.channel.components.PreProcessor;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
+import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
+import com.mirth.connect.donkey.server.data.passthru.DelayedStatisticsUpdater;
+import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.Connector;
@@ -384,8 +387,7 @@ public class DonkeyEngineController implements EngineController {
     private com.mirth.connect.donkey.server.channel.Channel convertToDonkeyChannel(Channel model) throws Exception {
         String channelId = model.getId();
         ChannelProperties channelProperties = model.getProperties();
-        StorageSettings sourceStorageSettings = getStorageSettings(channelProperties.getMessageStorageMode(), false);
-        StorageSettings destinationStorageSettings = getStorageSettings(channelProperties.getMessageStorageMode(), true);
+        StorageSettings storageSettings = getStorageSettings(channelProperties.getMessageStorageMode(), channelProperties);
 
         com.mirth.connect.donkey.server.channel.Channel channel = new com.mirth.connect.donkey.server.channel.Channel();
 
@@ -396,13 +398,19 @@ public class DonkeyEngineController implements EngineController {
         channel.setRevision(model.getRevision());
         channel.setVersion(model.getVersion());
         channel.setInitialState(channelProperties.isInitialStateStarted() ? ChannelState.STARTED : ChannelState.STOPPED);
+        channel.setStorageSettings(storageSettings);
         channel.setMetaDataColumns(channelProperties.getMetaDataColumns());
-        channel.setRemoveContentOnCompletion(channelProperties.isRemoveContentOnCompletion());
         channel.setAttachmentHandler(createAttachmentHandler(channelId, channelProperties.getAttachmentProperties()));
         channel.setPreProcessor(createPreProcessor(channelId, model.getPreprocessingScript()));
         channel.setPostProcessor(createPostProcessor(channelId, model.getPostprocessingScript()));
-        channel.setSourceConnector(createSourceConnector(channel, model.getSourceConnector(), sourceStorageSettings));
+        channel.setSourceConnector(createSourceConnector(channel, model.getSourceConnector(), storageSettings));
         channel.setSourceFilterTransformer(createFilterTransformerExecutor(channelId, model.getSourceConnector()));
+        
+        if (storageSettings.isEnabled()) {
+            channel.setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory()));
+        } else {
+            channel.setDaoFactory(new PassthruDaoFactory(new DelayedStatisticsUpdater(Donkey.getInstance().getDaoFactory())));
+        }
 
         DestinationChain chain = createDestinationChain(channel);
 
@@ -415,15 +423,17 @@ public class DonkeyEngineController implements EngineController {
                     channel.getDestinationChains().add(chain);
                 }
 
-                chain.addDestination(connector.getMetaDataId(), createFilterTransformerExecutor(channelId, connector), createDestinationConnector(channelId, connector, destinationStorageSettings));
+                chain.addDestination(connector.getMetaDataId(), createFilterTransformerExecutor(channelId, connector), createDestinationConnector(channelId, connector, storageSettings));
             }
         }
 
         return channel;
     }
     
-    public static StorageSettings getStorageSettings(MessageStorageMode messageStorageMode, boolean isDestination) {
+    public static StorageSettings getStorageSettings(MessageStorageMode messageStorageMode, ChannelProperties channelProperties) {
         StorageSettings storageSettings = new StorageSettings();
+        storageSettings.setRemoveContentOnCompletion(channelProperties.isRemoveContentOnCompletion());
+        storageSettings.setEncryptContent(channelProperties.isEncryptData());
 
         // we assume that all storage settings are enabled by default
         switch (messageStorageMode) {
@@ -440,15 +450,12 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setStoreMaps(false);
                 storageSettings.setStoreProcessedRaw(false);
                 storageSettings.setStoreTransformed(false);
-                storageSettings.setStoreEncoded(false);
+                storageSettings.setStoreSourceEncoded(false);
+                storageSettings.setStoreDestinationEncoded(false);
                 storageSettings.setStoreSent(false);
                 storageSettings.setStoreProcessedResponse(false);
                 storageSettings.setStoreResponse(false);
                 storageSettings.setStoreSentResponse(false);
-
-                if (isDestination) {
-                    storageSettings.setStoreRaw(false);
-                }
                 break;
 
             case METADATA:
@@ -461,7 +468,8 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setStoreRaw(false);
                 storageSettings.setStoreProcessedRaw(false);
                 storageSettings.setStoreTransformed(false);
-                storageSettings.setStoreEncoded(false);
+                storageSettings.setStoreSourceEncoded(false);
+                storageSettings.setStoreDestinationEncoded(false);
                 storageSettings.setStoreSent(false);
                 storageSettings.setStoreProcessedResponse(false);
                 storageSettings.setStoreResponse(false);
@@ -479,7 +487,8 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setStoreRaw(false);
                 storageSettings.setStoreProcessedRaw(false);
                 storageSettings.setStoreTransformed(false);
-                storageSettings.setStoreEncoded(false);
+                storageSettings.setStoreSourceEncoded(false);
+                storageSettings.setStoreDestinationEncoded(false);
                 storageSettings.setStoreSent(false);
                 storageSettings.setStoreProcessedResponse(false);
                 storageSettings.setStoreResponse(false);
@@ -555,7 +564,6 @@ public class DonkeyEngineController implements EngineController {
 
         sourceConnector.setMetaDataReplacer(createMetaDataReplacer(model));
         sourceConnector.setChannel(donkeyChannel);
-        sourceConnector.setStorageSettings(storageSettings);
         
         if (connectorProperties instanceof QueueConnectorPropertiesInterface) {
             QueueConnectorProperties queueConnectorProperties = ((QueueConnectorPropertiesInterface) connectorProperties).getQueueConnectorProperties();
@@ -625,13 +633,12 @@ public class DonkeyEngineController implements EngineController {
 
         destinationConnector.setDestinationName(model.getName());
         destinationConnector.setResponseTransformer(createResponseTransformer(model, channelId));
-        destinationConnector.setStorageSettings(storageSettings);
 
         if (connectorProperties instanceof QueueConnectorPropertiesInterface) {
             QueueConnectorProperties queueConnectorProperties = ((QueueConnectorPropertiesInterface) connectorProperties).getQueueConnectorProperties();
             
             // queueing on the destination connector will be disabled if we are not storing encoded, sent or map data
-            if (queueConnectorProperties.isQueueEnabled() && (!storageSettings.isEnabled() || !storageSettings.isStoreEncoded() || !storageSettings.isStoreSent() || !storageSettings.isStoreMaps())) {
+            if (queueConnectorProperties.isQueueEnabled() && (!storageSettings.isEnabled() || !storageSettings.isStoreSourceEncoded() || !storageSettings.isStoreSent() || !storageSettings.isStoreMaps())) {
                 logger.debug("Disabling queue for destination '" + connectorProperties.getName() + "', channel '" + channelId + "' since one or more required storage options are currently disabled");
                 queueConnectorProperties.setQueueEnabled(false);
             }

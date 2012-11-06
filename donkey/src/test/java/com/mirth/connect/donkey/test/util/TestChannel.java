@@ -15,6 +15,7 @@ import java.util.List;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelLock;
@@ -28,6 +29,7 @@ public class TestChannel extends Channel {
         super();
         lock(ChannelLock.DEBUG);
         getResponseSelector().setRespondFromName(TestUtils.DEFAULT_RESPOND_FROM_NAME);
+        setDaoFactory(Donkey.getInstance().getDaoFactory());
     }
 
     public int getNumMessages() {

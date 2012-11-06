@@ -33,7 +33,6 @@ public class ChannelProperties implements Serializable {
         clearGlobalChannelMap = true;
         messageStorageMode = MessageStorageMode.DEVELOPMENT;
         encryptData = false;
-        removeContentOnCompletion = false;
         initialStateStarted = true;
         metaDataColumns = new ArrayList<MetaDataColumn>();
         attachmentProperties = AttachmentHandlerFactory.getDefaults(AttachmentHandlerType.NONE);

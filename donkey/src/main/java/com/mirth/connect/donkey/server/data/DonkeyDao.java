@@ -40,7 +40,9 @@ public interface DonkeyDao {
     public void insertEvent(Event event);
 
     public void storeMessageContent(MessageContent messageContent);
-
+    
+    public void addChannelStatistics(Statistics statistics);
+    
     public void updateStatus(ConnectorMessage connectorMessage, Status previousStatus);
 
     public void updateErrors(ConnectorMessage connectorMessage);
@@ -48,7 +50,7 @@ public interface DonkeyDao {
     public void updateMaps(ConnectorMessage connectorMessage);
 
     public void updateResponseMap(ConnectorMessage connectorMessage);
-
+    
     public void markAsProcessed(String channelId, long messageId);
 
     public void deleteMessage(String channelId, long messageId, boolean deleteStatistics);

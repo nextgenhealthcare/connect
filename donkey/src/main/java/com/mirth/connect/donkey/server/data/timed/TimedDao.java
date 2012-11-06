@@ -172,6 +172,17 @@ public class TimedDao implements DonkeyDao {
             timer.log("storeMessageContent", System.currentTimeMillis() - startTime);
         }
     }
+    
+    @Override
+    public void addChannelStatistics(Statistics statistics) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            dao.addChannelStatistics(statistics);
+        } finally {
+            timer.log("addChannelStatistics", System.currentTimeMillis() - startTime);
+        }
+    }
 
     @Override
     public void updateStatus(ConnectorMessage connectorMessage, Status previousStatus) {

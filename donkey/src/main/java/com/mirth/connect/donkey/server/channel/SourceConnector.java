@@ -22,7 +22,6 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
     private Channel channel;
     private boolean waitForDestinations = true;
     private MetaDataReplacer metaDataReplacer;
-    private StorageSettings storageSettings = new StorageSettings();
     private ChannelState currentState = ChannelState.STOPPED;
 
     public Channel getChannel() {
@@ -48,14 +47,6 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
 
     public void setMetaDataReplacer(MetaDataReplacer metaDataReplacer) {
         this.metaDataReplacer = metaDataReplacer;
-    }
-
-    public StorageSettings getStorageSettings() {
-        return storageSettings;
-    }
-
-    public void setStorageSettings(StorageSettings storageSettings) {
-        this.storageSettings = storageSettings;
     }
 
     public ChannelState getCurrentState() {

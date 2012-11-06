@@ -152,6 +152,68 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         }
     }
+    
+    @Override
+    public void addChannelStatistics(Statistics statistics) {
+        for (Entry<String, Map<Integer, Map<Status, Long>>> channelEntry : statistics.getStats().entrySet()) {
+            String channelId = channelEntry.getKey();
+            long localChannelId = channelController.getLocalChannelId(channelId);
+            
+            try {
+                PreparedStatement channelStatement = statementSource.getPreparedStatement("updateChannelStatistics", localChannelId);
+                PreparedStatement connectorStatement = statementSource.getPreparedStatement("updateConnectorStatistics", localChannelId);
+                
+                for (Entry<Integer, Map<Status, Long>> connectorEntry : channelEntry.getValue().entrySet()) {
+                    Integer metaDataId = connectorEntry.getKey();
+                    Map<Status, Long> connectorStats = connectorEntry.getValue();
+                    
+                    PreparedStatement statement = (metaDataId == null) ? channelStatement : connectorStatement;
+                    statement.setLong(1, connectorStats.get(Status.RECEIVED));
+                    statement.setLong(2, connectorStats.get(Status.RECEIVED));
+                    statement.setLong(3, connectorStats.get(Status.FILTERED));
+                    statement.setLong(4, connectorStats.get(Status.FILTERED));
+                    statement.setLong(5, connectorStats.get(Status.TRANSFORMED));
+                    statement.setLong(6, connectorStats.get(Status.TRANSFORMED));
+                    statement.setLong(7, connectorStats.get(Status.PENDING));
+                    statement.setLong(8, connectorStats.get(Status.PENDING));
+                    statement.setLong(9, connectorStats.get(Status.SENT));
+                    statement.setLong(10, connectorStats.get(Status.SENT));
+                    statement.setLong(11, connectorStats.get(Status.ERROR));
+                    statement.setLong(12, connectorStats.get(Status.ERROR));
+        
+                    if (metaDataId != null) {
+                        statement.setInt(13, metaDataId);
+                    }
+        
+                    if (statement.executeUpdate() == 0) {
+                        statement = statementSource.getPreparedStatement("insertChannelStatistics", localChannelId);
+        
+                        if (metaDataId == null) {
+                            statement.setNull(1, Types.INTEGER);
+                        } else {
+                            statement.setInt(1, metaDataId);
+                        }
+        
+                        statement.setLong(2, connectorStats.get(Status.RECEIVED));
+                        statement.setLong(3, connectorStats.get(Status.RECEIVED));
+                        statement.setLong(4, connectorStats.get(Status.FILTERED));
+                        statement.setLong(5, connectorStats.get(Status.FILTERED));
+                        statement.setLong(6, connectorStats.get(Status.TRANSFORMED));
+                        statement.setLong(7, connectorStats.get(Status.TRANSFORMED));
+                        statement.setLong(8, connectorStats.get(Status.PENDING));
+                        statement.setLong(9, connectorStats.get(Status.PENDING));
+                        statement.setLong(10, connectorStats.get(Status.SENT));
+                        statement.setLong(11, connectorStats.get(Status.SENT));
+                        statement.setLong(12, connectorStats.get(Status.ERROR));
+                        statement.setLong(13, connectorStats.get(Status.ERROR));
+                        statement.executeUpdate();
+                    }
+                }
+            } catch (SQLException e) {
+                throw new DonkeyDaoException(e);
+            }
+        }
+    }
 
     @Override
     public void insertMessageAttachment(String channelId, long messageId, Attachment attachment) {
@@ -978,20 +1040,7 @@ public class JdbcDao implements DonkeyDao {
     
     @Override
     public void commit(boolean durable) {
-        // get the stats changes that happened in this transaction
-        Map<String, Map<Integer, Map<Status, Long>>> stats = transactionStats.getStats();
-
-        // update the stats changes in the database
-        for (Entry<String, Map<Integer, Map<Status, Long>>> channelEntry : stats.entrySet()) {
-            String channelId = channelEntry.getKey();
-
-            for (Entry<Integer, Map<Status, Long>> connectorEntry : channelEntry.getValue().entrySet()) {
-                Integer metaDataId = connectorEntry.getKey();
-                Map<Status, Long> connectorStats = connectorEntry.getValue();
-
-                storeChannelStatistics(channelId, metaDataId, connectorStats);
-            }
-        }
+        addChannelStatistics(transactionStats);
 
         try {
             if (!durable && asyncCommitCommand != null) {
@@ -1010,49 +1059,51 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         }
 
-        // reset stats for any connectors that need to be reset
-        for (Entry<String, Map<Integer, Set<Status>>> entry : resetStats.entrySet()) {
-            String channelId = entry.getKey();
-            Map<Integer, Set<Status>> metaDataIds = entry.getValue();
-
-            for (Entry<Integer, Set<Status>> metaDataEntry : metaDataIds.entrySet()) {
-                Integer metaDataId = metaDataEntry.getKey();
-                Set<Status> statuses = metaDataEntry.getValue();
-
-                for (Status status : statuses) {
-                    currentStats.getChannelStats(channelId).get(metaDataId).put(status, 0L);
+        // TODO: need to test for any thread synchronization problems with updating stats across multiple threads
+        
+        if (currentStats != null) {
+            // reset stats for any connectors that need to be reset
+            for (Entry<String, Map<Integer, Set<Status>>> entry : resetStats.entrySet()) {
+                String channelId = entry.getKey();
+                Map<Integer, Set<Status>> metaDataIds = entry.getValue();
+    
+                for (Entry<Integer, Set<Status>> metaDataEntry : metaDataIds.entrySet()) {
+                    Integer metaDataId = metaDataEntry.getKey();
+                    Set<Status> statuses = metaDataEntry.getValue();
+    
+                    for (Status status : statuses) {
+                        currentStats.getChannelStats(channelId).get(metaDataId).put(status, 0L);
+                    }
                 }
+            }
+
+            // update the in-memory stats with the stats we just saved in storage
+            currentStats.update(transactionStats);
+            
+            // remove the in-memory stats for any channels that were removed
+            for (String channelId : removedChannelIds) {
+                currentStats.getStats().remove(channelId);
+            }
+        }
+        
+        if (totalStats != null) {
+            // update the in-memory total stats with the stats we just saved in storage
+            totalStats.update(transactionStats);
+            
+            // remove the in-memory total stats for any channels that were removed
+            for (String channelId : removedChannelIds) {
+                totalStats.getStats().remove(channelId);
             }
         }
 
-        // update the stats changes in memory
-        for (Entry<String, Map<Integer, Map<Status, Long>>> channelEntry : stats.entrySet()) {
-            String channelId = channelEntry.getKey();
-
-            for (Entry<Integer, Map<Status, Long>> connectorEntry : channelEntry.getValue().entrySet()) {
-                Integer metaDataId = connectorEntry.getKey();
-                Map<Status, Long> connectorStats = connectorEntry.getValue();
-
-                if (metaDataId != null) {
-                    currentStats.update(channelId, metaDataId, connectorStats);
-                    totalStats.update(channelId, metaDataId, connectorStats);
-                }
-            }
-        }
-
-        // remove the in-memory stats for any channels that were removed
-        for (String channelId : removedChannelIds) {
-            currentStats.getStats().remove(channelId);
-            totalStats.getStats().remove(channelId);
-        }
-
-        stats.clear();
+        transactionStats.getStats().clear();
     }
 
     @Override
     public void rollback() {
         try {
             connection.rollback();
+            transactionStats.getStats().clear();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         }
@@ -1256,12 +1307,15 @@ public class JdbcDao implements DonkeyDao {
         ResultSet resultSet = null;
 
         try {
-            Map<String, Object> metaDataMap = new HashMap<String, Object>();
+            Map<String, Object> values = new HashMap<String, Object>();
+            values.put("localChannelId", channelController.getLocalChannelId(channelId));
 
-            PreparedStatement statement = statementSource.getPreparedStatement("getMetaDataMap", channelController.getLocalChannelId(channelId));
+            // do not cache this statement since metadata columns may be added/removed
+            PreparedStatement statement = connection.prepareStatement(querySource.getQuery("getMetaDataMap", values));
             statement.setLong(1, messageId);
             statement.setInt(2, metaDataId);
 
+            Map<String, Object> metaDataMap = new HashMap<String, Object>();
             resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
@@ -1278,57 +1332,6 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         } finally {
             close(resultSet);
-        }
-    }
-
-    private void storeChannelStatistics(String channelId, Integer metaDataId, Map<Status, Long> connectorStats) {
-        try {
-            long localChannelId = channelController.getLocalChannelId(channelId);
-            String queryId = (metaDataId == null) ? "updateChannelStatistics" : "updateConnectorStatistics";
-
-            PreparedStatement statement = statementSource.getPreparedStatement(queryId, localChannelId);
-            statement.setLong(1, connectorStats.get(Status.RECEIVED));
-            statement.setLong(2, connectorStats.get(Status.RECEIVED));
-            statement.setLong(3, connectorStats.get(Status.FILTERED));
-            statement.setLong(4, connectorStats.get(Status.FILTERED));
-            statement.setLong(5, connectorStats.get(Status.TRANSFORMED));
-            statement.setLong(6, connectorStats.get(Status.TRANSFORMED));
-            statement.setLong(7, connectorStats.get(Status.PENDING));
-            statement.setLong(8, connectorStats.get(Status.PENDING));
-            statement.setLong(9, connectorStats.get(Status.SENT));
-            statement.setLong(10, connectorStats.get(Status.SENT));
-            statement.setLong(11, connectorStats.get(Status.ERROR));
-            statement.setLong(12, connectorStats.get(Status.ERROR));
-
-            if (metaDataId != null) {
-                statement.setInt(13, metaDataId);
-            }
-
-            if (statement.executeUpdate() == 0) {
-                statement = statementSource.getPreparedStatement("insertChannelStatistics", channelController.getLocalChannelId(channelId));
-
-                if (metaDataId == null) {
-                    statement.setNull(1, Types.INTEGER);
-                } else {
-                    statement.setInt(1, metaDataId);
-                }
-
-                statement.setLong(2, connectorStats.get(Status.RECEIVED));
-                statement.setLong(3, connectorStats.get(Status.RECEIVED));
-                statement.setLong(4, connectorStats.get(Status.FILTERED));
-                statement.setLong(5, connectorStats.get(Status.FILTERED));
-                statement.setLong(6, connectorStats.get(Status.TRANSFORMED));
-                statement.setLong(7, connectorStats.get(Status.TRANSFORMED));
-                statement.setLong(8, connectorStats.get(Status.PENDING));
-                statement.setLong(9, connectorStats.get(Status.PENDING));
-                statement.setLong(10, connectorStats.get(Status.SENT));
-                statement.setLong(11, connectorStats.get(Status.SENT));
-                statement.setLong(12, connectorStats.get(Status.ERROR));
-                statement.setLong(13, connectorStats.get(Status.ERROR));
-                statement.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
         }
     }
 

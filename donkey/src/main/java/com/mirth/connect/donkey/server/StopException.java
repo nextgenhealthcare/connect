@@ -14,6 +14,10 @@ public class StopException extends Exception {
         super(message);
     }
 
+    public StopException(Throwable cause) {
+        super(cause);
+    }
+    
     public StopException(String message, Throwable cause) {
         super(message, cause);
     }

@@ -48,6 +48,7 @@ import com.mirth.connect.donkey.server.Serializer;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
+import com.mirth.connect.donkey.server.channel.StorageSettings;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
@@ -385,7 +386,7 @@ public class DonkeyDaoTests {
                 dao.insertMetaData(sourceMessage, channel.getMetaDataColumns());
                 dao.commit();
 
-                ConnectorMessage destinationMessage = new ConnectorMessage(channel.getChannelId(), sourceMessage.getMessageId(), 1, sourceMessage.getServerId(), Calendar.getInstance(), Status.RECEIVED);
+                ConnectorMessage destinationMessage = TestUtils.createAndStoreDestinationConnectorMessage(dao, channel.getChannelId(), channel.getServerId(), sourceMessage.getMessageId(), 1, testMessage, Status.RECEIVED);
                 destinationMessage.setMetaDataMap(destinationMap);
                 dao.insertMetaData(destinationMessage, channel.getMetaDataColumns());
                 dao.commit();
@@ -1647,7 +1648,7 @@ public class DonkeyDaoTests {
         
         JdbcDaoFactory jdbcDaoFactory = (JdbcDaoFactory) daoFactory;
         
-        TestUtils.runChannelTest(testMessage, channelId, serverId, "testJdbcDaoStatementCache", 5, maxConnections * 2, 1, true, null, 10000, null, null, null);
+        TestUtils.runChannelTest(testMessage, channelId, serverId, "testJdbcDaoStatementCache", 5, maxConnections * 2, 1, true, null, 10000, null, new StorageSettings());
         
         assertTrue(jdbcDaoFactory.getStatementSources().size() + " connection caches were created, but the max # of connections is " + maxConnections, jdbcDaoFactory.getStatementSources().size() <= maxConnections);
     }

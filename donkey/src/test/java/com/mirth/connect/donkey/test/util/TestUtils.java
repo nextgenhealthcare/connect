@@ -72,6 +72,9 @@ import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
+import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
+import com.mirth.connect.donkey.server.data.passthru.DelayedStatisticsUpdater;
+import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
 import com.mirth.connect.donkey.server.event.Event;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
@@ -120,12 +123,20 @@ public class TestUtils {
 
         return channel;
     }
-
+    
     public static TestChannel createDefaultChannel(String channelId, String serverId, int numChains, int numDestinationsPerChain) {
-        return createDefaultChannel(channelId, serverId, true, numChains, numDestinationsPerChain);
+        return createDefaultChannel(channelId, serverId, true, numChains, numDestinationsPerChain, new StorageSettings());
+    }
+
+    public static TestChannel createDefaultChannel(String channelId, String serverId, int numChains, int numDestinationsPerChain, StorageSettings storageSettings) {
+        return createDefaultChannel(channelId, serverId, true, numChains, numDestinationsPerChain, storageSettings);
     }
 
     public static TestChannel createDefaultChannel(String channelId, String serverId, Boolean waitForDestinations, int numChains, int numDestinationsPerChain) {
+        return createDefaultChannel(channelId, serverId, waitForDestinations, numChains, numDestinationsPerChain, new StorageSettings());
+    }
+    
+    public static TestChannel createDefaultChannel(String channelId, String serverId, Boolean waitForDestinations, int numChains, int numDestinationsPerChain, StorageSettings storageSettings) {
         ChannelController.getInstance().getLocalChannelId(channelId);
 
         TestChannel channel = new TestChannel();
@@ -133,6 +144,13 @@ public class TestUtils {
         channel.setChannelId(channelId);
         channel.setServerId(serverId);
         channel.setEnabled(true);
+        channel.setStorageSettings(storageSettings);
+        
+        if (storageSettings.isEnabled()) {
+            channel.setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory()));
+        } else {
+            channel.setDaoFactory(new PassthruDaoFactory(new DelayedStatisticsUpdater(Donkey.getInstance().getDaoFactory())));
+        }
 
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
@@ -203,7 +221,7 @@ public class TestUtils {
         destinationConnector.setMetaDataId(metaDataId);
 
         ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
-        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED));
+        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, Donkey.getInstance().getDaoFactory()));
         destinationConnector.setQueue(destinationConnectorQueue);
     }
 
@@ -1045,23 +1063,11 @@ public class TestUtils {
         }
     }
 
-    public static void runChannelTest(String testMessage, String channelId, String serverId, final String testName, final int numChannels, final int numChains, final int numDestinations, final boolean waitForDestinations, final Integer testSize, final Integer testMillis, final Integer warmupMillis, StorageSettings sourceStorageSettings, StorageSettings destinationStorageSettings) throws Exception {
+    public static void runChannelTest(String testMessage, String channelId, String serverId, final String testName, final int numChannels, final int numChains, final int numDestinations, final boolean waitForDestinations, final Integer testSize, final Integer testMillis, final Integer warmupMillis, StorageSettings storageSettings) throws Exception {
         Channel[] channels = new Channel[numChannels];
 
         for (int i = 0; i < numChannels; i++) {
-            channels[i] = TestUtils.createDefaultChannel(channelId + i, serverId, waitForDestinations, numChains, numDestinations);
-
-            if (sourceStorageSettings != null) {
-                channels[i].getSourceConnector().setStorageSettings(sourceStorageSettings);
-            }
-
-            if (destinationStorageSettings != null) {
-                for (DestinationChain chain : channels[i].getDestinationChains()) {
-                    for (DestinationConnector destinationConnector : chain.getDestinationConnectors().values()) {
-                        destinationConnector.setStorageSettings(destinationStorageSettings);
-                    }
-                }
-            }
+            channels[i] = TestUtils.createDefaultChannel(channelId + i, serverId, waitForDestinations, numChains, numDestinations, storageSettings);
         }
 
         runChannelTest(testMessage, testName, testSize, testMillis, warmupMillis, channels);
@@ -1189,11 +1195,8 @@ public class TestUtils {
         }
     }
 
-    public static void showContent(String testMessage, String channelId, String serverId, StorageSettings sourceStorageSettings, StorageSettings destinationStorageSettings) throws Exception {
-        Channel channel = createDefaultChannel(channelId, serverId, true, 1, 1);
-        channel.getSourceConnector().setStorageSettings(sourceStorageSettings);
-        channel.getDestinationConnector(1).setStorageSettings(destinationStorageSettings);
-
+    public static void showContent(String testMessage, String channelId, String serverId, StorageSettings storageSettings) throws Exception {
+        Channel channel = createDefaultChannel(channelId, serverId, true, 1, 1, storageSettings);
         channel.deploy();
         channel.start();
 
@@ -1290,7 +1293,7 @@ public class TestUtils {
         }
     }
 
-    public static StorageSettings getStorageSettings(MessageStorageMode messageStorageMode, boolean isDestination) {
+    public static StorageSettings getStorageSettings(MessageStorageMode messageStorageMode) {
         StorageSettings storageSettings = new StorageSettings();
 
         // we assume that all storage settings are enabled by default
@@ -1308,15 +1311,12 @@ public class TestUtils {
                 storageSettings.setStoreMaps(false);
                 storageSettings.setStoreProcessedRaw(false);
                 storageSettings.setStoreTransformed(false);
-                storageSettings.setStoreEncoded(false);
+                storageSettings.setStoreSourceEncoded(false);
+                storageSettings.setStoreDestinationEncoded(false);
                 storageSettings.setStoreSent(false);
                 storageSettings.setStoreProcessedResponse(false);
                 storageSettings.setStoreResponse(false);
                 storageSettings.setStoreSentResponse(false);
-
-                if (isDestination) {
-                    storageSettings.setStoreRaw(false);
-                }
                 break;
 
             case METADATA:
@@ -1329,7 +1329,8 @@ public class TestUtils {
                 storageSettings.setStoreRaw(false);
                 storageSettings.setStoreProcessedRaw(false);
                 storageSettings.setStoreTransformed(false);
-                storageSettings.setStoreEncoded(false);
+                storageSettings.setStoreSourceEncoded(false);
+                storageSettings.setStoreDestinationEncoded(false);
                 storageSettings.setStoreSent(false);
                 storageSettings.setStoreProcessedResponse(false);
                 storageSettings.setStoreResponse(false);
@@ -1347,7 +1348,8 @@ public class TestUtils {
                 storageSettings.setStoreRaw(false);
                 storageSettings.setStoreProcessedRaw(false);
                 storageSettings.setStoreTransformed(false);
-                storageSettings.setStoreEncoded(false);
+                storageSettings.setStoreSourceEncoded(false);
+                storageSettings.setStoreDestinationEncoded(false);
                 storageSettings.setStoreSent(false);
                 storageSettings.setStoreProcessedResponse(false);
                 storageSettings.setStoreResponse(false);

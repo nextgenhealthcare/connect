@@ -109,4 +109,19 @@ public class Statistics {
             }
         }
     }
+    
+    /**
+     * Updates (increments/decrements) values from another Statistics object
+     */
+    public void update(Statistics statistics) {
+        for (Entry<String, Map<Integer, Map<Status, Long>>> entry : statistics.getStats().entrySet()) {
+            for (Entry<Integer, Map<Status, Long>> connectorEntry : entry.getValue().entrySet()) {
+                Integer metaDataId = connectorEntry.getKey();
+                
+                if (metaDataId != null) {
+                    update(entry.getKey(), metaDataId, connectorEntry.getValue());
+                }
+            }
+        }
+    }
 }
