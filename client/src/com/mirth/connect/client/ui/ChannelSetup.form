@@ -101,7 +101,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="messagePruningPanel" max="32767" attributes="0"/>
-                                  <Component id="customMetadataPanel" max="32767" attributes="0"/>
+                                  <Component id="customMetadataPanel" pref="405" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -805,6 +805,9 @@
                     <TitledBorder title="Custom Metadata"/>
                   </Border>
                 </Property>
+                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                  <Dimension value="[120, 146]"/>
+                </Property>
               </Properties>
 
               <Layout>
@@ -817,6 +820,7 @@
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
                               <Component id="addMetaDataButton" max="32767" attributes="0"/>
                               <Component id="deleteMetaDataButton" pref="60" max="32767" attributes="0"/>
+                              <Component id="revertMetaDataButton" alignment="0" pref="60" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                       </Group>
@@ -824,14 +828,17 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <Component id="addMetaDataButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="deleteMetaDataButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="36" max="32767" attributes="0"/>
-                      </Group>
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="metaDataTablePane" pref="0" max="32767" attributes="0"/>
+                      <Group type="102" alignment="1" attributes="0">
+                          <Group type="103" groupAlignment="1" attributes="0">
+                              <Group type="102" attributes="0">
+                                  <Component id="addMetaDataButton" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="deleteMetaDataButton" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace pref="38" max="32767" attributes="0"/>
+                                  <Component id="revertMetaDataButton" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <Component id="metaDataTablePane" pref="0" max="32767" attributes="0"/>
+                          </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -876,6 +883,15 @@
                     </Component>
                   </SubComponents>
                 </Container>
+                <Component class="javax.swing.JButton" name="revertMetaDataButton">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Revert"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Revert the custom metadata settings to the last save.&lt;br&gt;This option allows you to undo your metadata changes without affecting the rest of the channel.&lt;/html&gt;"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="revertMetaDataButtonActionPerformed"/>
+                  </Events>
+                </Component>
               </SubComponents>
             </Container>
             <Container class="javax.swing.JPanel" name="jPanel1">
@@ -903,7 +919,7 @@
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="summaryDescriptionScrollPane" pref="109" max="32767" attributes="0"/>
+                          <Component id="summaryDescriptionScrollPane" pref="73" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>

@@ -18,10 +18,13 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.prefs.Preferences;
@@ -159,6 +162,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         for (MetaDataColumn column : currentChannel.getProperties().getMetaDataColumns()) {
             model.addRow(new Object[]{column.getName(), column.getType(), column.getMappingName()});
         }
+        
+        revertMetaDataButton.setEnabled(false);
     }
     
     public void saveMetaDataColumns() {
@@ -839,6 +844,48 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
         }
         
+        // Store the current metadata column data in a map with the column name as the key and the type as the value.
+        Map<String, MetaDataColumnType> currentColumns = new HashMap<String, MetaDataColumnType>();
+        for (MetaDataColumn column : currentChannel.getProperties().getMetaDataColumns()) {
+        	currentColumns.put(column.getName(), column.getType());
+        }
+        
+        Set<String> columnNames = new HashSet<String>();
+        for (int i = 0; i < metaDataTable.getRowCount(); i++) {
+        	DefaultTableModel model = (DefaultTableModel) metaDataTable.getModel();
+        	
+        	// Do not allow metadata column names to be empty
+        	String columnName = (String) model.getValueAt(i, model.findColumn(METADATA_NAME_COLUMN_NAME));
+        	if (StringUtils.isEmpty(columnName)) {
+        		parent.alertWarning(parent, "Empty column name detected in custom metadata table. Column names cannot be empty.");
+                return false;
+        	} else {
+        		// Do not allow duplicate column names
+        		if (columnNames.contains(columnName)) {
+        			parent.alertWarning(parent, "Duplicate column name detected in custom metadata table. Column names must be unique.");
+                    return false;
+        		}
+        		
+        		// Add the column name to a set so it can be checked for duplicates
+        		columnNames.add(columnName);
+        	}
+        	
+        	MetaDataColumnType columnType = (MetaDataColumnType) model.getValueAt(i, model.findColumn(METADATA_TYPE_COLUMN_NAME));
+        	
+        	// Remove columns from the map only if they have NOT been modified in a way such that their data will be deleted on deploy
+        	if (currentColumns.containsKey(columnName) && currentColumns.get(columnName).equals(columnType)) {
+    			currentColumns.remove(columnName);
+        	}
+        }
+        
+        // Notify the user if an existing column was modified in a way such that it will be deleted on deploy
+        if (!currentColumns.isEmpty()) {
+        	if (!parent.alertOption(parent, "Renaming, deleting, or changing the type of existing custom metadata columns\nwill delete all existing data " +
+        			"for that column. Are you sure you want to do this?")) {
+        		return false;
+        	}
+        }
+        
         boolean enabled = summaryEnabledCheckbox.isSelected();
 
         saveSourcePanel();
@@ -1416,6 +1463,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         deleteMetaDataButton = new javax.swing.JButton();
         metaDataTablePane = new javax.swing.JScrollPane();
         metaDataTable = new com.mirth.connect.client.ui.components.MirthTable();
+        revertMetaDataButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         summaryDescriptionScrollPane = new javax.swing.JScrollPane();
         summaryDescriptionText = new com.mirth.connect.client.ui.components.MirthTextPane();
@@ -1851,6 +1899,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         customMetadataPanel.setBackground(new java.awt.Color(255, 255, 255));
         customMetadataPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Custom Metadata"));
+        customMetadataPanel.setPreferredSize(new java.awt.Dimension(120, 146));
 
         addMetaDataButton.setText("Add");
         addMetaDataButton.addActionListener(new java.awt.event.ActionListener() {
@@ -1876,6 +1925,14 @@ public class ChannelSetup extends javax.swing.JPanel {
         ));
         metaDataTablePane.setViewportView(metaDataTable);
 
+        revertMetaDataButton.setText("Revert");
+        revertMetaDataButton.setToolTipText("<html>Revert the custom metadata settings to the last save.<br>This option allows you to undo your metadata changes without affecting the rest of the channel.</html>");
+        revertMetaDataButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                revertMetaDataButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout customMetadataPanelLayout = new javax.swing.GroupLayout(customMetadataPanel);
         customMetadataPanel.setLayout(customMetadataPanelLayout);
         customMetadataPanelLayout.setHorizontalGroup(
@@ -1886,18 +1943,21 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(customMetadataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(addMetaDataButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(deleteMetaDataButton, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE))
+                    .addComponent(deleteMetaDataButton, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
+                    .addComponent(revertMetaDataButton, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE))
                 .addContainerGap())
         );
         customMetadataPanelLayout.setVerticalGroup(
             customMetadataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(customMetadataPanelLayout.createSequentialGroup()
-                .addComponent(addMetaDataButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(deleteMetaDataButton)
-                .addGap(0, 36, Short.MAX_VALUE))
-            .addGroup(customMetadataPanelLayout.createSequentialGroup()
-                .addComponent(metaDataTablePane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, customMetadataPanelLayout.createSequentialGroup()
+                .addGroup(customMetadataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(customMetadataPanelLayout.createSequentialGroup()
+                        .addComponent(addMetaDataButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(deleteMetaDataButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+                        .addComponent(revertMetaDataButton))
+                    .addComponent(metaDataTablePane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -1918,7 +1978,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(summaryDescriptionScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
+                .addComponent(summaryDescriptionScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -1940,7 +2000,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(messagePruningPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(customMetadataPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(customMetadataPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         summaryLayout.setVerticalGroup(
@@ -2154,14 +2214,14 @@ public class ChannelSetup extends javax.swing.JPanel {
                 return true;
             }
             
-            public void setValue(Object value, int row, int column) {
-                if (getColumnName(column).equals(METADATA_NAME_COLUMN_NAME)) {
-                    
-                } else if (getColumnName(column).equals(METADATA_MAPPING_COLUMN_NAME)) {
-                    
-                }
-                
-                super.setValueAt(value, row, column);
+            @Override
+            public void setValueAt(Object value, int row, int column) {
+            	// Enable the revert button if any data was changed.
+            	if (!value.equals(getValueAt(row, column))) {
+            		revertMetaDataButton.setEnabled(true);
+            	}
+            	
+            	super.setValueAt(value, row, column);
             }
         };
         
@@ -2459,6 +2519,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         model.addRow(new Object[]{"", MetaDataColumnType.STRING, ""});
 
         metaDataTable.setRowSelectionInterval(row, row);
+        
+        revertMetaDataButton.setEnabled(true);
 
         parent.setSaveEnabled(true);
     }//GEN-LAST:event_addMetaDataButtonActionPerformed
@@ -2480,6 +2542,8 @@ public class ChannelSetup extends javax.swing.JPanel {
             metaDataTable.setRowSelectionInterval(selectedRow, selectedRow);
         }
 
+        revertMetaDataButton.setEnabled(true);
+        
         parent.setSaveEnabled(true);
     }//GEN-LAST:event_deleteMetaDataButtonActionPerformed
 
@@ -2530,6 +2594,12 @@ public class ChannelSetup extends javax.swing.JPanel {
         parent.setSaveEnabled(true);
         contentPruningDaysTextField.setEnabled(true);
     }//GEN-LAST:event_contentPruningDaysRadioActionPerformed
+
+    private void revertMetaDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_revertMetaDataButtonActionPerformed
+        if (parent.alertOption(parent, "Are you sure you want to revert custom metadata settings to the last save?")) {
+        	updateMetaDataTable();
+        }
+    }//GEN-LAST:event_revertMetaDataButtonActionPerformed
 
     public void generateMultipleDestinationPage() {
         // Get the selected destination connector and set it.
@@ -2799,6 +2869,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private javax.swing.JLabel performanceLabel;
     private javax.swing.JLabel queueWarningLabel;
     private com.mirth.connect.client.ui.components.MirthCheckBox removeContentCheckbox;
+    private javax.swing.JButton revertMetaDataButton;
     private com.mirth.connect.client.ui.ScriptPanel scripts;
     private javax.swing.JPanel source;
     private javax.swing.JScrollPane sourceConnectorPane;
