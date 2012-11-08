@@ -20,6 +20,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.math3.util.Precision;
 import org.apache.ibatis.session.SqlSession;
 
 import com.mirth.connect.connectors.tests.TestDestinationConnector;
@@ -233,5 +234,103 @@ public class TestUtils {
             DbUtils.close(statement);
             DbUtils.close(connection);
         }
+    }
+    
+    public static void deleteAllMessages(String channelId) {
+        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        
+        try {
+            dao.deleteAllMessages(channelId);
+            dao.commit();
+        } finally {
+            dao.close();
+        }
+    }
+    
+    public static void createTestMessages(String channelId, Message templateMessage, int count) throws Exception {
+        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        
+        try {
+            for (int i = 0; i < count; i++) {
+                insertCompleteMessage(templateMessage, dao);
+            }
+            
+            dao.commit();
+        } finally {
+            dao.close();
+        }
+    }
+    
+    public static void createTestMessagesFast(String channelId, Message templateMessage, int power) throws Exception {
+        deleteAllMessages(channelId);
+        createTestMessages(channelId, templateMessage, 1);
+        
+        Connection connection = null;
+        PreparedStatement messageStatement = null;
+        PreparedStatement metaDataStatement = null;
+        PreparedStatement contentStatement = null;
+        long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
+        long idOffset = templateMessage.getMessageId();
+        
+        try {
+            connection = getConnection();
+            messageStatement = connection.prepareStatement("INSERT INTO d_m" + localChannelId + " (id, server_id, date_created, processed) SELECT id + ?, server_id, date_created, processed FROM d_m" + localChannelId);
+            metaDataStatement = connection.prepareStatement("INSERT INTO d_mm" + localChannelId + " (id, message_id, date_created, status, connector_map, channel_map, response_map, errors, send_attempts) SELECT id, message_id + ?, date_created, status, connector_map, channel_map, response_map, errors, send_attempts FROM d_mm" + localChannelId);
+            contentStatement = connection.prepareStatement("INSERT INTO d_mc" + localChannelId + " (metadata_id, message_id, content_type, \"content\", is_encrypted, data_type) SELECT metadata_id, message_id + ?, content_type, \"content\", is_encrypted, data_type FROM d_mc" + localChannelId);
+            
+            System.out.print("Creating test messages...");
+            
+            for (int i = 0; i < power; i++) {
+                messageStatement.setLong(1, idOffset);
+                metaDataStatement.setLong(1, idOffset);
+                contentStatement.setLong(1, idOffset);
+                
+                messageStatement.executeUpdate();
+                metaDataStatement.executeUpdate();
+                contentStatement.executeUpdate();
+                
+                idOffset *= 2;
+                
+                connection.commit();
+                System.out.print(getNumMessages(channelId) + "...");
+            }
+            
+            System.out.println("done");
+        } finally {
+            DbUtils.close(messageStatement);
+            DbUtils.close(metaDataStatement);
+            DbUtils.close(contentStatement);
+            DbUtils.close(connection);
+        }
+    }
+    
+    private static void insertCompleteMessage(Message message, DonkeyDao dao) {
+        dao.insertMessage(message);
+        
+        if (message.isProcessed()) {
+            dao.markAsProcessed(message.getChannelId(), message.getMessageId());
+        }
+        
+        for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
+            dao.insertConnectorMessage(connectorMessage, true);
+            
+            for (ContentType contentType : ContentType.values()) {
+                MessageContent messageContent = connectorMessage.getContent(contentType);
+                
+                if (messageContent != null) {
+                    dao.insertMessageContent(messageContent);
+                }
+            }
+        }
+    }
+    
+    public static double getPerSecondRate(long size, long millis, Integer precision) {
+        double rate = ((double) size) / ((double)millis / 1000d);
+        
+        if (precision != null) {
+            rate = Precision.round(rate, 2);
+        }
+        
+        return rate;
     }
 }

@@ -17,8 +17,6 @@ import javax.swing.SwingWorker;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.AbstractSettingsPanel;
-import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTimePicker;
 import com.mirth.connect.plugins.SettingsPanelPlugin;
 
@@ -33,7 +31,6 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
         addTask("doViewEvents", "View Events", "View the Message Pruner events.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/table.png")));
 
         initComponents();
-        blockSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
     }
 
     @Override
@@ -120,18 +117,6 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
             timeOfDayMonthly.setDate(properties.getProperty("time"));
         }
 
-        if (properties.getProperty("allowBatchPruning") != null && properties.getProperty("allowBatchPruning").equals(UIConstants.YES_OPTION)) {
-            batchPruningYesRadio.setSelected(true);
-        } else {
-            batchPruningNoRadio.setSelected(true);
-        }
-
-        if (properties.getProperty("pruningBlockSize") != null && !properties.getProperty("pruningBlockSize").equals("")) {
-            blockSizeField.setText(properties.getProperty("pruningBlockSize"));
-        } else {
-            blockSizeField.setText("1000");
-        }
-
         repaint();
     }
 
@@ -152,17 +137,6 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
             properties.put("time", timeOfDayMonthly.getDate());
             properties.put("dayOfMonth", dayOfMonth.getDate());
         }
-
-        if (batchPruningYesRadio.isSelected()) {
-            properties.put("allowBatchPruning", UIConstants.YES_OPTION);
-        } else {
-            properties.put("allowBatchPruning", UIConstants.NO_OPTION);
-        }
-
-        if (blockSizeField.getText().equals("")) {
-            blockSizeField.setText("1000");
-        }
-        properties.put("pruningBlockSize", blockSizeField.getText());
 
         return properties;
     }
@@ -189,11 +163,6 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
         dayOfMonth = new MirthTimePicker("dd", Calendar.MONTH);
         monthlyAtLabel = new javax.swing.JLabel();
         timeOfDayMonthly = new MirthTimePicker("hh:mm aa", Calendar.MINUTE);
-        batchPruningLabel = new javax.swing.JLabel();
-        batchPruningYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        batchPruningNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        blockSizeLabel = new javax.swing.JLabel();
-        blockSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -248,66 +217,32 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
 
         monthlyAtLabel.setText("at");
 
-        batchPruningLabel.setText("Batch Pruning:");
-
-        batchPruningYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        batchPruningYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        batchPruningButtonGroup.add(batchPruningYesRadio);
-        batchPruningYesRadio.setText("Yes");
-        batchPruningYesRadio.setToolTipText("Turning batch pruning on increases message pruning performance by allowing channels with the same pruning settings to be pruned in one delete.");
-        batchPruningYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        batchPruningNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        batchPruningNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        batchPruningButtonGroup.add(batchPruningNoRadio);
-        batchPruningNoRadio.setText("No");
-        batchPruningNoRadio.setToolTipText("Turning batch pruning off decreases message pruning performance, but displays how many messages are pruned from each individual channel.");
-        batchPruningNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        blockSizeLabel.setText("Block Size:");
-
-        blockSizeField.setToolTipText("<html>If this number is 0, all messages are pruned in a single query. If the single query is slowing down<br>the system for too long, messages can be pruned in blocks of the specified size. Block pruning can<br>be a much longer process, but it will not slow down the system as much as a single query.</html>");
-
         javax.swing.GroupLayout pruningSchedulePanelLayout = new javax.swing.GroupLayout(pruningSchedulePanel);
         pruningSchedulePanel.setLayout(pruningSchedulePanelLayout);
         pruningSchedulePanelLayout.setHorizontalGroup(
             pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pruningSchedulePanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(hourlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(dailyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(weeklyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(monthlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(dayOfWeek, javax.swing.GroupLayout.PREFERRED_SIZE, 75, Short.MAX_VALUE)
+                    .addComponent(dayOfMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 75, Short.MAX_VALUE)
+                    .addComponent(timeOfDay, javax.swing.GroupLayout.PREFERRED_SIZE, 75, Short.MAX_VALUE))
                 .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pruningSchedulePanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(hourlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(dailyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(weeklyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(monthlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(dayOfWeek, javax.swing.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE)
-                            .addComponent(dayOfMonth, javax.swing.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE)
-                            .addComponent(timeOfDay, javax.swing.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE))
-                        .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(pruningSchedulePanelLayout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(monthlyAtLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(timeOfDayMonthly, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pruningSchedulePanelLayout.createSequentialGroup()
-                                .addComponent(weeklyAtLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(timeOfDayWeekly, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(pruningSchedulePanelLayout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(blockSizeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(batchPruningLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(pruningSchedulePanelLayout.createSequentialGroup()
-                                .addComponent(batchPruningYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(batchPruningNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(blockSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(monthlyAtLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(timeOfDayMonthly, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pruningSchedulePanelLayout.createSequentialGroup()
+                        .addComponent(weeklyAtLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(timeOfDayWeekly, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(21, Short.MAX_VALUE))
         );
         pruningSchedulePanelLayout.setVerticalGroup(
@@ -330,16 +265,7 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
                     .addComponent(monthlyAtLabel)
                     .addComponent(timeOfDayMonthly, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dayOfMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(batchPruningLabel)
-                    .addComponent(batchPruningYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(batchPruningNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(blockSizeLabel)
-                    .addComponent(blockSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -405,11 +331,6 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
     }//GEN-LAST:event_monthlyRadioActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup batchPruningButtonGroup;
-    private javax.swing.JLabel batchPruningLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton batchPruningNoRadio;
-    private com.mirth.connect.client.ui.components.MirthRadioButton batchPruningYesRadio;
-    private com.mirth.connect.client.ui.components.MirthTextField blockSizeField;
-    private javax.swing.JLabel blockSizeLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton dailyRadio;
     private com.mirth.connect.client.ui.components.MirthTimePicker dayOfMonth;
     private com.mirth.connect.client.ui.components.MirthTimePicker dayOfWeek;

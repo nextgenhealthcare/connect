@@ -357,4 +357,63 @@
 		SELECT id, type, content from d_ma${localChannelId}
 		WHERE message_id = #{messageId}
 	</select>
+	
+	
+	
+	<!-- Message Pruner/Archiver -->
+	
+	<delete id="prunerDeleteMessages" parameterType="map">
+		DELETE FROM d_m${localChannelId} m
+		<include refid="prunerDeleteCriteria" />
+	</delete>
+	
+	<delete id="prunerDeleteMessageContent" parameterType="map">
+		DELETE FROM d_mc${localChannelId} mc
+		USING d_m${localChannelId} m
+		
+		<include refid="prunerDeleteCriteria" />
+		AND m.id = mc.message_id
+	</delete>
+	
+	<sql id="prunerDeleteCriteria">
+		WHERE m.date_created <![CDATA[ < ]]> #{dateThreshold}
+	
+		<if test="skipIncomplete == true">
+			AND m.processed = TRUE
+		</if>
+		
+		<if test="skipStatuses != null">
+			AND NOT EXISTS (
+				SELECT 1
+				FROM d_mm${localChannelId} mm
+				WHERE mm.message_id = m.id
+				AND mm.status IN
+				<foreach item="status" collection="skipStatuses" open="(" separator="," close=")">
+					#{status}
+				</foreach>
+			)
+		</if>
+	</sql>
+	
+	<select id="prunerSelectMessagesToArchive" parameterType="map" resultType="map">
+		SELECT m.*
+		FROM d_m${localChannelId} m
+		
+		<if test="skipStatuses != null">
+			LEFT JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.status IN
+			<foreach item="status" collection="skipStatuses" open="(" separator="," close=")">
+				#{status}
+			</foreach>
+		</if>
+	
+		WHERE m.date_created <![CDATA[ < ]]> #{dateThreshold}
+		
+		<if test="skipIncomplete == true">
+			AND m.processed = TRUE
+		</if>
+		
+		<if test="skipStatuses != null">
+			AND mm.id IS NULL
+		</if>
+	</select>
 </mapper>

@@ -10,6 +10,10 @@
 package com.mirth.connect.server.controllers;
 
 public class MessagePrunerException extends Exception {
+    public MessagePrunerException(String message) {
+        super(message);
+    }
+    
     public MessagePrunerException(String message, Throwable cause) {
         super(message, cause);
     }

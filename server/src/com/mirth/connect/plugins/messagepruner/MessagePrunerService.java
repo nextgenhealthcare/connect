@@ -21,7 +21,7 @@ import java.util.Properties;
 
 import javax.swing.text.DateFormatter;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobDetail;
@@ -35,254 +35,234 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.client.core.TaskConstants;
+import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.Event;
 import com.mirth.connect.model.Event.Level;
 import com.mirth.connect.model.Event.Outcome;
 import com.mirth.connect.model.ExtensionPermission;
-import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.controllers.ChannelController;
-import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.MessagePrunerException;
 import com.mirth.connect.util.PropertyLoader;
 
 public class MessagePrunerService implements ServicePlugin, Job {
+    public static final String PLUGINPOINT = "Message Pruner";
+
+    private Scheduler sched;
+    private SchedulerFactory schedFact;
+    private JobDetail jobDetail;
+    private MessagePruner messagePruner;
+    private ChannelController channelController = ChannelController.getInstance();
+    private EventController eventController = EventController.getInstance();
     private Logger logger = Logger.getLogger(this.getClass());
-	private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
-	private EventController eventController = ControllerFactory.getFactory().createEventController();
-	private Scheduler sched = null;
-	private SchedulerFactory schedFact = null;
-	private JobDetail jobDetail = null;
-	private static final int DEFAULT_PRUNING_BLOCK_SIZE = 0;
-	private static boolean allowBatchPruning;
-	private static int pruningBlockSize;
-	
-	public static final String PLUGINPOINT = "Message Pruner";
-	
+
     @Override
     public String getPluginPointName() {
         return PLUGINPOINT;
     }
 
-	public void init(Properties properties) {
-		jobDetail = new JobDetail("prunerJob", Scheduler.DEFAULT_GROUP, MessagePrunerService.class);
+    @Override
+    public void start() {
+        try {
+            sched.start();
+        } catch (Exception e) {
+            logger.error("could not start message pruner", e);
+        }
+    }
 
-		try {
-			if (properties.getProperty("allowBatchPruning") != null && properties.getProperty("allowBatchPruning").equals("1")) {
-				allowBatchPruning = true;
-			} else {
-				allowBatchPruning = false;
-			}
-			
-			if (StringUtils.isNotEmpty(properties.getProperty("pruningBlockSize"))) {
-				pruningBlockSize = Integer.parseInt(properties.getProperty("pruningBlockSize"));
-			} else {
-				pruningBlockSize = DEFAULT_PRUNING_BLOCK_SIZE;
-			}
+    @Override
+    public void stop() {
+        try {
+            sched.shutdown();
+        } catch (Exception e) {
+            logger.error("could not exit message pruner", e);
+        }
+    }
 
-			schedFact = new StdSchedulerFactory();
-			sched = schedFact.getScheduler();
-			sched.scheduleJob(jobDetail, createTrigger(properties));
-		} catch (Exception e) {
-			logger.error("error encountered in database pruner initialization", e);
-		}
-	}
+    @Override
+    public void init(Properties properties) {
+        List<Status> skipStatuses = new ArrayList<Status>();
+        skipStatuses.add(Status.ERROR);
+        skipStatuses.add(Status.QUEUED);
 
-	private Trigger createTrigger(Properties properties) throws ParseException {
-		Trigger trigger = null;
-		String interval = PropertyLoader.getProperty(properties, "interval");
+        DefaultMessagePruner messagePruner = new DefaultMessagePruner();
+        messagePruner.setRetryCount(3);
+        messagePruner.setSkipIncomplete(true);
+        messagePruner.setSkipStatuses(skipStatuses);
+        // TODO initialize archiver
+//        messagePruner.setMessageArchiver(archiver);
 
-		if (interval.equals("hourly"))
-			trigger = TriggerUtils.makeHourlyTrigger();
-		else {
-			SimpleDateFormat timeDateFormat = new SimpleDateFormat("hh:mm aa");
-			DateFormatter timeFormatter = new DateFormatter(timeDateFormat);
+        this.messagePruner = messagePruner;
 
-			String time = PropertyLoader.getProperty(properties, "time");
-			Date timeDate = (Date) timeFormatter.stringToValue(time);
-			Calendar timeCalendar = Calendar.getInstance();
-			timeCalendar.setTime(timeDate);
+        jobDetail = new JobDetail("prunerJob", Scheduler.DEFAULT_GROUP, MessagePrunerService.class);
 
-			if (interval.equals("daily")) {
-				trigger = TriggerUtils.makeDailyTrigger(timeCalendar.get(Calendar.HOUR_OF_DAY), timeCalendar.get(Calendar.MINUTE));
-			} else if (interval.equals("weekly")) {
-				SimpleDateFormat dayDateFormat = new SimpleDateFormat("EEEEEEEE");
-				DateFormatter dayFormatter = new DateFormatter(dayDateFormat);
+        try {
+            schedFact = new StdSchedulerFactory();
+            sched = schedFact.getScheduler();
+            sched.scheduleJob(jobDetail, createTrigger(properties));
+        } catch (Exception e) {
+            logger.error("error encountered in database pruner initialization", e);
+        }
+    }
 
-				String dayOfWeek = PropertyLoader.getProperty(properties, "dayOfWeek");
-				Date dayDate = (Date) dayFormatter.stringToValue(dayOfWeek);
-				Calendar dayCalendar = Calendar.getInstance();
-				dayCalendar.setTime(dayDate);
+    @Override
+    public void update(Properties properties) {
+        try {
+            sched.deleteJob("prunerJob", Scheduler.DEFAULT_GROUP);
+            sched.scheduleJob(jobDetail, createTrigger(properties));
 
-				trigger = TriggerUtils.makeWeeklyTrigger(dayCalendar.get(Calendar.DAY_OF_WEEK), timeCalendar.get(Calendar.HOUR_OF_DAY), timeCalendar.get(Calendar.MINUTE));
-			} else if (interval.equals("monthly")) {
-				SimpleDateFormat dayDateFormat = new SimpleDateFormat("DD");
-				DateFormatter dayFormatter = new DateFormatter(dayDateFormat);
+            // for some reason, this does not work
+            // sched.rescheduleJob("prunerJob", Scheduler.DEFAULT_GROUP,
+            // createTrigger(properties));
+        } catch (Exception e) {
+            logger.error("could not reschedule the message pruner", e);
+        }
+    }
 
-				String dayOfMonth = PropertyLoader.getProperty(properties, "dayOfMonth");
-				Date dayDate = (Date) dayFormatter.stringToValue(dayOfMonth);
-				Calendar dayCalendar = Calendar.getInstance();
-				dayCalendar.setTime(dayDate);
+    @Override
+    public Object invoke(String method, Object object, String sessionId) {
+        return null;
+    }
 
-				trigger = TriggerUtils.makeMonthlyTrigger(dayCalendar.get(Calendar.DAY_OF_MONTH), timeCalendar.get(Calendar.HOUR_OF_DAY), timeCalendar.get(Calendar.MINUTE));
-			}
-		}
-
-		trigger.setStartTime(new Date());
-		trigger.setName("prunerTrigger");
-		trigger.setJobName("prunerJob");
-		return trigger;
-	}
-
-	@Override
-	public void start() {
-		try {
-			sched.start();
-		} catch (Exception e) {
-			logger.error("could not start message pruner", e);
-		}
-	}
-
-	@Override
-	public void update(Properties properties) {
-		try {
-			if (properties.getProperty("allowBatchPruning") != null && properties.getProperty("allowBatchPruning").equals("1")) {
-				allowBatchPruning = true;
-			} else {
-				allowBatchPruning = false;
-			}
-			
-			if (StringUtils.isNotEmpty(properties.getProperty("pruningBlockSize"))) {
-				pruningBlockSize = Integer.parseInt(properties.getProperty("pruningBlockSize"));
-			} else {
-				pruningBlockSize = DEFAULT_PRUNING_BLOCK_SIZE;
-			}
-			
-			sched.deleteJob("prunerJob", Scheduler.DEFAULT_GROUP);
-			sched.scheduleJob(jobDetail, createTrigger(properties));
-
-			// for some reason, this does not work
-			// sched.rescheduleJob("prunerJob", Scheduler.DEFAULT_GROUP,
-			// createTrigger(properties));
-		} catch (Exception e) {
-			logger.error("could not reschedule the message pruner", e);
-		}
-	}
-
-	@Override
-	public void stop() {
-		try {
-			sched.shutdown();
-		} catch (Exception e) {
-			logger.error("could not exit message pruner", e);
-		}
-	}
-
-	@Override
-	public Object invoke(String method, Object object, String sessionId) {
-		return null;
-	}
-
-	@Override
-	public Properties getDefaultProperties() {
-		Properties properties = new Properties();
-		properties.put("interval", "daily");
-		properties.put("time", "12:00 AM");
-		properties.put("allowBatchPruning", "1");
-		properties.put("pruningBlockSize", String.valueOf(DEFAULT_PRUNING_BLOCK_SIZE));
-		return properties;
-	}
-
-	private Map<String, List<Channel>> getBatchedChannelMap() throws Exception {
-		Map<String, List<Channel>> batchedChannelMap = new HashMap<String, List<Channel>>();
-
-		// TODO: update to latest changes in ChannelProperties
-//		for (Channel channel : channelController.getChannel(null)) {
-//			if (channel.getProperties().isStoreMessages()) {
-//				if (channel.getProperties().getMaxMessageAge() != null && !channel.getProperties().getMaxMessageAge().equals("-1")) {
-//					String numDays = channel.getProperties().getMaxMessageAge();
-//					if (batchedChannelMap.get(numDays) == null) {
-//						batchedChannelMap.put(numDays, new ArrayList<Channel>());
-//					}
-//
-//					batchedChannelMap.get(numDays).add(channel);
-//				}
-//			}
-//		}
-
-		return batchedChannelMap;
-	}
-
-	// just get a map with one key and the list of all the channels
-	private Map<String, List<Channel>> getChannelMap() throws Exception {
-		Map<String, List<Channel>> channelMap = new HashMap<String, List<Channel>>();
-
-		// TODO: update to latest changes in ChannelProperties
-//		for (Channel channel : channelController.getChannel(null)) {
-//			if (channel.getProperties().isStoreMessages()) {
-//				if (channel.getProperties().getMaxMessageAge() != null && !channel.getProperties().getMaxMessageAge().equals("-1")) {
-//					String key = channel.getId();
-//					if (channelMap.get(key) == null) {
-//						channelMap.put(key, new ArrayList<Channel>());
-//					}
-//
-//					channelMap.get(key).add(channel);
-//				}
-//			}
-//		}
-
-		return channelMap;
-	}
-
-	public void execute(JobExecutionContext context) throws JobExecutionException {
-		logger.debug("pruning message database");
-
-		try {
-			Map<String, List<Channel>> channelMap;
-
-			if (allowBatchPruning) {
-				channelMap = getBatchedChannelMap();
-			} else {
-				channelMap = getChannelMap();
-			}
-
-			for (List<Channel> channels : channelMap.values()) {
-				List<String> channelIdList = new ArrayList<String>();
-
-				if (allowBatchPruning) {
-					for (Channel channel : channels) {
-						channelIdList.add(channel.getId());
-					}
-				} else {
-					channelIdList.add(channels.get(0).getId());
-				}
-
-				int numMessagesPruned = ControllerFactory.getFactory().createMessageController().pruneMessages(channelIdList, pruningBlockSize);
-
-//				Event event = new Event();
-//				event.setLevel(Level.INFORMATION);
-//				event.setOutcome(Outcome.SUCCESS);
-//				event.setName(PLUGINPOINT);
-//				
-//	            Map<String, String> attributes = new HashMap<String, String>();
-//	            attributes.put("channel", channelName);
-//	            attributes.put("messages pruned", Integer.toString(numMessagesPruned));
-//	            event.setAttributes(attributes);
-//	            eventController.addEvent(event);
-	            
-	            // TODO: submit event
-			}
-		} catch (Exception e) {
-			logger.warn("could not prune message database", e);
-		}
-	}
+    @Override
+    public Properties getDefaultProperties() {
+        Properties properties = new Properties();
+        properties.put("interval", "daily");
+        properties.put("time", "12:00 AM");
+        return properties;
+    }
 
     @Override
     public ExtensionPermission[] getExtensionPermissions() {
         ExtensionPermission viewPermission = new ExtensionPermission(PLUGINPOINT, "View Settings", "Displays the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_GET.getName() }, new String[] { TaskConstants.SETTINGS_REFRESH });
         ExtensionPermission savePermission = new ExtensionPermission(PLUGINPOINT, "Save Settings", "Allows changing the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_SET.getName() }, new String[] { TaskConstants.SETTINGS_SAVE });
-        
+
         return new ExtensionPermission[] { viewPermission, savePermission };
+    }
+
+    @Override
+    public void execute(JobExecutionContext context) throws JobExecutionException {
+        logger.debug("pruning messages");
+        List<Channel> channels = null;
+
+        try {
+            channels = channelController.getChannel(null);
+        } catch (ControllerException e) {
+            logger.error("Failed to retrieve a list of all channels for pruning");
+            return;
+        }
+
+        for (Channel channel : channels) {
+            try {
+                ChannelProperties properties = channel.getProperties();
+                Integer pruneMetaDataDays = properties.getPruneMetaDataDays();
+                Integer pruneContentDays = properties.getPruneContentDays();
+                Calendar contentDateThreshold = null;
+                Calendar messageDateThreshold = null;
+                int numPruned = 0;
+
+                switch (properties.getMessageStorageMode()) {
+                    case DEVELOPMENT:
+                    case PRODUCTION:
+                    case RAW:
+                        if (pruneContentDays != null) {
+                            contentDateThreshold = Calendar.getInstance();
+                            contentDateThreshold.set(Calendar.DAY_OF_MONTH, contentDateThreshold.get(Calendar.DAY_OF_MONTH) - pruneContentDays);
+                        }
+
+                    case METADATA:
+                        if (pruneMetaDataDays != null) {
+                            messageDateThreshold = Calendar.getInstance();
+                            messageDateThreshold.set(Calendar.DAY_OF_MONTH, messageDateThreshold.get(Calendar.DAY_OF_MONTH) - pruneMetaDataDays);
+                        }
+
+                        if (messageDateThreshold != null || contentDateThreshold != null) {
+                            numPruned = messagePruner.executePruner(channel.getId(), messageDateThreshold, contentDateThreshold);
+                        }
+                        break;
+
+                    case DISABLED:
+                        break;
+
+                    default:
+                        throw new MessagePrunerException("Unrecognized message storage mode: " + properties.getMessageStorageMode().toString());
+                }
+
+                Map<String, String> attributes = new HashMap<String, String>();
+                attributes.put("channel", channel.getName());
+                attributes.put("messages pruned", Integer.toString(numPruned));
+
+                Event event = new Event();
+                event.setLevel(Level.INFORMATION);
+                event.setOutcome(Outcome.SUCCESS);
+                event.setName(PLUGINPOINT);
+                event.setAttributes(attributes);
+                eventController.addEvent(event);
+            } catch (Exception e) {
+                Map<String, String> attributes = new HashMap<String, String>();
+                attributes.put("channel", channel.getName());
+                attributes.put("error", e.getMessage());
+                attributes.put("trace", ExceptionUtils.getStackTrace(e));
+
+                Event event = new Event();
+                event.setLevel(Level.INFORMATION);
+                event.setOutcome(Outcome.FAILURE);
+                event.setName(PLUGINPOINT);
+                event.setAttributes(attributes);
+                eventController.addEvent(event);
+
+                logger.warn("could not prune messages for channel: " + channel.getName(), e);
+            }
+        }
+    }
+
+    private Trigger createTrigger(Properties properties) throws ParseException {
+        Trigger trigger = null;
+        String interval = PropertyLoader.getProperty(properties, "interval");
+
+        if (interval.equals("hourly"))
+            trigger = TriggerUtils.makeHourlyTrigger();
+        else {
+            SimpleDateFormat timeDateFormat = new SimpleDateFormat("hh:mm aa");
+            DateFormatter timeFormatter = new DateFormatter(timeDateFormat);
+
+            String time = PropertyLoader.getProperty(properties, "time");
+            Date timeDate = (Date) timeFormatter.stringToValue(time);
+            Calendar timeCalendar = Calendar.getInstance();
+            timeCalendar.setTime(timeDate);
+
+            if (interval.equals("daily")) {
+                trigger = TriggerUtils.makeDailyTrigger(timeCalendar.get(Calendar.HOUR_OF_DAY), timeCalendar.get(Calendar.MINUTE));
+            } else if (interval.equals("weekly")) {
+                SimpleDateFormat dayDateFormat = new SimpleDateFormat("EEEEEEEE");
+                DateFormatter dayFormatter = new DateFormatter(dayDateFormat);
+
+                String dayOfWeek = PropertyLoader.getProperty(properties, "dayOfWeek");
+                Date dayDate = (Date) dayFormatter.stringToValue(dayOfWeek);
+                Calendar dayCalendar = Calendar.getInstance();
+                dayCalendar.setTime(dayDate);
+
+                trigger = TriggerUtils.makeWeeklyTrigger(dayCalendar.get(Calendar.DAY_OF_WEEK), timeCalendar.get(Calendar.HOUR_OF_DAY), timeCalendar.get(Calendar.MINUTE));
+            } else if (interval.equals("monthly")) {
+                SimpleDateFormat dayDateFormat = new SimpleDateFormat("DD");
+                DateFormatter dayFormatter = new DateFormatter(dayDateFormat);
+
+                String dayOfMonth = PropertyLoader.getProperty(properties, "dayOfMonth");
+                Date dayDate = (Date) dayFormatter.stringToValue(dayOfMonth);
+                Calendar dayCalendar = Calendar.getInstance();
+                dayCalendar.setTime(dayDate);
+
+                trigger = TriggerUtils.makeMonthlyTrigger(dayCalendar.get(Calendar.DAY_OF_MONTH), timeCalendar.get(Calendar.HOUR_OF_DAY), timeCalendar.get(Calendar.MINUTE));
+            }
+        }
+
+        trigger.setStartTime(new Date());
+        trigger.setName("prunerTrigger");
+        trigger.setJobName("prunerJob");
+        return trigger;
     }
 }
