@@ -326,7 +326,11 @@ public class DefaultChannelController extends ChannelController {
             } else {
                 clearChannelCache();
             }
-
+            
+            //TODO combine and organize these.
+            // Delete the "d_" tables and the channel record from "d_channels"
+            com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().removeChannel(channel.getId());
+            // Delete the channel record from the "channel" table
             SqlConfig.getSqlSessionManager().delete("Channel.deleteChannel", channel);
 
             if (DatabaseUtil.statementExists("Channel.vacuumChannelTable")) {
