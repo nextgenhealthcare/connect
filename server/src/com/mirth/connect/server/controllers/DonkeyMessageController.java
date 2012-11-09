@@ -249,18 +249,25 @@ public class DonkeyMessageController extends MessageController {
         Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
         if (channel != null) {
 	        List<Map<String, Object>> rows = null;
+	        Long maxMessageId = filter.getMaxMessageId();
 	        do {
-		        // Perform a search using the message filter parameters
-		        rows = SqlConfig.getSqlSessionManager().selectList("Message.searchMessages", params);
-		        Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
-		        
-		        // Prevent the delete from occurring at the same time as the channel being started. 
+	        	// Prevent the delete from occurring at the same time as the channel being started. 
 		        synchronized (channel) {
+		        	params.put("maxMessageId", maxMessageId);
+		        	
+			        // Perform a search using the message filter parameters
+			        rows = SqlConfig.getSqlSessionManager().selectList("Message.searchMessages", params);
+			        Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
+
 			        // For each message that was retrieved
 			        for (Map<String, Object> row : rows) {
 			            Long messageId = (Long) row.get("message_id");
 			            Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
 			            Boolean processed = (Boolean) row.get("processed");
+			            
+			            if (maxMessageId == null || maxMessageId >= messageId) {
+			            	maxMessageId = messageId - 1;
+			            }
 			
 			            // Allow unprocessed messages to be deleted only if the channel is stopped.
 			            if (channel.getCurrentState() == ChannelState.STOPPED || processed) {

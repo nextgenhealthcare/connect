@@ -48,7 +48,7 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
         invalidate();
     }
 
-    public void updateSize() {
+    public synchronized void updateSize() {
         size = dataSource.getSize();
     }
     
@@ -102,15 +102,19 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
             updateSize();
         }
 
-        E element = buffer.peek();
-
-        // if no element was received and there are elements in the database,
-        // fill the buffer from the database and get the next element in the queue
-        if (element == null && size > 0) {
-            fillBuffer();
-            element = buffer.peek();
+        E element = null;
+        
+        if (size > 0) {
+	        element = buffer.peek();
+	
+	        // if no element was received and there are elements in the database,
+	        // fill the buffer from the database and get the next element in the queue
+	        if (element == null) {
+	            fillBuffer();
+	            element = buffer.peek();
+	        }
         }
-
+        
         return element;
     }
 
@@ -120,26 +124,30 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
             updateSize();
         }
 
-        E element = buffer.poll();
-
-        // if no element was received and there are elements in the database,
-        // fill the buffer from the database and get the next element in the queue
-        if (element == null && size > 0) {
-            fillBuffer();
-            element = buffer.poll();
+        E element = null;
+        
+        if (size > 0) {
+	        element = buffer.poll();
+	
+	        // if no element was received and there are elements in the database,
+	        // fill the buffer from the database and get the next element in the queue
+	        if (element == null) {
+	            fillBuffer();
+	            element = buffer.poll();
+	        }
+	
+	        // if an element was found, decrement the overall count
+	        if (element != null) {
+	            size--;
+	
+	            // reset the reachedCapacity flag if we have exhausted the queue, so
+	            // that elements will once again be polled from the buffer
+	            if (size == 0) {
+	                reachedCapacity = false;
+	            }
+	        }
         }
-
-        // if an element was found, decrement the overall count
-        if (element != null) {
-            size--;
-
-            // reset the reachedCapacity flag if we have exhausted the queue, so
-            // that elements will once again be polled from the buffer
-            if (size == 0) {
-                reachedCapacity = false;
-            }
-        }
-
+        
         return element;
     }
 

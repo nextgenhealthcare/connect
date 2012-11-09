@@ -235,12 +235,21 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                     ThreadUtils.checkInterruptedStatus();
                     dao.insertConnectorMessage(nextMessage, storageSettings.isStoreMaps());
                 }
-
+                
                 ThreadUtils.checkInterruptedStatus();
-                dao.commit(storageSettings.isDurable());
-
-                if (message.getStatus() == Status.QUEUED) {
-                    destinationConnector.getQueue().put(message);
+                
+                if (message.getStatus() != Status.QUEUED) {
+                	dao.commit(storageSettings.isDurable());
+                } else {
+                	// Block other threads from reading from or modifying the destination queue until both the current commit and queue addition finishes
+                	// Otherwise the same message could be sent multiple times.
+	                synchronized (destinationConnector.getQueue()) {
+		                dao.commit(storageSettings.isDurable());
+		
+		                if (message.getStatus() == Status.QUEUED) {
+		                    destinationConnector.getQueue().put(message);
+		                }
+	                }
                 }
 
                 messages.add(message);
