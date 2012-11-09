@@ -180,6 +180,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Set Data Types");
 
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         closeButton.setText("Close");
@@ -189,6 +190,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
             }
         });
 
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Source Connector"));
 
         sourceConnectorTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -213,6 +215,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
             .addComponent(sourceConnectorTablePane, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Destination Connectors"));
 
         destinationConnectorTable.setModel(new javax.swing.table.DefaultTableModel(

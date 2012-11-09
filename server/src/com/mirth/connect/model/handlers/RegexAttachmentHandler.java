@@ -9,6 +9,9 @@
 
 package com.mirth.connect.model.handlers;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +30,7 @@ public class RegexAttachmentHandler extends AttachmentHandler {
     private String mimeType;
     private String message;
     private String newMessage;
+    private Map<String, String> replacements = new HashMap<String, String>();
     private int offset;
     private int group;
 
@@ -63,7 +67,19 @@ public class RegexAttachmentHandler extends AttachmentHandler {
                 while (matcher.find()) {
     
                     String uuid = UUIDGenerator.getUUID();
-                    Attachment attachment = new Attachment(uuid, message.substring(matcher.start(group), matcher.end(group)).getBytes(), mimeType);
+                    String attachmentString = message.substring(matcher.start(group), matcher.end(group));
+                    
+                    for (Entry<String, String> replacementEntry : replacements.entrySet()) {
+                    	String replaceKey = replacementEntry.getKey();
+                    	String replaceValue = replacementEntry.getValue();
+                    	
+                    	if (replaceKey != null && replaceValue != null) {
+                    		attachmentString = attachmentString.replace(replaceKey, replaceValue);
+                    	}
+                    }
+                    Attachment attachment = new Attachment(uuid, attachmentString.getBytes(), mimeType);
+                    
+                    attachmentString = null;
     
                     newMessage += message.substring(offset, matcher.start(group)) + attachment.getAttachmentId();
                     offset = matcher.end(group);
@@ -88,6 +104,7 @@ public class RegexAttachmentHandler extends AttachmentHandler {
             mimeType = null;
             matcher = null;
             pattern = null;
+            replacements.clear();
             
             return finalMessage;
         } catch (Throwable t) {
@@ -99,6 +116,12 @@ public class RegexAttachmentHandler extends AttachmentHandler {
     public void setProperties(AttachmentHandlerProperties attachmentProperties) {
         String regex = attachmentProperties.getProperties().get("regex.pattern");
         mimeType = attachmentProperties.getProperties().get("regex.mimetype");
+        
+        int count = 0;
+        while (attachmentProperties.getProperties().containsKey("regex.replaceKey" + count)) {
+        	replacements.put(attachmentProperties.getProperties().get("regex.replaceKey" + count), attachmentProperties.getProperties().get("regex.replaceValue" + count));
+        	count++;
+        }
 
         if (StringUtils.isNotEmpty(regex)) {
             pattern = Pattern.compile(regex);

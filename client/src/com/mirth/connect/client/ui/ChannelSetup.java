@@ -51,7 +51,6 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
-import com.mirth.connect.client.ui.editors.JavaScriptEditorDialog;
 import com.mirth.connect.client.ui.editors.filter.FilterPane;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
@@ -61,6 +60,7 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
 import com.mirth.connect.model.CodeTemplate.ContextType;
@@ -1386,23 +1386,15 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
     
     public void showAttachmentPropertiesDialog(AttachmentHandlerType type) {
+    	AttachmentHandlerProperties attachmentHandlerProperties = currentChannel.getProperties().getAttachmentProperties();
         if (type.equals(AttachmentHandlerType.REGEX)) {
-            String pattern = currentChannel.getProperties().getAttachmentProperties().getProperties().get("regex.pattern");
-            String mimeType = currentChannel.getProperties().getAttachmentProperties().getProperties().get("regex.mimetype");
-            RegexAttachmentDialog dialog = new RegexAttachmentDialog(pattern, mimeType);
-            currentChannel.getProperties().getAttachmentProperties().getProperties().put("regex.pattern", dialog.getSavedPattern());
-            currentChannel.getProperties().getAttachmentProperties().getProperties().put("regex.mimetype", dialog.getMimeType());
+            new RegexAttachmentDialog(attachmentHandlerProperties);
         } else if (type.equals(AttachmentHandlerType.DICOM)) {
             
         } else if (type.equals(AttachmentHandlerType.JAVASCRIPT)) {
-            String script = currentChannel.getProperties().getAttachmentProperties().getProperties().get("javascript.script");
-            JavaScriptEditorDialog dialog = new JavaScriptEditorDialog(script);
-            currentChannel.getProperties().getAttachmentProperties().getProperties().put("javascript.script", dialog.getSavedScript());
+            new JavaScriptAttachmentDialog(attachmentHandlerProperties);
         } else if (type.equals(AttachmentHandlerType.CUSTOM)) {
-            String className = currentChannel.getProperties().getAttachmentProperties().getClassName();
-            CustomAttachmentDialog dialog = new CustomAttachmentDialog(className, currentChannel.getProperties().getAttachmentProperties().getProperties());
-            currentChannel.getProperties().getAttachmentProperties().setClassName(dialog.getSavedClassName());
-            currentChannel.getProperties().getAttachmentProperties().setProperties(dialog.getSavedProperties());
+            new CustomAttachmentDialog( attachmentHandlerProperties);
         }
     }
 
@@ -2478,9 +2470,11 @@ public class ChannelSetup extends javax.swing.JPanel {
         new DataTypesDialog();
         if (currentChannel.getSourceConnector().getTransformer().getInboundDataType().equals(DataTypeFactory.DICOM)) {
             attachmentComboBox.setSelectedItem(AttachmentHandlerType.DICOM);
+            attachmentComboBox.setEnabled(false);
         } else {
             if (attachmentComboBox.getSelectedItem() == AttachmentHandlerType.DICOM) {
                 attachmentComboBox.setSelectedItem(AttachmentHandlerType.NONE);
+                attachmentComboBox.setEnabled(true);
             }
         }
     }//GEN-LAST:event_changeDataTypesButtonActionPerformed

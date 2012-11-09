@@ -11,26 +11,45 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.Map;
+import java.util.prefs.Preferences;
+
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+
 import org.apache.commons.lang.StringUtils;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
+
+import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 
 public class RegexAttachmentDialog extends javax.swing.JDialog {
 
     private Frame parent;
-    private String savedPattern;
-    private String savedMimeType;
+    private AttachmentHandlerProperties attachmentHandlerProperties;
 
     public static final int DATA_TYPE_COLUMN_NUMBER = 1;
 
-    public RegexAttachmentDialog(String pattern, String mimeType) {
+    public RegexAttachmentDialog(AttachmentHandlerProperties properties) {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        initReplacementTable();
+        
+        Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        replacementTable.setHighlighters(highlighter);
+        
+        attachmentHandlerProperties = properties;
 
-        RegexTextField.setText(StringUtils.defaultIfEmpty(pattern, ""));
-        MimeTypeField.setText(StringUtils.defaultIfEmpty(mimeType, ""));
+        RegexTextField.setText(StringUtils.defaultIfEmpty(attachmentHandlerProperties.getProperties().get("regex.pattern"), ""));
+        MimeTypeField.setText(StringUtils.defaultIfEmpty(attachmentHandlerProperties.getProperties().get("regex.mimetype"), ""));
+
+        int count = 0;
+        while (attachmentHandlerProperties.getProperties().containsKey("regex.replaceKey" + count)) {
+        	DefaultTableModel tableModel = (DefaultTableModel) replacementTable.getModel();
+        	tableModel.addRow(new Object[]{attachmentHandlerProperties.getProperties().get("regex.replaceKey" + count), attachmentHandlerProperties.getProperties().get("regex.replaceValue" + count)});
+        	count++;
+        }
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
@@ -46,13 +65,39 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
 
         setVisible(true);
     }
-
-    public String getSavedPattern() {
-        return savedPattern;
-    }
     
-    public String getMimeType() {
-        return savedMimeType;
+    private void initReplacementTable() {
+        replacementTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] { "Replace All", "Replace With" }) {
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return true;
+            }
+            
+            @Override
+            public void setValueAt(Object value, int row, int column) {
+            	if (!value.equals(getValueAt(row, column))) {
+            		parent.setSaveEnabled(true);
+            	}
+            	
+            	super.setValueAt(value, row, column);
+            }
+        };
+
+        replacementTable.setSortable(false);
+        replacementTable.getTableHeader().setReorderingAllowed(false);
+        replacementTable.setModel(model);
+
+        replacementTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent evt) {
+                deleteButton.setEnabled(replacementTable.getSelectedRow() != -1);
+            }
+        });
+
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+        	replacementTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
+        }
+
+        deleteButton.setEnabled(false);
     }
 
     /**
@@ -70,12 +115,20 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
         jSeparator1 = new javax.swing.JSeparator();
         jPanel2 = new javax.swing.JPanel();
         RegexTextField = new com.mirth.connect.client.ui.components.MirthTextField();
+        jTextField1 = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         MimeTypeField = new com.mirth.connect.client.ui.components.MirthTextField();
+        jPanel4 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        replacementTable = new com.mirth.connect.client.ui.components.MirthTable();
+        newButton = new com.mirth.connect.client.ui.components.MirthButton();
+        deleteButton = new com.mirth.connect.client.ui.components.MirthButton();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Set Attachment Properties");
 
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         closeButton.setText("Close");
@@ -85,30 +138,108 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
             }
         });
 
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Regular Expression"));
+
+        jTextField1.setEditable(false);
+        jTextField1.setText("Example for OBX 5.5: (?:OBX\\|(?:[^|]*?\\|){4}(?:[^|^]*?\\^){4})([^|^]*)[|^]");
+        jTextField1.setBorder(null);
+        jTextField1.setOpaque(false);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(RegexTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(RegexTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 591, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(RegexTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(RegexTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Mime Type"));
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(MimeTypeField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(MimeTypeField, javax.swing.GroupLayout.DEFAULT_SIZE, 591, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(MimeTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+
+        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("String Replacement"));
+
+        replacementTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Replace All", "Replace With"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(replacementTable);
+
+        newButton.setText("New");
+        newButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newButtonActionPerformed(evt);
+            }
+        });
+
+        deleteButton.setText("Delete");
+        deleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("Note: Regular expressions and escape characters are not supported. Do not surround with quotes.");
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(jScrollPane1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(deleteButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(newButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(jLabel1)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(jLabel1)
+                .addGap(12, 12, 12)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(newButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 97, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -120,10 +251,11 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 558, Short.MAX_VALUE)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(closeButton))
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -133,6 +265,8 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -157,18 +291,67 @@ public class RegexAttachmentDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
-        savedPattern = RegexTextField.getText();
-        savedMimeType = MimeTypeField.getText();
+    	attachmentHandlerProperties.getProperties().put("regex.pattern", RegexTextField.getText());
+        attachmentHandlerProperties.getProperties().put("regex.mimetype", MimeTypeField.getText());
+        
+        DefaultTableModel tableModel = (DefaultTableModel) replacementTable.getModel();
+        for (int row = 0; row < tableModel.getRowCount(); row++) {
+        	String replaceKey = (String) tableModel.getValueAt(row, 0);
+        	String replaceValue = (String) tableModel.getValueAt(row, 1);
+        	
+        	attachmentHandlerProperties.getProperties().put("regex.replaceKey" + row, replaceKey);
+        	attachmentHandlerProperties.getProperties().put("regex.replaceValue" + row, replaceValue);
+        }
+        
+        attachmentHandlerProperties = null;
         this.dispose();
     }//GEN-LAST:event_closeButtonActionPerformed
+
+    private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
+    	DefaultTableModel model = ((DefaultTableModel) replacementTable.getModel());
+        int row = model.getRowCount();
+
+        model.addRow(new Object[]{"", ""});
+
+        replacementTable.setRowSelectionInterval(row, row);
+        
+        parent.setSaveEnabled(true);
+    }//GEN-LAST:event_newButtonActionPerformed
+
+    private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
+    	int selectedRow = replacementTable.getSelectedRow();
+
+        if (selectedRow != -1 && !replacementTable.isEditing()) {
+            ((DefaultTableModel) replacementTable.getModel()).removeRow(selectedRow);
+        }
+
+        int rowCount = replacementTable.getRowCount();
+
+        if (rowCount > 0) {
+            if (selectedRow >= rowCount) {
+                selectedRow--;
+            }
+
+            replacementTable.setRowSelectionInterval(selectedRow, selectedRow);
+        }
+        
+        parent.setSaveEnabled(true);
+    }//GEN-LAST:event_deleteButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthTextField MimeTypeField;
     private com.mirth.connect.client.ui.components.MirthTextField RegexTextField;
     private javax.swing.JButton closeButton;
+    private com.mirth.connect.client.ui.components.MirthButton deleteButton;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JTextField jTextField1;
+    private com.mirth.connect.client.ui.components.MirthButton newButton;
+    private com.mirth.connect.client.ui.components.MirthTable replacementTable;
     // End of variables declaration//GEN-END:variables
 }

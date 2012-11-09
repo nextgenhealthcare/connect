@@ -228,8 +228,8 @@ public class ReferenceListFactory {
     private ArrayList<CodeTemplate> setupChannelItems() {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
 
-        variablelistItems.add(new CodeTemplate("Channel ID", "The message channel id", "channelId", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Channel Name", "The message channel name", "var channelName = Packages.com.mirth.connect.server.controllers.ChannelController.getInstance().getDeployedChannelById(channelId).getName();", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Channel ID", "The message channel id", "channelId", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Channel Name", "The message channel name", "var channelName = Packages.com.mirth.connect.server.controllers.ChannelController.getInstance().getDeployedChannelById(channelId).getName();", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CHANNEL_CONTEXT.getContext()));
         
         return variablelistItems;
     }
