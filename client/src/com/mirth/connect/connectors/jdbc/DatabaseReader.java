@@ -671,7 +671,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
     private void generateUpdateConnectionActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_generateUpdateConnectionActionPerformed
     {//GEN-HEADEREND:event_generateUpdateConnectionActionPerformed
-        String connString = "// This update script will be executed once for ever result returned from the above query.\n";
+        String connString = "// This update script will be executed once for every result returned from the above query.\n";
         connString += generateConnectionString();
         databaseUpdateSQLTextPane.setText(connString + "\n\n" + databaseUpdateSQLTextPane.getText());
         databaseUpdateSQLTextPane.requestFocus();
@@ -813,7 +813,7 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
         String connString = generateConnectionString();
         String query = connString + "\n// You may access this result below with $('column_name')\nreturn result;";
         databaseSQLTextPane.setText(query);
-        String update = "// This update script will be executed once for ever result returned from the above query.\n" + connString;
+        String update = "// This update script will be executed once for every result returned from the above query.\n" + connString;
         databaseUpdateSQLTextPane.setText(update);
         generateConnection.setEnabled(true);
         updateSQL();
