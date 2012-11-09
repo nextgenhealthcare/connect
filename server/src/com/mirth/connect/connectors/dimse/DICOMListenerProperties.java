@@ -54,7 +54,7 @@ public class DICOMListenerProperties implements ComponentProperties {
     public Properties getDefaults() {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(DICOM_ADDRESS, "127.0.0.1");
+        properties.put(DICOM_ADDRESS, "0.0.0.0");
         properties.put(DICOM_PORT, "104");
         properties.put(DICOM_SOCLOSEDELAY, "50");
         properties.put(DICOM_RELEASETO, "5");
