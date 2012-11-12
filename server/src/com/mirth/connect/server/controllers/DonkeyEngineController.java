@@ -306,6 +306,9 @@ public class DonkeyEngineController implements EngineController {
             sourceStatus.setStatistics(stats.getConnectorStats(donkeyChannel.getChannelId(), 0));
             sourceStatus.setOverallStatistics(overallStats.getConnectorStats(donkeyChannel.getChannelId(), 0));
             sourceStatus.setTags(channel.getTags());
+            sourceStatus.setQueued(new Long(donkeyChannel.getSourceQueue().size()));
+            
+            status.setQueued(sourceStatus.getQueued());
 
             status.getChildStatuses().add(sourceStatus);
 
