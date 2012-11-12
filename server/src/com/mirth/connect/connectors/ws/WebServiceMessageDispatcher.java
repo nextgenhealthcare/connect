@@ -134,6 +134,7 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
         String soapAction = replacer.replaceValues(connector.getDispatcherSoapAction(), mo);
 
         if (StringUtils.isNotEmpty(soapAction)) {
+        	dispatch.getRequestContext().put(BindingProvider.SOAPACTION_USE_PROPERTY, true); // MIRTH-2109
             dispatch.getRequestContext().put(BindingProvider.SOAPACTION_URI_PROPERTY, soapAction);
         }
 
