@@ -268,7 +268,6 @@ public abstract class DestinationConnector extends Connector implements Connecto
             ConnectorMessage connectorMessage = null;
             int retryIntervalMillis = queueProperties.getRetryIntervalMillis();
             long lastMessageId = -1;
-            int sendAttempts = 0;
 
             do {
                 connectorMessage = queue.peek();
@@ -280,7 +279,6 @@ public abstract class DestinationConnector extends Connector implements Connecto
 
                         if (connectorMessage.getMessageId() != lastMessageId) {
                             lastMessageId = connectorMessage.getMessageId();
-                            sendAttempts = queueProperties.isSendFirst() ? 1 : 0;
                         } else {
                             // If the same message is still queued, allow some time before attempting it again.
                             Thread.sleep(retryIntervalMillis);
@@ -304,7 +302,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
 
                         ThreadUtils.checkInterruptedStatus();
                         Response response = handleSend(connectorProperties, connectorMessage);
-                        connectorMessage.setSendAttempts(++sendAttempts);
+                        connectorMessage.setSendAttempts(connectorMessage.getSendAttempts() + 1);
                         fixResponseStatus(response);
 
                         if (response == null) {
