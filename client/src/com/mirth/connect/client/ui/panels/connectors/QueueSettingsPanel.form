@@ -54,6 +54,8 @@
                       <Component id="queueNeverRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="regenerateTemplateCheckbox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="rotateCheckbox" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
@@ -83,6 +85,7 @@
                   <Component id="queueAttemptFirstRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="queueNeverRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="regenerateTemplateCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="rotateCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
@@ -221,6 +224,14 @@
         </Property>
         <Property name="text" type="java.lang.String" value="&lt;html&gt;test text&lt;/html&gt;"/>
         <Property name="verticalAlignment" type="int" value="1"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="rotateCheckbox">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Rotate"/>
       </Properties>
     </Component>
   </SubComponents>

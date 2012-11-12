@@ -119,6 +119,13 @@ public abstract class DestinationConnector extends Connector implements Connecto
     public boolean isQueueEnabled() {
         return (queueProperties != null && queueProperties.isQueueEnabled());
     }
+    
+    /**
+     * Tells whether or not queue rotation is enabled
+     */
+    public boolean isQueueRotate() {
+    	return (queueProperties != null && queueProperties.isRotate());
+    }
 
     @Override
     public void start() throws StartException {
@@ -267,7 +274,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
             Serializer serializer = Donkey.getInstance().getSerializer();
             ConnectorMessage connectorMessage = null;
             int retryIntervalMillis = queueProperties.getRetryIntervalMillis();
-            long lastMessageId = -1;
+            boolean pauseBeforeNextMessage = false;
 
             do {
                 connectorMessage = queue.peek();
@@ -276,13 +283,6 @@ public abstract class DestinationConnector extends Connector implements Connecto
                     try {
                         dao = daoFactory.getDao();
                         Status previousStatus = connectorMessage.getStatus();
-
-                        if (connectorMessage.getMessageId() != lastMessageId) {
-                            lastMessageId = connectorMessage.getMessageId();
-                        } else {
-                            // If the same message is still queued, allow some time before attempting it again.
-                            Thread.sleep(retryIntervalMillis);
-                        }
 
                         ConnectorProperties connectorProperties = null;
 
@@ -342,6 +342,19 @@ public abstract class DestinationConnector extends Connector implements Connecto
                             		queue.poll();
                             	}
                             }
+                        } else {
+                        	if (queueProperties.isRotate()) {
+                        		// If the message is still queued and rotation is enabled, notify the queue that the message is to be rotated.
+	                        	synchronized (queue) {
+	                        		ConnectorMessage firstMessage = queue.peek();
+	                        		if (connectorMessage.getMessageId() == firstMessage.getMessageId() && connectorMessage.getMetaDataId() == firstMessage.getMetaDataId()) {
+	                        			queue.rotate(connectorMessage);
+	                        		}
+	                        	}
+	                        }
+                        	
+                        	// If the same message is still queued, allow some time before attempting another message.
+                        	pauseBeforeNextMessage = true;
                         }
                     } catch (RuntimeException e) {
                         logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + getChannelId() + " (" + destinationName + "). This error is expected if the message was manually removed from the queue.", e);
@@ -354,7 +367,13 @@ public abstract class DestinationConnector extends Connector implements Connecto
                         }
                     }
                 } else {
-                    Thread.sleep(retryIntervalMillis);
+                    pauseBeforeNextMessage = true;
+                }
+                
+                // Pause at the end of the loop instead of during so we don't keep the connections open longer than they need to be.
+                if (pauseBeforeNextMessage) {
+                	Thread.sleep(retryIntervalMillis);
+                	pauseBeforeNextMessage = false;
                 }
             } while (currentState == ChannelState.STARTED || currentState == ChannelState.STARTING);
         } catch (InterruptedException e) {

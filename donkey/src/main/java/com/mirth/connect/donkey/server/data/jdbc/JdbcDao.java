@@ -739,15 +739,28 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status, int offset, int limit) {
+    public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId) {
         ResultSet resultSet = null;
 
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("getConnectorMessagesByMetaDataIdAndStatusWithRange", channelController.getLocalChannelId(channelId));
-            statement.setInt(1, metaDataId);
-            statement.setString(2, Character.toString(status.getStatusCode()));
-            statement.setInt(3, offset);
-            statement.setInt(4, limit);
+        	PreparedStatement statement;
+        	
+        	if (minMessageId == null || maxMessageId == null) {
+        		statement = statementSource.getPreparedStatement("getConnectorMessagesByMetaDataIdAndStatusWithLimit", channelController.getLocalChannelId(channelId));
+                statement.setInt(1, metaDataId);
+                statement.setString(2, Character.toString(status.getStatusCode()));
+                statement.setInt(3, offset);
+                statement.setInt(4, limit);
+        	} else {
+        		statement = statementSource.getPreparedStatement("getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange", channelController.getLocalChannelId(channelId));
+                statement.setInt(1, metaDataId);
+                statement.setString(2, Character.toString(status.getStatusCode()));
+                statement.setLong(3, minMessageId);
+                statement.setLong(4, maxMessageId);
+                statement.setInt(5, offset);
+                statement.setInt(6, limit);
+        	}
+
             resultSet = statement.executeQuery();
 
             List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
@@ -840,6 +853,24 @@ public class JdbcDao implements DonkeyDao {
             resultSet = statement.executeQuery();
             resultSet.next();
             return resultSet.getInt(1);
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            close(resultSet);
+        }
+    }
+    
+    @Override
+    public long getConnectorMessageMaxMessageId(String channelId, int metaDataId, Status status) {
+        ResultSet resultSet = null;
+
+        try {
+            PreparedStatement statement = statementSource.getPreparedStatement("getConnectorMessageMaxMessageIdByMetaDataIdAndStatus", channelController.getLocalChannelId(channelId));
+            statement.setInt(1, metaDataId);
+            statement.setString(2, Character.toString(status.getStatusCode()));
+            resultSet = statement.executeQuery();
+            resultSet.next();
+            return resultSet.getLong(1);
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {

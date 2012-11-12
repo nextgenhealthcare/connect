@@ -80,12 +80,14 @@ public interface DonkeyDao {
     public long getNextMessageId(String channelId);
 
     public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status);
-
-    public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status, int offset, int limit);
+    
+    public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId);
 
     public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId);
 
     public int getConnectorMessageCount(String channelId, int metaDataId, Status status);
+    
+    public long getConnectorMessageMaxMessageId(String channelId, int metaDataId, Status status);
 
     public List<Message> getUnfinishedMessages(String channelId, String serverId);
 

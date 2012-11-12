@@ -223,11 +223,22 @@
 		ORDER BY mm.message_id
 	</query>
 	
-	<query id="getConnectorMessagesByMetaDataIdAndStatusWithRange">
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">
 		SELECT mm.*, m.server_id
 		FROM d_mm${localChannelId} mm
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
 		WHERE mm.id = ? AND mm.status = ?
+		ORDER BY m.id
+		OFFSET ?
+		LIMIT ?
+	</query>
+	
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
+		SELECT mm.*, m.server_id
+		FROM d_mm${localChannelId} mm
+		JOIN d_m${localChannelId} m ON m.id = mm.message_id
+		WHERE mm.id = ? AND mm.status = ?
+		AND m.id <![CDATA[ >= ]]> ? AND m.id <![CDATA[ <= ]]> ?
 		ORDER BY m.id
 		OFFSET ?
 		LIMIT ?
@@ -247,6 +258,14 @@
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
 		WHERE mm.id = ? AND mm.status = ?
 	</query>
+	
+	<query id="getConnectorMessageMaxMessageIdByMetaDataIdAndStatus">
+		SELECT COALESCE(MAX(m.id), 0)
+		FROM d_mm${localChannelId} mm
+		JOIN d_m${localChannelId} m ON m.id = mm.message_id
+		WHERE mm.id = ? AND mm.status = ?
+	</query>
+	
 
 	<!-- These queries must be defined in each driver-specific xml file -->
 	<query id="createMessageTable"></query>

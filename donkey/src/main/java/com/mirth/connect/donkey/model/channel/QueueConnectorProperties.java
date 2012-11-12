@@ -17,6 +17,7 @@ public class QueueConnectorProperties implements Serializable {
     private int retryIntervalMillis;
     private boolean regenerateTemplate;
     private int retryCount;
+    private boolean rotate;
 
     public QueueConnectorProperties() {
         queueEnabled = false;
@@ -24,6 +25,7 @@ public class QueueConnectorProperties implements Serializable {
         retryIntervalMillis = 1000;
         regenerateTemplate = false;
         retryCount = 0;
+        rotate = false;
     }
 
     public boolean isQueueEnabled() {
@@ -65,4 +67,12 @@ public class QueueConnectorProperties implements Serializable {
     public void setRetryCount(int retryCount) {
         this.retryCount = retryCount;
     }
+
+	public boolean isRotate() {
+		return rotate;
+	}
+
+	public void setRotate(boolean rotate) {
+		this.rotate = rotate;
+	}
 }

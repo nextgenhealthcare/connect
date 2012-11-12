@@ -12,6 +12,10 @@ package com.mirth.connect.donkey.server.queue;
 import java.util.List;
 
 public interface PersistedBlockingQueueDataSource<T> {
+	public boolean wasItemRotated();
+	
+	public void rotateItem(Object o);
+	
     public int getSize();
 
     public List<T> getItems(int offset, int limit);

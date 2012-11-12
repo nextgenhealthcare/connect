@@ -1374,7 +1374,7 @@ public class DonkeyDaoTests {
             }
             for (int i = 0; i <= Math.ceil((double) sourceMessages.size() / limit) - 1; i++) {
                 int offset = i * limit;
-                databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), 0, Status.RECEIVED, offset, limit);
+                databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), 0, Status.RECEIVED, offset, limit, null, null);
                 // Assert the connector message lists are equal
                 TestUtils.assertConnectorMessageListsEqual(sourceMessages.subList(offset, Math.min(offset + limit, sourceMessages.size())), databaseSourceMessages);
             }
@@ -1395,8 +1395,8 @@ public class DonkeyDaoTests {
             }
             for (int i = 0; i <= Math.ceil((double) sourceMessages.size() / limit) - 1; i++) {
                 int offset = i * limit;
-                databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), 0, Status.TRANSFORMED, offset, limit);
-                databaseDestinationMessages = dao.getConnectorMessages(channel.getChannelId(), 1, Status.SENT, offset, limit);
+                databaseSourceMessages = dao.getConnectorMessages(channel.getChannelId(), 0, Status.TRANSFORMED, offset, limit, null, null);
+                databaseDestinationMessages = dao.getConnectorMessages(channel.getChannelId(), 1, Status.SENT, offset, limit, null, null);
                 // Assert the connector message lists are equal
                 TestUtils.assertConnectorMessageListsEqual(sourceMessages.subList(offset, Math.min(offset + limit, sourceMessages.size())), databaseSourceMessages);
                 TestUtils.assertConnectorMessageListsEqual(destinationMessages.subList(offset, Math.min(offset + limit, destinationMessages.size())), databaseDestinationMessages);

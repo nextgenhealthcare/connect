@@ -255,7 +255,7 @@ public class MessageControllerTests {
     public void testDeleteMessage() throws Exception {
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId);
         channel.getSourceConnector().setWaitForDestinations(false);
-        channel.getSourceQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, Donkey.getInstance().getDaoFactory()));
+        channel.getSourceQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, Donkey.getInstance().getDaoFactory()));
         channel.getSourceQueue().updateSize();
 
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);

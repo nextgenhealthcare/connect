@@ -221,7 +221,7 @@ public class StatisticsTests {
             destinationConnector.setResponseTransformer(new TestResponseTransformer());
 
             ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
-            destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), i, Status.QUEUED, daoFactory));
+            destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), i, Status.QUEUED, false, daoFactory));
             destinationConnectorQueue.updateSize();
             destinationConnector.setQueue(destinationConnectorQueue);
 
@@ -369,7 +369,7 @@ public class StatisticsTests {
         params.put("status", Status.QUEUED);
 
         ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
-        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), 1, Status.QUEUED, daoFactory));
+        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), 1, Status.QUEUED, false, daoFactory));
         destinationConnector.setQueue(destinationConnectorQueue);
 
         ((TestDispatcher) destinationConnector).setReturnStatus(returnStatus);

@@ -66,7 +66,7 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
         }
 
         if (!reachedCapacity) {
-            if (size < bufferCapacity) {
+            if (size < bufferCapacity && !dataSource.wasItemRotated()) {
                 success = buffer.add(e);
             } else {
                 reachedCapacity = true;
@@ -94,6 +94,13 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
         }
 
         return (size == 0);
+    }
+    
+    public synchronized void rotate(Object o) {
+    	// Pass the item to rotate to the data source
+    	dataSource.rotateItem(o);
+    	// remove the first item from the queue, but do not decrease size so it will be picked up again
+    	buffer.poll();
     }
 
     @Override

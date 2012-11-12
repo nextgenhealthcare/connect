@@ -229,7 +229,7 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
-    public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status, int offset, int limit) {
+    public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId) {
         return new ArrayList<ConnectorMessage>();
     }
 
@@ -240,6 +240,11 @@ public class PassthruDao implements DonkeyDao {
 
     @Override
     public int getConnectorMessageCount(String channelId, int metaDataId, Status status) {
+        return 0;
+    }
+    
+    @Override
+    public long getConnectorMessageMaxMessageId(String channelId, int metaDataId, Status status) {
         return 0;
     }
 
