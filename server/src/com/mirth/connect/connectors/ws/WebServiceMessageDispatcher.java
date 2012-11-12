@@ -228,6 +228,7 @@ public class WebServiceMessageDispatcher extends DestinationConnector {
             String soapAction = webServiceDispatcherProperties.getSoapAction();
 
             if (StringUtils.isNotEmpty(soapAction)) {
+                dispatch.getRequestContext().put(BindingProvider.SOAPACTION_USE_PROPERTY, true); // MIRTH-2109
                 dispatch.getRequestContext().put(BindingProvider.SOAPACTION_URI_PROPERTY, soapAction);
             }
 
