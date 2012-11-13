@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
     private BlockingQueue<E> buffer = new LinkedBlockingQueue<E>();
@@ -22,6 +23,7 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
     private int bufferCapacity = 100;
     private boolean reachedCapacity = false;
     private PersistedBlockingQueueDataSource<E> dataSource;
+    private final AtomicBoolean timeoutLock = new AtomicBoolean(false);
 
     public int getBufferSize() {
         return buffer.size();
@@ -68,12 +70,21 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
         if (!reachedCapacity) {
             if (size < bufferCapacity && !dataSource.wasItemRotated()) {
                 success = buffer.add(e);
+                
+                // If there is a poll with timeout waiting, notify that an item was added to the buffer.
+                if (timeoutLock.get()) {
+	                synchronized(timeoutLock) {
+	                	timeoutLock.notifyAll();
+	                	timeoutLock.set(false);
+	                }
+                }
             } else {
                 reachedCapacity = true;
             }
         }
 
         size++;
+        
         return success;
     }
 
@@ -157,46 +168,17 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
         
         return element;
     }
-
+    
     @Override
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
-        if (size == null) {
-            updateSize();
+    	if ((size == null || size == 0) && timeout > 0) {
+    		synchronized (timeoutLock) {
+    			timeoutLock.set(true);
+    			timeoutLock.wait(TimeUnit.MILLISECONDS.convert(timeout, unit));
+    		}
         }
-
-        // poll the queue and wait for an element to appear on the queue until
-        // the timeout has expired
-        E element = buffer.poll(timeout, unit);
-
-        synchronized (this) {
-            // check to see if another thread added to the buffer between the
-            // previous call to buffer.poll() and this synchronized block, if so, get the
-            // element that was added
-            if (element == null && buffer.size() > 0) {
-                element = buffer.poll();
-            }
-
-            // if no element was received and there are elements in the database, fill the buffer
-            // from the database and get the next element in the queue
-            if (element == null && size > 0) {
-                fillBuffer();
-                element = buffer.poll();
-            }
-
-            // if an element was found, decrement the overall count
-            if (element != null) {
-                size--;
-
-                // reset the reachedCapacity flag if we have exhausted the
-                // queue, so that elements
-                // will once again be polled from the buffer
-                if (size == 0) {
-                    reachedCapacity = false;
-                }
-            }
-
-            return element;
-        }
+    	
+    	return poll();
     }
 
     @Override
@@ -255,6 +237,14 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
 
         for (E e : nextItems) {
             buffer.add(e);
+        }
+        
+        // If there is a poll with timeout waiting, notify that an item was added to the buffer.
+        if (nextItems.size() > 0 && timeoutLock.get()) {
+        	synchronized(timeoutLock) {
+            	timeoutLock.notifyAll();
+            	timeoutLock.set(false);
+            }
         }
     }
 

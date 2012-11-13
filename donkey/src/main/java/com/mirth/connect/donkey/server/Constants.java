@@ -37,7 +37,7 @@ public class Constants {
      * The number of milliseconds to wait for incoming messages on the source queue before timing
      * out and checking the channel state
      */
-    public static final int SOURCE_QUEUE_POLL_TIMEOUT_MILLIS = 10;
+    public static final int SOURCE_QUEUE_POLL_TIMEOUT_MILLIS = 1000;
 
     /**
      * Response map key to be used to store the post-processor's custom response
