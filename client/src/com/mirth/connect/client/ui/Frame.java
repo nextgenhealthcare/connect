@@ -2384,7 +2384,7 @@ public class Frame extends JXFrame {
     public void doHalt() {
         Set<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedChannelStatuses();
         
-        if (selectedStatuses.size() == 0) {
+        if (selectedStatuses.size() == 0 || !alertOption(this, "Are you sure you want to halt this channel?")) {
             return;
         }
         
