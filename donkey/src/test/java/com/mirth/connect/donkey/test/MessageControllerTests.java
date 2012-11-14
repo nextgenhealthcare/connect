@@ -197,6 +197,8 @@ public class MessageControllerTests {
         Channel channel = TestUtils.createDefaultChannel(channelId, serverId);
         ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
 
+        Donkey.getInstance().deployChannel(channel);
+        
         Message message = new Message();
 
         message.setChannelId(channel.getChannelId());
@@ -248,6 +250,7 @@ public class MessageControllerTests {
 
             System.out.println(daoTimer.getLog());
         } finally {
+            Donkey.getInstance().undeployChannel(channelId);
             ChannelController.getInstance().removeChannel(channel.getChannelId());
         }
     }
