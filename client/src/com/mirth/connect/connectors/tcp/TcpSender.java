@@ -301,6 +301,8 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
                 endOfMessageBytesField.setText("");
             }
 
+            startOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(startOfMessageBytesField.getText());
+            endOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(endOfMessageBytesField.getText());
             changeAbbreviation();
 
             startOfMessageBytesField.getDocument().addDocumentListener(this);

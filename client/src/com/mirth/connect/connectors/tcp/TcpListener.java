@@ -308,6 +308,8 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
                 endOfMessageBytesField.setText("");
             }
 
+            startOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(startOfMessageBytesField.getText());
+            endOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(endOfMessageBytesField.getText());
             changeAbbreviation();
 
             startOfMessageBytesField.getDocument().addDocumentListener(this);
