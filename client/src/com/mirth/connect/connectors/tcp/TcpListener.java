@@ -9,8 +9,12 @@
 
 package com.mirth.connect.connectors.tcp;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 
 import org.apache.log4j.Logger;
 
@@ -20,19 +24,37 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.util.TcpUtil;
 
-public class TcpListener extends ConnectorSettingsPanel {
+public class TcpListener extends ConnectorSettingsPanel implements DocumentListener, ActionListener {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private Frame parent;
+
+    private String frameEncodingToolTipText;
+    private String messageBytesToolTipText;
+    private String startOfMessageAbbreviation;
+    private String endOfMessageAbbreviation;
 
     /** Creates new form TcpListener */
     public TcpListener() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        reconnectIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
         receiveTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
-        // ast:encoding activation
+        maxConnectionsField.setDocument(new MirthFieldConstraints(0, false, false, true));
+        startOfMessageBytesField.setDocument(new MirthFieldConstraints(0, true, true, true));
+        endOfMessageBytesField.setDocument(new MirthFieldConstraints(0, true, true, true));
+        startOfMessageBytesField.getDocument().addDocumentListener(this);
+        endOfMessageBytesField.getDocument().addDocumentListener(this);
+
+        frameEncodingComboBox.addActionListener(this);
+        frameEncodingToolTipText = frameEncodingLabel.getToolTipText();
+        messageBytesToolTipText = messageDataLabel.getToolTipText();
+        startOfMessageAbbreviation = "";
+        endOfMessageAbbreviation = "";
+
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
@@ -45,17 +67,20 @@ public class TcpListener extends ConnectorSettingsPanel {
     public ConnectorProperties getProperties() {
         TcpReceiverProperties properties = new TcpReceiverProperties();
 
-        properties.setTimeout(receiveTimeoutField.getText());
+        properties.setServerMode(modeServerRadio.isSelected());
+        properties.setReconnectInterval(reconnectIntervalField.getText());
+        properties.setReceiveTimeout(receiveTimeoutField.getText());
         properties.setBufferSize(bufferSizeField.getText());
+        properties.setMaxConnections(maxConnectionsField.getText());
         properties.setKeepConnectionOpen(keepConnectionOpenYesRadio.isSelected());
-        properties.setFrameEncodingIsHex(frameEncodingHexRadio.isSelected());
-        properties.setBeginBytes(beginBytesField.getText());
-        properties.setEndBytes(endBytesField.getText());
+        properties.setStartOfMessageBytes(startOfMessageBytesField.getText());
+        properties.setEndOfMessageBytes(endOfMessageBytesField.getText());
+        properties.setProcessBatch(processBatchYesRadio.isSelected());
         properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
-        properties.setDataTypeIsBase64(dataTypeBinary.isSelected());
-        properties.setAckOnNewConnection(ackOnNewConnectionYes.isSelected());
-        properties.setAckIP(ackAddressField.getText());
-        properties.setAckPort(ackPortField.getText());
+        properties.setDataTypeBinary(dataTypeBinaryRadio.isSelected());
+        properties.setRespondOnNewConnection(respondOnNewConnectionYesRadio.isSelected());
+        properties.setResponseAddress(responseAddressField.getText());
+        properties.setResponsePort(responsePortField.getText());
 
         return properties;
     }
@@ -64,8 +89,18 @@ public class TcpListener extends ConnectorSettingsPanel {
     public void setProperties(ConnectorProperties properties) {
         TcpReceiverProperties props = (TcpReceiverProperties) properties;
 
-        receiveTimeoutField.setText(props.getTimeout());
+        if (props.isServerMode()) {
+            modeServerRadio.setSelected(true);
+            modeServerRadioActionPerformed(null);
+        } else {
+            modeClientRadio.setSelected(true);
+            modeClientRadioActionPerformed(null);
+        }
+
+        reconnectIntervalField.setText(props.getReconnectInterval());
+        receiveTimeoutField.setText(props.getReceiveTimeout());
         bufferSizeField.setText(props.getBufferSize());
+        maxConnectionsField.setText(props.getMaxConnections());
 
         if (props.isKeepConnectionOpen()) {
             keepConnectionOpenYesRadio.setSelected(true);
@@ -73,35 +108,43 @@ public class TcpListener extends ConnectorSettingsPanel {
             keepConnectionOpenNoRadio.setSelected(true);
         }
 
-        if (props.isFrameEncodingHex()) {
-            frameEncodingHexRadio.setSelected(true);
+        startOfMessageBytesField.setText(props.getStartOfMessageBytes());
+        endOfMessageBytesField.setText(props.getEndOfMessageBytes());
+
+        if (props.getStartOfMessageBytes().equals(TcpUtil.DEFAULT_LLP_START_BYTES) && props.getEndOfMessageBytes().equals(TcpUtil.DEFAULT_LLP_END_BYTES)) {
+            frameEncodingComboBox.setSelectedItem("MLLP");
+        } else if (props.getStartOfMessageBytes().equals(TcpUtil.DEFAULT_ASTM_START_BYTES) && props.getEndOfMessageBytes().equals(TcpUtil.DEFAULT_ASTM_END_BYTES)) {
+            frameEncodingComboBox.setSelectedItem("ASTM");
         } else {
-            frameEncodingASCIIRadio.setSelected(true);
+            frameEncodingComboBox.setSelectedItem("Custom");
         }
 
-        beginBytesField.setText(props.getBeginBytes());
-        endBytesField.setText(props.getEndBytes());
+        if (props.isProcessBatch()) {
+            processBatchYesRadio.setSelected(true);
+        } else {
+            processBatchNoRadio.setSelected(true);
+        }
+
+        if (props.isDataTypeBinary()) {
+            dataTypeBinaryRadio.setSelected(true);
+            dataTypeBinaryRadioActionPerformed(null);
+        } else {
+            dataTypeASCIIRadio.setSelected(true);
+            dataTypeASCIIRadioActionPerformed(null);
+        }
 
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, props.getCharsetEncoding());
 
-        if (props.isDataTypeBase64()) {
-            dataTypeBinary.setSelected(true);
-            dataTypeBinaryActionPerformed(null);
+        if (props.isRespondOnNewConnection()) {
+            respondOnNewConnectionYesRadio.setSelected(true);
+            respondOnNewConnectionYesRadioActionPerformed(null);
         } else {
-            dataTypeASCII.setSelected(true);
-            dataTypeASCIIActionPerformed(null);
+            respondOnNewConnectionNoRadio.setSelected(true);
+            respondOnNewConnectionNoRadioActionPerformed(null);
         }
 
-        if (props.isAckOnNewConnection()) {
-            ackOnNewConnectionYesActionPerformed(null);
-            ackOnNewConnectionYes.setSelected(true);
-        } else {
-            ackOnNewConnectionNoActionPerformed(null);
-            ackOnNewConnectionNo.setSelected(true);
-        }
-
-        ackAddressField.setText(props.getAckIP());
-        ackPortField.setText(props.getAckPort());
+        responseAddressField.setText(props.getResponseAddress());
+        responsePortField.setText(props.getResponsePort());
     }
 
     @Override
@@ -115,7 +158,15 @@ public class TcpListener extends ConnectorSettingsPanel {
 
         boolean valid = true;
 
-        if (props.getTimeout().length() == 0) {
+        if (!props.isServerMode()) {
+            if (props.getReconnectInterval().length() == 0) {
+                valid = false;
+                if (highlight) {
+                    reconnectIntervalField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+        }
+        if (props.getReceiveTimeout().length() == 0) {
             valid = false;
             if (highlight) {
                 receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
@@ -127,35 +178,35 @@ public class TcpListener extends ConnectorSettingsPanel {
                 bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (props.isFrameEncodingHex()) {
-            if (props.getBeginBytes().length() > 0) {
-                if (!isValidHexString(props.getBeginBytes())) {
-                    valid = false;
-                    if (highlight) {
-                        beginBytesField.setBackground(UIConstants.INVALID_COLOR);
-                    }
-                }
-            }
-            if (props.getEndBytes().length() > 0) {
-                if (!isValidHexString(props.getEndBytes())) {
-                    valid = false;
-                    if (highlight) {
-                        endBytesField.setBackground(UIConstants.INVALID_COLOR);
-                    }
-                }
+        if (props.getMaxConnections().length() == 0) {
+            valid = false;
+            if (highlight) {
+                maxConnectionsField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (props.isAckOnNewConnection()) {
-            if (props.getAckIP().length() <= 3) {
+        if (!TcpUtil.isValidHexString(props.getStartOfMessageBytes())) {
+            valid = false;
+            if (highlight) {
+                startOfMessageBytesField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        if (!TcpUtil.isValidHexString(props.getEndOfMessageBytes())) {
+            valid = false;
+            if (highlight) {
+                endOfMessageBytesField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        if (props.isRespondOnNewConnection()) {
+            if (props.getResponseAddress().length() <= 3) {
                 valid = false;
                 if (highlight) {
-                    ackAddressField.setBackground(UIConstants.INVALID_COLOR);
+                    responseAddressField.setBackground(UIConstants.INVALID_COLOR);
                 }
             }
-            if (props.getAckPort().length() == 0) {
+            if (props.getResponsePort().length() == 0) {
                 valid = false;
                 if (highlight) {
-                    ackPortField.setBackground(UIConstants.INVALID_COLOR);
+                    responsePortField.setBackground(UIConstants.INVALID_COLOR);
                 }
             }
         }
@@ -165,18 +216,103 @@ public class TcpListener extends ConnectorSettingsPanel {
 
     @Override
     public void resetInvalidProperties() {
+        reconnectIntervalField.setBackground(null);
         receiveTimeoutField.setBackground(null);
         bufferSizeField.setBackground(null);
-        beginBytesField.setBackground(null);
-        endBytesField.setBackground(null);
-        ackAddressField.setBackground(null);
-        ackPortField.setBackground(null);
+        maxConnectionsField.setBackground(null);
+        startOfMessageBytesField.setBackground(null);
+        endOfMessageBytesField.setBackground(null);
+        responseAddressField.setBackground(null);
+        responsePortField.setBackground(null);
     }
 
-    private boolean isValidHexString(String str) {
-        Pattern pattern = Pattern.compile("^(0x)?([0-9a-fA-F]{2})+$");
-        Matcher matcher = pattern.matcher(str);
-        return matcher.matches();
+    @Override
+    public void changedUpdate(DocumentEvent evt) {
+        changeAbbreviation(evt);
+    }
+
+    @Override
+    public void insertUpdate(DocumentEvent evt) {
+        changeAbbreviation(evt);
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent evt) {
+        changeAbbreviation(evt);
+    }
+
+    private void changeAbbreviation(DocumentEvent evt) {
+        String text = "";
+        String switchTo = "Custom";
+
+        try {
+            text = evt.getDocument().getText(0, evt.getDocument().getLength()).trim();
+        } catch (BadLocationException e) {
+        }
+
+        if (evt.getDocument().equals(startOfMessageBytesField.getDocument())) {
+            startOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(text);
+
+            if (frameEncodingComboBox.getSelectedItem().equals("MLLP") && text.equals(TcpUtil.DEFAULT_LLP_START_BYTES) && endOfMessageBytesField.getText().equals(TcpUtil.DEFAULT_LLP_END_BYTES)) {
+                switchTo = "MLLP";
+            } else if (frameEncodingComboBox.getSelectedItem().equals("ASTM") && text.equals(TcpUtil.DEFAULT_ASTM_START_BYTES) && endOfMessageBytesField.getText().equals(TcpUtil.DEFAULT_ASTM_END_BYTES)) {
+                switchTo = "ASTM";
+            }
+        } else {
+            endOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(text);
+
+            if (frameEncodingComboBox.getSelectedItem().equals("MLLP") && startOfMessageBytesField.getText().equals(TcpUtil.DEFAULT_LLP_START_BYTES) && text.equals(TcpUtil.DEFAULT_LLP_END_BYTES)) {
+                switchTo = "MLLP";
+            } else if (frameEncodingComboBox.getSelectedItem().equals("ASTM") && startOfMessageBytesField.getText().equals(TcpUtil.DEFAULT_ASTM_START_BYTES) && text.equals(TcpUtil.DEFAULT_ASTM_END_BYTES)) {
+                switchTo = "ASTM";
+            }
+        }
+
+        frameEncodingComboBox.removeActionListener(this);
+        frameEncodingComboBox.setSelectedItem(switchTo);
+        frameEncodingComboBox.addActionListener(this);
+
+        changeAbbreviation();
+    }
+
+    private void changeAbbreviation() {
+        String startReplaced = startOfMessageAbbreviation.replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;");
+        String endReplaced = endOfMessageAbbreviation.replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;");
+        String newFrameEncodingToolTipText = frameEncodingToolTipText.replace("SOM", startReplaced).replace("EOM", endReplaced);
+        String newMessageBytesToolTipText = messageBytesToolTipText.replace("SOM", startReplaced).replace("EOM", endReplaced);
+
+        frameEncodingLabel.setToolTipText(newFrameEncodingToolTipText);
+        frameEncodingComboBox.setToolTipText(newFrameEncodingToolTipText);
+        startOfMessageBytes0XLabel.setToolTipText(newMessageBytesToolTipText);
+        startOfMessageBytesField.setToolTipText(newMessageBytesToolTipText);
+        messageDataLabel.setToolTipText(newMessageBytesToolTipText);
+        endOfMessageBytes0XLabel.setToolTipText(newMessageBytesToolTipText);
+        endOfMessageBytesField.setToolTipText(newMessageBytesToolTipText);
+        sampleMessageLabel.setText(("<html><b>" + startReplaced + "</b> <i>&lt;Message Data&gt;</i> <b>" + endReplaced + "</b></html>").trim());
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent evt) {
+        if (evt.getSource().equals(frameEncodingComboBox)) {
+            startOfMessageBytesField.getDocument().removeDocumentListener(this);
+            endOfMessageBytesField.getDocument().removeDocumentListener(this);
+
+            if (frameEncodingComboBox.getSelectedItem().equals("MLLP")) {
+                startOfMessageBytesField.setText(TcpUtil.DEFAULT_LLP_START_BYTES);
+                endOfMessageBytesField.setText(TcpUtil.DEFAULT_LLP_END_BYTES);
+            } else if (frameEncodingComboBox.getSelectedItem().equals("ASTM")) {
+                startOfMessageBytesField.setText(TcpUtil.DEFAULT_ASTM_START_BYTES);
+                endOfMessageBytesField.setText(TcpUtil.DEFAULT_ASTM_END_BYTES);
+            } else {
+                startOfMessageBytesField.setText("");
+                endOfMessageBytesField.setText("");
+            }
+
+            changeAbbreviation();
+
+            startOfMessageBytesField.getDocument().addDocumentListener(this);
+            endOfMessageBytesField.getDocument().addDocumentListener(this);
+        }
     }
 
     /**
@@ -190,8 +326,9 @@ public class TcpListener extends ConnectorSettingsPanel {
 
         keepConnectionOpenGroup = new javax.swing.ButtonGroup();
         dataTypeButtonGroup = new javax.swing.ButtonGroup();
-        ackOnNewConnectionButtonGroup = new javax.swing.ButtonGroup();
-        frameEncodingButtonGroup = new javax.swing.ButtonGroup();
+        respondOnNewConnectionButtonGroup = new javax.swing.ButtonGroup();
+        modeButtonGroup = new javax.swing.ButtonGroup();
+        processBatchButtonGroup = new javax.swing.ButtonGroup();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         bufferSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
@@ -199,235 +336,347 @@ public class TcpListener extends ConnectorSettingsPanel {
         charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
         encodingLabel = new javax.swing.JLabel();
         ackOnNewConnectionLabel = new javax.swing.JLabel();
-        ackOnNewConnectionYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        ackOnNewConnectionNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        respondOnNewConnectionYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        respondOnNewConnectionNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         ackIPLabel = new javax.swing.JLabel();
         ackPortLabel = new javax.swing.JLabel();
-        ackPortField = new com.mirth.connect.client.ui.components.MirthTextField();
-        ackAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
-        dataTypeASCII = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        dataTypeBinary = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        responsePortField = new com.mirth.connect.client.ui.components.MirthTextField();
+        responseAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
+        dataTypeASCIIRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        dataTypeBinaryRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         dataTypeLabel = new javax.swing.JLabel();
         keepConnectionOpenLabel = new javax.swing.JLabel();
         keepConnectionOpenYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         keepConnectionOpenNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        encodingLabel1 = new javax.swing.JLabel();
-        encodingLabel2 = new javax.swing.JLabel();
-        beginBytesField = new com.mirth.connect.client.ui.components.MirthTextField();
-        endBytesField = new com.mirth.connect.client.ui.components.MirthTextField();
-        encodingLabel3 = new javax.swing.JLabel();
-        frameEncodingASCIIRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        frameEncodingHexRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        startOfMessageBytesField = new com.mirth.connect.client.ui.components.MirthTextField();
+        endOfMessageBytesField = new com.mirth.connect.client.ui.components.MirthTextField();
+        startOfMessageBytes0XLabel = new javax.swing.JLabel();
+        endOfMessageBytes0XLabel = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        modeServerRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        modeClientRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        reconnectIntervalLabel = new javax.swing.JLabel();
+        reconnectIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
+        maxConnectionsLabel = new javax.swing.JLabel();
+        maxConnectionsField = new com.mirth.connect.client.ui.components.MirthTextField();
+        processBatchLabel = new javax.swing.JLabel();
+        processBatchYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        processBatchNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        frameEncodingComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
+        frameEncodingLabel = new javax.swing.JLabel();
+        messageDataLabel = new javax.swing.JLabel();
+        jLabel19 = new javax.swing.JLabel();
+        sampleMessageLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         jLabel3.setText("Receive Timeout (ms):");
+        jLabel3.setToolTipText("The amount of time, in milliseconds, to wait without receiving a message before closing a connection.");
 
         jLabel4.setText("Buffer Size (bytes):");
+        jLabel4.setToolTipText("<html>Use larger values for larger messages, and smaller values <br>for smaller messages. Generally, the default value is fine.</html>");
 
         bufferSizeField.setToolTipText("<html>Use larger values for larger messages, and smaller values <br>for smaller messages. Generally, the default value is fine.</html>");
 
         receiveTimeoutField.setToolTipText("The amount of time, in milliseconds, to wait without receiving a message before closing a connection.");
 
-        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
-        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding used by the message sender,<br> or Select Default to use the default character set encoding for the JVM running Mirth.</html>");
+        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
+        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding used by the message sender,<br/>or Select Default to use the default character set encoding for the JVM running Mirth.</html>");
 
         encodingLabel.setText("Encoding:");
+        encodingLabel.setToolTipText("<html>Select the character set encoding used by the message sender,<br/>or Select Default to use the default character set encoding for the JVM running Mirth.</html>");
 
-        ackOnNewConnectionLabel.setText("Response on New Connection:");
+        ackOnNewConnectionLabel.setText("Respond on New Connection:");
+        ackOnNewConnectionLabel.setToolTipText("<html>Select No to send the message response on the same connection as the inbound message was received on.<br/>Select Yes to send the response on a new connection.</html>");
 
-        ackOnNewConnectionYes.setBackground(new java.awt.Color(255, 255, 255));
-        ackOnNewConnectionYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        ackOnNewConnectionButtonGroup.add(ackOnNewConnectionYes);
-        ackOnNewConnectionYes.setText("Yes");
-        ackOnNewConnectionYes.setToolTipText("<html>Select No to send the message response on the same connection as the inbound message was received on.<br>Select Yes to send the response on a new connection.</html>");
-        ackOnNewConnectionYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        ackOnNewConnectionYes.addActionListener(new java.awt.event.ActionListener() {
+        respondOnNewConnectionYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        respondOnNewConnectionYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        respondOnNewConnectionButtonGroup.add(respondOnNewConnectionYesRadio);
+        respondOnNewConnectionYesRadio.setText("Yes");
+        respondOnNewConnectionYesRadio.setToolTipText("<html>Select No to send the message response on the same connection as the inbound message was received on.<br/>Select Yes to send the response on a new connection.</html>");
+        respondOnNewConnectionYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        respondOnNewConnectionYesRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ackOnNewConnectionYesActionPerformed(evt);
+                respondOnNewConnectionYesRadioActionPerformed(evt);
             }
         });
 
-        ackOnNewConnectionNo.setBackground(new java.awt.Color(255, 255, 255));
-        ackOnNewConnectionNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        ackOnNewConnectionButtonGroup.add(ackOnNewConnectionNo);
-        ackOnNewConnectionNo.setText("No");
-        ackOnNewConnectionNo.setToolTipText("<html>Select No to send the message response on the same connection as the inbound message was received on.<br>Select Yes to send the response on a new connection.</html>");
-        ackOnNewConnectionNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        ackOnNewConnectionNo.addActionListener(new java.awt.event.ActionListener() {
+        respondOnNewConnectionNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        respondOnNewConnectionNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        respondOnNewConnectionButtonGroup.add(respondOnNewConnectionNoRadio);
+        respondOnNewConnectionNoRadio.setText("No");
+        respondOnNewConnectionNoRadio.setToolTipText("<html>Select No to send the message response on the same connection as the inbound message was received on.<br/>Select Yes to send the response on a new connection.</html>");
+        respondOnNewConnectionNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        respondOnNewConnectionNoRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ackOnNewConnectionNoActionPerformed(evt);
+                respondOnNewConnectionNoRadioActionPerformed(evt);
             }
         });
 
         ackIPLabel.setText("Response Address:");
+        ackIPLabel.setToolTipText("<html>Enter the DNS domain name or IP address to send message responses to.</html>");
 
         ackPortLabel.setText("Response Port:");
+        ackPortLabel.setToolTipText("<html>Enter the port to send message responses to.</html>");
 
-        ackPortField.setToolTipText("Enter the port to send message responses to.");
+        responsePortField.setToolTipText("<html>Enter the port to send message responses to.</html>");
 
-        ackAddressField.setToolTipText("Enter the DNS domain name or IP address to send message responses to.");
+        responseAddressField.setToolTipText("<html>Enter the DNS domain name or IP address to send message responses to.</html>");
 
-        dataTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
-        dataTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        dataTypeButtonGroup.add(dataTypeASCII);
-        dataTypeASCII.setSelected(true);
-        dataTypeASCII.setText("ASCII");
-        dataTypeASCII.setToolTipText("<html>Select Binary if the inbound messages are raw byte streams.<br>Select ASCII if the inbound messages are text streams.</html>");
-        dataTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        dataTypeASCII.addActionListener(new java.awt.event.ActionListener() {
+        dataTypeASCIIRadio.setBackground(new java.awt.Color(255, 255, 255));
+        dataTypeASCIIRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        dataTypeButtonGroup.add(dataTypeASCIIRadio);
+        dataTypeASCIIRadio.setSelected(true);
+        dataTypeASCIIRadio.setText("ASCII");
+        dataTypeASCIIRadio.setToolTipText("<html>Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.<br>Select ASCII if the inbound messages are text streams; the payload will be encoded with the specified charset.</html>");
+        dataTypeASCIIRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        dataTypeASCIIRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                dataTypeASCIIActionPerformed(evt);
+                dataTypeASCIIRadioActionPerformed(evt);
             }
         });
 
-        dataTypeBinary.setBackground(new java.awt.Color(255, 255, 255));
-        dataTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        dataTypeButtonGroup.add(dataTypeBinary);
-        dataTypeBinary.setText("Binary");
-        dataTypeBinary.setToolTipText("<html>Select Binary if the inbound messages are raw byte streams.<br>Select ASCII if the inbound messages are text streams.</html>");
-        dataTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        dataTypeBinary.addActionListener(new java.awt.event.ActionListener() {
+        dataTypeBinaryRadio.setBackground(new java.awt.Color(255, 255, 255));
+        dataTypeBinaryRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        dataTypeButtonGroup.add(dataTypeBinaryRadio);
+        dataTypeBinaryRadio.setText("Binary");
+        dataTypeBinaryRadio.setToolTipText("<html>Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.<br>Select ASCII if the inbound messages are text streams; the payload will be encoded with the specified charset.</html>");
+        dataTypeBinaryRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        dataTypeBinaryRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                dataTypeBinaryActionPerformed(evt);
+                dataTypeBinaryRadioActionPerformed(evt);
             }
         });
 
         dataTypeLabel.setText("Data Type:");
+        dataTypeLabel.setToolTipText("<html>Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.<br>Select ASCII if the inbound messages are text streams; the payload will be encoded with the specified charset.</html>");
 
         keepConnectionOpenLabel.setText("Keep Connection Open:");
+        keepConnectionOpenLabel.setToolTipText("<html>Select No to close the listening socket after each message is received and the response (if selected) is sent.<br/>Select Yes to always keep the socket open unless the sending system closes it.<br/>If Yes is selected, messages will only be processed if data is received and either the receive timeout is reached,<br/>the sending system closes the socket, or an end of message byte sequence has been detected.<br/>The sending system will also need to use a timeout or delimiter method of processing responses.</html>");
 
         keepConnectionOpenYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         keepConnectionOpenYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         keepConnectionOpenGroup.add(keepConnectionOpenYesRadio);
         keepConnectionOpenYesRadio.setText("Yes");
-        keepConnectionOpenYesRadio.setToolTipText("<html>Select No to close the listening socket after each message is received and the response (if selected) is sent. <br>Select Yes to always keep the socket open unless the sending system closes it.  If Yes is selected, messages <br>will only be processed if data is received and either the receive timeout is reached or the sending system closes <br>the socket. The sending system will also need to use a timeout or delimiter method of processing responses.</html>");
+        keepConnectionOpenYesRadio.setToolTipText("<html>Select No to close the listening socket after each message is received and the response (if selected) is sent.<br/>Select Yes to always keep the socket open unless the sending system closes it.<br/>If Yes is selected, messages will only be processed if data is received and either the receive timeout is reached,<br/>the sending system closes the socket, or an end of message byte sequence has been detected.<br/>The sending system will also need to use a timeout or delimiter method of processing responses.</html>");
         keepConnectionOpenYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         keepConnectionOpenNoRadio.setBackground(new java.awt.Color(255, 255, 255));
         keepConnectionOpenNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         keepConnectionOpenGroup.add(keepConnectionOpenNoRadio);
+        keepConnectionOpenNoRadio.setSelected(true);
         keepConnectionOpenNoRadio.setText("No");
-        keepConnectionOpenNoRadio.setToolTipText("<html>Select No to close the listening socket after each message is received and the response (if selected) is sent. <br>Select Yes to always keep the socket open unless the sending system closes it.  If Yes is selected, messages <br>will only be processed if data is received and either the receive timeout is reached or the sending system closes <br>the socket. The sending system will also need to use a timeout or delimiter method of processing responses.</html>");
+        keepConnectionOpenNoRadio.setToolTipText("<html>Select No to close the listening socket after each message is received and the response (if selected) is sent.<br/>Select Yes to always keep the socket open unless the sending system closes it.<br/>If Yes is selected, messages will only be processed if data is received and either the receive timeout is reached,<br/>the sending system closes the socket, or an end of message byte sequence has been detected.<br/>The sending system will also need to use a timeout or delimiter method of processing responses.</html>");
         keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        encodingLabel1.setText("Beginning Bytes:");
-
-        encodingLabel2.setText("Ending Bytes:");
-
-        beginBytesField.setToolTipText("<html>Enter the bytes expected to come before the beginning of the actual message. <br>If using hex frame encoding, then only the characters 0-9, a-f, and A-F are allowed, <br>and the string my optionally be prefixed with \"0x\".</html>");
-        beginBytesField.addActionListener(new java.awt.event.ActionListener() {
+        startOfMessageBytesField.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        startOfMessageBytesField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                beginBytesFieldActionPerformed(evt);
+                startOfMessageBytesFieldActionPerformed(evt);
             }
         });
 
-        endBytesField.setToolTipText("<html>Enter the bytes expected to come after the end of the actual message. <br>If using hex frame encoding, then only the characters 0-9, a-f, and A-F are allowed, <br>and the string my optionally be prefixed with \"0x\".</html>");
-        endBytesField.addActionListener(new java.awt.event.ActionListener() {
+        endOfMessageBytesField.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        endOfMessageBytesField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                endBytesFieldActionPerformed(evt);
+                endOfMessageBytesFieldActionPerformed(evt);
             }
         });
 
-        encodingLabel3.setText("Frame Encoding:");
+        startOfMessageBytes0XLabel.setText("0x");
+        startOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
-        frameEncodingASCIIRadio.setBackground(new java.awt.Color(255, 255, 255));
-        frameEncodingASCIIRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        frameEncodingButtonGroup.add(frameEncodingASCIIRadio);
-        frameEncodingASCIIRadio.setText("ASCII");
-        frameEncodingASCIIRadio.setToolTipText("<html>Select ASCII to encode the beginning and ending frame bytes as US-ASCII. <br>Select Hex to use the literal hexadecimal representation for the beginning and ending frame bytes. <br>Only the characters 0-9, a-f, and A-F are allowed, and the string may optionally be prefixed with \"0x\".</html>");
-        frameEncodingASCIIRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        endOfMessageBytes0XLabel.setText("0x");
+        endOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
-        frameEncodingHexRadio.setBackground(new java.awt.Color(255, 255, 255));
-        frameEncodingHexRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        frameEncodingButtonGroup.add(frameEncodingHexRadio);
-        frameEncodingHexRadio.setText("Hex");
-        frameEncodingHexRadio.setToolTipText("<html>Select ASCII to encode the beginning and ending frame bytes as US-ASCII. <br>Select Hex to use the literal hexadecimal representation for the beginning and ending frame bytes. <br>Only the characters 0-9, a-f, and A-F are allowed, and the string may optionally be prefixed with \"0x\".</html>");
-        frameEncodingHexRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        frameEncodingHexRadio.addActionListener(new java.awt.event.ActionListener() {
+        jLabel5.setText("Mode:");
+        jLabel5.setToolTipText("<html>Select Server to listen for connections from clients.<br/>Select Client to connect to a TCP Server.</html>");
+
+        modeServerRadio.setBackground(new java.awt.Color(255, 255, 255));
+        modeServerRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        modeButtonGroup.add(modeServerRadio);
+        modeServerRadio.setText("Server");
+        modeServerRadio.setToolTipText("<html>Select Server to listen for connections from clients.<br/>Select Client to connect to a TCP Server.</html>");
+        modeServerRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        modeServerRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                frameEncodingHexRadioActionPerformed(evt);
+                modeServerRadioActionPerformed(evt);
             }
         });
+
+        modeClientRadio.setBackground(new java.awt.Color(255, 255, 255));
+        modeClientRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        modeButtonGroup.add(modeClientRadio);
+        modeClientRadio.setText("Client");
+        modeClientRadio.setToolTipText("<html>Select Server to listen for connections from clients.<br/>Select Client to connect to a TCP Server.</html>");
+        modeClientRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        modeClientRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modeClientRadioActionPerformed(evt);
+            }
+        });
+
+        reconnectIntervalLabel.setText("Reconnect Interval (ms):");
+        reconnectIntervalLabel.setToolTipText("<html>If Client mode is selected, enter the time (in milliseconds) to wait<br/>between disconnecting from the TCP server and connecting to it again.</html>");
+
+        reconnectIntervalField.setToolTipText("<html>If Client mode is selected, enter the time (in milliseconds) to wait<br/>between disconnecting from the TCP server and connecting to it again.</html>");
+
+        maxConnectionsLabel.setText("Max Connections:");
+        maxConnectionsLabel.setToolTipText("<html>The maximum number of client connections to accept.<br/>After this number has been reached, subsequent socket requests will result in a rejection.</html>");
+
+        maxConnectionsField.setToolTipText("<html>The maximum number of client connections to accept.<br/>After this number has been reached, subsequent socket requests will result in a rejection.</html>");
+
+        processBatchLabel.setText("Process Batch:");
+        processBatchLabel.setToolTipText("<html>Select Yes to allow Mirth to automatically split batched HL7 v2.x messages into discrete messages.<br/>This can be used with batch files containing FHS/BHS/BTS/FTS segments, or it can be used on batch files that just have multiple MSH segments.<br/>The location of each MSH segment signifies the start of a new message to be processed.</html>");
+
+        processBatchYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        processBatchYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        processBatchButtonGroup.add(processBatchYesRadio);
+        processBatchYesRadio.setText("Yes");
+        processBatchYesRadio.setToolTipText("<html>Select Yes to allow Mirth to automatically split batched HL7 v2.x messages into discrete messages.<br/>This can be used with batch files containing FHS/BHS/BTS/FTS segments, or it can be used on batch files that just have multiple MSH segments.<br/>The location of each MSH segment signifies the start of a new message to be processed.</html>");
+        processBatchYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        processBatchNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        processBatchNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        processBatchButtonGroup.add(processBatchNoRadio);
+        processBatchNoRadio.setSelected(true);
+        processBatchNoRadio.setText("No");
+        processBatchNoRadio.setToolTipText("<html>Select Yes to allow Mirth to automatically split batched HL7 v2.x messages into discrete messages.<br/>This can be used with batch files containing FHS/BHS/BTS/FTS segments, or it can be used on batch files that just have multiple MSH segments.<br/>The location of each MSH segment signifies the start of a new message to be processed.</html>");
+        processBatchNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        processBatchNoRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                processBatchNoRadioActionPerformed(evt);
+            }
+        });
+
+        frameEncodingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP", "ASTM", "Custom" }));
+        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        frameEncodingComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                frameEncodingComboBoxActionPerformed(evt);
+            }
+        });
+
+        frameEncodingLabel.setText("Frame Encoding:");
+        frameEncodingLabel.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+
+        messageDataLabel.setFont(new java.awt.Font("Dialog", 2, 12)); // NOI18N
+        messageDataLabel.setText("<Message Data>");
+        messageDataLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        messageDataLabel.setEnabled(false);
+
+        jLabel19.setText("Sample Frame:");
+
+        sampleMessageLabel.setForeground(new java.awt.Color(153, 153, 153));
+        sampleMessageLabel.setText("<html><b>&lt;VT&gt;</b> <i>&lt;Message Data&gt;</i> <b>&lt;FS&gt;&lt;CR&gt;</b></html>");
+        sampleMessageLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        sampleMessageLabel.setEnabled(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addContainerGap().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGap(38, 38, 38).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(encodingLabel3).addComponent(jLabel3).addComponent(jLabel4).addComponent(keepConnectionOpenLabel))).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(dataTypeLabel).addComponent(encodingLabel).addComponent(ackOnNewConnectionLabel).addComponent(ackIPLabel).addComponent(ackPortLabel))).addComponent(encodingLabel1)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false).addComponent(beginBytesField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(frameEncodingASCIIRadio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(frameEncodingHexRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addComponent(encodingLabel2).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(endBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)))).addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(ackAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(ackPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addComponent(ackOnNewConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(ackOnNewConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(dataTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(dataTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))).addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
-        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel3).addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel4).addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(keepConnectionOpenLabel)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(encodingLabel3).addComponent(frameEncodingASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(frameEncodingHexRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(encodingLabel1).addComponent(beginBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(encodingLabel2).addComponent(endBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(encodingLabel).addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(dataTypeLabel).addComponent(dataTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(dataTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(ackOnNewConnectionLabel).addComponent(ackOnNewConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(ackOnNewConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(ackIPLabel).addComponent(ackAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(ackPortLabel).addComponent(ackPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addContainerGap().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel19).addComponent(encodingLabel).addComponent(dataTypeLabel).addComponent(processBatchLabel).addComponent(jLabel3).addComponent(jLabel4).addComponent(jLabel5).addComponent(reconnectIntervalLabel).addComponent(maxConnectionsLabel).addComponent(keepConnectionOpenLabel).addComponent(frameEncodingLabel).addComponent(ackOnNewConnectionLabel).addComponent(ackIPLabel).addComponent(ackPortLabel)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addComponent(frameEncodingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(startOfMessageBytes0XLabel).addGap(4, 4, 4).addComponent(startOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(4, 4, 4).addComponent(messageDataLabel).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(endOfMessageBytes0XLabel).addGap(4, 4, 4).addComponent(endOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(modeServerRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(modeClientRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(maxConnectionsField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(processBatchYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(processBatchNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addComponent(respondOnNewConnectionYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(respondOnNewConnectionNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(responseAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(responsePortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)).addGap(0, 10, Short.MAX_VALUE)).addComponent(sampleMessageLabel)).addContainerGap()));
+        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(frameEncodingLabel).addComponent(frameEncodingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(startOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(messageDataLabel).addComponent(endOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(startOfMessageBytes0XLabel).addComponent(endOfMessageBytes0XLabel)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel19).addComponent(sampleMessageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel5).addComponent(modeServerRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(modeClientRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(reconnectIntervalLabel).addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(maxConnectionsLabel).addComponent(maxConnectionsField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel3).addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel4).addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(keepConnectionOpenLabel).addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(processBatchLabel).addComponent(processBatchYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(processBatchNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(dataTypeLabel).addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(encodingLabel).addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(ackOnNewConnectionLabel).addComponent(respondOnNewConnectionYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(respondOnNewConnectionNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(ackIPLabel).addComponent(responseAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(ackPortLabel).addComponent(responsePortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addContainerGap(21, Short.MAX_VALUE)));
     }// </editor-fold>//GEN-END:initComponents
 
-    private void dataTypeBinaryActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeBinaryActionPerformed
-    {//GEN-HEADEREND:event_dataTypeBinaryActionPerformed
+    private void dataTypeBinaryRadioActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeBinaryRadioActionPerformed
+    {//GEN-HEADEREND:event_dataTypeBinaryRadioActionPerformed
         encodingLabel.setEnabled(false);
         charsetEncodingCombobox.setEnabled(false);
         charsetEncodingCombobox.setSelectedIndex(0);
-    }//GEN-LAST:event_dataTypeBinaryActionPerformed
+    }//GEN-LAST:event_dataTypeBinaryRadioActionPerformed
 
-    private void dataTypeASCIIActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeASCIIActionPerformed
-    {//GEN-HEADEREND:event_dataTypeASCIIActionPerformed
+    private void dataTypeASCIIRadioActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeASCIIRadioActionPerformed
+    {//GEN-HEADEREND:event_dataTypeASCIIRadioActionPerformed
         encodingLabel.setEnabled(true);
         charsetEncodingCombobox.setEnabled(true);
-    }//GEN-LAST:event_dataTypeASCIIActionPerformed
+    }//GEN-LAST:event_dataTypeASCIIRadioActionPerformed
 
-    private void beginBytesFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_beginBytesFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_beginBytesFieldActionPerformed
+    private void startOfMessageBytesFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startOfMessageBytesFieldActionPerformed
+    }//GEN-LAST:event_startOfMessageBytesFieldActionPerformed
 
-    private void endBytesFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_endBytesFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_endBytesFieldActionPerformed
+    private void endOfMessageBytesFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_endOfMessageBytesFieldActionPerformed
+    }//GEN-LAST:event_endOfMessageBytesFieldActionPerformed
 
-    private void frameEncodingHexRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_frameEncodingHexRadioActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_frameEncodingHexRadioActionPerformed
+    private void modeClientRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modeClientRadioActionPerformed
+        reconnectIntervalLabel.setEnabled(true);
+        reconnectIntervalField.setEnabled(true);
+        maxConnectionsLabel.setEnabled(false);
+        maxConnectionsField.setEnabled(false);
+    }//GEN-LAST:event_modeClientRadioActionPerformed
 
-    private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
+    private void processBatchNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processBatchNoRadioActionPerformed
+    }//GEN-LAST:event_processBatchNoRadioActionPerformed
+
+    private void modeServerRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modeServerRadioActionPerformed
+        reconnectIntervalLabel.setEnabled(false);
+        reconnectIntervalField.setEnabled(false);
+        maxConnectionsLabel.setEnabled(true);
+        maxConnectionsField.setEnabled(true);
+    }//GEN-LAST:event_modeServerRadioActionPerformed
+
+    private void frameEncodingComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_frameEncodingComboBoxActionPerformed
+    }//GEN-LAST:event_frameEncodingComboBoxActionPerformed
+
+    private void respondOnNewConnectionNoRadioActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
     {// GEN-HEADEREND:event_ackOnNewConnectionNoActionPerformed
-        ackAddressField.setEnabled(false);
-        ackPortField.setEnabled(false);
+        responseAddressField.setEnabled(false);
+        responsePortField.setEnabled(false);
         ackIPLabel.setEnabled(false);
         ackPortLabel.setEnabled(false);
     }// GEN-LAST:event_ackOnNewConnectionNoActionPerformed
 
-    private void ackOnNewConnectionYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionYesActionPerformed
+    private void respondOnNewConnectionYesRadioActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionYesActionPerformed
     {// GEN-HEADEREND:event_ackOnNewConnectionYesActionPerformed
-        ackAddressField.setEnabled(true);
-        ackPortField.setEnabled(true);
+        responseAddressField.setEnabled(true);
+        responsePortField.setEnabled(true);
         ackIPLabel.setEnabled(true);
         ackPortLabel.setEnabled(true);
     }// GEN-LAST:event_ackOnNewConnectionYesActionPerformed
      // Variables declaration - do not modify//GEN-BEGIN:variables
 
-    private com.mirth.connect.client.ui.components.MirthTextField ackAddressField;
     private javax.swing.JLabel ackIPLabel;
-    private javax.swing.ButtonGroup ackOnNewConnectionButtonGroup;
     private javax.swing.JLabel ackOnNewConnectionLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton ackOnNewConnectionNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton ackOnNewConnectionYes;
-    private com.mirth.connect.client.ui.components.MirthTextField ackPortField;
     private javax.swing.JLabel ackPortLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField beginBytesField;
     private com.mirth.connect.client.ui.components.MirthTextField bufferSizeField;
     private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
-    private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeASCII;
-    private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeBinary;
+    private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeASCIIRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeBinaryRadio;
     private javax.swing.ButtonGroup dataTypeButtonGroup;
     private javax.swing.JLabel dataTypeLabel;
     private javax.swing.JLabel encodingLabel;
-    private javax.swing.JLabel encodingLabel1;
-    private javax.swing.JLabel encodingLabel2;
-    private javax.swing.JLabel encodingLabel3;
-    private com.mirth.connect.client.ui.components.MirthTextField endBytesField;
-    private com.mirth.connect.client.ui.components.MirthRadioButton frameEncodingASCIIRadio;
-    private javax.swing.ButtonGroup frameEncodingButtonGroup;
-    private com.mirth.connect.client.ui.components.MirthRadioButton frameEncodingHexRadio;
+    private javax.swing.JLabel endOfMessageBytes0XLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField endOfMessageBytesField;
+    private com.mirth.connect.client.ui.components.MirthComboBox frameEncodingComboBox;
+    private javax.swing.JLabel frameEncodingLabel;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
     private javax.swing.JLabel keepConnectionOpenLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
+    private com.mirth.connect.client.ui.components.MirthTextField maxConnectionsField;
+    private javax.swing.JLabel maxConnectionsLabel;
+    private javax.swing.JLabel messageDataLabel;
+    private javax.swing.ButtonGroup modeButtonGroup;
+    private com.mirth.connect.client.ui.components.MirthRadioButton modeClientRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton modeServerRadio;
+    private javax.swing.ButtonGroup processBatchButtonGroup;
+    private javax.swing.JLabel processBatchLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton processBatchNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton processBatchYesRadio;
     private com.mirth.connect.client.ui.components.MirthTextField receiveTimeoutField;
+    private com.mirth.connect.client.ui.components.MirthTextField reconnectIntervalField;
+    private javax.swing.JLabel reconnectIntervalLabel;
+    private javax.swing.ButtonGroup respondOnNewConnectionButtonGroup;
+    private com.mirth.connect.client.ui.components.MirthRadioButton respondOnNewConnectionNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton respondOnNewConnectionYesRadio;
+    private com.mirth.connect.client.ui.components.MirthTextField responseAddressField;
+    private com.mirth.connect.client.ui.components.MirthTextField responsePortField;
+    private javax.swing.JLabel sampleMessageLabel;
+    private javax.swing.JLabel startOfMessageBytes0XLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField startOfMessageBytesField;
     // End of variables declaration//GEN-END:variables
 }

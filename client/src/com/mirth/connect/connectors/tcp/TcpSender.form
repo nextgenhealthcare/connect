@@ -4,11 +4,9 @@
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="keepConnectionOpenGroup">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="usePersistenceQueuesGroup">
-    </Component>
     <Component class="javax.swing.ButtonGroup" name="dataTypeButtonGroup">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="frameEncodingButtonGroup">
+    <Component class="javax.swing.ButtonGroup" name="processHL7ACKButtonGroup">
     </Component>
   </NonVisualComponents>
   <Properties>
@@ -38,208 +36,198 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="dataTypeLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="encodingLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel19" min="-2" max="-2" attributes="0"/>
-                  <Group type="103" alignment="1" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="jLabel18" alignment="1" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel17" alignment="1" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel16" alignment="1" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel15" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel14" alignment="1" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel20" alignment="1" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                      <Component id="reconnectIntervalLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="jLabel18" min="-2" max="-2" attributes="0"/>
+                  <Component id="frameEncodingLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel17" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="keepConnectionOpenLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="sendTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel15" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="processHL7ACKLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="dataTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="template" pref="333" max="32767" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Component id="templateTextArea" pref="382" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="maximumRetryCountField" alignment="0" min="-2" pref="35" max="-2" attributes="1"/>
-                          <Component id="bufferSizeField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                          <Component id="sendTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                          <Component id="portField" min="-2" pref="50" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="hostAddressField" min="-2" pref="200" max="-2" attributes="0"/>
+                              <Component id="keepConnectionOpenYesRadio" min="-2" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="testConnection" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="hostPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                          <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="dataTypeBinary" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="dataTypeASCII" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="frameEncodingASCIIRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="frameEncodingHexRadio" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="keepConnectionOpenYesRadio" min="-2" pref="43" max="-2" attributes="1"/>
-                              <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
                               <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
+                          <Component id="sendTimeoutField" min="-2" pref="85" max="-2" attributes="0"/>
+                          <Component id="bufferSizeField" min="-2" pref="85" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="beginBytesField" min="-2" pref="45" max="-2" attributes="1"/>
-                              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
-                              <Component id="jLabel21" min="-2" max="-2" attributes="0"/>
+                              <Component id="responseTimeoutField" min="-2" pref="75" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="endBytesField" min="-2" pref="45" max="-2" attributes="1"/>
+                              <Component id="ignoreResponseCheckBox" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="responseTimeoutField" max="32767" attributes="0"/>
-                                  <Component id="reconnectIntervalField" alignment="1" min="-2" pref="75" max="-2" attributes="0"/>
-                              </Group>
+                              <Component id="processHL7ACKYesRadio" min="-2" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="ignoreACKCheckBox" min="-2" max="-2" attributes="0"/>
+                              <Component id="processHL7ACKNoRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="dataTypeBinaryRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="dataTypeASCIIRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="charsetEncodingCombobox" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                              <Group type="102" alignment="1" attributes="0">
+                                  <Component id="hostField" max="32767" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="testConnection" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Component id="frameEncodingComboBox" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <Component id="startOfMessageBytes0XLabel" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
+                                  <Component id="startOfMessageBytesField" min="-2" pref="46" max="-2" attributes="1"/>
+                                  <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                                  <Component id="messageDataLabel" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="endOfMessageBytes0XLabel" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
+                                  <Component id="endOfMessageBytesField" min="-2" pref="46" max="-2" attributes="1"/>
+                              </Group>
                           </Group>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
+                  <Component id="sampleMessageLabel" alignment="0" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" alignment="1" attributes="0">
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel18" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="testConnection" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="hostAddressField" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="hostPortField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel17" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="frameEncodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="frameEncodingComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="startOfMessageBytes0XLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="startOfMessageBytesField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="messageDataLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="endOfMessageBytes0XLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="endOfMessageBytesField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel16" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="sendTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel19" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sampleMessageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="bufferSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel15" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel18" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="hostField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="testConnection" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel14" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="frameEncodingASCIIRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="frameEncodingHexRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel17" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="portField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel20" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="beginBytesField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel21" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="endBytesField" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="keepConnectionOpenLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="keepConnectionOpenYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="keepConnectionOpenNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel13" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="maximumRetryCountField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sendTimeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sendTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="reconnectIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="reconnectIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel15" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="bufferSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="responseTimeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="responseTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="ignoreACKCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel19" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="ignoreResponseCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="processHL7ACKLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="processHL7ACKYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="processHL7ACKNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="dataTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="dataTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="dataTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="dataTypeBinaryRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="dataTypeASCIIRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                  <Component id="template" min="-2" pref="128" max="-2" attributes="0"/>
+                  <Component id="templateTextArea" pref="125" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="jLabel13">
+    <Component class="javax.swing.JLabel" name="keepConnectionOpenLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Keep Connection Open:"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to keep the connection to the host open across multiple messages.&lt;br&gt;Select No to immediately the close the connection to the host after sending each message.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel15">
       <Properties>
         <Property name="text" type="java.lang.String" value="Buffer Size (bytes):"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The size, in bytes, of the buffer to be used to hold messages waiting to be sent. Generally, the default value is fine.&lt;html&gt;"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel16">
+    <Component class="javax.swing.JLabel" name="sendTimeoutLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Send Timeout (ms):"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of milliseconds to keep the connection to the host open,&lt;br/&gt;if Keep Connection Open is enabled.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel17">
       <Properties>
         <Property name="text" type="java.lang.String" value="Host Port:"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port on which to connect.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel18">
       <Properties>
         <Property name="text" type="java.lang.String" value="Host Address:"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The DNS domain name or IP address on which to connect.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel8">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="portField">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Maximum Retry Count:"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="hostPortField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The port on which to connect."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port on which to connect.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="sendTimeoutField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The number of milliseconds to keep the connection to the host open."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of milliseconds to keep the connection to the host open,&lt;br/&gt;if Keep Connection Open is enabled.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="bufferSizeField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The size, in bytes, of the buffer to be used to hold messages waiting to be sent. Generally, the default value is fine."/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="maximumRetryCountField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The maximum number of times to retry an attempt to connect to the host before logging an error."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The size, in bytes, of the buffer to be used to hold messages waiting to be sent. Generally, the default value is fine.&lt;html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="keepConnectionOpenYesRadio">
@@ -261,6 +249,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="keepConnectionOpenYesRadioActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="keepConnectionOpenNoRadio">
       <Properties>
@@ -281,20 +272,24 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="keepConnectionOpenNoRadioActionPerformed"/>
+      </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="hostAddressField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="hostField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The DNS domain name or IP address on which to connect."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The DNS domain name or IP address on which to connect.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="responseTimeoutField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The number of milliseconds the connector should wait for a response from the host after sending a message."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of milliseconds the connector should wait for a response from the host after sending a message.&lt;br/&gt;If the End of Message byte sequence is defined, a response will be received when it is detected.&lt;br/&gt;if the timeout elapses, all data received at that point will be stored as the response data.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel19">
+    <Component class="javax.swing.JLabel" name="responseTimeoutLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Response Timeout (ms):"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of milliseconds the connector should wait for a response from the host after sending a message.&lt;br/&gt;If the End of Message byte sequence is defined, a response will be received when it is detected.&lt;br/&gt;if the timeout elapses, all data received at that point will be stored as the response data.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
@@ -310,7 +305,7 @@
             <StringItem index="6" value="US-ASCII"/>
           </StringArray>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The character set encoding to use when converting the outbound message to a byte stream if Data Type ASCII is selected below.&lt;br&gt;Select Default to use the default character set encoding for the JVM running the Mirth server.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The character set encoding to use when converting the outbound message to a byte stream if Data Type ASCII is selected.&lt;br&gt;Select Default to use the default character set encoding for the JVM running the Mirth server.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="charsetEncodingComboboxActionPerformed"/>
@@ -319,6 +314,7 @@
     <Component class="javax.swing.JLabel" name="encodingLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Encoding:"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The character set encoding to use when converting the outbound message to a byte stream if Data Type ASCII is selected.&lt;br&gt;Select Default to use the default character set encoding for the JVM running the Mirth server.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel7">
@@ -326,7 +322,7 @@
         <Property name="text" type="java.lang.String" value="Template:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="template">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="templateTextArea">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -335,17 +331,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectIntervalField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of milliseconds to wait after closing a connection to the host &lt;br&gt;before opening a new connection, even if there are messages to send.&lt;br&gt;This is used for both the retry count and time to wait between queue retries, &lt;br&gt;if queuing is enabled.&lt;/html&gt;"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="reconnectIntervalLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Reconnect Interval (ms):"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="ignoreACKCheckBox">
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="ignoreResponseCheckBox">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -356,16 +342,16 @@
           </Border>
         </Property>
         <Property name="text" type="java.lang.String" value="Ignore Response"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will not wait for a response after sending a message.&lt;br&gt;If unchecked, the connector will wait for a response from the host after each message is sent&lt;br&gt; and optionally pass the response received to a Mirth channel.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will not wait for a response after sending a message.&lt;br&gt;If unchecked, the connector will wait for a response from the host after each message is sent.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ignoreACKCheckBoxActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ignoreResponseCheckBoxActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="dataTypeASCII">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="dataTypeASCIIRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -380,16 +366,16 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="ASCII"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select ASCII if the outbound message is text (will undergo character set encoding)."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).&lt;br/&gt;Select ASCII if the outbound message is text (will be encoded with the specified charset).&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dataTypeASCIIActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dataTypeASCIIRadioActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="dataTypeBinary">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="dataTypeBinaryRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -403,18 +389,19 @@
           <ComponentRef name="dataTypeButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Binary"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Binary if the outbound message is a byte stream (will not undergo character set encoding)."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).&lt;br/&gt;Select ASCII if the outbound message is text (will be encoded with the specified charset).&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dataTypeBinaryActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dataTypeBinaryRadioActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="dataTypeLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Data Type:"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).&lt;br/&gt;Select ASCII if the outbound message is text (will be encoded with the specified charset).&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="testConnection">
@@ -425,75 +412,124 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="testConnectionActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel14">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="startOfMessageBytesField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Message: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="startOfMessageBytesFieldActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="endOfMessageBytesField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Message: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="endOfMessageBytesFieldActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="processHL7ACKLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Process HL7 ACK:"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as successful.&lt;br/&gt;If disabled, the response will not be parsed and the message will always be marked as successful.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processHL7ACKYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="processHL7ACKButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as successful.&lt;br/&gt;If disabled, the response will not be parsed and the message will always be marked as successful.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processHL7ACKNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="processHL7ACKButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as successful.&lt;br/&gt;If disabled, the response will not be parsed and the message will always be marked as successful.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="startOfMessageBytes0XLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="0x"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Message: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="frameEncodingComboBox">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="3">
+            <StringItem index="0" value="MLLP"/>
+            <StringItem index="1" value="ASTM"/>
+            <StringItem index="2" value="Custom"/>
+          </StringArray>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.&lt;br/&gt;Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.&lt;br/&gt;Select Custom to enter user-defined frame encoding characters.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Message: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="frameEncodingComboBoxActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="frameEncodingLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Frame Encoding:"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.&lt;br/&gt;Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.&lt;br/&gt;Select Custom to enter user-defined frame encoding characters.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Message: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="frameEncodingASCIIRadio">
+    <Component class="javax.swing.JLabel" name="messageDataLabel">
       <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Dialog" size="12" style="2"/>
         </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="frameEncodingButtonGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="ASCII"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select ASCII to encode the beginning and ending frame bytes as US-ASCII. &lt;br&gt;Select Hex to use the literal hexadecimal representation for the beginning and ending frame bytes. &lt;br&gt;Only the characters 0-9, a-f, and A-F are allowed, and the string may optionally be prefixed with &quot;0x&quot;.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="frameEncodingASCIIRadioActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="frameEncodingHexRadio">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="frameEncodingButtonGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Hex"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select ASCII to encode the beginning and ending frame bytes as US-ASCII. &lt;br&gt;Select Hex to use the literal hexadecimal representation for the beginning and ending frame bytes. &lt;br&gt;Only the characters 0-9, a-f, and A-F are allowed, and the string may optionally be prefixed with &quot;0x&quot;.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="frameEncodingHexRadioActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel20">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Beginning Bytes:"/>
+        <Property name="text" type="java.lang.String" value="&lt;Message Data&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Message: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel21">
+    <Component class="javax.swing.JLabel" name="endOfMessageBytes0XLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Ending Bytes:"/>
+        <Property name="text" type="java.lang.String" value="0x"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Message: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="beginBytesField">
+    <Component class="javax.swing.JLabel" name="jLabel19">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to send before the beginning of the actual message. &lt;br&gt;If using hex frame encoding, then only the characters 0-9, a-f, and A-F are allowed, &lt;br&gt;and the string my optionally be prefixed with &quot;0x&quot;.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="Sample Frame:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="endBytesField">
+    <Component class="javax.swing.JLabel" name="sampleMessageLabel">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to send after the end of the actual message. &lt;br&gt;If using hex frame encoding, then only the characters 0-9, a-f, and A-F are allowed, &lt;br&gt;and the string my optionally be prefixed with &quot;0x&quot;.&lt;/html&gt;"/>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="99" green="99" red="99" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;&amp;lt;VT&amp;gt;&lt;/b&gt; &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; &lt;b&gt;&amp;lt;FS&amp;gt;&amp;lt;CR&amp;gt;&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to come before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Message: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
     </Component>
   </SubComponents>

@@ -13,6 +13,7 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 import com.mirth.connect.util.CharsetUtils;
+import com.mirth.connect.util.TcpUtil;
 
 @SuppressWarnings("serial")
 public class TcpDispatcherProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
@@ -24,38 +25,34 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
 
     private String host;
     private String port;
-    private boolean frameEncodingIsHex;
-    private String beginBytes;
-    private String endBytes;
-    private String template;
     private String sendTimeout;
     private String bufferSize;
     private boolean keepConnectionOpen;
-    private String maxRetryCount;
-    private String reconnectInterval;
+    private String startOfMessageBytes;
+    private String endOfMessageBytes;
     private String responseTimeout;
     private boolean ignoreResponse;
+    private boolean processHL7ACK;
+    private boolean dataTypeBinary;
     private String charsetEncoding;
-    private boolean dataTypeIsBase64;
+    private String template;
 
     public TcpDispatcherProperties() {
         queueConnectorProperties = new QueueConnectorProperties();
 
         this.host = "127.0.0.1";
         this.port = "8081";
-        this.template = "${message.encodedData}";
         this.sendTimeout = "5000";
         this.bufferSize = "65536";
         this.keepConnectionOpen = false;
-        this.frameEncodingIsHex = false;
-        this.beginBytes = "";
-        this.endBytes = "";
-        this.maxRetryCount = "2";
-        this.reconnectInterval = "10000";
+        this.startOfMessageBytes = TcpUtil.DEFAULT_LLP_START_BYTES;
+        this.endOfMessageBytes = TcpUtil.DEFAULT_LLP_END_BYTES;
         this.responseTimeout = "5000";
         this.ignoreResponse = false;
+        this.processHL7ACK = true;
+        this.dataTypeBinary = false;
         this.charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
-        this.dataTypeIsBase64 = true;
+        this.template = "${message.encodedData}";
     }
 
     public String getHost() {
@@ -72,38 +69,6 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
 
     public void setPort(String port) {
         this.port = port;
-    }
-
-    public boolean isFrameEncodingHex() {
-        return frameEncodingIsHex;
-    }
-
-    public void setFrameEncodingIsHex(boolean frameEncodingIsHex) {
-        this.frameEncodingIsHex = frameEncodingIsHex;
-    }
-
-    public String getBeginBytes() {
-        return beginBytes;
-    }
-
-    public void setBeginBytes(String beginBytes) {
-        this.beginBytes = beginBytes;
-    }
-
-    public String getEndBytes() {
-        return endBytes;
-    }
-
-    public void setEndBytes(String endBytes) {
-        this.endBytes = endBytes;
-    }
-
-    public String getTemplate() {
-        return template;
-    }
-
-    public void setTemplate(String template) {
-        this.template = template;
     }
 
     public String getSendTimeout() {
@@ -130,20 +95,20 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
         this.keepConnectionOpen = keepConnectionOpen;
     }
 
-    public String getMaxRetryCount() {
-        return maxRetryCount;
+    public String getStartOfMessageBytes() {
+        return startOfMessageBytes;
     }
 
-    public void setMaxRetryCount(String maxRetryCount) {
-        this.maxRetryCount = maxRetryCount;
+    public void setStartOfMessageBytes(String startOfMessageBytes) {
+        this.startOfMessageBytes = startOfMessageBytes;
     }
 
-    public String getReconnectInterval() {
-        return reconnectInterval;
+    public String getEndOfMessageBytes() {
+        return endOfMessageBytes;
     }
 
-    public void setReconnectInterval(String reconnectInterval) {
-        this.reconnectInterval = reconnectInterval;
+    public void setEndOfMessageBytes(String endOfMessageBytes) {
+        this.endOfMessageBytes = endOfMessageBytes;
     }
 
     public String getResponseTimeout() {
@@ -162,6 +127,22 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
         this.ignoreResponse = ignoreResponse;
     }
 
+    public boolean isProcessHL7ACK() {
+        return processHL7ACK;
+    }
+
+    public void setProcessHL7ACK(boolean processHL7ACK) {
+        this.processHL7ACK = processHL7ACK;
+    }
+
+    public boolean isDataTypeBinary() {
+        return dataTypeBinary;
+    }
+
+    public void setDataTypeBinary(boolean dataTypeBinary) {
+        this.dataTypeBinary = dataTypeBinary;
+    }
+
     public String getCharsetEncoding() {
         return charsetEncoding;
     }
@@ -170,12 +151,12 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
         this.charsetEncoding = charsetEncoding;
     }
 
-    public boolean isDataTypeBase64() {
-        return dataTypeIsBase64;
+    public String getTemplate() {
+        return template;
     }
 
-    public void setDataTypeIsBase64(boolean dataTypeIsBase64) {
-        this.dataTypeIsBase64 = dataTypeIsBase64;
+    public void setTemplate(String template) {
+        this.template = template;
     }
 
     public void setQueueConnectorProperties(QueueConnectorProperties queueConnectorProperties) {

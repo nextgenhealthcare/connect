@@ -15,6 +15,7 @@ import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterfa
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.util.CharsetUtils;
+import com.mirth.connect.util.TcpUtil;
 
 @SuppressWarnings("serial")
 public class TcpReceiverProperties extends ConnectorProperties implements ListenerConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
@@ -24,38 +25,39 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
     public static final String PROTOCOL = "TCP";
     public static final String NAME = "TCP Listener";
 
-    // TODO: Add max connections to the ListenerSettingsPanel?
-    public static final int DEFAULT_MAX_CONNECTIONS = 256;
-
-    private String timeout;
-    private boolean frameEncodingIsHex;
-    private String beginBytes;
-    private String endBytes;
+    private boolean serverMode;
+    private String reconnectInterval;
+    private String receiveTimeout;
     private String bufferSize;
     private String maxConnections;
     private boolean keepConnectionOpen;
-    private boolean ackOnNewConnection;
-    private String ackIP;
-    private String ackPort;
+    private String startOfMessageBytes;
+    private String endOfMessageBytes;
+    private boolean processBatch;
+    private boolean dataTypeBinary;
     private String charsetEncoding;
-    private boolean dataTypeIsBase64;
+    private boolean respondOnNewConnection;
+    private String responseAddress;
+    private String responsePort;
 
     public TcpReceiverProperties() {
-        listenerConnectorProperties = new ListenerConnectorProperties("8081");
+        listenerConnectorProperties = new ListenerConnectorProperties("6661");
         responseConnectorProperties = new ResponseConnectorProperties("None", new String[] { "None" });
 
-        this.timeout = "5000";
+        this.serverMode = true;
+        this.reconnectInterval = "5000";
+        this.receiveTimeout = "5000";
         this.bufferSize = "65536";
-        this.maxConnections = "256";
+        this.maxConnections = "10";
         this.keepConnectionOpen = false;
-        this.frameEncodingIsHex = false;
-        this.beginBytes = "";
-        this.endBytes = "";
-        this.ackIP = "";
-        this.ackPort = "";
-        this.ackOnNewConnection = false;
+        this.startOfMessageBytes = TcpUtil.DEFAULT_LLP_START_BYTES;
+        this.endOfMessageBytes = TcpUtil.DEFAULT_LLP_END_BYTES;
+        this.processBatch = false;
+        this.dataTypeBinary = false;
         this.charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
-        this.dataTypeIsBase64 = true;
+        this.respondOnNewConnection = false;
+        this.responseAddress = "";
+        this.responsePort = "";
     }
 
     @Override
@@ -68,36 +70,28 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
         return listenerConnectorProperties;
     }
 
-    public String getTimeout() {
-        return timeout;
+    public boolean isServerMode() {
+        return serverMode;
     }
 
-    public void setTimeout(String timeout) {
-        this.timeout = timeout;
+    public void setServerMode(boolean serverMode) {
+        this.serverMode = serverMode;
     }
 
-    public boolean isFrameEncodingHex() {
-        return frameEncodingIsHex;
+    public String getReconnectInterval() {
+        return reconnectInterval;
     }
 
-    public void setFrameEncodingIsHex(boolean frameEncodingIsHex) {
-        this.frameEncodingIsHex = frameEncodingIsHex;
+    public void setReconnectInterval(String reconnectInterval) {
+        this.reconnectInterval = reconnectInterval;
     }
 
-    public String getBeginBytes() {
-        return beginBytes;
+    public String getReceiveTimeout() {
+        return receiveTimeout;
     }
 
-    public void setBeginBytes(String beginBytes) {
-        this.beginBytes = beginBytes;
-    }
-
-    public String getEndBytes() {
-        return endBytes;
-    }
-
-    public void setEndBytes(String endBytes) {
-        this.endBytes = endBytes;
+    public void setReceiveTimeout(String receiveTimeout) {
+        this.receiveTimeout = receiveTimeout;
     }
 
     public String getBufferSize() {
@@ -124,28 +118,36 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
         this.keepConnectionOpen = keepConnectionOpen;
     }
 
-    public boolean isAckOnNewConnection() {
-        return ackOnNewConnection;
+    public String getStartOfMessageBytes() {
+        return startOfMessageBytes;
     }
 
-    public void setAckOnNewConnection(boolean ackOnNewConnection) {
-        this.ackOnNewConnection = ackOnNewConnection;
+    public void setStartOfMessageBytes(String startOfMessageBytes) {
+        this.startOfMessageBytes = startOfMessageBytes;
     }
 
-    public String getAckIP() {
-        return ackIP;
+    public String getEndOfMessageBytes() {
+        return endOfMessageBytes;
     }
 
-    public void setAckIP(String ackIP) {
-        this.ackIP = ackIP;
+    public void setEndOfMessageBytes(String endOfMessageBytes) {
+        this.endOfMessageBytes = endOfMessageBytes;
     }
 
-    public String getAckPort() {
-        return ackPort;
+    public boolean isProcessBatch() {
+        return processBatch;
     }
 
-    public void setAckPort(String ackPort) {
-        this.ackPort = ackPort;
+    public void setProcessBatch(boolean processBatch) {
+        this.processBatch = processBatch;
+    }
+
+    public boolean isDataTypeBinary() {
+        return dataTypeBinary;
+    }
+
+    public void setDataTypeBinary(boolean dataTypeBinary) {
+        this.dataTypeBinary = dataTypeBinary;
     }
 
     public String getCharsetEncoding() {
@@ -156,12 +158,36 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
         this.charsetEncoding = charsetEncoding;
     }
 
-    public boolean isDataTypeBase64() {
-        return dataTypeIsBase64;
+    public boolean isRespondOnNewConnection() {
+        return respondOnNewConnection;
     }
 
-    public void setDataTypeIsBase64(boolean dataTypeIsBase64) {
-        this.dataTypeIsBase64 = dataTypeIsBase64;
+    public void setRespondOnNewConnection(boolean respondOnNewConnection) {
+        this.respondOnNewConnection = respondOnNewConnection;
+    }
+
+    public String getResponseAddress() {
+        return responseAddress;
+    }
+
+    public void setResponseAddress(String responseAddress) {
+        this.responseAddress = responseAddress;
+    }
+
+    public String getResponsePort() {
+        return responsePort;
+    }
+
+    public void setResponsePort(String responsePort) {
+        this.responsePort = responsePort;
+    }
+
+    public void setListenerConnectorProperties(ListenerConnectorProperties listenerConnectorProperties) {
+        this.listenerConnectorProperties = listenerConnectorProperties;
+    }
+
+    public void setResponseConnectorProperties(ResponseConnectorProperties responseConnectorProperties) {
+        this.responseConnectorProperties = responseConnectorProperties;
     }
 
     @Override

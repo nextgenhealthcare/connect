@@ -9,18 +9,17 @@
 
 package com.mirth.connect.connectors.tcp;
 
+import static com.mirth.connect.util.TcpUtil.parseInt;
+
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
-import java.nio.charset.Charset;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.SerializationUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.connectors.tcp.stream.StreamHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -31,21 +30,31 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
+import com.mirth.connect.util.TcpUtil;
 
 public class TcpDispatcher extends DestinationConnector {
-    public static final int KEEP_RETRYING_INDEFINITELY = 100;
 
     private Logger logger = Logger.getLogger(this.getClass());
     protected TcpDispatcherProperties connectorProperties;
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    private ConnectorType connectorType = ConnectorType.SENDER;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     private StateAwareSocket socket;
     private Thread thread;
+
+    private byte[] startOfMessageBytes;
+    private byte[] endOfMessageBytes;
+    private boolean returnDataOnException;
 
     @Override
     public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {
@@ -59,103 +68,13 @@ public class TcpDispatcher extends DestinationConnector {
     }
 
     @Override
-    public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) {
-        TcpDispatcherProperties tcpSenderProperties = (TcpDispatcherProperties) connectorProperties;
-        String responseData = null;
-        Status responseStatus = Status.QUEUED;
-
-        // If keep connection open is true, then interrupt the thread so it won't close the socket
-        if (tcpSenderProperties.isKeepConnectionOpen() && thread != null) {
-            thread.interrupt();
-        }
-
-        StreamHandler streamHandler = new StreamHandler();
-        streamHandler.setBeginBytes(stringToByteArray(tcpSenderProperties.getBeginBytes(), tcpSenderProperties.isFrameEncodingHex()));
-        streamHandler.setEndBytes(stringToByteArray(tcpSenderProperties.getEndBytes(), tcpSenderProperties.isFrameEncodingHex()));
-
-        int retryCount = -1;
-        int maxRetryCount = parseInt(tcpSenderProperties.getMaxRetryCount());
-
-        // Keep retrying if the response status isn't SENT and the retry count hasn't hit the maximum
-        while (responseStatus != Status.SENT && (retryCount < maxRetryCount)) {
-            if (maxRetryCount != KEEP_RETRYING_INDEFINITELY) {
-                retryCount++;
-            }
-
-            try {
-                // Initialize a new socket if our current one is invalid, the remote side has closed, or keep connection open is false
-                if (socket == null || socket.isClosed() || socket.remoteSideHasClosed() || !tcpSenderProperties.isKeepConnectionOpen()) {
-                    closeSocketQuietly();
-                    logger.debug("Creating new socket for " + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ".");
-                    socket = new StateAwareSocket(tcpSenderProperties.getHost(), parseInt(tcpSenderProperties.getPort()));
-                    socket.setReuseAddress(true);
-                    socket.setReceiveBufferSize(parseInt(tcpSenderProperties.getBufferSize()));
-                    socket.setSendBufferSize(parseInt(tcpSenderProperties.getBufferSize()));
-                    socket.setSoTimeout(parseInt(tcpSenderProperties.getResponseTimeout()));
-                    socket.setKeepAlive(tcpSenderProperties.isKeepConnectionOpen());
-                }
-
-                // Send the message
-                streamHandler.write(socket.getOutputStream(), getTemplateBytes(tcpSenderProperties));
-                responseStatus = Status.SENT;
-
-                try {
-                    if (!tcpSenderProperties.isIgnoreResponse()) {
-                        // Attempt to get the response from the remote endpoint
-                        try {
-                            responseData = new String(streamHandler.read(socket.getInputStream()));
-                        } catch (SocketTimeoutException e) {
-                            responseData = "Timeout waiting for response.";
-                        }
-                    }
-
-                    if (tcpSenderProperties.isKeepConnectionOpen()) {
-                        // Close the connection after the send timeout has been reached
-                        startThread();
-                    } else {
-                        // If keep connection open is false, then close the socket right now
-                        closeSocketQuietly();
-                    }
-                } catch (IOException e) {
-                    // Return an ERROR response if an exception occurred while retrieving the response
-                    responseData = e.getMessage();
-                    responseStatus = Status.ERROR;
-                    closeSocketQuietly();
-                }
-            } catch (Exception e) {
-                // If an exception occurred then close the socket, even if keep connection open is true
-                closeSocketQuietly();
-
-                // Only handle the exception if we won't be retrying again
-                if (retryCount >= maxRetryCount || e instanceof UnsupportedEncodingException) {
-                    responseData = e.getMessage();
-
-                    // Leave the response status as QUEUED for a ConnectException, otherwise ERROR
-                    if ((e.getClass() == ConnectException.class) || ((e.getCause() != null) && (e.getCause().getClass() == ConnectException.class))) {
-                        alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Connection refused.", e);
-                    } else {
-                        responseStatus = Status.ERROR;
-                        alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Error sending message via TCP.", e);
-                    }
-
-                    retryCount = maxRetryCount;
-                } else {
-                    // Since we're retrying, wait the specified amount of time
-                    try {
-                        Thread.sleep(parseInt(tcpSenderProperties.getReconnectInterval()));
-                    } catch (InterruptedException e2) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
-            }
-        }
-
-        return new Response(responseStatus, responseData);
-    }
-
-    @Override
     public void onDeploy() throws DeployException {
-        this.connectorProperties = (TcpDispatcherProperties) getConnectorProperties();
+        connectorProperties = (TcpDispatcherProperties) getConnectorProperties();
+        startOfMessageBytes = TcpUtil.stringToByteArray(connectorProperties.getStartOfMessageBytes());
+        endOfMessageBytes = TcpUtil.stringToByteArray(connectorProperties.getEndOfMessageBytes());
+        // Only return data on exceptions if there are no end bytes defined
+        returnDataOnException = endOfMessageBytes.length == 0;
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
     }
 
     @Override
@@ -166,33 +85,129 @@ public class TcpDispatcher extends DestinationConnector {
 
     @Override
     public void onStop() throws StopException {
+        StopException firstCause = null;
+
         // Interrupt and join the connector thread
         try {
             disposeThread(true);
         } catch (InterruptedException e) {
-            throw new StopException("Thread join operation interrupted for " + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ".", e);
+            Thread.currentThread().interrupt();
+            firstCause = new StopException("Thread join operation interrupted (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
         }
 
         // Close the connector client socket
         try {
             closeSocket();
         } catch (IOException e) {
-            throw new StopException("Error closing socket for " + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ".", e);
+            if (firstCause == null) {
+                firstCause = new StopException("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+            }
         }
+
+        if (firstCause != null) {
+            throw firstCause;
+        }
+    }
+
+    @Override
+    public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) {
+        TcpDispatcherProperties tcpSenderProperties = (TcpDispatcherProperties) connectorProperties;
+        Status responseStatus = Status.QUEUED;
+        String responseData = null;
+        String responseError = null;
+
+        // If keep connection open is true, then interrupt the thread so it won't close the socket
+        if (tcpSenderProperties.isKeepConnectionOpen() && thread != null) {
+            thread.interrupt();
+        }
+
+        try {
+            // Initialize a new socket if our current one is invalid, the remote side has closed, or keep connection open is false
+            if (socket == null || socket.isClosed() || socket.remoteSideHasClosed() || !tcpSenderProperties.isKeepConnectionOpen()) {
+                closeSocketQuietly();
+                logger.debug("Creating new socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
+                socket = SocketUtil.createSocket(tcpSenderProperties.getHost(), tcpSenderProperties.getPort());
+                socket.setReuseAddress(true);
+                socket.setReceiveBufferSize(parseInt(tcpSenderProperties.getBufferSize()));
+                socket.setSendBufferSize(parseInt(tcpSenderProperties.getBufferSize()));
+                socket.setSoTimeout(parseInt(tcpSenderProperties.getResponseTimeout()));
+                socket.setKeepAlive(tcpSenderProperties.isKeepConnectionOpen());
+                monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.CONNECTED, socket);
+            }
+
+            // Send the message
+            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, socket);
+            BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream(), parseInt(tcpSenderProperties.getBufferSize()));
+            StreamHandler streamHandler = new StreamHandler(socket.getInputStream(), bos, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
+            streamHandler.writeFrame(getTemplateBytes(tcpSenderProperties));
+            bos.flush();
+
+            if (!tcpSenderProperties.isIgnoreResponse()) {
+                // Attempt to get the response from the remote endpoint
+                try {
+                    byte[] responseBytes = streamHandler.getNextMessage();
+                    if (responseBytes != null) {
+                        responseData = new String(responseBytes, CharsetUtils.getEncoding(tcpSenderProperties.getCharsetEncoding()));
+
+                        // TODO: Handle this differently; maybe add a default validator to the data type itself
+                        if (tcpSenderProperties.isProcessHL7ACK()) {
+                            if (responseData.matches("[\\s\\S]*MSA.[AC][RE][\\s\\S]*")) {
+                                responseStatus = Status.ERROR;
+                                responseError = "NACK sent from receiver.";
+                            } else if (responseData.matches("[\\s\\S]*MSA.[AC]A[\\s\\S]*")) {
+                                responseStatus = Status.SENT;
+                            }
+                        }
+                    } else {
+                        responseError = "Response was not received.";
+                        logger.debug("Response was not received (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
+                    }
+                } catch (IOException e) {
+                    // An exception occurred while retrieving the response
+                    responseData = ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e);
+                    responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_411, e.getMessage(), null);
+                    closeSocketQuietly();
+                }
+            }
+
+            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE, socket);
+
+            if (tcpSenderProperties.isKeepConnectionOpen()) {
+                // Close the connection after the send timeout has been reached
+                startThread();
+            } else {
+                // If keep connection open is false, then close the socket right now
+                closeSocketQuietly();
+            }
+        } catch (Exception e) {
+            // If an exception occurred then close the socket, even if keep connection open is true
+            closeSocketQuietly();
+            responseData = ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_411, e.getMessage(), null);
+            logger.debug("Error sending message via TCP (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+            alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Error sending message via TCP.", e);
+        }
+
+        return new Response(responseStatus, responseData, responseError);
     }
 
     private void closeSocketQuietly() {
         try {
             closeSocket();
         } catch (IOException e) {
-            logger.debug("Error closing socket for " + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ".", e);
+            logger.debug("Error closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
         }
     }
 
     private void closeSocket() throws IOException {
-        if (socket != null) {
-            logger.trace("Closing socket for " + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ".");
-            socket.close();
+        boolean wasOpen = socket != null && !socket.isClosed();
+        try {
+            logger.trace("Closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
+            SocketUtil.closeSocket(socket);
+        } finally {
+            if (wasOpen) {
+                monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DISCONNECTED, socket);
+            }
         }
     }
 
@@ -222,18 +237,18 @@ public class TcpDispatcher extends DestinationConnector {
         try {
             disposeThread(true);
         } catch (InterruptedException e) {
-            logger.warn("Thread join operation interrupted for " + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ".", e);
+            logger.warn("Thread join operation interrupted (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
         }
     }
 
     private void disposeThread(boolean interrupt) throws InterruptedException {
         if (thread != null && thread.isAlive()) {
             if (interrupt) {
-                logger.trace("Interrupting thread for " + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ".");
+                logger.trace("Interrupting thread (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
                 thread.interrupt();
             }
 
-            logger.trace("Joining thread for " + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ".");
+            logger.trace("Joining thread (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
             try {
                 thread.join();
             } catch (InterruptedException e) {
@@ -252,44 +267,10 @@ public class TcpDispatcher extends DestinationConnector {
         byte[] bytes = new byte[0];
 
         if (tcpSenderProperties.getTemplate() != null) {
-            if (tcpSenderProperties.isDataTypeBase64()) {
+            if (tcpSenderProperties.isDataTypeBinary()) {
                 bytes = Base64.decodeBase64(tcpSenderProperties.getTemplate());
             } else {
                 bytes = tcpSenderProperties.getTemplate().getBytes(CharsetUtils.getEncoding(tcpSenderProperties.getCharsetEncoding()));
-            }
-        }
-
-        return bytes;
-    }
-
-    /*
-     * Converts a string to an integer. If the string is null or contains no
-     * digits, then zero is returned.
-     */
-    private int parseInt(String str) {
-        if (StringUtils.isBlank(str)) {
-            return 0;
-        } else {
-            String replacedStr = str.replaceAll("[^0-9]", "");
-            if (StringUtils.isBlank(replacedStr)) {
-                return 0;
-            } else {
-                return Integer.parseInt(replacedStr, 10);
-            }
-        }
-    }
-
-    private byte[] stringToByteArray(String str, boolean hex) {
-        byte[] bytes = new byte[0];
-
-        if (StringUtils.isNotBlank(str)) {
-            if (hex) {
-                String hexString = str.toUpperCase().replaceAll("(^0X)|[^0-9A-F]", "");
-                if (StringUtils.isNotBlank(hexString)) {
-                    bytes = (new BigInteger(hexString, 16)).toByteArray();
-                }
-            } else {
-                bytes = str.getBytes(Charset.forName("US-ASCII"));
             }
         }
 

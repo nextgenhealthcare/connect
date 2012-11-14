@@ -11,9 +11,14 @@ package com.mirth.connect.connectors.tcp;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketImpl;
 
 public class StateAwareSocket extends Socket {
+
     protected BufferedInputStream bis = null;
 
     public StateAwareSocket() {
@@ -24,9 +29,18 @@ public class StateAwareSocket extends Socket {
         super(host, port);
     }
 
-    public BufferedInputStream getBufferedInputStream() throws IOException {
+    public StateAwareSocket(InetAddress address, int port) throws Exception {
+        super(address, port);
+    }
+
+    public StateAwareSocket(SocketImpl impl) throws SocketException {
+        super(impl);
+    }
+
+    @Override
+    public InputStream getInputStream() throws IOException {
         if (bis == null) {
-            bis = new BufferedInputStream(getInputStream());
+            bis = new BufferedInputStream(super.getInputStream());
         }
         return bis;
     }
@@ -42,6 +56,25 @@ public class StateAwareSocket extends Socket {
      * @return true if the remote end has closed its side of this socket
      */
     public boolean remoteSideHasClosed() throws IOException {
-        return SocketUtil.remoteSideHasClosed(this, getBufferedInputStream());
+        if (isClosed()) {
+            return true;
+        }
+        int oldTimeout = getSoTimeout();
+        setSoTimeout(100);
+        getInputStream().mark(1);
+        try {
+            return bis.read() == -1;
+        } catch (IOException e) {
+            return false;
+        } finally {
+            try {
+                bis.reset();
+            } catch (IOException e) {
+            }
+            try {
+                setSoTimeout(oldTimeout);
+            } catch (SocketException e) {
+            }
+        }
     }
 }
