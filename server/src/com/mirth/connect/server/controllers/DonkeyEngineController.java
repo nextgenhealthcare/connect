@@ -26,6 +26,8 @@ import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
+import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -410,6 +412,11 @@ public class DonkeyEngineController implements EngineController {
         channel.setSourceConnector(createSourceConnector(channel, model.getSourceConnector(), storageSettings));
         channel.setSourceFilterTransformer(createFilterTransformerExecutor(channelId, model.getSourceConnector()));
         
+        if (model.getSourceConnector().getProperties() instanceof ResponseConnectorPropertiesInterface) {
+        	ResponseConnectorProperties responseConnectorProperties = ((ResponseConnectorPropertiesInterface) model.getSourceConnector().getProperties()).getResponseConnectorProperties();
+        	channel.getResponseSelector().setRespondFromName(responseConnectorProperties.getResponseVariable());
+        }
+        
         if (storageSettings.isEnabled()) {
             if (channelProperties.isEncryptData()) {
                 final Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
@@ -584,17 +591,17 @@ public class DonkeyEngineController implements EngineController {
         sourceConnector.setMetaDataReplacer(createMetaDataReplacer(model));
         sourceConnector.setChannel(donkeyChannel);
         
-        if (connectorProperties instanceof QueueConnectorPropertiesInterface) {
-            QueueConnectorProperties queueConnectorProperties = ((QueueConnectorPropertiesInterface) connectorProperties).getQueueConnectorProperties();
+        if (connectorProperties instanceof ResponseConnectorPropertiesInterface) {
+        	ResponseConnectorProperties responseConnectorProperties = ((ResponseConnectorPropertiesInterface) connectorProperties).getResponseConnectorProperties();
             
             // queueing on the source connector is not possible if we are not storing raw content
             if (!storageSettings.isEnabled() || !storageSettings.isStoreRaw()) {
-                queueConnectorProperties.setQueueEnabled(false);
+            	responseConnectorProperties.setRespondAfterProcessing(true);
             }
             
-            sourceConnector.setWaitForDestinations(!queueConnectorProperties.isQueueEnabled());
+            sourceConnector.setRespondAfterProcessing(responseConnectorProperties.isRespondAfterProcessing());
         } else {
-            sourceConnector.setWaitForDestinations(true);
+            sourceConnector.setRespondAfterProcessing(true);
         }
 
         return sourceConnector;

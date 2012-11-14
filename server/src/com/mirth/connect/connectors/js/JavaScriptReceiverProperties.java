@@ -12,15 +12,19 @@ package com.mirth.connect.connectors.js;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
+import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 
-public class JavaScriptReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface {
+public class JavaScriptReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
     public static final String NAME = "JavaScript Reader";
 
     private PollConnectorProperties pollConnectorProperties;
+    private ResponseConnectorProperties responseConnectorProperties;
     private String script;
 
     public JavaScriptReceiverProperties() {
         pollConnectorProperties = new PollConnectorProperties();
+        responseConnectorProperties = new ResponseConnectorProperties("None", new String[] { "None" });
 
         script = "";
     }
@@ -52,5 +56,10 @@ public class JavaScriptReceiverProperties extends ConnectorProperties implements
     @Override
     public PollConnectorProperties getPollConnectorProperties() {
         return pollConnectorProperties;
+    }
+    
+    @Override
+    public ResponseConnectorProperties getResponseConnectorProperties() {
+        return responseConnectorProperties;
     }
 }

@@ -137,7 +137,7 @@ public class TestUtils {
         return createDefaultChannel(channelId, serverId, waitForDestinations, numChains, numDestinationsPerChain, new StorageSettings());
     }
     
-    public static TestChannel createDefaultChannel(String channelId, String serverId, Boolean waitForDestinations, int numChains, int numDestinationsPerChain, StorageSettings storageSettings) {
+    public static TestChannel createDefaultChannel(String channelId, String serverId, Boolean respondAfterProcessing, int numChains, int numDestinationsPerChain, StorageSettings storageSettings) {
         ChannelController.getInstance().getLocalChannelId(channelId);
 
         TestChannel channel = new TestChannel();
@@ -157,7 +157,7 @@ public class TestUtils {
         channel.setPostProcessor(new TestPostProcessor());
 
         TestSourceConnector sourceConnector = (TestSourceConnector) TestUtils.createDefaultSourceConnector();
-        sourceConnector.setWaitForDestinations(waitForDestinations);
+        sourceConnector.setRespondAfterProcessing(respondAfterProcessing);
         sourceConnector.setChannel(channel);
 
         channel.setSourceConnector(sourceConnector);

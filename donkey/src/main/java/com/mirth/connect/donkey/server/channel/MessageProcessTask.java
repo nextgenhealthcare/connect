@@ -41,7 +41,7 @@ final class MessageProcessTask implements Callable<MessageResponse> {
     private DonkeyDaoFactory daoFactory;
     private Encryptor encryptor;
     private ResponseSelector responseSelector;
-    private boolean waitForDestinations;
+    private boolean respondAfterProcessing;
     private Logger logger = Logger.getLogger(getClass());
     private MessageResponse messageResponse;
     private boolean messagePersisted = false;
@@ -52,7 +52,7 @@ final class MessageProcessTask implements Callable<MessageResponse> {
         this.storageSettings = channel.getStorageSettings();
         this.daoFactory = channel.getDaoFactory();
         this.encryptor = channel.getEncryptor();
-        this.waitForDestinations = channel.getSourceConnector().isWaitForDestinations();
+        this.respondAfterProcessing = channel.getSourceConnector().isRespondAfterProcessing();
         this.responseSelector = channel.getResponseSelector();
     }
 
@@ -64,7 +64,7 @@ final class MessageProcessTask implements Callable<MessageResponse> {
     public MessageResponse call() throws Exception {
         DonkeyDao dao = null;
         try {
-            if (waitForDestinations) {
+            if (respondAfterProcessing) {
                 synchronized (channel.getResponseSent()) {
                     while (!channel.getResponseSent().get()) {
                         channel.getResponseSent().wait();
@@ -86,7 +86,7 @@ final class MessageProcessTask implements Callable<MessageResponse> {
             Response response = null;
             ThreadUtils.checkInterruptedStatus();
 
-            if (waitForDestinations) {
+            if (respondAfterProcessing) {
                 dao.commit(storageSettings.isRawDurable());
                 messagePersisted = true;
                 dao.close();
@@ -103,7 +103,7 @@ final class MessageProcessTask implements Callable<MessageResponse> {
                 }
             }
 
-            messageResponse = new MessageResponse(sourceMessage.getMessageId(), response, waitForDestinations, processedMessage);
+            messageResponse = new MessageResponse(sourceMessage.getMessageId(), response, respondAfterProcessing, processedMessage);
 
             return messageResponse;
         } catch (RuntimeException e) {

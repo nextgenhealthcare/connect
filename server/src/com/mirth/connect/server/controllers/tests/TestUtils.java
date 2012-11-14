@@ -83,7 +83,7 @@ public class TestUtils {
         return channel;
     }
 
-    public static Channel createChannel(String channelId, String serverId, boolean waitForDestinations, int numChains, int destinationsPerChain) {
+    public static Channel createChannel(String channelId, String serverId, boolean respondAfterProcessing, int numChains, int destinationsPerChain) {
         // create channel
         Channel channel = new Channel();
         channel.setChannelId(channelId);
@@ -124,7 +124,7 @@ public class TestUtils {
         // create source connector
         TestSourceConnector sourceConnector = new TestSourceConnector();
         sourceConnector.setChannel(channel);
-        sourceConnector.setWaitForDestinations(waitForDestinations);
+        sourceConnector.setRespondAfterProcessing(respondAfterProcessing);
         channel.setSourceConnector(sourceConnector);
         channel.getResponseSelector().setRespondFromName("destination1");
 

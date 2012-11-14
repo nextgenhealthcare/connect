@@ -141,7 +141,7 @@ public class QueueTests {
     public final void testSourceQueue() throws Exception {
         ChannelController.getInstance().deleteAllMessages(channelId);
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
-        channel.getSourceConnector().setWaitForDestinations(false);
+        channel.getSourceConnector().setRespondAfterProcessing(false);
 
         // Start up a default channel
         channel.deploy();
@@ -224,7 +224,7 @@ public class QueueTests {
         int testSize = 2;
         final List<Long> messageIds = new ArrayList<Long>();
         final TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
-        channel.getSourceConnector().setWaitForDestinations(false);
+        channel.getSourceConnector().setRespondAfterProcessing(false);
         ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
 
         // Deploy a default channel
@@ -351,7 +351,7 @@ public class QueueTests {
         int testSize = 2;
         final List<Long> messageIds = new ArrayList<Long>();
         final TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
-        channel.getSourceConnector().setWaitForDestinations(false);
+        channel.getSourceConnector().setRespondAfterProcessing(false);
         ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
 
         // Deploy a default channel

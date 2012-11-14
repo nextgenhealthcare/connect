@@ -12,12 +12,15 @@ package com.mirth.connect.connectors.file;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
+import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.util.CharsetUtils;
 
-public class FileReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface {
+public class FileReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
     public static final String NAME = "File Reader";
 
     private PollConnectorProperties pollConnectorProperties;
+    private ResponseConnectorProperties responseConnectorProperties;
 
     private FileScheme scheme;
     private String host;
@@ -48,6 +51,8 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
 
     public FileReceiverProperties() {
         pollConnectorProperties = new PollConnectorProperties();
+        responseConnectorProperties = new ResponseConnectorProperties("None", new String[] { "None" });
+
 
         scheme = FileScheme.FILE;
         host = "";
@@ -269,4 +274,9 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
     public PollConnectorProperties getPollConnectorProperties() {
         return pollConnectorProperties;
     }
+
+	@Override
+	public ResponseConnectorProperties getResponseConnectorProperties() {
+		return responseConnectorProperties;
+	}
 }

@@ -12,11 +12,14 @@ package com.mirth.connect.connectors.jdbc;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
+import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 
-public class DatabaseReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface {
+public class DatabaseReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
     public static final String NAME = "Database Reader";
 
     private PollConnectorProperties pollConnectorProperties;
+    private ResponseConnectorProperties responseConnectorProperties;
 
     private String driver;
     private String url;
@@ -32,6 +35,7 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
 
     public DatabaseReceiverProperties() {
         pollConnectorProperties = new PollConnectorProperties();
+        responseConnectorProperties = new ResponseConnectorProperties("None", new String[] { "None" });
 
         this.driver = DRIVER_DEFAULT;
         this.url = "";
@@ -135,5 +139,10 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
 
     public void setAck(String ack) {
         this.ack = ack;
+    }
+
+    @Override
+    public ResponseConnectorProperties getResponseConnectorProperties() {
+        return responseConnectorProperties;
     }
 }

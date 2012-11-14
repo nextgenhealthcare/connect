@@ -178,13 +178,8 @@ public class ConnectorPanel extends JPanel {
     }
 
     public void updateResponseDropDown() {
-        /*
-         * If there's a ResponseSettingsPanel being used, make use of its
-         * setProperties to update the dropdown with any new variables and then
-         * set the current selected value.
-         */
         if (getConnectorSettingsPanel().getProperties() instanceof ResponseConnectorPropertiesInterface) {
-            responseSettingsPanel.setProperties(((ResponseConnectorPropertiesInterface) getConnectorSettingsPanel().getProperties()).getResponseConnectorProperties());
+            responseSettingsPanel.updateResponseDropDown(((ResponseConnectorPropertiesInterface) getConnectorSettingsPanel().getProperties()).getResponseConnectorProperties());
         }
     }
 

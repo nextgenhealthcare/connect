@@ -83,7 +83,7 @@ public class RecoveryTask implements Callable<List<Message>> {
             }
 
             // step 2: recover messages for each source (RECEIVED)
-            if (channel.getSourceConnector().isWaitForDestinations() && storageSettings.isMessageRecoveryEnabled()) {
+            if (channel.getSourceConnector().isRespondAfterProcessing() && storageSettings.isMessageRecoveryEnabled()) {
                 channel.processSourceQueue(0);
             }
 

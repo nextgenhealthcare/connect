@@ -69,14 +69,14 @@ public class SourceConnectorTests {
     public final void testHandleRawMessage() throws Exception {
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
-        sourceConnector.setWaitForDestinations(true);
+        sourceConnector.setRespondAfterProcessing(true);
 
         channel.deploy();
         channel.start();
         ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
 
         // Assert that the default source connector behaviour is to wait for destinations
-        assertTrue(sourceConnector.isWaitForDestinations());
+        assertTrue(sourceConnector.isRespondAfterProcessing());
 
         // Send messages that immediately process
         for (int i = 1; i <= TEST_SIZE; i++) {
@@ -112,7 +112,7 @@ public class SourceConnectorTests {
         }
 
         // Send messages that queue
-        sourceConnector.setWaitForDestinations(false);
+        sourceConnector.setRespondAfterProcessing(false);
 
         for (int i = 1; i <= TEST_SIZE; i++) {
             RawMessage rawMessage = new RawMessage(testMessage);
@@ -178,7 +178,7 @@ public class SourceConnectorTests {
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
 
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
-        sourceConnector.setWaitForDestinations(true);
+        sourceConnector.setRespondAfterProcessing(true);
 
         channel.deploy();
         channel.start();

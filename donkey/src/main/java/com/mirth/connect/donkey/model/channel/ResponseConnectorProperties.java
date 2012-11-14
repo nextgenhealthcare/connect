@@ -14,10 +14,12 @@ import java.io.Serializable;
 public class ResponseConnectorProperties implements Serializable {
     private String responseVariable;
     private String[] defaultResponses;
+    private boolean respondAfterProcessing;
 
     public ResponseConnectorProperties(String defaultResponse, String[] defaultResponses) {
         this.responseVariable = defaultResponse;
         this.defaultResponses = defaultResponses;
+        this.setRespondAfterProcessing(true);
     }
 
     public String getResponseVariable() {
@@ -31,5 +33,13 @@ public class ResponseConnectorProperties implements Serializable {
     public String[] getDefaultResponses() {
         return defaultResponses;
     }
+
+	public boolean isRespondAfterProcessing() {
+		return respondAfterProcessing;
+	}
+
+	public void setRespondAfterProcessing(boolean respondAfterProcessing) {
+		this.respondAfterProcessing = respondAfterProcessing;
+	}
 
 }

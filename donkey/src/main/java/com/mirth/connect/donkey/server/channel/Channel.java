@@ -794,7 +794,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 sourceMessage.setContent(new MessageContent(getChannelId(), messageResponse.getMessageId(), 0, ContentType.RESPONSE, responseString, encryptor.encrypt(responseString)));
             }
             
-            if (!sourceConnector.isWaitForDestinations() || messageResponse == null || !storageSettings.isEnabled()) {
+            if (!sourceConnector.isRespondAfterProcessing() || messageResponse == null || !storageSettings.isEnabled()) {
                 return;
             }
 
@@ -1428,7 +1428,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     
                         ThreadUtils.checkInterruptedStatus();
                         // start up the worker thread that will process queued messages
-                        if (!sourceConnector.isWaitForDestinations()) {
+                        if (!sourceConnector.isRespondAfterProcessing()) {
                             queueExecutor.execute(Channel.this);
                         }
     

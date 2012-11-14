@@ -258,7 +258,7 @@ public class MessageControllerTests {
     @Test
     public void testDeleteMessage() throws Exception {
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId);
-        channel.getSourceConnector().setWaitForDestinations(false);
+        channel.getSourceConnector().setRespondAfterProcessing(false);
         channel.getSourceQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, Donkey.getInstance().getDaoFactory(), new PassthruEncryptor()));
         channel.getSourceQueue().updateSize();
 

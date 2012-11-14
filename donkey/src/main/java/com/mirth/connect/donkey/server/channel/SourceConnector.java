@@ -20,7 +20,7 @@ import com.mirth.connect.donkey.server.StopException;
  */
 public abstract class SourceConnector extends Connector implements ConnectorInterface {
     private Channel channel;
-    private boolean waitForDestinations = true;
+    private boolean respondAfterProcessing = true;
     private MetaDataReplacer metaDataReplacer;
     private ChannelState currentState = ChannelState.STOPPED;
 
@@ -33,12 +33,12 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
         setChannelId(channel.getChannelId());
     }
 
-    public boolean isWaitForDestinations() {
-        return waitForDestinations;
+    public boolean isRespondAfterProcessing() {
+        return respondAfterProcessing;
     }
 
-    public void setWaitForDestinations(boolean waitForDestinations) {
-        this.waitForDestinations = waitForDestinations;
+    public void setRespondAfterProcessing(boolean respondAfterProcessing) {
+        this.respondAfterProcessing = respondAfterProcessing;
     }
 
     public MetaDataReplacer getMetaDataReplacer() {
