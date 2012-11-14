@@ -14,15 +14,12 @@ import java.io.File;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFileChooser;
 
-import org.apache.log4j.Logger;
-
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.util.export.MessageExportOptions;
-import com.mirth.connect.util.export.MessageExporter.MessageExporterUserError;
 
 /**
  *
@@ -33,7 +30,6 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
     private String channelId;
     private MessageFilter messageFilter;
     private int pageSize;
-    private Logger logger = Logger.getLogger(this.getClass());
     
     /**
      * Creates new form MessageBrowserExportResults
@@ -416,8 +412,15 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
     private void exportTypeLocalBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportTypeLocalBrowseActionPerformed
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        
+        File currentDir = new File(Frame.userPreferences.get("currentDirectory", ""));
+        
+        if (currentDir.exists()) {
+            chooser.setCurrentDirectory(currentDir);
+        }
 
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            Frame.userPreferences.put("currentDirectory", chooser.getCurrentDirectory().getPath());
             exportTypeLocalText.setText(chooser.getSelectedFile().getAbsolutePath());
         }
     }//GEN-LAST:event_exportTypeLocalBrowseActionPerformed
