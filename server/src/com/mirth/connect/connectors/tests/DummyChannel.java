@@ -27,8 +27,8 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
-import com.mirth.connect.donkey.server.channel.components.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 
 public class DummyChannel extends Channel {
@@ -106,8 +106,8 @@ public class DummyChannel extends Channel {
     public Message process(ConnectorMessage sourceMessage, boolean waitForDestinations) throws InterruptedException {
         processedMessageIds.add(sourceMessage.getMessageId());
 
-        sourceMessage.setTransformed(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), 0, ContentType.TRANSFORMED, sourceMessage.getRaw().getContent(), sourceMessage.getRaw().isEncrypted()));
-        sourceMessage.setEncoded(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), 0, ContentType.ENCODED, sourceMessage.getRaw().getContent(), sourceMessage.getRaw().isEncrypted()));
+        sourceMessage.setTransformed(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), 0, ContentType.TRANSFORMED, sourceMessage.getRaw().getContent(), sourceMessage.getRaw().getEncryptedContent()));
+        sourceMessage.setEncoded(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), 0, ContentType.ENCODED, sourceMessage.getRaw().getContent(), sourceMessage.getRaw().getEncryptedContent()));
 
         ConnectorMessage destinationMessage = new ConnectorMessage();
         destinationMessage.setMessageId(sourceMessage.getMessageId());
@@ -115,8 +115,8 @@ public class DummyChannel extends Channel {
         destinationMessage.setStatus(Status.TRANSFORMED);
         destinationMessage.setMetaDataId(1);
         destinationMessage.setRaw(sourceMessage.getRaw());
-        destinationMessage.setTransformed(new MessageContent(destinationMessage.getChannelId(), destinationMessage.getMessageId(), destinationMessage.getMetaDataId(), ContentType.TRANSFORMED, destinationMessage.getRaw().getContent(), destinationMessage.getRaw().isEncrypted()));
-        destinationMessage.setEncoded(new MessageContent(destinationMessage.getChannelId(), destinationMessage.getMessageId(), destinationMessage.getMetaDataId(), ContentType.ENCODED, destinationMessage.getRaw().getContent(), destinationMessage.getRaw().isEncrypted()));
+        destinationMessage.setTransformed(new MessageContent(destinationMessage.getChannelId(), destinationMessage.getMessageId(), destinationMessage.getMetaDataId(), ContentType.TRANSFORMED, destinationMessage.getRaw().getContent(), destinationMessage.getRaw().getEncryptedContent()));
+        destinationMessage.setEncoded(new MessageContent(destinationMessage.getChannelId(), destinationMessage.getMessageId(), destinationMessage.getMetaDataId(), ContentType.ENCODED, destinationMessage.getRaw().getContent(), destinationMessage.getRaw().getEncryptedContent()));
 
         Message message = new Message();
         message.setMessageId(sourceMessage.getMessageId());

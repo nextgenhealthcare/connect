@@ -44,11 +44,13 @@ public abstract class MessageController {
 
     public abstract void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds, int userId);
 
-    public abstract void importMessage(Message message);
+    public abstract void importMessage(Message message) throws MessageImportException;
     
     public abstract int exportMessages(MessageExportOptions options) throws MessageExporterException;
 
     public abstract int pruneMessages(List<String> channelIds, int limit) throws MessagePrunerException;
 
     public abstract void decryptMessage(Message message, Encryptor encryptor);
+
+    public abstract void encryptMessage(Message message, Encryptor encryptor);
 }

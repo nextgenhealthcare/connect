@@ -16,36 +16,6 @@
 		<collection property="metaDataMap" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" ofType="map" select="selectCustomMetaData" />
 	</resultMap>
 
-	<resultMap id="connectorMessageWithContent" type="ConnectorMessage">
-		<id property="messageId" column="message_id" />
-		<id property="metaDataId" column="id" />
-		<result property="channelId" column="channel_id" />
-		<result property="serverId" column="server_id" />
-		<result property="dateCreated" column="date_created" />
-		<result property="status" column="status" />
-		<result property="connectorMap" column="connector_map" typeHandler="MapTypeHandler"/>
-		<result property="channelMap" column="channel_map" typeHandler="MapTypeHandler"/>
-		<result property="responseMap" column="response_map" typeHandler="MapTypeHandler"/>
-		<result property="errors" column="errors" />
-		<result property="sendAttempts" column="send_attempts" />
-		<association property="raw" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" javaType="MessageContent" select="selectRawContent" />
-		<association property="processedRaw" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" javaType="MessageContent" select="selectProcessedRawContent" />
-		<association property="transformed" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" javaType="MessageContent" select="selectTransformedContent" />
-		<association property="encoded" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" javaType="MessageContent" select="selectEncodedContent" />
-		<association property="sent" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" javaType="MessageContent" select="selectSentContent" />
-		<association property="response" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" javaType="MessageContent" select="selectResponseContent" />
-		<association property="processedResponse" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" javaType="MessageContent" select="selectProcessedResponseContent" />
-		<collection property="metaDataMap" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" ofType="map" select="selectCustomMetaData" />
-	</resultMap>
-	
-	<resultMap id="messageContent" type="MessageContent">
-		<id property="messageId" column="message_id" />
-		<id property="metaDataId" column="metadata_id" />
-		<id property="contentType" column="content_type" />
-		<result property="content" column="content" />
-		<result property="isEncrypted" column="is_encrypted" />
-	</resultMap>
-
 	<select id="searchMessages" parameterType="map" resultType="map">
 		SELECT m.id AS message_id, m.server_id, m.date_created, m.processed, string_agg(mm.id::character varying, ',') AS metadata_ids
 		<include refid="searchMessagesBody" />
@@ -109,31 +79,31 @@
 		</if>
 		
 		<if test="quickSearch != null || rawSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_raw ON mc_raw.message_id = m.id AND mc_raw.metadata_id = 0 AND mc_raw.content_type = 'R'
+			LEFT JOIN d_mc${localChannelId} mc_raw ON mc_raw.message_id = m.id AND mc_raw.metadata_id = 0 AND mc_raw.content_type = 'R' AND mc_raw.is_encrypted = FALSE
 		</if>
 		
 		<if test="quickSearch != null || processedRawSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_processed_raw ON mc_processed_raw.message_id = m.id AND mc_processed_raw.metadata_id = mm.id AND mc_processed_raw.content_type = 'P'
+			LEFT JOIN d_mc${localChannelId} mc_processed_raw ON mc_processed_raw.message_id = m.id AND mc_processed_raw.metadata_id = mm.id AND mc_processed_raw.content_type = 'P' AND mc_processed_raw.is_encrypted = FALSE
 		</if>
 		
 		<if test="quickSearch != null || transformedSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_transformed ON mc_transformed.message_id = m.id AND mc_transformed.metadata_id = mm.id AND mc_transformed.content_type = 'T'
+			LEFT JOIN d_mc${localChannelId} mc_transformed ON mc_transformed.message_id = m.id AND mc_transformed.metadata_id = mm.id AND mc_transformed.content_type = 'T' AND mc_transformed.is_encrypted = FALSE
 		</if>
 		
 		<if test="quickSearch != null || encodedSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_encoded ON mc_encoded.message_id = m.id AND mc_encoded.metadata_id = mm.id AND mc_encoded.content_type = 'E'
+			LEFT JOIN d_mc${localChannelId} mc_encoded ON mc_encoded.message_id = m.id AND mc_encoded.metadata_id = mm.id AND mc_encoded.content_type = 'E' AND mc_encoded.is_encrypted = FALSE
 		</if>
 		
 		<if test="quickSearch != null || sentSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_sent ON mc_sent.message_id = m.id AND mc_sent.metadata_id = mm.id AND mc_sent.content_type = 'S'
+			LEFT JOIN d_mc${localChannelId} mc_sent ON mc_sent.message_id = m.id AND mc_sent.metadata_id = mm.id AND mc_sent.content_type = 'S' AND mc_sent.is_encrypted = FALSE
 		</if>
 		
 		<if test="quickSearch != null || responseSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_response ON mc_response.message_id = m.id AND mc_response.metadata_id = mm.id AND mc_response.content_type = 'O'
+			LEFT JOIN d_mc${localChannelId} mc_response ON mc_response.message_id = m.id AND mc_response.metadata_id = mm.id AND mc_response.content_type = 'O' AND mc_response.is_encrypted = FALSE
 		</if>
 		
 		<if test="quickSearch != null || processedResponseSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_processed_response ON mc_processed_response.message_id = m.id AND mc_processed_response.metadata_id = mm.id AND mc_processed_response.content_type = 'N'
+			LEFT JOIN d_mc${localChannelId} mc_processed_response ON mc_processed_response.message_id = m.id AND mc_processed_response.metadata_id = mm.id AND mc_processed_response.content_type = 'N' AND mc_processed_response.is_encrypted = FALSE
 		</if>
 		
 		<where>
@@ -252,8 +222,8 @@
 		</where>
 	</sql>
 	
-	<select id="selectConnectorMessagesByIds" resultMap="connectorMessageWithContent">
-		SELECT *, ${localChannelId} AS local_channel_id
+	<select id="selectConnectorMessagesByIds" resultMap="connectorMessage">
+		SELECT *, ${localChannelId} AS local_channel_id, #{channelId} AS channel_id
 		FROM d_mm${localChannelId}
 		WHERE message_id = #{messageId}
 		AND id IN
@@ -262,78 +232,14 @@
 		</foreach>
 	</select>
 	
-	<select id="selectConnectorMessagesByIdsNoContent" resultMap="connectorMessage">
-		SELECT *, ${localChannelId} AS local_channel_id
-		FROM d_mm${localChannelId}
+	<select id="selectMessageContent" resultType="map">
+		SELECT *
+		FROM d_mc${localChannelId}
 		WHERE message_id = #{messageId}
-		AND id IN
+		AND metadata_id IN
 		<foreach item="metaDataId" collection="metaDataIds" open="(" separator="," close=")">
 			#{metaDataId}
 		</foreach>
-	</select>
-
-	<select id="selectRawContent" resultMap="messageContent">
-		SELECT #{metaDataId} AS metadata_id, message_id, 'R' AS content_type, "content", is_encrypted, data_type
-		FROM d_mc${localChannelId}
-		WHERE message_id = #{messageId}
-		AND metadata_id = 0
-		
-		<choose>
-			<when test="metaDataId == 0">
-				AND content_type = 'R'
-			</when>
-			<otherwise>
-				AND content_type = 'E'
-			</otherwise>
-		</choose>
-	</select>
-	
-	<select id="selectProcessedRawContent" resultMap="messageContent">
-		SELECT *
-		FROM d_mc${localChannelId}
-		WHERE message_id = #{messageId}
-		AND metadata_id = #{metaDataId}
-		AND content_type = 'P'
-	</select>
-
-	<select id="selectTransformedContent" resultMap="messageContent">
-		SELECT *
-		FROM d_mc${localChannelId}
-		WHERE message_id = #{messageId}
-		AND metadata_id = #{metaDataId}
-		AND content_type = 'T'
-	</select>
-
-	<select id="selectEncodedContent" resultMap="messageContent">
-		SELECT *
-		FROM d_mc${localChannelId}
-		WHERE message_id = #{messageId}
-		AND metadata_id = #{metaDataId}
-		AND content_type = 'E'
-	</select>
-	
-	<select id="selectSentContent" resultMap="messageContent">
-		SELECT *
-		FROM d_mc${localChannelId}
-		WHERE message_id = #{messageId}
-		AND metadata_id = #{metaDataId}
-		AND content_type = 'S'
-	</select>
-	
-	<select id="selectResponseContent" resultMap="messageContent">
-		SELECT *
-		FROM d_mc${localChannelId}
-		WHERE message_id = #{messageId}
-		AND metadata_id = #{metaDataId}
-		AND content_type = 'O'
-	</select>
-	
-	<select id="selectProcessedResponseContent" resultMap="messageContent">
-		SELECT *
-		FROM d_mc${localChannelId}
-		WHERE message_id = #{messageId}
-		AND metadata_id = #{metaDataId}
-		AND content_type = 'N'
 	</select>
 	
 	<select id="selectCustomMetaData" parameterType="map" resultType="map">

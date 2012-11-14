@@ -58,15 +58,16 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConfiguration;
+import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.Serializer;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.MessageResponse;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.channel.StorageSettings;
-import com.mirth.connect.donkey.server.channel.components.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
@@ -221,7 +222,7 @@ public class TestUtils {
         destinationConnector.setMetaDataId(metaDataId);
 
         ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
-        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, false, Donkey.getInstance().getDaoFactory()));
+        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, false, Donkey.getInstance().getDaoFactory(), new PassthruEncryptor()));
         destinationConnector.setQueue(destinationConnectorQueue);
     }
 
@@ -532,8 +533,11 @@ public class TestUtils {
             result = statement.executeQuery();
 
             if (result.next()) {
-                assertTrue(testEquality(result.getString("content"), content.getContent()));
-                assertTrue(testEquality(result.getBoolean("is_encrypted"), content.isEncrypted()));
+                if (result.getBoolean("is_encrypted")) {
+                    assertTrue(testEquality(result.getString("content"), content.getEncryptedContent()));
+                } else {
+                    assertTrue(testEquality(result.getString("content"), content.getContent()));
+                }
             } else {
                 throw new AssertionError();
             }
@@ -575,7 +579,7 @@ public class TestUtils {
         assertEquals(messageContent1.getMetaDataId(), messageContent2.getMetaDataId());
         assertEquals(messageContent1.getContentType(), messageContent2.getContentType());
         assertEquals(messageContent1.getContent(), messageContent2.getContent());
-        assertEquals(messageContent1.isEncrypted(), messageContent2.isEncrypted());
+        assertEquals(messageContent1.getEncryptedContent(), messageContent2.getEncryptedContent());
     }
 
     public static void assertAttachmentExists(String channelId, long messageId, Attachment attachment) throws SQLException {
@@ -1002,7 +1006,7 @@ public class TestUtils {
     public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDao dao) {
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getDateCreated(), Status.RECEIVED);
-        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), false));
+        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null));
 
         if (rawMessage.getChannelMap() != null) {
             sourceMessage.setChannelMap(rawMessage.getChannelMap());
@@ -1018,7 +1022,7 @@ public class TestUtils {
 
     public static ConnectorMessage createAndStoreDestinationConnectorMessage(DonkeyDao dao, String channelId, String serverId, long messageId, int metaDataId, String rawContent, Status status) {
         ConnectorMessage connectorMessage = new ConnectorMessage(channelId, messageId, metaDataId, serverId, Calendar.getInstance(), status);
-        connectorMessage.setRaw(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, rawContent, false));
+        connectorMessage.setRaw(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, rawContent, null));
 
         dao.insertConnectorMessage(connectorMessage, false);
         dao.insertMessageContent(connectorMessage.getRaw());

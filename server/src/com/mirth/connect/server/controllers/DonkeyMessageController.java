@@ -24,6 +24,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
+import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
@@ -143,7 +144,6 @@ public class DonkeyMessageController extends MessageController {
         Map<String, Object> params = getParameters(filter, channel.getChannelId(), offset, limit);
         List<Map<String, Object>> rows = session.selectList("Message.searchMessages", params);
 
-        Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
         Long localChannelId = ChannelController.getInstance().getLocalChannelId(channel.getChannelId());
 
         for (Map<String, Object> row : rows) {
@@ -160,10 +160,11 @@ public class DonkeyMessageController extends MessageController {
             Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
 
             params = new HashMap<String, Object>();
+            params.put("channelId", channel.getChannelId());
             params.put("localChannelId", localChannelId);
             params.put("messageId", message.getMessageId());
             params.put("metaDataIds", metaDataIds);
-            List<ConnectorMessage> connectorMessages = session.selectList((includeContent) ? "Message.selectConnectorMessagesByIds" : "Message.selectConnectorMessagesByIdsNoContent", params);
+            List<ConnectorMessage> connectorMessages = session.selectList("Message.selectConnectorMessagesByIds", params);
 
             for (ConnectorMessage connectorMessage : connectorMessages) {
                 Integer metaDataId = connectorMessage.getMetaDataId();
@@ -174,8 +175,29 @@ public class DonkeyMessageController extends MessageController {
                     connectorMessage.setConnectorName(channel.getDestinationConnector(metaDataId).getDestinationName());
                 }
 
-                decryptConnectorMessage(connectorMessage, encryptor);
                 message.getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
+            }
+            
+            if (includeContent) {
+                List<Map<String, Object>> contentList = session.selectList("Message.selectMessageContent", params);
+                
+                for (Map<String, Object> content : contentList) {
+                    MessageContent messageContent = new MessageContent();
+                    messageContent.setChannelId(channel.getChannelId());
+                    messageContent.setMessageId((Long) content.get("message_id"));
+                    messageContent.setMetaDataId((Integer) content.get("metadata_id"));
+                    messageContent.setContentType(ContentType.fromChar(((String)content.get("content_type")).charAt(0)));
+                    
+                    String contentString = (String) content.get("content");
+                    
+                    if ((Boolean) content.get("is_encrypted")) {
+                        messageContent.setEncryptedContent(contentString);
+                    } else {
+                        messageContent.setContent(contentString);
+                    }
+                    
+                    message.getConnectorMessages().get(messageContent.getMetaDataId()).setContent(messageContent);
+                }
             }
 
             messages.add(message);
@@ -353,18 +375,19 @@ public class DonkeyMessageController extends MessageController {
                 Integer reprocessingId = (Integer) message.get("reprocessing_id");
                 Long messageId = (Long) message.get("message_id");
                 String rawContent = (String) message.get("content");
-                Boolean isEncrypted = (Boolean) message.get("is_encrypted");
+                String encryptedRawContent = null;
                 RawMessage rawMessage = null;
 
-                if (isEncrypted) {
-                    rawContent = encryptor.decrypt(rawContent);
+                if ((Boolean) message.get("is_encrypted")) {
+                    encryptedRawContent = rawContent;
+                    rawContent = encryptor.decrypt(encryptedRawContent);
                 }
 
                 ConnectorMessage connectorMessage = new ConnectorMessage();
                 connectorMessage.setChannelId(channelId);
                 connectorMessage.setMessageId(messageId);
                 connectorMessage.setMetaDataId(0);
-                connectorMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, rawContent, false));
+                connectorMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, rawContent, encryptedRawContent));
                 
                 if (dataType.getType().equals(DataTypeFactory.DICOM)) {
                     rawMessage = new RawMessage(DICOMUtil.getDICOMRawBytes(connectorMessage));
@@ -417,9 +440,13 @@ public class DonkeyMessageController extends MessageController {
     }
     
     @Override
-    public void importMessage(Message message) {
-        decryptMessage(message, ConfigurationController.getInstance().getEncryptor());
-        com.mirth.connect.donkey.server.controllers.MessageController.getInstance().importMessage(message);
+    public void importMessage(Message message) throws MessageImportException {
+        try {
+            decryptMessage(message, ConfigurationController.getInstance().getEncryptor());
+            com.mirth.connect.donkey.server.controllers.MessageController.getInstance().importMessage(message);
+        } catch (DonkeyException e) {
+            throw new MessageImportException(e);
+        }
     }
 
     @Override
@@ -448,9 +475,49 @@ public class DonkeyMessageController extends MessageController {
     }
 
     private void decryptMessageContent(MessageContent content, Encryptor encryptor) {
-        if (content != null && content.isEncrypted()) {
-            content.setContent(encryptor.decrypt(content.getContent()));
-            content.setEncrypted(false);
+        if (content != null) {
+            if (content.getContent() == null) {
+                String encryptedContent = content.getEncryptedContent();
+                
+                if (encryptedContent != null) {
+                    content.setContent(encryptor.decrypt(encryptedContent));
+                }
+            }
+            
+            content.setEncryptedContent(null);
+        }
+    }
+    
+    @Override
+    public void encryptMessage(Message message, Encryptor encryptor) {
+        for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
+            encryptConnectorMessage(connectorMessage, encryptor);
+        }
+    }
+
+    private void encryptConnectorMessage(ConnectorMessage connectorMessage, Encryptor encryptor) {
+        if (connectorMessage != null) {
+            encryptMessageContent(connectorMessage.getRaw(), encryptor);
+            encryptMessageContent(connectorMessage.getProcessedRaw(), encryptor);
+            encryptMessageContent(connectorMessage.getTransformed(), encryptor);
+            encryptMessageContent(connectorMessage.getEncoded(), encryptor);
+            encryptMessageContent(connectorMessage.getSent(), encryptor);
+            encryptMessageContent(connectorMessage.getResponse(), encryptor);
+            encryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
+        }
+    }
+
+    private void encryptMessageContent(MessageContent content, Encryptor encryptor) {
+        if (content != null) {
+            if (content.getEncryptedContent() == null) {
+                String unencryptedContent = content.getContent();
+                
+                if (unencryptedContent != null) {
+                    content.setEncryptedContent(encryptor.encrypt(unencryptedContent));
+                }
+            }
+            
+            content.setContent(null);
         }
     }
 }

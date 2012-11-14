@@ -92,8 +92,17 @@ public class JdbcDao implements DonkeyDao {
             statement.setInt(1, messageContent.getMetaDataId());
             statement.setLong(2, messageContent.getMessageId());
             statement.setString(3, Character.toString(messageContent.getContentType().getContentTypeCode()));
-            statement.setString(4, messageContent.getContent());
-            statement.setBoolean(5, messageContent.isEncrypted());
+            
+            String encryptedContent = messageContent.getEncryptedContent();
+            
+            if (encryptedContent != null) {
+                statement.setString(4, encryptedContent);
+                statement.setBoolean(5, true);
+            } else {
+                statement.setString(4, messageContent.getContent());
+                statement.setBoolean(5, false);
+            }
+            
             statement.executeUpdate();
             statement.clearParameters();
         } catch (SQLException e) {
@@ -108,8 +117,17 @@ public class JdbcDao implements DonkeyDao {
             statement.setInt(1, messageContent.getMetaDataId());
             statement.setLong(2, messageContent.getMessageId());
             statement.setString(3, Character.toString(messageContent.getContentType().getContentTypeCode()));
-            statement.setString(4, messageContent.getContent());
-            statement.setBoolean(5, messageContent.isEncrypted());
+            
+            String encryptedContent = messageContent.getEncryptedContent();
+            
+            if (encryptedContent != null) {
+                statement.setString(4, encryptedContent);
+                statement.setBoolean(5, true);
+            } else {
+                statement.setString(4, messageContent.getContent());
+                statement.setBoolean(5, false);
+            }
+            
             statement.addBatch();
             statement.clearParameters();
         } catch (SQLException e) {
@@ -132,15 +150,23 @@ public class JdbcDao implements DonkeyDao {
         try {
             PreparedStatement statement = statementSource.getPreparedStatement("storeMessageContent", channelController.getLocalChannelId(messageContent.getChannelId()));
 
-            String content = messageContent.getContent();
-
-            if (content == null) {
-                statement.setNull(1, Types.LONGVARCHAR);
+            String encryptedContent = messageContent.getEncryptedContent();
+            
+            if (encryptedContent != null) {
+                statement.setString(1, encryptedContent);
+                statement.setBoolean(2, true);
             } else {
-                statement.setString(1, content);
+                String content = messageContent.getContent();
+    
+                if (content == null) {
+                    statement.setNull(1, Types.LONGVARCHAR);
+                } else {
+                    statement.setString(1, content);
+                }
+                
+                statement.setBoolean(2, false);
             }
 
-            statement.setBoolean(2, messageContent.isEncrypted());
             statement.setInt(3, messageContent.getMetaDataId());
             statement.setLong(4, messageContent.getMessageId());
             statement.setString(5, Character.toString(messageContent.getContentType().getContentTypeCode()));
@@ -305,6 +331,7 @@ public class JdbcDao implements DonkeyDao {
             statement.setLong(2, connectorMessage.getMessageId());
             statement.setTimestamp(3, new Timestamp(connectorMessage.getDateCreated().getTimeInMillis()));
             statement.setString(4, Character.toString(connectorMessage.getStatus().getStatusCode()));
+            // TODO insert send attempts
 
             Map<String, Object> connectorMap;
             Map<String, Object> channelMap;
@@ -1295,9 +1322,13 @@ public class JdbcDao implements DonkeyDao {
             messageContent.setMessageId(messageId);
             messageContent.setMetaDataId(metaDataId);
             messageContent.setContentType(ContentType.fromChar(resultSet.getString("content_type").charAt(0)));
-            messageContent.setContent(resultSet.getString("content"));
-            messageContent.setEncrypted(resultSet.getBoolean("is_encrypted"));
-
+            
+            if (resultSet.getBoolean("is_encrypted")) {
+                messageContent.setEncryptedContent(resultSet.getString("content"));
+            } else {
+                messageContent.setContent(resultSet.getString("content"));
+            }
+            
             return messageContent;
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -1316,14 +1347,16 @@ public class JdbcDao implements DonkeyDao {
             resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                MessageContent messageContent = new MessageContent();
-                messageContent.setChannelId(channelId);
-                messageContent.setMessageId(messageId);
-                messageContent.setMetaDataId(metaDataId);
-                messageContent.setContentType(contentType);
-                messageContent.setContent(resultSet.getString("content"));
-                messageContent.setEncrypted(resultSet.getBoolean("is_encrypted"));
-                return messageContent;
+                String content = null;
+                String encryptedContent = null;
+                
+                if (resultSet.getBoolean("is_encrypted")) {
+                    encryptedContent = resultSet.getString("content");
+                } else {
+                    content = resultSet.getString("content");
+                }
+                
+                return new MessageContent(channelId, messageId, metaDataId, contentType, content, encryptedContent);
             }
 
             return null;

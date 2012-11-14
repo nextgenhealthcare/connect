@@ -270,7 +270,7 @@ public class DonkeyDaoTests {
                 dao.commit();
 
                 for (ContentType contentType : ContentType.values()) {
-                    MessageContent messageContent = new MessageContent(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId(), contentType, testMessage, false);
+                    MessageContent messageContent = new MessageContent(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId(), contentType, testMessage, null);
                     sourceMessage.setContent(messageContent);
 
                     if (contentType != ContentType.RAW) {
@@ -427,7 +427,7 @@ public class DonkeyDaoTests {
                 dao.commit();
 
                 for (ContentType contentType : ContentType.values()) {
-                    MessageContent messageContent = new MessageContent(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId(), contentType, testMessage, false);
+                    MessageContent messageContent = new MessageContent(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId(), contentType, testMessage, null);
                     sourceMessage.setContent(messageContent);
                     dao.storeMessageContent(messageContent);
                     dao.commit();

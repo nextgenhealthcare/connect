@@ -26,10 +26,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
-import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.server.Serializer;
+import com.mirth.connect.server.controllers.MessageController;
 
 public class MessageExporter {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -37,6 +37,7 @@ public class MessageExporter {
     private MessageRetriever messageRetriever;
     private Encryptor encryptor;
     private Serializer serializer;
+    private MessageController messageController = MessageController.getInstance();
     private String dateFormat = "yyyyMMdd";
 
     public MessageExportOptions getOptions() {
@@ -254,25 +255,37 @@ public class MessageExporter {
 
     private boolean exportMessage(Message message, Writer writer) throws MessageExporterException {
         try {
-            ContentType contentType = options.getContentType();
-            boolean isEncrypt = options.isEncrypt();
             String content = null;
+            boolean isEncrypt = options.isEncrypt();
 
-            if (contentType != null) {
-                MessageContent messageContent = message.getConnectorMessages().get(0).getContent(contentType);
+            if (options.getContentType() != null) {
+                MessageContent messageContent = message.getConnectorMessages().get(0).getContent(options.getContentType());
                 
                 if (messageContent != null) {
-                    content = messageContent.getContent();
-    
-                    if (StringUtils.isNotBlank(content)) {
-                        if (isEncrypt && !messageContent.isEncrypted()) {
-                            content = getEncryptor().encrypt(content);
-                        } else if (!isEncrypt && messageContent.isEncrypted()) {
-                            content = getEncryptor().decrypt(content);
+                    String unencrypted = messageContent.getContent();
+                    String encrypted = messageContent.getEncryptedContent();
+                    
+                    if (isEncrypt) {
+                        if (encrypted != null) {
+                            content = encrypted;
+                        } else if (unencrypted != null && !StringUtils.isBlank(unencrypted)) {
+                            content = encryptor.encrypt(unencrypted);
+                        }
+                    } else {
+                        if (unencrypted != null) {
+                            content = unencrypted;
+                        } else if (encrypted != null && !StringUtils.isBlank(encrypted)) {
+                            content = encryptor.decrypt(encrypted);
                         }
                     }
                 }
             } else {
+                if (isEncrypt) {
+                    messageController.encryptMessage(message, encryptor);
+                } else {
+                    messageController.decryptMessage(message, encryptor);
+                }
+                
                 content = serializer.serialize(message);
             }
 

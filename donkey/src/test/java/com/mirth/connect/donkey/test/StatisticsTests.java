@@ -26,6 +26,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
@@ -221,7 +222,7 @@ public class StatisticsTests {
             destinationConnector.setResponseTransformer(new TestResponseTransformer());
 
             ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
-            destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), i, Status.QUEUED, false, daoFactory));
+            destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), i, Status.QUEUED, false, daoFactory, new PassthruEncryptor()));
             destinationConnectorQueue.updateSize();
             destinationConnector.setQueue(destinationConnectorQueue);
 
@@ -369,7 +370,7 @@ public class StatisticsTests {
         params.put("status", Status.QUEUED);
 
         ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
-        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), 1, Status.QUEUED, false, daoFactory));
+        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), 1, Status.QUEUED, false, daoFactory, new PassthruEncryptor()));
         destinationConnector.setQueue(destinationConnectorQueue);
 
         ((TestDispatcher) destinationConnector).setReturnStatus(returnStatus);

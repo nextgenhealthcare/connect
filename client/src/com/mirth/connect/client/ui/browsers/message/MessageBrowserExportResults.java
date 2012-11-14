@@ -352,7 +352,7 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
             options.setContentType((ContentType) format);
         }
         
-        options.setEncrypt(false);
+        options.setEncrypt(parent.mirthClient.isEncryptExport());
         options.setCharset(UIConstants.CHARSET);
         
         try {

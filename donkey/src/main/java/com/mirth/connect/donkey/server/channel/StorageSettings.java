@@ -16,7 +16,6 @@ public class StorageSettings {
     
     private boolean messageRecoveryEnabled = true;
     private boolean removeContentOnCompletion = false;
-    private boolean encryptContent = false;
 
     private boolean storeAttachments = true;
     private boolean storeCustomMetaData = true;
@@ -90,14 +89,6 @@ public class StorageSettings {
         this.removeContentOnCompletion = removeContentOnCompletion;
     }
 
-    public boolean isEncryptContent() {
-        return encryptContent;
-    }
-
-    public void setEncryptContent(boolean encryptContent) {
-        this.encryptContent = encryptContent;
-    }
-
     public boolean isStoreAttachments() {
         return storeAttachments;
     }
@@ -146,6 +137,7 @@ public class StorageSettings {
         this.storeSourceEncoded = storeEncoded;
     }
 
+    // TODO: this isn't being referenced anywhere yet
     public boolean isStoreDestinationEncoded() {
         return storeDestinationEncoded;
     }

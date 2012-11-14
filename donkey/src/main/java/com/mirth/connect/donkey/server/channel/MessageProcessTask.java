@@ -27,6 +27,7 @@ import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
+import com.mirth.connect.donkey.server.Encryptor;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
@@ -38,6 +39,7 @@ final class MessageProcessTask implements Callable<MessageResponse> {
     private Channel channel;
     private StorageSettings storageSettings;
     private DonkeyDaoFactory daoFactory;
+    private Encryptor encryptor;
     private ResponseSelector responseSelector;
     private boolean waitForDestinations;
     private Logger logger = Logger.getLogger(getClass());
@@ -49,6 +51,7 @@ final class MessageProcessTask implements Callable<MessageResponse> {
         this.channel = channel;
         this.storageSettings = channel.getStorageSettings();
         this.daoFactory = channel.getDaoFactory();
+        this.encryptor = channel.getEncryptor();
         this.waitForDestinations = channel.getSourceConnector().isWaitForDestinations();
         this.responseSelector = channel.getResponseSelector();
     }
@@ -135,7 +138,7 @@ final class MessageProcessTask implements Callable<MessageResponse> {
         }
 
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, messageId, 0, channel.getServerId(), dateCreated, Status.RECEIVED);
-        sourceMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, null, false));
+        sourceMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, null, null));
 
         if (rawMessage.getChannelMap() != null) {
             sourceMessage.setChannelMap(rawMessage.getChannelMap());
@@ -188,13 +191,16 @@ final class MessageProcessTask implements Callable<MessageResponse> {
                 rawMessage.clearMessage();
             }
         }
+        
+        MessageContent raw = sourceMessage.getRaw();
+        raw.setEncryptedContent(encryptor.encrypt(raw.getContent()));
 
         ThreadUtils.checkInterruptedStatus();
         dao.insertConnectorMessage(sourceMessage, storageSettings.isStoreMaps());
 
         if (storageSettings.isStoreRaw()) {
             ThreadUtils.checkInterruptedStatus();
-            dao.insertMessageContent(sourceMessage.getRaw());
+            dao.insertMessageContent(raw);
         }
 
         return sourceMessage;

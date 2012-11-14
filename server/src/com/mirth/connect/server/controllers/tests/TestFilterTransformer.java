@@ -10,14 +10,12 @@
 package com.mirth.connect.server.controllers.tests;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.server.channel.components.FilterResponse;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
 
 public class TestFilterTransformer implements FilterTransformer {
     @Override
     public boolean doFilterTransform(ConnectorMessage message) {
-        FilterResponse filterResponse = new FilterResponse(false, message.getRaw().getContent());
-        return filterResponse.isFiltered();
+        return false;
     }
 
     @Override

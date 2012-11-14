@@ -25,6 +25,7 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.Encryptor;
 import com.mirth.connect.donkey.server.Serializer;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
@@ -44,6 +45,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
     private ResponseTransformer responseTransformer;
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
+    private Encryptor encryptor;
     private ChannelState currentState = ChannelState.STOPPED;
     private Logger logger = Logger.getLogger(getClass());
 
@@ -103,6 +105,10 @@ public abstract class DestinationConnector extends Connector implements Connecto
     
     protected void setDaoFactory(DonkeyDaoFactory daoFactory) {
         this.daoFactory = daoFactory;
+    }
+
+    protected void setEncryptor(Encryptor encryptor) {
+        this.encryptor = encryptor;
     }
 
     public ChannelState getCurrentState() {
@@ -184,16 +190,9 @@ public abstract class DestinationConnector extends Connector implements Connecto
     }
 
     private MessageContent getSentContent(ConnectorMessage message, ConnectorProperties connectorProperties) {
-        MessageContent sentContent = new MessageContent();
-        sentContent.setChannelId(message.getChannelId());
-        sentContent.setContentType(ContentType.SENT);
-        sentContent.setEncrypted(false);
-        sentContent.setMessageId(message.getMessageId());
-        sentContent.setMetaDataId(message.getMetaDataId());
         // TODO: store the serializer as a class variable?
-        sentContent.setContent(Donkey.getInstance().getSerializer().serialize(connectorProperties));
-
-        return sentContent;
+        String content = Donkey.getInstance().getSerializer().serialize(connectorProperties);
+        return new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.SENT, content, encryptor.encrypt(content));
     }
 
     /**
@@ -402,7 +401,8 @@ public abstract class DestinationConnector extends Connector implements Connecto
             dao.updateErrors(message);
         }
     	
-        MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, response.toString(), false);
+        String responseString = response.toString();
+        MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, responseString, encryptor.encrypt(responseString));
 
         if (storageSettings.isStoreResponse()) {
             ThreadUtils.checkInterruptedStatus();
@@ -465,7 +465,8 @@ public abstract class DestinationConnector extends Connector implements Connecto
          */
 
         // store the processed response in the message
-        MessageContent processedResponse = new MessageContent(getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.PROCESSED_RESPONSE, response.toString(), false);
+        String responseString = response.toString();
+        MessageContent processedResponse = new MessageContent(getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.PROCESSED_RESPONSE, responseString, encryptor.encrypt(responseString));
         message.setProcessedResponse(processedResponse);
 
         if (storageSettings.isStoreProcessedResponse()) {

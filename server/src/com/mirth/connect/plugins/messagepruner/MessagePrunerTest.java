@@ -217,8 +217,8 @@ public class MessagePrunerTest {
         message.getConnectorMessages().put(1, destinationMessage);
 
         if (contentPrunable != null) {
-            sourceMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 0, ContentType.RAW, TEST_MESSAGE_CONTENT, false));
-            destinationMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 1, ContentType.RAW, TEST_MESSAGE_CONTENT, false));
+            sourceMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 0, ContentType.RAW, TEST_MESSAGE_CONTENT, null));
+            destinationMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 1, ContentType.RAW, TEST_MESSAGE_CONTENT, null));
         }
 
         TestUtils.createTestMessagesFast(TEST_CHANNEL_ID, message, power);

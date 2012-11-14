@@ -21,6 +21,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
@@ -41,12 +42,12 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.MessageResponse;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.channel.StorageSettings;
-import com.mirth.connect.donkey.server.channel.components.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.components.PostProcessor;
 import com.mirth.connect.donkey.server.channel.components.PreProcessor;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
@@ -410,6 +411,22 @@ public class DonkeyEngineController implements EngineController {
         channel.setSourceFilterTransformer(createFilterTransformerExecutor(channelId, model.getSourceConnector()));
         
         if (storageSettings.isEnabled()) {
+            if (channelProperties.isEncryptData()) {
+                final Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
+                
+                channel.setEncryptor(new com.mirth.connect.donkey.server.Encryptor() {
+                    @Override
+                    public String encrypt(String text) {
+                        return encryptor.encrypt(text);
+                    }
+                    
+                    @Override
+                    public String decrypt(String text) {
+                        return encryptor.decrypt(text);
+                    }
+                });
+            }
+            
             channel.setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory()));
         } else {
             channel.setDaoFactory(new PassthruDaoFactory(new DelayedStatisticsUpdater(Donkey.getInstance().getDaoFactory())));
@@ -436,7 +453,6 @@ public class DonkeyEngineController implements EngineController {
     public static StorageSettings getStorageSettings(MessageStorageMode messageStorageMode, ChannelProperties channelProperties) {
         StorageSettings storageSettings = new StorageSettings();
         storageSettings.setRemoveContentOnCompletion(channelProperties.isRemoveContentOnCompletion());
-        storageSettings.setEncryptContent(channelProperties.isEncryptData());
 
         // we assume that all storage settings are enabled by default
         switch (messageStorageMode) {

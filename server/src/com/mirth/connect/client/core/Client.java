@@ -738,8 +738,13 @@ public class Client {
     }
 
     private void encryptMessageContent(MessageContent content, Encryptor encryptor) {
-        if (content != null && !content.isEncrypted()) {
-            content.setContent(encryptor.encrypt(content.getContent()));
+        if (content != null) {
+            String unencryptedContent = content.getContent();
+            
+            if (unencryptedContent != null) {
+                content.setEncryptedContent(encryptor.encrypt(unencryptedContent));
+                content.setContent(null);
+            }
         }
     }
     
@@ -764,9 +769,12 @@ public class Client {
     }
 
     private void decryptMessageContent(MessageContent content, Encryptor encryptor) {
-        if (content != null && content.isEncrypted()) {
-            content.setContent(encryptor.decrypt(content.getContent()));
-            content.setEncrypted(false);
+        if (content != null) {
+            String encryptedContent = content.getEncryptedContent();
+            
+            if (encryptedContent != null) {
+                content.setContent(encryptor.decrypt(encryptedContent));
+            }
         }
     }
     

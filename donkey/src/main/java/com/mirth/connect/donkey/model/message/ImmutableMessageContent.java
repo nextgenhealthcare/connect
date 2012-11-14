@@ -31,8 +31,4 @@ public class ImmutableMessageContent {
     public int getMetaDataId() {
         return messageContent.getMetaDataId();
     }
-
-    public boolean isEncrypted() {
-        return messageContent.isEncrypted();
-    }
 }

@@ -574,7 +574,7 @@ public class DestinationConnectorTests {
             MessageResponse messageResponse = ((TestSourceConnector) channel.getSourceConnector()).readTestMessage(testMessage);
 
             // Assert that the processed response was stored
-            MessageContent messageContent = new MessageContent(channel.getChannelId(), messageResponse.getMessageId(), 1, ContentType.PROCESSED_RESPONSE, finalResponse.toString(), false);
+            MessageContent messageContent = new MessageContent(channel.getChannelId(), messageResponse.getMessageId(), 1, ContentType.PROCESSED_RESPONSE, finalResponse.toString(), null);
             TestUtils.assertMessageContentExists(messageContent);
 
             // Assert that the entry in the response map was overwritten

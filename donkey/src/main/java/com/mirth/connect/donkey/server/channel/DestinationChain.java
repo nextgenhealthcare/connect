@@ -26,7 +26,6 @@ import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.channel.components.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.util.DonkeyCloner;
@@ -230,7 +229,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                     nextMessage = new ConnectorMessage(message.getChannelId(), message.getMessageId(), nextMetaDataId, message.getServerId(), Calendar.getInstance(), Status.RECEIVED);
                     nextMessage.setChannelMap((Map<String, Object>) cloner.clone(message.getChannelMap()));
                     nextMessage.setResponseMap((Map<String, Response>) cloner.clone(message.getResponseMap()));
-                    nextMessage.setRaw(new MessageContent(message.getChannelId(), message.getMessageId(), nextMetaDataId, ContentType.RAW, message.getRaw().getContent(), message.getRaw().isEncrypted()));
+                    nextMessage.setRaw(new MessageContent(message.getChannelId(), message.getMessageId(), nextMetaDataId, ContentType.RAW, message.getRaw().getContent(), message.getRaw().getEncryptedContent()));
 
                     ThreadUtils.checkInterruptedStatus();
                     dao.insertConnectorMessage(nextMessage, storageSettings.isStoreMaps());

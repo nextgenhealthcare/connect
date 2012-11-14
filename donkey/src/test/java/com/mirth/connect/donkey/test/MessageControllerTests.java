@@ -35,6 +35,7 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
@@ -230,13 +231,13 @@ public class MessageControllerTests {
                 message.setMessageId((long) i);
                 for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
                     connectorMessage.setMessageId(message.getMessageId());
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RAW, testMessage, false));
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSED_RAW, testMessage, false));
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.TRANSFORMED, testMessage, false));
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.ENCODED, testMessage, false));
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.SENT, testMessage, false));
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE, testMessage, false));
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSED_RESPONSE, testMessage, false));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RAW, testMessage, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSED_RAW, testMessage, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.TRANSFORMED, testMessage, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.ENCODED, testMessage, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.SENT, testMessage, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE, testMessage, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSED_RESPONSE, testMessage, null));
                 }
 
                 MessageController.getInstance().importMessage(message);
@@ -255,12 +256,12 @@ public class MessageControllerTests {
     public void testDeleteMessage() throws Exception {
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId);
         channel.getSourceConnector().setWaitForDestinations(false);
-        channel.getSourceQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, Donkey.getInstance().getDaoFactory()));
+        channel.getSourceQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, Donkey.getInstance().getDaoFactory(), new PassthruEncryptor()));
         channel.getSourceQueue().updateSize();
 
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getDateCreated(), Status.RECEIVED);
-        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, testMessage, false));
+        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, testMessage, null));
         message.getConnectorMessages().put(0, sourceMessage);
 
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();

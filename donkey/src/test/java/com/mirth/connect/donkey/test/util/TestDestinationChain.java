@@ -14,7 +14,7 @@ import java.util.Map;
 
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.donkey.server.channel.components.FilterTransformerExecutor;
+import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 
 public class TestDestinationChain extends DestinationChain {
     private Map<Integer, FilterTransformerExecutor> filterTransformerExecutors = new HashMap<Integer, FilterTransformerExecutor>();

@@ -13,6 +13,8 @@ import java.util.List;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.Encryptor;
+import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 
@@ -21,16 +23,19 @@ public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDa
     private String channelId;
     private int metaDataId;
     private Status status;
+    private Encryptor encryptor;
+    private MessageController messageController = MessageController.getInstance();
     private boolean rotate;
     private Long maxMessageId = null;
     private Long minMessageId = null;
 
-    public ConnectorMessageQueueDataSource(String channelId, int metaDataId, Status status, boolean rotate, DonkeyDaoFactory daoFactory) {
+    public ConnectorMessageQueueDataSource(String channelId, int metaDataId, Status status, boolean rotate, DonkeyDaoFactory daoFactory, Encryptor encryptor) {
         this.channelId = channelId;
         this.metaDataId = metaDataId;
         this.status = status;
         this.rotate = rotate;
         this.daoFactory = daoFactory;
+        this.encryptor = encryptor;
     }
 
     public DonkeyDaoFactory getDaoFactory() {
@@ -75,6 +80,14 @@ public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDa
     	this.minMessageId = ((ConnectorMessage) o).getMessageId() + 1;
     }
 
+    public Encryptor getEncryptor() {
+        return encryptor;
+    }
+
+    public void setEncryptor(Encryptor encryptor) {
+        this.encryptor = encryptor;
+    }
+
     @Override
     public int getSize() {
         DonkeyDao dao = getDaoFactory().getDao();
@@ -96,16 +109,21 @@ public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDa
 
     @Override
     public List<ConnectorMessage> getItems(int offset, int limit) {
-        DonkeyDao dao = getDaoFactory().getDao();
+        DonkeyDao dao = daoFactory.getDao();
 
         try {
-        	List<ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
-        	
-        	if (rotate && connectorMessages.size() == 0) {
-        		minMessageId = 0L;
-        		maxMessageId = dao.getConnectorMessageMaxMessageId(channelId, metaDataId, status);
-        		connectorMessages = dao.getConnectorMessages(channelId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
-        	}
+            List<ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
+            
+            if (rotate && connectorMessages.size() == 0) {
+                minMessageId = 0L;
+                maxMessageId = dao.getConnectorMessageMaxMessageId(channelId, metaDataId, status);
+                connectorMessages = dao.getConnectorMessages(channelId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
+            }
+            
+            for (ConnectorMessage connectorMessage : connectorMessages) {
+                messageController.decryptConnectorMessage(connectorMessage, encryptor);
+            }
+            
             return connectorMessages;
         } finally {
             dao.close();

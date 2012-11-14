@@ -35,11 +35,12 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
-import com.mirth.connect.donkey.server.channel.components.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
@@ -76,7 +77,7 @@ public class TestUtils {
         destinationConnector.setResponseTransformer(new TestResponseTransformer());
 
         ConnectorMessageQueue queue = new ConnectorMessageQueue();
-        queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 1, Status.QUEUED, false, Donkey.getInstance().getDaoFactory()));
+        queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 1, Status.QUEUED, false, Donkey.getInstance().getDaoFactory(), new PassthruEncryptor()));
         destinationConnector.setQueue(queue);
 
         return channel;
@@ -105,7 +106,7 @@ public class TestUtils {
 
             for (int j = 0; j < destinationsPerChain; j++) {
                 ConnectorMessageQueue queue = new ConnectorMessageQueue();
-                queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, false, Donkey.getInstance().getDaoFactory()));
+                queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, false, Donkey.getInstance().getDaoFactory(), new PassthruEncryptor()));
 
                 TestDestinationConnector testDestinationConnector = new TestDestinationConnector();
                 testDestinationConnector.setChannelId(channelId);
@@ -192,7 +193,7 @@ public class TestUtils {
     public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDao dao) {
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getDateCreated(), Status.RECEIVED);
-        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), false));
+        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null));
 
         if (rawMessage.getChannelMap() != null) {
             sourceMessage.setChannelMap(rawMessage.getChannelMap());
