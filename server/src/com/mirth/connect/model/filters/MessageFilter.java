@@ -43,7 +43,7 @@ public class MessageFilter implements Serializable {
     private Set<Status> statuses;
     private List<Integer> metaDataIds;
     private String serverId;
-    private List<String> dataTypes;
+    private Long importId;
     private Map<ContentType, String> contentSearch = new HashMap<ContentType, String>();
     private List<MetaDataSearchElement> metaDataSearch;
     private Integer sendAttemptsLower;
@@ -108,7 +108,15 @@ public class MessageFilter implements Serializable {
         this.serverId = serverId;
     }
 
-    public Map<ContentType, String> getContentSearch() {
+    public Long getImportId() {
+		return importId;
+	}
+
+	public void setImportId(Long importId) {
+		this.importId = importId;
+	}
+
+	public Map<ContentType, String> getContentSearch() {
         return contentSearch;
     }
 

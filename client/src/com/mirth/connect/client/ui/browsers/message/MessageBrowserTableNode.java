@@ -13,14 +13,14 @@ import com.mirth.connect.client.ui.AbstractSortableTreeTableNode;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 
 public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
-    private final static int NUM_STATIC_COLUMNS = 4;
+    private final static int NUM_STATIC_COLUMNS = 7;
 
     private Object[] row;
     private Long messageId;
     private Integer metaDataId;
     private Boolean active;
 
-    public MessageBrowserTableNode(Long messageId) {
+    public MessageBrowserTableNode(Long messageId, Long importId) {
         row = new Object[NUM_STATIC_COLUMNS];
 
         active = false;
@@ -28,9 +28,12 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
         row[1] = "--";
         row[2] = "--";
         row[3] = null;
+        row[4] = "--";
+        row[5] = null;
+        row[6] = importId;
     }
 
-    public MessageBrowserTableNode(ConnectorMessage connectorMessage, MessageBrowserTableModel model) {
+    public MessageBrowserTableNode(ConnectorMessage connectorMessage, MessageBrowserTableModel model, Long importId) {
         row = new Object[model.getColumnCount()];
 
         messageId = connectorMessage.getMessageId();
@@ -39,13 +42,17 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
 
         if (connectorMessage.getMetaDataId() == 0) {
             row[0] = messageId;
+            row[6] = importId;
         } else {
             row[0] = null;
+            row[6] = null;
         }
 
         row[1] = connectorMessage.getConnectorName();
         row[2] = connectorMessage.getStatus();
         row[3] = connectorMessage.getDateCreated();
+        row[4] = connectorMessage.getServerId();
+        row[5] = connectorMessage.getSendAttempts();
 
         for (int i = NUM_STATIC_COLUMNS; i < model.getColumnCount(); i++) {
             row[i] = connectorMessage.getMetaDataMap().get(model.getColumnName(i).toLowerCase());

@@ -56,6 +56,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
 import javax.swing.text.DateFormatter;
 
 import org.apache.commons.lang.StringUtils;
@@ -128,7 +129,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private MessageBrowserAdvancedFilter advancedSearchPopup;
     private MessageBrowserExportResults exportResultsPopup;
     private JPopupMenu attachmentPopupMenu;
-    private final String[] columns = new String[] { "ID", "Connector", "Status", "Date & Time" };
+    private final String[] columns = new String[] { "ID", "Connector", "Status", "Date & Time", "Server Id", "Send Attempts", "Import ID" };
     // Worker used for loading a page and counting the total number of messages
     private SwingWorker<Void, Void> worker;
 
@@ -172,10 +173,6 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         exportResultsPopup = new MessageBrowserExportResults(parent, false);
         exportResultsPopup.setVisible(false);
-
-        //Set the FormatXmlCheckboxes to their default setting
-        boolean formatXmlSelected = Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserFormatXml", true);
-        formatXmlMessageCheckBox.setSelected(formatXmlSelected);
 
         LineBorder lineBorder = new LineBorder(new Color(0, 0, 0));
         TitledBorder titledBorder = new TitledBorder("Last Search");
@@ -230,6 +227,9 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     public void loadChannel(Channel channel) {
+        //Set the FormatXmlCheckboxes to their default setting
+        formatXmlMessageCheckBox.setSelected(Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserFormatXml", true));
+    	
         this.channel = channel;
         tableModel.clear();
         clearCache();
@@ -240,21 +240,31 @@ public class MessageBrowser extends javax.swing.JPanel {
         updateMessageRadioGroup();
 
         // Remove all columns
-        for (int i = messageTreeTable.getColumnCount() - 1; i >= 0; i--) {
-            messageTreeTable.removeColumn(messageTreeTable.getColumn(0));
+        for (TableColumn tableColumn : messageTreeTable.getColumns(true)) {
+            messageTreeTable.removeColumn(tableColumn);
         }
-
+        
         List<String> columnList = new ArrayList<String>();
         // Add standard columns
         columnList.addAll(Arrays.asList(columns));
         // Add custom columns
         columnList.addAll(getMetaDataColumns());
         tableModel.setColumnIdentifiers(columnList);
-
+        
         // Create the column objects and add them to the message table
         ColumnFactory columnFactory = messageTreeTable.getColumnFactory();
         for (int modelIndex = 0; modelIndex < columnList.size(); modelIndex++) {
-            messageTreeTable.addColumn(columnFactory.createAndConfigureTableColumn(messageTreeTable.getModel(), modelIndex));
+        	TableColumnExt column = columnFactory.createAndConfigureTableColumn(messageTreeTable.getModel(), modelIndex);
+        	String columnName = column.getTitle();
+        	
+        	boolean defaultVisible = false;
+        	if (columnName.equals("ID") || columnName.equals("Connector") || columnName.equals("Status") || columnName.equals("Date & Time")) {
+        		defaultVisible = true;
+        	}
+        	
+        	column.setVisible(Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserVisibleColumn" + columnName, defaultVisible));
+        	
+            messageTreeTable.addColumn(column);
         }
     }
 
@@ -280,7 +290,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         statusBoxQueued.setSelected(false);
         statusBoxSent.setSelected(false);
         statusBoxError.setSelected(false);
-        pageSizeField.setText("10");
+        pageSizeField.setText(String.valueOf(Preferences.userNodeForPackage(Mirth.class).getInt("messageBrowserPageSize", 20)));
 
         advancedSearchPopup.resetSelections();
         updateAdvancedSearchButtonFont();
@@ -736,12 +746,6 @@ public class MessageBrowser extends javax.swing.JPanel {
         descriptionTabbedPane.addTab("Mappings", mappingsPane);
         descriptionTabbedPane.addTab("Errors", ErrorsPanel);
 
-        //Add tabs depending on what part of the message is selected
-        if (metaDataId == 0) {
-            //The source connector is selected
-            descriptionTabbedPane.addTab("Meta Data", metaDataPane);
-        }
-
         if (attachment) {
             descriptionTabbedPane.addTab("Attachments", attachmentsPane);
         }
@@ -991,7 +995,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                         String columnName = model.getColumnName(i);
                         // Get the column object by name. Using an index may not return the column object if the column is hidden
                         TableColumnExt column = messageTreeTable.getColumnExt(columnName);
-
+                        
                         // Create the menu item
                         final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(columnName);
                         // Show or hide the checkbox
@@ -1345,9 +1349,6 @@ public class MessageBrowser extends javax.swing.JPanel {
         ProcessedResponseTextPane.setText(text != null ? text : "Select a message to view the processed response message.");
         ErrorsTextPane.setDocument(new SyntaxDocument());
         ErrorsTextPane.setText(text != null ? text : "Select a message to view any errors.");
-        messageIdField.setText("");
-        correlationIdField.setText("");
-        serverIdField.setText("");
         updateMappingsTable(new String[0][0], true);
         updateAttachmentsTable(null);
         descriptionTabbedPane.remove(attachmentsPane);
@@ -1820,14 +1821,6 @@ public class MessageBrowser extends javax.swing.JPanel {
         mappingsTable = null;
         ErrorsPanel = new javax.swing.JPanel();
         ErrorsTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
-        metaDataPane = new javax.swing.JScrollPane();
-        metaDataPanel = new javax.swing.JPanel();
-        messageIdField = new javax.swing.JTextField();
-        messageIdLabel = new javax.swing.JLabel();
-        correlationIdField = new javax.swing.JTextField();
-        correlationIdLabel = new javax.swing.JLabel();
-        serverIdField = new javax.swing.JTextField();
-        serverIdLabel = new javax.swing.JLabel();
         attachmentsPane = new javax.swing.JScrollPane();
         attachmentTable = null;
         messageScrollPane = new javax.swing.JScrollPane();
@@ -1865,14 +1858,8 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         jList1.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-
-            public int getSize() {
-                return strings.length;
-            }
-
-            public Object getElementAt(int i) {
-                return strings[i];
-            }
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
         });
         jScrollPane1.setViewportView(jList1);
 
@@ -2021,8 +2008,29 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         javax.swing.GroupLayout MessagesPanelLayout = new javax.swing.GroupLayout(MessagesPanel);
         MessagesPanel.setLayout(MessagesPanelLayout);
-        MessagesPanelLayout.setHorizontalGroup(MessagesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(MessagesPanelLayout.createSequentialGroup().addContainerGap().addGroup(MessagesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addGroup(MessagesPanelLayout.createSequentialGroup().addComponent(formatXmlMessageCheckBox).addGap(0, 0, Short.MAX_VALUE)).addComponent(MessagesRadioPane, javax.swing.GroupLayout.DEFAULT_SIZE, 767, Short.MAX_VALUE)).addContainerGap()));
-        MessagesPanelLayout.setVerticalGroup(MessagesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(MessagesPanelLayout.createSequentialGroup().addContainerGap().addComponent(MessagesRadioPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(formatXmlMessageCheckBox).addContainerGap()));
+        MessagesPanelLayout.setHorizontalGroup(
+            MessagesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(MessagesPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(MessagesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(MessagesPanelLayout.createSequentialGroup()
+                        .addComponent(formatXmlMessageCheckBox)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(MessagesRadioPane, javax.swing.GroupLayout.DEFAULT_SIZE, 767, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        MessagesPanelLayout.setVerticalGroup(
+            MessagesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(MessagesPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(MessagesRadioPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(formatXmlMessageCheckBox)
+                .addContainerGap())
+        );
 
         descriptionTabbedPane.addTab("Messages", MessagesPanel);
 
@@ -2038,36 +2046,22 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         javax.swing.GroupLayout ErrorsPanelLayout = new javax.swing.GroupLayout(ErrorsPanel);
         ErrorsPanel.setLayout(ErrorsPanelLayout);
-        ErrorsPanelLayout.setHorizontalGroup(ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(ErrorsPanelLayout.createSequentialGroup().addContainerGap().addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 767, Short.MAX_VALUE).addContainerGap()));
-        ErrorsPanelLayout.setVerticalGroup(ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(ErrorsPanelLayout.createSequentialGroup().addContainerGap().addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE).addContainerGap()));
+        ErrorsPanelLayout.setHorizontalGroup(
+            ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ErrorsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 767, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        ErrorsPanelLayout.setVerticalGroup(
+            ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ErrorsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE)
+                .addContainerGap())
+        );
 
         descriptionTabbedPane.addTab("Errors", ErrorsPanel);
-
-        metaDataPanel.setBackground(new java.awt.Color(255, 255, 255));
-
-        messageIdField.setEditable(false);
-        messageIdField.setToolTipText("The GUID of the message in the Mirth Connect database.");
-
-        messageIdLabel.setText("Message ID:");
-
-        correlationIdField.setEditable(false);
-        correlationIdField.setToolTipText("The correlation GUID of the group of messages in the Mirth Connect database.");
-
-        correlationIdLabel.setText("Correlation ID:");
-
-        serverIdField.setEditable(false);
-        serverIdField.setToolTipText("The ID of the Mirth Connect server that processed this message.");
-
-        serverIdLabel.setText("Server ID:");
-
-        javax.swing.GroupLayout metaDataPanelLayout = new javax.swing.GroupLayout(metaDataPanel);
-        metaDataPanel.setLayout(metaDataPanelLayout);
-        metaDataPanelLayout.setHorizontalGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(metaDataPanelLayout.createSequentialGroup().addContainerGap().addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(messageIdLabel).addComponent(correlationIdLabel).addComponent(serverIdLabel)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(serverIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(correlationIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(messageIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)).addContainerGap(985, Short.MAX_VALUE)));
-        metaDataPanelLayout.setVerticalGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(metaDataPanelLayout.createSequentialGroup().addContainerGap().addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(messageIdLabel).addComponent(messageIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(correlationIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(correlationIdLabel)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(serverIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(serverIdLabel)).addContainerGap(337, Short.MAX_VALUE)));
-
-        metaDataPane.setViewportView(metaDataPanel);
-
-        descriptionTabbedPane.addTab("Meta Data", metaDataPane);
 
         attachmentsPane.setViewportView(attachmentTable);
 
@@ -2244,11 +2238,133 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jSplitPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE).addGroup(layout.createSequentialGroup().addContainerGap().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false).addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(pageSizeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(quickSearchLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addComponent(pageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(advSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(resetButton, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addComponent(mirthDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(mirthTimePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addComponent(mirthDatePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(mirthTimePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(quickSearchField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE))).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(statusBoxQueued, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(statusBoxSent, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(statusBoxError, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false).addComponent(statusBoxReceived, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(statusBoxFiltered, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(statusBoxTransformed, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(lastSearchCriteriaPane, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addGroup(layout.createSequentialGroup().addComponent(previousPageButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(nextPageButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(resultsLabel).addGap(5, 5, 5).addComponent(countButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(pageNumberLabel).addGap(4, 4, 4).addComponent(pageNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(6, 6, 6).addComponent(pageTotalLabel).addGap(5, 5, 5).addComponent(pageGoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))).addContainerGap()));
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pageSizeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(quickSearchLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(pageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(advSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(resetButton, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addComponent(mirthDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(mirthTimePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addComponent(mirthDatePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(mirthTimePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(quickSearchField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(statusBoxQueued, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(statusBoxSent, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(statusBoxError, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(statusBoxReceived, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(statusBoxFiltered, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(statusBoxTransformed, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lastSearchCriteriaPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(previousPageButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(nextPageButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(resultsLabel)
+                        .addGap(5, 5, 5)
+                        .addComponent(countButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(pageNumberLabel)
+                        .addGap(4, 4, 4)
+                        .addComponent(pageNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(pageTotalLabel)
+                        .addGap(5, 5, 5)
+                        .addComponent(pageGoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+        );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] { mirthTimePicker1, mirthTimePicker2 });
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {mirthTimePicker1, mirthTimePicker2});
 
-        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGap(4, 4, 4).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGap(31, 31, 31).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(countButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(resultsLabel)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(pageGoButton).addComponent(pageTotalLabel).addComponent(pageNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(pageNumberLabel)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(nextPageButton).addComponent(previousPageButton))).addComponent(lastSearchCriteriaPane, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(mirthTimePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(mirthDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(mirthTimePicker2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(mirthDatePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(quickSearchField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(quickSearchLabel)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(pageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(pageSizeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(advSearchButton).addComponent(resetButton).addComponent(filterButton))).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(statusBoxReceived, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(statusBoxTransformed, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(statusBoxFiltered, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(statusBoxQueued, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(statusBoxSent, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(statusBoxError, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)));
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(4, 4, 4)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(31, 31, 31)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(countButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(resultsLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(pageGoButton)
+                            .addComponent(pageTotalLabel)
+                            .addComponent(pageNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(pageNumberLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(nextPageButton)
+                            .addComponent(previousPageButton)))
+                    .addComponent(lastSearchCriteriaPane, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(mirthTimePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(mirthDatePicker1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(mirthTimePicker2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(mirthDatePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(quickSearchField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(quickSearchLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(pageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(pageSizeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(advSearchButton)
+                            .addComponent(resetButton)
+                            .addComponent(filterButton)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(statusBoxReceived, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(statusBoxTransformed, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(statusBoxFiltered, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(statusBoxQueued, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(statusBoxSent, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(statusBoxError, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE))
+        );
     }// </editor-fold>//GEN-END:initComponents
 
     private void pageSizeFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pageSizeFieldActionPerformed
@@ -2406,8 +2522,6 @@ public class MessageBrowser extends javax.swing.JPanel {
     private com.mirth.connect.client.ui.components.MirthCheckBox allDayCheckBox;
     private com.mirth.connect.client.ui.components.MirthTable attachmentTable;
     private javax.swing.JScrollPane attachmentsPane;
-    private javax.swing.JTextField correlationIdField;
-    private javax.swing.JLabel correlationIdLabel;
     private com.mirth.connect.client.ui.components.MirthButton countButton;
     private javax.swing.JTabbedPane descriptionTabbedPane;
     private javax.swing.JButton filterButton;
@@ -2421,13 +2535,9 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JScrollPane lastSearchCriteriaPane;
     private javax.swing.JScrollPane mappingsPane;
     private com.mirth.connect.client.ui.components.MirthTable mappingsTable;
-    private javax.swing.JTextField messageIdField;
-    private javax.swing.JLabel messageIdLabel;
     private javax.swing.JScrollPane messageScrollPane;
     private com.mirth.connect.client.ui.components.MirthTreeTable messageTreeTable;
     private javax.swing.ButtonGroup messagesGroup;
-    private javax.swing.JScrollPane metaDataPane;
-    private javax.swing.JPanel metaDataPanel;
     private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker1;
     private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker2;
     private com.mirth.connect.client.ui.components.MirthTimePicker mirthTimePicker1;
@@ -2444,8 +2554,6 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JLabel quickSearchLabel;
     private javax.swing.JButton resetButton;
     private javax.swing.JLabel resultsLabel;
-    private javax.swing.JTextField serverIdField;
-    private javax.swing.JLabel serverIdLabel;
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxError;
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxFiltered;
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxQueued;

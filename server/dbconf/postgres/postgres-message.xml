@@ -17,7 +17,7 @@
 	</resultMap>
 
 	<select id="searchMessages" parameterType="map" resultType="map">
-		SELECT m.id AS message_id, m.server_id, m.date_created, m.processed, string_agg(mm.id::character varying, ',') AS metadata_ids
+		SELECT m.id AS message_id, m.server_id, m.date_created, m.processed, m.import_id, string_agg(mm.id::character varying, ',') AS metadata_ids
 		<include refid="searchMessagesBody" />
 		GROUP BY m.id
 
@@ -121,6 +121,9 @@
 			</if>
 			<if test="serverId != null">
 				AND m.server_id = #{serverId}
+			</if>
+			<if test="importId != null">
+				AND m.import_id = #{importId}
 			</if>
 			<if test="quickSearch != null">
 				AND (mc_raw.content ILIKE '%' || #{quickSearch} || '%'

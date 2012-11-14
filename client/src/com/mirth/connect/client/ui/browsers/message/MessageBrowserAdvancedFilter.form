@@ -68,9 +68,6 @@
   </NonVisualComponents>
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="2"/>
-    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-      <Color blue="ff" green="ff" red="ff" type="rgb"/>
-    </Property>
   </Properties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
@@ -119,12 +116,12 @@
                       <Component id="jPanel1" alignment="1" max="32767" attributes="0"/>
                       <Component id="jScrollPane6" alignment="0" max="32767" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="messageIdLabel" min="-2" pref="125" max="-2" attributes="0"/>
+                          <Component id="serverIdLabel" min="-2" pref="125" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="serverIdField" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="jLabel6" min="-2" pref="125" max="-2" attributes="0"/>
+                          <Component id="messageIdLabel" min="-2" pref="125" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="messageIdField" max="32767" attributes="0"/>
                       </Group>
@@ -173,6 +170,11 @@
                               <Component id="deleteContentSearchButton" pref="52" max="32767" attributes="0"/>
                           </Group>
                       </Group>
+                      <Group type="102" alignment="1" attributes="0">
+                          <Component id="importIdLabel" min="-2" pref="125" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="importIdField" max="32767" attributes="0"/>
+                      </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -191,15 +193,20 @@
                   <Component id="jScrollPane6" min="-2" pref="104" max="-2" attributes="0"/>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="messageIdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="messageIdField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="serverIdField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="messageIdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="serverIdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="importIdField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="importIdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
@@ -219,33 +226,34 @@
                   </Group>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
                           <Component id="addContentSearchButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="deleteContentSearchButton" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="jScrollPane4" pref="165" max="32767" attributes="0"/>
+                      <Component id="jScrollPane4" pref="153" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
                           <Component id="addMetaDataSearchButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="deleteMetaDataSearchButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="128" max="32767" attributes="0"/>
+                          <EmptySpace pref="114" max="32767" attributes="0"/>
                       </Group>
-                      <Group type="102" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
                           <Component id="jScrollPane7" pref="0" max="32767" attributes="0"/>
                           <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="jLabel6">
+        <Component class="javax.swing.JLabel" name="messageIdLabel">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="4"/>
             <Property name="text" type="java.lang.String" value="Message ID:"/>
@@ -258,7 +266,7 @@
             <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The GUID of the message in the Mirth Connect database.&lt;br&gt;This can be retrieved from the Meta Data tab in the Message Browser.&lt;/html&gt;"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="messageIdLabel">
+        <Component class="javax.swing.JLabel" name="serverIdLabel">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="4"/>
             <Property name="text" type="java.lang.String" value="Server ID:"/>
@@ -486,6 +494,17 @@
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="importIdLabel">
+          <Properties>
+            <Property name="horizontalAlignment" type="int" value="4"/>
+            <Property name="text" type="java.lang.String" value="Import ID:"/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="importIdField">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The GUID of the message in the Mirth Connect database.&lt;br&gt;This can be retrieved from the Meta Data tab in the Message Browser.&lt;/html&gt;"/>
           </Properties>
         </Component>
       </SubComponents>

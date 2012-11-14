@@ -149,6 +149,7 @@ public class DefaultMessagePruner implements MessagePruner {
                 message.setDateCreated(dateCreated);
                 message.setProcessed((Boolean) result.get("processed"));
                 message.setServerId((String) result.get("server_id"));
+                message.setImportId((Long) result.get("import_id"));
                 message.getConnectorMessages().putAll(dao.getConnectorMessages(channelId, messageId));
 
                 messageArchiver.archiveMessage(message);

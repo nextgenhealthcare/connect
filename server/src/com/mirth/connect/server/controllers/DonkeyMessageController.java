@@ -90,6 +90,7 @@ public class DonkeyMessageController extends MessageController {
         params.put("processedResponseSearch", filter.getContentSearch().get(ContentType.PROCESSED_RESPONSE));
         params.put("metaDataIds", filter.getMetaDataIds());
         params.put("serverId", filter.getServerId());
+        params.put("importId", filter.getImportId());
         params.put("maxMessageId", filter.getMaxMessageId());
         params.put("metaDataSearch", filter.getMetaDataSearch());
         params.put("attachment", filter.getAttachment());
@@ -156,6 +157,7 @@ public class DonkeyMessageController extends MessageController {
             message.setDateCreated(dateCreated);
             message.setServerId((String) row.get("server_id"));
             message.setProcessed((Boolean) row.get("processed"));
+            message.setImportId((Long) row.get("import_id"));
 
             Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
 

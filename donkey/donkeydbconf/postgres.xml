@@ -6,7 +6,8 @@
 	        id bigint NOT NULL PRIMARY KEY,
 	        server_id character varying(36),
 	        date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	        processed boolean NOT NULL DEFAULT FALSE
+	        processed boolean NOT NULL DEFAULT FALSE,
+	        import_id bigint
 	    );
 	</query>
 	

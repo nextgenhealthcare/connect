@@ -26,6 +26,8 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
 
         switch (index) {
             case 0:
+            case 5:
+            case 6:
                 column.setCellRenderer(new NumberCellRenderer());
                 column.setMaxWidth(80);
                 column.setMinWidth(80);

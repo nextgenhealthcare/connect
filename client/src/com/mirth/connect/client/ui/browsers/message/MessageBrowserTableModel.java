@@ -9,7 +9,6 @@
 
 package com.mirth.connect.client.ui.browsers.message;
 
-import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -19,7 +18,6 @@ import com.mirth.connect.client.ui.AbstractSortableTreeTableNode;
 import com.mirth.connect.client.ui.SortableTreeTableModel;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
-import com.mirth.connect.donkey.model.message.Status;
 
 public class MessageBrowserTableModel extends SortableTreeTableModel {
     private AbstractSortableTreeTableNode root;
@@ -64,9 +62,9 @@ public class MessageBrowserTableModel extends SortableTreeTableModel {
         
         MessageBrowserTableNode sourceNode;
         if (connectorMessages.containsKey(0)) {
-            sourceNode = new MessageBrowserTableNode(connectorMessages.get(0), this);
+            sourceNode = new MessageBrowserTableNode(connectorMessages.get(0), this, message.getImportId());
         } else {
-            sourceNode = new MessageBrowserTableNode(message.getMessageId());
+            sourceNode = new MessageBrowserTableNode(message.getMessageId(), message.getImportId());
         }
         
         insertNodeInto(sourceNode, root);
@@ -78,7 +76,7 @@ public class MessageBrowserTableModel extends SortableTreeTableModel {
         for (Integer key : keys) {
             if (key > 0) {            
                 ConnectorMessage connectorMessage = message.getConnectorMessages().get(key);
-                insertNodeInto(new MessageBrowserTableNode(connectorMessage, this), sourceNode);
+                insertNodeInto(new MessageBrowserTableNode(connectorMessage, this, message.getImportId()), sourceNode);
             }
         }
     }
