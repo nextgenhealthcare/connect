@@ -94,6 +94,7 @@ public class MessageExporter {
         String folder = options.getFolder();
         String filePrefix = "msgexport_" + new SimpleDateFormat(dateFormat).format(new Date());
         String fileName = null;
+        String fileExtension = (options.getContentType() == null) ? ".xml" : ".txt";
         int outputType = options.getOutputType();
         int bufferSize = options.getBufferSize();
         int exportCount = 0;
@@ -123,12 +124,12 @@ public class MessageExporter {
                     writer = new OutputStreamWriter(zipOutputStream);
 
                     if (outputType == MessageExportOptions.SINGLE_COMPRESSED) {
-                        zipOutputStream.putNextEntry(new ZipEntry(filePrefix + ".txt"));
+                        zipOutputStream.putNextEntry(new ZipEntry(filePrefix + fileExtension));
                     }
                     break;
 
                 case MessageExportOptions.SINGLE:
-                    fileName = folder + filePrefix + ".txt";
+                    fileName = folder + filePrefix + fileExtension;
                     writer = new OutputStreamWriter(new FileOutputStream(fileName));
                     break;
             }
@@ -153,16 +154,16 @@ public class MessageExporter {
                         case MessageExportOptions.MULTIPLE_COMPRESSED_EACH:
                             fileName = folder + filePrefixWithId + ".zip";
                             zipOutputStream = new ZipOutputStream(new FileOutputStream(fileName));
-                            zipOutputStream.putNextEntry(new ZipEntry(filePrefixWithId + ".txt"));
+                            zipOutputStream.putNextEntry(new ZipEntry(filePrefixWithId + fileExtension));
                             writer = new OutputStreamWriter(zipOutputStream);
                             break;
 
                         case MessageExportOptions.MULTIPLE_COMPRESSED_ARCHIVE:
-                            zipOutputStream.putNextEntry(new ZipEntry(filePrefixWithId + ".txt"));
+                            zipOutputStream.putNextEntry(new ZipEntry(filePrefixWithId + fileExtension));
                             break;
 
                         case MessageExportOptions.MULTIPLE:
-                            fileName = folder + filePrefixWithId + ".txt";
+                            fileName = folder + filePrefixWithId + fileExtension;
                             writer = new OutputStreamWriter(new FileOutputStream(fileName));
                             break;
                     }
