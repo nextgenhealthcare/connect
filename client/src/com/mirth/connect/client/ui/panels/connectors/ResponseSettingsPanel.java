@@ -34,7 +34,7 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
     }
 
     public void setProperties(ResponseConnectorProperties properties) {
-        updateResponseDropDown(properties);
+        updateResponseDropDown(properties, true);
         
         // Set the source queue combo box
         if (properties.isRespondAfterProcessing()) {
@@ -54,10 +54,15 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
 //        }
     }
     
-    public void updateResponseDropDown(ResponseConnectorProperties properties) {
+    public void updateResponseDropDown(ResponseConnectorProperties properties, boolean channelLoad) {
     	boolean enabled = parent.isSaveEnabled();
     	
-    	String selectedItem = (String) responseComboBox.getSelectedItem();
+    	String selectedItem;
+    	if (channelLoad) {
+    		selectedItem = properties.getResponseVariable();
+    	} else {
+    		selectedItem = (String) responseComboBox.getSelectedItem();
+    	}
 
         Channel channel = parent.channelEditPanel.currentChannel;
 

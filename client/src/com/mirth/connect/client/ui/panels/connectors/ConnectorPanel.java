@@ -179,7 +179,7 @@ public class ConnectorPanel extends JPanel {
 
     public void updateResponseDropDown() {
         if (getConnectorSettingsPanel().getProperties() instanceof ResponseConnectorPropertiesInterface) {
-            responseSettingsPanel.updateResponseDropDown(((ResponseConnectorPropertiesInterface) getConnectorSettingsPanel().getProperties()).getResponseConnectorProperties());
+            responseSettingsPanel.updateResponseDropDown(((ResponseConnectorPropertiesInterface) getConnectorSettingsPanel().getProperties()).getResponseConnectorProperties(), false);
         }
     }
 
