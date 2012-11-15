@@ -62,9 +62,9 @@ public class MessageBrowserTableModel extends SortableTreeTableModel {
         
         MessageBrowserTableNode sourceNode;
         if (connectorMessages.containsKey(0)) {
-            sourceNode = new MessageBrowserTableNode(connectorMessages.get(0), this, message.getImportId());
+            sourceNode = new MessageBrowserTableNode(message, 0, this);
         } else {
-            sourceNode = new MessageBrowserTableNode(message.getMessageId(), message.getImportId());
+            sourceNode = new MessageBrowserTableNode(message);
         }
         
         insertNodeInto(sourceNode, root);
@@ -75,8 +75,7 @@ public class MessageBrowserTableModel extends SortableTreeTableModel {
         // add the connector messages as child nodes
         for (Integer key : keys) {
             if (key > 0) {            
-                ConnectorMessage connectorMessage = message.getConnectorMessages().get(key);
-                insertNodeInto(new MessageBrowserTableNode(connectorMessage, this, message.getImportId()), sourceNode);
+                insertNodeInto(new MessageBrowserTableNode(message, key, this), sourceNode);
             }
         }
     }

@@ -1874,9 +1874,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         setRequestFocusEnabled(false);
 
         jSplitPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jSplitPane1.setDividerLocation(200);
+        jSplitPane1.setDividerLocation(310);
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-        jSplitPane1.setResizeWeight(0.5);
 
         descriptionTabbedPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         descriptionTabbedPane.setFocusable(false);
@@ -2023,7 +2022,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     .addGroup(MessagesPanelLayout.createSequentialGroup()
                         .addComponent(formatXmlMessageCheckBox)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(MessagesRadioPane, javax.swing.GroupLayout.DEFAULT_SIZE, 767, Short.MAX_VALUE))
+                    .addComponent(MessagesRadioPane, javax.swing.GroupLayout.DEFAULT_SIZE, 646, Short.MAX_VALUE))
                 .addContainerGap())
         );
         MessagesPanelLayout.setVerticalGroup(
@@ -2032,7 +2031,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(MessagesRadioPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
+                .addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(formatXmlMessageCheckBox)
                 .addContainerGap())
@@ -2056,14 +2055,14 @@ public class MessageBrowser extends javax.swing.JPanel {
             ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ErrorsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 767, Short.MAX_VALUE)
+                .addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 646, Short.MAX_VALUE)
                 .addContainerGap())
         );
         ErrorsPanelLayout.setVerticalGroup(
             ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ErrorsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE)
+                .addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)
                 .addContainerGap())
         );
 

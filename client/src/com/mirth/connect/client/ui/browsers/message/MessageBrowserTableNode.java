@@ -11,6 +11,7 @@ package com.mirth.connect.client.ui.browsers.message;
 
 import com.mirth.connect.client.ui.AbstractSortableTreeTableNode;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.Message;
 
 public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
     private final static int NUM_STATIC_COLUMNS = 7;
@@ -19,30 +20,35 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
     private Long messageId;
     private Integer metaDataId;
     private Boolean active;
+    private Boolean processed;
 
-    public MessageBrowserTableNode(Long messageId, Long importId) {
+    public MessageBrowserTableNode(Message message) {
         row = new Object[NUM_STATIC_COLUMNS];
 
         active = false;
-        row[0] = messageId;
+        processed = message.isProcessed();
+        row[0] = message.getMessageId();
         row[1] = "--";
         row[2] = "--";
         row[3] = null;
         row[4] = "--";
         row[5] = null;
-        row[6] = importId;
+        row[6] = message.getImportId();
     }
 
-    public MessageBrowserTableNode(ConnectorMessage connectorMessage, MessageBrowserTableModel model, Long importId) {
+    public MessageBrowserTableNode(Message message, int metaDataId, MessageBrowserTableModel model) {
         row = new Object[model.getColumnCount()];
+        messageId = message.getMessageId();
+        this.metaDataId = metaDataId;
+        
+        ConnectorMessage connectorMessage = message.getConnectorMessages().get(this.metaDataId);
 
-        messageId = connectorMessage.getMessageId();
-        metaDataId = connectorMessage.getMetaDataId();
         active = true;
+        processed = message.isProcessed();
 
         if (connectorMessage.getMetaDataId() == 0) {
-            row[0] = messageId;
-            row[6] = importId;
+            row[0] = message.getMessageId();
+            row[6] = message.getImportId();
         } else {
             row[0] = null;
             row[6] = null;
@@ -79,5 +85,9 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
 
     public Boolean isNodeActive() {
         return active;
+    }
+    
+    public Boolean isProcessed() {
+        return processed;
     }
 }

@@ -211,9 +211,8 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="dividerLocation" type="int" value="200"/>
+        <Property name="dividerLocation" type="int" value="310"/>
         <Property name="orientation" type="int" value="0"/>
-        <Property name="resizeWeight" type="double" value="0.5"/>
       </Properties>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout"/>
@@ -261,7 +260,7 @@
                                   <Component id="formatXmlMessageCheckBox" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
-                              <Component id="MessagesRadioPane" pref="767" max="32767" attributes="0"/>
+                              <Component id="MessagesRadioPane" pref="646" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -273,7 +272,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="MessagesRadioPane" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="MessagesCardPane" pref="264" max="32767" attributes="0"/>
+                          <Component id="MessagesCardPane" pref="154" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="formatXmlMessageCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -580,7 +579,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="ErrorsTextPane" pref="767" max="32767" attributes="0"/>
+                          <Component id="ErrorsTextPane" pref="646" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -589,7 +588,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="ErrorsTextPane" pref="309" max="32767" attributes="0"/>
+                          <Component id="ErrorsTextPane" pref="199" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
