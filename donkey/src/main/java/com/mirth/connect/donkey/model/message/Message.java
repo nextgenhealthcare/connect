@@ -24,6 +24,7 @@ public class Message implements Serializable {
     private Calendar dateCreated;
     private boolean processed;
     private Long importId;
+    private String importChannelId;
     private Map<Integer, ConnectorMessage> connectorMessages = new LinkedHashMap<Integer, ConnectorMessage>();
 
     public Long getMessageId() {
@@ -74,7 +75,15 @@ public class Message implements Serializable {
 		this.importId = importId;
 	}
 
-	public Map<Integer, ConnectorMessage> getConnectorMessages() {
+	public String getImportChannelId() {
+        return importChannelId;
+    }
+
+    public void setImportChannelId(String importChannelId) {
+        this.importChannelId = importChannelId;
+    }
+
+    public Map<Integer, ConnectorMessage> getConnectorMessages() {
         return connectorMessages;
     }
 

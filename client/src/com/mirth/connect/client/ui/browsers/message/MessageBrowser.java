@@ -71,6 +71,7 @@ import org.syntax.jedit.tokenmarker.X12TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.MessageImportResult;
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.client.core.RequestAbortedException;
@@ -1446,24 +1447,29 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     public void importMessages() {
-        File file = parent.browseForFile("XML");
+        File file = parent.browseForFile(null);
 
         if (file != null) {
-            int importCount = 0;
+            MessageImportResult result = null;
 
             try {
-                importCount = parent.mirthClient.importMessages(channel.getId(), file, UIConstants.CHARSET);
+                result = parent.mirthClient.importMessages(channel.getId(), file, UIConstants.CHARSET);
             } catch (ClientException e) {
                 parent.alertException(this, e.getStackTrace(), "Error importing messages. " + e.getMessage());
                 return;
             }
 
-            if (importCount > 0) {
-                parent.alertInformation(this, importCount + " messages have been successfully imported.");
-                refresh(true, null);
-            } else {
-                parent.alertError(this, "No messages were found in the file.");
+            StringBuilder stringBuilder = new StringBuilder();
+
+            if (result.getImported() > 0) {
+                stringBuilder.append(result.getImported() + " message" + (result.getImported() == 1 ? " was" : "s were") + " imported successfully.\n");
             }
+
+            if (result.getErrored() > 0) {
+                stringBuilder.append(result.getErrored() + " message" + (result.getErrored() == 1 ? "" : "s") + " failed to import due to an error.\n");
+            }
+            
+            parent.alertInformation(this, stringBuilder.toString());
         }
     }
 

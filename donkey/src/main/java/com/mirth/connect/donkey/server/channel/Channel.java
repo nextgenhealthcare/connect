@@ -1165,19 +1165,30 @@ public class Channel implements Startable, Stoppable, Runnable {
         dao.close();
     }
     
-    public void importMessage(Message message) {
+    public void importMessage(Message message) throws DonkeyException {
         DonkeyDao dao = daoFactory.getDao();
 
         try {
-            if (message.getMessageId() == null) {
-                message.setMessageId(MessageController.getInstance().getNextMessageId(message.getChannelId()));
-            } else {
-                dao.deleteMessage(message.getChannelId(), message.getMessageId(), true);
+            if (message.getImportId() == null) {
+                message.setImportId(message.getMessageId());
             }
-
+            
+            if (message.getImportChannelId() == null && !message.getChannelId().equals(channelId)) {
+                message.setImportChannelId(message.getChannelId());
+            }
+            
+            long messageId = MessageController.getInstance().getNextMessageId(message.getChannelId());
+            message.setMessageId(messageId);
+            message.setChannelId(channelId);
+            message.setServerId(serverId);
+            
             dao.insertMessage(message);
 
             for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
+                connectorMessage.setMessageId(messageId);
+                connectorMessage.setChannelId(channelId);
+                connectorMessage.setServerId(serverId);
+                
                 int metaDataId = connectorMessage.getMetaDataId();
                 
                 dao.insertConnectorMessage(connectorMessage, true);
@@ -1189,6 +1200,8 @@ public class Channel implements Startable, Stoppable, Runnable {
                     MessageContent messageContent = connectorMessage.getContent(contentType);
 
                     if (messageContent != null) {
+                        messageContent.setMessageId(messageId);
+                        messageContent.setChannelId(channelId);
                         messageContent.setEncryptedContent(encryptor.encrypt(messageContent.getContent()));
                     }
                 }

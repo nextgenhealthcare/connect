@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.zip.ZipInputStream;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -778,56 +779,66 @@ public class Client {
         }
     }
     
-    public int importMessages(String channelId, File file, String charset) throws ClientException {
+    public MessageImportResult importMessages(String channelId, File file, String charset) throws ClientException {
         final String openElement = "<message>";
         final String closeElement = "</message>";
         BufferedReader reader = null;
-        int importCount = 0;
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        MessageImportResult result = new MessageImportResult();
         
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
+            String fileNameLower = file.getName().toLowerCase();
+            ZipInputStream zipInputStream = null;
+            
+            if (fileNameLower.substring(fileNameLower.length() - 4).equals(".zip")) {
+                zipInputStream = new ZipInputStream(new FileInputStream(file));
+                reader = new BufferedReader(new InputStreamReader(zipInputStream, charset));
+            } else {
+                reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
+            }
+            
             String line;
             StringBuilder serializedMessage = new StringBuilder();
             boolean enteredMessage = false;
 
-            while ((line = reader.readLine()) != null) {
-                if (line.equals(openElement)) {
-                    enteredMessage = true;
-                }
-                
-                if (enteredMessage) {
-                    serializedMessage.append(line);
+            do {
+                while ((line = reader.readLine()) != null) {
+                    if (line.equals(openElement)) {
+                        enteredMessage = true;
+                    }
                     
-                    if (line.equals(closeElement)) {
-                        Message message = (Message) serializer.fromXML(serializedMessage.toString());
+                    if (enteredMessage) {
+                        serializedMessage.append(line);
                         
-                        // if the message is being imported into a different channel than the one it came from, set the message id to null so that a new message id will be given to it by the server
-                        if (!message.getChannelId().equals(channelId)) {
-                            message.setChannelId(channelId);
-                            message.setMessageId(null);
+                        if (line.equals(closeElement)) {
+                            Message message = (Message) serializer.fromXML(serializedMessage.toString());
+                            
+                            try {
+                                decryptMessage(message);
+                                importMessage(channelId, message);
+                                result.addImported(1);
+                            } catch (Exception e) {
+                                result.addErrored(1);
+                            }
+                            
+                            serializedMessage.delete(0, serializedMessage.length());
+                            enteredMessage = false;
                         }
-                        
-                        decryptMessage(message);
-                        importMessage(message);
-                        importCount++;
-                        serializedMessage.delete(0, serializedMessage.length());
-                        enteredMessage = false;
                     }
                 }
-            }
+            } while (zipInputStream != null && zipInputStream.getNextEntry() != null);
         } catch (Exception e) {
             throw new ClientException("Invalid message file. Stopping message import.", e);
         } finally {
             IOUtils.closeQuietly(reader);
         }
 
-        return importCount;
+        return result;
      }
 
-    public void importMessage(Message message) throws ClientException {
+    public void importMessage(String channelId, Message message) throws ClientException {
         logger.debug("importing message");
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_IMPORT.getName()), new NameValuePair("message", serializer.toXML(message)) };
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_IMPORT.getName()), new NameValuePair("channelId", channelId), new NameValuePair("message", serializer.toXML(message)) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
     

@@ -442,10 +442,10 @@ public class DonkeyMessageController extends MessageController {
     }
     
     @Override
-    public void importMessage(Message message) throws MessageImportException {
+    public void importMessage(String channelId, Message message) throws MessageImportException {
         try {
             decryptMessage(message, ConfigurationController.getInstance().getEncryptor());
-            com.mirth.connect.donkey.server.controllers.MessageController.getInstance().importMessage(message);
+            com.mirth.connect.donkey.server.controllers.MessageController.getInstance().importMessage(channelId, message);
         } catch (DonkeyException e) {
             throw new MessageImportException(e);
         }

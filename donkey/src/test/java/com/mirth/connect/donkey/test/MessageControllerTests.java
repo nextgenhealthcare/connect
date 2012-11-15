@@ -242,7 +242,7 @@ public class MessageControllerTests {
                     connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSED_RESPONSE, testMessage, null));
                 }
 
-                MessageController.getInstance().importMessage(message);
+                MessageController.getInstance().importMessage(channel.getChannelId(), message);
 
                 // Assert that the message (and recursively all connector messages and content) exists in the database
                 TestUtils.assertMessageExists(message, true);

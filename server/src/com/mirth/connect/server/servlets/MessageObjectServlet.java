@@ -187,13 +187,14 @@ public class MessageObjectServlet extends MirthServlet {
                         }
                     }
                 } else if (operation.equals(Operations.MESSAGE_IMPORT)) {
+                    String channelId = request.getParameter("channelId");
                     Message message = (Message) serializer.fromXML(request.getParameter("message"));
                     parameterMap.put("message", message);
 
                     if (!isUserAuthorized(request, parameterMap)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        messageController.importMessage(message);
+                        messageController.importMessage(channelId, message);
                     }
                 } else if (operation.equals(Operations.MESSAGE_EXPORT)) {
                     MessageExportOptions options = (MessageExportOptions) serializer.fromXML(request.getParameter("options"));

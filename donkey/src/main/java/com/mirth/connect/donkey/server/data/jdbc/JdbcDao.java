@@ -79,6 +79,24 @@ public class JdbcDao implements DonkeyDao {
             statement.setLong(1, message.getMessageId());
             statement.setString(2, message.getServerId());
             statement.setTimestamp(3, new Timestamp(message.getDateCreated().getTimeInMillis()));
+            statement.setBoolean(4, message.isProcessed());
+            
+            Long importId = message.getImportId();
+            
+            if (importId != null) {
+                statement.setLong(5, message.getImportId());
+            } else {
+                statement.setNull(5, Types.BIGINT);
+            }
+            
+            String importChannelId = message.getImportChannelId();
+            
+            if (importChannelId != null) {
+                statement.setString(6, message.getImportChannelId());
+            } else {
+                statement.setNull(6, Types.VARCHAR);
+            }
+            
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
