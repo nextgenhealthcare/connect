@@ -10,7 +10,6 @@
 package com.mirth.connect.client.ui.browsers.message;
 
 import java.awt.Component;
-import java.awt.Font;
 import java.text.SimpleDateFormat;
 
 import javax.swing.JLabel;
