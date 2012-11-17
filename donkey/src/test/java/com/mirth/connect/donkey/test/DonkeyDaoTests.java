@@ -103,8 +103,6 @@ public class DonkeyDaoTests {
         ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channel.getChannelId());
 
-        DonkeyDao dao = daoFactory.getDao();
-
         try {
             logger.info("Testing DonkeyDao.insertMessage...");
 
@@ -115,35 +113,49 @@ public class DonkeyDaoTests {
             message.setProcessed(false);
 
             for (int i = 1; i <= TEST_SIZE; i++) {
-                message.setMessageId(MessageController.getInstance().getNextMessageId(channel.getChannelId()));
-                dao.insertMessage(message);
-                dao.commit();
+                DonkeyDao dao = daoFactory.getDao();
+                
+                try {
+                    message.setMessageId(MessageController.getInstance().getNextMessageId(channel.getChannelId()));
+                    dao.insertMessage(message);
+                    dao.commit();
+                } finally {
+                    dao.close();
+                }
 
-                Connection connection = TestUtils.getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM d_m" + localChannelId + " WHERE id = ?");
-                statement.setLong(1, message.getMessageId());
-                ResultSet result = statement.executeQuery();
-
-                // Assert that the row was inserted
-                assertTrue(result.next());
-
-                // Assert that the server ID was inserted
-                assertEquals(message.getServerId(), result.getString("server_id"));
-
-                // Assert that the date_create column was initialized
-                assertNotNull(result.getTimestamp("date_created"));
-
-                // Assert that the processed column was initialized to false
-                assertNotNull(result.getBoolean("processed"));
-                assertFalse(result.getBoolean("processed"));
-
-                result.close();
-                connection.close();
+                Connection connection = null;
+                PreparedStatement statement = null;
+                ResultSet result = null;
+                
+                try {
+                    connection = TestUtils.getConnection();
+                    statement = connection.prepareStatement("SELECT * FROM d_m" + localChannelId + " WHERE id = ?");
+                    statement.setLong(1, message.getMessageId());
+                    result = statement.executeQuery();
+    
+                    // Assert that the row was inserted
+                    assertTrue(result.next());
+    
+                    // Assert that the server ID was inserted
+                    assertEquals(message.getServerId(), result.getString("server_id"));
+    
+                    // Assert that the date_create column was initialized
+                    assertNotNull(result.getTimestamp("date_created"));
+    
+                    // Assert that the processed column was initialized to false
+                    assertNotNull(result.getBoolean("processed"));
+                    assertFalse(result.getBoolean("processed"));
+                } finally {
+                    DbUtils.close(result);
+                    DbUtils.close(statement);
+                    
+                    connection.rollback();
+                    DbUtils.close(connection);
+                }
             }
 
             System.out.println(daoTimer.getLog());
         } finally {
-            dao.close();
             ChannelController.getInstance().removeChannel(channel.getChannelId());
         }
     }

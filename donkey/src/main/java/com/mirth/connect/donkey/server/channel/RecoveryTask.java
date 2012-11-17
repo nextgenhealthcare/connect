@@ -115,7 +115,12 @@ public class RecoveryTask implements Callable<List<Message>> {
                 if (finished) {
                     channel.finishMessage(message, true, false);
                     ThreadUtils.checkInterruptedStatus();
-                    channel.getSourceConnector().handleRecoveredMessage(message);
+                    ResponseSelector responseSelector = channel.getResponseSelector();
+
+                    if (responseSelector.canRespond() && sourceMessage != null) {
+                        boolean removeContent = (storageSettings.isRemoveContentOnCompletion() && MessageController.getInstance().isMessageCompleted(message));
+                        channel.getSourceConnector().handleRecoveredResponse(new DispatchResult(message.getMessageId(), message, responseSelector.getResponse(message), true, removeContent));
+                    }
                 }
             }
 

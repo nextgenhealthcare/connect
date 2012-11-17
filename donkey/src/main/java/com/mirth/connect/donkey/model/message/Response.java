@@ -29,24 +29,24 @@ public class Response implements Serializable {
 
         String statusString = StringUtils.trim(response.substring(0, index));
         String message = StringUtils.trim(response.substring(index + 2));
-        Status status = null;
+        Status newMessageStatus = null;
 
         if (statusString.equals("SENT")) {
-            status = Status.SENT;
+            newMessageStatus = Status.SENT;
         } else if (statusString.equals("ERROR")) {
-            status = Status.ERROR;
+            newMessageStatus = Status.ERROR;
         } else if (statusString.equals("FILTERED")) {
-            status = Status.FILTERED;
+            newMessageStatus = Status.FILTERED;
         } else if (statusString.equals("QUEUED")) {
-            status = Status.QUEUED;
+            newMessageStatus = Status.QUEUED;
         } else {
             return null;
         }
 
-        return new Response(status, message);
+        return new Response(newMessageStatus, message);
     }
 
-    private Status status;
+    private Status newMessageStatus;
     private String message = new String();
     private String error = new String();
 
@@ -56,13 +56,13 @@ public class Response implements Serializable {
         this.message = message;
     }
 
-    public Response(Status status, String message) {
-        this.status = status;
+    public Response(Status newMessageStatus, String message) {
+        this.newMessageStatus = newMessageStatus;
         this.message = message;
     }
 
-    public Response(Status status, String message, String error) {
-        this.status = status;
+    public Response(Status newMessageStatus, String message, String error) {
+        this.newMessageStatus = newMessageStatus;
         this.message = message;
         this.setError(error);
     }
@@ -75,12 +75,12 @@ public class Response implements Serializable {
         this.message = message;
     }
 
-    public Status getStatus() {
-        return status;
+    public Status getNewMessageStatus() {
+        return newMessageStatus;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setNewMessageStatus(Status newMessageStatus) {
+        this.newMessageStatus = newMessageStatus;
     }
 
     public String getError() {
@@ -93,7 +93,7 @@ public class Response implements Serializable {
 
     public String toString() {
         StringBuilder response = new StringBuilder();
-        response.append(getStatus().toString());
+        response.append(getNewMessageStatus().toString());
         response.append(": ");
         response.append(getMessage());
 
@@ -104,7 +104,7 @@ public class Response implements Serializable {
     public boolean equals(Object other) {
         if (other instanceof Response) {
             Response otherResponse = (Response) other;
-            if (status == otherResponse.getStatus() && message.equals(otherResponse.getMessage())) {
+            if (newMessageStatus == otherResponse.getNewMessageStatus() && message.equals(otherResponse.getMessage())) {
                 return true;
             }
         }

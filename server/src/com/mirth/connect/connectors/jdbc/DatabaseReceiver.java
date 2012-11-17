@@ -35,7 +35,7 @@ import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.server.Constants;
 import com.mirth.connect.server.controllers.AlertController;
@@ -300,12 +300,12 @@ public class DatabaseReceiver extends PollConnector {
             }
 
             // TODO: When should this be run?  Before or after the ack script?
-            MessageResponse messageResponse = null;
+            DispatchResult dispatchResult = null;
 
             try {
-                messageResponse = handleRawMessage(new RawMessage(messageString));
+                dispatchResult = dispatchRawMessage(new RawMessage(messageString));
             } finally {
-                storeMessageResponse(messageResponse);
+                finishDispatch(dispatchResult);
             }
         } catch (InterruptedException e) {
             throw e;

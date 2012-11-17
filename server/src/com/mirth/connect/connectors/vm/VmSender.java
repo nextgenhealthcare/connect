@@ -24,6 +24,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.server.Constants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
@@ -99,20 +100,24 @@ public class VmSender extends DestinationConnector {
         vmSenderProperties.setChannelTemplate(null);
         data = null;
 
-        Response channelResponse = null;
+        DispatchResult dispatchResult = null;
         
         try {
-            channelResponse = ControllerFactory.getFactory().createEngineController().handleRawMessage(channelId, rawMessage);
+            dispatchResult = ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage);
             
-            if (channelResponse != null) {
+            if (dispatchResult != null && dispatchResult.getSelectedResponse() != null) {
                 // If a response was returned from the channel then use that message
-                responseData = channelResponse.getMessage();
-                monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
+                responseData = dispatchResult.getSelectedResponse().getMessage();
+            } else {
+                responseData = "test response";
             }
+            
             responseStatus = Status.SENT;
         } catch (Throwable e) {
             responseData = ErrorMessageBuilder.buildErrorResponse("Error routing message", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_412, "Error routing message", e);
+        } finally {
+            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
         }
         
         return new Response(responseStatus, responseData, responseError);

@@ -16,16 +16,16 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 
 public class TestSourceConnector extends SourceConnector {
     protected TestConnectorProperties connectorProperties;
-    private List<MessageResponse> recoveredResponses = new ArrayList<MessageResponse>();
+    private List<DispatchResult> recoveredResponses = new ArrayList<DispatchResult>();
     private boolean isDeployed = false;
     private List<Long> messageIds = new ArrayList<Long>();
 
-    public List<MessageResponse> getRecoveredResponses() {
+    public List<DispatchResult> getRecoveredResponses() {
         return recoveredResponses;
     }
 
@@ -55,24 +55,24 @@ public class TestSourceConnector extends SourceConnector {
     public void onStop() throws StopException {}
 
     @Override
-    public void handleRecoveredResponse(MessageResponse messageResponse) {
+    public void handleRecoveredResponse(DispatchResult messageResponse) {
         recoveredResponses.add(messageResponse);
     }
 
-    public MessageResponse readTestMessage(String raw) throws ChannelException {
+    public DispatchResult readTestMessage(String raw) throws ChannelException {
         RawMessage rawMessage = new RawMessage(raw);
-        MessageResponse messageResponse = null;
+        DispatchResult dispatchResult = null;
 
         try {
-            messageResponse = handleRawMessage(rawMessage);
+            dispatchResult = dispatchRawMessage(rawMessage);
         } finally {
-            storeMessageResponse(messageResponse);
+            finishDispatch(dispatchResult);
         }
 
-        if (messageResponse != null) {
-            messageIds.add(messageResponse.getMessageId());
+        if (dispatchResult != null) {
+            messageIds.add(dispatchResult.getMessageId());
         }
 
-        return messageResponse;
+        return dispatchResult;
     }
 }

@@ -39,7 +39,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.test.util.TestChannel;
@@ -327,7 +327,7 @@ public class DestinationConnectorTests {
 
         try {
             for (int i = 1; i <= TEST_SIZE; i++) {
-                MessageResponse messageResponse = sourceConnector.readTestMessage(testMessage);
+                DispatchResult messageResponse = sourceConnector.readTestMessage(testMessage);
 
                 if (retryCount > 0) {
                     // assert that the connector attempted to send the message the correct number of times
@@ -477,7 +477,7 @@ public class DestinationConnectorTests {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
             statement.setLong(1, tempClass.messageId);
             statement.setInt(2, 1);
-            statement.setString(3, String.valueOf(ContentType.RESPONSE.getContentTypeCode()));
+            statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
             ResultSet result = statement.executeQuery();
             assertTrue(result.next());
             result.close();
@@ -541,26 +541,26 @@ public class DestinationConnectorTests {
         final Response testResponse = new Response(responseStatus, TestUtils.TEST_HL7_ACK);
         Channel channel = TestUtils.createDefaultChannel(channelId, serverId);
 
-        Response finalResponse = new Response(testResponse.getStatus(), testResponse.getMessage());
-        if (finalResponse.getStatus() != Status.FILTERED && finalResponse.getStatus() != Status.ERROR && finalResponse.getStatus() != Status.SENT && finalResponse.getStatus() != Status.QUEUED) {
+        Response finalResponse = new Response(testResponse.getNewMessageStatus(), testResponse.getMessage());
+        if (finalResponse.getNewMessageStatus() != Status.FILTERED && finalResponse.getNewMessageStatus() != Status.ERROR && finalResponse.getNewMessageStatus() != Status.SENT && finalResponse.getNewMessageStatus() != Status.QUEUED) {
             // If the response is invalid for a final destination finalResponse.getStatus(), change the status to ERROR
-            finalResponse.setStatus(Status.ERROR);
+            finalResponse.setNewMessageStatus(Status.ERROR);
         } else if (channel.getDestinationConnector(1).getConnectorProperties() instanceof QueueConnectorPropertiesInterface) {
             // If the destination connector isn't queuing, and the response status is QUEUED, then it should have changed to ERROR
             QueueConnectorProperties queueProperties = ((QueueConnectorPropertiesInterface) channel.getDestinationConnector(1).getConnectorProperties()).getQueueConnectorProperties();
-            if ((queueProperties == null || !queueProperties.isQueueEnabled()) && finalResponse.getStatus() == Status.QUEUED) {
-                finalResponse.setStatus(Status.ERROR);
+            if ((queueProperties == null || !queueProperties.isQueueEnabled()) && finalResponse.getNewMessageStatus() == Status.QUEUED) {
+                finalResponse.setNewMessageStatus(Status.ERROR);
             }
-        } else if (finalResponse.getStatus() == Status.QUEUED) {
+        } else if (finalResponse.getNewMessageStatus() == Status.QUEUED) {
             // If the destination connector isn't queuing, and the response status is QUEUED, then it should have changed to ERROR
-            finalResponse.setStatus(Status.ERROR);
+            finalResponse.setNewMessageStatus(Status.ERROR);
         }
 
         class TestResponseTransformer2 extends TestResponseTransformer {
             @Override
             public void doTransform(Response response) throws DonkeyException {
                 response.setMessage(testResponse.getMessage());
-                response.setStatus(testResponse.getStatus());
+                response.setNewMessageStatus(testResponse.getNewMessageStatus());
                 super.doTransform(response);
             }
         }
@@ -571,7 +571,7 @@ public class DestinationConnectorTests {
         channel.start();
 
         for (int i = 1; i <= TEST_SIZE; i++) {
-            MessageResponse messageResponse = ((TestSourceConnector) channel.getSourceConnector()).readTestMessage(testMessage);
+            DispatchResult messageResponse = ((TestSourceConnector) channel.getSourceConnector()).readTestMessage(testMessage);
 
             // Assert that the processed response was stored
             MessageContent messageContent = new MessageContent(channel.getChannelId(), messageResponse.getMessageId(), 1, ContentType.PROCESSED_RESPONSE, finalResponse.toString(), null);
@@ -582,7 +582,7 @@ public class DestinationConnectorTests {
             assertTrue(responseMap.get(channel.getDestinationConnector(1).getDestinationName()).equals(finalResponse));
 
             // Assert that the message status was changed
-            TestUtils.assertConnectorMessageStatusEquals(channel.getChannelId(), messageResponse.getMessageId(), 1, finalResponse.getStatus());
+            TestUtils.assertConnectorMessageStatusEquals(channel.getChannelId(), messageResponse.getMessageId(), 1, finalResponse.getNewMessageStatus());
         }
 
         channel.stop();

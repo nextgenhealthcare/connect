@@ -12,8 +12,6 @@ package com.mirth.connect.connectors.ws;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
-import com.mirth.connect.donkey.model.message.Response;
-
 @WebService
 public class DefaultAcceptMessage extends AcceptMessage {
 
@@ -23,10 +21,10 @@ public class DefaultAcceptMessage extends AcceptMessage {
 
     @WebMethod
     public String acceptMessage(String message) {
-        Response response = webServiceMessageReceiver.processData(message);
+        String response = webServiceMessageReceiver.processData(message);
 
         if (response != null) {
-            return response.getMessage();
+            return response;
         }
         
         return null;

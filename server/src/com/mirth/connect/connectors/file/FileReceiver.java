@@ -37,7 +37,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.model.converters.BatchAdaptor;
 import com.mirth.connect.model.converters.DataTypeFactory;
@@ -262,12 +262,13 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                         }
 
                         rawMessage.setChannelMap(channelMap);
-                        MessageResponse messageResponse = null;
+                        
+                        DispatchResult dispatchResult = null;
                         
                         try {
-                            messageResponse = handleRawMessage(rawMessage);
+                            dispatchResult = dispatchRawMessage(rawMessage);
                         } finally {
-                            storeMessageResponse(messageResponse);
+                            finishDispatch(dispatchResult);
                         }
                     }
                 } catch (Exception e) {
@@ -470,18 +471,14 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
 
         RawMessage rawMessage = new RawMessage(message);
         rawMessage.setChannelMap(channelMap);
-        MessageResponse messageResponse = null;
+        DispatchResult dispatchResult = null;
         
         try {
-            messageResponse = handleRawMessage(rawMessage);
+            dispatchResult = dispatchRawMessage(rawMessage);
         } catch (ChannelException e) {
             throw new BatchMessageProcessorException(e);
         } finally {
-            try {
-                storeMessageResponse(messageResponse);
-            } catch (ChannelException e) {
-                throw new BatchMessageProcessorException(e);
-            }
+            finishDispatch(dispatchResult);
         }
     }
 

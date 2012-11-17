@@ -97,11 +97,11 @@ public class Channel implements Startable, Stoppable, Runnable {
     private ExecutorService queueExecutor;
     private ExecutorService destinationChainExecutor;
     private ExecutorService recoveryExecutor;
-    private Set<Future<MessageResponse>> channelTasks = new HashSet<Future<MessageResponse>>();
+    private Set<Future<DispatchResult>> channelTasks = new HashSet<Future<DispatchResult>>();
     private Set<Future<?>> controlTasks = new LinkedHashSet<Future<?>>();
 
     private boolean forceStop = false;
-    private final AtomicBoolean responseSent = new AtomicBoolean(true);
+    private final AtomicBoolean processLock = new AtomicBoolean(true);
     private ChannelLock lock = ChannelLock.UNLOCKED;
     
     private Logger logger = Logger.getLogger(getClass());
@@ -672,7 +672,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         // Cancel any tasks that were submitting and not yet finished
         synchronized (channelTasks) {
-            for (Future<MessageResponse> channelTask : channelTasks) {
+            for (Future<DispatchResult> channelTask : channelTasks) {
                 channelTask.cancel(true);
             }
         }
@@ -730,41 +730,52 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
     }
 
-    public MessageResponse handleRawMessage(RawMessage rawMessage) throws ChannelException {
+    protected DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
         if (currentState == ChannelState.STOPPING || currentState == ChannelState.STOPPED) {
-            throw new ChannelException(false, true);
+            throw new ChannelException(true);
         }
 
-        MessageProcessTask task = new MessageProcessTask(rawMessage, this);
+        MessageTask task = new MessageTask(rawMessage, this);
 
-        Future<MessageResponse> future = null;
+        Future<DispatchResult> future = null;
         try {
 
             synchronized (channelTasks) {
                 future = channelExecutor.submit(task);
                 channelTasks.add(future);
             }
-            MessageResponse messageResponse = future.get();
+            DispatchResult messageResponse = future.get();
 
             return messageResponse;
         } catch (RejectedExecutionException e) {
-            throw new ChannelException(false, true, e);
+            throw new ChannelException(true, e);
         } catch (InterruptedException e) {
-            throw new ChannelException(task.isMessagePersisted(), true, e);
+            ChannelException channelException = new ChannelException(true, e);
+            
+            if (task.getPersistedMessageId() == null) {
+                throw channelException;
+            }
+            
+            return new DispatchResult(task.getPersistedMessageId(), null, null, false, false, channelException);
         } catch (Throwable e) {
             Throwable cause = e.getCause();
+            ChannelException channelException = null;
 
             if (cause instanceof InterruptedException) {
-                throw new ChannelException(task.isMessagePersisted(), true, cause);
-            }
-
-            if (cause instanceof ChannelException) {
+                channelException = new ChannelException(true, cause);
+            } else if (cause instanceof ChannelException) {
                 logger.error(cause);
-                throw (ChannelException) cause;
+                channelException = (ChannelException) cause;
+            } else {
+                logger.error(e);
+                channelException = new ChannelException(false, e);
             }
-
-            logger.error(e);
-            throw new ChannelException(task.isMessagePersisted(), false, e);
+            
+            if (task.getPersistedMessageId() == null) {
+                throw channelException;
+            }
+            
+            return new DispatchResult(task.getPersistedMessageId(), null, null, false, false, channelException);
         } finally {
             if (future != null) {
                 synchronized (channelTasks) {
@@ -774,72 +785,21 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
     }
 
-    /**
-     * Store the response that was sent back to the originating system and mark
-     * the message as 'processed' if the source connector waits for all
-     * destinations to complete
-     * 
-     * @throws ChannelException
-     */
-    public void storeMessageResponse(MessageResponse messageResponse) throws ChannelException {
-        DonkeyDao dao = null;
-
-        try {
-            ConnectorMessage sourceMessage = null;
-            Response response = messageResponse.getResponse();
-            
-            if (response != null) {
-                String responseString = response.toString();
-                sourceMessage = messageResponse.getProcessedMessage().getConnectorMessages().get(0);
-                sourceMessage.setContent(new MessageContent(getChannelId(), messageResponse.getMessageId(), 0, ContentType.RESPONSE, responseString, encryptor.encrypt(responseString)));
-            }
-            
-            if (!sourceConnector.isRespondAfterProcessing() || messageResponse == null || !storageSettings.isEnabled()) {
-                return;
+    public void obtainProcessLock() throws InterruptedException {
+        synchronized (processLock) {
+            while (!processLock.get()) {
+                processLock.wait();
             }
 
-            if (response != null || messageResponse.isMarkAsProcessed()) {
-                /*
-                 * TRANSACTION: Store Response
-                 * - store the response that was sent by the source
-                 * connector as the source's response content
-                 * - mark the message as processed
-                 */
-                dao = daoFactory.getDao();
-
-                if (response != null && storageSettings.isStoreSentResponse()) {
-                    ThreadUtils.checkInterruptedStatus();
-                    dao.insertMessageContent(sourceMessage.getResponse());
-                }
-
-                if (messageResponse.isMarkAsProcessed()) {
-                    dao.markAsProcessed(getChannelId(), messageResponse.getMessageId());
-
-                    if (storageSettings.isRemoveContentOnCompletion() && MessageController.getInstance().isMessageCompleted(messageResponse.getProcessedMessage())) {
-                        dao.deleteAllContent(channelId, messageResponse.getMessageId());
-                    }
-                }
-
-                dao.commit(storageSettings.isDurable());
-            }
-        } catch (InterruptedException e) {
-            throw new ChannelException(true, true, e);
-        } catch (Throwable e) {
-            throw new ChannelException(true, false, e);
-        } finally {
-            if (dao != null) {
-                dao.close();
-            }
-
-            synchronized (responseSent) {
-                responseSent.set(true);
-                responseSent.notify();
-            }
+            processLock.set(false);
         }
     }
-
-    public AtomicBoolean getResponseSent() {
-        return responseSent;
+    
+    public void releaseProcessLock() {
+        synchronized (processLock) {
+            processLock.set(true);
+            processLock.notify();
+        }
     }
 
     /**
@@ -1396,7 +1356,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 // Prevent the channel for being started while messages are being deleted.
                 synchronized (Channel.this) {
                     setCurrentState(ChannelState.STARTING);
-                    responseSent.set(true);
+                    processLock.set(true);
                     channelTasks.clear();
                     forceStop = false;
     

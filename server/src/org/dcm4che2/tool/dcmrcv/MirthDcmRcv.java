@@ -16,7 +16,7 @@ import org.dcm4che2.net.PDVInputStream;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.channel.ChannelException;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 
 public class MirthDcmRcv extends DcmRcv {
@@ -53,16 +53,14 @@ public class MirthDcmRcv extends DcmRcv {
             // Allow the stream buffers to be garbage collected before the message is processed.
             bos = null;
             baos = null;
-            MessageResponse messageResponse = null;
+            DispatchResult dispatchResult = null;
             
             try {
-                messageResponse = sourceConnector.handleRawMessage(new RawMessage(dicomMessage));
-            } catch (ChannelException e) {
+                dispatchResult = sourceConnector.dispatchRawMessage(new RawMessage(dicomMessage));
             } finally {
-                try {
-                    sourceConnector.storeMessageResponse(messageResponse);
-                } catch (ChannelException e) {}
+                sourceConnector.finishDispatch(dispatchResult);
             }
+        } catch (ChannelException e) {
         } catch (Exception e) {
             logger.error(e);
         } finally {

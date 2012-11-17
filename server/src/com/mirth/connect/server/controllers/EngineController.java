@@ -12,7 +12,6 @@ package com.mirth.connect.server.controllers;
 import java.util.List;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.PauseException;
 import com.mirth.connect.donkey.server.StartException;
@@ -20,6 +19,7 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.ServerEventContext;
 
@@ -44,7 +44,7 @@ public interface EngineController {
 
     public Channel getDeployedChannel(String channelId);
 
-    public Response handleRawMessage(String channelId, RawMessage rawMessage) throws ChannelException;
+    public DispatchResult dispatchRawMessage(String channelId, RawMessage rawMessage) throws ChannelException;
 
     public void startChannel(String channelId) throws StartException, StopException;
 

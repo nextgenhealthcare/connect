@@ -405,7 +405,7 @@ public class DonkeyMessageController extends MessageController {
                 Throwable error = null;
 
                 try {
-                    engineController.handleRawMessage(channelId, rawMessage);
+                    engineController.dispatchRawMessage(channelId, rawMessage);
                 } catch (Throwable e) {
                     //TODO decide what to do on error. Currently it will loop indefinitely.
                     logger.error(e);

@@ -49,6 +49,12 @@
 		WHERE message_id = ?
 	</query>
 	
+	<query id="updateSourceResponse">
+		UPDATE d_m${localChannelId}
+		SET attempted_response = ?, response_error = ?
+		WHERE id = ?
+	</query>
+	
 	<query id="updateStatus">
 		UPDATE d_mm${localChannelId} SET status = ?, send_attempts = ?
 		WHERE id = ?

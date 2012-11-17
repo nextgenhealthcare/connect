@@ -245,7 +245,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
                     response = handleSend(connectorProperties, message);
                     message.setSendAttempts(++sendAttempts);
                     fixResponseStatus(response);
-                    responseStatus = response.getStatus();
+                    responseStatus = response.getNewMessageStatus();
                 } while ((responseStatus == Status.ERROR || responseStatus == Status.QUEUED) && (sendAttempts - 1) < retryCount);
 
                 afterSend(dao, message, response, previousStatus);
@@ -447,7 +447,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
             responseTransformer.doTransform(response);
         } catch (DonkeyException e) {
             logger.error("Error executing response transformer for channel " + message.getChannelId() + " (" + destinationName + ").", e);
-            response.setStatus(Status.ERROR);
+            response.setNewMessageStatus(Status.ERROR);
             response.setError(e.getFormattedError());
             message.setErrors(message.getErrors() != null ? message.getErrors() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
             dao.updateErrors(message);
@@ -482,21 +482,21 @@ public abstract class DestinationConnector extends Connector implements Connecto
 
     private void afterResponse(DonkeyDao dao, ConnectorMessage connectorMessage, Response response, Status previousStatus) {
         // the response status from the response transformer should be one of: FILTERED, ERROR, SENT, or QUEUED
-        connectorMessage.setStatus(response.getStatus());
+        connectorMessage.setStatus(response.getNewMessageStatus());
         dao.updateStatus(connectorMessage, previousStatus);
         previousStatus = connectorMessage.getStatus();
     }
 
     private void fixResponseStatus(Response response) {
         if (response != null) {
-            Status status = response.getStatus();
+            Status status = response.getNewMessageStatus();
 
             if (status != Status.FILTERED && status != Status.ERROR && status != Status.SENT && status != Status.QUEUED) {
                 // If the response is invalid for a final destination status, change the status to ERROR
-                response.setStatus(Status.ERROR);
+                response.setNewMessageStatus(Status.ERROR);
             } else if (!isQueueEnabled() && status == Status.QUEUED) {
                 // If the status is QUEUED and queuing is disabled, change the status to ERROR
-                response.setStatus(Status.ERROR);
+                response.setNewMessageStatus(Status.ERROR);
             }
         }
     }

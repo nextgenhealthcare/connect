@@ -43,6 +43,8 @@ public interface DonkeyDao {
     
     public void addChannelStatistics(Statistics statistics);
     
+    public void updateSourceResponse(String channelId, long messageId, boolean attemptedResponse, String responseError);
+    
     public void updateStatus(ConnectorMessage connectorMessage, Status previousStatus);
 
     public void updateErrors(ConnectorMessage connectorMessage);

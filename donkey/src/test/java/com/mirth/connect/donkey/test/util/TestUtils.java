@@ -64,7 +64,7 @@ import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.channel.StorageSettings;
@@ -646,7 +646,7 @@ public class TestUtils {
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
         statement.setLong(1, messageId);
         statement.setInt(2, 0);
-        statement.setString(3, String.valueOf(ContentType.RESPONSE.getContentTypeCode()));
+        statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
         ResultSet result = statement.executeQuery();
         assertTrue(result.next());
         result.close();
@@ -660,7 +660,7 @@ public class TestUtils {
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
         statement.setLong(1, messageId);
         statement.setInt(2, 0);
-        statement.setString(3, String.valueOf(ContentType.RESPONSE.getContentTypeCode()));
+        statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
         ResultSet result = statement.executeQuery();
         assertFalse(result.next());
         result.close();
@@ -949,7 +949,7 @@ public class TestUtils {
         PreparedStatement statement = null;
 
         try {
-            statement = connection.prepareStatement("TRUNCATE d_ms" + localChannelId + " CASCADE;");
+            statement = connection.prepareStatement("DELETE FROM d_ms" + localChannelId);
             statement.executeUpdate();
             connection.commit();
         } finally {
@@ -1204,11 +1204,11 @@ public class TestUtils {
         channel.deploy();
         channel.start();
 
-        MessageResponse messageResponse = null;
+        DispatchResult dispatchResult = null;
 
         try {
-            messageResponse = channel.getSourceConnector().handleRawMessage(new RawMessage(testMessage));
-            channel.getSourceConnector().storeMessageResponse(messageResponse);
+            dispatchResult = channel.getSourceConnector().dispatchRawMessage(new RawMessage(testMessage));
+            channel.getSourceConnector().finishDispatch(dispatchResult);
         } finally {
             channel.stop();
             channel.undeploy();
@@ -1222,7 +1222,7 @@ public class TestUtils {
         try {
             connection = getConnection();
             statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ?");
-            statement.setLong(1, messageResponse.getMessageId());
+            statement.setLong(1, dispatchResult.getMessageId());
             resultSet = statement.executeQuery();
 
             while (resultSet.next()) {

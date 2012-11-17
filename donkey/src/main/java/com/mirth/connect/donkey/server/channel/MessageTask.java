@@ -34,7 +34,7 @@ import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
-final class MessageProcessTask implements Callable<MessageResponse> {
+final class MessageTask implements Callable<DispatchResult> {
     private RawMessage rawMessage;
     private Channel channel;
     private StorageSettings storageSettings;
@@ -43,10 +43,10 @@ final class MessageProcessTask implements Callable<MessageResponse> {
     private ResponseSelector responseSelector;
     private boolean respondAfterProcessing;
     private Logger logger = Logger.getLogger(getClass());
-    private MessageResponse messageResponse;
-    private boolean messagePersisted = false;
+    private DispatchResult messageResponse;
+    private Long persistedMessageId;
 
-    MessageProcessTask(RawMessage rawMessage, Channel channel) {
+    MessageTask(RawMessage rawMessage, Channel channel) {
         this.rawMessage = rawMessage;
         this.channel = channel;
         this.storageSettings = channel.getStorageSettings();
@@ -55,23 +55,17 @@ final class MessageProcessTask implements Callable<MessageResponse> {
         this.respondAfterProcessing = channel.getSourceConnector().isRespondAfterProcessing();
         this.responseSelector = channel.getResponseSelector();
     }
-
-    public boolean isMessagePersisted() {
-        return messagePersisted;
+    
+    public Long getPersistedMessageId() {
+        return persistedMessageId;
     }
 
     @Override
-    public MessageResponse call() throws Exception {
+    public DispatchResult call() throws Exception {
         DonkeyDao dao = null;
         try {
             if (respondAfterProcessing) {
-                synchronized (channel.getResponseSent()) {
-                    while (!channel.getResponseSent().get()) {
-                        channel.getResponseSent().wait();
-                    }
-
-                    channel.getResponseSent().set(false);
-                }
+                channel.obtainProcessLock();
             }
 
             /*
@@ -84,32 +78,34 @@ final class MessageProcessTask implements Callable<MessageResponse> {
             ConnectorMessage sourceMessage = createAndStoreSourceMessage(dao, rawMessage);
             Message processedMessage = null;
             Response response = null;
+            boolean removeContent = false;
             ThreadUtils.checkInterruptedStatus();
 
             if (respondAfterProcessing) {
                 dao.commit(storageSettings.isRawDurable());
-                messagePersisted = true;
+                persistedMessageId = sourceMessage.getMessageId();
                 dao.close();
 
                 processedMessage = channel.process(sourceMessage, false);
                 response = responseSelector.getResponse(processedMessage);
+                removeContent = (storageSettings.isRemoveContentOnCompletion() && MessageController.getInstance().isMessageCompleted(processedMessage));
             } else {
                 // Block other threads from adding to the source queue until both the current commit and queue addition finishes
                 synchronized (channel.getSourceQueue()) {
                     dao.commit(storageSettings.isRawDurable());
-                    messagePersisted = true;
+                    persistedMessageId = sourceMessage.getMessageId();
                     dao.close();
                     channel.queue(sourceMessage);
                 }
             }
 
-            messageResponse = new MessageResponse(sourceMessage.getMessageId(), response, respondAfterProcessing, processedMessage);
+            messageResponse = new DispatchResult(persistedMessageId, processedMessage, response, respondAfterProcessing, removeContent);
 
             return messageResponse;
         } catch (RuntimeException e) {
             //TODO enable channel restart after it has been updated. Currently does not work
 //            Donkey.getInstance().restartChannel(channel.getChannelId(), true);
-            throw new ChannelException(messagePersisted, true, e);
+            throw new ChannelException(true, e);
         } finally {
             if (dao != null && !dao.isClosed()) {
                 dao.close();

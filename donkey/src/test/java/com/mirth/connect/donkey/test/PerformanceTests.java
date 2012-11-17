@@ -17,7 +17,7 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.timed.TimedDaoFactory;
 import com.mirth.connect.donkey.test.util.TestChannel;
@@ -130,30 +130,30 @@ public class PerformanceTests {
 
         for (int i = 0; i < testSize; i++) {
             for (int j = 0; j < sourceChannels.length; j++) {
-                MessageResponse messageResponse = null;
+                DispatchResult dispatchResult = null;
                 long startTime = System.currentTimeMillis();
 
                 try {
-                    messageResponse = sourceChannels[j].handleRawMessage(new RawMessage(testMessage));
+                    dispatchResult = sourceChannels[j].getSourceConnector().dispatchRawMessage(new RawMessage(testMessage));
                 } finally {
-                    sourceChannels[j].storeMessageResponse(messageResponse);
+                    sourceChannels[j].getSourceConnector().finishDispatch(dispatchResult);
                 }
 
                 messageTimes.add(System.currentTimeMillis() - startTime);
-                messageIds.add(messageResponse.getMessageId());
+                messageIds.add(dispatchResult.getMessageId());
             }
 
-            MessageResponse messageResponse = null;
+            DispatchResult dispatchResult = null;
             long startTime = System.currentTimeMillis();
 
             try {
-                messageResponse = destChannel.handleRawMessage(new RawMessage(testMessage));
+                dispatchResult = destChannel.getSourceConnector().dispatchRawMessage(new RawMessage(testMessage));
             } finally {
-                destChannel.storeMessageResponse(messageResponse);
+                destChannel.getSourceConnector().finishDispatch(dispatchResult);
             }
 
             messageTimes.add(System.currentTimeMillis() - startTime);
-            messageIds.add(messageResponse.getMessageId());
+            messageIds.add(dispatchResult.getMessageId());
         }
 
         for (int i = 0; i < numSources; i++) {

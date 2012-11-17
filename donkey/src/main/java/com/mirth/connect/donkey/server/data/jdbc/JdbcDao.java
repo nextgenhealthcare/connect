@@ -102,6 +102,19 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         }
     }
+    
+    @Override
+    public void updateSourceResponse(String channelId, long messageId, boolean attemptedResponse, String responseError) {
+        try {
+            PreparedStatement statement = statementSource.getPreparedStatement("updateSourceResponse", channelController.getLocalChannelId(channelId));
+            statement.setBoolean(1, attemptedResponse);
+            statement.setString(2, responseError);
+            statement.setLong(3, messageId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        }
+    }
 
     @Override
     public void insertMessageContent(MessageContent messageContent) {

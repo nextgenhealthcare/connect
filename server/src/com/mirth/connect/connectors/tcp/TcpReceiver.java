@@ -43,7 +43,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.server.Constants;
@@ -124,7 +124,7 @@ public class TcpReceiver extends SourceConnector {
             try {
                 createServerSocket();
             } catch (IOException e) {
-                throw new StartException("Failed to create server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").", e);
+                throw new StartException("Failed to create server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
             }
         }
 
@@ -142,9 +142,9 @@ public class TcpReceiver extends SourceConnector {
                             socket = serverSocket.accept();
                             logger.trace("Accepted new socket: " + socket.getRemoteSocketAddress().toString() + " -> " + socket.getLocalSocketAddress());
                         } catch (java.io.InterruptedIOException e) {
-                            logger.debug("Interruption during server socket accept operation (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").", e);
+                            logger.debug("Interruption during server socket accept operation (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                         } catch (Exception e) {
-                            logger.debug("Error accepting new socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").", e);
+                            logger.debug("Error accepting new socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                         }
                     } else {
                         // Client mode, manually initiate a client socket
@@ -152,7 +152,7 @@ public class TcpReceiver extends SourceConnector {
                             logger.debug("Initiating for new client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
                             socket = SocketUtil.createSocket(getHost(), getPort());
                         } catch (Exception e) {
-                            logger.error("Error initiating new socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").", e);
+                            logger.error("Error initiating new socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                         }
                     }
 
@@ -160,10 +160,10 @@ public class TcpReceiver extends SourceConnector {
                         try {
                             results.add(executor.submit(new TcpReader(socket)));
                         } catch (RejectedExecutionException e) {
-                            logger.debug("Executor rejected new task (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").", e);
+                            logger.debug("Executor rejected new task (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                             closeSocketQuietly(socket);
                         } catch (SocketException e) {
-                            logger.debug("Error initializing socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").", e);
+                            logger.debug("Error initializing socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                             closeSocketQuietly(socket);
                         }
                     }
@@ -195,10 +195,10 @@ public class TcpReceiver extends SourceConnector {
         if (serverSocket != null) {
             // Close the server socket
             try {
-                logger.debug("Closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").");
+                logger.debug("Closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
                 serverSocket.close();
             } catch (IOException e) {
-                firstCause = new StopException("Error closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").", e);
+                firstCause = new StopException("Error closing server socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
             }
         }
 
@@ -220,11 +220,20 @@ public class TcpReceiver extends SourceConnector {
     }
 
     @Override
-    public void handleRecoveredResponse(MessageResponse messageResponse) {
+    public void handleRecoveredResponse(DispatchResult dispatchResult) {
         // Only if we're responding on a new connection can we handle recovered responses
         if (connectorProperties.isRespondOnNewConnection()) {
             StreamHandler streamHandler = new StreamHandler(null, null, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
-            sendResponse(messageResponse, createResponseSocket(), streamHandler);
+            
+            if (dispatchResult.getSelectedResponse() != null) {
+                try {
+                    sendResponse(dispatchResult.getSelectedResponse().getMessage(), createResponseSocket(), streamHandler);
+                } catch (IOException e) {
+                    // TODO
+                }
+            }
+        } else {
+            // TODO call finishDispatch and set an error message since the response could not be sent
         }
     }
 
@@ -246,7 +255,7 @@ public class TcpReceiver extends SourceConnector {
 
             while (!done) {
                 RawMessage rawMessage = null;
-                MessageResponse messageResponse = null;
+                DispatchResult dispatchResult = null;
                 StreamHandler streamHandler = null;
 
                 try {
@@ -286,44 +295,51 @@ public class TcpReceiver extends SourceConnector {
 
                             // If a valid RawMessage object was created, attempt to send it to the channel
                             if (rawMessage != null) {
-                                boolean messageSent = false;
-
-                                while (!messageSent && getCurrentState() == ChannelState.STARTED) {
+                                while (dispatchResult == null && getCurrentState() == ChannelState.STARTED) {
+                                    boolean attemptedResponse = false;
+                                    String response = null;
+                                    String errorMessage = null;
+                                    
                                     // Send the message to the source connector
                                     try {
                                         // If more than one message will be sent to the channel, we'll only be sending back the first response
-                                        if (messageResponse == null) {
-                                            messageResponse = handleRawMessage(rawMessage);
-                                        } else {
-                                            handleRawMessage(rawMessage);
+                                        dispatchResult = dispatchRawMessage(rawMessage);
+                                        
+                                        // Check to see if we have a response to send
+                                        if (dispatchResult.getSelectedResponse() != null) {
+                                            // If the response socket hasn't been initialized, do that now
+                                            if (responseSocket == null) {
+                                                if (connectorProperties.isRespondOnNewConnection()) {
+                                                    responseSocket = createResponseSocket();
+                                                } else {
+                                                    // If we're not responding on a new connection, then write to the output stream of the same socket
+                                                    responseSocket = socket;
+                                                }
+                                            }
+
+                                            // Send the response; in the case of batch messages, only the first response will be sent
+                                            if (dispatchResult.getSelectedResponse() != null) {
+                                                attemptedResponse = true;
+                                                response = dispatchResult.getSelectedResponse().getMessage();
+                                                
+                                                try {
+                                                    sendResponse(response, responseSocket, streamHandler);
+                                                } catch (IOException e) {
+                                                    errorMessage = e.getMessage();
+                                                }
+                                            }
                                         }
-                                        messageSent = true;
                                     } catch (ChannelException e) {
-                                        /*
-                                         * If a channel exception occurred but
-                                         * the message was stored, then assume
-                                         * we don't need to send the message to
-                                         * the channel anymore. The response
-                                         * will not have been sent; that can be
-                                         * handled in handleRecoveredResponse if
-                                         * we're responding on a new connection.
-                                         */
-                                        if (e.isMessagePersisted()) {
-                                            messageSent = true;
-                                        }
                                     } finally {
-                                        try {
-                                            storeMessageResponse(messageResponse);
-                                        } catch (ChannelException e) {
-                                        }
+                                        finishDispatch(dispatchResult, attemptedResponse, response, errorMessage);
                                     }
 
                                     // Check to see if the thread has been interrupted before the message was sent
-                                    if (Thread.currentThread().isInterrupted() && !messageSent) {
+                                    if (Thread.currentThread().isInterrupted() && dispatchResult == null) {
                                         // Stop trying to receive data
                                         done = true;
                                         // Set the return value and send an alert
-                                        t = new InterruptedException("TCP worker thread was interrupted before the message was sent (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").");
+                                        t = new InterruptedException("TCP worker thread was interrupted before the message was sent (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
                                         alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Error receiving message.", t);
                                         break;
                                     }
@@ -352,29 +368,13 @@ public class TcpReceiver extends SourceConnector {
 
                         if (!(e instanceof SocketTimeoutException)) {
                             // Set the return value and send an alert
-                            t = new Exception("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").", e);
-                            logger.warn("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").", e);
+                            t = new Exception("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                            logger.warn("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                             alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Error receiving message.", e);
                         }
                     } else {
                         logger.debug("Timeout reading from socket input stream (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
                     }
-                }
-
-                // Check to see if we have a response to send
-                if (messageResponse != null && messageResponse.getResponse() != null) {
-                    // If the response socket hasn't been initialized, do that now
-                    if (responseSocket == null) {
-                        if (connectorProperties.isRespondOnNewConnection()) {
-                            responseSocket = createResponseSocket();
-                        } else {
-                            // If we're not responding on a new connection, then write to the output stream of the same socket
-                            responseSocket = socket;
-                        }
-                    }
-
-                    // Send the response; in the case of batch messages, only the first response will be sent
-                    sendResponse(messageResponse, responseSocket, streamHandler);
                 }
 
                 // Stop trying to receive data if the thread has been interrupted or the source connector has been stopped
@@ -443,17 +443,18 @@ public class TcpReceiver extends SourceConnector {
         return responseSocket;
     }
 
-    private void sendResponse(MessageResponse messageResponse, StateAwareSocket responseSocket, StreamHandler streamHandler) {
-        if (messageResponse != null && messageResponse.getResponse() != null && responseSocket != null && streamHandler != null) {
+    private void sendResponse(String response, StateAwareSocket responseSocket, StreamHandler streamHandler) throws IOException {
+        if (responseSocket != null && streamHandler != null) {
             try {
                 // Send the response
                 BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), parseInt(connectorProperties.getBufferSize()));
                 streamHandler.setOutputStream(bos);
-                streamHandler.offerResponse(getBytes(messageResponse.getResponse().getMessage()));
+                streamHandler.offerResponse(getBytes(response));
                 bos.flush();
             } catch (IOException e) {
                 // If an error occurred while sending the response then still allow the worker to continue processing messages
-                logger.warn("Error sending response (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").", e);
+                logger.warn("Error sending response (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                throw e;
             } finally {
                 if (connectorProperties.isRespondOnNewConnection() || !connectorProperties.isKeepConnectionOpen()) {
                     closeSocketQuietly(responseSocket);
@@ -469,22 +470,22 @@ public class TcpReceiver extends SourceConnector {
     private void closeSocketQuietly(StateAwareSocket socket) {
         try {
             if (socket != null) {
-                logger.trace("Closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").");
+                logger.trace("Closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
                 SocketUtil.closeSocket(socket);
             }
         } catch (IOException e) {
-            logger.debug("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").", e);
+            logger.debug("Error closing client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
         }
     }
 
     private void disposeThread(boolean interrupt) throws InterruptedException {
         if (thread != null && thread.isAlive()) {
             if (interrupt) {
-                logger.trace("Interrupting thread (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").");
+                logger.trace("Interrupting thread (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
                 thread.interrupt();
             }
 
-            logger.trace("Joining thread (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").");
+            logger.trace("Joining thread (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
             try {
                 thread.join();
             } catch (InterruptedException e) {
@@ -531,13 +532,13 @@ public class TcpReceiver extends SourceConnector {
                 try {
                     // If the return value is not null, then an exception was raised somewhere in the client socket thread
                     if ((t = result.get()) != null) {
-                        logger.debug("Client socket thread returned unsuccessfully (" + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ").", t);
+                        logger.debug("Client socket thread returned unsuccessfully (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", t);
                     }
                 } catch (Exception e) {
                     if (e instanceof InterruptedException) {
                         Thread.currentThread().interrupt();
                     }
-                    logger.debug("Error retrieving client socket thread result for " + connectorProperties.getName() + " \"Source\" on channel " + getChannel().getChannelId() + ".", e);
+                    logger.debug("Error retrieving client socket thread result for " + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ".", e);
                 }
             }
 

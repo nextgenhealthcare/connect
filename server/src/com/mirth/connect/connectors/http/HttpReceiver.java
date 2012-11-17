@@ -34,7 +34,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -125,75 +125,85 @@ public class HttpReceiver extends SourceConnector {
         public void handle(String target, Request baseRequest, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws IOException, ServletException {
             logger.debug("received HTTP request");
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.CONNECTED);
-            MessageResponse messageResponse = null;
+            DispatchResult dispatchResult = null;
+            String sentResponse = null;
+            boolean attemptedResponse = false;
+            String responseError = null;
             
             try {
-                messageResponse = processData(baseRequest);
+                dispatchResult = processData(baseRequest);
                 
                 servletResponse.setContentType(connectorProperties.getResponseContentType());
 
-                if (messageResponse != null) {
-                    // set the response headers
-                    for (Entry<String, String> entry : connectorProperties.getResponseHeaders().entrySet()) {
-                        servletResponse.setHeader(entry.getKey(), replaceValues(entry.getValue(), messageResponse));
-                    }
+                // set the response headers
+                for (Entry<String, String> entry : connectorProperties.getResponseHeaders().entrySet()) {
+                    servletResponse.setHeader(entry.getKey(), replaceValues(entry.getValue(), dispatchResult));
+                }
 
-                    // set the status code
-                    int statusCode = NumberUtils.toInt(replaceValues(connectorProperties.getResponseStatusCode(), messageResponse), -1);
+                // set the status code
+                int statusCode = NumberUtils.toInt(replaceValues(connectorProperties.getResponseStatusCode(), dispatchResult), -1);
 
+                /*
+                 * set the response body and status code (if we choose a
+                 * response from the drop-down)
+                 */
+                if (dispatchResult.getSelectedResponse() != null) {
+                    attemptedResponse = true;
+                    servletResponse.getOutputStream().write(dispatchResult.getSelectedResponse().getMessage().getBytes(connectorProperties.getCharset()));
+
+                    // TODO include full HTTP payload in sentResponse
+                    sentResponse = dispatchResult.getSelectedResponse().getMessage();
+                    
                     /*
-                     * set the response body and status code (if we choose a
-                     * response from the drop-down)
+                     * If the status code is custom, use the
+                     * entered/replaced string
+                     * If is is not a variable, use the status of the
+                     * destination's response (success = 200, failure = 500)
+                     * Otherwise, return 200
                      */
-                    if (messageResponse.getResponse() != null) {
-                        servletResponse.getOutputStream().write(messageResponse.getResponse().getMessage().getBytes(connectorProperties.getCharset()));
-
-                        /*
-                         * If the status code is custom, use the
-                         * entered/replaced string
-                         * If is is not a variable, use the status of the
-                         * destination's response (success = 200, failure = 500)
-                         * Otherwise, return 200
-                         */
-                        if (statusCode != -1) {
-                            servletResponse.setStatus(statusCode);
-                        } else if (messageResponse.getResponse().getStatus().equals(Status.ERROR)) {
-                            servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-                        } else {
-                            servletResponse.setStatus(HttpStatus.SC_OK);
-                        }
+                    if (statusCode != -1) {
+                        servletResponse.setStatus(statusCode);
+                    } else if (dispatchResult.getSelectedResponse().getNewMessageStatus().equals(Status.ERROR)) {
+                        servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                     } else {
-                        /*
-                         * If the status code is custom, use the
-                         * entered/replaced string
-                         * Otherwise, return 200
-                         */
-                        if (statusCode != -1) {
-                            servletResponse.setStatus(statusCode);
-                        } else {
-                            servletResponse.setStatus(HttpStatus.SC_OK);
-                        }
+                        servletResponse.setStatus(HttpStatus.SC_OK);
                     }
                 } else {
-                    servletResponse.setStatus(HttpStatus.SC_OK);
+                    /*
+                     * If the status code is custom, use the
+                     * entered/replaced string
+                     * Otherwise, return 200
+                     */
+                    if (statusCode != -1) {
+                        servletResponse.setStatus(statusCode);
+                    } else {
+                        servletResponse.setStatus(HttpStatus.SC_OK);
+                    }
                 }
             } catch (Exception e) {
+                responseError = ExceptionUtils.getFullStackTrace(e);
+                
+                // TODO decide if we still want to send back the exception content or something else?
+                attemptedResponse = true;
                 servletResponse.setContentType("text/plain");
-                servletResponse.getOutputStream().write(ExceptionUtils.getFullStackTrace(e).getBytes());
+                servletResponse.getOutputStream().write(responseError.getBytes());
                 servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                
+                // TODO get full HTTP payload with error message
+                sentResponse = responseError;
             } finally {
                 try {
-                    storeMessageResponse(messageResponse);
-                } catch (ChannelException e) {}
-                
-                monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
+                    finishDispatch(dispatchResult, attemptedResponse, sentResponse, responseError);
+                } finally {
+                    monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
+                }
             }
 
             baseRequest.setHandled(true);
         }
     };
 
-    private MessageResponse processData(Request request) throws IOException, ChannelException {
+    private DispatchResult processData(Request request) throws IOException, ChannelException {
         monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY);
         HttpMessageConverter converter = new HttpMessageConverter();
 
@@ -223,10 +233,10 @@ public class HttpReceiver extends SourceConnector {
             rawMessageContent = requestMessage.getContent();
         }
 
-        return handleRawMessage(new RawMessage(rawMessageContent));
+        return dispatchRawMessage(new RawMessage(rawMessageContent));
     }
 
-    private String replaceValues(String template, MessageResponse messageResponse) {
+    private String replaceValues(String template, DispatchResult messageResponse) {
         ConnectorMessage mergedConnectorMessage = null;
 
         if (messageResponse.getProcessedMessage() != null) {

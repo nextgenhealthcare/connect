@@ -10,23 +10,16 @@
 package com.mirth.connect.donkey.server.channel;
 
 public class ChannelException extends Exception {
-    private boolean messagePersisted;
     private boolean stopped;
 
-    public ChannelException(boolean messagePersisted, boolean stopped) {
+    public ChannelException(boolean stopped) {
         super();
-        this.messagePersisted = messagePersisted;
         this.stopped = stopped;
     }
 
-    public ChannelException(boolean messagePersisted, boolean stopped, Throwable cause) {
+    public ChannelException(boolean stopped, Throwable cause) {
         super(cause);
-        this.messagePersisted = messagePersisted;
         this.stopped = stopped;
-    }
-
-    public boolean isMessagePersisted() {
-        return messagePersisted;
     }
 
     public boolean isStopped() {

@@ -70,7 +70,7 @@ public class ResponseSelector {
                     Integer precedence = statusPrecedenceMap.get(connectorMessage.getStatus());
 
                     if (precedence != null && (highestPrecedence == null || precedence > highestPrecedence)) {
-                        response.setStatus(connectorMessage.getStatus());
+                        response.setNewMessageStatus(connectorMessage.getStatus());
                         highestPrecedence = precedence;
                     }
                 }

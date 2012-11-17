@@ -29,7 +29,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
@@ -147,26 +147,32 @@ public class WebServiceMessageReceiver extends SourceConnector {
     }
 
     @Override
-    public void handleRecoveredResponse(MessageResponse messageResponse) {
+    public void handleRecoveredResponse(DispatchResult messageResponse) {
         // TODO Auto-generated method stub
     }
 
-    public Response processData(String message) {
+    public String processData(String message) {
         monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY);
 
         RawMessage rawMessage = new RawMessage(message);
-        MessageResponse messageResponse = null;
+        DispatchResult dispatchResult = null;
+        String response = null;
         
         try {
-            messageResponse = super.handleRawMessage(rawMessage);
+            dispatchResult = super.dispatchRawMessage(rawMessage);
+            
+            if (dispatchResult.getSelectedResponse() != null) {
+                response = dispatchResult.getSelectedResponse().getMessage();
+            }
         } catch (ChannelException e) {
+            // TODO auto-generate an error response?
+            response = "";
         } finally {
             // TODO: response should be returned before it is marked as finished
-            try {
-                storeMessageResponse(messageResponse);
-            } catch (ChannelException e) {}
+            // TODO: figure out how to get the error message if an error occurred in sending the response back
+            finishDispatch(dispatchResult, true, response, null);
         }
 
-        return messageResponse.getResponse();
+        return response;
     }
 }

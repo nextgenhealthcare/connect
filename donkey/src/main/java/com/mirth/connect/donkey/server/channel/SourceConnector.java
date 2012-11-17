@@ -10,10 +10,15 @@
 package com.mirth.connect.donkey.server.channel;
 
 import com.mirth.connect.donkey.model.channel.ChannelState;
-import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.ContentType;
+import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.server.Encryptor;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.donkey.server.data.DonkeyDao;
+import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 
 /**
  * The base class for all source connectors.
@@ -23,10 +28,6 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
     private boolean respondAfterProcessing = true;
     private MetaDataReplacer metaDataReplacer;
     private ChannelState currentState = ChannelState.STOPPED;
-
-    public Channel getChannel() {
-        return channel;
-    }
 
     public void setChannel(Channel channel) {
         this.channel = channel;
@@ -111,54 +112,88 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
      * @throws ChannelErrorException
      * @throws StoppingException
      */
-    public MessageResponse handleRawMessage(RawMessage rawMessage) throws ChannelException {
+    public DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
         if (currentState == ChannelState.STOPPED) {
-            throw new ChannelException(false, true);
+            throw new ChannelException(true);
         }
 
-        return channel.handleRawMessage(rawMessage);
+        return channel.dispatchRawMessage(rawMessage);
     }
-
-    /**
-     * Store the response that was sent back to the originating system and mark
-     * the message as 'processed' if the source connector waits for all
-     * destinations to complete
-     * 
-     * @throws ChannelErrorException
-     * @throws StoppingException
-     */
-    public void storeMessageResponse(MessageResponse messageResponse) throws ChannelException {
-        channel.storeMessageResponse(messageResponse);
-    }
-
+    
     /**
      * Handles a response generated for a message that was recovered by the
      * channel
      * 
-     * @throws ChannelErrorException
-     * @throws StoppingException
-     * @throws StoppedException
+     * @throws ChannelException
      */
-    public void handleRecoveredResponse(MessageResponse messageResponse) throws ChannelException {
-        storeMessageResponse(messageResponse);
+//    public abstract void handleRecoveredResponse(MessageProcessResult messageResponse) throws ChannelException;
+    
+    public void handleRecoveredResponse(DispatchResult messageResponse) throws ChannelException {
+
     }
+    
+    public void finishDispatch(DispatchResult dispatchResult) {
+        String response = null;
+        
+        if (dispatchResult != null) {
+            Response selectedResponse = dispatchResult.getSelectedResponse();
+            
+            if (selectedResponse != null) {
+                response = selectedResponse.getMessage();
+            }
+        }
+        
+        finishDispatch(dispatchResult, false, response, null);
+    }
+    
+    public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String response, String errorMessage) {
+        try {
+            if (dispatchResult == null) {
+                return;
+            }
+            
+            DonkeyDaoFactory daoFactory = channel.getDaoFactory();
+            StorageSettings storageSettings = channel.getStorageSettings();
+            Encryptor encryptor = channel.getEncryptor();
+            DonkeyDao dao = null;
+            long messageId = dispatchResult.getMessageId();
+            
+            try {
+                if (response != null && storageSettings.isStoreSentResponse()) {
+                    dao = daoFactory.getDao();
+                    dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.SENT, response, encryptor.encrypt(response)));
+                }
+                
+                if (attemptedResponse || errorMessage != null) {
+                    if (dao == null) {
+                        dao = daoFactory.getDao();
+                    }
+                    
+                    dao.updateSourceResponse(getChannelId(), messageId, attemptedResponse, errorMessage);
+                }
+                
+                if (dispatchResult.isMarkAsProcessed()) {
+                    if (dao == null) {
+                        dao = daoFactory.getDao();
+                    }
+                    
+                    dao.markAsProcessed(getChannelId(), messageId);
 
-    /**
-     * Takes a message that was recovered by the channel, extracts the
-     * appropriate response from it and sends a MessageResponse to the source
-     * connector's handleRecoveredResponse() method. This method has no
-     * modifier, because it is only intended to be accessed by the Channel, not
-     * connector sub-classes.
-     * 
-     * @throws ChannelErrorException
-     * @throws StoppingException
-     * @throws StoppedException
-     */
-    void handleRecoveredMessage(Message message) throws ChannelException {
-        ResponseSelector responseSelector = channel.getResponseSelector();
-
-        if (responseSelector.canRespond() && message != null) {
-            handleRecoveredResponse(new MessageResponse(message.getMessageId(), responseSelector.getResponse(message), true, message));
+                    if (dispatchResult.isRemoveContent()) {
+                        dao.deleteAllContent(getChannelId(), messageId);
+                    }
+                }
+                
+                if (dao != null) {
+                    dao.commit(storageSettings.isDurable());
+                }
+            } finally {
+                if (dao != null) {
+                    dao.close();
+                }
+            }
+        } finally {
+            channel.releaseProcessLock();
         }
     }
 }

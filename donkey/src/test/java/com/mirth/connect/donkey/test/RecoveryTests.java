@@ -35,7 +35,7 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
@@ -211,7 +211,7 @@ public class RecoveryTests {
 
         TestSourceConnector testSourceConnector = (TestSourceConnector) channel.getSourceConnector();
 
-        List<MessageResponse> recoveredResponses = testSourceConnector.getRecoveredResponses();
+        List<DispatchResult> recoveredResponses = testSourceConnector.getRecoveredResponses();
 
         // test that the correct number of messages were sent from the destination connector and were recovered by the channel
         assertEquals(testSize, recoveredResponses.size());
@@ -271,8 +271,8 @@ public class RecoveryTests {
             channel.deploy();
             channel.start();
             channel.processUnfinishedMessages();
-            for (MessageResponse messageResponse : ((TestSourceConnector) channel.getSourceConnector()).getRecoveredResponses()) {
-                channel.getSourceConnector().storeMessageResponse(messageResponse);
+            for (DispatchResult dispatchResult : ((TestSourceConnector) channel.getSourceConnector()).getRecoveredResponses()) {
+                channel.getSourceConnector().finishDispatch(dispatchResult);
             }
 
             for (Long messageId : messageIds) {

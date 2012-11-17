@@ -181,7 +181,7 @@ public class MessageObjectServlet extends MirthServlet {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
                         try {
-                            ControllerFactory.getFactory().createEngineController().handleRawMessage(channelId, rawMessage);
+                            ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage);
                         } catch (ChannelException e) {
                             throw new ServletException("An error occurred when attempting to process the message");
                         }

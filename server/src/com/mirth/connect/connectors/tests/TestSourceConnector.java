@@ -18,11 +18,11 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 
 public class TestSourceConnector extends SourceConnector {
-    private List<MessageResponse> recoveredMessageResponses = new ArrayList<MessageResponse>();
+    private List<DispatchResult> recoveredMessageResponses = new ArrayList<DispatchResult>();
 
     @Override
     public void onDeploy() throws DeployException {
@@ -45,24 +45,24 @@ public class TestSourceConnector extends SourceConnector {
     }
 
     @Override
-    public void handleRecoveredResponse(MessageResponse messageResponse) {
+    public void handleRecoveredResponse(DispatchResult messageResponse) {
         recoveredMessageResponses.add(messageResponse);
     }
 
-    public MessageResponse readTestMessage(String raw) throws ChannelException {
+    public DispatchResult readTestMessage(String raw) throws ChannelException {
         RawMessage rawMessage = new RawMessage(raw);
-        MessageResponse messageResponse = null;
+        DispatchResult dispatchResult = null;
         
         try {
-            messageResponse = handleRawMessage(rawMessage);
+            dispatchResult = dispatchRawMessage(rawMessage);
         } finally {
-            storeMessageResponse(messageResponse);
+            finishDispatch(dispatchResult);
         }
         
-        return messageResponse;
+        return dispatchResult;
     }
 
-    public List<MessageResponse> getRecoveredResponses() {
+    public List<DispatchResult> getRecoveredResponses() {
         return recoveredMessageResponses;
     }
 }

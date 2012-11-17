@@ -172,6 +172,9 @@ public class PassthruDao implements DonkeyDao {
     public void addChannelStatistics(Statistics statistics) {}
 
     @Override
+    public void updateSourceResponse(String channelId, long messageId, boolean attemptedResponse, String responseError) {}
+    
+    @Override
     public void updateErrors(ConnectorMessage connectorMessage) {}
 
     @Override

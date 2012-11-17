@@ -30,7 +30,6 @@ import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
@@ -44,8 +43,8 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.channel.Statistics;
@@ -370,24 +369,29 @@ public class DonkeyEngineController implements EngineController {
     }
 
     @Override
-    public Response handleRawMessage(String channelId, RawMessage rawMessage) throws ChannelException {
+    public DispatchResult dispatchRawMessage(String channelId, RawMessage rawMessage) throws ChannelException {
         if (channelId.equals("sink")) {
             return null;
         } else if (!isDeployed(channelId)) {
             logger.error("Could not find channel to route to for channel id: " + channelId);
-            throw new ChannelException(false, true);
+            throw new ChannelException(true);
         }
 
         SourceConnector sourceConnector = donkey.getDeployedChannels().get(channelId).getSourceConnector();
-        MessageResponse messageResponse = null;
+        DispatchResult dispatchResult = null;
+        String response = null;
         
         try {
-            messageResponse = sourceConnector.handleRawMessage(rawMessage);
+            dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
+            
+            if (dispatchResult.getSelectedResponse() != null) {
+                response = dispatchResult.getSelectedResponse().getMessage();
+            }
         } finally {
-            sourceConnector.storeMessageResponse(messageResponse);
+            sourceConnector.finishDispatch(dispatchResult, true, response, null);
         }
         
-        return messageResponse.getResponse();
+        return dispatchResult;
     }
 
     private com.mirth.connect.donkey.server.channel.Channel convertToDonkeyChannel(Channel model) throws Exception {

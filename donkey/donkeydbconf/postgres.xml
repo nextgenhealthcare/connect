@@ -8,7 +8,9 @@
 	        date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        processed boolean NOT NULL DEFAULT FALSE,
 	        import_id bigint,
-	        import_channel_id character varying(36)
+	        import_channel_id character varying(36),
+	        attempted_response boolean NOT NULL DEFAULT FALSE,
+	        response_error text
 	    );
 	</query>
 	

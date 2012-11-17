@@ -40,7 +40,7 @@ public class VMRouter {
     // TODO: Add composites to handle RawMessage objects
     public Response routeMessageByChannelId(String channelId, String message) {
         try {
-            return engineController.handleRawMessage(channelId, new RawMessage(message, null, null));
+            return engineController.dispatchRawMessage(channelId, new RawMessage(message, null, null)).getSelectedResponse();
         } catch (Throwable e) {
             logger.error(e);
             return new Response(Status.ERROR, null);

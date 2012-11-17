@@ -14,7 +14,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ListenConnector;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 
 public class VmListener extends ListenConnector {
 
@@ -43,7 +43,7 @@ public class VmListener extends ListenConnector {
     }
 
     @Override
-    public void handleRecoveredResponse(MessageResponse messageResponse) {
+    public void handleRecoveredResponse(DispatchResult messageResponse) {
         // TODO Auto-generated method stub
     }
 

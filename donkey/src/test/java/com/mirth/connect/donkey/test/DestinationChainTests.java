@@ -31,7 +31,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
@@ -135,7 +135,7 @@ public class DestinationChainTests {
         ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
 
         for (int i = 1; i <= TEST_SIZE; i++) {
-            MessageResponse messageResponse = ((TestSourceConnector) channel.getSourceConnector()).readTestMessage(testMessage);
+            DispatchResult messageResponse = ((TestSourceConnector) channel.getSourceConnector()).readTestMessage(testMessage);
 
             for (DestinationChain chain : channel.getDestinationChains()) {
                 for (int metaDataId : chain.getDestinationConnectors().keySet()) {
@@ -216,7 +216,7 @@ public class DestinationChainTests {
 
         try {
             for (int i = 1; i <= TEST_SIZE; i++) {
-                MessageResponse messageResponse = ((TestSourceConnector) channel.getSourceConnector()).readTestMessage(testMessage);
+                DispatchResult messageResponse = ((TestSourceConnector) channel.getSourceConnector()).readTestMessage(testMessage);
 
                 for (DestinationChain chain : channel.getDestinationChains()) {
                     int startMetaDataId = chain.getEnabledMetaDataIds().get(0);

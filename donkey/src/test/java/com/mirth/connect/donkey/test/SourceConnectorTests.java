@@ -25,7 +25,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.test.util.TestChannel;
 import com.mirth.connect.donkey.test.util.TestSourceConnector;
@@ -81,34 +81,34 @@ public class SourceConnectorTests {
         // Send messages that immediately process
         for (int i = 1; i <= TEST_SIZE; i++) {
             RawMessage rawMessage = new RawMessage(testMessage);
-            MessageResponse messageResponse = null;
+            DispatchResult dispatchResult = null;
 
             try {
-                messageResponse = sourceConnector.handleRawMessage(rawMessage);
+                dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
             } finally {
-                sourceConnector.storeMessageResponse(messageResponse);
+                sourceConnector.finishDispatch(dispatchResult, true, "response", null);
             }
 
-            if (messageResponse != null) {
-                sourceConnector.getMessageIds().add(messageResponse.getMessageId());
+            if (dispatchResult != null) {
+                sourceConnector.getMessageIds().add(dispatchResult.getMessageId());
             }
 
             // Assert that the message was created and processed
             Message message = new Message();
             message.setChannelId(channel.getChannelId());
-            message.setMessageId(messageResponse.getMessageId());
+            message.setMessageId(dispatchResult.getMessageId());
             message.setServerId(channel.getServerId());
             message.setProcessed(true);
             TestUtils.assertMessageExists(message, false);
 
             // Assert that the message response is not null
-            assertNotNull(messageResponse);
+            assertNotNull(dispatchResult);
             // Assert that the response is not null
-            assertNotNull(messageResponse.getResponse());
+            assertNotNull(dispatchResult.getSelectedResponse());
             // Assert that the response status is correct
-            assertEquals(Status.TRANSFORMED, messageResponse.getResponse().getStatus());
+            assertEquals(Status.TRANSFORMED, dispatchResult.getSelectedResponse().getNewMessageStatus());
             // Assert that the source connector response was created
-            TestUtils.assertResponseExists(channel.getChannelId(), messageResponse.getMessageId());
+            TestUtils.assertResponseExists(channel.getChannelId(), dispatchResult.getMessageId());
         }
 
         // Send messages that queue
@@ -116,22 +116,22 @@ public class SourceConnectorTests {
 
         for (int i = 1; i <= TEST_SIZE; i++) {
             RawMessage rawMessage = new RawMessage(testMessage);
-            MessageResponse messageResponse = null;
+            DispatchResult dispatchResult = null;
 
             try {
-                messageResponse = sourceConnector.handleRawMessage(rawMessage);
+                dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
             } finally {
-                sourceConnector.storeMessageResponse(messageResponse);
+                sourceConnector.finishDispatch(dispatchResult);
             }
 
-            if (messageResponse != null) {
-                sourceConnector.getMessageIds().add(messageResponse.getMessageId());
+            if (dispatchResult != null) {
+                sourceConnector.getMessageIds().add(dispatchResult.getMessageId());
             }
 
             // Assert that the message was created
             Message message = new Message();
             message.setChannelId(channel.getChannelId());
-            message.setMessageId(messageResponse.getMessageId());
+            message.setMessageId(dispatchResult.getMessageId());
             message.setServerId(channel.getServerId());
             message.setProcessed(false);
             try {
@@ -142,11 +142,11 @@ public class SourceConnectorTests {
             }
 
             // Assert that the message response is not null
-            assertNotNull(messageResponse);
+            assertNotNull(dispatchResult);
             // Assert that the response is null
-            assertNull(messageResponse.getResponse());
+            assertNull(dispatchResult.getSelectedResponse());
             // Assert that the source connector response was not created
-            TestUtils.assertResponseDoesNotExist(channel.getChannelId(), messageResponse.getMessageId());
+            TestUtils.assertResponseDoesNotExist(channel.getChannelId(), dispatchResult.getMessageId());
         }
 
         channel.stop();
@@ -186,34 +186,34 @@ public class SourceConnectorTests {
 
         for (int i = 1; i <= TEST_SIZE; i++) {
             RawMessage rawMessage = new RawMessage(testMessage);
-            MessageResponse messageResponse = null;
+            DispatchResult dispatchResult = null;
 
             try {
-                messageResponse = sourceConnector.handleRawMessage(rawMessage);
+                dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
             } finally {
-                sourceConnector.storeMessageResponse(messageResponse);
+                sourceConnector.finishDispatch(dispatchResult, true, "response", null);
             }
 
-            if (messageResponse != null) {
-                sourceConnector.getMessageIds().add(messageResponse.getMessageId());
+            if (dispatchResult != null) {
+                sourceConnector.getMessageIds().add(dispatchResult.getMessageId());
             }
 
             // Assert that the message was created
             Message message = new Message();
             message.setChannelId(channel.getChannelId());
-            message.setMessageId(messageResponse.getMessageId());
+            message.setMessageId(dispatchResult.getMessageId());
             message.setServerId(channel.getServerId());
             message.setProcessed(true);
             TestUtils.assertMessageExists(message, false);
 
             // Assert that the message response is not null
-            assertNotNull(messageResponse);
+            assertNotNull(dispatchResult);
 
             // Assert that the response is not null
-            assertNotNull(messageResponse.getResponse());
+            assertNotNull(dispatchResult.getSelectedResponse());
 
             // Assert that the source connector response was created
-            TestUtils.assertResponseExists(channel.getChannelId(), messageResponse.getMessageId());
+            TestUtils.assertResponseExists(channel.getChannelId(), dispatchResult.getMessageId());
         }
 
         channel.stop();
@@ -260,8 +260,8 @@ public class SourceConnectorTests {
         channel.getResponseSelector().setRespondFromName(Constants.RESPONSE_SOURCE_TRANSFORMED);
 
         for (int i = 0; i < TEST_SIZE; i++) {
-            response = sourceConnector.readTestMessage(testMessage).getResponse();
-            assertEquals(Status.TRANSFORMED, response.getStatus());
+            response = sourceConnector.readTestMessage(testMessage).getSelectedResponse();
+            assertEquals(Status.TRANSFORMED, response.getNewMessageStatus());
         }
 
         assertEquals(TEST_SIZE, channel.getNumMessages());
@@ -269,8 +269,8 @@ public class SourceConnectorTests {
         channel.getResponseSelector().setRespondFromName(Constants.RESPONSE_DESTINATIONS_COMPLETED);
 
         for (int i = 0; i < TEST_SIZE; i++) {
-            response = sourceConnector.readTestMessage(testMessage).getResponse();
-            assertEquals(Status.SENT, response.getStatus());
+            response = sourceConnector.readTestMessage(testMessage).getSelectedResponse();
+            assertEquals(Status.SENT, response.getNewMessageStatus());
         }
 
         assertEquals(TEST_SIZE * 2, channel.getNumMessages());
@@ -278,8 +278,8 @@ public class SourceConnectorTests {
         channel.getResponseSelector().setRespondFromName(destinationName);
 
         for (int i = 0; i < TEST_SIZE; i++) {
-            response = sourceConnector.readTestMessage(testMessage).getResponse();
-            assertEquals(Status.SENT, response.getStatus());
+            response = sourceConnector.readTestMessage(testMessage).getSelectedResponse();
+            assertEquals(Status.SENT, response.getNewMessageStatus());
         }
 
         assertEquals(TEST_SIZE * 3, channel.getNumMessages());
@@ -287,7 +287,7 @@ public class SourceConnectorTests {
         channel.getResponseSelector().setRespondFromName(destinationName + "lolwut");
 
         for (int i = 0; i < TEST_SIZE; i++) {
-            response = sourceConnector.readTestMessage(testMessage).getResponse();
+            response = sourceConnector.readTestMessage(testMessage).getSelectedResponse();
             assertEquals(null, response);
         }
 

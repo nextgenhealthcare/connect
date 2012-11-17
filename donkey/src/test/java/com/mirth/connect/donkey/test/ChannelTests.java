@@ -44,7 +44,7 @@ import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.channel.StorageSettings;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
@@ -594,8 +594,8 @@ public class ChannelTests {
         channel.deploy();
         channel.start();
         
-        MessageResponse messageResponse = sourceConnector.handleRawMessage(new RawMessage(testMessage));
-        sourceConnector.storeMessageResponse(messageResponse);
+        DispatchResult dispatchResult = sourceConnector.dispatchRawMessage(new RawMessage(testMessage));
+        sourceConnector.finishDispatch(dispatchResult);
 
         channel.stop();
         channel.undeploy();
@@ -605,12 +605,12 @@ public class ChannelTests {
         ResultSet resultSet = null;
         
         try {
-            long messageId = messageResponse.getProcessedMessage().getMessageId();
+            long messageId = dispatchResult.getProcessedMessage().getMessageId();
             
             statement = connection.prepareStatement("SELECT content, is_encrypted FROM d_mc" + ChannelController.getInstance().getLocalChannelId(channelId) + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
             statement.setLong(1, messageId);
             
-            for (ConnectorMessage connectorMessage : messageResponse.getProcessedMessage().getConnectorMessages().values()) {
+            for (ConnectorMessage connectorMessage : dispatchResult.getProcessedMessage().getConnectorMessages().values()) {
                 int metaDataId = connectorMessage.getMetaDataId();
                 statement.setInt(2, metaDataId);
                 
@@ -667,8 +667,8 @@ public class ChannelTests {
         channel.deploy();
         channel.start();
 
-        MessageResponse messageResponse = sourceConnector.handleRawMessage(new RawMessage(testMessage));
-        sourceConnector.storeMessageResponse(messageResponse);
+        DispatchResult dispatchResult = sourceConnector.dispatchRawMessage(new RawMessage(testMessage));
+        sourceConnector.finishDispatch(dispatchResult);
 
         // if queueing, give the queue time to flush out
         if (useQueue) {
@@ -678,7 +678,7 @@ public class ChannelTests {
         channel.stop();
         channel.undeploy();
 
-        for (ConnectorMessage connectorMessage : messageResponse.getProcessedMessage().getConnectorMessages().values()) {
+        for (ConnectorMessage connectorMessage : dispatchResult.getProcessedMessage().getConnectorMessages().values()) {
             boolean foundContent = false;
 
             for (ContentType contentType : ContentType.values()) {
@@ -727,14 +727,14 @@ public class ChannelTests {
         channel.deploy();
         channel.start();
 
-        MessageResponse messageResponse = sourceConnector.handleRawMessage(new RawMessage(testMessage));
-        sourceConnector.storeMessageResponse(messageResponse);
+        DispatchResult dispatchResult = sourceConnector.dispatchRawMessage(new RawMessage(testMessage));
+        sourceConnector.finishDispatch(dispatchResult);
 
         channel.stop();
         channel.undeploy();
 
-        ConnectorMessage sourceMessage = messageResponse.getProcessedMessage().getConnectorMessages().get(0);
-        ConnectorMessage destinationMessage = messageResponse.getProcessedMessage().getConnectorMessages().get(1);
+        ConnectorMessage sourceMessage = dispatchResult.getProcessedMessage().getConnectorMessages().get(0);
+        ConnectorMessage destinationMessage = dispatchResult.getProcessedMessage().getConnectorMessages().get(1);
 
         assertNotNull(sourceMessage);
         assertNotNull(destinationMessage);
@@ -768,14 +768,12 @@ public class ChannelTests {
         if (storageSettings.isStoreSent()) {
             TestUtils.assertMessageContentExists(destinationMessage.getSent());
         } else {
-            TestUtils.assertMessageContentDoesNotExist(new MessageContent(channelId, messageResponse.getMessageId(), 1, ContentType.SENT, null, null));
+            TestUtils.assertMessageContentDoesNotExist(new MessageContent(channelId, dispatchResult.getMessageId(), 1, ContentType.SENT, null, null));
         }
 
         if (storageSettings.isStoreResponse()) {
-            TestUtils.assertMessageContentExists(sourceMessage.getResponse());
             TestUtils.assertMessageContentExists(destinationMessage.getResponse());
         } else {
-            TestUtils.assertMessageContentDoesNotExist(sourceMessage.getResponse());
             TestUtils.assertMessageContentDoesNotExist(destinationMessage.getResponse());
         }
 

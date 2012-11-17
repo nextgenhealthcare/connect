@@ -24,8 +24,7 @@ import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
-import com.mirth.connect.donkey.server.channel.ChannelException;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.JavaScriptUtil;
@@ -66,7 +65,7 @@ public class JavaScriptReceiver extends PollConnector {
     public void onStop() throws StopException {}
 
     @Override
-    public void handleRecoveredResponse(MessageResponse messageResponse) {}
+    public void handleRecoveredResponse(DispatchResult messageResponse) {}
 
     @Override
     public void poll() throws InterruptedException {
@@ -79,15 +78,15 @@ public class JavaScriptReceiver extends PollConnector {
         }
         
         for (RawMessage rawMessage : convertJavaScriptResult(result)) {
-            MessageResponse messageResponse = null;
+            DispatchResult dispatchResult = null;
             
             try {
-                messageResponse = handleRawMessage(rawMessage);
-            } catch (ChannelException e) {
-            } finally {
                 try {
-                    storeMessageResponse(messageResponse);
-                } catch (ChannelException e) {}
+                    dispatchResult = dispatchRawMessage(rawMessage);
+                } finally {
+                    finishDispatch(dispatchResult);
+                }
+            } catch (Exception e) {
             }
         }
     }

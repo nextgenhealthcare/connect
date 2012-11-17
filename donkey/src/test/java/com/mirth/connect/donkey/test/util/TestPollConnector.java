@@ -15,7 +15,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
 
 public class TestPollConnector extends PollConnector {
@@ -37,18 +37,14 @@ public class TestPollConnector extends PollConnector {
 
     @Override
     protected void poll() {
-        MessageResponse messageResponse = null;
+        DispatchResult dispatchResult = null;
 
         try {
-            messageResponse = handleRawMessage(new RawMessage(TestUtils.TEST_HL7_MESSAGE));
+            dispatchResult = dispatchRawMessage(new RawMessage(TestUtils.TEST_HL7_MESSAGE));
         } catch (ChannelException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                storeMessageResponse(messageResponse);
-            } catch (ChannelException e) {
-                throw new RuntimeException(e);
-            }
+            finishDispatch(dispatchResult);
         }
     }
 }

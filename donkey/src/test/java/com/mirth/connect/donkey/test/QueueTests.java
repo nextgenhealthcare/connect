@@ -30,7 +30,7 @@ import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
@@ -237,9 +237,9 @@ public class QueueTests {
         // Queue up messages normally
         System.out.println("Queuing " + initialSize + " messages normally...");
         for (int i = 1; i <= initialSize; i++) {
-            MessageResponse messageResponse = channel.getSourceConnector().handleRawMessage(new RawMessage(testMessage, null, null));
-            messageIds.add(messageResponse.getMessageId());
-            channel.getSourceConnector().storeMessageResponse(messageResponse);
+            DispatchResult dispatchResult = channel.getSourceConnector().dispatchRawMessage(new RawMessage(testMessage, null, null));
+            messageIds.add(dispatchResult.getMessageId());
+            channel.getSourceConnector().finishDispatch(dispatchResult);
         }
 
         ConnectorMessage sourceMessage = null;
@@ -262,21 +262,17 @@ public class QueueTests {
             @Override
             public void run() {
                 System.out.println("Queuing another message normally and asynchronously...");
-                MessageResponse messageResponse = null;
+                DispatchResult dispatchResult = null;
 
                 try {
-                    messageResponse = channel.getSourceConnector().handleRawMessage(new RawMessage(testMessage, null, null));
+                    dispatchResult = channel.getSourceConnector().dispatchRawMessage(new RawMessage(testMessage, null, null));
                 } catch (ChannelException e) {
                     throw new AssertionError(e);
                 } finally {
-                    try {
-                        channel.getSourceConnector().storeMessageResponse(messageResponse);
-                    } catch (ChannelException e) {
-                        throw new AssertionError(e);
-                    }
+                    channel.getSourceConnector().finishDispatch(dispatchResult);
                 }
 
-                messageIds.add(messageResponse.getMessageId());
+                messageIds.add(dispatchResult.getMessageId());
             }
         };
         thread.start();
@@ -302,7 +298,7 @@ public class QueueTests {
          */
         System.out.println("Calling the queue method for the previous message that wasn't queued...");
         channel.queue(sourceMessage);
-        channel.getSourceConnector().storeMessageResponse(new MessageResponse(sourceMessage.getMessageId(), null, false, null));
+        channel.getSourceConnector().finishDispatch(new DispatchResult(sourceMessage.getMessageId(), null, null, false, false));
 
         // Wait until the queue has cleared
         while (sourceQueue.size() > 0 && channel.isQueueThreadRunning() && channel.isRunning()) {
@@ -364,9 +360,9 @@ public class QueueTests {
         // Queue up messages normally
         System.out.println("Queuing " + initialSize + " messages normally...");
         for (int i = 1; i <= initialSize; i++) {
-            MessageResponse messageResponse = channel.getSourceConnector().handleRawMessage(new RawMessage(testMessage, null, null));
-            messageIds.add(messageResponse.getMessageId());
-            channel.getSourceConnector().storeMessageResponse(messageResponse);
+            DispatchResult dispatchResult = channel.getSourceConnector().dispatchRawMessage(new RawMessage(testMessage, null, null));
+            messageIds.add(dispatchResult.getMessageId());
+            channel.getSourceConnector().finishDispatch(dispatchResult);
         }
 
         ConnectorMessage sourceMessage = null;
@@ -390,21 +386,17 @@ public class QueueTests {
                 @Override
                 public void run() {
                     System.out.println("Queuing another message normally and asynchronously...");
-                    MessageResponse messageResponse = null;
+                    DispatchResult dispatchResult = null;
 
                     try {
-                        messageResponse = channel.getSourceConnector().handleRawMessage(new RawMessage(testMessage, null, null));
+                        dispatchResult = channel.getSourceConnector().dispatchRawMessage(new RawMessage(testMessage, null, null));
                     } catch (ChannelException e) {
                         throw new AssertionError(e);
                     } finally {
-                        try {
-                            channel.getSourceConnector().storeMessageResponse(messageResponse);
-                        } catch (ChannelException e) {
-                            throw new AssertionError(e);
-                        }
+                        channel.getSourceConnector().finishDispatch(dispatchResult);
                     }
 
-                    messageIds.add(messageResponse.getMessageId());
+                    messageIds.add(dispatchResult.getMessageId());
                 }
             };
             thread.start();
@@ -422,7 +414,7 @@ public class QueueTests {
             // Queue up the message from before that wasn't queued
             System.out.println("Calling the queue method for the previous message that wasn't queued...");
             channel.queue(sourceMessage);
-            channel.getSourceConnector().storeMessageResponse(new MessageResponse(sourceMessage.getMessageId(), null, false, null));
+            channel.getSourceConnector().finishDispatch(new DispatchResult(sourceMessage.getMessageId(), null, null, false, false));
         }
 
         // Wait until the queue has cleared

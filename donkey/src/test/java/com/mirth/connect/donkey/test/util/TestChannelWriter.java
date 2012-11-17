@@ -21,7 +21,7 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.donkey.server.channel.MessageResponse;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 
 public class TestChannelWriter extends DestinationConnector {
     private Channel destinationChannel;
@@ -49,20 +49,16 @@ public class TestChannelWriter extends DestinationConnector {
 
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) {
-        MessageResponse messageResponse = null;
+        DispatchResult dispatchResult = null;
 
         try {
-            messageResponse = destinationChannel.handleRawMessage(new RawMessage(message.getEncoded().getContent()));
+            dispatchResult = destinationChannel.getSourceConnector().dispatchRawMessage(new RawMessage(message.getEncoded().getContent()));
         } catch (ChannelException e) {
             return new Response(Status.ERROR, null);
         } finally {
-            try {
-                destinationChannel.storeMessageResponse(messageResponse);
-            } catch (ChannelException e) {
-                return new Response(Status.ERROR, null);
-            }
+            destinationChannel.getSourceConnector().finishDispatch(dispatchResult);
         }
 
-        return messageResponse.getResponse();
+        return dispatchResult.getSelectedResponse();
     }
 }
