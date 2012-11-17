@@ -44,6 +44,7 @@ import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.EventListHandler;
 import com.mirth.connect.client.core.ListHandlerException;
+import com.mirth.connect.client.core.MessageImportResult;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.model.Alert;
@@ -59,7 +60,6 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.util.ImportConverter;
-import com.mirth.connect.util.PropertyVerifier;
 import com.mirth.connect.util.export.MessageExportOptions;
 
 public class CommandLineInterface {
@@ -778,16 +778,27 @@ public class CommandLineInterface {
         File fXml = new File(path);
         String channelId = arguments[2].getText();
 
-        int messageCount = 0;
+        MessageImportResult messageImportResult = new MessageImportResult();
         
         try {
-            messageCount = client.importMessages(channelId, fXml, DEFAULT_CHARSET);
+            messageImportResult = client.importMessages(channelId, fXml, DEFAULT_CHARSET);
         } catch (Exception e) {
             error("cannot read " + path, e);
             return;
         }
+        
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Messages import complete.");
+        
+        if (messageImportResult.getImported() > 0) {
+            stringBuilder.append(" " + messageImportResult.getImported() + " message" + ((messageImportResult.getImported() != 1) ? "s" : "") + " imported successfully.");
+        }
+        
+        if (messageImportResult.getErrored() > 0) {
+            stringBuilder.append(" " + messageImportResult.getErrored() + " message" + ((messageImportResult.getErrored() != 1) ? "s" : "") + " failed to import due to an error.");
+        }
 
-        out.println("Messages Import Complete. " + messageCount + " Messages Imported.");
+        out.println(stringBuilder.toString());
     }
 
     private void commandExportMessages(Token[] arguments) {
