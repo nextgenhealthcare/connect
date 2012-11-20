@@ -97,7 +97,6 @@ public class VmSender extends DestinationConnector {
         }
         
         // Remove the reference to the raw message so its doesn't hold the entire message in memory.
-        vmSenderProperties.setChannelTemplate(null);
         data = null;
 
         DispatchResult dispatchResult = null;

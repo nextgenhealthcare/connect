@@ -42,28 +42,26 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
+              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="queueMessagesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="retryCountLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="retryIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
-                      <Component id="queueMessagesLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="queueAlwaysRadio" min="-2" max="-2" attributes="0"/>
+                      <Component id="queueNeverRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="queueAttemptFirstRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="queueNeverRadio" min="-2" max="-2" attributes="0"/>
+                      <Component id="queueAlwaysRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="regenerateTemplateCheckbox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="rotateCheckbox" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="retryIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="retryCountLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="retryCountField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                           <Component id="retryIntervalField" min="-2" pref="75" max="-2" attributes="0"/>
@@ -72,7 +70,7 @@
                       <Component id="queueWarningLabel" min="-2" pref="200" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="30" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -81,11 +79,13 @@
           <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="queueMessagesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="queueAlwaysRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="queueAttemptFirstRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="queueNeverRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="regenerateTemplateCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="rotateCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" alignment="3" groupAlignment="3" attributes="0">
+                      <Component id="queueAlwaysRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="queueAttemptFirstRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="queueNeverRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
@@ -105,7 +105,7 @@
                       <Component id="queueWarningLabel" min="-2" pref="42" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -201,7 +201,7 @@
     <Component class="javax.swing.JLabel" name="retryCountLabel">
       <Properties>
         <Property name="horizontalAlignment" type="int" value="4"/>
-        <Property name="text" type="java.lang.String" value="Retry Count:"/>
+        <Property name="text" type="java.lang.String" value="Retry Count Before Queue/Error:"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="retryCountField">
