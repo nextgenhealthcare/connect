@@ -57,7 +57,7 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
         row[1] = connectorMessage.getConnectorName();
         row[2] = connectorMessage.getStatus();
         row[3] = connectorMessage.getDateCreated();
-        row[4] = connectorMessage.getServerId();
+        row[4] = message.getServerId();
         row[5] = connectorMessage.getSendAttempts();
 
         for (int i = NUM_STATIC_COLUMNS; i < model.getColumnCount(); i++) {

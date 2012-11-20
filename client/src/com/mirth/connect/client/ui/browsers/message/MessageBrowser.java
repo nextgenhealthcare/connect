@@ -60,6 +60,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.DateFormatter;
 
 import org.apache.commons.lang.StringUtils;
+import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.table.ColumnFactory;
