@@ -17,19 +17,21 @@ public class DispatchResult {
     private Message processedMessage;
     private boolean markAsProcessed;
     private boolean removeContent;
+    private boolean lockAcquired;
     private Response selectedResponse;
     private ChannelException channelException;
     
-    public DispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean removeContent) {
-        this(messageId, processedMessage, selectedResponse, markAsProcessed, removeContent, null);
+    protected DispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean removeContent, boolean lockAcquired) {
+        this(messageId, processedMessage, selectedResponse, markAsProcessed, removeContent, lockAcquired, null);
     }
     
-    public DispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean removeContent, ChannelException channelException) {
+    protected DispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean removeContent, boolean lockAcquired, ChannelException channelException) {
         this.messageId = messageId;
         this.processedMessage = processedMessage;
         this.markAsProcessed = markAsProcessed;
         this.removeContent = removeContent;
         this.selectedResponse = selectedResponse;
+        this.lockAcquired = lockAcquired;
         this.channelException = channelException;
     }
     
@@ -47,6 +49,10 @@ public class DispatchResult {
 
     public boolean isRemoveContent() {
         return removeContent;
+    }
+    
+    public boolean isLockAcquired() {
+    	return lockAcquired;
     }
     
     public Response getSelectedResponse() {

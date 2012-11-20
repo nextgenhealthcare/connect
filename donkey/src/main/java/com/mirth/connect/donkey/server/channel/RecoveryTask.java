@@ -119,7 +119,7 @@ public class RecoveryTask implements Callable<List<Message>> {
 
                     if (responseSelector.canRespond() && sourceMessage != null) {
                         boolean removeContent = (storageSettings.isRemoveContentOnCompletion() && MessageController.getInstance().isMessageCompleted(message));
-                        channel.getSourceConnector().handleRecoveredResponse(new DispatchResult(message.getMessageId(), message, responseSelector.getResponse(message), true, removeContent));
+                        channel.getSourceConnector().handleRecoveredResponse(new DispatchResult(message.getMessageId(), message, responseSelector.getResponse(message), true, removeContent, false));
                     }
                 }
             }

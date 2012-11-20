@@ -108,8 +108,6 @@ public class VmSender extends DestinationConnector {
             if (dispatchResult != null && dispatchResult.getSelectedResponse() != null) {
                 // If a response was returned from the channel then use that message
                 responseData = dispatchResult.getSelectedResponse().getMessage();
-            } else {
-                responseData = "test response";
             }
             
             responseStatus = Status.SENT;

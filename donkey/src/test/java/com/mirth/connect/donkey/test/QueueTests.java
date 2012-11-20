@@ -298,7 +298,6 @@ public class QueueTests {
          */
         System.out.println("Calling the queue method for the previous message that wasn't queued...");
         channel.queue(sourceMessage);
-        channel.getSourceConnector().finishDispatch(new DispatchResult(sourceMessage.getMessageId(), null, null, false, false));
 
         // Wait until the queue has cleared
         while (sourceQueue.size() > 0 && channel.isQueueThreadRunning() && channel.isRunning()) {
@@ -414,7 +413,6 @@ public class QueueTests {
             // Queue up the message from before that wasn't queued
             System.out.println("Calling the queue method for the previous message that wasn't queued...");
             channel.queue(sourceMessage);
-            channel.getSourceConnector().finishDispatch(new DispatchResult(sourceMessage.getMessageId(), null, null, false, false));
         }
 
         // Wait until the queue has cleared

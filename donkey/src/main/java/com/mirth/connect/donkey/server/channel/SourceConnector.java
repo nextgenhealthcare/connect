@@ -193,7 +193,9 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
                 }
             }
         } finally {
-            channel.releaseProcessLock();
+        	if (dispatchResult != null && dispatchResult.isLockAcquired()) {
+        		channel.releaseProcessLock();
+        	}
         }
     }
 }

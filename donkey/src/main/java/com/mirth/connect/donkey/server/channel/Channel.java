@@ -642,7 +642,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
             }
         }
-
+        
         ThreadUtils.checkInterruptedStatus();
 
         channelExecutor.shutdown();
@@ -750,13 +750,17 @@ public class Channel implements Startable, Stoppable, Runnable {
         } catch (RejectedExecutionException e) {
             throw new ChannelException(true, e);
         } catch (InterruptedException e) {
-            ChannelException channelException = new ChannelException(true, e);
-            
-            if (task.getPersistedMessageId() == null) {
-                throw channelException;
-            }
-            
-            return new DispatchResult(task.getPersistedMessageId(), null, null, false, false, channelException);
+        	// This exception should only ever be thrown during a halt.
+        	// It is impossible to know whether or not the message was persisted because the task will continue to run
+        	// even though we are no longer waiting for it. Furthermore it is possible the message was actually sent.
+
+        	// The best we can do is cancel the task and throw a channel exception. 
+            // If the message was not queued on the source connector, recovery should take care of it.
+            // If the message was queued, the source of the message will be notified that the message was not persisted to be safe.
+        	// This could lead to a potential duplicate message being received/sent, but it is one of the consequences of using halt.
+        	future.cancel(true);
+        	
+        	throw new ChannelException(true, e);
         } catch (Throwable e) {
             Throwable cause = e.getCause();
             ChannelException channelException = null;
@@ -775,7 +779,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 throw channelException;
             }
             
-            return new DispatchResult(task.getPersistedMessageId(), null, null, false, false, channelException);
+            return new DispatchResult(task.getPersistedMessageId(), null, null, false, false, task.isLockAcquired(), channelException);
         } finally {
             if (future != null) {
                 synchronized (channelTasks) {
@@ -787,18 +791,18 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void obtainProcessLock() throws InterruptedException {
         synchronized (processLock) {
-            while (!processLock.get()) {
+            while (processLock.get()) {
                 processLock.wait();
             }
 
-            processLock.set(false);
+            processLock.set(true);
         }
     }
     
     public void releaseProcessLock() {
         synchronized (processLock) {
-            processLock.set(true);
-            processLock.notify();
+            processLock.set(false);
+            processLock.notifyAll();
         }
     }
 
@@ -999,7 +1003,12 @@ public class Channel implements Startable, Stoppable, Runnable {
             for (DestinationChain chain : destinationChains) {
                 if (!chain.getEnabledMetaDataIds().isEmpty()) {
                     chain.setMessage(destinationMessages.get(chain.getEnabledMetaDataIds().get(0)));
-                    destinationChainTasks.add(destinationChainExecutor.submit(chain));
+                    try {
+                    	destinationChainTasks.add(destinationChainExecutor.submit(chain));
+                    } catch (RejectedExecutionException e) {
+                        Thread.currentThread().interrupt();
+                        throw new InterruptedException();
+                    }
                 }
             }
 
@@ -1017,9 +1026,6 @@ public class Channel implements Startable, Stoppable, Runnable {
 
                     return finalMessage;
                 } catch (CancellationException e) {
-                    Thread.currentThread().interrupt();
-                    throw new InterruptedException();
-                } catch (RejectedExecutionException e) {
                     Thread.currentThread().interrupt();
                     throw new InterruptedException();
                 }
@@ -1356,7 +1362,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 // Prevent the channel for being started while messages are being deleted.
                 synchronized (Channel.this) {
                     setCurrentState(ChannelState.STARTING);
-                    processLock.set(true);
+                    processLock.set(false);
                     channelTasks.clear();
                     forceStop = false;
     

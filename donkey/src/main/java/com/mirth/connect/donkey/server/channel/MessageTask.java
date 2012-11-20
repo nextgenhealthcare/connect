@@ -43,8 +43,9 @@ final class MessageTask implements Callable<DispatchResult> {
     private ResponseSelector responseSelector;
     private boolean respondAfterProcessing;
     private Logger logger = Logger.getLogger(getClass());
-    private DispatchResult messageResponse;
+    private DispatchResult dispatchResult;
     private Long persistedMessageId;
+    private boolean lockAcquired;
 
     MessageTask(RawMessage rawMessage, Channel channel) {
         this.rawMessage = rawMessage;
@@ -54,18 +55,24 @@ final class MessageTask implements Callable<DispatchResult> {
         this.encryptor = channel.getEncryptor();
         this.respondAfterProcessing = channel.getSourceConnector().isRespondAfterProcessing();
         this.responseSelector = channel.getResponseSelector();
+        this.lockAcquired = false;
     }
     
     public Long getPersistedMessageId() {
         return persistedMessageId;
     }
 
-    @Override
+    public boolean isLockAcquired() {
+		return lockAcquired;
+	}
+
+	@Override
     public DispatchResult call() throws Exception {
         DonkeyDao dao = null;
         try {
             if (respondAfterProcessing) {
                 channel.obtainProcessLock();
+                lockAcquired = true;
             }
 
             /*
@@ -99,14 +106,20 @@ final class MessageTask implements Callable<DispatchResult> {
                 }
             }
 
-            messageResponse = new DispatchResult(persistedMessageId, processedMessage, response, respondAfterProcessing, removeContent);
+            dispatchResult = new DispatchResult(persistedMessageId, processedMessage, response, respondAfterProcessing, removeContent, lockAcquired);
 
-            return messageResponse;
+            return dispatchResult;
         } catch (RuntimeException e) {
             //TODO enable channel restart after it has been updated. Currently does not work
 //            Donkey.getInstance().restartChannel(channel.getChannelId(), true);
             throw new ChannelException(true, e);
         } finally {
+        	if (lockAcquired && (persistedMessageId == null && Thread.currentThread().isInterrupted())) {
+        		// Release the process lock if an exception was thrown before a message was persisted
+        		// or if the thread was interrupted because no additional processing will be done.
+        		channel.releaseProcessLock();
+        		lockAcquired = false;
+        	}
             if (dao != null && !dao.isClosed()) {
                 dao.close();
             }
