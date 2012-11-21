@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -61,10 +62,12 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
+import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.converters.DataTypeFactory;
+import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
 import com.mirth.connect.model.converters.MirthMetaDataReplacer;
 import com.mirth.connect.model.converters.SerializerFactory;
 import com.mirth.connect.model.handlers.AttachmentHandlerFactory;
@@ -204,11 +207,15 @@ public class DonkeyEngineController implements EngineController {
         donkey.undeployChannel(channelId);
         
         // Remove connector scripts
-        channel.getSourceFilterTransformer().getFilterTransformer().dispose();
+        if (channel.getSourceFilterTransformer().getFilterTransformer() != null) {
+        	channel.getSourceFilterTransformer().getFilterTransformer().dispose();
+        }
 
         for (DestinationChain chain : channel.getDestinationChains()) {
             for (Integer metaDataId : chain.getDestinationConnectors().keySet()) {
-                chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer().dispose();
+            	if (chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer() != null) {
+            		chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer().dispose();
+            	}
                 if (chain.getDestinationConnectors().get(metaDataId).getResponseTransformer() != null) {
                     chain.getDestinationConnectors().get(metaDataId).getResponseTransformer().dispose();
                 }
@@ -612,33 +619,80 @@ public class DonkeyEngineController implements EngineController {
     }
 
     private FilterTransformerExecutor createFilterTransformerExecutor(String channelId, Connector connector) throws Exception {
+    	boolean runFilterTransformer = false;
         String templateId = null;
+        Transformer transformer = connector.getTransformer();
+        Filter filter = connector.getFilter();
 
+        // Check the conditions for skipping transformation
+        // 1. Script is not empty
+        // 2. Data Types are different
+        // 3. Properties are different than the protocol defaults
+        // 4. The outbound template is not empty        
+        
+        if (!filter.getRules().isEmpty() || !transformer.getSteps().isEmpty() || !transformer.getInboundDataType().equals(transformer.getOutboundDataType())) {
+        	runFilterTransformer = true;
+        }
+        
+        if (!runFilterTransformer && transformer.getInboundProperties() != null) {
+            // Check to see if the properties are equal to the default
+            // properties
+            Map<String, String> defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(transformer.getInboundDataType());
+
+            // Only compare properties that exist in inbound and default
+            // Anything not existing in inbound will use the default
+            for (Map.Entry<Object, Object> e : transformer.getInboundProperties().entrySet()) {
+                String defaultValue = defaultProperties.get(e.getKey());
+                if ((defaultValue != null) && !((String) e.getValue()).equalsIgnoreCase(defaultValue)) {
+                	runFilterTransformer = true;
+                }
+            }
+        }
+        if (!runFilterTransformer && transformer.getOutboundProperties() != null) {
+            // Check to see if the properties are equal to the default
+            // properties
+            Map<String, String> defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(transformer.getOutboundDataType());
+
+            // Only compare properties that exist in outbound and default
+            // Anything not existing in outbound will use the default
+            for (Map.Entry<Object, Object> e : transformer.getOutboundProperties().entrySet()) {
+                String defaultValue = defaultProperties.get(e.getKey());
+                if ((defaultValue != null) && !((String) e.getValue()).equalsIgnoreCase(defaultValue)) {
+                	runFilterTransformer = true;
+                }
+            }
+        }
+        
         // put the outbound template in the templates table
-        if (connector.getTransformer().getOutboundTemplate() != null) {
+        if (transformer.getOutboundTemplate() != null) {
             TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
-            XmlSerializer serializer = SerializerFactory.getSerializer(connector.getTransformer().getOutboundDataType(), connector.getTransformer().getOutboundProperties());
+            XmlSerializer serializer = SerializerFactory.getSerializer(transformer.getOutboundDataType(), transformer.getOutboundProperties());
             templateId = UUIDGenerator.getUUID();
 
-            if (StringUtils.isNotBlank(connector.getTransformer().getOutboundTemplate())) {
-                if (connector.getTransformer().getOutboundDataType().equals(DataTypeFactory.DICOM)) {
-                    templateController.putTemplate(channelId, templateId, connector.getTransformer().getOutboundTemplate());
+            if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
+                if (transformer.getOutboundDataType().equals(DataTypeFactory.DICOM)) {
+                    templateController.putTemplate(channelId, templateId, transformer.getOutboundTemplate());
                 } else {
-                    templateController.putTemplate(channelId, templateId, serializer.toXML(connector.getTransformer().getOutboundTemplate()));
+                    templateController.putTemplate(channelId, templateId, serializer.toXML(transformer.getOutboundTemplate()));
                 }
+                
+                runFilterTransformer = true;
             }
         }
 
         // put the script in the scripts table
         String scriptId = UUIDGenerator.getUUID();
-        String script = JavaScriptBuilder.generateFilterTransformerScript(connector.getFilter(), connector.getTransformer());
+        String script = JavaScriptBuilder.generateFilterTransformerScript(filter, transformer);
         scriptController.putScript(channelId, scriptId, script);
 
-        DataType inboundDataType = DataTypeFactory.getDataType(connector.getTransformer().getInboundDataType(), connector.getTransformer().getInboundProperties());
-        DataType outboundDataType = DataTypeFactory.getDataType(connector.getTransformer().getOutboundDataType(), connector.getTransformer().getOutboundProperties());
+        DataType inboundDataType = DataTypeFactory.getDataType(transformer.getInboundDataType(), transformer.getInboundProperties());
+        DataType outboundDataType = DataTypeFactory.getDataType(transformer.getOutboundDataType(), transformer.getOutboundProperties());
         
         FilterTransformerExecutor filterTransformerExecutor = new FilterTransformerExecutor(inboundDataType, outboundDataType);
-        filterTransformerExecutor.setFilterTransformer(new JavaScriptFilterTransformer(channelId, connector.getName(), scriptId, templateId));
+        
+        if (runFilterTransformer) {
+        	filterTransformerExecutor.setFilterTransformer(new JavaScriptFilterTransformer(channelId, connector.getName(), scriptId, templateId));
+        }
         
         return filterTransformerExecutor;
     }

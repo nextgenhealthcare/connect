@@ -20,6 +20,7 @@ import java.util.concurrent.Callable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
@@ -161,7 +162,12 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                     switch (message.getStatus()) {
                     // if the message status is RECEIVED, send it to the destination's filter/transformer script
                         case RECEIVED:
-                            filterTransformerExecutors.get(metaDataId).processConnectorMessage(message);
+                        	try {
+                        		filterTransformerExecutors.get(metaDataId).processConnectorMessage(message);
+                            } catch (DonkeyException e) {
+                            	message.setStatus(Status.ERROR);
+                            	message.setErrors(e.getFormattedError());
+                            }
 
                             // Insert errors if necessary
                             if (StringUtils.isNotBlank(message.getErrors())) {
@@ -176,17 +182,18 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                                 ThreadUtils.checkInterruptedStatus();
                                 dao.insertMetaData(message, metaDataColumns);
                             }
+                            
+                            // Always store the transformed content if it exists
+                            if (storageSettings.isStoreTransformed() && message.getTransformed() != null) {
+                                ThreadUtils.checkInterruptedStatus();
+                                dao.insertMessageContent(message.getTransformed());
+                            }
 
                             // if the message status is TRANSFORMED, send it to the destination connector
                             // when DestinationConnector.process() returns, the message status should be either QUEUED or PENDING
                             if (message.getStatus() == Status.TRANSFORMED) {
                                 // the message is queued at this point
                                 message.setStatus(Status.QUEUED);
-
-                                if (storageSettings.isStoreTransformed() && message.getTransformed() != null) {
-                                    ThreadUtils.checkInterruptedStatus();
-                                    dao.insertMessageContent(message.getTransformed());
-                                }
 
                                 if (storageSettings.isStoreSourceEncoded() && message.getEncoded() != null) {
                                     ThreadUtils.checkInterruptedStatus();

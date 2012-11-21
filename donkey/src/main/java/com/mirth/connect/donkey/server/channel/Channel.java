@@ -912,6 +912,10 @@ public class Channel implements Startable, Stoppable, Runnable {
                     ThreadUtils.checkInterruptedStatus();
                     dao.insertMessageContent(sourceMessage.getProcessedRaw());
                 }
+                
+                if (storageSettings.isStoreTransformed() && sourceMessage.getTransformed() != null) {
+                    dao.insertMessageContent(sourceMessage.getTransformed());
+                }
 
                 if (StringUtils.isNotBlank(sourceMessage.getErrors())) {
                     dao.updateErrors(sourceMessage);
