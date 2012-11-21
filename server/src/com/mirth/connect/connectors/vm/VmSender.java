@@ -104,7 +104,9 @@ public class VmSender extends DestinationConnector {
         try {
             dispatchResult = ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage);
             
-            if (dispatchResult != null && dispatchResult.getSelectedResponse() != null) {
+            if (dispatchResult == null) {
+            	responseData = "Message Successfully Sinked";
+            } else if (dispatchResult.getSelectedResponse() != null) {
                 // If a response was returned from the channel then use that message
                 responseData = dispatchResult.getSelectedResponse().getMessage();
             }

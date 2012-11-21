@@ -208,8 +208,8 @@ public abstract class DestinationConnector extends Connector implements Connecto
         ConnectorProperties connectorProperties = null;
         boolean attemptSend = (!isQueueEnabled() || queueProperties.isSendFirst());
 
-        // we need to get the connector envelope if we will be attempting to send the message or if we are not regenerating the envelope on every send attempt        
-        if (attemptSend || !queueProperties.isRegenerateTemplate()) {
+        // we need to get the connector envelope if we will be attempting to send the message     
+        if (attemptSend) {
             ThreadUtils.checkInterruptedStatus();
 
             // have the connector generate the connector envelope and store it in the message
@@ -227,31 +227,29 @@ public abstract class DestinationConnector extends Connector implements Connecto
                 }
             }
 
-            if (attemptSend) {
-                int retryCount = (queueProperties == null) ? 0 : queueProperties.getRetryCount();
-                int sendAttempts = 0;
-                Response response = null;
-                Status responseStatus = null;
+            int retryCount = (queueProperties == null) ? 0 : queueProperties.getRetryCount();
+            int sendAttempts = 0;
+            Response response = null;
+            Status responseStatus = null;
 
-                do {
-                    // pause for the given retry interval if this is not the first send attempt
-                    if (sendAttempts > 0) {
-                        Thread.sleep(queueProperties.getRetryIntervalMillis());
-                    } else {
-                        ThreadUtils.checkInterruptedStatus();
-                    }
+            do {
+                // pause for the given retry interval if this is not the first send attempt
+                if (sendAttempts > 0) {
+                    Thread.sleep(queueProperties.getRetryIntervalMillis());
+                } else {
+                    ThreadUtils.checkInterruptedStatus();
+                }
 
-                    // have the connector send the message and return a response
-                    response = handleSend(connectorProperties, message);
-                    message.setSendAttempts(++sendAttempts);
-                    fixResponseStatus(response);
-                    responseStatus = response.getNewMessageStatus();
-                } while ((responseStatus == Status.ERROR || responseStatus == Status.QUEUED) && (sendAttempts - 1) < retryCount);
+                // have the connector send the message and return a response
+                response = handleSend(connectorProperties, message);
+                message.setSendAttempts(++sendAttempts);
+                fixResponseStatus(response);
+                responseStatus = response.getNewMessageStatus();
+            } while ((responseStatus == Status.ERROR || responseStatus == Status.QUEUED) && (sendAttempts - 1) < retryCount);
 
-                afterSend(dao, message, response, previousStatus);
-            } else {
-                dao.updateStatus(message, previousStatus);
-            }
+            afterSend(dao, message, response, previousStatus);
+        } else {
+            dao.updateStatus(message, previousStatus);
         }
     }
 
@@ -285,7 +283,8 @@ public abstract class DestinationConnector extends Connector implements Connecto
 
                         ConnectorProperties connectorProperties = null;
 
-                        if (queueProperties.isRegenerateTemplate()) {
+                        // Generate the template if we are regenerating, or if this is the first send attempt (in which case the sent content should be null).
+                        if (queueProperties.isRegenerateTemplate() || connectorMessage.getSent() == null) {
                             ThreadUtils.checkInterruptedStatus();
                             connectorProperties = getReplacedConnectorProperties(connectorMessage);
                             MessageContent sentContent = getSentContent(connectorMessage, connectorProperties);
@@ -298,7 +297,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
                         } else {
                             connectorProperties = (ConnectorProperties) serializer.deserialize(connectorMessage.getSent().getContent());
                         }
-
+                        
                         ThreadUtils.checkInterruptedStatus();
                         Response response = handleSend(connectorProperties, connectorMessage);
                         connectorMessage.setSendAttempts(connectorMessage.getSendAttempts() + 1);
