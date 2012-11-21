@@ -407,10 +407,10 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
 
         hostField.setToolTipText("<html>The DNS domain name or IP address on which to connect.</html>");
 
-        responseTimeoutField.setToolTipText("<html>The number of milliseconds the connector should wait for a response from the host after sending a message.<br/>If the End of Message byte sequence is defined, a response will be received when it is detected.<br/>if the timeout elapses, all data received at that point will be stored as the response data.</html>");
+        responseTimeoutField.setToolTipText("<html>The number of milliseconds the connector should wait for a response from the host after sending a message.<br/>If the End of Message byte sequence is defined, a response will be received when it is detected.<br/>If the timeout elapses, all data received at that point will be stored as the response data.</html>");
 
         responseTimeoutLabel.setText("Response Timeout (ms):");
-        responseTimeoutLabel.setToolTipText("<html>The number of milliseconds the connector should wait for a response from the host after sending a message.<br/>If the End of Message byte sequence is defined, a response will be received when it is detected.<br/>if the timeout elapses, all data received at that point will be stored as the response data.</html>");
+        responseTimeoutLabel.setToolTipText("<html>The number of milliseconds the connector should wait for a response from the host after sending a message.<br/>If the End of Message byte sequence is defined, a response will be received when it is detected.<br/>If the timeout elapses, all data received at that point will be stored as the response data.</html>");
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
         charsetEncodingCombobox.setToolTipText("<html>The character set encoding to use when converting the outbound message to a byte stream if Data Type ASCII is selected.<br>Select Default to use the default character set encoding for the JVM running the Mirth server.</html>");
@@ -473,14 +473,14 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
             }
         });
 
-        startOfMessageBytesField.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        startOfMessageBytesField.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         startOfMessageBytesField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startOfMessageBytesFieldActionPerformed(evt);
             }
         });
 
-        endOfMessageBytesField.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        endOfMessageBytesField.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         endOfMessageBytesField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 endOfMessageBytesFieldActionPerformed(evt);
@@ -505,10 +505,10 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         processHL7ACKNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         startOfMessageBytes0XLabel.setText("0x");
-        startOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        startOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         frameEncodingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP", "ASTM", "Custom" }));
-        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         frameEncodingComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 frameEncodingComboBoxActionPerformed(evt);
@@ -516,21 +516,20 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         });
 
         frameEncodingLabel.setText("Frame Encoding:");
-        frameEncodingLabel.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        frameEncodingLabel.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         messageDataLabel.setFont(new java.awt.Font("Dialog", 2, 12)); // NOI18N
         messageDataLabel.setText("<Message Data>");
-        messageDataLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        messageDataLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         messageDataLabel.setEnabled(false);
 
         endOfMessageBytes0XLabel.setText("0x");
-        endOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        endOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         jLabel19.setText("Sample Frame:");
 
         sampleMessageLabel.setForeground(new java.awt.Color(153, 153, 153));
         sampleMessageLabel.setText("<html><b>&lt;VT&gt;</b> <i>&lt;Message Data&gt;</i> <b>&lt;FS&gt;&lt;CR&gt;</b></html>");
-        sampleMessageLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         sampleMessageLabel.setEnabled(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

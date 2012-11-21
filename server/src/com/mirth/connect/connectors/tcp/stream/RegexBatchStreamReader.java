@@ -1,27 +1,21 @@
 package com.mirth.connect.connectors.tcp.stream;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RegexBatchStreamHandler extends StreamHandler {
+public class RegexBatchStreamReader extends BatchStreamReader {
 
     private Pattern delimiterRegex;
     private Charset charsetEncoding;
     private boolean includeDelimiter;
 
-    public RegexBatchStreamHandler(InputStream inputStream, String delimiterRegex, String charsetEncoding, boolean includeDelimiter) {
-        this(inputStream, delimiterRegex, charsetEncoding, includeDelimiter, new byte[] {}, new byte[] {});
-    }
-
-    public RegexBatchStreamHandler(InputStream inputStream, String delimiterRegex, String charsetEncoding, boolean includeDelimiter, byte[] beginBytes, byte[] endBytes) {
-        this(inputStream, delimiterRegex, charsetEncoding, includeDelimiter, beginBytes, endBytes, false);
-    }
-
-    public RegexBatchStreamHandler(InputStream inputStream, String delimiterRegex, String charsetEncoding, boolean includeDelimiter, byte[] beginBytes, byte[] endBytes, boolean returnDataOnException) {
-        super(inputStream, null, beginBytes, endBytes, returnDataOnException);
+    public RegexBatchStreamReader(InputStream inputStream, String delimiterRegex, String charsetEncoding, boolean includeDelimiter) {
+        super(inputStream);
         setDelimiterRegex(delimiterRegex);
         setCharsetEncoding(charsetEncoding);
         this.includeDelimiter = includeDelimiter;
@@ -52,7 +46,7 @@ public class RegexBatchStreamHandler extends StreamHandler {
     }
 
     @Override
-    protected byte[] checkForIntermediateMessage() throws IOException {
+    public byte[] checkForIntermediateMessage(ByteArrayOutputStream capturedBytes, List<Byte> endBytesBuffer, int lastByte) throws IOException {
         // We need to decode the string every time to account for variable-width charset encodings
         String encodedString = new String(capturedBytes.toByteArray(), charsetEncoding);
 

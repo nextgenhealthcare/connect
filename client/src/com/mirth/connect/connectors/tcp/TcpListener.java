@@ -472,14 +472,14 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         keepConnectionOpenNoRadio.setToolTipText("<html>Select No to close the listening socket after each message is received and the response (if selected) is sent.<br/>Select Yes to always keep the socket open unless the sending system closes it.<br/>If Yes is selected, messages will only be processed if data is received and either the receive timeout is reached,<br/>the sending system closes the socket, or an end of message byte sequence has been detected.<br/>The sending system will also need to use a timeout or delimiter method of processing responses.</html>");
         keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        startOfMessageBytesField.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        startOfMessageBytesField.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         startOfMessageBytesField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startOfMessageBytesFieldActionPerformed(evt);
             }
         });
 
-        endOfMessageBytesField.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        endOfMessageBytesField.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         endOfMessageBytesField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 endOfMessageBytesFieldActionPerformed(evt);
@@ -487,10 +487,10 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         });
 
         startOfMessageBytes0XLabel.setText("0x");
-        startOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        startOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         endOfMessageBytes0XLabel.setText("0x");
-        endOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        endOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         jLabel5.setText("Mode:");
         jLabel5.setToolTipText("<html>Select Server to listen for connections from clients.<br/>Select Client to connect to a TCP Server.</html>");
@@ -553,7 +553,7 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         });
 
         frameEncodingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP", "ASTM", "Custom" }));
-        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         frameEncodingComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 frameEncodingComboBoxActionPerformed(evt);
@@ -561,18 +561,17 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         });
 
         frameEncodingLabel.setText("Frame Encoding:");
-        frameEncodingLabel.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        frameEncodingLabel.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         messageDataLabel.setFont(new java.awt.Font("Dialog", 2, 12)); // NOI18N
         messageDataLabel.setText("<Message Data>");
-        messageDataLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        messageDataLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         messageDataLabel.setEnabled(false);
 
         jLabel19.setText("Sample Frame:");
 
         sampleMessageLabel.setForeground(new java.awt.Color(153, 153, 153));
         sampleMessageLabel.setText("<html><b>&lt;VT&gt;</b> <i>&lt;Message Data&gt;</i> <b>&lt;FS&gt;&lt;CR&gt;</b></html>");
-        sampleMessageLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Message: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         sampleMessageLabel.setEnabled(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

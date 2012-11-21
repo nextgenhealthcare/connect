@@ -1,39 +1,39 @@
 package com.mirth.connect.connectors.tcp.stream;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import com.mirth.connect.connectors.tcp.EOFCheckInputStream;
 
-public class ER7BatchStreamHandler extends StreamHandler {
+public class ER7BatchStreamReader extends BatchStreamReader {
 
     private int previousByte;
+    private byte[] endOfMessageBytes;
 
-    public ER7BatchStreamHandler(InputStream inputStream) {
-        this(inputStream, new byte[0], new byte[0]);
+    public ER7BatchStreamReader(InputStream inputStream) {
+        this(inputStream, new byte[0]);
     }
-
-    public ER7BatchStreamHandler(InputStream inputStream, byte[] beginBytes, byte[] endBytes) {
-        this(inputStream, beginBytes, endBytes, false);
+    
+    public ER7BatchStreamReader(InputStream inputStream, byte[] endOfMessageBytes) {
+        super(new EOFCheckInputStream(inputStream, 3));
+        this.endOfMessageBytes = endOfMessageBytes;
     }
-
-    public ER7BatchStreamHandler(InputStream inputStream, byte[] beginBytes, byte[] endBytes, boolean returnDataOnException) {
-        super(new EOFCheckInputStream(inputStream, 3), null, beginBytes, endBytes, returnDataOnException);
-    }
-
+    
     @Override
     public void setInputStream(InputStream inputStream) {
         super.setInputStream(new EOFCheckInputStream(inputStream, 3));
     }
 
     @Override
-    protected void initialize() throws IOException {
+    public void initialize() throws IOException {
         super.initialize();
         previousByte = -1;
     }
 
     @Override
-    protected int getNextByte() throws IOException {
+    public int getNextByte() throws IOException {
         // If we're at the beginning of the stream, or if a line break was last read, check to see if we need to skip anything
         if (previousByte == -1 || previousByte == '\r' || previousByte == '\n') {
             skipSegments();
@@ -43,7 +43,7 @@ public class ER7BatchStreamHandler extends StreamHandler {
     }
 
     @Override
-    protected byte[] checkForIntermediateMessage() throws IOException {
+    public byte[] checkForIntermediateMessage(ByteArrayOutputStream capturedBytes, List<Byte> endBytesBuffer, int lastByte) throws IOException {
         if (previousByte == -1 || lastByte == '\r' || lastByte == '\n') {
             skipSegments();
 
@@ -52,8 +52,10 @@ public class ER7BatchStreamHandler extends StreamHandler {
             try {
                 if (inputStream.read() == 'M' && inputStream.read() == 'S' && inputStream.read() == 'H') {
                     // If there are any bytes in the buffer, flush them out
-                    for (Byte bufferByte : endBytesBuffer) {
-                        capturedBytes.write(bufferByte);
+                    if (endBytesBuffer != null) {
+                        for (Byte bufferByte : endBytesBuffer) {
+                            capturedBytes.write(bufferByte);
+                        }
                     }
                     return capturedBytes.toByteArray();
                 }
@@ -93,10 +95,10 @@ public class ER7BatchStreamHandler extends StreamHandler {
             // Header or trailer segment detected; skip to the end of the line
             do {
                 inputStream.mark(1);
-            } while ((tempByte = inputStream.read()) != -1 && tempByte != '\r' && tempByte != '\n' && !(getEndOfMessageBytes().length > 0 && tempByte == getEndOfMessageBytes()[0]));
+            } while ((tempByte = inputStream.read()) != -1 && tempByte != '\r' && tempByte != '\n' && !(endOfMessageBytes.length > 0 && tempByte == endOfMessageBytes[0]));
 
             // If the first ending byte was detected, reset the stream
-            if (getEndOfMessageBytes().length > 0 && tempByte == getEndOfMessageBytes()[0]) {
+            if (endOfMessageBytes.length > 0 && tempByte == endOfMessageBytes[0]) {
                 inputStream.reset();
             }
 
@@ -111,8 +113,6 @@ public class ER7BatchStreamHandler extends StreamHandler {
             // Now that we've skipped the segment, recursively check again
             if (tempByte != -1) {
                 skipSegments();
-            } else {
-                streamDone = true;
             }
         } else {
             inputStream.reset();

@@ -1,24 +1,22 @@
 package com.mirth.connect.connectors.tcp.stream;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
-public class DelimiterBatchStreamHandler extends StreamHandler {
+public class DelimiterBatchStreamReader extends BatchStreamReader {
 
     private byte[] delimiterBytes;
     private boolean includeDelimiter;
-
-    public DelimiterBatchStreamHandler(InputStream inputStream, byte[] delimiterBytes, boolean includeDelimiter) {
-        this(inputStream, delimiterBytes, includeDelimiter, new byte[] {}, new byte[] {});
+    
+    public DelimiterBatchStreamReader(InputStream inputStream) {
+        this(inputStream, new byte[0], false);
     }
 
-    public DelimiterBatchStreamHandler(InputStream inputStream, byte[] delimiterBytes, boolean includeDelimiter, byte[] beginBytes, byte[] endBytes) {
-        this(inputStream, delimiterBytes, includeDelimiter, beginBytes, endBytes, false);
-    }
-
-    public DelimiterBatchStreamHandler(InputStream inputStream, byte[] delimiterBytes, boolean includeDelimiter, byte[] beginBytes, byte[] endBytes, boolean returnDataOnException) {
-        super(new BufferedInputStream(inputStream, delimiterBytes.length), null, beginBytes, endBytes, returnDataOnException);
+    public DelimiterBatchStreamReader(InputStream inputStream, byte[] delimiterBytes, boolean includeDelimiter) {
+        super(new BufferedInputStream(inputStream, delimiterBytes.length));
         this.delimiterBytes = delimiterBytes;
         this.includeDelimiter = includeDelimiter;
     }
@@ -40,7 +38,7 @@ public class DelimiterBatchStreamHandler extends StreamHandler {
     }
 
     @Override
-    protected byte[] checkForIntermediateMessage() throws IOException {
+    public byte[] checkForIntermediateMessage(ByteArrayOutputStream capturedBytes, List<Byte> endBytesBuffer, int lastByte) throws IOException {
         inputStream.mark(delimiterBytes.length);
 
         boolean delimiterFound = true;

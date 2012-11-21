@@ -41,7 +41,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
         queueConnectorProperties = new QueueConnectorProperties();
 
         this.host = "127.0.0.1";
-        this.port = "8081";
+        this.port = "6660";
         this.sendTimeout = "5000";
         this.bufferSize = "65536";
         this.keepConnectionOpen = false;

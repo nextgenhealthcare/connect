@@ -14,11 +14,15 @@ import static com.mirth.connect.util.TcpUtil.parseInt;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.connectors.tcp.stream.BatchStreamReader;
+import com.mirth.connect.connectors.tcp.stream.DefaultBatchStreamReader;
+import com.mirth.connect.connectors.tcp.stream.FrameStreamHandler;
 import com.mirth.connect.connectors.tcp.stream.StreamHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -138,14 +142,15 @@ public class TcpDispatcher extends DestinationConnector {
             // Send the message
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, socket);
             BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream(), parseInt(tcpSenderProperties.getBufferSize()));
-            StreamHandler streamHandler = new StreamHandler(socket.getInputStream(), bos, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
-            streamHandler.writeFrame(getTemplateBytes(tcpSenderProperties));
+            BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
+            StreamHandler streamHandler = new FrameStreamHandler(socket.getInputStream(), bos, batchStreamReader, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
+            streamHandler.write(getTemplateBytes(tcpSenderProperties));
             bos.flush();
 
             if (!tcpSenderProperties.isIgnoreResponse()) {
                 // Attempt to get the response from the remote endpoint
                 try {
-                    byte[] responseBytes = streamHandler.getNextMessage();
+                    byte[] responseBytes = streamHandler.read();
                     if (responseBytes != null) {
                         responseData = new String(responseBytes, CharsetUtils.getEncoding(tcpSenderProperties.getCharsetEncoding()));
 
@@ -159,13 +164,14 @@ public class TcpDispatcher extends DestinationConnector {
                             }
                         }
                     } else {
+                        responseData = "Response was not received.";
                         responseError = "Response was not received.";
                         logger.debug("Response was not received (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
                     }
                 } catch (IOException e) {
                     // An exception occurred while retrieving the response
-                    responseData = ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e);
-                    responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_411, e.getMessage(), null);
+                    responseData = e.getClass().getSimpleName() + ": " + e.getMessage();
+                    responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_411, e.getMessage(), e);
                     closeSocketQuietly();
                 }
             }
@@ -182,9 +188,15 @@ public class TcpDispatcher extends DestinationConnector {
         } catch (Exception e) {
             // If an exception occurred then close the socket, even if keep connection open is true
             closeSocketQuietly();
-            responseData = ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_411, e.getMessage(), null);
-            logger.debug("Error sending message via TCP (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+            responseData = e.getClass().getSimpleName() + ": " + e.getMessage();
+            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_411, e.getMessage(), e);
+
+            if (e instanceof ConnectException || e.getCause() != null && e.getCause() instanceof ConnectException) {
+                logger.error("Error sending message via TCP (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+            } else {
+                logger.debug("Error sending message via TCP (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+            }
+
             alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Error sending message via TCP.", e);
         }
 

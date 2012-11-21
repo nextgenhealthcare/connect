@@ -34,7 +34,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.connectors.tcp.stream.ER7BatchStreamHandler;
+import com.mirth.connect.connectors.tcp.stream.BatchStreamReader;
+import com.mirth.connect.connectors.tcp.stream.DefaultBatchStreamReader;
+import com.mirth.connect.connectors.tcp.stream.ER7BatchStreamReader;
+import com.mirth.connect.connectors.tcp.stream.FrameStreamHandler;
 import com.mirth.connect.connectors.tcp.stream.StreamHandler;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.message.RawMessage;
@@ -223,7 +226,8 @@ public class TcpReceiver extends SourceConnector {
     public void handleRecoveredResponse(DispatchResult dispatchResult) {
         // Only if we're responding on a new connection can we handle recovered responses
         if (connectorProperties.isRespondOnNewConnection()) {
-            StreamHandler streamHandler = new StreamHandler(null, null, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
+            BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(null);
+            StreamHandler streamHandler = new FrameStreamHandler(null, null, batchStreamReader, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
             
             if (dispatchResult.getSelectedResponse() != null) {
                 try {
@@ -261,11 +265,13 @@ public class TcpReceiver extends SourceConnector {
                 try {
                     boolean streamDone = false;
                     // TODO: Put this on the DataType object; let it decide based on the properties which stream handler to use
+                    BatchStreamReader batchStreamReader = null;
                     if (connectorProperties.isProcessBatch() && getInboundDataType().getType().equals(DataTypeFactory.HL7V2)) {
-                        streamHandler = new ER7BatchStreamHandler(socket.getInputStream(), startOfMessageBytes, endOfMessageBytes, returnDataOnException);
+                        batchStreamReader = new ER7BatchStreamReader(socket.getInputStream(), endOfMessageBytes);
                     } else {
-                        streamHandler = new StreamHandler(socket.getInputStream(), null, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
+                        batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
                     }
+                    streamHandler = new FrameStreamHandler(socket.getInputStream(), socket.getOutputStream(), batchStreamReader, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
 
                     while (!streamDone && !done) {
                         /*
@@ -279,7 +285,7 @@ public class TcpReceiver extends SourceConnector {
                          * abort.
                          */
                         logger.debug("Reading from socket input stream (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")...");
-                        byte[] bytes = streamHandler.getNextMessage();
+                        byte[] bytes = streamHandler.read();
 
                         if (bytes != null) {
                             logger.debug("Bytes returned from socket, length: " + bytes.length + " (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")");
@@ -449,7 +455,7 @@ public class TcpReceiver extends SourceConnector {
                 // Send the response
                 BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), parseInt(connectorProperties.getBufferSize()));
                 streamHandler.setOutputStream(bos);
-                streamHandler.offerResponse(getBytes(response));
+                streamHandler.write(getBytes(response));
                 bos.flush();
             } catch (IOException e) {
                 // If an error occurred while sending the response then still allow the worker to continue processing messages
