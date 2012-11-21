@@ -121,6 +121,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private final String NUMBER_COLUMN_NAME = "#";
     private final String ATTACHMENTID_COLUMN_NAME = "Attachment Id";
     private String lastUserSelectedMessageType = "Raw";
+    private String lastUserSelectedErrorType = "Processing Error";
     private Frame parent;
     private Channel channel;
     private MessageBrowserTableModel tableModel;
@@ -131,7 +132,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private MessageBrowserAdvancedFilter advancedSearchPopup;
     private MessageBrowserExportResults exportResultsPopup;
     private JPopupMenu attachmentPopupMenu;
-    private final String[] columns = new String[] { "ID", "Connector", "Status", "Date & Time", "Server Id", "Send Attempts", "Import ID" };
+    private final String[] columns = new String[] { "ID", "Connector", "Status", "Date & Time", "Server Id", "Send Attempts", "Import ID", "Reply Sent" };
     // Worker used for loading a page and counting the total number of messages
     private SwingWorker<Void, Void> worker;
 
@@ -758,7 +759,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     public void updateMessageRadioGroup() {
-        JRadioButton button = getRadioButtonForPane(lastUserSelectedMessageType);
+        JRadioButton button = getRadioButtonForMessagePane(lastUserSelectedMessageType);
 
         if (!button.isShowing()) {
             button = RawMessageRadioButton;
@@ -768,7 +769,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         showMessagePane(button.getText());
     }
 
-    private JRadioButton getRadioButtonForPane(String messagePaneName) {
+    private JRadioButton getRadioButtonForMessagePane(String messagePaneName) {
         if (messagePaneName.equals("Raw")) {
             return RawMessageRadioButton;
         } else if (messagePaneName.equals("Processed Raw")) {
@@ -783,6 +784,17 @@ public class MessageBrowser extends javax.swing.JPanel {
             return ResponseRadioButton;
         } else if (messagePaneName.equals("Processed Response")) {
             return ProcessedResponseRadioButton;
+        } else {
+
+            return null;
+        }
+    }
+
+    private JRadioButton getRadioButtonForErrorPane(String errorPaneName) {
+        if (errorPaneName.equals("Processing Error")) {
+            return ProcessingErrorRadioButton;
+        } else if (errorPaneName.equals("Reply Error")) {
+            return ReplyErrorRadioButton;
         } else {
 
             return null;
@@ -1349,8 +1361,10 @@ public class MessageBrowser extends javax.swing.JPanel {
         ResponseTextPane.setText(text != null ? text : "Select a message to view the response message.");
         ProcessedResponseTextPane.setDocument(new SyntaxDocument());
         ProcessedResponseTextPane.setText(text != null ? text : "Select a message to view the processed response message.");
-        ErrorsTextPane.setDocument(new SyntaxDocument());
-        ErrorsTextPane.setText(text != null ? text : "Select a message to view any errors.");
+        ProcessingErrorTextPane.setDocument(new SyntaxDocument());
+        ProcessingErrorTextPane.setText(text != null ? text : "Select a message to view any errors.");
+        ReplyErrorTextPane.setDocument(new SyntaxDocument());
+        ReplyErrorTextPane.setText(text != null ? text : "Select a message to view any errors.");
         updateMappingsTable(new String[0][0], true);
         updateAttachmentsTable(null);
         descriptionTabbedPane.remove(attachmentsPane);
@@ -1547,7 +1561,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     // Update the attachments tab
                     updateAttachmentsTable(messageId);
                     // Update the errors tab
-                    setCorrectDocument(ErrorsTextPane, connectorMessage.getErrors(), null);
+                    updateDescriptionErrors(connectorMessage.getErrors(), message.getResponseError(), metaDataId);
                     // Show relevant tabs
                     updateDescriptionTabs(metaDataId, attachments.size() > 0);
                     updateMessageRadioGroup();
@@ -1634,12 +1648,14 @@ public class MessageBrowser extends javax.swing.JPanel {
         if (content != null) {
             MessagesRadioPane.add(ResponseRadioButton);
         }
+        //TODO determine where data type comes from
         setCorrectDocument(ResponseTextPane, content, outboundDataType);
 
         content = (processedResponseMessage == null) ? null : processedResponseMessage.getContent();
         if (content != null) {
             MessagesRadioPane.add(ProcessedResponseRadioButton);
         }
+        //TODO determine where data type comes from.
         setCorrectDocument(ProcessedResponseTextPane, content, outboundDataType);
     }
 
@@ -1697,6 +1713,54 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         updateMappingsTable(tableData, false);
     }
+    
+    /**
+     * Helper function to update the error tab
+     */
+    private void updateDescriptionErrors(String processingError, String replyError, Integer metaDataId) {
+        if (metaDataId != 0) {
+        	replyError = null;
+        }
+
+        ErrorsRadioPane.removeAll();
+        boolean paneSelected = false;
+        String firstVisiblePane = null;
+
+        if (processingError != null) {
+            ErrorsRadioPane.add(ProcessingErrorRadioButton);
+            paneSelected = lastUserSelectedErrorType.equals(ProcessingErrorRadioButton.getText());
+            if (firstVisiblePane == null) {
+            	firstVisiblePane = ProcessingErrorRadioButton.getText();
+            }
+        }
+        setCorrectDocument(ProcessingErrorTextPane, processingError, null);
+
+        if (replyError != null) {
+            ErrorsRadioPane.add(ReplyErrorRadioButton);
+            paneSelected = lastUserSelectedErrorType.equals(ReplyErrorRadioButton.getText());
+            if (firstVisiblePane == null) {
+            	firstVisiblePane = ReplyErrorRadioButton.getText();
+            }
+        }
+        setCorrectDocument(ReplyErrorTextPane, replyError, null);
+        
+        String paneToSelect;
+        // Set the default pane if the last user selected one is not added.
+        if (!paneSelected) {
+        	if (firstVisiblePane != null) {
+        		paneToSelect = firstVisiblePane;
+        	} else {
+        		paneToSelect = ProcessingErrorRadioButton.getText();
+        	}
+        } else {
+        	paneToSelect = lastUserSelectedErrorType;
+        }
+        
+        JRadioButton button = getRadioButtonForErrorPane(paneToSelect);
+
+        button.setSelected(true);
+        showErrorPane(button.getText());
+    }
 
     private void messagesRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {
         JRadioButton messagesRadioButton = (JRadioButton) evt.getSource();
@@ -1711,6 +1775,20 @@ public class MessageBrowser extends javax.swing.JPanel {
         updateXmlCheckBoxEnabled(messagePaneName);
 
         cardLayout.show(MessagesCardPane, messagePaneName);
+    }
+    
+    private void errorsRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        JRadioButton errorsRadioButton = (JRadioButton) evt.getSource();
+
+        showErrorPane(errorsRadioButton.getText());
+
+        lastUserSelectedErrorType = errorsRadioButton.getText();
+    }
+    
+    private void showErrorPane(String errorPaneName) {
+        CardLayout cardLayout = (CardLayout) ErrorsCardPane.getLayout();
+
+        cardLayout.show(ErrorsCardPane, errorPaneName);
     }
 
     private void updateXmlCheckBoxEnabled(String messagePaneName) {
@@ -1804,6 +1882,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
         messagesGroup = new javax.swing.ButtonGroup();
+        errorsGroup = new javax.swing.ButtonGroup();
         jSplitPane1 = new javax.swing.JSplitPane();
         descriptionTabbedPane = new javax.swing.JTabbedPane();
         MessagesPanel = new javax.swing.JPanel();
@@ -1827,7 +1906,12 @@ public class MessageBrowser extends javax.swing.JPanel {
         mappingsPane = new javax.swing.JScrollPane();
         mappingsTable = null;
         ErrorsPanel = new javax.swing.JPanel();
-        ErrorsTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        ErrorsRadioPane = new javax.swing.JPanel();
+        ProcessingErrorRadioButton = new javax.swing.JRadioButton();
+        ReplyErrorRadioButton = new javax.swing.JRadioButton();
+        ErrorsCardPane = new javax.swing.JPanel();
+        ProcessingErrorTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        ReplyErrorTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         attachmentsPane = new javax.swing.JScrollPane();
         attachmentTable = null;
         messageScrollPane = new javax.swing.JScrollPane();
@@ -1889,7 +1973,6 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         RawMessageRadioButton.setBackground(new java.awt.Color(255, 255, 255));
         messagesGroup.add(RawMessageRadioButton);
-        RawMessageRadioButton.setSelected(true);
         RawMessageRadioButton.setText("Raw");
         RawMessageRadioButton.setFocusable(false);
         RawMessageRadioButton.setRequestFocusEnabled(false);
@@ -2030,9 +2113,9 @@ public class MessageBrowser extends javax.swing.JPanel {
             MessagesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(MessagesPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(MessagesRadioPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(MessagesRadioPane, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
+                .addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(formatXmlMessageCheckBox)
                 .addContainerGap())
@@ -2047,23 +2130,65 @@ public class MessageBrowser extends javax.swing.JPanel {
         ErrorsPanel.setBackground(new java.awt.Color(255, 255, 255));
         ErrorsPanel.setFocusable(false);
 
-        ErrorsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        ErrorsTextPane.setEditable(false);
+        ErrorsRadioPane.setBackground(new java.awt.Color(255, 255, 255));
+        ErrorsRadioPane.setMinimumSize(new java.awt.Dimension(601, 19));
+        ErrorsRadioPane.setPreferredSize(new java.awt.Dimension(601, 19));
+        ErrorsRadioPane.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 5, 0));
+
+        ProcessingErrorRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        errorsGroup.add(ProcessingErrorRadioButton);
+        ProcessingErrorRadioButton.setSelected(true);
+        ProcessingErrorRadioButton.setText("Processing Error");
+        ProcessingErrorRadioButton.setFocusable(false);
+        ProcessingErrorRadioButton.setRequestFocusEnabled(false);
+        ProcessingErrorRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ProcessingErrorRadioButtonActionPerformed(evt);
+            }
+        });
+        ErrorsRadioPane.add(ProcessingErrorRadioButton);
+
+        ReplyErrorRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        errorsGroup.add(ReplyErrorRadioButton);
+        ReplyErrorRadioButton.setText("Reply Error");
+        ReplyErrorRadioButton.setFocusable(false);
+        ReplyErrorRadioButton.setRequestFocusEnabled(false);
+        ReplyErrorRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ReplyErrorRadioButtonActionPerformed(evt);
+            }
+        });
+        ErrorsRadioPane.add(ReplyErrorRadioButton);
+
+        ErrorsCardPane.setBackground(new java.awt.Color(255, 255, 255));
+        ErrorsCardPane.setLayout(new java.awt.CardLayout());
+
+        ProcessingErrorTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        ProcessingErrorTextPane.setEditable(false);
+        ErrorsCardPane.add(ProcessingErrorTextPane, "Processing Error");
+
+        ReplyErrorTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        ReplyErrorTextPane.setEditable(false);
+        ErrorsCardPane.add(ReplyErrorTextPane, "Reply Error");
 
         javax.swing.GroupLayout ErrorsPanelLayout = new javax.swing.GroupLayout(ErrorsPanel);
         ErrorsPanel.setLayout(ErrorsPanelLayout);
         ErrorsPanelLayout.setHorizontalGroup(
             ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ErrorsPanelLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ErrorsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 646, Short.MAX_VALUE)
+                .addGroup(ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(ErrorsCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(ErrorsRadioPane, javax.swing.GroupLayout.DEFAULT_SIZE, 646, Short.MAX_VALUE))
                 .addContainerGap())
         );
         ErrorsPanelLayout.setVerticalGroup(
             ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ErrorsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(ErrorsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)
+                .addComponent(ErrorsRadioPane, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ErrorsCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -2504,11 +2629,20 @@ public class MessageBrowser extends javax.swing.JPanel {
         jumpToPageNumber();
     }//GEN-LAST:event_pageGoButtonActionPerformed
 
+    private void ProcessingErrorRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ProcessingErrorRadioButtonActionPerformed
+    	errorsRadioButtonActionPerformed(evt);
+    }//GEN-LAST:event_ProcessingErrorRadioButtonActionPerformed
+
+    private void ReplyErrorRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ReplyErrorRadioButtonActionPerformed
+    	errorsRadioButtonActionPerformed(evt);
+    }//GEN-LAST:event_ReplyErrorRadioButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton EncodedMessageRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea EncodedMessageTextPane;
+    private javax.swing.JPanel ErrorsCardPane;
     private javax.swing.JPanel ErrorsPanel;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ErrorsTextPane;
+    private javax.swing.JPanel ErrorsRadioPane;
     private javax.swing.JPanel MessagesCardPane;
     private javax.swing.JPanel MessagesPanel;
     private javax.swing.JPanel MessagesRadioPane;
@@ -2516,8 +2650,12 @@ public class MessageBrowser extends javax.swing.JPanel {
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ProcessedRawMessageTextPane;
     private javax.swing.JRadioButton ProcessedResponseRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ProcessedResponseTextPane;
+    private javax.swing.JRadioButton ProcessingErrorRadioButton;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ProcessingErrorTextPane;
     private javax.swing.JRadioButton RawMessageRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea RawMessageTextPane;
+    private javax.swing.JRadioButton ReplyErrorRadioButton;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ReplyErrorTextPane;
     private javax.swing.JRadioButton ResponseRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ResponseTextPane;
     private javax.swing.JRadioButton SentMessageRadioButton;
@@ -2530,6 +2668,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JScrollPane attachmentsPane;
     private com.mirth.connect.client.ui.components.MirthButton countButton;
     private javax.swing.JTabbedPane descriptionTabbedPane;
+    private javax.swing.ButtonGroup errorsGroup;
     private javax.swing.JButton filterButton;
     private javax.swing.JCheckBox formatXmlMessageCheckBox;
     private javax.swing.JLabel jLabel2;

@@ -1287,6 +1287,10 @@ public class JdbcDao implements DonkeyDao {
             message.setDateCreated(dateCreated);
             message.setProcessed(resultSet.getBoolean("processed"));
             message.setServerId(resultSet.getString("server_id"));
+            message.setImportId(resultSet.getLong("import_id"));
+            message.setImportChannelId(resultSet.getString("import_channel_id"));
+            message.setAttemptedResponse(resultSet.getBoolean("attempted_response"));
+            message.setResponseError(resultSet.getString("response_error"));
 
             return message;
         } catch (SQLException e) {

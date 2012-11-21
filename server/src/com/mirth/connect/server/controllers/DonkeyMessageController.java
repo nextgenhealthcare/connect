@@ -158,6 +158,9 @@ public class DonkeyMessageController extends MessageController {
             message.setServerId((String) row.get("server_id"));
             message.setProcessed((Boolean) row.get("processed"));
             message.setImportId((Long) row.get("import_id"));
+            message.setImportChannelId((String) row.get("import_channel_id"));
+            message.setAttemptedResponse((Boolean) row.get("attempted_response"));
+            message.setResponseError((String) row.get("response_error"));
 
             Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
 
@@ -213,12 +216,31 @@ public class DonkeyMessageController extends MessageController {
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
         
         try {
-            Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, messageId);
-            Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
-    
+        	Map<String, Object> params = new HashMap<String, Object>();
+        	params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
+        	params.put("messageId", messageId);
+        	
             Message message = new Message();
             message.setChannelId(channelId);
             message.setMessageId(messageId);
+            
+            Map<String, Object> row = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageById", params);
+            
+            if (row != null) {
+	            Calendar dateCreated = Calendar.getInstance();
+	            dateCreated.setTimeInMillis(((Timestamp) row.get("date_created")).getTime());
+	            
+	            message.setDateCreated(dateCreated);
+	            message.setServerId((String) row.get("server_id"));
+	            message.setProcessed((Boolean) row.get("processed"));
+	            message.setImportId((Long) row.get("import_id"));
+	            message.setImportChannelId((String) row.get("import_channel_id"));
+	            message.setAttemptedResponse((Boolean) row.get("attempted_response"));
+	            message.setResponseError((String) row.get("response_error"));
+            }
+            
+            Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, messageId);
+            Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
     
             for (Entry<Integer, ConnectorMessage> connectorMessageEntry : connectorMessages.entrySet()) {
                 Integer metaDataId = connectorMessageEntry.getKey();
@@ -238,7 +260,6 @@ public class DonkeyMessageController extends MessageController {
     public List<Attachment> getMessageAttachmentIds(String channelId, Long messageId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
-        params.put("channelId", channelId);
         params.put("messageId", messageId);
 
         return SqlConfig.getSqlSessionManager().selectList("Message.selectMessageAttachmentIds", params);
@@ -248,7 +269,6 @@ public class DonkeyMessageController extends MessageController {
     public Attachment getMessageAttachment(String channelId, String attachmentId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
-        params.put("channelId", channelId);
         params.put("attachmentId", attachmentId);
 
         return SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageAttachment", params);
@@ -258,7 +278,6 @@ public class DonkeyMessageController extends MessageController {
     public List<Attachment> getMessageAttachment(String channelId, Long messageId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
-        params.put("channelId", channelId);
         params.put("messageId", messageId);
 
         return SqlConfig.getSqlSessionManager().selectList("Message.selectMessageAttachmentByMessageId", params);

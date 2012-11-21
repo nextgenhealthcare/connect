@@ -51,6 +51,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             messageBrowserServerIdCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnServer Id", false));
             messageBrowserSendAttemptsCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnSend Attempts", false));
             messageBrowserImportIdCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnImport ID", false));
+            messageBrowserReplySentCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnReply Sent", false));
         }
     }
 
@@ -90,6 +91,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             userPreferences.putBoolean("messageBrowserVisibleColumnServer Id", messageBrowserServerIdCheckBox.isSelected());
             userPreferences.putBoolean("messageBrowserVisibleColumnSend Attempts", messageBrowserSendAttemptsCheckBox.isSelected());
             userPreferences.putBoolean("messageBrowserVisibleColumnImport ID", messageBrowserImportIdCheckBox.isSelected());
+            userPreferences.putBoolean("messageBrowserVisibleColumnReply Sent", messageBrowserReplySentCheckBox.isSelected());
             
             getFrame().setSaveEnabled(false);
         }
@@ -122,6 +124,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         messageBrowserSendAttemptsCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         messageBrowserImportIdCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         messageBrowserServerIdCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        messageBrowserReplySentCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -178,6 +181,9 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         messageBrowserServerIdCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         messageBrowserServerIdCheckBox.setText("Server Id");
 
+        messageBrowserReplySentCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        messageBrowserReplySentCheckBox.setText("Reply Sent");
+
         javax.swing.GroupLayout clientSettingsLayout = new javax.swing.GroupLayout(clientSettings);
         clientSettings.setLayout(clientSettingsLayout);
         clientSettingsLayout.setHorizontalGroup(
@@ -192,6 +198,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                     .addComponent(dashboardRefreshIntervalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(messageBrowserReplySentCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(messageBrowserServerIdCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(messageBrowserImportIdCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(messageBrowserSendAttemptsCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -241,7 +248,9 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
                         .addComponent(messageBrowserSendAttemptsCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(messageBrowserImportIdCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(46, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(messageBrowserReplySentCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -277,6 +286,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserImportIdCheckBox;
     private com.mirth.connect.client.ui.components.MirthTextField messageBrowserPageSizeField;
     private javax.swing.JLabel messageBrowserPageSizeLabel;
+    private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserReplySentCheckBox;
     private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserSendAttemptsCheckBox;
     private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserServerIdCheckBox;
     private com.mirth.connect.client.ui.components.MirthCheckBox messageBrowserStatusCheckBox;

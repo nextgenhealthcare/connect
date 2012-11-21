@@ -47,12 +47,6 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
             	renderer = new DefaultTableCellRenderer();
                 break;
                 
-            case 4: // Server Id
-            	column.setMaxWidth(210);
-            	column.setMinWidth(210);
-            	renderer = new DefaultTableCellRenderer();
-                break;
-            	
             case 3: // Date Created
                 DateCellRenderer dateCellRenderer = new DateCellRenderer();
                 dateCellRenderer.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS"));
@@ -60,6 +54,17 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
                 break;
+                
+            case 4: // Server Id
+            	column.setMaxWidth(210);
+            	column.setMinWidth(210);
+            	renderer = new DefaultTableCellRenderer();
+                break;
+            	
+            case 7: // Reply Sent
+            	column.setMaxWidth(70);
+            	column.setMinWidth(70);
+            	renderer = new DefaultTableCellRenderer();
                 
             default: renderer = new DefaultTableCellRenderer();
             	break;

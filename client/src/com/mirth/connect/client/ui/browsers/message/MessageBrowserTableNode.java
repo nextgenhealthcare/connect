@@ -9,12 +9,14 @@
 
 package com.mirth.connect.client.ui.browsers.message;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.mirth.connect.client.ui.AbstractSortableTreeTableNode;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 
 public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
-    private final static int NUM_STATIC_COLUMNS = 7;
+    private final static int NUM_STATIC_COLUMNS = 8;
 
     private Object[] row;
     private Long messageId;
@@ -49,9 +51,16 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
         if (connectorMessage.getMetaDataId() == 0) {
             row[0] = message.getMessageId();
             row[6] = message.getImportId();
+            
+            if (StringUtils.isEmpty(message.getResponseError())) {
+            	row[7] = message.isAttemptedResponse() ? "Yes" : "No";
+            } else {
+            	row[7] = "Error";
+            }
         } else {
             row[0] = null;
             row[6] = null;
+            row[7] = null;
         }
 
         row[1] = connectorMessage.getConnectorName();

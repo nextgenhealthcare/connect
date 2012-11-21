@@ -25,6 +25,8 @@ public class Message implements Serializable {
     private boolean processed;
     private Long importId;
     private String importChannelId;
+    private boolean attemptedResponse;
+    private String responseError;
     private Map<Integer, ConnectorMessage> connectorMessages = new LinkedHashMap<Integer, ConnectorMessage>();
 
     public Long getMessageId() {
@@ -117,7 +119,23 @@ public class Message implements Serializable {
         return connectorMessage;
     }
 
-    public String toString() {
+    public boolean isAttemptedResponse() {
+		return attemptedResponse;
+	}
+
+	public void setAttemptedResponse(boolean attemptedResponse) {
+		this.attemptedResponse = attemptedResponse;
+	}
+
+	public String getResponseError() {
+		return responseError;
+	}
+
+	public void setResponseError(String responseError) {
+		this.responseError = responseError;
+	}
+
+	public String toString() {
         return "message " + messageId;
     }
 }
