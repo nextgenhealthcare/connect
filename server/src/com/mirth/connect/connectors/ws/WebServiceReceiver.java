@@ -39,7 +39,7 @@ import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 
-public class WebServiceMessageReceiver extends SourceConnector {
+public class WebServiceReceiver extends SourceConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     protected WebServiceReceiverProperties connectorProperties;
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
@@ -93,7 +93,7 @@ public class WebServiceMessageReceiver extends SourceConnector {
                 }
 
                 if (acceptMessageWebService == null) {
-                    logger.error("Custom web service class must implement the constructor: public AcceptMessage(WebServiceMessageReceiver webServiceMessageReceiver)");
+                    logger.error("Custom web service class must implement the constructor: public AcceptMessage(WebServiceReceiver webServiceReceiver)");
                 }
             } else {
                 logger.error("Custom web service class must extend com.mirth.connect.connectors.ws.AcceptMessage");

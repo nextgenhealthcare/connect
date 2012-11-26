@@ -32,10 +32,10 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private ConnectorType connectorType = ConnectorType.LISTENER;
 
-    private WebServiceMessageReceiver webServiceMessageReceiver;
+    private WebServiceReceiver webServiceReceiver;
 
-    public LoggingSOAPHandler(WebServiceMessageReceiver webServiceMessageReceiver) {
-        this.webServiceMessageReceiver = webServiceMessageReceiver;
+    public LoggingSOAPHandler(WebServiceReceiver webServiceReceiver) {
+        this.webServiceReceiver = webServiceReceiver;
     }
 
     public Set<QName> getHeaders() {
@@ -44,7 +44,7 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
 
     public void close(MessageContext mc) {
         logger.debug("Web Service connection closed.");
-        monitoringController.updateStatus(webServiceMessageReceiver.getChannelId(), webServiceMessageReceiver.getMetaDataId(), connectorType, Event.DONE);
+        monitoringController.updateStatus(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), connectorType, Event.DONE);
     }
 
     public boolean handleFault(SOAPMessageContext smc) {
@@ -56,7 +56,7 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
             Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
             if (!outbound) {
                 logger.debug("Web Service message received.");
-                monitoringController.updateStatus(webServiceMessageReceiver.getChannelId(), webServiceMessageReceiver.getMetaDataId(), connectorType, Event.CONNECTED);
+                monitoringController.updateStatus(webServiceReceiver.getChannelId(), webServiceReceiver.getMetaDataId(), connectorType, Event.CONNECTED);
             } else {
                 logger.debug("Web Service returning response.");
             }

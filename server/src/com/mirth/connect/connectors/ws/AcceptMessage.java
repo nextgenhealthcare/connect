@@ -10,9 +10,9 @@
 package com.mirth.connect.connectors.ws;
 
 public abstract class AcceptMessage {
-    protected WebServiceMessageReceiver webServiceMessageReceiver;
+    protected WebServiceReceiver webServiceReceiver;
 
-    public AcceptMessage(WebServiceMessageReceiver webServiceMessageReceiver) {
-        this.webServiceMessageReceiver = webServiceMessageReceiver;
+    public AcceptMessage(WebServiceReceiver webServiceReceiver) {
+        this.webServiceReceiver = webServiceReceiver;
     }
 }

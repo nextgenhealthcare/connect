@@ -15,13 +15,13 @@ import javax.jws.WebService;
 @WebService
 public class DefaultAcceptMessage extends AcceptMessage {
 
-    public DefaultAcceptMessage(WebServiceMessageReceiver webServiceMessageReceiver) {
-        super(webServiceMessageReceiver);
+    public DefaultAcceptMessage(WebServiceReceiver webServiceReceiver) {
+        super(webServiceReceiver);
     }
 
     @WebMethod
     public String acceptMessage(String message) {
-        String response = webServiceMessageReceiver.processData(message);
+        String response = webServiceReceiver.processData(message);
 
         if (response != null) {
             return response;

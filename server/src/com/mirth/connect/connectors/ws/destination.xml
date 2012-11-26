@@ -6,7 +6,7 @@
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth Connect to invoke remote Web Services over HTTP.</description>
 	<clientClassName>com.mirth.connect.connectors.ws.WebServiceSender</clientClassName>
-	<serverClassName>com.mirth.connect.connectors.ws.WebServiceMessageDispatcher</serverClassName>
+	<serverClassName>com.mirth.connect.connectors.ws.WebServiceDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.ws.WebServiceDispatcherProperties</sharedClassName>
 	<serviceClassName>com.mirth.connect.connectors.ws.WebServiceConnectorService</serviceClassName>
 	<transformers></transformers>

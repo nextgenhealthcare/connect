@@ -61,7 +61,7 @@ import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
-public class WebServiceMessageDispatcher extends DestinationConnector {
+public class WebServiceDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());
     protected WebServiceDispatcherProperties connectorProperties;
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();
