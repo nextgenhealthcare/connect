@@ -100,7 +100,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     private Set<Future<DispatchResult>> channelTasks = new HashSet<Future<DispatchResult>>();
     private Set<Future<?>> controlTasks = new LinkedHashSet<Future<?>>();
 
-    private boolean forceStop = false;
+    private boolean stopSourceQueue = false;
     private final AtomicBoolean processLock = new AtomicBoolean(true);
     private ChannelLock lock = ChannelLock.UNLOCKED;
     
@@ -628,6 +628,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     }
 
     private void stop(List<Integer> metaDataIds) throws StopException, InterruptedException {
+    	stopSourceQueue = true;
         StopException firstCause = null;
 
         // If an exception occurs, then still proceed by stopping the rest of the connectors
@@ -664,7 +665,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     }
 
     private void halt(List<Integer> metaDataIds) throws StopException, InterruptedException {
-        forceStop = true;
+        stopSourceQueue = true;
 
         destinationChainExecutor.shutdownNow();
         channelExecutor.shutdownNow();
@@ -1084,7 +1085,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         ThreadUtils.checkInterruptedStatus();
         ConnectorMessage sourceMessage = sourceQueue.poll(timeout, TimeUnit.MILLISECONDS);
 
-        while (sourceMessage != null && !forceStop) {
+        while (sourceMessage != null && !stopSourceQueue) {
             process(sourceMessage, true);
             sourceMessage = sourceQueue.poll();
         }
@@ -1368,7 +1369,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     setCurrentState(ChannelState.STARTING);
                     processLock.set(false);
                     channelTasks.clear();
-                    forceStop = false;
+                    stopSourceQueue = false;
     
                     // Remove any items in the queue's buffer because they may be outdated.
                     sourceQueue.invalidate();
