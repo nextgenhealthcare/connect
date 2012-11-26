@@ -740,14 +740,17 @@ public class MessageBrowser extends javax.swing.JPanel {
      * Shows or hides message tabs depending on what part of the message is
      * selected
      */
-    public void updateDescriptionTabs(Integer metaDataId, boolean attachment) {
+    public void updateDescriptionTabs(Integer metaDataId, boolean errors, boolean attachment) {
         //Save the current open tab
         String title = descriptionTabbedPane.getTitleAt(descriptionTabbedPane.getSelectedIndex());
         //Remove all tabs
         descriptionTabbedPane.removeAll();
         descriptionTabbedPane.addTab("Messages", MessagesPanel);
         descriptionTabbedPane.addTab("Mappings", mappingsPane);
-        descriptionTabbedPane.addTab("Errors", ErrorsPanel);
+        
+        if (errors) {
+        	descriptionTabbedPane.addTab("Errors", ErrorsPanel);
+        }
 
         if (attachment) {
             descriptionTabbedPane.addTab("Attachments", attachmentsPane);
@@ -1563,7 +1566,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     // Update the errors tab
                     updateDescriptionErrors(connectorMessage.getErrors(), message.getResponseError(), metaDataId);
                     // Show relevant tabs
-                    updateDescriptionTabs(metaDataId, attachments.size() > 0);
+                    updateDescriptionTabs(metaDataId, (connectorMessage.getErrors() != null || (message.getResponseError() != null && metaDataId == 0)), attachments.size() > 0);
                     updateMessageRadioGroup();
 
                     if (attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1) {
