@@ -246,4 +246,9 @@ public class HttpReceiver extends SourceConnector {
         return (mergedConnectorMessage == null ? replacer.replaceValues(template, getChannelId()) : replacer.replaceValues(template, mergedConnectorMessage));
     }
 
+	@Override
+	public void handleRecoveredResponse(DispatchResult dispatchResult) {
+		finishDispatch(dispatchResult);
+	}
+
 }

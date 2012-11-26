@@ -98,6 +98,7 @@ public class RecoveryTask implements Callable<List<Message>> {
                 ConnectorMessage sourceMessage = message.getConnectorMessages().get(0);
                 boolean finished = true;
 
+                //TODO will sourceMessage be null for any reason?
                 // merge responses from all of the destinations into the source connector's response map
                 for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
                     Status status = connectorMessage.getStatus();
@@ -113,13 +114,16 @@ public class RecoveryTask implements Callable<List<Message>> {
                 }
 
                 if (finished) {
-                    channel.finishMessage(message, true, false);
                     ThreadUtils.checkInterruptedStatus();
                     ResponseSelector responseSelector = channel.getResponseSelector();
-
-                    if (responseSelector.canRespond() && sourceMessage != null) {
+                    
+                    channel.finishMessage(message, true, !responseSelector.canRespond());
+                    
+                    if (responseSelector.canRespond()) {
                         boolean removeContent = (storageSettings.isRemoveContentOnCompletion() && MessageController.getInstance().isMessageCompleted(message));
-                        channel.getSourceConnector().handleRecoveredResponse(new DispatchResult(message.getMessageId(), message, responseSelector.getResponse(message), true, removeContent, false));
+                        
+                        DispatchResult dispatchResult = new DispatchResult(message.getMessageId(), message, responseSelector.getResponse(message), true, removeContent, false);
+                        channel.getSourceConnector().handleRecoveredResponse(dispatchResult);
                     }
                 }
             }

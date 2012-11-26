@@ -35,6 +35,7 @@ import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.server.Constants;
@@ -266,15 +267,24 @@ public class DatabaseReceiver extends PollConnector {
         }
     }
 
-    private void processMessage(Map<String, Object> message) throws InterruptedException {
+    private void processMessage(Map<String, Object> row) throws InterruptedException {
         try {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY);
             
-            String messageString = ResultMapToXML.doTransform(message);
+            String messageString = ResultMapToXML.doTransform(row);
+            
+            // TODO: When should this be run?  Before or after the ack script?
+            DispatchResult dispatchResult = null;
+
+            try {
+                dispatchResult = dispatchRawMessage(new RawMessage(messageString));
+            } finally {
+                finishDispatch(dispatchResult);
+            }
 
             if (connectorProperties.isUseScript() && connectorProperties.isUseAck()) {
                 try {
-                    jsExecutor.execute(new DatabaseReceiverTask(ackScriptId, message));
+                    jsExecutor.execute(new DatabaseReceiverTask(ackScriptId, row));
                 } catch (JavaScriptExecutorException e) {
                     logger.error("Error executing " + connectorProperties.getName() + " script " + ackScriptId + ".", e);
                 }
@@ -283,7 +293,7 @@ public class DatabaseReceiver extends PollConnector {
 
                 try {
                     if (connectorProperties.isUseAck() && ackStmt != null) {
-                        int numRows = new QueryRunner().update(connection, ackStmt, JdbcUtils.getParams(ackParams, message));
+                        int numRows = new QueryRunner().update(connection, ackStmt, JdbcUtils.getParams(ackParams, row));
 
                         if (numRows != 1) {
                             logger.warn("Row count for ack should be 1 and not " + numRows);
@@ -297,15 +307,6 @@ public class DatabaseReceiver extends PollConnector {
                 if (ackException != null) {
                     throw ackException;
                 }
-            }
-
-            // TODO: When should this be run?  Before or after the ack script?
-            DispatchResult dispatchResult = null;
-
-            try {
-                dispatchResult = dispatchRawMessage(new RawMessage(messageString));
-            } finally {
-                finishDispatch(dispatchResult);
             }
         } catch (InterruptedException e) {
             throw e;
@@ -343,19 +344,19 @@ public class DatabaseReceiver extends PollConnector {
 
     private class DatabaseReceiverTask extends JavaScriptTask<Object> {
         private String scriptId;
-        private Map<String, Object> connectorMessage;
+        private Map<String, Object> row;
         
-        public DatabaseReceiverTask(String scriptId, Map<String, Object> connectorMessage) {
+        public DatabaseReceiverTask(String scriptId, Map<String, Object> row) {
             this.scriptId = scriptId;
-            this.connectorMessage = connectorMessage;
+            this.row = row;
         }
         
         @Override
         public Object call() throws Exception {
             Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, getChannelId());
             
-            if (connectorMessage != null) {
-                scope.put("resultMap", scope, connectorMessage);
+            if (row != null) {
+                scope.put("resultMap", scope, row);
             }
             
             // TODO: Needed?
@@ -365,4 +366,10 @@ public class DatabaseReceiver extends PollConnector {
             return JavaScriptUtil.executeScript(scriptId, scope, getChannelId(), "Source");
         }
     }
+
+	@Override
+	public void handleRecoveredResponse(DispatchResult dispatchResult) {
+		//TODO add cleanup code?
+		finishDispatch(dispatchResult);
+	}
 }

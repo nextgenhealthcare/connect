@@ -126,11 +126,7 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
      * 
      * @throws ChannelException
      */
-//    public abstract void handleRecoveredResponse(MessageProcessResult messageResponse) throws ChannelException;
-    
-    public void handleRecoveredResponse(DispatchResult messageResponse) throws ChannelException {
-
-    }
+    public abstract void handleRecoveredResponse(DispatchResult dispatchResult);
     
     public void finishDispatch(DispatchResult dispatchResult) {
         String response = null;

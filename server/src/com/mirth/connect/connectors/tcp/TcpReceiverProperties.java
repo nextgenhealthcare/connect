@@ -24,6 +24,9 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
 
     public static final String PROTOCOL = "TCP";
     public static final String NAME = "TCP Listener";
+    public static final int SAME_CONNECTION = 0;
+    public static final int NEW_CONNECTION = 1;
+    public static final int NEW_CONNECTION_ON_RECOVERY = 2;
 
     private boolean serverMode;
     private String reconnectInterval;
@@ -36,7 +39,7 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
     private boolean processBatch;
     private boolean dataTypeBinary;
     private String charsetEncoding;
-    private boolean respondOnNewConnection;
+    private int respondOnNewConnection;
     private String responseAddress;
     private String responsePort;
 
@@ -55,7 +58,7 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
         this.processBatch = false;
         this.dataTypeBinary = false;
         this.charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
-        this.respondOnNewConnection = false;
+        this.respondOnNewConnection = SAME_CONNECTION;
         this.responseAddress = "";
         this.responsePort = "";
     }
@@ -158,11 +161,11 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
         this.charsetEncoding = charsetEncoding;
     }
 
-    public boolean isRespondOnNewConnection() {
+    public int getRespondOnNewConnection() {
         return respondOnNewConnection;
     }
 
-    public void setRespondOnNewConnection(boolean respondOnNewConnection) {
+    public void setRespondOnNewConnection(int respondOnNewConnection) {
         this.respondOnNewConnection = respondOnNewConnection;
     }
 

@@ -20,13 +20,12 @@ import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
-
-
 
 public class DICOMReceiver extends SourceConnector {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -207,6 +206,11 @@ public class DICOMReceiver extends SourceConnector {
 
         logger.debug("closed DICOM port");
     }
+
+	@Override
+	public void handleRecoveredResponse(DispatchResult dispatchResult) {
+		finishDispatch(dispatchResult);
+	}
 
 
 

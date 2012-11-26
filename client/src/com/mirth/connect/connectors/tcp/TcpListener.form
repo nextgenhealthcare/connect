@@ -101,11 +101,13 @@
                               <Component id="respondOnNewConnectionYesRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="respondOnNewConnectionNoRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="respondOnNewConnectionRecoveryRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="responseAddressField" min="-2" pref="200" max="-2" attributes="0"/>
                           <Component id="responsePortField" min="-2" pref="50" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="0" pref="10" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
                   <Component id="sampleMessageLabel" max="32767" attributes="0"/>
               </Group>
@@ -184,6 +186,7 @@
                   <Component id="ackOnNewConnectionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="respondOnNewConnectionYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="respondOnNewConnectionNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="respondOnNewConnectionRecoveryRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -265,7 +268,7 @@
           <ComponentRef name="respondOnNewConnectionButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on.&lt;br/&gt;Select Yes to send the response on a new connection.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -288,13 +291,36 @@
           <ComponentRef name="respondOnNewConnectionButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on.&lt;br/&gt;Select Yes to send the response on a new connection.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="respondOnNewConnectionNoRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="respondOnNewConnectionRecoveryRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="respondOnNewConnectionButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Message Recovery"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="respondOnNewConnectionRecoveryRadioActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="ackIPLabel">

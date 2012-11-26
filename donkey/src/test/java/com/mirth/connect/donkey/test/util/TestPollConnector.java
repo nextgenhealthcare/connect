@@ -47,4 +47,9 @@ public class TestPollConnector extends PollConnector {
             finishDispatch(dispatchResult);
         }
     }
+
+	@Override
+	public void handleRecoveredResponse(DispatchResult dispatchResult) {
+		finishDispatch(dispatchResult);
+	}
 }

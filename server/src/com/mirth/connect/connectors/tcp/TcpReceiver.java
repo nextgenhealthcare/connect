@@ -224,21 +224,36 @@ public class TcpReceiver extends SourceConnector {
 
     @Override
     public void handleRecoveredResponse(DispatchResult dispatchResult) {
-        // Only if we're responding on a new connection can we handle recovered responses
-        if (connectorProperties.isRespondOnNewConnection()) {
-            BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(null);
-            StreamHandler streamHandler = new FrameStreamHandler(null, null, batchStreamReader, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
-            
-            if (dispatchResult.getSelectedResponse() != null) {
-                try {
-                    sendResponse(dispatchResult.getSelectedResponse().getMessage(), createResponseSocket(), streamHandler);
-                } catch (IOException e) {
-                    // TODO
-                }
-            }
-        } else {
-            // TODO call finishDispatch and set an error message since the response could not be sent
-        }
+    	boolean attemptedResponse = false;
+    	String response = null;
+    	String errorMessage = null;
+    	try {
+    		if (dispatchResult.getSelectedResponse() != null) {
+            	response = dispatchResult.getSelectedResponse().getMessage();
+    		
+	    		// Only if we're responding on a new connection can we handle recovered responses
+		        if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION_ON_RECOVERY) {
+		        	BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(null);
+		            StreamHandler streamHandler = new FrameStreamHandler(null, null, batchStreamReader, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
+		            StateAwareSocket responseSocket = null;
+		            
+	                try {
+	                	responseSocket = createResponseSocket();
+	                	
+	                	attemptedResponse = true;
+	                    sendResponse(response, responseSocket, streamHandler);
+	                } catch (IOException e) {
+	                    // TODO
+	                } finally {
+                        closeSocketQuietly(responseSocket);
+	                }
+		        } else {
+		            errorMessage = "Cannot respond on original connection during message recovery. In order to send a response, enable \"Respond on New Connection\" in Tcp Listener settings.";
+		        }
+    		}
+    	} finally {
+    		finishDispatch(dispatchResult, attemptedResponse, response, errorMessage);
+    	}
     }
 
     protected class TcpReader implements Callable<Throwable> {
@@ -313,9 +328,11 @@ public class TcpReceiver extends SourceConnector {
                                         
                                         // Check to see if we have a response to send
                                         if (dispatchResult.getSelectedResponse() != null) {
+                                        	response = dispatchResult.getSelectedResponse().getMessage();
+                                        	
                                             // If the response socket hasn't been initialized, do that now
                                             if (responseSocket == null) {
-                                                if (connectorProperties.isRespondOnNewConnection()) {
+                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
                                                     responseSocket = createResponseSocket();
                                                 } else {
                                                     // If we're not responding on a new connection, then write to the output stream of the same socket
@@ -324,14 +341,15 @@ public class TcpReceiver extends SourceConnector {
                                             }
 
                                             // Send the response; in the case of batch messages, only the first response will be sent
-                                            if (dispatchResult.getSelectedResponse() != null) {
-                                                attemptedResponse = true;
-                                                response = dispatchResult.getSelectedResponse().getMessage();
-                                                
-                                                try {
-                                                    sendResponse(response, responseSocket, streamHandler);
-                                                } catch (IOException e) {
-                                                    errorMessage = e.getMessage();
+                                            attemptedResponse = true;
+                                            
+                                            try {
+                                                sendResponse(response, responseSocket, streamHandler);
+                                            } catch (IOException e) {
+                                                errorMessage = e.getMessage();
+                                            } finally {
+                                            	if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
+                                                    closeSocketQuietly(responseSocket);
                                                 }
                                             }
                                         }
@@ -393,7 +411,7 @@ public class TcpReceiver extends SourceConnector {
 
             // We're done reading, so close everything up
             closeSocketQuietly(socket);
-            if (connectorProperties.isRespondOnNewConnection()) {
+            if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
                 closeSocketQuietly(responseSocket);
             }
 
@@ -461,10 +479,6 @@ public class TcpReceiver extends SourceConnector {
                 // If an error occurred while sending the response then still allow the worker to continue processing messages
                 logger.warn("Error sending response (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                 throw e;
-            } finally {
-                if (connectorProperties.isRespondOnNewConnection() || !connectorProperties.isKeepConnectionOpen()) {
-                    closeSocketQuietly(responseSocket);
-                }
             }
         }
     }

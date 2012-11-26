@@ -65,7 +65,9 @@ public class JavaScriptReceiver extends PollConnector {
     public void onStop() throws StopException {}
 
     @Override
-    public void handleRecoveredResponse(DispatchResult messageResponse) {}
+    public void handleRecoveredResponse(DispatchResult dispatchResult) {
+    	finishDispatch(dispatchResult);
+    }
 
     @Override
     public void poll() throws InterruptedException {

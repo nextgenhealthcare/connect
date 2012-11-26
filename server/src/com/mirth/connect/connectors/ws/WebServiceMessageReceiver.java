@@ -147,8 +147,8 @@ public class WebServiceMessageReceiver extends SourceConnector {
     }
 
     @Override
-    public void handleRecoveredResponse(DispatchResult messageResponse) {
-        // TODO Auto-generated method stub
+    public void handleRecoveredResponse(DispatchResult dispatchResult) {
+    	finishDispatch(dispatchResult);
     }
 
     public String processData(String message) {

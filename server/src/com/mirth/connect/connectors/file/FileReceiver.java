@@ -264,7 +264,6 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                         rawMessage.setChannelMap(channelMap);
                         
                         DispatchResult dispatchResult = null;
-                        
                         try {
                             dispatchResult = dispatchRawMessage(rawMessage);
                         } finally {
@@ -486,4 +485,10 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     public String getBatchScriptId() {
         return batchScriptId;
     }
+
+	@Override
+	public void handleRecoveredResponse(DispatchResult dispatchResult) {
+		//TODO add cleanup code
+		finishDispatch(dispatchResult);
+	}
 }
