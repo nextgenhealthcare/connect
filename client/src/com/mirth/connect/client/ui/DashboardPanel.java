@@ -161,6 +161,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.setSortable(true);
         statusTable.putClientProperty("JTree.lineStyle", "Horizontal");
         statusTable.setAutoCreateColumnsFromModel(false);
+        statusTable.setShowGrid(true, true);
         
         // TODO: try using a custom tree cell renderer to set custom icons on connectors, so that we can display a chain icon to indicate that a destination waits for the previous one
         // http://www.java.net/forum/topic/javadesktop/java-desktop-technologies/swinglabs/jxtreetable-custom-icons-node

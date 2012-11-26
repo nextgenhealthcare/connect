@@ -854,6 +854,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageTreeTable.setClosedIcon(null);
         messageTreeTable.setAutoCreateColumnsFromModel(false);
         messageTreeTable.setColumnControlVisible(true);
+        messageTreeTable.setShowGrid(true, true);
 
         tableModel = new MessageBrowserTableModel();
         // Add a blank column to the column initially, otherwise it return an exception on load
