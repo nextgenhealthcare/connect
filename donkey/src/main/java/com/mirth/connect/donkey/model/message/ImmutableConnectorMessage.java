@@ -44,11 +44,19 @@ public class ImmutableConnectorMessage {
     }
 
     public ImmutableMessageContent getContent(ContentType contentType) {
-        return new ImmutableMessageContent(connectorMessage.getContent(contentType));
+    	if (connectorMessage.getContent(contentType) != null) {
+    		return new ImmutableMessageContent(connectorMessage.getContent(contentType));
+    	}
+    	
+        return null;
     }
 
     public ImmutableMessageContent getRaw() {
-        return new ImmutableMessageContent(connectorMessage.getRaw());
+    	if (connectorMessage.getRaw() != null) {
+    		return new ImmutableMessageContent(connectorMessage.getRaw());
+    	}
+    	
+    	return null;
     }
 
     public String getRawData() {
@@ -60,7 +68,11 @@ public class ImmutableConnectorMessage {
     }
 
     public ImmutableMessageContent getProcessedRaw() {
-        return new ImmutableMessageContent(connectorMessage.getProcessedRaw());
+    	if (connectorMessage.getProcessedRaw() != null) {
+    		return new ImmutableMessageContent(connectorMessage.getProcessedRaw());
+    	}
+    	
+    	return null;
     }
 
     public String getProcessedRawData() {
@@ -72,7 +84,11 @@ public class ImmutableConnectorMessage {
     }
 
     public ImmutableMessageContent getTransformed() {
-        return new ImmutableMessageContent(connectorMessage.getTransformed());
+    	if (connectorMessage.getTransformed() != null) {
+    		return new ImmutableMessageContent(connectorMessage.getTransformed());
+    	}
+    	
+    	return null;
     }
 
     public String getTransformedData() {
@@ -84,7 +100,11 @@ public class ImmutableConnectorMessage {
     }
 
     public ImmutableMessageContent getEncoded() {
-        return new ImmutableMessageContent(connectorMessage.getEncoded());
+    	if (connectorMessage.getEncoded() != null) {
+    		return new ImmutableMessageContent(connectorMessage.getEncoded());
+    	}
+    	
+    	return null;
     }
 
     public String getEncodedData() {
@@ -96,7 +116,11 @@ public class ImmutableConnectorMessage {
     }
 
     public ImmutableMessageContent getSent() {
-        return new ImmutableMessageContent(connectorMessage.getSent());
+    	if (connectorMessage.getSent() != null) {
+    		return new ImmutableMessageContent(connectorMessage.getSent());
+    	}
+    	
+    	return null;
     }
 
     public String getSentData() {
@@ -108,7 +132,11 @@ public class ImmutableConnectorMessage {
     }
 
     public ImmutableMessageContent getResponse() {
-        return new ImmutableMessageContent(connectorMessage.getResponse());
+    	if (connectorMessage.getResponse() != null) {
+    		return new ImmutableMessageContent(connectorMessage.getResponse());
+    	}
+    	
+    	return null;
     }
 
     public Response getResponseData() {
@@ -120,7 +148,11 @@ public class ImmutableConnectorMessage {
     }
 
     public ImmutableMessageContent getProcessedResponse() {
-        return new ImmutableMessageContent(connectorMessage.getProcessedResponse());
+    	if (connectorMessage.getProcessedResponse() != null) {
+    		return new ImmutableMessageContent(connectorMessage.getProcessedResponse());
+    	}
+    	
+    	return null;
     }
 
     public Response getProcessedResponseData() {
