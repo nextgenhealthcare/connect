@@ -242,6 +242,8 @@ public abstract class DestinationConnector extends Connector implements Connecto
 
                 // have the connector send the message and return a response
                 response = handleSend(connectorProperties, message);
+                // NOTE: Send attempts here will not be persisted until all attempts have completed since there is only one transaction.
+                // Each attempt from the queue will be persisted though.
                 message.setSendAttempts(++sendAttempts);
                 fixResponseStatus(response);
                 responseStatus = response.getNewMessageStatus();
