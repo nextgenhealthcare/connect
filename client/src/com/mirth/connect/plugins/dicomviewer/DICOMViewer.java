@@ -43,7 +43,9 @@ public class DICOMViewer extends AttachmentViewer {
             byte[] rawImage = StringUtils.getBytesUsAscii(parent.mirthClient.getDICOMMessage(message));
             ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
             DICOM dcm = new DICOM(new Base64InputStream(bis));
-            dcm.run("DICOM");
+            // run() is required to create the dicom object. The argument serves multiple purposes. If it is null or empty, it opens a dialog to select a dicom file.
+            // Otherwise, if dicom.show() is called, it is the title of the dialog. Since we are showing the dialog here, we pass the string we want to use as the title.
+            dcm.run("DICOM Image Viewer");
             dcm.show();
             Dimension dlgSize = dcm.getWindow().getSize();
             Dimension frmSize = parent.getSize();

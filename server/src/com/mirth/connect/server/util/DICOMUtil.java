@@ -188,7 +188,9 @@ public class DICOMUtil {
 
         try {
             DICOM dicom = new DICOM(bais);
-            dicom.run("DICOM"); // TODO: Used to be message.getType(), is this even needed and what does it do?
+            // run() is required to create the dicom object. The argument serves multiple purposes. If it is null or empty, it opens a dialog to select a dicom file.
+            // Otherwise, if dicom.show() is called, it is the title of the dialog. Since we are not showing any dialogs here, we just need to pass a non-null, non-empty string.
+            dicom.run("DICOM");
             BufferedImage image = new BufferedImage(dicom.getWidth(), dicom.getHeight(), BufferedImage.TYPE_INT_RGB);
             Graphics graphics = image.createGraphics();
             graphics.drawImage(dicom.getImage(), 0, 0, null);
@@ -214,7 +216,9 @@ public class DICOMUtil {
 
         try {
             DICOM dicom = new DICOM(bais);
-            dicom.run("dcm");
+            // run() is required to create the dicom object. The argument serves multiple purposes. If it is null or empty, it opens a dialog to select a dicom file.
+            // Otherwise, if dicom.show() is called, it is the title of the dialog. Since we are not showing any dialogs here, we just need to pass a non-null, non-empty string.
+            dicom.run("DICOM");
 
             if (autoThreshold) {
                 ImageProcessor im = dicom.getProcessor();
