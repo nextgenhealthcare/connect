@@ -51,10 +51,10 @@ public class RecoveryTask implements Callable<List<Message>> {
                         List<ConnectorMessage> recoveredConnectorMessages = dao.getConnectorMessages(channel.getChannelId(), metaDataId, Status.RECEIVED);
                         ThreadUtils.checkInterruptedStatus();
                         recoveredConnectorMessages.addAll(dao.getConnectorMessages(channel.getChannelId(), metaDataId, Status.PENDING));
-                        
+
                         for (ConnectorMessage recoveredConnectorMessage : recoveredConnectorMessages) {
                             long messageId = recoveredConnectorMessage.getMessageId();
-                            
+
                             messageController.decryptConnectorMessage(recoveredConnectorMessage, encryptor);
 
                             // get the list of destination meta data ids to send to
@@ -116,13 +116,13 @@ public class RecoveryTask implements Callable<List<Message>> {
                 if (finished) {
                     ThreadUtils.checkInterruptedStatus();
                     ResponseSelector responseSelector = channel.getResponseSelector();
-                    
+
                     channel.finishMessage(message, true, !responseSelector.canRespond());
-                    
+
                     if (responseSelector.canRespond()) {
                         boolean removeContent = (storageSettings.isRemoveContentOnCompletion() && MessageController.getInstance().isMessageCompleted(message));
-                        
-                        DispatchResult dispatchResult = new DispatchResult(message.getMessageId(), message, responseSelector.getResponse(message), true, removeContent, false);
+
+                        DispatchResult dispatchResult = new DispatchResult(message.getMessageId(), message, responseSelector.getResponse(sourceMessage, message), true, removeContent, false);
                         channel.getSourceConnector().handleRecoveredResponse(dispatchResult);
                     }
                 }

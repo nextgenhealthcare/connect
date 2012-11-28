@@ -90,7 +90,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     private PreProcessor preProcessor;
     private PostProcessor postProcessor;
     private List<DestinationChain> destinationChains = new ArrayList<DestinationChain>();
-    private ResponseSelector responseSelector = new ResponseSelector();
+    private ResponseSelector responseSelector;
 
     private ExecutorService controlExecutor = Executors.newSingleThreadExecutor();
     private ExecutorService channelExecutor;
@@ -103,9 +103,9 @@ public class Channel implements Startable, Stoppable, Runnable {
     private boolean stopSourceQueue = false;
     private final AtomicBoolean processLock = new AtomicBoolean(true);
     private ChannelLock lock = ChannelLock.UNLOCKED;
-    
+
     private Logger logger = Logger.getLogger(getClass());
-    
+
     public String getChannelId() {
         return channelId;
     }
@@ -129,7 +129,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     public void setServerId(String serverId) {
         this.serverId = serverId;
     }
-    
+
     public String getVersion() {
         return version;
     }
@@ -137,7 +137,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     public void setVersion(String version) {
         this.version = version;
     }
-    
+
     public int getRevision() {
         return revision;
     }
@@ -145,7 +145,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     public void setRevision(int revision) {
         this.revision = revision;
     }
-    
+
     public Calendar getDeployDate() {
         return deployDate;
     }
@@ -193,7 +193,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     public void setDaoFactory(DonkeyDaoFactory daoFactory) {
         this.daoFactory = daoFactory;
     }
-    
+
     public DonkeyCloner getCloner() {
         return cloner;
     }
@@ -201,7 +201,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     public void setCloner(DonkeyCloner cloner) {
         this.cloner = cloner;
     }
-    
+
     public Encryptor getEncryptor() {
         return encryptor;
     }
@@ -217,7 +217,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     public void setAttachmentHandler(AttachmentHandler attachmentHandler) {
         this.attachmentHandler = attachmentHandler;
     }
-    
+
     public List<MetaDataColumn> getMetaDataColumns() {
         return metaDataColumns;
     }
@@ -233,7 +233,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     public void setSourceConnector(SourceConnector sourceConnector) {
         this.sourceConnector = sourceConnector;
     }
-    
+
     /**
      * Get the queue that holds messages waiting to be processed
      */
@@ -268,13 +268,17 @@ public class Channel implements Startable, Stoppable, Runnable {
     public void setPostProcessor(PostProcessor postProcessor) {
         this.postProcessor = postProcessor;
     }
-    
+
     public List<DestinationChain> getDestinationChains() {
         return destinationChains;
     }
 
     public ResponseSelector getResponseSelector() {
         return responseSelector;
+    }
+
+    public void setResponseSelector(ResponseSelector responseSelector) {
+        this.responseSelector = responseSelector;
     }
 
     public void lock(ChannelLock lock) {
@@ -302,28 +306,29 @@ public class Channel implements Startable, Stoppable, Runnable {
     public boolean isPaused() {
         return (isRunning() && !sourceConnector.isRunning());
     }
-    
+
     /**
-     * Tell whether or not the channel is configured correctly and is able to be deployed
+     * Tell whether or not the channel is configured correctly and is able to be
+     * deployed
      */
     public boolean isConfigurationValid() {
         if (channelId == null || daoFactory == null || sourceConnector == null || sourceFilterTransformerExecutor == null) {
             return false;
         }
-        
+
         for (DestinationChain chain : destinationChains) {
             Map<Integer, FilterTransformerExecutor> filterTransformerExecutors = chain.getFilterTransformerExecutors();
-            
+
             for (Integer metaDataId : chain.getMetaDataIds()) {
                 if (filterTransformerExecutors.get(metaDataId) == null) {
                     return false;
                 }
             }
         }
-        
+
         return true;
     }
-    
+
     public int getDestinationCount() {
         int numDestinations = 0;
 
@@ -361,7 +366,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         return metaDataIds;
     }
-    
+
     public void invalidateQueues() {
         sourceQueue.invalidate();
 
@@ -376,7 +381,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         if (!isConfigurationValid()) {
             throw new DeployException("Failed to deploy channel. The channel configuration is incomplete.");
         }
-        
+
         Future<?> task = null;
 
         try {
@@ -628,7 +633,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     }
 
     private void stop(List<Integer> metaDataIds) throws StopException, InterruptedException {
-    	stopSourceQueue = true;
+        stopSourceQueue = true;
         StopException firstCause = null;
 
         // If an exception occurs, then still proceed by stopping the rest of the connectors
@@ -643,7 +648,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
             }
         }
-        
+
         ThreadUtils.checkInterruptedStatus();
 
         channelExecutor.shutdown();
@@ -751,17 +756,17 @@ public class Channel implements Startable, Stoppable, Runnable {
         } catch (RejectedExecutionException e) {
             throw new ChannelException(true, e);
         } catch (InterruptedException e) {
-        	// This exception should only ever be thrown during a halt.
-        	// It is impossible to know whether or not the message was persisted because the task will continue to run
-        	// even though we are no longer waiting for it. Furthermore it is possible the message was actually sent.
+            // This exception should only ever be thrown during a halt.
+            // It is impossible to know whether or not the message was persisted because the task will continue to run
+            // even though we are no longer waiting for it. Furthermore it is possible the message was actually sent.
 
-        	// The best we can do is cancel the task and throw a channel exception. 
+            // The best we can do is cancel the task and throw a channel exception. 
             // If the message was not queued on the source connector, recovery should take care of it.
             // If the message was queued, the source of the message will be notified that the message was not persisted to be safe.
-        	// This could lead to a potential duplicate message being received/sent, but it is one of the consequences of using halt.
-        	future.cancel(true);
-        	
-        	throw new ChannelException(true, e);
+            // This could lead to a potential duplicate message being received/sent, but it is one of the consequences of using halt.
+            future.cancel(true);
+
+            throw new ChannelException(true, e);
         } catch (Throwable e) {
             Throwable cause = e.getCause();
             ChannelException channelException = null;
@@ -775,11 +780,11 @@ public class Channel implements Startable, Stoppable, Runnable {
                 logger.error(e);
                 channelException = new ChannelException(false, e);
             }
-            
+
             if (task.getPersistedMessageId() == null) {
                 throw channelException;
             }
-            
+
             return new DispatchResult(task.getPersistedMessageId(), null, null, false, false, task.isLockAcquired(), channelException);
         } finally {
             if (future != null) {
@@ -799,7 +804,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             processLock.set(true);
         }
     }
-    
+
     public void releaseProcessLock() {
         synchronized (processLock) {
             processLock.set(false);
@@ -913,7 +918,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     ThreadUtils.checkInterruptedStatus();
                     dao.insertMessageContent(sourceMessage.getProcessedRaw());
                 }
-                
+
                 if (storageSettings.isStoreTransformed() && sourceMessage.getTransformed() != null) {
                     dao.insertMessageContent(sourceMessage.getTransformed());
                 }
@@ -970,7 +975,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             if (sourceMessage.getChannelMap().containsKey(Constants.DESTINATION_META_DATA_IDS_KEY)) {
                 metaDataIds = (List<Integer>) sourceMessage.getChannelMap().get(Constants.DESTINATION_META_DATA_IDS_KEY);
             }
-            
+
             for (DestinationChain chain : destinationChains) {
                 // if we are only processing the message for specific destinations, enable only the appropriate destinations in the chain
                 if (metaDataIds != null && metaDataIds.size() > 0) {
@@ -1009,7 +1014,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 if (!chain.getEnabledMetaDataIds().isEmpty()) {
                     chain.setMessage(destinationMessages.get(chain.getEnabledMetaDataIds().get(0)));
                     try {
-                    	destinationChainTasks.add(destinationChainExecutor.submit(chain));
+                        destinationChainTasks.add(destinationChainExecutor.submit(chain));
                     } catch (RejectedExecutionException e) {
                         Thread.currentThread().interrupt();
                         throw new InterruptedException();
@@ -1135,7 +1140,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         dao.commit(storageSettings.isDurable());
         dao.close();
     }
-    
+
     public void importMessage(Message message) throws DonkeyException {
         DonkeyDao dao = daoFactory.getDao();
 
@@ -1143,29 +1148,29 @@ public class Channel implements Startable, Stoppable, Runnable {
             if (message.getImportId() == null) {
                 message.setImportId(message.getMessageId());
             }
-            
+
             if (message.getImportChannelId() == null && !message.getChannelId().equals(channelId)) {
                 message.setImportChannelId(message.getChannelId());
             }
-            
+
             long messageId = MessageController.getInstance().getNextMessageId(message.getChannelId());
             message.setMessageId(messageId);
             message.setChannelId(channelId);
             message.setServerId(serverId);
-            
+
             dao.insertMessage(message);
 
             for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
                 connectorMessage.setMessageId(messageId);
                 connectorMessage.setChannelId(channelId);
                 connectorMessage.setServerId(serverId);
-                
+
                 int metaDataId = connectorMessage.getMetaDataId();
-                
+
                 dao.insertConnectorMessage(connectorMessage, true);
-                
+
                 // TODO insert custom metadata
-                
+
                 // re-encrypt content using the current encryptor (we assume that the message being imported has already been decrypted)
                 for (ContentType contentType : ContentType.values()) {
                     MessageContent messageContent = connectorMessage.getContent(contentType);
@@ -1208,7 +1213,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 if (storageSettings.isStoreProcessedResponse() && connectorMessage.getProcessedResponse() != null) {
                     dao.insertMessageContent(connectorMessage.getProcessedResponse());
                 }
-                
+
                 // TODO insert attachments?
             }
 
@@ -1233,7 +1238,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             // Call the connector onDeploy() methods so they can run their onDeploy logic
             try {
                 sourceFilterTransformerExecutor.setEncryptor(encryptor);
-                
+
                 // set the source queue data source
                 sourceQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, daoFactory, encryptor));
 
@@ -1246,15 +1251,15 @@ public class Channel implements Startable, Stoppable, Runnable {
                 for (DestinationChain chain : destinationChains) {
                     chain.setDaoFactory(daoFactory);
                     chain.setStorageSettings(storageSettings);
-                    
+
                     for (Integer metaDataId : chain.getMetaDataIds()) {
                         chain.getFilterTransformerExecutors().get(metaDataId).setEncryptor(encryptor);
-                        
+
                         DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
                         destinationConnector.setDaoFactory(daoFactory);
                         destinationConnector.setStorageSettings(storageSettings);
                         destinationConnector.setEncryptor(encryptor);
-                        
+
                         // set the queue data source
                         destinationConnector.getQueue().setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), destinationConnector.getMetaDataId(), Status.QUEUED, destinationConnector.isQueueRotate(), daoFactory, encryptor));
 
@@ -1281,7 +1286,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             return null;
         }
-        
+
         private void updateMetaDataColumns() throws SQLException {
             DonkeyDao dao = daoFactory.getDao();
 
@@ -1370,59 +1375,59 @@ public class Channel implements Startable, Stoppable, Runnable {
                     processLock.set(false);
                     channelTasks.clear();
                     stopSourceQueue = false;
-    
+
                     // Remove any items in the queue's buffer because they may be outdated.
                     sourceQueue.invalidate();
                     // manually refresh the source queue size from it's data source
                     sourceQueue.updateSize();
-    
+
                     // enable all destination connectors in each chain
                     for (DestinationChain chain : destinationChains) {
                         chain.getEnabledMetaDataIds().clear();
                         chain.getEnabledMetaDataIds().addAll(chain.getMetaDataIds());
                     }
                     List<Integer> startedMetaDataIds = new ArrayList<Integer>();
-    
+
                     try {
                         destinationChainExecutor = Executors.newCachedThreadPool();
                         queueExecutor = Executors.newSingleThreadExecutor();
                         channelExecutor = Executors.newSingleThreadExecutor();
-    
+
                         // start the destination connectors
                         for (DestinationChain chain : destinationChains) {
                             for (Integer metaDataId : chain.getMetaDataIds()) {
                                 DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
-    
+
                                 if (!destinationConnector.isRunning()) {
                                     startedMetaDataIds.add(metaDataId);
                                     destinationConnector.start();
                                 }
                             }
                         }
-    
+
                         ThreadUtils.checkInterruptedStatus();
-    //                    try {
-    //                        processUnfinishedMessages();
-    //                    } catch (InterruptedException e) {
-    //                        logger.error("Startup recovery interrupted");
-    //                        Thread.currentThread().interrupt();
-    //                    } catch (Exception e) {
-    //                        logger.error("Startup recovery failed");
-    //                    }
-    
+                        //                    try {
+                        //                        processUnfinishedMessages();
+                        //                    } catch (InterruptedException e) {
+                        //                        logger.error("Startup recovery interrupted");
+                        //                        Thread.currentThread().interrupt();
+                        //                    } catch (Exception e) {
+                        //                        logger.error("Startup recovery failed");
+                        //                    }
+
                         ThreadUtils.checkInterruptedStatus();
                         // start up the worker thread that will process queued messages
                         if (!sourceConnector.isRespondAfterProcessing()) {
                             queueExecutor.execute(Channel.this);
                         }
-    
+
                         ThreadUtils.checkInterruptedStatus();
                         // start up the source connector
                         if (!sourceConnector.isRunning()) {
                             startedMetaDataIds.add(0);
                             sourceConnector.start();
                         }
-    
+
                         setCurrentState(ChannelState.STARTED);
                     } catch (StartException e) {
                         // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
@@ -1432,7 +1437,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                         } catch (StopException e2) {
                             setCurrentState(ChannelState.UNKNOWN);
                         }
-    
+
                         throw e;
                     }
                 }

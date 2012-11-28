@@ -22,9 +22,9 @@ public class DataTypeFactory {
     public static final String NCPDP = "NCPDP";
     public static final String DICOM = "DICOM";
     public static final String DELIMITED = "DELIMITED";
-    
+
     public static DataType getDataType(String dataType, Properties properties) {
-        return new DataType(dataType, SerializerFactory.getSerializer(dataType, properties));
+        return new DataType(dataType, SerializerFactory.getSerializer(dataType, properties), AutoResponderFactory.getAutoResponder(dataType, properties));
     }
 
     public static String[] getDataTypeNames() {

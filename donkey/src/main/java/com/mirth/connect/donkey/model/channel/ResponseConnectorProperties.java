@@ -11,14 +11,38 @@ package com.mirth.connect.donkey.model.channel;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import com.mirth.connect.donkey.server.Constants;
+
 public class ResponseConnectorProperties implements Serializable {
+
+    public static final String[] DEFAULT_QUEUE_ON_RESPONSES = new String[] { Constants.RESPONSE_NONE, Constants.RESPONSE_AUTO_BEFORE };
+    public static final String[] DEFAULT_QUEUE_OFF_RESPONSES = ArrayUtils.addAll(DEFAULT_QUEUE_ON_RESPONSES, Constants.RESPONSE_SOURCE_TRANSFORMED, Constants.RESPONSE_DESTINATIONS_COMPLETED, Constants.RESPONSE_POST_PROCESSOR);
+
     private String responseVariable;
-    private String[] defaultResponses;
+    private String[] defaultQueueOnResponses;
+    private String[] defaultQueueOffResponses;
     private boolean respondAfterProcessing;
 
-    public ResponseConnectorProperties(String defaultResponse, String[] defaultResponses) {
-        this.responseVariable = defaultResponse;
-        this.defaultResponses = defaultResponses;
+    public ResponseConnectorProperties() {
+        this(true);
+    }
+
+    public ResponseConnectorProperties(boolean autoResponseEnabled) {
+        this(autoResponseEnabled, Constants.RESPONSE_NONE, DEFAULT_QUEUE_ON_RESPONSES, DEFAULT_QUEUE_OFF_RESPONSES);
+    }
+
+    private ResponseConnectorProperties(boolean autoResponseEnabled, String defaultResponse, String[] defaultQueueOnResponses, String[] defaultQueueOffResponses) {
+        if (autoResponseEnabled) {
+            this.responseVariable = defaultResponse;
+            this.defaultQueueOnResponses = defaultQueueOnResponses;
+            this.defaultQueueOffResponses = defaultQueueOffResponses;
+        } else {
+            this.responseVariable = Constants.RESPONSE_NONE;
+            this.defaultQueueOnResponses = new String[] { Constants.RESPONSE_NONE };
+            this.defaultQueueOffResponses = new String[] { Constants.RESPONSE_NONE };
+        }
         this.setRespondAfterProcessing(true);
     }
 
@@ -30,16 +54,20 @@ public class ResponseConnectorProperties implements Serializable {
         this.responseVariable = responseVariable;
     }
 
-    public String[] getDefaultResponses() {
-        return defaultResponses;
+    public String[] getDefaultQueueOnResponses() {
+        return defaultQueueOnResponses;
     }
 
-	public boolean isRespondAfterProcessing() {
-		return respondAfterProcessing;
-	}
+    public String[] getDefaultQueueOffResponses() {
+        return defaultQueueOffResponses;
+    }
 
-	public void setRespondAfterProcessing(boolean respondAfterProcessing) {
-		this.respondAfterProcessing = respondAfterProcessing;
-	}
+    public boolean isRespondAfterProcessing() {
+        return respondAfterProcessing;
+    }
+
+    public void setRespondAfterProcessing(boolean respondAfterProcessing) {
+        this.respondAfterProcessing = respondAfterProcessing;
+    }
 
 }

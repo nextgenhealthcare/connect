@@ -51,7 +51,7 @@ public class DummyChannel extends Channel {
             destinationConnector.setChannelId(channelId);
             destinationConnector.setResponseTransformer(new TestResponseTransformer());
             DestinationChain chain = new DestinationChain();
-            chain.addDestination(1, new FilterTransformerExecutor(new DataType("XML", new TestSerializer()), new DataType("XML", new TestSerializer())), destinationConnector);
+            chain.addDestination(1, new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder())), destinationConnector);
             getDestinationChains().add(chain);
         }
     }
@@ -73,7 +73,7 @@ public class DummyChannel extends Channel {
             sourceConnector.stop();
         }
     }
-    
+
     @Override
     public void halt() throws StopException {
         SourceConnector sourceConnector = getSourceConnector();
@@ -128,7 +128,7 @@ public class DummyChannel extends Channel {
         sourceMessage.getResponseMap().put(Constants.RESPONSE_POST_PROCESSOR, new Response(Status.SENT, ""));
 
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-        
+
         for (DestinationChain chain : getDestinationChains()) {
             for (Integer metaDataId : chain.getMetaDataIds()) {
                 chain.getDestinationConnectors().get(metaDataId).process(dao, destinationMessage, destinationMessage.getStatus());
@@ -137,7 +137,7 @@ public class DummyChannel extends Channel {
 
         dao.commit();
         dao.close();
-        
+
         return message;
     }
 

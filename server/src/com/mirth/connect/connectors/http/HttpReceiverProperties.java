@@ -32,7 +32,7 @@ public class HttpReceiverProperties extends ConnectorProperties implements Liste
 
     public HttpReceiverProperties() {
         listenerConnectorProperties = new ListenerConnectorProperties("80");
-        responseConnectorProperties = new ResponseConnectorProperties("None", new String[] { "None" });
+        responseConnectorProperties = new ResponseConnectorProperties();
 
         this.bodyOnly = true;
         this.responseContentType = "text/plain";

@@ -57,16 +57,16 @@ final class MessageTask implements Callable<DispatchResult> {
         this.responseSelector = channel.getResponseSelector();
         this.lockAcquired = false;
     }
-    
+
     public Long getPersistedMessageId() {
         return persistedMessageId;
     }
 
     public boolean isLockAcquired() {
-		return lockAcquired;
-	}
+        return lockAcquired;
+    }
 
-	@Override
+    @Override
     public DispatchResult call() throws Exception {
         DonkeyDao dao = null;
         try {
@@ -77,7 +77,8 @@ final class MessageTask implements Callable<DispatchResult> {
 
             /*
              * TRANSACTION: Create Raw Message
-             * - create a source connector message from the raw message and set the
+             * - create a source connector message from the raw message and set
+             * the
              * status as RECEIVED
              * - store attachments
              */
@@ -94,7 +95,6 @@ final class MessageTask implements Callable<DispatchResult> {
                 dao.close();
 
                 processedMessage = channel.process(sourceMessage, false);
-                response = responseSelector.getResponse(processedMessage);
                 removeContent = (storageSettings.isRemoveContentOnCompletion() && MessageController.getInstance().isMessageCompleted(processedMessage));
             } else {
                 // Block other threads from adding to the source queue until both the current commit and queue addition finishes
@@ -106,6 +106,9 @@ final class MessageTask implements Callable<DispatchResult> {
                 }
             }
 
+            if (responseSelector.canRespond()) {
+                response = responseSelector.getResponse(sourceMessage, processedMessage);
+            }
             dispatchResult = new DispatchResult(persistedMessageId, processedMessage, response, respondAfterProcessing, removeContent, lockAcquired);
 
             return dispatchResult;
@@ -114,12 +117,12 @@ final class MessageTask implements Callable<DispatchResult> {
 //            Donkey.getInstance().restartChannel(channel.getChannelId(), true);
             throw new ChannelException(true, e);
         } finally {
-        	if (lockAcquired && (persistedMessageId == null && Thread.currentThread().isInterrupted())) {
-        		// Release the process lock if an exception was thrown before a message was persisted
-        		// or if the thread was interrupted because no additional processing will be done.
-        		channel.releaseProcessLock();
-        		lockAcquired = false;
-        	}
+            if (lockAcquired && (persistedMessageId == null && Thread.currentThread().isInterrupted())) {
+                // Release the process lock if an exception was thrown before a message was persisted
+                // or if the thread was interrupted because no additional processing will be done.
+                channel.releaseProcessLock();
+                lockAcquired = false;
+            }
             if (dao != null && !dao.isClosed()) {
                 dao.close();
             }
@@ -200,7 +203,7 @@ final class MessageTask implements Callable<DispatchResult> {
                 rawMessage.clearMessage();
             }
         }
-        
+
         MessageContent raw = sourceMessage.getRaw();
         raw.setEncryptedContent(encryptor.encrypt(raw.getContent()));
 

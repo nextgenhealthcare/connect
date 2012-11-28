@@ -30,7 +30,7 @@ public class WebServiceReceiverProperties extends ConnectorProperties implements
 
     public WebServiceReceiverProperties() {
         listenerConnectorProperties = new ListenerConnectorProperties("8081");
-        responseConnectorProperties = new ResponseConnectorProperties("None", new String[] { "None" });
+        responseConnectorProperties = new ResponseConnectorProperties();
 
         this.className = "com.mirth.connect.connectors.ws.DefaultAcceptMessage";
         this.serviceName = "Mirth";

@@ -24,7 +24,7 @@ public class JavaScriptReceiverProperties extends ConnectorProperties implements
 
     public JavaScriptReceiverProperties() {
         pollConnectorProperties = new PollConnectorProperties();
-        responseConnectorProperties = new ResponseConnectorProperties("None", new String[] { "None" });
+        responseConnectorProperties = new ResponseConnectorProperties(false);
 
         script = "";
     }
@@ -57,7 +57,7 @@ public class JavaScriptReceiverProperties extends ConnectorProperties implements
     public PollConnectorProperties getPollConnectorProperties() {
         return pollConnectorProperties;
     }
-    
+
     @Override
     public ResponseConnectorProperties getResponseConnectorProperties() {
         return responseConnectorProperties;

@@ -17,7 +17,7 @@ public class VmListenerProperties extends ConnectorProperties implements Respons
     private ResponseConnectorProperties responseConnectorProperties;
 
     public VmListenerProperties() {
-        responseConnectorProperties = new ResponseConnectorProperties("None", new String[] { "None" });
+        responseConnectorProperties = new ResponseConnectorProperties();
     }
 
     @Override

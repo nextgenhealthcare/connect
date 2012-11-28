@@ -32,6 +32,7 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
+import com.mirth.connect.donkey.test.util.TestAutoResponder;
 import com.mirth.connect.donkey.test.util.TestDataType;
 import com.mirth.connect.donkey.test.util.TestFilterTransformer;
 import com.mirth.connect.donkey.test.util.TestSerializer;
@@ -107,7 +108,7 @@ public class FilterTransformerTests {
 
         class FailingTestDataType extends DataType {
             public FailingTestDataType() {
-                super("HL7V2", new FailingTestSerializer());
+                super("HL7V2", new FailingTestSerializer(), new TestAutoResponder());
             }
         }
 

@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
@@ -29,8 +30,13 @@ public class ResponseSelector {
         }
     }
 
+    private DataType dataType;
     private int numDestinations;
     private String respondFromName;
+
+    public ResponseSelector(DataType dataType) {
+        this.dataType = dataType;
+    }
 
     void setNumDestinations(int numDestinations) {
         this.numDestinations = numDestinations;
@@ -45,7 +51,7 @@ public class ResponseSelector {
     }
 
     public boolean canRespond() {
-        return (respondFromName != null);
+        return respondFromName != null && !respondFromName.equals(Constants.RESPONSE_NONE);
     }
 
     /**
@@ -54,15 +60,21 @@ public class ResponseSelector {
      * @param message
      *            The composite message
      */
-    public Response getResponse(Message message) {
-        if (respondFromName == Constants.RESPONSE_SOURCE_TRANSFORMED) {
-            return new Response(message.getConnectorMessages().get(0).getStatus(), null);
-        } else if (respondFromName == Constants.RESPONSE_DESTINATIONS_COMPLETED) {
+    public Response getResponse(ConnectorMessage sourceMessage, Message message) {
+        if (respondFromName.equals(Constants.RESPONSE_AUTO_BEFORE)) {
+            // Assume a successful status since we're responding before the message has been processed
+            return dataType.getAutoResponder().getResponse(Status.SENT, sourceMessage.getRaw().getContent(), sourceMessage);
+        } else if (respondFromName.equals(Constants.RESPONSE_SOURCE_TRANSFORMED)) {
+            // Use the status and content from the source connector message
+            return dataType.getAutoResponder().getResponse(sourceMessage.getStatus(), sourceMessage.getRaw().getContent(), sourceMessage);
+        } else if (respondFromName.equals(Constants.RESPONSE_DESTINATIONS_COMPLETED)) {
+            // Determine the status based on the destination statuses
+            Status status = Status.SENT;
+
             if (message.getConnectorMessages().size() - 1 < numDestinations) {
-                return new Response(Status.ERROR, null);
+                status = Status.ERROR;
             }
 
-            Response response = new Response();
             Integer highestPrecedence = null;
 
             for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
@@ -70,18 +82,18 @@ public class ResponseSelector {
                     Integer precedence = statusPrecedenceMap.get(connectorMessage.getStatus());
 
                     if (precedence != null && (highestPrecedence == null || precedence > highestPrecedence)) {
-                        response.setNewMessageStatus(connectorMessage.getStatus());
+                        status = connectorMessage.getStatus();
                         highestPrecedence = precedence;
                     }
                 }
             }
 
-            return response;
+            return dataType.getAutoResponder().getResponse(status, sourceMessage.getRaw().getContent(), message.getMergedConnectorMessage());
         } else if (respondFromName != null) {
-            // if the message did finish processing, get the appropriate response
-            return message.getConnectorMessages().get(0).getResponseMap().get(respondFromName);
-        } else {
-            return null;
+            // Get the appropriate response from the response map (includes the post-processor variable)
+            return message.getMergedConnectorMessage().getResponseMap().get(respondFromName);
         }
+
+        return null;
     }
 }

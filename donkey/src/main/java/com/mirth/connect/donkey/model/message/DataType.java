@@ -13,10 +13,12 @@ public class DataType {
 
     private String type;
     private XmlSerializer serializer;
+    private AutoResponder autoResponder;
 
-    public DataType(String type, XmlSerializer serializer) {
+    public DataType(String type, XmlSerializer serializer, AutoResponder autoResponder) {
         this.type = type;
         this.serializer = serializer;
+        this.autoResponder = autoResponder;
     }
 
     public String getType() {
@@ -27,4 +29,7 @@ public class DataType {
         return serializer;
     }
 
+    public AutoResponder getAutoResponder() {
+        return autoResponder;
+    }
 }

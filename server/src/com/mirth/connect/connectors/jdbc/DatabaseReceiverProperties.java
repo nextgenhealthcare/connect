@@ -27,7 +27,7 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
     private String password;
     private String query;
     private boolean useScript;
-    private boolean cacheResults;  // TODO: Not yet implemented on the server side
+    private boolean cacheResults; // TODO: Not yet implemented on the server side
     private boolean useAck;
     private String ack;
 
@@ -35,7 +35,7 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
 
     public DatabaseReceiverProperties() {
         pollConnectorProperties = new PollConnectorProperties();
-        responseConnectorProperties = new ResponseConnectorProperties("None", new String[] { "None" });
+        responseConnectorProperties = new ResponseConnectorProperties(false);
 
         this.driver = DRIVER_DEFAULT;
         this.url = "";

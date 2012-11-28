@@ -51,8 +51,7 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
 
     public FileReceiverProperties() {
         pollConnectorProperties = new PollConnectorProperties();
-        responseConnectorProperties = new ResponseConnectorProperties("None", new String[] { "None" });
-
+        responseConnectorProperties = new ResponseConnectorProperties(false);
 
         scheme = FileScheme.FILE;
         host = "";
@@ -275,8 +274,8 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
         return pollConnectorProperties;
     }
 
-	@Override
-	public ResponseConnectorProperties getResponseConnectorProperties() {
-		return responseConnectorProperties;
-	}
+    @Override
+    public ResponseConnectorProperties getResponseConnectorProperties() {
+        return responseConnectorProperties;
+    }
 }

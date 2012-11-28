@@ -53,8 +53,8 @@ public class DICOMReceiverProperties extends ConnectorProperties implements List
 
     public DICOMReceiverProperties() {
         listenerConnectorProperties = new ListenerConnectorProperties("104");
-        responseConnectorProperties = new ResponseConnectorProperties("None", new String[] { "None" });
-        
+        responseConnectorProperties = new ResponseConnectorProperties(false);
+
         soCloseDelay = "50";
         releaseTo = "5";
         requestTo = "5";
@@ -73,7 +73,7 @@ public class DICOMReceiverProperties extends ConnectorProperties implements List
         sorcvbuf = "0";
         sosndbuf = "0";
         tcpDelay = true;
-        
+
         keyPW = "";
         keyStore = "";
         keyStorePW = "";
@@ -82,7 +82,7 @@ public class DICOMReceiverProperties extends ConnectorProperties implements List
         tls = "notls";
         trustStore = "";
         trustStorePW = "";
-        
+
         applicationEntity = "";
         localHost = "";
         localPort = "";
@@ -104,7 +104,7 @@ public class DICOMReceiverProperties extends ConnectorProperties implements List
         // TODO Auto-generated method stub
         return null;
     }
-    
+
     @Override
     public ListenerConnectorProperties getListenerConnectorProperties() {
         return listenerConnectorProperties;
