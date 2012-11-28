@@ -41,6 +41,7 @@ import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.server.Constants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
+import com.mirth.connect.util.StringUtil;
 
 public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -51,6 +52,7 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
     private boolean stripNamespaces = true; // Used in JST for strict parser
     private boolean handleRepetitions = false;
     private boolean handleSubcomponents = false;
+    private String[] segmentDelimiters = new String[] { "\r\n", "\r", "\n" };
     private boolean convertLFtoCR = true;
 
     public ER7Serializer() {
@@ -81,6 +83,13 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
 
             if (properties.get("convertLFtoCR") != null) {
                 this.convertLFtoCR = Boolean.parseBoolean((String) properties.get("convertLFtoCR"));
+            }
+
+            if (properties.get("segmentDelimiter") != null) {
+                segmentDelimiters = ((String) properties.get("segmentDelimiter")).split("(?<!\\\\)\\|");
+                for (int i = 0; i <= segmentDelimiters.length - 1; i++) {
+                    segmentDelimiters[i] = StringUtil.unescape(segmentDelimiters[i]);
+                }
             }
         }
 
