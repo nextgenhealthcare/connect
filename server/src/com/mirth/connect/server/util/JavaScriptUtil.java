@@ -52,7 +52,7 @@ public class JavaScriptUtil {
     public static String executeAttachmentScript(final String message, final String channelId, final List<Attachment> attachments) throws InterruptedException, JavaScriptExecutorException {
         String processedMessage = message;
         Object result = null;
-        
+
         try {
             result = jsExecutor.execute(new JavaScriptTask<Object>() {
                 @Override
@@ -66,7 +66,7 @@ public class JavaScriptUtil {
             logScriptError(ScriptController.ATTACHMENT_SCRIPT_KEY, channelId, e.getCause());
             throw e;
         }
-        
+
         if (result != null) {
             String resultString = (String) Context.jsToJava(result, java.lang.String.class);
 
@@ -74,7 +74,7 @@ public class JavaScriptUtil {
                 processedMessage = resultString;
             }
         }
-        
+
         return processedMessage;
     }
 
@@ -111,15 +111,16 @@ public class JavaScriptUtil {
      * Executes the global and channel preprocessor scripts in order, building
      * up the necessary scope for the global preprocessor and adding the result
      * back to it for the channel preprocessor.
-     * @throws InterruptedException 
-     * @throws JavaScriptExecutorException 
+     * 
+     * @throws InterruptedException
+     * @throws JavaScriptExecutorException
      * 
      */
     public static String executePreprocessorScripts(final ConnectorMessage message, final String channelId) throws InterruptedException, JavaScriptExecutorException {
         if (channelId == null) {
             System.err.println("channelId is null");
         }
-        
+
         // TODO compare performance of this code compared to having a separate PreProcessorTask class that is only instantiated once
         return (String) jsExecutor.execute(new JavaScriptTask<Object>() {
             @Override
@@ -130,7 +131,7 @@ public class JavaScriptUtil {
             }
         });
     }
-    
+
     private static Response executePostprocessorScript(ContextFactory contextFactory, Message message, String channelId, boolean isGlobal, Response initialResponse) throws Exception {
         Response response = null;
 
@@ -174,15 +175,20 @@ public class JavaScriptUtil {
             response = new Response(Status.SENT, result.toString());
         }
 
-        return response;
+        // If the current response is null and a previous response exists, use that
+        if (response == null && initialResponse != null) {
+            return initialResponse;
+        } else {
+            return response;
+        }
     }
 
     /**
      * Executes the channel postprocessor, followed by the global postprocessor.
      * 
      * @param messageObject
-     * @throws InterruptedException 
-     * @throws JavaScriptExecutorException 
+     * @throws InterruptedException
+     * @throws JavaScriptExecutorException
      */
     public static Response executePostprocessorScripts(final Message message) throws JavaScriptExecutorException, InterruptedException {
         // TODO compare performance of this code compared to having a separate PostProcessorTask class that is only instantiated once
@@ -201,8 +207,8 @@ public class JavaScriptUtil {
      * @param scriptId
      * @param scriptType
      * @param channelId
-     * @throws InterruptedException 
-     * @throws JavaScriptExecutorException 
+     * @throws InterruptedException
+     * @throws JavaScriptExecutorException
      */
     public static void executeChannelDeployScript(final String scriptId, final String scriptType, final String channelId) throws InterruptedException, JavaScriptExecutorException {
         try {
@@ -227,8 +233,8 @@ public class JavaScriptUtil {
      * @param scriptId
      * @param scriptType
      * @param channelId
-     * @throws InterruptedException 
-     * @throws JavaScriptExecutorException 
+     * @throws InterruptedException
+     * @throws JavaScriptExecutorException
      */
     public static void executeChannelShutdownScript(final String scriptId, final String scriptType, final String channelId) throws InterruptedException, JavaScriptExecutorException {
         try {
@@ -251,8 +257,8 @@ public class JavaScriptUtil {
      * Executes global level deploy scripts.
      * 
      * @param scriptId
-     * @throws InterruptedException 
-     * @throws JavaScriptExecutorException 
+     * @throws InterruptedException
+     * @throws JavaScriptExecutorException
      */
     public static void executeGlobalDeployScript(final String scriptId) throws InterruptedException, JavaScriptExecutorException {
         try {
@@ -270,13 +276,13 @@ public class JavaScriptUtil {
             throw e;
         }
     }
-    
+
     /**
      * Executes global level shutdown scripts.
      * 
      * @param scriptId
-     * @throws InterruptedException 
-     * @throws JavaScriptExecutorException 
+     * @throws InterruptedException
+     * @throws JavaScriptExecutorException
      */
     public static void executeGlobalShutdownScript(final String scriptId) throws InterruptedException, JavaScriptExecutorException {
         try {
