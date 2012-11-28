@@ -20,6 +20,7 @@ public class HL7Properties implements Serializable {
     public HL7Properties() {
         propertySupport = new PropertyChangeSupport(this);
     }
+
     /**
      * Holds value of property useStrictParser.
      */
@@ -27,6 +28,7 @@ public class HL7Properties implements Serializable {
 
     /**
      * Getter for property validateMessage.
+     * 
      * @return Value of property validateMessage.
      */
     public boolean isUseStrictParser() {
@@ -35,11 +37,14 @@ public class HL7Properties implements Serializable {
 
     /**
      * Setter for property validateMessage.
-     * @param validateMessage New value of property validateMessage.
+     * 
+     * @param validateMessage
+     *            New value of property validateMessage.
      */
     public void setUseStrictParser(boolean useStrictParser) {
         this.useStrictParser = useStrictParser;
     }
+
     /**
      * Holds value of property useStrictValidation.
      */
@@ -47,6 +52,7 @@ public class HL7Properties implements Serializable {
 
     /**
      * Getter for property useStrictValidation.
+     * 
      * @return Value of property useStrictValidation.
      */
     public boolean isUseStrictValidation() {
@@ -55,11 +61,14 @@ public class HL7Properties implements Serializable {
 
     /**
      * Setter for property useStrictValidation.
-     * @param useStrictValidation New value of property useStrictValidation.
+     * 
+     * @param useStrictValidation
+     *            New value of property useStrictValidation.
      */
     public void setUseStrictValidation(boolean useStrictValidation) {
         this.useStrictValidation = useStrictValidation;
     }
+
     /**
      * Holds value of property stripNamespaces.
      */
@@ -67,6 +76,7 @@ public class HL7Properties implements Serializable {
 
     /**
      * Getter for property stripNamespaces.
+     * 
      * @return Value of property stripNamespaces.
      */
     public boolean isStripNamespaces() {
@@ -75,11 +85,14 @@ public class HL7Properties implements Serializable {
 
     /**
      * Setter for property stripNamespaces.
-     * @param stripNamespaces New value of property stripNamespaces.
+     * 
+     * @param stripNamespaces
+     *            New value of property stripNamespaces.
      */
     public void setStripNamespaces(boolean stripNamespaces) {
         this.stripNamespaces = stripNamespaces;
     }
+
     /**
      * Holds value of property handleRepetitions.
      */
@@ -87,6 +100,7 @@ public class HL7Properties implements Serializable {
 
     /**
      * Getter for property handleRepetitions.
+     * 
      * @return Value of property handleRepetitions.
      */
     public boolean isHandleRepetitions() {
@@ -95,11 +109,24 @@ public class HL7Properties implements Serializable {
 
     /**
      * Setter for property handleRepetitions.
-     * @param handleRepetitions New value of property handleRepetitions.
+     * 
+     * @param handleRepetitions
+     *            New value of property handleRepetitions.
      */
     public void setHandleRepetitions(boolean handleRepetitions) {
         this.handleRepetitions = handleRepetitions;
     }
+
+    private String segmentDelimiter = "\\r\\n|\\r|\\n";
+
+    public String getSegmentDelimiter() {
+        return segmentDelimiter;
+    }
+
+    public void setSegmentDelimiter(String segmentDelimiter) {
+        this.segmentDelimiter = segmentDelimiter;
+    }
+
     /**
      * Holds value of property convertLFtoCR.
      */
@@ -107,6 +134,7 @@ public class HL7Properties implements Serializable {
 
     /**
      * Getter for property convertLFtoCR.
+     * 
      * @return Value of property convertLFtoCR.
      */
     public boolean isConvertLFtoCR() {
@@ -115,11 +143,14 @@ public class HL7Properties implements Serializable {
 
     /**
      * Setter for property convertLFtoCR.
-     * @param convertLFtoCR New value of property convertLFtoCR.
+     * 
+     * @param convertLFtoCR
+     *            New value of property convertLFtoCR.
      */
     public void setConvertLFtoCR(boolean convertLFtoCR) {
         this.convertLFtoCR = convertLFtoCR;
     }
+
     /**
      * Holds value of property handleSubcomponents.
      */
@@ -127,6 +158,7 @@ public class HL7Properties implements Serializable {
 
     /**
      * Getter for property handleSubcomponents.
+     * 
      * @return Value of property handleSubcomponents.
      */
     public boolean isHandleSubcomponents() {
@@ -135,10 +167,11 @@ public class HL7Properties implements Serializable {
 
     /**
      * Setter for property handleSubcomponents.
-     * @param handleSubcomponents New value of property handleSubcomponents.
+     * 
+     * @param handleSubcomponents
+     *            New value of property handleSubcomponents.
      */
     public void setHandleSubcomponents(boolean handleSubcomponents) {
         this.handleSubcomponents = handleSubcomponents;
     }
-
 }

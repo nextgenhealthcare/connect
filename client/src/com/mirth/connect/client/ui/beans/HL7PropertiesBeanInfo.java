@@ -26,19 +26,39 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo {
         // Here you can add code for customizing the BeanDescriptor.
 
         return beanDescriptor;     }//GEN-LAST:BeanDescriptor
+    
+    // The BeanInfo editor resets the property display order to alphabetical based on variable name
+    // each time changes are made.  Here is a copy of the desired display order to put it back to 
+    // the desired, default display order (not alphabetic).
+    /*
+    private static final int PROPERTY_handleRepetitions = 0;
+    private static final int PROPERTY_handleSubcomponents = 1;
+    private static final int PROPERTY_useStrictParser = 2;
+    private static final int PROPERTY_useStrictValidation = 3;
+    private static final int PROPERTY_stripNamespaces = 4;
+    private static final int PROPERTY_segmentDelimiter = 5;
+    private static final int PROPERTY_convertLFtoCR = 6;
+    */
+    
     // Property identifiers//GEN-FIRST:Properties
     private static final int PROPERTY_handleRepetitions = 0;
     private static final int PROPERTY_handleSubcomponents = 1;
     private static final int PROPERTY_useStrictParser = 2;
     private static final int PROPERTY_useStrictValidation = 3;
     private static final int PROPERTY_stripNamespaces = 4;
-    private static final int PROPERTY_convertLFtoCR = 5;
+    private static final int PROPERTY_segmentDelimiter = 5;
+    private static final int PROPERTY_convertLFtoCR = 6;
+
     // Property array 
     /*lazy PropertyDescriptor*/
     private static PropertyDescriptor[] getPdescriptor(){
-        PropertyDescriptor[] properties = new PropertyDescriptor[6];
+        PropertyDescriptor[] properties = new PropertyDescriptor[7];
     
         try {
+            properties[PROPERTY_convertLFtoCR] = new PropertyDescriptor ( "convertLFtoCR", com.mirth.connect.client.ui.beans.HL7Properties.class, "isConvertLFtoCR", "setConvertLFtoCR" ); // NOI18N
+            properties[PROPERTY_convertLFtoCR].setDisplayName ( "Convert LF to CR" );
+            properties[PROPERTY_convertLFtoCR].setShortDescription ( "Convert linefeeds (\\n) to carriage returns (\\r) automatically (applies to Non-Strict Parser only)." );
+            properties[PROPERTY_convertLFtoCR].setBound ( true );
             properties[PROPERTY_handleRepetitions] = new PropertyDescriptor ( "handleRepetitions", com.mirth.connect.client.ui.beans.HL7Properties.class, "isHandleRepetitions", "setHandleRepetitions" ); // NOI18N
             properties[PROPERTY_handleRepetitions].setDisplayName ( "Parse Field Repetitions" );
             properties[PROPERTY_handleRepetitions].setShortDescription ( "Parse field repetitions (applies to Non-Strict Parser only)." );
@@ -47,22 +67,22 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo {
             properties[PROPERTY_handleSubcomponents].setDisplayName ( "Parse Subcomponents" );
             properties[PROPERTY_handleSubcomponents].setShortDescription ( "Parse subcomponents (applies to Non-Strict Parser only)." );
             properties[PROPERTY_handleSubcomponents].setBound ( true );
+            properties[PROPERTY_segmentDelimiter] = new PropertyDescriptor ( "segmentDelimiter", com.mirth.connect.client.ui.beans.HL7Properties.class, "getSegmentDelimiter", "setSegmentDelimiter" ); // NOI18N
+            properties[PROPERTY_segmentDelimiter].setDisplayName ( "Segment Delimiter" );
+            properties[PROPERTY_segmentDelimiter].setShortDescription ( "The delimiter character(s) expected to occur after each segment." );
+            properties[PROPERTY_segmentDelimiter].setBound ( true );
+            properties[PROPERTY_stripNamespaces] = new PropertyDescriptor ( "stripNamespaces", com.mirth.connect.client.ui.beans.HL7Properties.class, "isStripNamespaces", "setStripNamespaces" ); // NOI18N
+            properties[PROPERTY_stripNamespaces].setDisplayName ( "Strip Namespaces" );
+            properties[PROPERTY_stripNamespaces].setShortDescription ( "Strips namespace definitions from the transformed XML message (applies to Strict Parser only" );
+            properties[PROPERTY_stripNamespaces].setBound ( true );
             properties[PROPERTY_useStrictParser] = new PropertyDescriptor ( "useStrictParser", com.mirth.connect.client.ui.beans.HL7Properties.class, "isUseStrictParser", "setUseStrictParser" ); // NOI18N
             properties[PROPERTY_useStrictParser].setDisplayName ( "Use Strict Parser" );
             properties[PROPERTY_useStrictParser].setShortDescription ( "Parse messages based upon strict HL7 specifications." );
             properties[PROPERTY_useStrictParser].setBound ( true );
             properties[PROPERTY_useStrictValidation] = new PropertyDescriptor ( "useStrictValidation", com.mirth.connect.client.ui.beans.HL7Properties.class, "isUseStrictValidation", "setUseStrictValidation" ); // NOI18N
             properties[PROPERTY_useStrictValidation].setDisplayName ( "Validate in Strict Parser" );
-            properties[PROPERTY_useStrictValidation].setShortDescription ( "Validate messages using HL7 specifications (applies to Strict Parser only)." );
+            properties[PROPERTY_useStrictValidation].setShortDescription ( "Validate messages using HL7 specifications(applies to Strict Parser only)." );
             properties[PROPERTY_useStrictValidation].setBound ( true );
-            properties[PROPERTY_stripNamespaces] = new PropertyDescriptor ( "stripNamespaces", com.mirth.connect.client.ui.beans.HL7Properties.class, "isStripNamespaces", "setStripNamespaces" ); // NOI18N
-            properties[PROPERTY_stripNamespaces].setDisplayName ( "Strip Namespaces" );
-            properties[PROPERTY_stripNamespaces].setShortDescription ( "Strips namespace definitions from the transformed XML message (applies to Strict Parser only).  Will not remove namespace prefixes.  If you do not strip namespaces your default xml namespace will be set to the incoming data namespace.  If your outbound template namespace is different, you will have to set \"default xml namespace = 'namespace';\" via JavaScript before template mappings." );
-            properties[PROPERTY_stripNamespaces].setBound ( true );
-            properties[PROPERTY_convertLFtoCR] = new PropertyDescriptor ( "convertLFtoCR", com.mirth.connect.client.ui.beans.HL7Properties.class, "isConvertLFtoCR", "setConvertLFtoCR" ); // NOI18N
-            properties[PROPERTY_convertLFtoCR].setDisplayName ( "Convert LF to CR" );
-            properties[PROPERTY_convertLFtoCR].setShortDescription ( "Convert linefeeds (\\n) to carriage returns (\\r) automatically (applies to Non-Strict Parser only)." );
-            properties[PROPERTY_convertLFtoCR].setBound ( true );
         }
         catch(IntrospectionException e) {
             e.printStackTrace();
