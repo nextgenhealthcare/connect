@@ -12,12 +12,13 @@ package com.mirth.connect.model.converters;
 import java.util.Map;
 
 import com.mirth.connect.donkey.model.message.AutoResponder;
+import com.mirth.connect.model.converters.hl7v2.HL7v2AutoResponder;
 
 public class AutoResponderFactory {
 
     public static AutoResponder getAutoResponder(String dataType, Map<?, ?> properties) {
-//        if (dataType.equals(DataTypeFactory.HL7V2)) {
-//            return new HL7v2AutoResponder(properties);
+        if (dataType.equals(DataTypeFactory.HL7V2)) {
+            return new HL7v2AutoResponder(properties);
 //        } else if (dataType.equals(DataTypeFactory.HL7V3)) {
 //            return new HL7V3AutoResponder(properties);
 //        } else if (dataType.equals(DataTypeFactory.X12)) {
@@ -30,9 +31,8 @@ public class AutoResponderFactory {
 //            return new DICOMAutoResponder(properties);
 //        } else if (dataType.equals(DataTypeFactory.DELIMITED)) {
 //            return new DelimitedAutoResponder(properties);
-//        } else {
-//            return new DefaultAutoResponder();
-//        }
-        return new DefaultAutoResponder();
+        } else {
+            return new DefaultAutoResponder();
+        }
     }
 }

@@ -174,4 +174,74 @@ public class HL7Properties implements Serializable {
     public void setHandleSubcomponents(boolean handleSubcomponents) {
         this.handleSubcomponents = handleSubcomponents;
     }
+
+    private String successfulACKCode = "AA";
+
+    public String getSuccessfulACKCode() {
+        return this.successfulACKCode;
+    }
+
+    public void setSuccessfulACKCode(String successfulACKCode) {
+        this.successfulACKCode = successfulACKCode;
+    }
+
+    private String successfulACKMessage = "";
+
+    public String getSuccessfulACKMessage() {
+        return successfulACKMessage;
+    }
+
+    public void setSuccessfulACKMessage(String successfulACKMessage) {
+        this.successfulACKMessage = successfulACKMessage;
+    }
+
+    private String errorACKCode = "AE";
+
+    public String getErrorACKCode() {
+        return errorACKCode;
+    }
+
+    public void setErrorACKCode(String errorACKCode) {
+        this.errorACKCode = errorACKCode;
+    }
+
+    private String errorACKMessage = "An Error Occured Processing Message.";
+
+    public String getErrorACKMessage() {
+        return errorACKMessage;
+    }
+
+    public void setErrorACKMessage(String errorACKMessage) {
+        this.errorACKMessage = errorACKMessage;
+    }
+
+    private String rejectedACKCode = "AR";
+
+    public String getRejectedACKCode() {
+        return rejectedACKCode;
+    }
+
+    public void setRejectedACKCode(String rejectedACKCode) {
+        this.rejectedACKCode = rejectedACKCode;
+    }
+
+    private String rejectedACKMessage = "Message Rejected.";
+
+    public String getRejectedACKMessage() {
+        return rejectedACKMessage;
+    }
+
+    public void setRejectedACKMessage(String rejectedACKMessage) {
+        this.rejectedACKMessage = rejectedACKMessage;
+    }
+
+    private boolean msh15ACKAccept = false;
+
+    public boolean isMsh15ACKAccept() {
+        return msh15ACKAccept;
+    }
+
+    public void setMsh15ACKAccept(boolean msh15ackAccept) {
+        msh15ACKAccept = msh15ackAccept;
+    }
 }
