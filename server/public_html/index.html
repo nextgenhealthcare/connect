@@ -6,7 +6,7 @@
 	<meta http-equiv="cache-control" content="no-cache">
 	<meta http-equiv="cache-control" content="no-store">
 	
-	<title>Sign in</title>
+	<title>Mirth Connect Administrator</title>
 	
 	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
@@ -63,9 +63,9 @@
 		$(document).ready(function() {			
 			$.ajax({
 			    type: 'HEAD',
-			    url: 'webadmin',
+			    url: 'webadmin/Index.action',
 				success: function() {
-					window.location.replace("webadmin");
+					window.location.replace("webadmin/Index.action");
 				},
 				error: function() {
 					$("#body").css("display", "inline");

@@ -13,13 +13,9 @@
     </s:layout-component>
 
     <s:layout-component name="body">
-        <div style="margin: 0 280px">
-            <div id="errorAlert" class="alert alert-error hide fade in" data-alert="alert" style="top: 0">
-                <a class="close" data-dismiss="alert" href="#">&times;</a>
-                <p>
-                    <strong>Error connecting to Server</strong>. Refresh the page or <a href="../../">Login</a>
-                </p>
-            </div>
+        <div id="errorAlert" class="alert alert-error hide fade in" data-alert="alert" style= "width:380px; margin-left:auto; margin-right:auto;">
+            <a class="close" data-dismiss="alert" href="#">&times;</a>
+            <p><strong>Error connecting to Server</strong>. Refresh the page or <a href="../../">Login</a></p>
         </div>
 
         <ul id="myTab" class="nav nav-tabs">
@@ -46,7 +42,7 @@
                         <td>${dashboardStatus.state}</td>
                         <td>${dashboardStatus.statistics[RECEIVED]}</td>
                         <td>${dashboardStatus.statistics[FILTERED]}</td>
-                        <td>${dashboardStatus.statistics[QUEUED]}</td>
+                        <td>${dashboardStatus.queued}</td>
                         <td>${dashboardStatus.statistics[SENT]}</td>
                         <td class="errors" <c:if test="${dashboardStatus.statistics[ERROR] != 0}"> style="background-color:LightPink;" </c:if>> ${dashboardStatus.statistics[ERROR]}</td>
                     </tr>
@@ -60,7 +56,7 @@
                             <td>${childStatus.state}</td>
                             <td>${childStatus.statistics[RECEIVED]}</td>
                             <td>${childStatus.statistics[FILTERED]}</td>
-                            <td>${childStatus.statistics[QUEUED]}</td>
+                            <td>${childStatus.queued}</td>
                             <td>${childStatus.statistics[SENT]}</td>
                             <td class="errors" <c:if test="${childStatus.statistics[ERROR] != 0}"> style="background-color:LightPink;" </c:if>> ${childStatus.statistics[ERROR]}</td>
                         </tr>
@@ -68,7 +64,6 @@
                 </c:forEach>
             </tbody>
         </table>
-
     </s:layout-component>
 
     <s:layout-component name="scripts">

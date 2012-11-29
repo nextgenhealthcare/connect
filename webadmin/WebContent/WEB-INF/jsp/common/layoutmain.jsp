@@ -10,6 +10,7 @@
     <!DOCTYPE html>
     <html>
         <head>
+            <title>Mirth Connect Web Administrator</title>
             <link rel="shortcut icon" type="image/x-icon" href="${contextPath}/images/favicon.ico" />
             <link rel="stylesheet" type="text/css" href="${contextPath}/css/bootstrap.css" />
             <s:layout-component name="head" />
@@ -29,7 +30,7 @@
         
                             <ul class="dropdown-menu">
                                 <c:if test="${not mobile}">
-                                    <li><a href="/webstart.jnlp"> <i class="icon-upload"></i> Launch Administrator</a></li>
+                                    <li><a href="#" onClick="launchAdministrator()"> <i class="icon-upload"></i> Launch Administrator</a></li>
                                     <li class="divider"></li>
                                 </c:if>
         
@@ -68,6 +69,12 @@
                     }
                 });
             </script>
+            
+            <script type="text/javascript">
+	       		function launchAdministrator(){
+	        		window.location.href= 'http://' + window.location.hostname + ':${actionBean.httpPort}/webstart.jnlp?time=' + new Date().getTime(); 
+	       		}
+       		</script>
         
             <s:layout-component name="scripts" />
         </body>

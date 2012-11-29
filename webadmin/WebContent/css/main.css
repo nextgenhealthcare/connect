@@ -508,9 +508,56 @@ tr.notAccepted {
 }
 
 .subpage #webdashboardsignin{	
-	border-left: 1px solid #A5A5A5;
+ 	border-left: 1px solid #A5A5A5;
 	margin-left: 61px;
 	padding-left: 38px;
+}
+
+#centerWrapper{
+	text-align: left;
+}
+
+#mirthLogoWrapper{
+	padding: 10px; 
+	text-align: center;
+}
+
+#securesiteaccess{
+	height: 200px;
+	width: 310px;
+}
+
+#webLoginWrapper{
+	margin: 0 40px; 
+	height: 200px;
+}
+
+#webLoginForm{
+	margin-bottom: 0px;
+}
+
+#loginErrorAlert{
+	margin-left: 40px; 
+	margin-right: 40px; 
+}
+
+#webLoginButton{
+	text-align: center; 
+}
+
+#accesssecuresitebutton{
+	text-align: center;
+}
+
+#overviewwebstart{
+	height: 200px;
+	width: 325px;
+}
+
+#smallSubPage{
+	width: 100%;
+	text-align: center;
+	padding-top: 8px;
 }
 
 .vetsubpage #centerWrapper-top {
