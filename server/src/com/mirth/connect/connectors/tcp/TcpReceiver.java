@@ -178,6 +178,8 @@ public class TcpReceiver extends SourceConnector {
                         // Wait until the TcpReader is done
                         cleanup(true, false, false);
 
+                        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INFO, "Client socket finished, waiting " + connectorProperties.getReconnectInterval() + " ms...");
+
                         // Use the reconnect interval to determine how long to wait until creating another socket
                         try {
                             Thread.sleep(parseInt(connectorProperties.getReconnectInterval()));
@@ -224,36 +226,36 @@ public class TcpReceiver extends SourceConnector {
 
     @Override
     public void handleRecoveredResponse(DispatchResult dispatchResult) {
-    	boolean attemptedResponse = false;
-    	String response = null;
-    	String errorMessage = null;
-    	try {
-    		if (dispatchResult.getSelectedResponse() != null) {
-            	response = dispatchResult.getSelectedResponse().getMessage();
-    		
-	    		// Only if we're responding on a new connection can we handle recovered responses
-		        if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION_ON_RECOVERY) {
-		        	BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(null);
-		            StreamHandler streamHandler = new FrameStreamHandler(null, null, batchStreamReader, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
-		            StateAwareSocket responseSocket = null;
-		            
-	                try {
-	                	responseSocket = createResponseSocket();
-	                	
-	                	attemptedResponse = true;
-	                    sendResponse(response, responseSocket, streamHandler);
-	                } catch (IOException e) {
-	                    // TODO
-	                } finally {
+        boolean attemptedResponse = false;
+        String response = null;
+        String errorMessage = null;
+        try {
+            if (dispatchResult.getSelectedResponse() != null) {
+                response = dispatchResult.getSelectedResponse().getMessage();
+
+                // Only if we're responding on a new connection can we handle recovered responses
+                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION_ON_RECOVERY) {
+                    BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(null);
+                    StreamHandler streamHandler = new FrameStreamHandler(null, null, batchStreamReader, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
+                    StateAwareSocket responseSocket = null;
+
+                    try {
+                        responseSocket = createResponseSocket();
+
+                        attemptedResponse = true;
+                        sendResponse(response, responseSocket, streamHandler);
+                    } catch (IOException e) {
+                        // TODO
+                    } finally {
                         closeSocketQuietly(responseSocket);
-	                }
-		        } else {
-		            errorMessage = "Cannot respond on original connection during message recovery. In order to send a response, enable \"Respond on New Connection\" in Tcp Listener settings.";
-		        }
-    		}
-    	} finally {
-    		finishDispatch(dispatchResult, attemptedResponse, response, errorMessage);
-    	}
+                    }
+                } else {
+                    errorMessage = "Cannot respond on original connection during message recovery. In order to send a response, enable \"Respond on New Connection\" in Tcp Listener settings.";
+                }
+            }
+        } finally {
+            finishDispatch(dispatchResult, attemptedResponse, response, errorMessage);
+        }
     }
 
     protected class TcpReader implements Callable<Throwable> {
@@ -304,7 +306,7 @@ public class TcpReceiver extends SourceConnector {
 
                         if (bytes != null) {
                             logger.debug("Bytes returned from socket, length: " + bytes.length + " (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")");
-                            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, socket);
+                            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, socket, "Message received, processing... ");
 
                             if (connectorProperties.isDataTypeBinary()) {
                                 // Store the raw bytes in the RawMessage object
@@ -320,16 +322,16 @@ public class TcpReceiver extends SourceConnector {
                                     boolean attemptedResponse = false;
                                     String response = null;
                                     String errorMessage = null;
-                                    
+
                                     // Send the message to the source connector
                                     try {
                                         // If more than one message will be sent to the channel, we'll only be sending back the first response
                                         dispatchResult = dispatchRawMessage(rawMessage);
-                                        
+
                                         // Check to see if we have a response to send
                                         if (dispatchResult.getSelectedResponse() != null) {
-                                        	response = dispatchResult.getSelectedResponse().getMessage();
-                                        	
+                                            response = dispatchResult.getSelectedResponse().getMessage();
+
                                             // If the response socket hasn't been initialized, do that now
                                             if (responseSocket == null) {
                                                 if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
@@ -342,13 +344,13 @@ public class TcpReceiver extends SourceConnector {
 
                                             // Send the response; in the case of batch messages, only the first response will be sent
                                             attemptedResponse = true;
-                                            
+
                                             try {
                                                 sendResponse(response, responseSocket, streamHandler);
                                             } catch (IOException e) {
                                                 errorMessage = e.getMessage();
                                             } finally {
-                                            	if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
+                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
                                                     closeSocketQuietly(responseSocket);
                                                 }
                                             }
@@ -390,14 +392,18 @@ public class TcpReceiver extends SourceConnector {
                         // If an exception occurred then abort, even if keep connection open is true
                         done = true;
 
-                        if (!(e instanceof SocketTimeoutException)) {
+                        if (e instanceof SocketTimeoutException) {
+                            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, "Timeout waiting for message. ");
+                        } else {
                             // Set the return value and send an alert
                             t = new Exception("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                             logger.warn("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                             alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Error receiving message.", e);
+                            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, "Error receiving message: " + e.getMessage() + " ");
                         }
                     } else {
                         logger.debug("Timeout reading from socket input stream (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
+                        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INFO, socket, "Timeout waiting for message. ");
                     }
                 }
 
@@ -471,6 +477,7 @@ public class TcpReceiver extends SourceConnector {
         if (responseSocket != null && streamHandler != null) {
             try {
                 // Send the response
+                monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INFO, responseSocket, "Sending response... ");
                 BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), parseInt(connectorProperties.getBufferSize()));
                 streamHandler.setOutputStream(bos);
                 streamHandler.write(getBytes(response));
@@ -478,6 +485,7 @@ public class TcpReceiver extends SourceConnector {
             } catch (IOException e) {
                 // If an error occurred while sending the response then still allow the worker to continue processing messages
                 logger.warn("Error sending response (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, "Error sending response: " + e.getMessage() + " ");
                 throw e;
             }
         }

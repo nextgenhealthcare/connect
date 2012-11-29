@@ -112,6 +112,7 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
         String stateImage = COLOR_BLACK;
         String stateText = STATE_UNKNOWN;
         boolean updateStatus = true;
+        boolean updateLog = true;
 
         switch (event) {
             case INITIALIZED:
@@ -227,11 +228,16 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
                 }
                 break;
             default:
+                // Only update the connection log for valid events
+                updateLog = false;
+            case INFO:
+            case FAILURE:
+                // Don't update the channel connection status for INFO/FAILURE events
                 updateStatus = false;
                 break;
         }
 
-        if (updateStatus) {
+        if (updateLog) {
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
 
@@ -296,7 +302,9 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
                 }
             }
 
-            connectorStateMap.put(connectorId, new String[] { stateImage, stateText });
+            if (updateStatus) {
+                connectorStateMap.put(connectorId, new String[] { stateImage, stateText });
+            }
         }
     }
 

@@ -22,7 +22,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.SerializationUtils;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -136,7 +135,10 @@ public class TcpDispatcher extends DestinationConnector {
             // Initialize a new socket if our current one is invalid, the remote side has closed, or keep connection open is false
             if (socket == null || socket.isClosed() || socket.remoteSideHasClosed() || !tcpSenderProperties.isKeepConnectionOpen()) {
                 closeSocketQuietly();
+
                 logger.debug("Creating new socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
+                monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.ATTEMPTING, "Trying to connect on " + tcpSenderProperties.getHost() + ":" + tcpSenderProperties.getPort() + "...");
+
                 socket = SocketUtil.createSocket(tcpSenderProperties.getHost(), tcpSenderProperties.getPort());
                 socket.setReuseAddress(true);
                 socket.setReceiveBufferSize(parseInt(tcpSenderProperties.getBufferSize()));
@@ -147,7 +149,7 @@ public class TcpDispatcher extends DestinationConnector {
             }
 
             // Send the message
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, socket);
+            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, socket, "Sending data... ");
             BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream(), parseInt(tcpSenderProperties.getBufferSize()));
             BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
             StreamHandler streamHandler = new FrameStreamHandler(socket.getInputStream(), bos, batchStreamReader, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
@@ -157,6 +159,7 @@ public class TcpDispatcher extends DestinationConnector {
             if (!tcpSenderProperties.isIgnoreResponse()) {
                 // Attempt to get the response from the remote endpoint
                 try {
+                    monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, socket, "Waiting for response (Timeout: " + tcpSenderProperties.getResponseTimeout() + " ms)... ");
                     byte[] responseBytes = streamHandler.read();
                     if (responseBytes != null) {
                         responseData = new String(responseBytes, CharsetUtils.getEncoding(tcpSenderProperties.getCharsetEncoding()));
@@ -196,12 +199,11 @@ public class TcpDispatcher extends DestinationConnector {
                     responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_411, "Timeout waiting for response: " + e.getMessage(), e);
                     logger.warn("Timeout waiting for response (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
                     alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Timeout waiting for response.", e);
+                    monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, "Timeout waiting for response. ");
 
                     closeSocketQuietly();
                 }
             }
-
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE, socket);
 
             if (tcpSenderProperties.isKeepConnectionOpen()) {
                 // Close the connection after the send timeout has been reached
@@ -211,6 +213,9 @@ public class TcpDispatcher extends DestinationConnector {
                 closeSocketQuietly();
             }
         } catch (Exception e) {
+            String monitorMessage = "Error sending message: " + e.getMessage() + (e.getMessage().endsWith(".") ? "" : ". ");
+            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, monitorMessage);
+
             // If an exception occurred then close the socket, even if keep connection open is true
             closeSocketQuietly();
             responseData = e.getClass().getSimpleName() + ": " + e.getMessage();
@@ -224,6 +229,8 @@ public class TcpDispatcher extends DestinationConnector {
 
             alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Error sending message via TCP.", e);
         }
+
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE, socket);
 
         return new Response(responseStatus, responseData, responseError);
     }

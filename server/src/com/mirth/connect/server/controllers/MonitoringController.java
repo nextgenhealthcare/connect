@@ -13,7 +13,7 @@ import java.net.Socket;
 
 public abstract class MonitoringController extends Controller {
     public enum Event {
-        CONNECTED, DISCONNECTED, INITIALIZED, BUSY, DONE, ATTEMPTING
+        CONNECTED, DISCONNECTED, INITIALIZED, BUSY, DONE, ATTEMPTING, INFO, FAILURE
     };
 
     public enum ConnectorType {

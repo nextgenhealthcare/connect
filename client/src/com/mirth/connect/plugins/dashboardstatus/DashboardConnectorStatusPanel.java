@@ -286,6 +286,10 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
                         tableData[i][4] = new CellData(blackBullet, "Done");
                     } else if (channelLogs.get(i)[4].equalsIgnoreCase("DISCONNECTED")) {
                         tableData[i][4] = new CellData(redBullet, "Disconnected");
+                    } else if (channelLogs.get(i)[4].equalsIgnoreCase("INFO")) {
+                        tableData[i][4] = new CellData(yellowBullet, "Info");
+                    } else if (channelLogs.get(i)[4].equalsIgnoreCase("FAILURE")) {
+                        tableData[i][4] = new CellData(redBullet, "Failure");
                     }
 
                     tableData[i][5] = channelLogs.get(i)[5];       // Infomation
