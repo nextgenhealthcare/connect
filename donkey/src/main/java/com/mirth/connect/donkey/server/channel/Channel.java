@@ -1049,7 +1049,8 @@ public class Channel implements Startable, Stoppable, Runnable {
             // re-enable all destination connectors in each chain
             if (metaDataIds != null) {
                 for (DestinationChain chain : destinationChains) {
-                    chain.setEnabledMetaDataIds(chain.getMetaDataIds());
+                    chain.getEnabledMetaDataIds().clear();
+                    chain.getEnabledMetaDataIds().addAll(chain.getMetaDataIds());
                 }
             }
 
