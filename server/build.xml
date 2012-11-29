@@ -15,8 +15,7 @@
 		</path>
 
 		<!-- connectors -->
-		<!--<property name="connectors.jms" value="${extensions}/jms" />
-		<property name="connectors.mllp" value="${extensions}/mllp" />-->
+		<!--<property name="connectors.jms" value="${extensions}/jms" />-->
 		<property name="connectors.jdbc" value="${extensions}/jdbc" />
 		<property name="connectors.dicom" value="${extensions}/dicom" />
 		<property name="connectors.http" value="${extensions}/http" />
@@ -63,7 +62,6 @@
 		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="classpath" />
 			<exclude name="com/mirth/connect/connectors/jms/**" />
-			<exclude name="com/mirth/connect/connectors/mllp/**" />
 		</javac>
 
 		<!-- create version.properties file -->
@@ -260,28 +258,6 @@
 				<exclude name="com/mirth/connect/connectors/js/JavaScriptDispatcherProperties.class" />
 			</fileset>
 		</jar>
-
-		<!-- connectors.mllp -->
-		<!--<mkdir dir="${connectors.mllp}" />
-		<copy todir="${connectors.mllp}">
-			<fileset dir="${src}/com/mirth/connect/connectors/mllp">
-				<include name="*.xml" />
-			</fileset>
-		</copy>
-		<copy todir="${connectors.mllp}/lib" failonerror="false">
-			<fileset dir="${lib.extensions}/mllp" />
-		</copy>
-		<jar destfile="${connectors.mllp}/mllp-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/mllp/LLPListenerProperties.class" />
-			<include name="com/mirth/connect/connectors/mllp/LLPSenderProperties.class" />
-		</jar>
-		<jar destfile="${connectors.mllp}/mllp-server.jar">
-			<fileset dir="${classes}">
-				<include name="com/mirth/connect/connectors/mllp/**" />
-				<exclude name="com/mirth/connect/connectors/mllp/LLPListenerProperties.class" />
-				<exclude name="com/mirth/connect/connectors/mllp/LLPSenderProperties.class" />
-			</fileset>
-		</jar>-->
 
 		<!-- connectors.ws -->
 		<mkdir dir="${connectors.ws}" />
@@ -693,8 +669,7 @@
 		<delete dir="${dist.extensions}" />
 		<mkdir dir="${dist.extensions}" />
 
-		<!--<zip destfile="${dist.extensions}/jms-${version}.zip" basedir="${extensions}" includes="jms/**/*" />
-		<zip destfile="${dist.extensions}/mllp-${version}.zip" basedir="${extensions}" includes="mllp/**/*" />-->
+		<!--<zip destfile="${dist.extensions}/jms-${version}.zip" basedir="${extensions}" includes="jms/**/*" />-->
 		<zip destfile="${dist.extensions}/jdbc-${version}.zip" basedir="${extensions}" includes="jdbc/**/*" />
 		<zip destfile="${dist.extensions}/dicom-${version}.zip" basedir="${extensions}" includes="dicom/**/*" />
 		<zip destfile="${dist.extensions}/http-${version}.zip" basedir="${extensions}" includes="http/**/*" />
