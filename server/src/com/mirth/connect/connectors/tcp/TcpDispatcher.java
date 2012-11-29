@@ -22,6 +22,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -192,7 +193,10 @@ public class TcpDispatcher extends DestinationConnector {
                 } catch (IOException e) {
                     // An exception occurred while retrieving the response
                     responseData = e.getClass().getSimpleName() + ": " + e.getMessage();
-                    responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_411, e.getMessage(), e);
+                    responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_411, "Timeout waiting for response: " + e.getMessage(), e);
+                    logger.warn("Timeout waiting for response (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+                    alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Timeout waiting for response.", e);
+
                     closeSocketQuietly();
                 }
             }
