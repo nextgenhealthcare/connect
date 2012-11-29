@@ -12,13 +12,19 @@ package com.mirth.connect.connectors.tcp;
 import static com.mirth.connect.util.TcpUtil.parseInt;
 
 import java.io.BufferedOutputStream;
+import java.io.CharArrayReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPathFactory;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import com.mirth.connect.connectors.tcp.stream.BatchStreamReader;
 import com.mirth.connect.connectors.tcp.stream.DefaultBatchStreamReader;
@@ -156,11 +162,26 @@ public class TcpDispatcher extends DestinationConnector {
 
                         // TODO: Handle this differently; maybe add a default validator to the data type itself
                         if (tcpSenderProperties.isProcessHL7ACK()) {
-                            if (responseData.matches("[\\s\\S]*MSA.[AC][RE][\\s\\S]*")) {
-                                responseStatus = Status.ERROR;
-                                responseError = "NACK sent from receiver.";
-                            } else if (responseData.matches("[\\s\\S]*MSA.[AC]A[\\s\\S]*")) {
-                                responseStatus = Status.SENT;
+                            if (responseData.trim().startsWith("<")) {
+                                // XML response received
+                                Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new CharArrayReader(responseData.toCharArray())));
+                                String ackCode = XPathFactory.newInstance().newXPath().compile("//MSA.1/text()").evaluate(doc).trim();
+                                if (ackCode.matches("[AC][RE]")) {
+                                    responseStatus = Status.ERROR;
+                                } else if (ackCode.matches("[AC]A")) {
+                                    responseStatus = Status.SENT;
+                                }
+                            } else {
+                                // ER7 response received
+                                if (responseData.matches("[\\s\\S]*MSA.[AC][RE][\\s\\S]*")) {
+                                    responseStatus = Status.ERROR;
+                                } else if (responseData.matches("[\\s\\S]*MSA.[AC]A[\\s\\S]*")) {
+                                    responseStatus = Status.SENT;
+                                }
+                            }
+
+                            if (responseStatus == Status.ERROR) {
+                                responseError = "NACK sent from receiver: " + responseData;
                             }
                         }
                     } else {
