@@ -72,7 +72,7 @@ import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.converters.DataTypeFactory;
-import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
+import com.mirth.connect.model.converters.SerializerFactory;
 import com.mirth.connect.model.handlers.AttachmentHandlerFactory;
 import com.mirth.connect.model.handlers.AttachmentHandlerType;
 import com.mirth.connect.model.util.JavaScriptConstants;
@@ -290,8 +290,8 @@ public class ChannelSetup extends javax.swing.JPanel {
                 // Set the default inbound and outbound dataType and properties
                 String dataType = currentChannel.getSourceConnector().getTransformer().getOutboundDataType();
                 // Use a different properties object for the inbound and outbound
-                Properties defaultInboundProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(dataType));
-                Properties defaultOutboundProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(dataType));
+                Properties defaultInboundProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(dataType));
+                Properties defaultOutboundProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(dataType));
 
                 connector.getTransformer().setInboundDataType(dataType);
                 connector.getTransformer().setInboundProperties(defaultInboundProperties);
@@ -533,8 +533,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         // Set the default inbound and outbound dataType and properties
         String defaultDataType = DataTypeFactory.HL7V2;
         // Use a different properties object for the inbound and outbound
-        Properties defaultInboundProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(defaultDataType));
-        Properties defaultOutboundProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(defaultDataType));
+        Properties defaultInboundProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(defaultDataType));
+        Properties defaultOutboundProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(defaultDataType));
 
         sourceTransformer.setInboundDataType(defaultDataType);
         sourceTransformer.setInboundProperties(defaultInboundProperties);
@@ -1038,7 +1038,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
 
         if (sourceTransformer.getInboundProperties() == null) {
-            Properties defaultProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(sourceTransformer.getInboundDataType()));
+            Properties defaultProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(sourceTransformer.getInboundDataType()));
             sourceTransformer.setInboundProperties(defaultProperties);
         }
 
@@ -1047,7 +1047,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
 
         if (sourceTransformer.getOutboundProperties() == null) {
-            Properties defaultProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(sourceTransformer.getOutboundDataType()));
+            Properties defaultProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(sourceTransformer.getOutboundDataType()));
             sourceTransformer.setOutboundProperties(defaultProperties);
         }
 
@@ -1067,7 +1067,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
 
             if (destinationTransformer.getOutboundProperties() == null) {
-                Properties defaultProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(destinationTransformer.getOutboundDataType()));
+                Properties defaultProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(destinationTransformer.getOutboundDataType()));
                 destinationTransformer.setOutboundProperties(defaultProperties);
             }
         }
@@ -2750,7 +2750,7 @@ public class ChannelSetup extends javax.swing.JPanel {
      */
     public void checkAndSetXmlDataType() {
         if (requiresXmlDataType() && !currentChannel.getSourceConnector().getTransformer().getInboundDataType().equals(DataTypeFactory.XML)) {
-            Properties defaultProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(DataTypeFactory.XML));
+            Properties defaultProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(DataTypeFactory.XML));
 
             currentChannel.getSourceConnector().getTransformer().setInboundDataType(DataTypeFactory.XML);
             currentChannel.getSourceConnector().getTransformer().setInboundProperties(defaultProperties);

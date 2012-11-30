@@ -23,10 +23,9 @@ public class ER7Reader extends SAXParser {
     private Logger logger = Logger.getLogger(this.getClass());
     private boolean handleRepetitions = false;
     private boolean handleSubcomponents = false;
-    private boolean convertLFtoCR = false;
+    private String segmentDelimiter;
 
     private static final char[] EMPTY_CHAR_ARRAY = "".toCharArray();
-    private static final String DEFAULT_SEGMENT_TERMINATOR = "\r";
     private static final String DEFAULT_FIELD_SEPARATOR = "|";
     private static final String DEFAULT_COMPONENT_SEPARATOR = "^";
     private static final String DEFAULT_REPETITION_SEPARATOR = "~";
@@ -34,29 +33,20 @@ public class ER7Reader extends SAXParser {
     private static final String DEFAULT_SUBCOMPONENT_TERMINATOR = "&";
     public static final String MESSAGE_ROOT_ID = "HL7Message";
 
-    public ER7Reader(boolean handleRepetitions, boolean handleSubcomponents, boolean convertLFtoCR) {
+    public ER7Reader(boolean handleRepetitions, boolean handleSubcomponents, String segmentDelimiter) {
         this.handleRepetitions = handleRepetitions;
         this.handleSubcomponents = handleSubcomponents;
-        this.convertLFtoCR = convertLFtoCR;
+        this.segmentDelimiter = segmentDelimiter;
     }
 
     private String getMessageFromSource(InputSource source) throws IOException {
         BufferedReader reader = new BufferedReader(source.getCharacterStream());
         StringBuilder builder = new StringBuilder();
-        String line = "";
 
-        if (convertLFtoCR) {
-            while ((line = reader.readLine()) != null) {
-                builder.append(line);
-                // TODO: This should be configurable
-                builder.append("\r");
-            }
-        } else {
-            int c;
+        int c;
 
-            while ((c = reader.read()) != -1) {
-                builder.append((char) c);
-            }
+        while ((c = reader.read()) != -1) {
+            builder.append((char) c);
         }
 
         return builder.toString().trim();
@@ -73,7 +63,6 @@ public class ER7Reader extends SAXParser {
         }
 
         // usually |
-        String segmentTerminator = DEFAULT_SEGMENT_TERMINATOR;
         String fieldSeparator = DEFAULT_FIELD_SEPARATOR;
         String componentSeparator = DEFAULT_COMPONENT_SEPARATOR;
         String repetitionSeparator = DEFAULT_REPETITION_SEPARATOR;
@@ -116,17 +105,15 @@ public class ER7Reader extends SAXParser {
         }
 
         // tokenize the segments first
-        StringTokenizer segmentTokenizer = new StringTokenizer(message, segmentTerminator);
-        String documentHead = handleSegments("", contentHandler, fieldSeparator, componentSeparator, subcomponentSeparator, repetitionSeparator, escapeCharacter, segmentTokenizer);
+        String[] segments = message.split(segmentDelimiter);
+        String documentHead = handleSegments("", contentHandler, fieldSeparator, componentSeparator, subcomponentSeparator, repetitionSeparator, escapeCharacter, segments);
         contentHandler.endElement("", documentHead, "");
         contentHandler.endDocument();
     }
 
-    private String handleSegments(String documentHead, ContentHandler contentHandler, String fieldSeparator, String componentSeparator, String subcomponentSeparator, String repetitionSeparator, String escapeCharacter, StringTokenizer segmentTokenizer) throws SAXException {
-        int segmentCount = 0;
-
-        while (segmentTokenizer.hasMoreTokens()) {
-            String segment = segmentTokenizer.nextToken();
+    private String handleSegments(String documentHead, ContentHandler contentHandler, String fieldSeparator, String componentSeparator, String subcomponentSeparator, String repetitionSeparator, String escapeCharacter, String[] segments) throws SAXException {
+        for (int segmentIndex = 0; segmentIndex < segments.length; segmentIndex++) {
+            String segment = segments[segmentIndex];
             logger.trace("handling segment: " + segment);
             // loop through each segment and pull out the fields
             StringTokenizer fieldTokenizer = new StringTokenizer(segment, fieldSeparator, true);
@@ -135,7 +122,7 @@ public class ER7Reader extends SAXParser {
                 // the XML element is named after the first field
                 String segmentId = fieldTokenizer.nextToken().trim();
 
-                if (segmentCount == 0) {
+                if (segmentIndex == 0) {
                     documentHead = MESSAGE_ROOT_ID;
                     contentHandler.startElement("", documentHead, "", null);
                 }
@@ -146,8 +133,6 @@ public class ER7Reader extends SAXParser {
             } else {
                 throw new SAXException("Could not find fields in segment: " + segment);
             }
-
-            segmentCount++;
         }
 
         return documentHead;

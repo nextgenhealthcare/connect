@@ -234,6 +234,16 @@ public class DelimitedProperties {
 		}
 	}
 	
+    public boolean isTransformerRequired() {
+        boolean transformerRequired = false;
+        //TODO determine which properties are required for transformer
+        if (!columnDelimiter.equals(",") || !recordDelimiter.equals("\n") || columnWidths != null || !quoteChar.equals("\"") || !escapeWithDoubleQuote || !quoteEscapeChar.equals("\\") || columnNames != null || numberedRows || batchSkipRecords != 0 || !batchSplitByRecord || !batchMessageDelimiter.equals("") || batchMessageDelimiterIncluded || !batchGroupingColumn.equals("") || !batchScript.equals("") || !ignoreCR) {
+            transformerRequired = true;
+        }
+
+        return transformerRequired;
+	}
+	
 	public String getColumnDelimiter() {
 		return columnDelimiter;
 	}

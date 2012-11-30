@@ -117,38 +117,54 @@ public class HL7Properties implements Serializable {
         this.handleRepetitions = handleRepetitions;
     }
 
-    private String segmentDelimiter = "\\r\\n|\\r|\\n";
-
-    public String getSegmentDelimiter() {
-        return segmentDelimiter;
-    }
-
-    public void setSegmentDelimiter(String segmentDelimiter) {
-        this.segmentDelimiter = segmentDelimiter;
-    }
-
     /**
-     * Holds value of property convertLFtoCR.
+     * Holds value of property inputSegmentDelimiter.
      */
-    private boolean convertLFtoCR = true;
+    private String inputSegmentDelimiter = "\\r\\n|\\r|\\n";
 
+    
     /**
-     * Getter for property convertLFtoCR.
+     * Getter for property inputSegmentDelimiter.
      * 
-     * @return Value of property convertLFtoCR.
+     * @return Value of property inputSegmentDelimiter.
      */
-    public boolean isConvertLFtoCR() {
-        return this.convertLFtoCR;
+    public String getInputSegmentDelimiter() {
+        return inputSegmentDelimiter;
     }
 
     /**
-     * Setter for property convertLFtoCR.
+     * Setter for property inputSegmentDelimiter.
      * 
-     * @param convertLFtoCR
-     *            New value of property convertLFtoCR.
+     * @param inputSegmentDelimiter
+     *            New value of property inputSegmentDelimiter.
      */
-    public void setConvertLFtoCR(boolean convertLFtoCR) {
-        this.convertLFtoCR = convertLFtoCR;
+    public void setInputSegmentDelimiter(String inputSegmentDelimiter) {
+        this.inputSegmentDelimiter = inputSegmentDelimiter;
+    }
+    
+    /**
+     * Holds value of property outputSegmentDelimiter.
+     */
+    private String outputSegmentDelimiter = "\\r";
+
+    
+    /**
+     * Getter for property outputSegmentDelimiter.
+     * 
+     * @return Value of property outputSegmentDelimiter.
+     */
+    public String getOutputSegmentDelimiter() {
+        return outputSegmentDelimiter;
+    }
+
+    /**
+     * Setter for property outputSegmentDelimiter.
+     * 
+     * @param outputSegmentDelimiter
+     *            New value of property outputSegmentDelimiter.
+     */
+    public void setOutputSegmentDelimiter(String outputSegmentDelimiter) {
+        this.outputSegmentDelimiter = outputSegmentDelimiter;
     }
 
     /**

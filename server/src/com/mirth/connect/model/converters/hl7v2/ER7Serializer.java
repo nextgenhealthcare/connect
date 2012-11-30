@@ -35,6 +35,7 @@ import ca.uhn.hl7v2.validation.impl.NoValidation;
 import com.mirth.connect.connectors.BatchMessageProcessor;
 import com.mirth.connect.connectors.BatchMessageProcessorException;
 import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.BatchAdaptor;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
@@ -52,9 +53,9 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
     private boolean stripNamespaces = true; // Used in JST for strict parser
     private boolean handleRepetitions = false;
     private boolean handleSubcomponents = false;
-    private String[] segmentDelimiters = new String[] { "\r\n", "\r", "\n" };
-    private boolean convertLFtoCR = true;
-
+    private String inputSegmentDelimiter = "\r\n|\r|\n";
+    private String outputSegmentDelimiter = "\r";
+    
     public ER7Serializer() {
         initializeParser();
     }
@@ -81,15 +82,12 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
                 this.handleSubcomponents = Boolean.parseBoolean((String) properties.get("handleSubcomponents"));
             }
 
-            if (properties.get("convertLFtoCR") != null) {
-                this.convertLFtoCR = Boolean.parseBoolean((String) properties.get("convertLFtoCR"));
+            if (properties.get("inputSegmentDelimiter") != null) {
+            	this.inputSegmentDelimiter = StringUtil.unescape((String) properties.get("inputSegmentDelimiter"));
             }
-
-            if (properties.get("segmentDelimiter") != null) {
-                segmentDelimiters = ((String) properties.get("segmentDelimiter")).split("(?<!\\\\)\\|");
-                for (int i = 0; i <= segmentDelimiters.length - 1; i++) {
-                    segmentDelimiters[i] = StringUtil.unescape(segmentDelimiters[i]);
-                }
+            
+            if (properties.get("outputSegmentDelimiter") != null) {
+                this.outputSegmentDelimiter = StringUtil.unescape((String) properties.get("outputSegmentDelimiter"));
             }
         }
 
@@ -104,8 +102,9 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
         properties.put("useStrictValidation", "false");
         properties.put("stripNamespaces", "true");
         properties.put("handleRepetitions", "false");
-        properties.put("convertLFtoCR", "true");
         properties.put("handleSubcomponents", "false");
+        properties.put("inputSegmentDelimiter", "\\r\\n|\\r|\\n");
+        properties.put("outputSegmentDelimiter", "\\r");
         return properties;
     }
 
@@ -121,6 +120,36 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
 
         xmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
     }
+    
+    public String getInputSegmentDelimiter() {
+        return inputSegmentDelimiter;
+    }
+    
+    public String getOutputSegmentDelimiter() {
+        return outputSegmentDelimiter;
+    }
+    
+    @Override
+    public boolean isTransformerRequired() {
+    	boolean transformerRequired = false;
+    	//TODO determine which properties are required for transformer
+    	if (useStrictParser || useStrictValidation || !stripNamespaces || handleRepetitions || handleSubcomponents || !inputSegmentDelimiter.equals("\r\n|\r|\n") || !outputSegmentDelimiter.equals("\r")) {
+    		transformerRequired = true;
+    	}
+    	
+    	return transformerRequired;
+    }
+    
+    @Override
+    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+        ER7Serializer serializer = (ER7Serializer) outboundSerializer;
+        
+        if (!inputSegmentDelimiter.equals(serializer.getOutputSegmentDelimiter())) {
+            return message.replaceAll(inputSegmentDelimiter, serializer.getOutputSegmentDelimiter());
+        }
+        
+        return message;
+    }
 
     /**
      * Returns an XML-encoded HL7 message given an ER7-enconded HL7 message.
@@ -133,9 +162,14 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
     public String toXML(String source) throws SerializerException {
         try {
             if (useStrictParser) {
+                //TODO need to update how data type properties work after the beta. This may or may not be wrong.
+                // Right now, if strict parser is used on the source, it will need to be used for the destinations as well.
+                if (!inputSegmentDelimiter.equals(outputSegmentDelimiter)) {
+                    source = source.replaceAll(inputSegmentDelimiter, outputSegmentDelimiter);
+                }
                 return xmlParser.encode(pipeParser.parse(source.trim()));
             } else {
-                ER7Reader er7Reader = new ER7Reader(handleRepetitions, handleSubcomponents, convertLFtoCR);
+                ER7Reader er7Reader = new ER7Reader(handleRepetitions, handleSubcomponents, inputSegmentDelimiter);
                 StringWriter stringWriter = new StringWriter();
                 XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
                 serializer.setEncodeEntities(true);
@@ -167,7 +201,6 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
                  * elements from the XML
                  */
 
-                String segmentSeparator = "\r";
                 String fieldSeparator = getNodeValue(source, "<MSH.1>", "</MSH.1>");
 
                 if (StringUtils.isEmpty(fieldSeparator)) {
@@ -196,7 +229,7 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
                     subcomponentSeparator = separators.substring(3, 4);
                 }
 
-                XMLEncodedHL7Handler handler = new XMLEncodedHL7Handler(segmentSeparator, fieldSeparator, componentSeparator, repetitionSeparator, escapeCharacter, subcomponentSeparator, true);
+                XMLEncodedHL7Handler handler = new XMLEncodedHL7Handler(outputSegmentDelimiter, fieldSeparator, componentSeparator, repetitionSeparator, escapeCharacter, subcomponentSeparator, true);
                 XMLReader reader = XMLReaderFactory.createXMLReader();
                 reader.setContentHandler(handler);
                 reader.setErrorHandler(handler);
@@ -213,111 +246,7 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
         }
     }
 
-    public Map<String, String> getMetadataFromXML(String source) throws SerializerException {
-        Map<String, String> metadata = new HashMap<String, String>();
-
-        if (useStrictParser) {
-            try {
-                Message message = xmlParser.parse(source);
-                Terser terser = new Terser(message);
-                String sendingFacility = terser.get("/MSH-4-1");
-                String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
-                metadata.put("version", message.getVersion());
-                metadata.put("type", event);
-                metadata.put("source", sendingFacility);
-            } catch (Exception e) {
-                new SerializerException(e);
-            }
-
-            return metadata;
-        } else {
-            String event = getNodeValue(source, "<MSH.9.1>", "</MSH.9.1>");
-            String subType = getNodeValue(source, "<MSH.9.2>", "</MSH.9.2>");
-
-            if (!subType.equals("")) {
-                event += "-" + subType;
-            }
-
-            if (event.equals("")) {
-                event = "Unknown";
-            }
-
-            metadata.put("version", getNodeValue(source, "<MSH.12.1>", "</MSH.12.1>"));
-            metadata.put("type", event);
-            metadata.put("source", getNodeValue(source, "<MSH.4.1>", "</MSH.4.1>"));
-            return metadata;
-        }
-    }
-
-    public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
-        Map<String, String> metadata = new HashMap<String, String>();
-
-        if (useStrictParser) {
-            try {
-                // XXX: This had a replaceAll("\n", "\r") before 1.7
-                Message message = pipeParser.parse(source.trim());
-                Terser terser = new Terser(message);
-                metadata.put("version", message.getVersion());
-                metadata.put("type", terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2"));
-                metadata.put("source", terser.get("/MSH-4-1"));
-            } catch (Exception e) {
-                new SerializerException(e);
-            }
-
-            return metadata;
-        } else {
-            // XXX: This had a replaceAll("\n", "\r") before 1.7
-            source = source.trim();
-
-            if ((source == null) || (source.length() < 3)) {
-                logger.error("Unable to parse, message is null or too short: " + source);
-                throw new SerializerException("Unable to parse, message is null or too short: " + source);
-            } else if (source.substring(0, 3).equalsIgnoreCase("MSH")) {
-                String segmentDelimeter = "\r";
-                String fieldDelimeter = String.valueOf(source.charAt(3));
-                String elementDelimeter = String.valueOf(source.charAt(4));
-                String mshFields[] = source.split(segmentDelimeter)[0].split(Pattern.quote(fieldDelimeter));
-                Pattern elementPattern = Pattern.compile(Pattern.quote(elementDelimeter));
-
-                if (mshFields.length > 8) {
-                    // MSH.9
-                    String[] msh9 = elementPattern.split(mshFields[8]);
-                    // MSH.9.1
-                    String type = msh9[0];
-
-                    if (msh9.length > 1) {
-                        // MSH.9.2
-                        type += "-" + msh9[1];
-                    }
-
-                    metadata.put("type", type);
-                } else {
-                    metadata.put("type", "Unknown");
-                }
-
-                if (mshFields.length > 3) {
-                    // MSH.4.1
-                    metadata.put("source", elementPattern.split(mshFields[3])[0]);
-                } else {
-                    metadata.put("source", "");
-                }
-
-                if (mshFields.length > 11) {
-                    // MSH.12.1
-                    metadata.put("version", elementPattern.split(mshFields[11])[0]);
-                } else {
-                    metadata.put("version", "");
-                }
-            } else {
-                metadata.put("type", "Unknown");
-                metadata.put("source", "Unknown");
-                metadata.put("version", "Unknown");
-            }
-
-            return metadata;
-        }
-    }
-
+    @Override
     public Map<String, String> getMetadataFromDocument(Document document) {
         Map<String, String> metadata = new HashMap<String, String>();
 
@@ -401,7 +330,7 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
         byte endOfRecord = (byte) 0x0D;
 
         Scanner scanner = new Scanner(src);
-        scanner.useDelimiter(Pattern.compile("\r\n|\r|\n"));
+        scanner.useDelimiter(Pattern.compile(inputSegmentDelimiter));
         StringBuilder message = new StringBuilder();
         char data[] = { (char) startOfMessage, (char) endOfMessage };
         boolean errored = false;

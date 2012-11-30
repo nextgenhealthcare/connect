@@ -23,7 +23,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.mirth.connect.donkey.model.message.SerializerException;
-import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.server.Constants;
@@ -65,9 +65,25 @@ public class EDISerializer implements IXMLSerializer {
 
 	}
 
-	public EDISerializer() {
+    public EDISerializer() {
 
-	}
+    }
+
+    @Override
+    public boolean isTransformerRequired() {
+        boolean transformerRequired = false;
+        //TODO determine which properties are required for transformer
+        if (!segmentDelim.equals("~") || !elementDelim.equals("*") || !subelementDelim.equals(":")) {
+            transformerRequired = true;
+        }
+
+        return transformerRequired;
+    }
+	
+    @Override
+    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+        return message;
+    }
 
 	@Override
 	public String fromXML(String source) throws SerializerException {
@@ -131,12 +147,7 @@ public class EDISerializer implements IXMLSerializer {
 		this.subelementDelim = subelementDelim;
 	}
 
-	private Map<String, String> getMetadata(String sourceMessage) throws SerializerException {
-		DocumentSerializer docSerializer = new DocumentSerializer();
-		Document document = docSerializer.fromXML(sourceMessage);
-		return getMetadataFromDocument(document);
-	}
-
+	@Override
 	public Map<String, String> getMetadataFromDocument(Document document) {
 		Map<String, String> map = new HashMap<String, String>();
 		String sendingFacility = "";
@@ -171,16 +182,6 @@ public class EDISerializer implements IXMLSerializer {
 		map.put("type", event);
 		map.put("source", sendingFacility);
 		return map;
-	}
-
-	public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
-		String ediXML = fromXML(source);
-		return getMetadata(ediXML);
-	}
-
-	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
-		return getMetadata(xmlSource);
-		// TODO: Make this actually use a helper string parser
 	}
 
 }

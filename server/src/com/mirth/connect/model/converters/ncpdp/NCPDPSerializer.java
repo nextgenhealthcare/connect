@@ -22,7 +22,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.mirth.connect.donkey.model.message.SerializerException;
-import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.ncpdp.NCPDPReference;
@@ -30,9 +30,9 @@ import com.mirth.connect.server.Constants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 
 public class NCPDPSerializer implements IXMLSerializer {
-    private String segmentDelimeter = "\u001E";
-    private String groupDelimeter = "\u001D";
-    private String fieldDelimeter = "\u001C";
+    private String segmentDelimiter = "\u001E";
+    private String groupDelimiter = "\u001D";
+    private String fieldDelimiter = "\u001C";
     private boolean useStrictValidation = false;
 
     public NCPDPSerializer(Map<?, ?> properties) {
@@ -41,9 +41,9 @@ public class NCPDPSerializer implements IXMLSerializer {
                 String segDel = convertNonPrintableCharacters((String) properties.get("segmentDelimiter"));
 
                 if (segDel.equals("0x1E")) {
-                    this.segmentDelimeter = "\u001E";
+                    this.segmentDelimiter = "\u001E";
                 } else {
-                    this.segmentDelimeter = segDel;
+                    this.segmentDelimiter = segDel;
                 }
             }
 
@@ -51,9 +51,9 @@ public class NCPDPSerializer implements IXMLSerializer {
                 String grpDel = convertNonPrintableCharacters((String) properties.get("groupDelimiter"));
 
                 if (grpDel.equals("0x1D")) {
-                    this.groupDelimeter = "\u001D";
+                    this.groupDelimiter = "\u001D";
                 } else {
-                    this.groupDelimeter = grpDel;
+                    this.groupDelimiter = grpDel;
                 }
             }
 
@@ -61,9 +61,9 @@ public class NCPDPSerializer implements IXMLSerializer {
                 String fieldDel = convertNonPrintableCharacters((String) properties.get("fieldDelimiter"));
 
                 if (fieldDel.equals("0x1C")) {
-                    this.fieldDelimeter = "\u001C";
+                    this.fieldDelimiter = "\u001C";
                 } else {
-                    this.fieldDelimeter = fieldDel;
+                    this.fieldDelimiter = fieldDel;
                 }
             }
 
@@ -80,6 +80,22 @@ public class NCPDPSerializer implements IXMLSerializer {
         properties.put("fieldDelimiter", "0x1C");
         properties.put("useStrictValidation", "false");
         return properties;
+    }
+    
+    @Override
+    public boolean isTransformerRequired() {
+        boolean transformerRequired = false;
+        //TODO determine which properties are required for transformer
+        if (!segmentDelimiter.equals("\u001E") || !groupDelimiter.equals("\u001D") || !fieldDelimiter.equals("\u001C") || useStrictValidation) {
+            transformerRequired = true;
+        }
+
+        return transformerRequired;
+    }
+    
+    @Override
+    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+        return message;
     }
 
     @Override
@@ -101,7 +117,7 @@ public class NCPDPSerializer implements IXMLSerializer {
 
         try {
             XMLReader reader = XMLReaderFactory.createXMLReader();
-            NCPDPXMLHandler handler = new NCPDPXMLHandler(segmentDelimeter, groupDelimeter, fieldDelimeter, version);
+            NCPDPXMLHandler handler = new NCPDPXMLHandler(segmentDelimiter, groupDelimiter, fieldDelimiter, version);
             reader.setContentHandler(handler);
 
             if (useStrictValidation) {
@@ -127,7 +143,7 @@ public class NCPDPSerializer implements IXMLSerializer {
     @Override
     public String toXML(String source) throws SerializerException {
         try {
-            NCPDPReader ncpdpReader = new NCPDPReader(segmentDelimeter, groupDelimeter, fieldDelimeter);
+            NCPDPReader ncpdpReader = new NCPDPReader(segmentDelimiter, groupDelimiter, fieldDelimiter);
             StringWriter stringWriter = new StringWriter();
             XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
             ncpdpReader.setContentHandler(serializer);
@@ -176,21 +192,6 @@ public class NCPDPSerializer implements IXMLSerializer {
         metadata.put("type", transactionCode);
         metadata.put("source", serviceProviderId);
         return metadata;
-    }
-
-    @Override
-    public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
-        return getMetadata(fromXML(source));
-    }
-
-    @Override
-    public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
-        return getMetadata(xmlSource);
-    }
-
-    private Map<String, String> getMetadata(String sourceMessage) throws SerializerException {
-        Document document = new DocumentSerializer().fromXML(sourceMessage);
-        return getMetadataFromDocument(document);
     }
 
     private String convertNonPrintableCharacters(String delimiter) {

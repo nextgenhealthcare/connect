@@ -12,6 +12,7 @@ package com.mirth.connect.model.converters.x12;
 import java.util.Map;
 
 import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.edi.EDISerializer;
 
 public class X12Serializer extends EDISerializer {
@@ -38,6 +39,22 @@ public class X12Serializer extends EDISerializer {
 		super();
 		this.inferX12Delimiters = inferX12Delimiters;
 	}
+	
+	@Override
+    public boolean isTransformerRequired() {
+        boolean transformerRequired = false;
+        //TODO determine which properties are required for transformer
+        if (super.isTransformerRequired() || !inferX12Delimiters) {
+            transformerRequired = true;
+        }
+
+        return transformerRequired;
+    }
+    
+    @Override
+    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+        return message;
+    }
 
 	@Override
 	public String toXML(String source) throws SerializerException {

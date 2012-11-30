@@ -68,7 +68,6 @@ import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.converters.DataTypeFactory;
-import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
 import com.mirth.connect.model.converters.MirthMetaDataReplacer;
 import com.mirth.connect.model.converters.SerializerFactory;
 import com.mirth.connect.model.handlers.AttachmentHandlerFactory;
@@ -625,44 +624,28 @@ public class DonkeyEngineController implements EngineController {
         String templateId = null;
         Transformer transformer = connector.getTransformer();
         Filter filter = connector.getFilter();
+        
+        DataType inboundDataType = DataTypeFactory.getDataType(transformer.getInboundDataType(), transformer.getInboundProperties());
+        DataType outboundDataType = DataTypeFactory.getDataType(transformer.getOutboundDataType(), transformer.getOutboundProperties());
 
         // Check the conditions for skipping transformation
         // 1. Script is not empty
         // 2. Data Types are different
-        // 3. Properties are different than the protocol defaults
+        // 3. The data type has properties settings that require a transformation
         // 4. The outbound template is not empty        
 
         if (!filter.getRules().isEmpty() || !transformer.getSteps().isEmpty() || !transformer.getInboundDataType().equals(transformer.getOutboundDataType())) {
             runFilterTransformer = true;
         }
 
-        if (!runFilterTransformer && transformer.getInboundProperties() != null) {
-            // Check to see if the properties are equal to the default
-            // properties
-            Map<String, String> defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(transformer.getInboundDataType());
-
-            // Only compare properties that exist in inbound and default
-            // Anything not existing in inbound will use the default
-            for (Map.Entry<Object, Object> e : transformer.getInboundProperties().entrySet()) {
-                String defaultValue = defaultProperties.get(e.getKey());
-                if ((defaultValue != null) && !((String) e.getValue()).equalsIgnoreCase(defaultValue)) {
-                    runFilterTransformer = true;
-                }
-            }
+        // Ask the inbound serializer if it needs to be transformed with serialization
+        if (!runFilterTransformer) {
+        	runFilterTransformer = inboundDataType.getSerializer().isTransformerRequired();
         }
-        if (!runFilterTransformer && transformer.getOutboundProperties() != null) {
-            // Check to see if the properties are equal to the default
-            // properties
-            Map<String, String> defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(transformer.getOutboundDataType());
-
-            // Only compare properties that exist in outbound and default
-            // Anything not existing in outbound will use the default
-            for (Map.Entry<Object, Object> e : transformer.getOutboundProperties().entrySet()) {
-                String defaultValue = defaultProperties.get(e.getKey());
-                if ((defaultValue != null) && !((String) e.getValue()).equalsIgnoreCase(defaultValue)) {
-                    runFilterTransformer = true;
-                }
-            }
+        
+        // Ask the outbound serializier if it needs to be transformed with serialization
+        if (!runFilterTransformer) {
+        	runFilterTransformer = outboundDataType.getSerializer().isTransformerRequired();
         }
 
         // put the outbound template in the templates table
@@ -686,9 +669,6 @@ public class DonkeyEngineController implements EngineController {
         String scriptId = UUIDGenerator.getUUID();
         String script = JavaScriptBuilder.generateFilterTransformerScript(filter, transformer);
         scriptController.putScript(channelId, scriptId, script);
-
-        DataType inboundDataType = DataTypeFactory.getDataType(transformer.getInboundDataType(), transformer.getInboundProperties());
-        DataType outboundDataType = DataTypeFactory.getDataType(transformer.getOutboundDataType(), transformer.getOutboundProperties());
 
         FilterTransformerExecutor filterTransformerExecutor = new FilterTransformerExecutor(inboundDataType, outboundDataType);
 

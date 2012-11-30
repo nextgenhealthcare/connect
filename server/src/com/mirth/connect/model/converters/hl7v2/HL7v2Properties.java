@@ -20,8 +20,8 @@ public class HL7v2Properties {
     private boolean useStrictParser = false;
     private boolean useStrictValidation = false;
     private boolean stripNamespaces = true;
-    private String[] segmentDelimiters = new String[] { "\r\n", "\r", "\n" };
-    private boolean convertLFtoCR = true;
+    private String inputSegmentDelimiter = "\r\n|\r|\n";
+    private String outputSegmentDelimiter = "\r";
     private String successfulACKCode = "AA";
     private String successfulACKMessage = "";
     private String errorACKCode = "AE";
@@ -48,14 +48,11 @@ public class HL7v2Properties {
         if (properties.get("stripNamespaces") != null) {
             stripNamespaces = Boolean.valueOf((String) properties.get("stripNamespaces"));
         }
-        if (properties.get("segmentDelimiter") != null) {
-            segmentDelimiters = ((String) properties.get("segmentDelimiter")).split("(?<!\\\\)\\|");
-            for (int i = 0; i <= segmentDelimiters.length - 1; i++) {
-                segmentDelimiters[i] = StringUtil.unescape(segmentDelimiters[i]);
-            }
+        if (properties.get("inputSegmentDelimiter") != null) {
+            this.inputSegmentDelimiter = StringUtil.unescape((String) properties.get("inputSegmentDelimiter"));
         }
-        if (properties.get("convertLFtoCR") != null) {
-            convertLFtoCR = Boolean.valueOf((String) properties.get("convertLFtoCR"));
+        if (properties.get("outputSegmentDelimiter") != null) {
+            this.outputSegmentDelimiter = StringUtil.unescape((String) properties.get("outputSegmentDelimiter"));
         }
         if (properties.get("successfulACKCode") != null) {
             successfulACKCode = (String) properties.get("successfulACKCode");
@@ -120,20 +117,20 @@ public class HL7v2Properties {
         this.stripNamespaces = stripNamespaces;
     }
 
-    public String[] getSegmentDelimiters() {
-        return segmentDelimiters;
+    public String getInputSegmentDelimiter() {
+        return inputSegmentDelimiter;
     }
 
-    public void setSegmentDelimiters(String[] segmentDelimiters) {
-        this.segmentDelimiters = segmentDelimiters;
+    public void setInputSegmentDelimiters(String inputSegmentDelimiter) {
+        this.inputSegmentDelimiter = inputSegmentDelimiter;
+    }
+    
+    public String getOutputSegmentDelimiter() {
+        return outputSegmentDelimiter;
     }
 
-    public boolean isConvertLFtoCR() {
-        return convertLFtoCR;
-    }
-
-    public void setConvertLFtoCR(boolean convertLFtoCR) {
-        this.convertLFtoCR = convertLFtoCR;
+    public void setOutputSegmentDelimiters(String outputSegmentDelimiter) {
+        this.outputSegmentDelimiter = outputSegmentDelimiter;
     }
 
     public String getSuccessfulACKCode() {

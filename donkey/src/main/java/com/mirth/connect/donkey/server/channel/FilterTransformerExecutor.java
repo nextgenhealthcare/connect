@@ -71,33 +71,39 @@ public class FilterTransformerExecutor {
      */
     public void processConnectorMessage(ConnectorMessage connectorMessage) throws InterruptedException, DonkeyException {
         ThreadUtils.checkInterruptedStatus();
+        String content;
         String encodedContent;
-
+        
+        // If there is no processed raw content (no preprocessor step), use the raw instead.
+        if (connectorMessage.getProcessedRaw() == null) {
+        	content = connectorMessage.getRaw().getContent();
+        } else {
+        	content = connectorMessage.getProcessedRaw().getContent();
+        }
+        
         if (filterTransformer != null) {
-            String serializedContent;
-
-            if (connectorMessage.getProcessedRaw() == null) {
-                serializedContent = inbound.getSerializer().toXML(connectorMessage.getRaw().getContent());
-            } else {
-                serializedContent = inbound.getSerializer().toXML(connectorMessage.getProcessedRaw().getContent());
-            }
+            // Convert the content to xml
+            String serializedContent = inbound.getSerializer().toXML(content);
 
             connectorMessage.setTransformed(new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.TRANSFORMED, serializedContent, encryptor.encrypt(serializedContent)));
             ThreadUtils.checkInterruptedStatus();
 
+            // Perform the filter and transformation
             if (!filterTransformer.doFilterTransform(connectorMessage)) {
                 connectorMessage.setStatus(Status.FILTERED);
                 return;
             }
 
             ThreadUtils.checkInterruptedStatus();
+            // Convert the transformed content to the outbound data type
             encodedContent = outbound.getSerializer().fromXML(connectorMessage.getTransformed().getContent());
         } else {
-            if (connectorMessage.getProcessedRaw() == null) {
-                encodedContent = connectorMessage.getRaw().getContent();
-            } else {
-                encodedContent = connectorMessage.getProcessedRaw().getContent();
-            }
+            // Since this condition can only occur if the inbound and outbound datatypes are the same, it is safe to pass the outbound serializer to the inbound serializer 
+            // so that it can compare/use the properties from both. The purpose of this method is to allow the optimization of not serializing, but still modifying the message in certain circumstances.
+            // It should NOT be used anywhere other than here.
+        	content = inbound.getSerializer().transformWithoutSerializing(content, outbound.getSerializer());
+        	
+            encodedContent = content;
         }
 
         connectorMessage.setEncoded(new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.ENCODED, encodedContent, encryptor.encrypt(encodedContent)));

@@ -17,7 +17,5 @@ import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.SerializerException;
 
 public interface IXMLSerializer extends XmlSerializer {
-	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException;
 	public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException;
-	public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException;
 }

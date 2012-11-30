@@ -64,7 +64,8 @@ public class HL7Test {
 		Properties properties = new Properties();
 		properties.put("useStrictParser", "false");
 		properties.put("handleRepetitions", "true");
-		properties.put("convertLFtoCR", "false");
+		properties.put("inputSegmentDelimiter", "\r\n|\r|\n");
+		properties.put("outputSegmentDelimiter", "\r");
 		stopwatch.start();
 		ER7Serializer serializer = new ER7Serializer(properties);
 		String xmloutput = xml;

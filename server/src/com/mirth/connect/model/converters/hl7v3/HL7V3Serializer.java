@@ -15,6 +15,7 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 
 
@@ -33,6 +34,22 @@ public class HL7V3Serializer implements IXMLSerializer {
 			this.stripNamespaces = Boolean.parseBoolean((String) hl7v3Properties.get("stripNamespaces"));
 		}
 	}
+	
+	@Override
+    public boolean isTransformerRequired() {
+        boolean transformerRequired = false;
+        //TODO determine which properties are required for transformer
+        if (!stripNamespaces) {
+            transformerRequired = true;
+        }
+
+        return transformerRequired;
+    }
+	
+	@Override
+    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+        return message;
+    }
 	
 	@Override
 	public String toXML(String source) throws SerializerException {
@@ -57,18 +74,10 @@ public class HL7V3Serializer implements IXMLSerializer {
 		return map;
 	}
 
+	@Override
 	public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException {
 		Map<String, String> map = getMetadata();
 		map.put("type",doc.getDocumentElement().getNodeName());
 		return map;
-	}
-
-
-	public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
-		return getMetadata();
-	}
-
-	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
-		return getMetadata();
 	}
 }

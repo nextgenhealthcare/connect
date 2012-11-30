@@ -68,7 +68,7 @@ public class DataTypesButtonCellEditor extends MirthButtonCellEditor {
         } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.X12))) {
             new BoundPropertiesSheetDialog(dataProperties, new X12Properties());
         } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V2))) {
-            new BoundPropertiesSheetDialog(dataProperties, new HL7Properties());
+            new BoundPropertiesSheetDialog(dataProperties, new HL7Properties(), 420, 370);
         } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V3))) {
             new BoundPropertiesSheetDialog(dataProperties, new HL7V3Properties());
         } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.NCPDP))) {

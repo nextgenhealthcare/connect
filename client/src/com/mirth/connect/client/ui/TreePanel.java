@@ -351,14 +351,6 @@ public class TreePanel extends javax.swing.JPanel {
             IXMLSerializer serializer;
             if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V2).equals(messageType)) {
                 dataType = DataTypeFactory.HL7V2;
-                // The \n to \r conversion is ONLY valid for HL7
-                boolean convertLFtoCR = true;
-                if (dataTypeProperties != null && dataTypeProperties.get("convertLFtoCR") != null) {
-                    convertLFtoCR = Boolean.parseBoolean((String) dataTypeProperties.get("convertLFtoCR"));
-                }
-                if (convertLFtoCR) {
-                    source = StringUtil.convertLFtoCR(source).trim();
-                }
             } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.NCPDP).equals(messageType)) {
                 dataType = DataTypeFactory.NCPDP;
             } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.DICOM).equals(messageType)) {

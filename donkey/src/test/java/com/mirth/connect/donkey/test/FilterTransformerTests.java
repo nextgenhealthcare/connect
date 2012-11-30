@@ -96,6 +96,16 @@ public class FilterTransformerTests {
 
         class FailingTestSerializer implements XmlSerializer {
             @Override
+            public boolean isTransformerRequired() {
+                return false;
+            }
+            
+            @Override
+            public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+                return message;
+            }
+        	
+            @Override
             public String toXML(String message) throws SerializerException {
                 throw new SerializerException("Inbound serialization failed.");
             }

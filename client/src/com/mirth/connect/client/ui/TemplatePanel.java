@@ -48,7 +48,7 @@ import com.mirth.connect.client.ui.beans.XMLProperties;
 import com.mirth.connect.client.ui.editors.BoundPropertiesSheetDialog;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
 import com.mirth.connect.model.converters.DataTypeFactory;
-import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
+import com.mirth.connect.model.converters.SerializerFactory;
 import com.mirth.connect.model.converters.dicom.DICOMSerializer;
 
 public class TemplatePanel extends javax.swing.JPanel implements DropTargetListener {
@@ -409,7 +409,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         } else if (((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.X12))) {
             new BoundPropertiesSheetDialog(dataProperties, new X12Properties());
         } else if (((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V2))) {
-            new BoundPropertiesSheetDialog(dataProperties, new HL7Properties());
+            new BoundPropertiesSheetDialog(dataProperties, new HL7Properties(), 420, 370);
         } else if (((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V3))) {
             new BoundPropertiesSheetDialog(dataProperties, new HL7V3Properties());
         } else if (((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.NCPDP))) {
@@ -447,7 +447,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             // Set the default properties for the data type selected
             for (String dataType : DataTypeFactory.getDataTypeNames()) {
                 if (PlatformUI.MIRTH_FRAME.dataTypes.get(dataType).equals(dataTypeComboBox.getSelectedItem())) {
-                    dataProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(dataType));
+                    dataProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(dataType));
                 }
             }
         }

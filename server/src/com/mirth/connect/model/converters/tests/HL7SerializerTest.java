@@ -29,7 +29,8 @@ public class HL7SerializerTest {
         defaultProperties.put("useStrictParser", "false");
         defaultProperties.put("handleRepetitions", "false");
         defaultProperties.put("handleSubcomponents", "false");
-        defaultProperties.put("convertLFtoCR", "false");
+        defaultProperties.put("inputSegmentDelimiter", "\\r\\n|\\r|\\n");
+        defaultProperties.put("outputSegmentDelimiter", "\\r");
     }
 
     @Test
@@ -99,7 +100,8 @@ public class HL7SerializerTest {
         properties.put("useStrictParser", "false");
         properties.put("handleRepetitions", "false");
         properties.put("handleSubcomponents", "true");
-        properties.put("convertLFtoCR", "false");
+        properties.put("inputSegmentDelimiter", "\\r\\n|\\r|\\n");
+        properties.put("outputSegmentDelimiter", "\\r");
         
         String input = FileUtils.readFileToString(new File("tests/test-hl7-single-segment-input.xml"));
         String output = FileUtils.readFileToString(new File("tests/test-hl7-single-segment-output.txt"));
@@ -121,7 +123,8 @@ public class HL7SerializerTest {
         properties.put("useStrictParser", "false");
         properties.put("handleRepetitions", "false");
         properties.put("handleSubcomponents", "true");
-        properties.put("convertLFtoCR", "false");
+        properties.put("inputSegmentDelimiter", "\\r\\n|\\r|\\n");
+        properties.put("outputSegmentDelimiter", "\\r");
 
         String input = FileUtils.readFileToString(new File("tests/test-hl7-subcomponents-input.txt"));
         String output = FileUtils.readFileToString(new File("tests/test-hl7-subcomponents-output.xml"));
@@ -135,7 +138,8 @@ public class HL7SerializerTest {
         properties.put("useStrictParser", "false");
         properties.put("handleRepetitions", "false");
         properties.put("handleSubcomponents", "true");
-        properties.put("convertLFtoCR", "false");
+        properties.put("inputSegmentDelimiter", "\\r\\n|\\r|\\n");
+        properties.put("outputSegmentDelimiter", "\\r");
 
         String input = FileUtils.readFileToString(new File("tests/test-hl7-subcomponents-output.xml"));
         String output = FileUtils.readFileToString(new File("tests/test-hl7-subcomponents-input.txt"));
@@ -149,7 +153,8 @@ public class HL7SerializerTest {
         properties.put("useStrictParser", "false");
         properties.put("handleRepetitions", "true");
         properties.put("handleSubcomponents", "false");
-        properties.put("convertLFtoCR", "false");
+        properties.put("inputSegmentDelimiter", "\\r\\n|\\r|\\n");
+        properties.put("outputSegmentDelimiter", "\\r");
 
         String input = FileUtils.readFileToString(new File("tests/test-hl7-repetitions-input.txt"));
         String output = FileUtils.readFileToString(new File("tests/test-hl7-repetitions-output.xml"));
@@ -163,7 +168,8 @@ public class HL7SerializerTest {
         properties.put("useStrictParser", "false");
         properties.put("handleRepetitions", "true");
         properties.put("handleSubcomponents", "false");
-        properties.put("convertLFtoCR", "false");
+        properties.put("inputSegmentDelimiter", "\\r\\n|\\r|\\n");
+        properties.put("outputSegmentDelimiter", "\\r");
 
         String input = FileUtils.readFileToString(new File("tests/test-hl7-repetitions-output.xml"));
         String output = FileUtils.readFileToString(new File("tests/test-hl7-repetitions-input.txt"));

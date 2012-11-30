@@ -26,6 +26,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import com.mirth.connect.connectors.BatchMessageProcessor;
 import com.mirth.connect.connectors.BatchMessageProcessorException;
 import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.BatchAdaptor;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
@@ -44,6 +45,16 @@ public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
 
     public DelimitedSerializer(Map delimitedProperties) {
         props = new DelimitedProperties(delimitedProperties);
+    }
+    
+    @Override
+    public boolean isTransformerRequired() {
+        return props.isTransformerRequired();
+    }
+    
+    @Override
+    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+        return message;
     }
 
     @Override
@@ -67,19 +78,8 @@ public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
         return builder.toString();
     }
 
+    @Override
     public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException {
-        Map<String, String> map = new HashMap<String, String>();
-        populateMetadata(map);
-        return map;
-    }
-
-    public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
-        Map<String, String> map = new HashMap<String, String>();
-        populateMetadata(map);
-        return map;
-    }
-
-    public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
         Map<String, String> map = new HashMap<String, String>();
         populateMetadata(map);
         return map;

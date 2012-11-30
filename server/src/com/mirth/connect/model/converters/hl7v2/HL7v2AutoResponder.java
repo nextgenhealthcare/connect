@@ -96,22 +96,14 @@ public class HL7v2AutoResponder implements AutoResponder {
                     Document doc = builder.parse(new InputSource(reader));
                     msh15 = msh15Query.evaluate(doc);
                 } else { // ER7
-                    String[] segmentDelims = hl7v2Properties.getSegmentDelimiters();
+                    String segmentDelimiter = hl7v2Properties.getInputSegmentDelimiter();
                     char fieldDelim = hl7Message.charAt(3); // Usually |
                     char componentDelim = hl7Message.charAt(4); // Usually ^
 
                     Pattern fieldPattern = Pattern.compile(Pattern.quote(String.valueOf(fieldDelim)));
                     Pattern componentPattern = Pattern.compile(Pattern.quote(String.valueOf(componentDelim)));
 
-                    int delimIndex = hl7Message.length();
-                    for (String delim : segmentDelims) {
-                        if (hl7Message.indexOf(delim) >= 0) {
-                            delimIndex = hl7Message.indexOf(delim);
-                            break;
-                        }
-                    }
-
-                    String mshString = hl7Message.substring(0, delimIndex);
+                    String mshString = hl7Message.split(segmentDelimiter)[0];
                     String[] mshFields = fieldPattern.split(mshString);
 
                     if (mshFields.length > 14) {

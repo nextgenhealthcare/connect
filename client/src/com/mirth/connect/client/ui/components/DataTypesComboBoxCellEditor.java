@@ -23,7 +23,7 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.converters.DataTypeFactory;
-import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
+import com.mirth.connect.model.converters.SerializerFactory;
 
 public class DataTypesComboBoxCellEditor extends MirthComboBoxCellEditor {
 
@@ -41,7 +41,7 @@ public class DataTypesComboBoxCellEditor extends MirthComboBoxCellEditor {
             String dataTypeDisplayName = (String)((JComboBox)super.getComponent()).getSelectedItem();
             Channel currentChannel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
             String dataType = getDataTypeFromDisplayName(dataTypeDisplayName);
-            Properties defaultProperties = MapUtils.toProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(dataType));
+            Properties defaultProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(dataType));
             
             // Set the new data type and default properties for that data type
             if (source) {

@@ -42,6 +42,26 @@ public class SerializerFactory {
             return new DefaultXMLSerializer(properties);
         }
     }
+    
+    public static Map<String, String> getDefaultSerializerProperties(String dataType) {
+		if (dataType.equals(DataTypeFactory.HL7V2)) {
+			return ER7Serializer.getDefaultProperties();
+		} else if (dataType.equals(DataTypeFactory.HL7V3)) {
+			return HL7V3Serializer.getDefaultProperties();
+		} else if (dataType.equals(DataTypeFactory.X12)) {
+			return X12Serializer.getDefaultProperties();
+		} else if (dataType.equals(DataTypeFactory.EDI)) {
+			return EDISerializer.getDefaultProperties();
+		} else if (dataType.equals(DataTypeFactory.NCPDP)) {
+			return NCPDPSerializer.getDefaultProperties();
+		} else if (dataType.equals(DataTypeFactory.DICOM)) {
+			return DICOMSerializer.getDefaultProperties();
+		} else if (dataType.equals(DataTypeFactory.DELIMITED)) {
+			return DelimitedSerializer.getDefaultProperties();
+		} else {
+			return DefaultXMLSerializer.getDefaultProperties();
+		}
+	}
 
     // TODO: Remove in 3.0
     @Deprecated
@@ -50,7 +70,12 @@ public class SerializerFactory {
         properties.put("useStrictParser", Boolean.toString(useStrictParser));
         properties.put("useStrictValidation", Boolean.toString(useStrictValidation));
         properties.put("handleRepetitions", Boolean.toString(handleRepetitions));
-        properties.put("convertLFtoCR", Boolean.toString(convertLFtoCR));
+        if (convertLFtoCR) {
+            properties.put("inputSegmentDelimiter", "\\r\\n|\\r|\\n");
+        } else {
+            properties.put("inputSegmentDelimiter", "\\r");
+        }
+        properties.put("outputSegmentDelimiter", "\\r");
         properties.put("handleSubcomponents", Boolean.toString(handleSubcomponents));
         return new ER7Serializer(properties);
     }
@@ -61,7 +86,12 @@ public class SerializerFactory {
         properties.put("useStrictParser", Boolean.toString(useStrictParser));
         properties.put("useStrictValidation", Boolean.toString(useStrictValidation));
         properties.put("handleRepetitions", Boolean.toString(handleRepetitions));
-        properties.put("convertLFtoCR", Boolean.toString(convertLFtoCR));
+        if (convertLFtoCR) {
+            properties.put("inputSegmentDelimiter", "\\r\\n|\\r|\\n");
+        } else {
+            properties.put("inputSegmentDelimiter", "\\r");
+        }
+        properties.put("outputSegmentDelimiter", "\\r");
         return new ER7Serializer(properties);
     }
 

@@ -12,10 +12,6 @@ package com.mirth.connect.util;
 import org.apache.commons.lang.StringUtils;
 
 public class StringUtil {
-    public static String convertLFtoCR(String str) {
-        return str.replaceAll("\\r\\n|\\n", "\r");
-    }
-
     // Four ways to specify character values and string values
     // 1. Literal
     // 2. Quoted literal (turns off escape processing except for standard escape sequences)

@@ -40,6 +40,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
@@ -60,6 +61,19 @@ public class DICOMSerializer implements IXMLSerializer {
 
     public static Map<String, String> getDefaultProperties() {
         return new HashMap<String, String>();
+    }
+    
+    @Override
+    public boolean isTransformerRequired() {
+    	boolean transformerRequired = false;
+    	//TODO determine which properties are required for transformer
+    	
+    	return transformerRequired;
+    }
+    
+    @Override
+    public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+        return message;
     }
 
     @Override
@@ -164,10 +178,6 @@ public class DICOMSerializer implements IXMLSerializer {
         }
     }
 
-    private Map<String, String> getMetadata(String sourceMessage) {
-        return getMetadataFromDocument(documentSerializer.fromXML(sourceMessage));
-    }
-
     @Override
     public Map<String, String> getMetadataFromDocument(Document document) {
         Map<String, String> metadata = new HashMap<String, String>();
@@ -175,16 +185,6 @@ public class DICOMSerializer implements IXMLSerializer {
         metadata.put("type", "DICOM");
         metadata.put("source", "dicom");
         return metadata;
-    }
-
-    @Override
-    public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
-        return getMetadata(fromXML(source));
-    }
-
-    @Override
-    public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
-        return getMetadata(xmlSource);
     }
 
     private void renameAttrToTag(Document document, Node node) throws DOMException {
