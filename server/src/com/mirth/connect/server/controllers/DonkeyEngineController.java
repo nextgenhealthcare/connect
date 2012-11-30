@@ -559,10 +559,6 @@ public class DonkeyEngineController implements EngineController {
     }
 
     private PreProcessor createPreProcessor(String channelId, String preProcessingScript) {
-        if (preProcessingScript == null) {
-            return null;
-        }
-
         String scriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId);
 
         try {
@@ -577,10 +573,6 @@ public class DonkeyEngineController implements EngineController {
     }
 
     private PostProcessor createPostProcessor(String channelId, String postProcessingScript) {
-        if (postProcessingScript == null) {
-            return null;
-        }
-
         String scriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channelId);
 
         try {

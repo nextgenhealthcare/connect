@@ -78,35 +78,6 @@ public class JavaScriptUtil {
         return processedMessage;
     }
 
-    private static String executePreprocessorScript(ContextFactory contextFactory, ConnectorMessage message, String channelId, boolean isGlobal) throws Exception {
-        String processedMessage = message.getRaw().getContent();
-        Logger scriptLogger = Logger.getLogger(ScriptController.PREPROCESSOR_SCRIPT_KEY.toLowerCase());
-        Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(contextFactory, scriptLogger, channelId, message);
-
-        try {
-            // Execute the preprocessor and check the result
-            Object result = null;
-            if (!isGlobal) {
-                result = executeScript(ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId), scope);
-            } else {
-                result = executeScript(ScriptController.PREPROCESSOR_SCRIPT_KEY, scope);
-            }
-
-            if (result != null) {
-                String resultString = (String) Context.jsToJava(result, java.lang.String.class);
-
-                if (resultString != null) {
-                    processedMessage = resultString;
-                }
-            }
-        } catch (Exception e) {
-            logScriptError(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId, e);
-            throw e;
-        }
-
-        return processedMessage;
-    }
-
     /**
      * Executes the global and channel preprocessor scripts in order, building
      * up the necessary scope for the global preprocessor and adding the result
@@ -125,9 +96,50 @@ public class JavaScriptUtil {
         return (String) jsExecutor.execute(new JavaScriptTask<Object>() {
             @Override
             public Object call() throws Exception {
-                String globalResult = executePreprocessorScript(getContextFactory(), message, channelId, true);
-                message.getRaw().setContent(globalResult);
-                return executePreprocessorScript(getContextFactory(), message, channelId, false);
+                String processedMessage = null;
+                String globalResult = message.getRaw().getContent();
+                Logger scriptLogger = Logger.getLogger(ScriptController.PREPROCESSOR_SCRIPT_KEY.toLowerCase());
+                Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(getContextFactory(), scriptLogger, channelId, message.getRaw().getContent(), message);
+
+                try {
+                    // Execute the global preprocessor and check the result
+                    Object result = executeScript(ScriptController.PREPROCESSOR_SCRIPT_KEY, scope);
+
+                    if (result != null) {
+                        String resultString = (String) Context.jsToJava(result, java.lang.String.class);
+
+                        // Set the processed message in case something goes wrong in the channel processor. Also update the global result so the channel processor uses the updated message
+                        if (resultString != null) {
+                            processedMessage = resultString;
+                            globalResult = processedMessage;
+                        }
+                    }
+                } catch (Exception e) {
+                    logScriptError(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId, e);
+                    throw e;
+                }
+                
+                // Update the scope with the result from the global processor
+                scope = JavaScriptScopeUtil.getPreprocessorScope(getContextFactory(), scriptLogger, channelId, globalResult, message);
+
+                try {
+                    // Execute the channel preprocessor and check the result
+                    Object result = executeScript(ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId), scope);
+
+                    if (result != null) {
+                        String resultString = (String) Context.jsToJava(result, java.lang.String.class);
+
+                        // Set the processed message if there was a result.
+                        if (resultString != null) {
+                            processedMessage = resultString;
+                        }
+                    }
+                } catch (Exception e) {
+                    logScriptError(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId, e);
+                    throw e;
+                }
+
+                return processedMessage;
             }
         });
     }

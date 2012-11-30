@@ -189,10 +189,10 @@ public class JavaScriptScopeUtil {
     }
 
     // TODO: Add attachments
-    public static Scriptable getPreprocessorScope(ContextFactory contextFactory, Object logger, String channelId, ConnectorMessage message) {
+    public static Scriptable getPreprocessorScope(ContextFactory contextFactory, Object logger, String channelId, String message, ConnectorMessage connectorMessage) {
         Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId);
-        addRawMessage(scope, message.getRaw().getContent());
-        scope.put("messageObject", scope, new ImmutableConnectorMessage(message));
+        addRawMessage(scope, message);
+        scope.put("messageObject", scope, new ImmutableConnectorMessage(connectorMessage));
         return scope;
     }
 

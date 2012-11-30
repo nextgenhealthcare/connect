@@ -849,15 +849,13 @@ public class Channel implements Startable, Stoppable, Runnable {
         // run the raw message through the pre-processor script
         String processedRawContent = null;
 
-        if (preProcessor != null) {
-            ThreadUtils.checkInterruptedStatus();
+        ThreadUtils.checkInterruptedStatus();
 
-            try {
-                processedRawContent = preProcessor.doPreProcess(sourceMessage);
-            } catch (DonkeyException e) {
-                sourceMessage.setStatus(Status.ERROR);
-                sourceMessage.setErrors(e.getFormattedError());
-            }
+        try {
+            processedRawContent = preProcessor.doPreProcess(sourceMessage);
+        } catch (DonkeyException e) {
+            sourceMessage.setStatus(Status.ERROR);
+            sourceMessage.setErrors(e.getFormattedError());
         }
 
         /*
@@ -1098,7 +1096,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     }
 
     public void finishMessage(Message finalMessage, boolean runPostProcessor, boolean markAsProcessed) throws InterruptedException {
-        if (runPostProcessor && postProcessor != null) {
+        if (runPostProcessor) {
             ThreadUtils.checkInterruptedStatus();
             Response response = null;
 
