@@ -9,6 +9,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 
 public class FrameStreamHandler extends StreamHandler {
@@ -29,7 +30,7 @@ public class FrameStreamHandler extends StreamHandler {
     public FrameStreamHandler(InputStream inputStream, OutputStream outputStream) {
         this(inputStream, outputStream, new DefaultBatchStreamReader(inputStream));
     }
-    
+
     public FrameStreamHandler(InputStream inputStream, OutputStream outputStream, BatchStreamReader batchStreamHandler) {
         this(inputStream, outputStream, batchStreamHandler, new byte[0], new byte[0]);
     }
@@ -97,7 +98,8 @@ public class FrameStreamHandler extends StreamHandler {
         }
 
         capturedBytes = new ByteArrayOutputStream();
-        // A List is used here to allow the buffer to simulate a "shifting window" of potential ending bytes.
+        List<Byte> firstBytes = new ArrayList<Byte>();
+        // A List is used here to allow the buffer to simulate a "shifting window" of potential bytes.
         endBytesBuffer = new ArrayList<Byte>();
 
         try {
@@ -107,8 +109,13 @@ public class FrameStreamHandler extends StreamHandler {
 
                 while (i < startOfMessageBytes.length) {
                     currentByte = inputStream.read();
+                    logger.trace("Checking for start of message bytes, currentByte: " + currentByte);
 
                     if (currentByte != -1) {
+                        if (firstBytes.size() < startOfMessageBytes.length) {
+                            firstBytes.add((byte) currentByte);
+                        }
+
                         if (currentByte == startOfMessageBytes[i]) {
                             i++;
                         } else {
@@ -117,7 +124,11 @@ public class FrameStreamHandler extends StreamHandler {
                     } else {
                         // The input stream ended before the begin bytes were detected, so return null
                         streamDone = true;
-                        return null;
+                        if (firstBytes.size() > 0) {
+                            throw new FrameStreamHandlerException(true, startOfMessageBytes, ArrayUtils.toPrimitive(firstBytes.toArray(new Byte[0])));
+                        } else {
+                            return null;
+                        }
                     }
                 }
 
@@ -179,6 +190,15 @@ public class FrameStreamHandler extends StreamHandler {
             if (!returnDataOnException) {
                 if (e instanceof IOException) {
                     // If an IOException occurred and we're not allowing data to return, throw the exception
+
+                    if (checkStartOfMessageBytes && firstBytes.size() > 0) {
+                        // At least some bytes have been read, but the start of message bytes were not detected
+                        throw new FrameStreamHandlerException(true, startOfMessageBytes, ArrayUtils.toPrimitive(firstBytes.toArray(new Byte[0])), e);
+                    }
+                    if (capturedBytes.size() + endBytesBuffer.size() > 0 && endOfMessageBytes.length > 0) {
+                        // At least some bytes have been captured, but the end of message bytes were not detected
+                        throw new FrameStreamHandlerException(false, endOfMessageBytes, getLastBytes(), e);
+                    }
                     throw (IOException) e;
                 } else {
                     // If any other Throwable was caught, return null to indicate that we're done
@@ -224,5 +244,22 @@ public class FrameStreamHandler extends StreamHandler {
         } catch (SocketException e) {
             logger.debug("Socket closed while trying to flush.");
         }
+    }
+
+    private byte[] getLastBytes() {
+        List<Byte> lastBytes = new ArrayList<Byte>();
+
+        if (endBytesBuffer != null) {
+            lastBytes.addAll(endBytesBuffer);
+        }
+
+        if (capturedBytes != null) {
+            byte[] capturedByteArray = capturedBytes.toByteArray();
+            for (int i = capturedByteArray.length - 1; i >= 0 && lastBytes.size() < endOfMessageBytes.length; i--) {
+                lastBytes.add(capturedByteArray[i]);
+            }
+        }
+
+        return ArrayUtils.toPrimitive(lastBytes.toArray(new Byte[0]));
     }
 }

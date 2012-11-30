@@ -397,7 +397,7 @@ public class TcpReceiver extends SourceConnector {
                         } else {
                             // Set the return value and send an alert
                             t = new Exception("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                            logger.warn("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+                            logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                             alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Error receiving message.", e);
                             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, "Error receiving message: " + e.getMessage() + " ");
                         }

@@ -31,53 +31,61 @@ public class TcpUtil {
             String abbreviation = "";
 
             if (StringUtils.isNotBlank(str)) {
-                for (byte hexByte : (new BigInteger(str, 16)).toByteArray()) {
-                    //@formatter:off
-                    switch (hexByte) {
-                        case 0x00: abbreviation += "<NUL>"; break;
-                        case 0x01: abbreviation += "<SOH>"; break;
-                        case 0x02: abbreviation += "<STX>"; break;
-                        case 0x03: abbreviation += "<ETX>"; break;
-                        case 0x04: abbreviation += "<EOT>"; break;
-                        case 0x05: abbreviation += "<ENQ>"; break;
-                        case 0x06: abbreviation += "<ACK>"; break;
-                        case 0x07: abbreviation += "<BEL>"; break;
-                        case 0x08: abbreviation += "<BS>"; break;
-                        case 0x09: abbreviation += "<TAB>"; break;
-                        case 0x0A: abbreviation += "<LF>"; break;
-                        case 0x0B: abbreviation += "<VT>"; break;
-                        case 0x0C: abbreviation += "<FF>"; break;
-                        case 0x0D: abbreviation += "<CR>"; break;
-                        case 0x0E: abbreviation += "<SO>"; break;
-                        case 0x0F: abbreviation += "<SI>"; break;
-                        case 0x10: abbreviation += "<DLE>"; break;
-                        case 0x11: abbreviation += "<DC1>"; break;
-                        case 0x12: abbreviation += "<DC2>"; break;
-                        case 0x13: abbreviation += "<DC3>"; break;
-                        case 0x14: abbreviation += "<DC4>"; break;
-                        case 0x15: abbreviation += "<NAK>"; break;
-                        case 0x16: abbreviation += "<SYN>"; break;
-                        case 0x17: abbreviation += "<ETB>"; break;
-                        case 0x18: abbreviation += "<CAN>"; break;
-                        case 0x19: abbreviation += "<EM>"; break;
-                        case 0x1A: abbreviation += "<SUB>"; break;
-                        case 0x1B: abbreviation += "<ESC>"; break;
-                        case 0x1C: abbreviation += "<FS>"; break;
-                        case 0x1D: abbreviation += "<GS>"; break;
-                        case 0x1E: abbreviation += "<RS>"; break;
-                        case 0x1F: abbreviation += "<US>"; break;
-                        case 0x20: abbreviation += "<Space>"; break;
-                        case 0x7F: abbreviation += "<DEL>"; break;
-                        default: abbreviation += new String(new byte[] { hexByte }); break;
-                    }
-                    //@formatter:on
-                }
+                abbreviation += getByteAbbreviation((new BigInteger(str, 16)).toByteArray());
             }
 
             return abbreviation;
         } else {
             return "Invalid Hex";
         }
+    }
+
+    public static String getByteAbbreviation(byte[] bytes) {
+        String abbreviation = "";
+
+        for (byte b : bytes) {
+            //@formatter:off
+            switch (b) {
+                case 0x00: abbreviation += "<NUL>"; break;
+                case 0x01: abbreviation += "<SOH>"; break;
+                case 0x02: abbreviation += "<STX>"; break;
+                case 0x03: abbreviation += "<ETX>"; break;
+                case 0x04: abbreviation += "<EOT>"; break;
+                case 0x05: abbreviation += "<ENQ>"; break;
+                case 0x06: abbreviation += "<ACK>"; break;
+                case 0x07: abbreviation += "<BEL>"; break;
+                case 0x08: abbreviation += "<BS>"; break;
+                case 0x09: abbreviation += "<TAB>"; break;
+                case 0x0A: abbreviation += "<LF>"; break;
+                case 0x0B: abbreviation += "<VT>"; break;
+                case 0x0C: abbreviation += "<FF>"; break;
+                case 0x0D: abbreviation += "<CR>"; break;
+                case 0x0E: abbreviation += "<SO>"; break;
+                case 0x0F: abbreviation += "<SI>"; break;
+                case 0x10: abbreviation += "<DLE>"; break;
+                case 0x11: abbreviation += "<DC1>"; break;
+                case 0x12: abbreviation += "<DC2>"; break;
+                case 0x13: abbreviation += "<DC3>"; break;
+                case 0x14: abbreviation += "<DC4>"; break;
+                case 0x15: abbreviation += "<NAK>"; break;
+                case 0x16: abbreviation += "<SYN>"; break;
+                case 0x17: abbreviation += "<ETB>"; break;
+                case 0x18: abbreviation += "<CAN>"; break;
+                case 0x19: abbreviation += "<EM>"; break;
+                case 0x1A: abbreviation += "<SUB>"; break;
+                case 0x1B: abbreviation += "<ESC>"; break;
+                case 0x1C: abbreviation += "<FS>"; break;
+                case 0x1D: abbreviation += "<GS>"; break;
+                case 0x1E: abbreviation += "<RS>"; break;
+                case 0x1F: abbreviation += "<US>"; break;
+                case 0x20: abbreviation += "<Space>"; break;
+                case 0x7F: abbreviation += "<DEL>"; break;
+                default: abbreviation += new String(new byte[] { b }); break;
+            }
+            //@formatter:on
+        }
+
+        return abbreviation;
     }
 
     /*

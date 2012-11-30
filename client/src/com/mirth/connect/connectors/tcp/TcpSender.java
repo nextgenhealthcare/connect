@@ -107,6 +107,7 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         startOfMessageBytesField.setText(props.getStartOfMessageBytes());
         endOfMessageBytesField.setText(props.getEndOfMessageBytes());
 
+        frameEncodingComboBox.removeActionListener(this);
         if (props.getStartOfMessageBytes().equals(TcpUtil.DEFAULT_LLP_START_BYTES) && props.getEndOfMessageBytes().equals(TcpUtil.DEFAULT_LLP_END_BYTES)) {
             frameEncodingComboBox.setSelectedItem("MLLP");
         } else if (props.getStartOfMessageBytes().equals(TcpUtil.DEFAULT_ASTM_START_BYTES) && props.getEndOfMessageBytes().equals(TcpUtil.DEFAULT_ASTM_END_BYTES)) {
@@ -114,6 +115,7 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         } else {
             frameEncodingComboBox.setSelectedItem("Custom");
         }
+        frameEncodingComboBox.addActionListener(this);
 
         responseTimeoutField.setText(String.valueOf(props.getResponseTimeout()));
 
