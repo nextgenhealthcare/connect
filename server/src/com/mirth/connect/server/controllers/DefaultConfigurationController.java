@@ -54,7 +54,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
-import org.bouncycastle.x509.X509V1CertificateGenerator;
+import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.X509Extensions;
+import org.bouncycastle.x509.X509V3CertificateGenerator;
+import org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
+import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -81,7 +85,6 @@ import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.PasswordRequirementsChecker;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.PropertyVerifier;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.
@@ -102,7 +105,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static PropertiesConfiguration mirthConfig = new PropertiesConfiguration();
     private static EncryptionSettings encryptionConfig;
     private static DatabaseSettings databaseConfig;
-    
+
     private static KeyEncryptor encryptor = null;
     private static Digester digester = null;
 
@@ -512,10 +515,10 @@ public class DefaultConfigurationController extends ConfigurationController {
         Properties properties = new Properties();
 
         try {
-            MapResultHandler<String,String> mapResultHandler = new MapResultHandler<String,String>("name", "value");
+            MapResultHandler<String, String> mapResultHandler = new MapResultHandler<String, String>("name", "value");
             SqlConfig.getSqlSessionManager().select("Configuration.selectPropertiesForCategory", category, mapResultHandler);
-            Map<String,String> result = mapResultHandler.getMap();
-            
+            Map<String, String> result = mapResultHandler.getMap();
+
             if (!result.isEmpty()) {
                 properties.putAll(result);
             }
@@ -636,17 +639,17 @@ public class DefaultConfigurationController extends ConfigurationController {
             logger.error("Could not initialize security settings.", e);
         }
     }
-    
+
     @Override
     public void initializeDatabaseSettings() {
         try {
             databaseConfig = new DatabaseSettings(ConfigurationConverter.getProperties(mirthConfig));
-            
+
             // dir.base is not included in mirth.properties, so set it manually
             databaseConfig.setDirBase(getBaseDir());
-            
+
             String password = databaseConfig.getDatabasePassword();
-            
+
             if (StringUtils.isNotEmpty(password)) {
                 ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
                 EncryptionSettings encryptionSettings = configurationController.getEncryptionSettings();
@@ -657,7 +660,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                         String encryptedPassword = StringUtils.removeStart(password, EncryptionSettings.ENCRYPTION_PREFIX);
                         String decryptedPassword = encryptor.decrypt(encryptedPassword);
                         databaseConfig.setDatabasePassword(decryptedPassword);
-                    } else if (StringUtils.isNotBlank(password)){
+                    } else if (StringUtils.isNotBlank(password)) {
                         // encrypt the password and write it back to the file
                         String encryptedPassword = EncryptionSettings.ENCRYPTION_PREFIX + encryptor.encrypt(password);
                         mirthConfig.setProperty("database.password", encryptedPassword);
@@ -725,16 +728,16 @@ public class DefaultConfigurationController extends ConfigurationController {
 
                 // save the keystore to the filesystem
                 OutputStream keyStoreOuputStream = new FileOutputStream(keyStoreFile);
-                
+
                 try {
-                    keyStore.store(keyStoreOuputStream, keyStorePassword);    
+                    keyStore.store(keyStoreOuputStream, keyStorePassword);
                 } finally {
-                    IOUtils.closeQuietly(keyStoreOuputStream);    
+                    IOUtils.closeQuietly(keyStoreOuputStream);
                 }
 
                 // remove the property from CONFIGURATION
                 removeProperty(PROPERTIES_CORE, "encryption.key");
-                
+
                 // reinitialize the security settings
                 initializeSecuritySettings();
             }
@@ -798,32 +801,54 @@ public class DefaultConfigurationController extends ConfigurationController {
         final String certificateAlias = "mirthconnect";
 
         if (!keyStore.containsAlias(certificateAlias)) {
-            // initialize the certificate attributes
-            Date startDate = new Date();
-            Date expiryDate = DateUtils.addYears(startDate, 50);
-            BigInteger serialNumber = new BigInteger(50, new Random());
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA", provider);
-            keyPairGenerator.initialize(1024);
-            KeyPair keyPair = keyPairGenerator.generateKeyPair();
-            logger.debug("generated new key pair using provider: " + provider.getName());
+            // Common CA and SSL cert attributes
+            Date startDate = new Date(); // time from which certificate is valid
+            Date expiryDate = DateUtils.addYears(startDate, 50); // time after which certificate is not valid
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", provider);
+            keyPairGenerator.initialize(2048);
 
-            // set the certificate attributes
-            X509V1CertificateGenerator certificateGenerator = new X509V1CertificateGenerator();
-            X500Principal dnName = new X500Principal("CN=Mirth Connect");
-            certificateGenerator.setSerialNumber(serialNumber);
-            certificateGenerator.setIssuerDN(dnName);
-            certificateGenerator.setNotBefore(startDate);
-            certificateGenerator.setNotAfter(expiryDate);
-            certificateGenerator.setSubjectDN(dnName); // note: same as issuer
-            certificateGenerator.setPublicKey(keyPair.getPublic());
-            certificateGenerator.setSignatureAlgorithm("SHA1withDSA");
+            KeyPair caKeyPair = keyPairGenerator.generateKeyPair();
+            logger.debug("generated new key pair for CA cert using provider: " + provider.getName());
 
-            // generate the new certificate
-            X509Certificate certificate = certificateGenerator.generate(keyPair.getPrivate());
-            logger.debug("generated new certificate with serial number: " + certificate.getSerialNumber());
+            // Generate CA cert
+            X509V3CertificateGenerator caCertGen = new X509V3CertificateGenerator();
+            X500Principal caSubjectName = new X500Principal("CN=Mirth Connect Certificate Authority");
 
-            // add the generated certificate to the keystore using the key password
-            keyStore.setKeyEntry(certificateAlias, keyPair.getPrivate(), keyPassword, new Certificate[] { certificate });
+            caCertGen.setSerialNumber(BigInteger.ONE);
+            caCertGen.setIssuerDN(caSubjectName);
+            caCertGen.setNotBefore(startDate);
+            caCertGen.setNotAfter(expiryDate);
+            caCertGen.setSubjectDN(caSubjectName); // same as issuer
+            caCertGen.setPublicKey(caKeyPair.getPublic());
+            caCertGen.setSignatureAlgorithm("SHA1withRSA");
+
+            caCertGen.addExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(0)); // CA:TRUE
+
+            X509Certificate caCert = caCertGen.generate(caKeyPair.getPrivate()); // note: private key of CA
+
+            // Generate SSL cert
+            KeyPair sslKeyPair = keyPairGenerator.generateKeyPair();
+            logger.debug("generated new key pair for SSL cert using provider: " + provider.getName());
+
+            X509V3CertificateGenerator sslCertGen = new X509V3CertificateGenerator();
+            X500Principal sslSubjectName = new X500Principal("CN=mirth-connect");
+
+            sslCertGen.setSerialNumber(new BigInteger(50, new Random())); // serial number for certificate
+            sslCertGen.setIssuerDN(caCert.getSubjectX500Principal());
+            sslCertGen.setNotBefore(startDate);
+            sslCertGen.setNotAfter(expiryDate);
+            sslCertGen.setSubjectDN(sslSubjectName);
+            sslCertGen.setPublicKey(sslKeyPair.getPublic());
+            sslCertGen.setSignatureAlgorithm("SHA1withRSA");
+
+            sslCertGen.addExtension(X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure(caCert));
+            sslCertGen.addExtension(X509Extensions.SubjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(sslKeyPair.getPublic()));
+
+            X509Certificate sslCert = sslCertGen.generate(caKeyPair.getPrivate()); // note: private key of CA
+            logger.debug("generated new certificate with serial number: " + sslCert.getSerialNumber());
+
+            // add the generated SSL cert to the keystore using the key password
+            keyStore.setKeyEntry(certificateAlias, sslKeyPair.getPrivate(), keyPassword, new Certificate[] { sslCert });
         } else {
             logger.debug("found certificate in keystore");
         }
@@ -904,14 +929,15 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
         }
     }
-    
+
     /**
      * Compares two versions strings (ex. 1.6.1.2335).
      * 
      * @param version1
      * @param version2
-     * @return -1 if version1 < version2, 1 if version1 > version2, 0 if version1
-     *         = version2
+     * @return -1 if version1 < version2,
+     *         1 if version1 > version2,
+     *         0 if version1 = version2
      */
     private int compareVersions(String version1, String version2) {
         if ((version1 == null) && (version2 == null)) {
@@ -957,12 +983,12 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         return builder.toString();
     }
-    
+
     private boolean isDatabaseRunning() {
         Statement statement = null;
         Connection connection = null;
         SqlConfig.getSqlSessionManager().startManagedSession();
-        
+
         try {
             connection = SqlConfig.getSqlSessionManager().getConnection();
             statement = connection.createStatement();
@@ -974,7 +1000,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         } finally {
             DbUtils.closeQuietly(statement);
             DbUtils.closeQuietly(connection);
-            if(SqlConfig.getSqlSessionManager().isManagedSessionStarted()){
+            if (SqlConfig.getSqlSessionManager().isManagedSessionStarted()) {
                 SqlConfig.getSqlSessionManager().close();
             }
         }
