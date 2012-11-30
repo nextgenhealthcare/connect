@@ -71,9 +71,9 @@
 		            	</c:when>
 		              	<c:otherwise>
 		              		<div id="securesiteaccess">
-		              			<p>Web Dashboard must be accessed over HTTPS. Click below button to switch to secure site.</p>
+		              			<p>The Mirth Connect Web Dashboard must be accessed over HTTPS. Click below button to switch to the secure site.</p>
 		                   		<div class="help-block">
-		                	        <br/><strong>Note:</strong><br/> If you see a certification error, this is normal. Click <a href="http://en.wikipedia.org/wiki/Self-signed_certificate">here</a> for more info on adding a cert.
+		                	        <br/><strong>Note:</strong><br/> You may see a certificate error if your server is using a <a href="http://en.wikipedia.org/wiki/Self-signed_certificate" target="_blank">self-signed certificate</a>. To prevent further warnings, you can add this certificate to your browser or operating system.
 		                        </div>
 			                </div>
 		                    <div style="text-align: center;">
@@ -85,7 +85,7 @@
             </div>
         </div>
         <div id="smallSubPage">
-        	<p>2012 Mirth Corporation | Mirth Connect</p>
+        	<p>&copy; 2012 Mirth Corporation | Mirth Connect</p>
         </div>
     
         <script type="text/javascript">
