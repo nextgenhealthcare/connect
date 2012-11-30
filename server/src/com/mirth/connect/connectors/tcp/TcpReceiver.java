@@ -387,12 +387,14 @@ public class TcpReceiver extends SourceConnector {
                         done = true;
                     }
                 } catch (IOException e) {
+                    boolean timeout = e instanceof SocketTimeoutException || e.getCause() != null && e.getCause() instanceof SocketTimeoutException;
+
                     // If we're keeping the connection open and a timeout occurred, then continue processing. Otherwise, abort.
-                    if (!connectorProperties.isKeepConnectionOpen() || !(e instanceof SocketTimeoutException)) {
+                    if (!connectorProperties.isKeepConnectionOpen() || !timeout) {
                         // If an exception occurred then abort, even if keep connection open is true
                         done = true;
 
-                        if (e instanceof SocketTimeoutException) {
+                        if (timeout) {
                             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, "Timeout waiting for message. ");
                         } else {
                             // Set the return value and send an alert

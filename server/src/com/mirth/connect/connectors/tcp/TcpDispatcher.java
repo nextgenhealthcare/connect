@@ -16,6 +16,7 @@ import java.io.CharArrayReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathFactory;
@@ -196,10 +197,12 @@ public class TcpDispatcher extends DestinationConnector {
                 } catch (IOException e) {
                     // An exception occurred while retrieving the response
                     responseData = e.getClass().getSimpleName() + ": " + e.getMessage();
-                    responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_411, "Timeout waiting for response: " + e.getMessage(), e);
-                    logger.warn("Timeout waiting for response (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
-                    alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Timeout waiting for response.", e);
-                    monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, "Timeout waiting for response. ");
+                    String errorMessage = (e instanceof SocketTimeoutException || e.getCause() != null && e.getCause() instanceof SocketTimeoutException) ? "Timeout waiting for response" : "Error receiving response";
+
+                    responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_411, errorMessage + ": " + e.getMessage(), e);
+                    logger.warn(errorMessage + " (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+                    alertController.sendAlerts(getChannelId(), Constants.ERROR_411, errorMessage + ".", e);
+                    monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, errorMessage + ". ");
 
                     closeSocketQuietly();
                 }
