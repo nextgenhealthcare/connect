@@ -1840,6 +1840,8 @@ public class Frame extends JXFrame {
 
         if (currentContentPage == dashboardPanel) {
             su.interruptThread();
+        } else if (currentContentPage == messageBrowser) {
+            mirthClient.getServerConnection().abort(messageBrowser.getAbortOperations());
         }
 
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
