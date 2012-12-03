@@ -118,7 +118,7 @@ public class JavaScriptUtil {
                     logScriptError(ScriptController.PREPROCESSOR_SCRIPT_KEY, channelId, e);
                     throw e;
                 }
-                
+
                 // Update the scope with the result from the global processor
                 scope = JavaScriptScopeUtil.getPreprocessorScope(getContextFactory(), scriptLogger, channelId, globalResult, message);
 
@@ -160,7 +160,12 @@ public class JavaScriptUtil {
             if (!isGlobal) {
                 result = executeScript(ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channelId), scope);
             } else {
-                result = executeScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope);
+                if (compiledScriptCache.getCompiledScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY) == null) {
+                    // The script doesn't exist, so assume the global script is the default and use the channel result
+                    result = initialResponse;
+                } else {
+                    result = executeScript(ScriptController.POSTPROCESSOR_SCRIPT_KEY, scope);
+                }
             }
         } catch (Exception e) {
             logScriptError(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channelId, e);
@@ -187,12 +192,7 @@ public class JavaScriptUtil {
             response = new Response(Status.SENT, result.toString());
         }
 
-        // If the current response is null and a previous response exists, use that
-        if (response == null && initialResponse != null) {
-            return initialResponse;
-        } else {
-            return response;
-        }
+        return response;
     }
 
     /**
