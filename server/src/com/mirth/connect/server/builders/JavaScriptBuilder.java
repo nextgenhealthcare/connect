@@ -117,7 +117,7 @@ public class JavaScriptBuilder {
         logger.debug("generating script");
 
         StringBuilder builder = new StringBuilder();
-        
+
         // Check to see if the property to strip namespaces off of incoming
         // messages has been set.
         // For XML, HL7v2, and HL7v3 stripNamespaces can be turned on/off.
@@ -141,11 +141,11 @@ public class JavaScriptBuilder {
                 stripIncomingNamespaces = true;
             }
         }
-        
+
         if (stripIncomingNamespaces) {
-        	builder.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
+            builder.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
         } else {
-        	builder.append("var newMessage = message;\n");
+            builder.append("var newMessage = message;\n");
         }
 
         // Turn the inbound message into an E4X XML object
@@ -153,7 +153,7 @@ public class JavaScriptBuilder {
 
         // Turn the outbound template into an E4X XML object, if there is one
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-        	// Check to see if the property to strip namespaces off of outbound
+            // Check to see if the property to strip namespaces off of outbound
             // templates has been set.
             // For XML, HL7v2, and HL7v3 stripNamespaces can be turned on/off.
             boolean stripOutboundNamespaces = false;
@@ -178,11 +178,11 @@ public class JavaScriptBuilder {
             }
 
             if (stripOutboundNamespaces) {
-            	builder.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
+                builder.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
             } else {
-            	builder.append("var newTemplate = template;\n");
+                builder.append("var newTemplate = template;\n");
             }
-        	
+
             builder.append("tmp = new XML(newTemplate);\n");
         }
 
@@ -346,6 +346,7 @@ public class JavaScriptBuilder {
 
         // No need to check the code context here; the function checks whether each individual map exists first 
         builder.append("function $(string) { ");
+        builder.append("try { if(responseMap.containsKey(string)) { return $r(string); } } catch(e){}");
         builder.append("try { if(connectorMap.containsKey(string)) { return $co(string); } } catch(e){}");
         builder.append("try { if(channelMap.containsKey(string)) { return $c(string); } } catch(e){}");
         builder.append("try { if(globalChannelMap.containsKey(string)) { return $gc(string); } } catch(e){}");

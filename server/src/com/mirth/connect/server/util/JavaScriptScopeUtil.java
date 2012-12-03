@@ -37,7 +37,7 @@ public class JavaScriptScopeUtil {
     private static ScriptableObject sealedSharedScope = null;
     private static Integer rhinoOptimizationLevel = null;
     private static StoppableContextFactory contextFactory = new StoppableContextFactory();
-    
+
     private static void initialize() {
         if (rhinoOptimizationLevel == null) {
             rhinoOptimizationLevel = -1;
@@ -75,7 +75,7 @@ public class JavaScriptScopeUtil {
 
         return context;
     }
-    
+
     public static Context getContext(ContextFactory contextFactory) {
         initialize();
         Context context = contextFactory.enterContext();
@@ -119,7 +119,9 @@ public class JavaScriptScopeUtil {
     private static void addConnectorMessage(Scriptable scope, ConnectorMessage message) {
         // TODO: Change this to ConnectorMessage read-only API
         scope.put("messageObject", scope, new ImmutableConnectorMessage(message));
-        scope.put("message", scope, message.getTransformed().getContent());
+        if (message.getTransformed() != null) {
+            scope.put("message", scope, message.getTransformed().getContent());
+        }
 
         scope.put("connectorMap", scope, message.getConnectorMap());
         scope.put("channelMap", scope, message.getChannelMap());

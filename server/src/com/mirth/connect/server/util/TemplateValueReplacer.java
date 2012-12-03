@@ -284,5 +284,6 @@ public class TemplateValueReplacer {
         loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(connectorMessage.getChannelId()).getVariables());
         loadContextFromMap(context, connectorMessage.getChannelMap());
         loadContextFromMap(context, connectorMessage.getConnectorMap());
+        loadContextFromMap(context, connectorMessage.getResponseMap());
     }
 }
