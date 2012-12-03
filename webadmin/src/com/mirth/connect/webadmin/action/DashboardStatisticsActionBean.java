@@ -25,7 +25,6 @@ public class DashboardStatisticsActionBean extends BaseActionBean {
     private int nextNodeCount = 1;
     private boolean showOverallStats = false;
     private boolean showAlert;
-    private String httpPort = "8080";
 
     @DefaultHandler
     public Resolution list() {
@@ -44,12 +43,6 @@ public class DashboardStatisticsActionBean extends BaseActionBean {
             } catch (ClientException e) {
                 setShowAlert(true);
             }
-            
-			try {
-				client.getServerSettings().getProperties().getProperty("http.port", "8080");
-			} catch (ClientException e) {
-				// Ignore
-			}
         } else {
             setShowAlert(true);
         }
@@ -75,7 +68,6 @@ public class DashboardStatisticsActionBean extends BaseActionBean {
 
     public Resolution getStats() {
         JSONObject hashMap = new JSONObject();
-
         JSONArray jsonArray = new JSONArray();
         Client client = getContext().getClient();
 
@@ -172,12 +164,4 @@ public class DashboardStatisticsActionBean extends BaseActionBean {
             return "STOPPED";
         return null;
     }
-
-	public String getHttpPort() {
-		return httpPort;
-	}
-
-	public void setHttpPort(String httpPort) {
-		this.httpPort = httpPort;
-	}
 }

@@ -77,7 +77,7 @@
 		                        </div>
 			                </div>
 		                    <div style="text-align: center;">
-		                    	<a class="btn btn-large btn-themebutton" href="javascript:accessSecureSite()">Access Secure Site</a>
+		                    	<a class="btn btn-large btn-themebutton" href="SecureAccess.action">Access Secure Site</a>
 		                    </div> 
   						</c:otherwise>
                     </c:choose>
@@ -149,13 +149,8 @@
         </script>
         <script type="text/javascript">
        		function launchAdministrator(){
-        		window.location.href = 'http://' + window.location.hostname + ':${actionBean.httpPort}/webstart.jnlp?time=' + new Date().getTime(); 
+        		window.location.href = 'http://' + window.location.hostname + ':${actionBean.context.httpPort}/webstart.jnlp?time=' + new Date().getTime(); 
        		}
-        </script>
-        <script type="text/javascript">
-   			function accessSecureSite(){
-        		window.location.href = 'https://' + window.location.hostname + ':${actionBean.httpsPort}/webadmin/Index.action';
-   			}
         </script>
     </body>
 </html>

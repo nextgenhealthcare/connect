@@ -11,41 +11,38 @@ import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
 
 public class IndexActionBean extends BaseActionBean {
-	private String httpsPort = "8443"; 
-	private String httpPort = "8080"; 
-
 	private boolean secureHttps;
 
 	@DefaultHandler
 	public Resolution init() {
-        HttpServletRequest request = getContext().getRequest();
+		HttpServletRequest request = getContext().getRequest();
+
+		// Set default ports in case mirth.properties fails to load
+		String httpsPort = "8443";
+		String httpPort = "8080";
 
 		InputStream mirthPropertiesStream = null;
 		mirthPropertiesStream = this.getClass().getResourceAsStream("/mirth.properties");
-		
-		if(mirthPropertiesStream != null){
+
+		if (mirthPropertiesStream != null) {
 			Properties mirthProps = new Properties();
 			try {
 				mirthProps.load(mirthPropertiesStream);
 				httpsPort = mirthProps.getProperty("https.port", "8443");
 				httpPort = mirthProps.getProperty("http.port", "8080");
-
 			} catch (IOException e) {
-				// ignore
+				// Ignore
 			}
-		}		
+		}
+
+		// Save the port values to the context
+		getContext().setHttpsPort(httpsPort);
+		getContext().setHttpPort(httpPort);
+
 		// Check if http or https
 		secureHttps = request.isSecure();
 
 		return new ForwardResolution(Constants.INDEX_JSP);
-	}
-
-	public String getHttpsPort() {
-		return httpsPort;
-	}
-
-	public void setHttpsPort(String httpsPort) {
-		this.httpsPort = httpsPort;
 	}
 
 	public boolean isSecureHttps() {
@@ -54,13 +51,5 @@ public class IndexActionBean extends BaseActionBean {
 
 	public void setSecureHttps(boolean secureHttps) {
 		this.secureHttps = secureHttps;
-	}
-
-	public String getHttpPort() {
-		return httpPort;
-	}
-
-	public void setHttpPort(String httpPort) {
-		this.httpPort = httpPort;
 	}
 }

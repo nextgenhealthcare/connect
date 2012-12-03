@@ -15,7 +15,7 @@
     <s:layout-component name="body">
         <div id="errorAlert" class="alert alert-error hide fade in" data-alert="alert" style= "width:380px; margin-left:auto; margin-right:auto;">
             <a class="close" data-dismiss="alert" href="#">&times;</a>
-            <p><strong>Error connecting to Server</strong>. Refresh the page or <a href="../../">Login</a></p>
+            <p><strong>Error connecting to Server</strong>. Refresh the page or <a href="Index.action">Login</a></p>
         </div>
 
         <ul id="myTab" class="nav nav-tabs">

@@ -12,10 +12,9 @@ import com.mirth.connect.model.User;
 import com.mirth.connect.webadmin.utils.Constants;
 
 public class LoginActionBean extends BaseActionBean {
-    private Client client;
-
     @DefaultHandler
     public Resolution login() {
+    	Client client;
         HttpServletRequest request = getContext().getRequest();
         LoginStatus loginStatus = null;
 
@@ -44,7 +43,7 @@ public class LoginActionBean extends BaseActionBean {
                 getContext().setUser(validUser);
                 getContext().setAuthorized(true);
                 getContext().setClient(client);
-
+                
                 // this prevents the session from timing out
                 request.getSession().setMaxInactiveInterval(-1);
 
