@@ -44,8 +44,7 @@
 				</div>
 				
 				<div style="text-align: center; margin-top: 10px;">
-					<input class="btn btn-large btn-themebutton" type="submit" value="Launch Mirth Connect Administrator"
-						onClick="parent.location='webstart.jnlp?time=' + new Date().getTime()" />
+					<a class="btn btn-large btn-themebutton" type="submit" href="javascript:launchAdministrator()">Launch Mirth Connect Administrator</a>
 				</div>
 			</div>
 		</div>
@@ -72,6 +71,12 @@
 				} 
 			});
 		}); 
-	</script>  
+	</script>
+	
+    <script type="text/javascript">
+   		function launchAdministrator(){
+    		window.location.href = 'webstart.jnlp?time=' + new Date().getTime(); 
+   		}
+	</script>
 </body>
 </html>

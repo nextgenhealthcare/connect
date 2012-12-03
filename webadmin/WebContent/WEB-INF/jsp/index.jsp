@@ -41,7 +41,7 @@
     				</div>
 
                     <div style="text-align: center;">
-                        <input class="btn btn-large btn-themebutton" type="submit" value="Launch Mirth Connect Administrator" onClick="launchAdministrator();" />
+                        <a class="btn btn-large btn-themebutton" href="javascript:launchAdministrator()">Launch Mirth Connect Administrator</a>
                     </div>
                 </div>
     
@@ -77,7 +77,7 @@
 		                        </div>
 			                </div>
 		                    <div style="text-align: center;">
-		                    	<input class="btn btn-large btn-themebutton" type="submit" value="Access Secure Site" onClick="accessSecureSite();"/>
+		                    	<a class="btn btn-large btn-themebutton" href="javascript:accessSecureSite()">Access Secure Site</a>
 		                    </div> 
   						</c:otherwise>
                     </c:choose>
@@ -149,12 +149,12 @@
         </script>
         <script type="text/javascript">
        		function launchAdministrator(){
-        		window.location.href= 'http://' + window.location.hostname + ':${actionBean.httpPort}/webstart.jnlp?time=' + new Date().getTime(); 
+        		window.location.href = 'http://' + window.location.hostname + ':${actionBean.httpPort}/webstart.jnlp?time=' + new Date().getTime(); 
        		}
         </script>
         <script type="text/javascript">
    			function accessSecureSite(){
-        		window.location.href= 'https://' + window.location.hostname + ':${actionBean.httpsPort}/webadmin/Index.action';
+        		window.location.href = 'https://' + window.location.hostname + ':${actionBean.httpsPort}/webadmin/Index.action';
    			}
         </script>
     </body>
