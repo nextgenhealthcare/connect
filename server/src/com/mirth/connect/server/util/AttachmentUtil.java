@@ -93,15 +93,20 @@ public class AttachmentUtil {
                     endIndex = attachmentIdEndIndex + SUFFIX.length();
                     String attachmentId = raw.substring(attachmentIdStartIndex, attachmentIdStartIndex + ATTACHMENT_ID_LENGTH);
                     
-                    if (raw.substring(attachmentIdEndIndex, endIndex).equals(SUFFIX) && attachmentMap.containsKey(attachmentId)) {
-                        Attachment attachment = attachmentMap.get(attachmentId);
-                        
+                    if (raw.substring(attachmentIdEndIndex, endIndex).equals(SUFFIX)) {
                         Map<Integer, Object> replacementMap = new HashMap<Integer, Object>();
                         replacementMap.put(KEY_END_INDEX, endIndex);
-                        replacementMap.put(KEY_DATA, attachment.getContent());
-                        replacementObjects.put(index, replacementMap);
                         
-                        bufferSize += attachment.getContent().length;
+                        if (attachmentMap.containsKey(attachmentId)) {
+                            Attachment attachment = attachmentMap.get(attachmentId);
+                            replacementMap.put(KEY_DATA, attachment.getContent());
+                            
+                            bufferSize += attachment.getContent().length;
+                        } else {
+                            replacementMap.put(KEY_DATA, new byte[0]);
+                        }
+                        
+                        replacementObjects.put(index, replacementMap);
                     }
                 } else {
                     endIndex = index + PREFIX.length();

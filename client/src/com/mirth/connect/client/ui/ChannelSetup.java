@@ -909,16 +909,6 @@ public class ChannelSetup extends javax.swing.JPanel {
             return false;
         }
         
-        // TODO: verify that attachments are supported in the selected storage mode
-        switch (messageStorageMode) {
-            case METADATA: case DISABLED:
-                if (attachmentComboBox.getSelectedItem() != AttachmentHandlerType.NONE) {
-                    parent.alertWarning(parent, "Attachments are not supported by the selected storage mode.");
-                    return false;
-                }
-                break;
-        }
-        
         currentChannel.setName(summaryNameField.getText());
         currentChannel.setDescription(summaryDescriptionText.getText());
 
@@ -2558,7 +2548,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                     attachmentComboBox.setEnabled(false);
                     attachmentWarningLabel.setText("");
                 } else {
-                    attachmentWarningLabel.setText("Attachments are not supported by the selected storage mode");
+                    attachmentWarningLabel.setText("Attachments will not be saved/reattached with the selected storage mode");
                 }
                 break;
                 

@@ -103,7 +103,6 @@ public class RegexAttachmentHandler extends AttachmentHandler {
             message = null;
             mimeType = null;
             matcher = null;
-            pattern = null;
             replacements.clear();
             
             return finalMessage;
