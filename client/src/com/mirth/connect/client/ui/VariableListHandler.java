@@ -45,7 +45,6 @@ public class VariableListHandler extends TransferHandler {
         staticVelocityReferences.put("Original File Name", "${ORIGINALNAME}");
         staticVelocityReferences.put("Count", "${COUNT}");
         staticVelocityReferences.put("DICOM Message Raw Data", "${DICOMMESSAGE}");
-        staticVelocityReferences.put("Message with Attachment Data", "${MESSAGEATTACH}");
         staticVelocityReferences.put("Formatted Date", "${date.get('yyyy-M-d H.m.s')}");
         staticVelocityReferences.put("XML Entity Encoder", "${XmlUtil.encode()}");
         staticVelocityReferences.put("XML Pretty Printer", "${XmlUtil.prettyPrint()}");
