@@ -912,7 +912,9 @@ public class MessageBrowser extends javax.swing.JPanel {
                                 selectedMetaDataIds.add(metaDataId);
                             }
 
-                            new EditMessageDialog(connectorMessage.getRaw().getContent(), channel.getSourceConnector().getTransformer().getInboundDataType(), channel.getId(), parent.dashboardPanel.getDestinationConnectorNames(channel.getId()), selectedMetaDataIds);
+                            if (connectorMessage.getRaw() != null) {
+                                new EditMessageDialog(connectorMessage.getRaw().getContent(), channel.getSourceConnector().getTransformer().getInboundDataType(), channel.getId(), parent.dashboardPanel.getDestinationConnectorNames(channel.getId()), selectedMetaDataIds);
+                            }
                         }
                     }
                 }
