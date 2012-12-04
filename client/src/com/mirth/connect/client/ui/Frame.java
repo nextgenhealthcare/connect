@@ -3321,7 +3321,7 @@ public class Frame extends JXFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                messageBrowser.refresh(false, null);
+                messageBrowser.refresh(null);
                 return null;
             }
 
@@ -3438,7 +3438,7 @@ public class Frame extends JXFrame {
                         }
                         
                         if (currentContentPage == messageBrowser) {
-                            messageBrowser.refresh(true, 1);
+                            messageBrowser.refresh(1);
                             // Warn the user that the messages were not cleared if the channel was running.
                             if (!cleared) {
                             	alertWarning(Frame.this, "Cannot remove all messages for channel " + channelStatus.getName() + " (" + channelStatus.getChannelId() + ") because the channel is not stopped.");
@@ -3526,7 +3526,7 @@ public class Frame extends JXFrame {
                     if (currentContentPage == dashboardPanel) {
                         doRefreshStatuses(true);
                     } else if (currentContentPage == messageBrowser) {
-                        messageBrowser.refresh(true, 1);
+                        messageBrowser.refresh(1);
                     }
                     stopWorking(workingId);
                 }
@@ -3563,7 +3563,7 @@ public class Frame extends JXFrame {
                     if (currentContentPage == dashboardPanel) {
                         doRefreshStatuses(true);
                     } else if (currentContentPage == messageBrowser) {
-                        messageBrowser.refresh(false, null);
+                        messageBrowser.refresh(null);
                     }
                     stopWorking(workingId);
                 }
@@ -3620,7 +3620,7 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                messageBrowser.refresh(replace, null);
+                messageBrowser.refresh(null);
                 stopWorking(workingId);
             }
         };
