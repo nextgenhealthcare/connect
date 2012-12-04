@@ -48,7 +48,7 @@ public class MessageObjectServlet extends MirthServlet {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
             try {
-                MessageController messageController = ControllerFactory.getFactory().createMessageController();
+                final MessageController messageController = ControllerFactory.getFactory().createMessageController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 PrintWriter out = response.getWriter();
                 Operation operation = Operations.getOperation(request.getParameter("op"));
@@ -151,10 +151,10 @@ public class MessageObjectServlet extends MirthServlet {
                     	out.print(messageController.clearMessages(channelId));
                     }
                 } else if (operation.equals(Operations.MESSAGE_REPROCESS)) {
-                    String channelId = request.getParameter("channelId");
-                    MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
-                    boolean replace = Boolean.valueOf(request.getParameter("replace"));
-                    List<Integer> reprocessMetaDataIds = (List<Integer>) serializer.fromXML(request.getParameter("reprocessMetaDataIds"));
+                    final String channelId = request.getParameter("channelId");
+                    final MessageFilter filter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
+                    final boolean replace = Boolean.valueOf(request.getParameter("replace"));
+                    final List<Integer> reprocessMetaDataIds = (List<Integer>) serializer.fromXML(request.getParameter("reprocessMetaDataIds"));
                     parameterMap.put("filter", filter);
                     parameterMap.put("replace", replace);
                     parameterMap.put("destinations", reprocessMetaDataIds);
@@ -162,16 +162,25 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        messageController.reprocessMessages(channelId, filter, replace, reprocessMetaDataIds, getCurrentUserId(request));
+                        final int currentUserId = getCurrentUserId(request);
+                        Runnable reprocessTask = new Runnable() {
+                            @Override
+                            public void run() {
+                                messageController.reprocessMessages(channelId, filter, replace, reprocessMetaDataIds, currentUserId);
+                            }
+                        };
+                        
+                        // Process the message on a new thread so the client is not waiting for it to complete.
+                        new Thread(reprocessTask).start();
                     }
                 } else if (operation.equals(Operations.MESSAGE_PROCESS)) {
-                    String channelId = request.getParameter("channelId");
+                    final String channelId = request.getParameter("channelId");
                     String rawData = request.getParameter("message");
 
                     @SuppressWarnings("unchecked")
                     List<Integer> metaDataIds = (List<Integer>) serializer.fromXML(request.getParameter("metaDataIds"));
                     
-                    RawMessage rawMessage = new RawMessage(rawData, metaDataIds, null);
+                    final RawMessage rawMessage = new RawMessage(rawData, metaDataIds, null);
 
                     parameterMap.put("channelId", channelId);
                     parameterMap.put("message", rawData);
@@ -180,11 +189,19 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        try {
-                            ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage);
-                        } catch (ChannelException e) {
-                            throw new ServletException("An error occurred when attempting to process the message");
-                        }
+                        Runnable processTask = new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage);
+                                } catch (ChannelException e) {
+                                    // Do nothing. An error should have been logged.
+                                }
+                            }
+                        };
+                        
+                        // Process the message on a new thread so the client is not waiting for it to complete.
+                        new Thread(processTask).start();
                     }
                 } else if (operation.equals(Operations.MESSAGE_IMPORT)) {
                     String channelId = request.getParameter("channelId");

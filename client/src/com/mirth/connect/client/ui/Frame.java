@@ -3620,7 +3620,7 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                messageBrowser.refresh(null);
+                alertInformation(PlatformUI.MIRTH_FRAME, "The messages are being reprocessed. Please perform a new search to view the reprocessed results.\nIt may take some time before all results are available.");
                 stopWorking(workingId);
             }
         };

@@ -681,7 +681,7 @@ public class Client {
     public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds) throws ClientException {
         logger.debug("reprocessing messages");
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_REPROCESS.getName()), new NameValuePair("channelId", channelId), new NameValuePair("filter", serializer.toXML(filter)), new NameValuePair("replace", String.valueOf(replace)), new NameValuePair("reprocessMetaDataIds", serializer.toXML(reprocessMetaDataIds)) };
-        serverConnection.executePostMethod(MESSAGE_SERVLET, params);
+        serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);
     }
 
     public void processMessage(String channelId, String rawMessage) throws ClientException {
@@ -691,7 +691,7 @@ public class Client {
     public void processMessage(String channelId, String rawMessage, List<Integer> metaDataIds) throws ClientException {
         logger.debug("processing message");
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_PROCESS.getName()), new NameValuePair("channelId", channelId), new NameValuePair("message", rawMessage), new NameValuePair("metaDataIds", serializer.toXML(metaDataIds)) };
-        serverConnection.executePostMethod(MESSAGE_SERVLET, params);
+        serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);
     }
 
     public Encryptor getEncryptor() {
