@@ -138,7 +138,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private final String[] columns = new String[] { "ID", "Connector", "Status", "Date & Time", "Server Id", "Send Attempts", "Import ID", "Reply Sent" };
     // Worker used for loading a page and counting the total number of messages
     private SwingWorker<Void, Void> worker;
-
+    
     /**
      * Constructs the new message browser and sets up its default
      * information/layout
@@ -194,7 +194,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         exportResultsPopup.setVisible(false);
 
         LineBorder lineBorder = new LineBorder(new Color(0, 0, 0));
-        TitledBorder titledBorder = new TitledBorder("Last Search");
+        TitledBorder titledBorder = new TitledBorder("Current Search");
         titledBorder.setBorder(lineBorder);
 
         lastSearchCriteriaPane.setBorder(titledBorder);
@@ -315,13 +315,17 @@ public class MessageBrowser extends javax.swing.JPanel {
         advancedSearchPopup.resetSelections();
         updateAdvancedSearchButtonFont();
     }
+    
+    public void updateFilterButtonFont(int font) {
+        filterButton.setFont(filterButton.getFont().deriveFont(font));
+        filterButton.requestFocus();
+    }
 
     public void updateAdvancedSearchButtonFont() {
-        Font font = advSearchButton.getFont();
         if (advancedSearchPopup.hasAdvancedCriteria()) {
-            advSearchButton.setFont(new Font(font.getName(), Font.BOLD, font.getSize()));
+            advSearchButton.setFont(advSearchButton.getFont().deriveFont(Font.BOLD));
         } else {
-            advSearchButton.setFont(new Font(font.getName(), Font.PLAIN, font.getSize()));
+            advSearchButton.setFont(advSearchButton.getFont().deriveFont(Font.PLAIN));
         }
     }
 
@@ -454,7 +458,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
     public void runSearch() {
         generateMessageFilter();
-
+        updateFilterButtonFont(Font.PLAIN);
         messages = new PaginatedMessageList();
         messages.setClient(parent.mirthClient);
         messages.setChannelId(channel.getId());
@@ -1483,31 +1487,19 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
     }
 
-    public void importMessages() {
+    public MessageImportResult importMessages() {
         File file = parent.browseForFile(null);
-
+        MessageImportResult result = null;
+        
         if (file != null) {
-            MessageImportResult result = null;
-
             try {
                 result = parent.mirthClient.importMessages(channel.getId(), file, UIConstants.CHARSET);
             } catch (ClientException e) {
                 parent.alertException(this, e.getStackTrace(), "Error importing messages. " + e.getMessage());
-                return;
             }
-
-            StringBuilder stringBuilder = new StringBuilder();
-
-            if (result.getImported() > 0) {
-                stringBuilder.append(result.getImported() + " message" + (result.getImported() == 1 ? " was" : "s were") + " imported successfully.\n");
-            }
-
-            if (result.getErrored() > 0) {
-                stringBuilder.append(result.getErrored() + " message" + (result.getErrored() == 1 ? "" : "s") + " failed to import due to an error.\n");
-            }
-            
-            parent.alertInformation(this, stringBuilder.toString());
         }
+        
+        return result;
     }
 
     public void exportMessages() {

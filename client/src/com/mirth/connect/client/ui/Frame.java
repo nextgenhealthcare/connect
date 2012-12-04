@@ -78,6 +78,7 @@ import org.syntax.jedit.JEditTextArea;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.MessageImportResult;
 import com.mirth.connect.client.core.RequestAbortedException;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.core.UnauthorizedException;
@@ -819,7 +820,7 @@ public class Frame extends JXFrame {
         messageTasks.setName(TaskConstants.MESSAGE_KEY);
         messageTasks.setFocusable(false);
 
-        addTask(TaskConstants.MESSAGE_REFRESH, "Refresh", "Refresh the list of messages with the given filter.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), messageTasks, messagePopupMenu);
+        addTask(TaskConstants.MESSAGE_REFRESH, "Refresh", "Refresh the list of messages with the current search criteria.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), messageTasks, messagePopupMenu);
         addTask(TaskConstants.MESSAGE_SEND, "Send Message", "Send a message to the channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/email_go.png")), messageTasks, messagePopupMenu);
         addTask(TaskConstants.MESSAGE_IMPORT, "Import Messages", "Import messages from a file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), messageTasks, messagePopupMenu);
         addTask(TaskConstants.MESSAGE_EXPORT, "Export Results", "Export all messages in the current search.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), messageTasks, messagePopupMenu);
@@ -3371,13 +3372,27 @@ public class Frame extends JXFrame {
         final String workingId = startWorking("Importing messages...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
+            private MessageImportResult result;
             public Void doInBackground() {
-                messageBrowser.importMessages();
+                result = messageBrowser.importMessages();
                 return null;
             }
 
             public void done() {
+                if (result != null) {
+                    StringBuilder stringBuilder = new StringBuilder();
+    
+                    if (result.getImported() > 0) {
+                        stringBuilder.append(result.getImported() + " message" + (result.getImported() == 1 ? " was" : "s were") + " imported successfully.\n");
+                    }
+    
+                    if (result.getErrored() > 0) {
+                        stringBuilder.append(result.getErrored() + " message" + (result.getErrored() == 1 ? "" : "s") + " failed to import due to an error.\n");
+                    }
+                    
+                    alertInformation(PlatformUI.MIRTH_FRAME, stringBuilder.toString());
+                    messageBrowser.updateFilterButtonFont(Font.BOLD);
+                }
                 stopWorking(workingId);
             }
         };
@@ -3620,7 +3635,7 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                alertInformation(PlatformUI.MIRTH_FRAME, "The messages are being reprocessed. Please perform a new search to view the reprocessed results.\nIt may take some time before all results are available.");
+                messageBrowser.updateFilterButtonFont(Font.BOLD);
                 stopWorking(workingId);
             }
         };
@@ -3661,10 +3676,10 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                // TODO: does the message browser need to be refreshed when sending a message on the dashboard?
-                // Disabled this again for now. It needs to be called when sending a message from MessageBrowser,
-                // but not the dashboard. They both call this same method currently so we need to handle that case.
-                // messageBrowser.refresh(false);
+                if (currentContentPage == messageBrowser) {
+                    messageBrowser.updateFilterButtonFont(Font.BOLD);
+                }
+                
                 stopWorking(workingId);
             }
         };

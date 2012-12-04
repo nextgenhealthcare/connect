@@ -839,7 +839,7 @@ public class Client {
     public void importMessage(String channelId, Message message) throws ClientException {
         logger.debug("importing message");
         NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_IMPORT.getName()), new NameValuePair("channelId", channelId), new NameValuePair("message", serializer.toXML(message)) };
-        serverConnection.executePostMethod(MESSAGE_SERVLET, params);
+        serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);
     }
     
     public int exportMessagesLocal(MessageExportOptions options) throws ClientException {
