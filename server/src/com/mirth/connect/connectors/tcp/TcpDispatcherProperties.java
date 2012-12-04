@@ -23,8 +23,11 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
     public static final String PROTOCOL = "TCP";
     public static final String NAME = "TCP Sender";
 
-    private String host;
-    private String port;
+    private String remoteAddress;
+    private String remotePort;
+    private boolean overrideLocalBinding;
+    private String localAddress;
+    private String localPort;
     private String sendTimeout;
     private String bufferSize;
     private boolean keepConnectionOpen;
@@ -40,8 +43,11 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
     public TcpDispatcherProperties() {
         queueConnectorProperties = new QueueConnectorProperties();
 
-        this.host = "127.0.0.1";
-        this.port = "6660";
+        this.remoteAddress = "127.0.0.1";
+        this.remotePort = "6660";
+        this.overrideLocalBinding = false;
+        this.localAddress = "127.0.0.1";
+        this.localPort = "0";
         this.sendTimeout = "5000";
         this.bufferSize = "65536";
         this.keepConnectionOpen = false;
@@ -55,20 +61,44 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
         this.template = "${message.encodedData}";
     }
 
-    public String getHost() {
-        return host;
+    public String getRemoteAddress() {
+        return remoteAddress;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public void setRemoteAddress(String remoteAddress) {
+        this.remoteAddress = remoteAddress;
     }
 
-    public String getPort() {
-        return port;
+    public String getRemotePort() {
+        return remotePort;
     }
 
-    public void setPort(String port) {
-        this.port = port;
+    public void setRemotePort(String remotePort) {
+        this.remotePort = remotePort;
+    }
+
+    public boolean isOverrideLocalBinding() {
+        return overrideLocalBinding;
+    }
+
+    public void setOverrideLocalBinding(boolean overrideLocalBinding) {
+        this.overrideLocalBinding = overrideLocalBinding;
+    }
+
+    public String getLocalAddress() {
+        return localAddress;
+    }
+
+    public void setLocalAddress(String localAddress) {
+        this.localAddress = localAddress;
+    }
+
+    public String getLocalPort() {
+        return localPort;
+    }
+
+    public void setLocalPort(String localPort) {
+        this.localPort = localPort;
     }
 
     public String getSendTimeout() {

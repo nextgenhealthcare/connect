@@ -11,15 +11,23 @@ package com.mirth.connect.connectors.tcp;
 
 import com.mirth.connect.connectors.ConnectorService;
 import com.mirth.connect.server.util.ConnectorUtil;
+import com.mirth.connect.util.TcpUtil;
 
 public class TcpSenderService implements ConnectorService {
     public Object invoke(String method, Object object, String sessionsId) throws Exception {
         if (method.equals("testConnection")) {
             TcpDispatcherProperties connectorProperties = (TcpDispatcherProperties) object;
-            String host = connectorProperties.getHost();
-            int port = Integer.parseInt(connectorProperties.getPort(), 10);
-            int timeout = Integer.parseInt(connectorProperties.getResponseTimeout());
-            return ConnectorUtil.testConnection(host, port, timeout);
+            String host = connectorProperties.getRemoteAddress();
+            int port = TcpUtil.parseInt(connectorProperties.getRemotePort());
+            int timeout = TcpUtil.parseInt(connectorProperties.getResponseTimeout());
+
+            if (!connectorProperties.isOverrideLocalBinding()) {
+                return ConnectorUtil.testConnection(host, port, timeout);
+            } else {
+                String localAddr = connectorProperties.getLocalAddress();
+                int localPort = TcpUtil.parseInt(connectorProperties.getLocalPort());
+                return ConnectorUtil.testConnection(host, port, timeout, localAddr, localPort);
+            }
         }
 
         return null;

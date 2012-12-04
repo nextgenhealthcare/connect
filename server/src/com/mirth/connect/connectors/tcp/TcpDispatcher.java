@@ -71,8 +71,10 @@ public class TcpDispatcher extends DestinationConnector {
     public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {
         TcpDispatcherProperties tcpSenderProperties = (TcpDispatcherProperties) SerializationUtils.clone(connectorProperties);
 
-        tcpSenderProperties.setHost(replacer.replaceValues(tcpSenderProperties.getHost(), connectorMessage));
-        tcpSenderProperties.setPort(replacer.replaceValues(tcpSenderProperties.getPort(), connectorMessage));
+        tcpSenderProperties.setRemoteAddress(replacer.replaceValues(tcpSenderProperties.getRemoteAddress(), connectorMessage));
+        tcpSenderProperties.setRemotePort(replacer.replaceValues(tcpSenderProperties.getRemotePort(), connectorMessage));
+        tcpSenderProperties.setLocalAddress(replacer.replaceValues(tcpSenderProperties.getLocalAddress(), connectorMessage));
+        tcpSenderProperties.setLocalPort(replacer.replaceValues(tcpSenderProperties.getLocalPort(), connectorMessage));
         tcpSenderProperties.setTemplate(replacer.replaceValues(tcpSenderProperties.getTemplate(), connectorMessage));
 
         return tcpSenderProperties;
@@ -138,9 +140,14 @@ public class TcpDispatcher extends DestinationConnector {
                 closeSocketQuietly();
 
                 logger.debug("Creating new socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
-                monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.ATTEMPTING, "Trying to connect on " + tcpSenderProperties.getHost() + ":" + tcpSenderProperties.getPort() + "...");
+                monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.ATTEMPTING, "Trying to connect on " + tcpSenderProperties.getRemoteAddress() + ":" + tcpSenderProperties.getRemotePort() + "...");
 
-                socket = SocketUtil.createSocket(tcpSenderProperties.getHost(), tcpSenderProperties.getPort());
+                if (tcpSenderProperties.isOverrideLocalBinding()) {
+                    socket = SocketUtil.createSocket(tcpSenderProperties.getRemoteAddress(), tcpSenderProperties.getRemotePort(), tcpSenderProperties.getLocalAddress(), tcpSenderProperties.getLocalPort());
+                } else {
+                    socket = SocketUtil.createSocket(tcpSenderProperties.getRemoteAddress(), tcpSenderProperties.getRemotePort());
+                }
+
                 socket.setReuseAddress(true);
                 socket.setReceiveBufferSize(parseInt(tcpSenderProperties.getBufferSize()));
                 socket.setSendBufferSize(parseInt(tcpSenderProperties.getBufferSize()));

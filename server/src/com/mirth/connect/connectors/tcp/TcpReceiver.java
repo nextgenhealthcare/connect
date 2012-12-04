@@ -467,7 +467,7 @@ public class TcpReceiver extends SourceConnector {
         logger.debug("Creating response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
         StateAwareSocket responseSocket = null;
         try {
-            responseSocket = SocketUtil.createSocket(replacer.replaceValues(connectorProperties.getResponseAddress(), getChannelId()), replacer.replaceValues(connectorProperties.getResponsePort(), getChannelId()));
+            responseSocket = SocketUtil.createSocket(replacer.replaceValues(connectorProperties.getResponseAddress(), getChannelId()), replacer.replaceValues(connectorProperties.getResponsePort(), getChannelId()), getHost());
             initSocket(responseSocket);
         } catch (Exception e) {
             logger.warn("Error creating response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);

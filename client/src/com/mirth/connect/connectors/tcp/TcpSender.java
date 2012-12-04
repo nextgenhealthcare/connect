@@ -67,8 +67,11 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
     public ConnectorProperties getProperties() {
         TcpDispatcherProperties properties = new TcpDispatcherProperties();
 
-        properties.setHost(hostField.getText());
-        properties.setPort(portField.getText());
+        properties.setRemoteAddress(remoteAddressField.getText());
+        properties.setRemotePort(remotePortField.getText());
+        properties.setOverrideLocalBinding(overrideLocalBindingYesRadio.isSelected());
+        properties.setLocalAddress(localAddressField.getText());
+        properties.setLocalPort(localPortField.getText());
         properties.setSendTimeout(sendTimeoutField.getText());
         properties.setBufferSize(bufferSizeField.getText());
         properties.setKeepConnectionOpen(keepConnectionOpenYesRadio.isSelected());
@@ -91,8 +94,19 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         logger.debug("setProperties: properties=" + properties);
         TcpDispatcherProperties props = (TcpDispatcherProperties) properties;
 
-        hostField.setText(props.getHost());
-        portField.setText(props.getPort());
+        remoteAddressField.setText(props.getRemoteAddress());
+        remotePortField.setText(props.getRemotePort());
+
+        if (props.isOverrideLocalBinding()) {
+            overrideLocalBindingYesRadio.setSelected(true);
+            overrideLocalBindingYesRadioActionPerformed(null);
+        } else {
+            overrideLocalBindingNoRadio.setSelected(true);
+            overrideLocalBindingNoRadioActionPerformed(null);
+        }
+
+        localAddressField.setText(props.getLocalAddress());
+        localPortField.setText(props.getLocalPort());
         sendTimeoutField.setText(props.getSendTimeout());
         bufferSizeField.setText(props.getBufferSize());
 
@@ -153,16 +167,30 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
 
         boolean valid = true;
 
-        if (props.getHost().length() <= 3) {
+        if (props.getRemoteAddress().length() <= 3) {
             valid = false;
             if (highlight) {
-                hostField.setBackground(UIConstants.INVALID_COLOR);
+                remoteAddressField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (props.getPort().length() == 0) {
+        if (props.getRemotePort().length() == 0) {
             valid = false;
             if (highlight) {
-                portField.setBackground(UIConstants.INVALID_COLOR);
+                remotePortField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        if (props.isOverrideLocalBinding()) {
+            if (props.getLocalAddress().length() <= 3) {
+                valid = false;
+                if (highlight) {
+                    localAddressField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+            if (props.getLocalPort().length() == 0) {
+                valid = false;
+                if (highlight) {
+                    localPortField.setBackground(UIConstants.INVALID_COLOR);
+                }
             }
         }
         if (props.isKeepConnectionOpen()) {
@@ -211,8 +239,10 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
 
     @Override
     public void resetInvalidProperties() {
-        hostField.setBackground(null);
-        portField.setBackground(null);
+        remoteAddressField.setBackground(null);
+        remotePortField.setBackground(null);
+        localAddressField.setBackground(null);
+        localPortField.setBackground(null);
         sendTimeoutField.setBackground(null);
         bufferSizeField.setBackground(null);
         startOfMessageBytesField.setBackground(null);
@@ -324,17 +354,18 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         keepConnectionOpenGroup = new javax.swing.ButtonGroup();
         dataTypeButtonGroup = new javax.swing.ButtonGroup();
         processHL7ACKButtonGroup = new javax.swing.ButtonGroup();
+        overrideLocalBindingButtonGroup = new javax.swing.ButtonGroup();
         keepConnectionOpenLabel = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         sendTimeoutLabel = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
-        portField = new com.mirth.connect.client.ui.components.MirthTextField();
+        remotePortField = new com.mirth.connect.client.ui.components.MirthTextField();
         sendTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
         bufferSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
         keepConnectionOpenYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         keepConnectionOpenNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        hostField = new com.mirth.connect.client.ui.components.MirthTextField();
+        remoteAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
         responseTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
         responseTimeoutLabel = new javax.swing.JLabel();
         charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
@@ -358,6 +389,13 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         endOfMessageBytes0XLabel = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
         sampleMessageLabel = new javax.swing.JLabel();
+        localAddressLabel = new javax.swing.JLabel();
+        localAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
+        localPortLabel = new javax.swing.JLabel();
+        localPortField = new com.mirth.connect.client.ui.components.MirthTextField();
+        keepConnectionOpenLabel1 = new javax.swing.JLabel();
+        overrideLocalBindingYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        overrideLocalBindingNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -371,13 +409,13 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         sendTimeoutLabel.setText("Send Timeout (ms):");
         sendTimeoutLabel.setToolTipText("<html>The number of milliseconds to keep the connection to the host open,<br/>if Keep Connection Open is enabled.</html>");
 
-        jLabel17.setText("Host Port:");
+        jLabel17.setText("Remote Port:");
         jLabel17.setToolTipText("<html>The port on which to connect.</html>");
 
-        jLabel18.setText("Host Address:");
+        jLabel18.setText("Remote Address:");
         jLabel18.setToolTipText("<html>The DNS domain name or IP address on which to connect.</html>");
 
-        portField.setToolTipText("<html>The port on which to connect.</html>");
+        remotePortField.setToolTipText("<html>The port on which to connect.</html>");
 
         sendTimeoutField.setToolTipText("<html>The number of milliseconds to keep the connection to the host open,<br/>if Keep Connection Open is enabled.</html>");
 
@@ -407,7 +445,7 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
             }
         });
 
-        hostField.setToolTipText("<html>The DNS domain name or IP address on which to connect.</html>");
+        remoteAddressField.setToolTipText("<html>The DNS domain name or IP address on which to connect.</html>");
 
         responseTimeoutField.setToolTipText("<html>The number of milliseconds the connector should wait for a response from the host after sending a message.<br/>If the End of Message byte sequence is defined, a response will be received when it is detected.<br/>If the timeout elapses, all data received at that point will be stored as the response data.</html>");
 
@@ -534,10 +572,47 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         sampleMessageLabel.setText("<html><b>&lt;VT&gt;</b> <i>&lt;Message Data&gt;</i> <b>&lt;FS&gt;&lt;CR&gt;</b></html>");
         sampleMessageLabel.setEnabled(false);
 
+        localAddressLabel.setText("Local Address:");
+        localAddressLabel.setToolTipText("<html>The local address that the client socket will be bound to, if Override Local Binding is set to Yes.<br/></html>");
+
+        localAddressField.setToolTipText("<html>The local address that the client socket will be bound to, if Override Local Binding is set to Yes.<br/></html>");
+
+        localPortLabel.setText("Local Port:");
+        localPortLabel.setToolTipText("<html>The local port that the client socket will be bound to, if Override Local Binding is set to Yes.<br/></html>");
+
+        localPortField.setToolTipText("<html>The local port that the client socket will be bound to, if Override Local Binding is set to Yes.<br/></html>");
+
+        keepConnectionOpenLabel1.setText("Override Local Binding:");
+        keepConnectionOpenLabel1.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default values of 127.0.0.1:0.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/></html>");
+
+        overrideLocalBindingYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        overrideLocalBindingYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        overrideLocalBindingButtonGroup.add(overrideLocalBindingYesRadio);
+        overrideLocalBindingYesRadio.setText("Yes");
+        overrideLocalBindingYesRadio.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default values of 127.0.0.1:0.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/></html>");
+        overrideLocalBindingYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        overrideLocalBindingYesRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                overrideLocalBindingYesRadioActionPerformed(evt);
+            }
+        });
+
+        overrideLocalBindingNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        overrideLocalBindingNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        overrideLocalBindingButtonGroup.add(overrideLocalBindingNoRadio);
+        overrideLocalBindingNoRadio.setText("No");
+        overrideLocalBindingNoRadio.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default values of 127.0.0.1:0.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/></html>");
+        overrideLocalBindingNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        overrideLocalBindingNoRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                overrideLocalBindingNoRadioActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addContainerGap().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel19).addComponent(jLabel18).addComponent(frameEncodingLabel).addComponent(jLabel17).addComponent(keepConnectionOpenLabel).addComponent(sendTimeoutLabel).addComponent(jLabel15).addComponent(responseTimeoutLabel).addComponent(processHL7ACKLabel).addComponent(dataTypeLabel).addComponent(encodingLabel).addComponent(jLabel7)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addComponent(responseTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(ignoreResponseCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(processHL7ACKYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(processHL7ACKNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false).addGroup(layout.createSequentialGroup().addComponent(hostField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(testConnection)).addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup().addComponent(frameEncodingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(startOfMessageBytes0XLabel).addGap(3, 3, 3).addComponent(startOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(4, 4, 4).addComponent(messageDataLabel).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(endOfMessageBytes0XLabel).addGap(3, 3, 3).addComponent(endOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)))).addGap(0, 0, Short.MAX_VALUE)).addComponent(sampleMessageLabel)).addContainerGap()));
-        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(frameEncodingLabel).addComponent(frameEncodingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(startOfMessageBytes0XLabel).addComponent(startOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(messageDataLabel).addComponent(endOfMessageBytes0XLabel).addComponent(endOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel19).addComponent(sampleMessageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel18).addComponent(hostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(testConnection)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel17).addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(keepConnectionOpenLabel).addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(sendTimeoutLabel).addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel15).addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(responseTimeoutLabel).addComponent(responseTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(ignoreResponseCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(processHL7ACKLabel).addComponent(processHL7ACKYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(processHL7ACKNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(dataTypeLabel).addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(encodingLabel).addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jLabel7).addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)).addContainerGap()));
+        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGap(13, 13, 13).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel19).addComponent(frameEncodingLabel).addComponent(jLabel18).addComponent(jLabel17).addComponent(keepConnectionOpenLabel1).addComponent(localAddressLabel).addComponent(localPortLabel).addComponent(keepConnectionOpenLabel).addComponent(sendTimeoutLabel).addComponent(jLabel15).addComponent(responseTimeoutLabel).addComponent(processHL7ACKLabel).addComponent(dataTypeLabel).addComponent(encodingLabel).addComponent(jLabel7)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(sampleMessageLabel).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addComponent(frameEncodingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(startOfMessageBytes0XLabel).addGap(3, 3, 3).addComponent(startOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(4, 4, 4).addComponent(messageDataLabel).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(endOfMessageBytes0XLabel).addGap(3, 3, 3).addComponent(endOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(remoteAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(testConnection)).addComponent(remotePortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addComponent(overrideLocalBindingYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(overrideLocalBindingNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(localAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(localPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addComponent(responseTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(ignoreResponseCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(processHL7ACKYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(processHL7ACKNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGap(0, 9, Short.MAX_VALUE)).addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)).addContainerGap()));
+        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(frameEncodingLabel).addComponent(frameEncodingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(startOfMessageBytes0XLabel).addComponent(startOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(messageDataLabel).addComponent(endOfMessageBytes0XLabel).addComponent(endOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel19).addComponent(sampleMessageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel18).addComponent(remoteAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(testConnection)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel17).addComponent(remotePortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(keepConnectionOpenLabel1).addComponent(overrideLocalBindingYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(overrideLocalBindingNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(localAddressLabel).addComponent(localAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(localPortLabel).addComponent(localPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(keepConnectionOpenLabel).addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(sendTimeoutLabel).addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel15).addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(responseTimeoutLabel).addComponent(responseTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(ignoreResponseCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(processHL7ACKLabel).addComponent(processHL7ACKYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(processHL7ACKNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(dataTypeLabel).addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(encodingLabel).addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addComponent(jLabel7).addGap(0, 0, Short.MAX_VALUE)).addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)).addContainerGap()));
     }// </editor-fold>//GEN-END:initComponents
 
     private void dataTypeBinaryRadioActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeBinaryRadioActionPerformed
@@ -618,6 +693,20 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
     private void frameEncodingComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_frameEncodingComboBoxActionPerformed
     }//GEN-LAST:event_frameEncodingComboBoxActionPerformed
 
+    private void overrideLocalBindingYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overrideLocalBindingYesRadioActionPerformed
+        localAddressField.setEnabled(true);
+        localAddressLabel.setEnabled(true);
+        localPortField.setEnabled(true);
+        localPortLabel.setEnabled(true);
+    }//GEN-LAST:event_overrideLocalBindingYesRadioActionPerformed
+
+    private void overrideLocalBindingNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overrideLocalBindingNoRadioActionPerformed
+        localAddressField.setEnabled(false);
+        localAddressLabel.setEnabled(false);
+        localPortField.setEnabled(false);
+        localPortLabel.setEnabled(false);
+    }//GEN-LAST:event_overrideLocalBindingNoRadioActionPerformed
+
     private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_charsetEncodingComboboxActionPerformed
     }// GEN-LAST:event_charsetEncodingComboboxActionPerformed
      // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -633,7 +722,6 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
     private com.mirth.connect.client.ui.components.MirthTextField endOfMessageBytesField;
     private com.mirth.connect.client.ui.components.MirthComboBox frameEncodingComboBox;
     private javax.swing.JLabel frameEncodingLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField hostField;
     private com.mirth.connect.client.ui.components.MirthCheckBox ignoreResponseCheckBox;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel17;
@@ -642,14 +730,23 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
     private javax.swing.JLabel jLabel7;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
     private javax.swing.JLabel keepConnectionOpenLabel;
+    private javax.swing.JLabel keepConnectionOpenLabel1;
     private com.mirth.connect.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
+    private com.mirth.connect.client.ui.components.MirthTextField localAddressField;
+    private javax.swing.JLabel localAddressLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField localPortField;
+    private javax.swing.JLabel localPortLabel;
     private javax.swing.JLabel messageDataLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField portField;
+    private javax.swing.ButtonGroup overrideLocalBindingButtonGroup;
+    private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingYesRadio;
     private javax.swing.ButtonGroup processHL7ACKButtonGroup;
     private javax.swing.JLabel processHL7ACKLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton processHL7ACKNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton processHL7ACKYesRadio;
+    private com.mirth.connect.client.ui.components.MirthTextField remoteAddressField;
+    private com.mirth.connect.client.ui.components.MirthTextField remotePortField;
     private com.mirth.connect.client.ui.components.MirthTextField responseTimeoutField;
     private javax.swing.JLabel responseTimeoutLabel;
     private javax.swing.JLabel sampleMessageLabel;

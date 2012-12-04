@@ -251,7 +251,7 @@
     <Component class="javax.swing.JLabel" name="ackOnNewConnectionLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Respond on New Connection:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on.&lt;br/&gt;Select Yes to send the response on a new connection.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;br/&gt;&lt;br/&gt;When responding on a new connection, the client socket will be bound locally on the same interface chosen in the Listener Settings, and an ephemeral port will be automatically assigned.&lt;br/&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="respondOnNewConnectionYesRadio">
@@ -268,7 +268,7 @@
           <ComponentRef name="respondOnNewConnectionButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;br/&gt;&lt;br/&gt;When responding on a new connection, the client socket will be bound locally on the same interface chosen in the Listener Settings, and an ephemeral port will be automatically assigned.&lt;br/&gt;&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -291,7 +291,7 @@
           <ComponentRef name="respondOnNewConnectionButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;br/&gt;&lt;br/&gt;When responding on a new connection, the client socket will be bound locally on the same interface chosen in the Listener Settings, and an ephemeral port will be automatically assigned.&lt;br/&gt;&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -314,7 +314,7 @@
           <ComponentRef name="respondOnNewConnectionButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Message Recovery"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;br/&gt;&lt;br/&gt;When responding on a new connection, the client socket will be bound locally on the same interface chosen in the Listener Settings, and an ephemeral port will be automatically assigned.&lt;br/&gt;&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
