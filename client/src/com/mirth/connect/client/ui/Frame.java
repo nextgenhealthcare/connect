@@ -3419,7 +3419,7 @@ public class Frame extends JXFrame {
     }
 
     public void doRemoveAllMessages() {
-        if (alertOption(this, "Are you sure you would like to remove all messages in the selected channel(s)?\n(Only stopped channels will be affected)")) {
+        if (alertOption(this, "<html>Are you sure you would like to remove all messages in the selected channel(s)?<br>Channel(s) must be stopped for messages to be removed.<br><font size='1'><br></font>WARNING: Queued messages will also be removed.</html>")) {
             final boolean clearStats = alertOption(PlatformUI.MIRTH_FRAME, "Would you also like to clear all statistics?\n(Only stopped channels will be affected)");
 
             Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
@@ -3519,7 +3519,7 @@ public class Frame extends JXFrame {
     }
 
     public void doRemoveFilteredMessages() {
-        if (alertOption(this, "Are you sure you would like to remove all currently filtered messages in this channel?\n(Messages currently being processed can only be removed if the channel is stopped)")) {
+        if (alertOption(this, "<html>Are you sure you would like to remove all currently filtered messages in this channel?<br>Channel must be stopped for unfinished messages to be removed.<br><font size='1'><br></font>WARNING: Queued messages will also be removed.</html>")) {
             final String workingId = startWorking("Removing messages...");
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -3555,7 +3555,7 @@ public class Frame extends JXFrame {
     	final Integer metaDataId = messageBrowser.getSelectedMetaDataId();
     	final Long messageId = messageBrowser.getSelectedMessageId();
     	final String channelId = messageBrowser.getChannel().getId();
-        if (alertOption(this, "Are you sure you would like to remove the selected message?\n(Messages currently being processed can only be removed if the channel is stopped)")) {
+        if (alertOption(this, "Are you sure you would like to remove the selected message?\nChannel must be stopped for an unfinished message to be removed.")) {
             final String workingId = startWorking("Removing message...");
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
