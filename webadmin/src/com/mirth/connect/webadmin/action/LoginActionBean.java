@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ * 
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.mirth.connect.webadmin.action;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +23,7 @@ import com.mirth.connect.webadmin.utils.Constants;
 public class LoginActionBean extends BaseActionBean {
     @DefaultHandler
     public Resolution login() {
-    	Client client;
+        Client client;
         HttpServletRequest request = getContext().getRequest();
         LoginStatus loginStatus = null;
 
@@ -43,7 +52,7 @@ public class LoginActionBean extends BaseActionBean {
                 getContext().setUser(validUser);
                 getContext().setAuthorized(true);
                 getContext().setClient(client);
-                
+
                 // this prevents the session from timing out
                 request.getSession().setMaxInactiveInterval(-1);
 

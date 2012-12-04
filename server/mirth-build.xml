@@ -163,6 +163,10 @@
 		<header headerFile="${server}/license-header.txt">
 			<fileset dir="${donkey}" includes="**/*.java" />
 		</header>
+		
+		<header headerFile="${server}/license-header.txt">
+			<fileset dir="${webadmin}" includes="**/*.java" />
+		</header>
 	</target>
 
 	<!-- build custom extensions -->
