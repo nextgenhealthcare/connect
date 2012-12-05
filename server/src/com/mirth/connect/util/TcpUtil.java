@@ -26,13 +26,7 @@ public class TcpUtil {
 
     public static String convertHexToAbbreviation(String str) {
         if (isValidHexString(str)) {
-            String abbreviation = "";
-
-            if (StringUtils.isNotBlank(str)) {
-                abbreviation += getByteAbbreviation((new BigInteger(str, 16)).toByteArray());
-            }
-
-            return abbreviation;
+            return getByteAbbreviation(stringToByteArray(str));
         } else {
             return "Invalid Hex";
         }
@@ -107,18 +101,10 @@ public class TcpUtil {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
         if (StringUtils.isNotBlank(str)) {
-            String hexString = str.toUpperCase().replaceAll("^0+|[^0-9A-F]", "");
-            if (StringUtils.isNotBlank(hexString)) {
-                if (hexString.length() % 2 == 1) {
-                    hexString = "0" + hexString;
-                }
-                while (!hexString.isEmpty()) {
-                    try {
-                        bytes.write((new BigInteger(hexString.substring(0, 2), 16)).toByteArray());
-                    } catch (IOException e) {
-                    }
-                    hexString = hexString.substring(2);
-                }
+            String hexString = str.toUpperCase().replaceAll("[^0-9A-F]", "");
+
+            for (String hexByte : ((hexString.length() % 2 > 0 ? "0" : "") + hexString).split("(?<=\\G..)")) {
+                bytes.write((byte) ((Character.digit(hexByte.charAt(0), 16) << 4) + Character.digit(hexByte.charAt(1), 16)));
             }
         }
 

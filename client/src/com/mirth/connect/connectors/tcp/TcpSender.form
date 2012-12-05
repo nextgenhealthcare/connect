@@ -573,18 +573,18 @@
     <Component class="javax.swing.JLabel" name="localPortLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Local Port:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The local port that the client socket will be bound to, if Override Local Binding is set to Yes.&lt;br/&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The local port that the client socket will be bound to, if Override Local Binding is set to Yes.&lt;br/&gt;&lt;br/&gt;Note that if a specific (non-zero) local port is chosen, then after a socket is closed it&apos;s up to the&lt;br/&gt;underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.&lt;br/&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="localPortField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The local port that the client socket will be bound to, if Override Local Binding is set to Yes.&lt;br/&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The local port that the client socket will be bound to, if Override Local Binding is set to Yes.&lt;br/&gt;&lt;br/&gt;Note that if a specific (non-zero) local port is chosen, then after a socket is closed it&apos;s up to the&lt;br/&gt;underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.&lt;br/&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="keepConnectionOpenLabel1">
       <Properties>
         <Property name="text" type="java.lang.String" value="Override Local Binding:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to override the local address and port that the client socket will be bound to.&lt;br/&gt;Select No to use the default values of 0.0.0.0:0.&lt;br/&gt;A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.&lt;br/&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to override the local address and port that the client socket will be bound to.&lt;br/&gt;Select No to use the default values of 0.0.0.0:0.&lt;br/&gt;A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.&lt;br/&gt;&lt;br/&gt;Note that if a specific (non-zero) local port is chosen, then after a socket is closed it&apos;s up to the&lt;br/&gt;underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.&lt;br/&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="overrideLocalBindingYesRadio">
@@ -601,7 +601,7 @@
           <ComponentRef name="overrideLocalBindingButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to override the local address and port that the client socket will be bound to.&lt;br/&gt;Select No to use the default values of 0.0.0.0:0.&lt;br/&gt;A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.&lt;br/&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to override the local address and port that the client socket will be bound to.&lt;br/&gt;Select No to use the default values of 0.0.0.0:0.&lt;br/&gt;A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.&lt;br/&gt;&lt;br/&gt;Note that if a specific (non-zero) local port is chosen, then after a socket is closed it&apos;s up to the&lt;br/&gt;underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.&lt;br/&gt;&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -624,7 +624,7 @@
           <ComponentRef name="overrideLocalBindingButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to override the local address and port that the client socket will be bound to.&lt;br/&gt;Select No to use the default values of 0.0.0.0:0.&lt;br/&gt;A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.&lt;br/&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to override the local address and port that the client socket will be bound to.&lt;br/&gt;Select No to use the default values of 0.0.0.0:0.&lt;br/&gt;A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.&lt;br/&gt;&lt;br/&gt;Note that if a specific (non-zero) local port is chosen, then after a socket is closed it&apos;s up to the&lt;br/&gt;underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.&lt;br/&gt;&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
