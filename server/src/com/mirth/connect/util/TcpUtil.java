@@ -19,8 +19,6 @@ public class TcpUtil {
 
     public static final String DEFAULT_LLP_START_BYTES = "0B"; // <VT>
     public static final String DEFAULT_LLP_END_BYTES = "1C0D"; // <CR><LF>
-    public static final String DEFAULT_ASTM_START_BYTES = "05"; // <ENQ>
-    public static final String DEFAULT_ASTM_END_BYTES = "04"; // <EOT>
 
     public static boolean isValidHexString(String str) {
         return str.matches("^[0-9A-F]*$");

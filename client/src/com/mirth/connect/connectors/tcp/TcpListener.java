@@ -121,8 +121,6 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         frameEncodingComboBox.removeActionListener(this);
         if (props.getStartOfMessageBytes().equals(TcpUtil.DEFAULT_LLP_START_BYTES) && props.getEndOfMessageBytes().equals(TcpUtil.DEFAULT_LLP_END_BYTES)) {
             frameEncodingComboBox.setSelectedItem("MLLP");
-        } else if (props.getStartOfMessageBytes().equals(TcpUtil.DEFAULT_ASTM_START_BYTES) && props.getEndOfMessageBytes().equals(TcpUtil.DEFAULT_ASTM_END_BYTES)) {
-            frameEncodingComboBox.setSelectedItem("ASTM");
         } else {
             frameEncodingComboBox.setSelectedItem("Custom");
         }
@@ -271,16 +269,12 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
 
             if (frameEncodingComboBox.getSelectedItem().equals("MLLP") && text.equals(TcpUtil.DEFAULT_LLP_START_BYTES) && endOfMessageBytesField.getText().equals(TcpUtil.DEFAULT_LLP_END_BYTES)) {
                 switchTo = "MLLP";
-            } else if (frameEncodingComboBox.getSelectedItem().equals("ASTM") && text.equals(TcpUtil.DEFAULT_ASTM_START_BYTES) && endOfMessageBytesField.getText().equals(TcpUtil.DEFAULT_ASTM_END_BYTES)) {
-                switchTo = "ASTM";
             }
         } else {
             endOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(text);
 
             if (frameEncodingComboBox.getSelectedItem().equals("MLLP") && startOfMessageBytesField.getText().equals(TcpUtil.DEFAULT_LLP_START_BYTES) && text.equals(TcpUtil.DEFAULT_LLP_END_BYTES)) {
                 switchTo = "MLLP";
-            } else if (frameEncodingComboBox.getSelectedItem().equals("ASTM") && startOfMessageBytesField.getText().equals(TcpUtil.DEFAULT_ASTM_START_BYTES) && text.equals(TcpUtil.DEFAULT_ASTM_END_BYTES)) {
-                switchTo = "ASTM";
             }
         }
 
@@ -316,9 +310,6 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
             if (frameEncodingComboBox.getSelectedItem().equals("MLLP")) {
                 startOfMessageBytesField.setText(TcpUtil.DEFAULT_LLP_START_BYTES);
                 endOfMessageBytesField.setText(TcpUtil.DEFAULT_LLP_END_BYTES);
-            } else if (frameEncodingComboBox.getSelectedItem().equals("ASTM")) {
-                startOfMessageBytesField.setText(TcpUtil.DEFAULT_ASTM_START_BYTES);
-                endOfMessageBytesField.setText(TcpUtil.DEFAULT_ASTM_END_BYTES);
             } else {
                 startOfMessageBytesField.setText("");
                 endOfMessageBytesField.setText("");
@@ -581,8 +572,8 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
             }
         });
 
-        frameEncodingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP", "ASTM", "Custom" }));
-        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        frameEncodingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP", "Custom" }));
+        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         frameEncodingComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 frameEncodingComboBoxActionPerformed(evt);
@@ -590,7 +581,7 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         });
 
         frameEncodingLabel.setText("Frame Encoding:");
-        frameEncodingLabel.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        frameEncodingLabel.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         messageDataLabel.setFont(new java.awt.Font("Dialog", 2, 12)); // NOI18N
         messageDataLabel.setText("<Message Data>");
