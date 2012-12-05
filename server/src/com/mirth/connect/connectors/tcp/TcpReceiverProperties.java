@@ -14,7 +14,6 @@ import com.mirth.connect.donkey.model.channel.ListenerConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
-import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.TcpUtil;
 
@@ -47,7 +46,7 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
     public TcpReceiverProperties() {
         listenerConnectorProperties = new ListenerConnectorProperties("6661");
         responseConnectorProperties = new ResponseConnectorProperties();
-        responseConnectorProperties.setResponseVariable(Constants.RESPONSE_AUTO_BEFORE);
+        responseConnectorProperties.setResponseVariable(ResponseConnectorProperties.RESPONSE_AUTO_BEFORE);
 
         this.serverMode = true;
         this.reconnectInterval = "5000";

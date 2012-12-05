@@ -36,6 +36,7 @@ import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
+import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -1107,7 +1108,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             }
 
             if (response != null) {
-                finalMessage.getConnectorMessages().get(0).getResponseMap().put(Constants.RESPONSE_POST_PROCESSOR, response);
+                finalMessage.getConnectorMessages().get(0).getResponseMap().put(ResponseConnectorProperties.RESPONSE_POST_PROCESSOR, response);
             }
         }
 

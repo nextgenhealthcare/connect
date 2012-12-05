@@ -18,11 +18,11 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
@@ -257,7 +257,7 @@ public class SourceConnectorTests {
         channel.deploy();
         channel.start();
 
-        channel.getResponseSelector().setRespondFromName(Constants.RESPONSE_SOURCE_TRANSFORMED);
+        channel.getResponseSelector().setRespondFromName(ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
 
         for (int i = 0; i < TEST_SIZE; i++) {
             response = sourceConnector.readTestMessage(testMessage).getSelectedResponse();
@@ -266,7 +266,7 @@ public class SourceConnectorTests {
 
         assertEquals(TEST_SIZE, channel.getNumMessages());
 
-        channel.getResponseSelector().setRespondFromName(Constants.RESPONSE_DESTINATIONS_COMPLETED);
+        channel.getResponseSelector().setRespondFromName(ResponseConnectorProperties.RESPONSE_DESTINATIONS_COMPLETED);
 
         for (int i = 0; i < TEST_SIZE; i++) {
             response = sourceConnector.readTestMessage(testMessage).getSelectedResponse();

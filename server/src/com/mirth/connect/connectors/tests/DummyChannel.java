@@ -12,6 +12,7 @@ package com.mirth.connect.connectors.tests;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.DataType;
@@ -19,7 +20,6 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.PauseException;
 import com.mirth.connect.donkey.server.StartException;
@@ -125,7 +125,7 @@ public class DummyChannel extends Channel {
         message.getConnectorMessages().put(0, sourceMessage);
         message.getConnectorMessages().put(1, destinationMessage);
 
-        sourceMessage.getResponseMap().put(Constants.RESPONSE_POST_PROCESSOR, new Response(Status.SENT, ""));
+        sourceMessage.getResponseMap().put(ResponseConnectorProperties.RESPONSE_POST_PROCESSOR, new Response(Status.SENT, ""));
 
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 

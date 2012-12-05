@@ -46,6 +46,7 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnException;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
+import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.DataType;
@@ -55,7 +56,6 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConfiguration;
 import com.mirth.connect.donkey.server.PassthruEncryptor;
@@ -63,8 +63,8 @@ import com.mirth.connect.donkey.server.Serializer;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
+import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.channel.StorageSettings;
@@ -90,7 +90,7 @@ public class TestUtils {
 
     final public static String DEFAULT_CHANNEL_ID = "testchannel";
     final public static String DEFAULT_SERVER_ID = "testserver";
-    final public static String DEFAULT_RESPOND_FROM_NAME = Constants.RESPONSE_SOURCE_TRANSFORMED;
+    final public static String DEFAULT_RESPOND_FROM_NAME = ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED;
     final public static String DEFAULT_DESTINATION_NAME = "testdestination";
     final public static String DEFAULT_OUTBOUND_TEMPLATE = null;
 
@@ -124,7 +124,7 @@ public class TestUtils {
 
         return channel;
     }
-    
+
     public static TestChannel createDefaultChannel(String channelId, String serverId, int numChains, int numDestinationsPerChain) {
         return createDefaultChannel(channelId, serverId, true, numChains, numDestinationsPerChain, new StorageSettings());
     }
@@ -136,7 +136,7 @@ public class TestUtils {
     public static TestChannel createDefaultChannel(String channelId, String serverId, Boolean waitForDestinations, int numChains, int numDestinationsPerChain) {
         return createDefaultChannel(channelId, serverId, waitForDestinations, numChains, numDestinationsPerChain, new StorageSettings());
     }
-    
+
     public static TestChannel createDefaultChannel(String channelId, String serverId, Boolean respondAfterProcessing, int numChains, int numDestinationsPerChain, StorageSettings storageSettings) {
         ChannelController.getInstance().getLocalChannelId(channelId);
 
@@ -146,7 +146,7 @@ public class TestUtils {
         channel.setServerId(serverId);
         channel.setEnabled(true);
         channel.setStorageSettings(storageSettings);
-        
+
         if (storageSettings.isEnabled()) {
             channel.setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory()));
         } else {
@@ -1119,7 +1119,7 @@ public class TestUtils {
             if (warmupMillis == null) {
                 warmupMillis = 0;
             }
-            
+
             testMillis += warmupMillis;
             long testBeginTime = testStartTime + warmupMillis;
             long testEndTime = testStartTime + testMillis;
