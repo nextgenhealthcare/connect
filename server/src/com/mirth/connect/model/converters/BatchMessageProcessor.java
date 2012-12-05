@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors;
+package com.mirth.connect.model.converters;
 
 /**
  * The interface that must be implemented by classes that handle message

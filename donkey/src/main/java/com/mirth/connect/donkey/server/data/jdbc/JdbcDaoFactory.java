@@ -16,9 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.server.Serializer;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.util.Serializer;
 
 public class JdbcDaoFactory implements DonkeyDaoFactory {
     public static JdbcDaoFactory getInstance() {

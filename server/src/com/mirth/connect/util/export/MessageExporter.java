@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
-import com.mirth.connect.donkey.server.Serializer;
+import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.server.controllers.MessageController;
 
 public class MessageExporter {

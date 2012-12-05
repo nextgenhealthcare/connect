@@ -33,6 +33,8 @@ import com.mirth.connect.donkey.server.data.jdbc.JdbcDao;
 import com.mirth.connect.donkey.server.data.jdbc.JdbcDaoFactory;
 import com.mirth.connect.donkey.server.data.jdbc.XmlQuerySource;
 import com.mirth.connect.donkey.server.data.jdbc.XmlQuerySource.XmlQuerySourceException;
+import com.mirth.connect.donkey.util.DefaultSerializer;
+import com.mirth.connect.donkey.util.Serializer;
 
 public class Donkey {
     private static Donkey instance;

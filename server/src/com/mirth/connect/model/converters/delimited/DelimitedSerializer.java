@@ -23,11 +23,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.mirth.connect.connectors.BatchMessageProcessor;
-import com.mirth.connect.connectors.BatchMessageProcessorException;
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.BatchAdaptor;
+import com.mirth.connect.model.converters.BatchMessageProcessor;
+import com.mirth.connect.model.converters.BatchMessageProcessorException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.server.Constants;

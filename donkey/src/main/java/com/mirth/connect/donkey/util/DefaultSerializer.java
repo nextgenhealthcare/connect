@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.server;
+package com.mirth.connect.donkey.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
@@ -19,6 +19,7 @@ import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
+
 
 public class DefaultSerializer implements Serializer {
     @Override

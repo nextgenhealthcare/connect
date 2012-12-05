@@ -18,7 +18,7 @@ import java.util.WeakHashMap;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
-import com.mirth.connect.donkey.server.Serializer;
+import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.ArchiveMetaData;
 import com.mirth.connect.model.Attachment;

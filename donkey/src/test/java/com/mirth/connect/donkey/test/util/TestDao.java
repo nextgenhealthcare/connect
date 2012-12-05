@@ -14,11 +14,11 @@ import java.sql.Connection;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.Serializer;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.data.jdbc.JdbcDao;
 import com.mirth.connect.donkey.server.data.jdbc.PreparedStatementSource;
 import com.mirth.connect.donkey.server.data.jdbc.QuerySource;
+import com.mirth.connect.donkey.util.Serializer;
 
 public class TestDao extends JdbcDao {
     private int errorPct = 0;

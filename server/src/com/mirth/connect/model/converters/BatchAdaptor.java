@@ -11,7 +11,6 @@ package com.mirth.connect.model.converters;
 
 import java.io.Reader;
 
-import com.mirth.connect.connectors.BatchMessageProcessor;
 
 /**
  * The base for classes to be implemented for Protocols that need to support

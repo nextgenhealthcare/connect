@@ -26,8 +26,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.mirth.connect.connectors.BatchMessageProcessor;
-import com.mirth.connect.connectors.BatchMessageProcessorException;
 import com.mirth.connect.connectors.file.filesystems.FileInfo;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.donkey.model.message.DataType;
@@ -40,6 +38,8 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.model.converters.BatchAdaptor;
+import com.mirth.connect.model.converters.BatchMessageProcessor;
+import com.mirth.connect.model.converters.BatchMessageProcessorException;
 import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.delimited.DelimitedSerializer;
 import com.mirth.connect.server.Constants;

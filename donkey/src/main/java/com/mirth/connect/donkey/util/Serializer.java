@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.server;
+package com.mirth.connect.donkey.util;
 
 import java.io.Serializable;
 

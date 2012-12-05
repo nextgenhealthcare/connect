@@ -445,8 +445,8 @@ public class LoginPanel extends javax.swing.JFrame {
                         loginProgress.setIndeterminate(false);
                         password.grabFocus();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Throwable t) {
+                    t.printStackTrace();
                 }
                 return null;
             }

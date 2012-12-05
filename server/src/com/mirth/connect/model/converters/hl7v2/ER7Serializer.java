@@ -32,11 +32,11 @@ import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
-import com.mirth.connect.connectors.BatchMessageProcessor;
-import com.mirth.connect.connectors.BatchMessageProcessorException;
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.BatchAdaptor;
+import com.mirth.connect.model.converters.BatchMessageProcessor;
+import com.mirth.connect.model.converters.BatchMessageProcessorException;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
