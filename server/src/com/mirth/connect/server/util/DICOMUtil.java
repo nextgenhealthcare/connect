@@ -62,9 +62,6 @@ public class DICOMUtil {
             try {
                 if (attachments.get(0).getType().equals("DICOM")) {
                     byte[] mergedMessageBytes = mergeHeaderAttachments(message, attachments);
-                    
-                    // Free the memory from the attachments
-                    attachments = null;
 
                     // Replace the raw binary with the encoded binary to free up the memory
                     mergedMessageBytes = Base64Util.encodeBase64(mergedMessageBytes);
@@ -159,6 +156,9 @@ public class DICOMUtil {
                 dcmObj.putBytes(Tag.PixelData, VR.OB, attachments.get(0).getContent());
             }
         }
+        
+        // Memory Optimization. Free the references to the data in the attachments list.
+        attachments.clear();
 
         return dicomObjectToByteArray(dcmObj);
     }
@@ -302,22 +302,56 @@ public class DICOMUtil {
     public static byte[] dicomObjectToByteArray(DicomObject dicomObject) throws IOException {
         BasicDicomObject basicDicomObject = (BasicDicomObject) dicomObject;
         DicomOutputStream dos = null;
-
+        
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            dos = new DicomOutputStream(baos);
-
+            ByteCounterOutputStream bcos = new ByteCounterOutputStream();
+            ByteArrayOutputStream baos;
+            
             if (basicDicomObject.fileMetaInfo().isEmpty()) {
+                try {
+                    // Create a dicom output stream with the byte counter output stream.
+                    dos = new DicomOutputStream(bcos);
+                    // "Write" the dataset once to determine the total number of bytes required. This is fast because no data is actually being copied.
+                    dos.writeDataset(basicDicomObject, TransferSyntax.ImplicitVRLittleEndian);
+                } finally {
+                    IOUtils.closeQuietly(dos);
+                }
+                
+                // Create the actual byte array output stream with a buffer size equal to the number of bytes required.
+                baos = new ByteArrayOutputStream(bcos.size());
+                // Create a dicom output stream with the byte array output stream
+                dos = new DicomOutputStream(baos);
+                
                 // Create ACR/NEMA Dump
                 dos.writeDataset(basicDicomObject, TransferSyntax.ImplicitVRLittleEndian);
             } else {
+                try {
+                    // Create a dicom output stream with the byte counter output stream.
+                    dos = new DicomOutputStream(bcos);
+                    // "Write" the dataset once to determine the total number of bytes required. This is fast because no data is actually being copied.
+                    dos.writeDicomFile(basicDicomObject);
+                } finally {
+                    IOUtils.closeQuietly(dos);
+                }
+                
+                // Create the actual byte array output stream with a buffer size equal to the number of bytes required.
+                baos = new ByteArrayOutputStream(bcos.size());
+                // Create a dicom output stream with the byte array output stream
+                dos = new DicomOutputStream(baos);
+                
                 // Create DICOM File
                 dos.writeDicomFile(basicDicomObject);
             }
             
+            // Memory Optimization since the dicom object is no longer needed at this point.
+            dicomObject.clear();
+            
             return baos.toByteArray();
         } catch (IOException e) {
             throw e;
+        } catch (Throwable t) {
+            t.printStackTrace();
+            return null;
         } finally {
             IOUtils.closeQuietly(dos);
         }
