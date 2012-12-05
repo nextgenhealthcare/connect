@@ -46,7 +46,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
         this.remoteAddress = "127.0.0.1";
         this.remotePort = "6660";
         this.overrideLocalBinding = false;
-        this.localAddress = "127.0.0.1";
+        this.localAddress = "0.0.0.0";
         this.localPort = "0";
         this.sendTimeout = "5000";
         this.bufferSize = "65536";

@@ -539,7 +539,7 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         startOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         frameEncodingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP", "Custom" }));
-        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         frameEncodingComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 frameEncodingComboBoxActionPerformed(evt);
@@ -547,7 +547,7 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         });
 
         frameEncodingLabel.setText("Frame Encoding:");
-        frameEncodingLabel.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        frameEncodingLabel.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         messageDataLabel.setFont(new java.awt.Font("Dialog", 2, 12)); // NOI18N
         messageDataLabel.setText("<Message Data>");
@@ -574,13 +574,13 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         localPortField.setToolTipText("<html>The local port that the client socket will be bound to, if Override Local Binding is set to Yes.<br/></html>");
 
         keepConnectionOpenLabel1.setText("Override Local Binding:");
-        keepConnectionOpenLabel1.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default values of 127.0.0.1:0.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/></html>");
+        keepConnectionOpenLabel1.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default values of 0.0.0.0:0.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/></html>");
 
         overrideLocalBindingYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         overrideLocalBindingYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         overrideLocalBindingButtonGroup.add(overrideLocalBindingYesRadio);
         overrideLocalBindingYesRadio.setText("Yes");
-        overrideLocalBindingYesRadio.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default values of 127.0.0.1:0.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/></html>");
+        overrideLocalBindingYesRadio.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default values of 0.0.0.0:0.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/></html>");
         overrideLocalBindingYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         overrideLocalBindingYesRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -592,7 +592,7 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         overrideLocalBindingNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         overrideLocalBindingButtonGroup.add(overrideLocalBindingNoRadio);
         overrideLocalBindingNoRadio.setText("No");
-        overrideLocalBindingNoRadio.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default values of 127.0.0.1:0.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/></html>");
+        overrideLocalBindingNoRadio.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default values of 0.0.0.0:0.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/></html>");
         overrideLocalBindingNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         overrideLocalBindingNoRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
