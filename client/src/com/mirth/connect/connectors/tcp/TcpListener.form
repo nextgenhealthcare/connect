@@ -600,10 +600,9 @@
     <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="frameEncodingComboBox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="3">
+          <StringArray count="2">
             <StringItem index="0" value="MLLP"/>
-            <StringItem index="1" value="ASTM"/>
-            <StringItem index="2" value="Custom"/>
+            <StringItem index="1" value="Custom"/>
           </StringArray>
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.&lt;br/&gt;Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.&lt;br/&gt;Select Custom to enter user-defined frame encoding characters.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
