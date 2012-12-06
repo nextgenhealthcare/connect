@@ -9,7 +9,7 @@
 
 package com.mirth.connect.client.ui.browsers.message;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.AbstractSortableTreeTableNode;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;

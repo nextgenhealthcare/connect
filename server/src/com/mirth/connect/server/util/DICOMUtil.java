@@ -204,7 +204,7 @@ public class DICOMUtil {
             IOUtils.closeQuietly(baos);
         }
 
-        return org.apache.commons.lang.StringUtils.EMPTY;
+        return org.apache.commons.lang3.StringUtils.EMPTY;
     }
 
     public static String reAttachMessage(ConnectorMessage message) {

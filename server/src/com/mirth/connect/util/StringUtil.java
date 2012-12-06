@@ -9,7 +9,7 @@
 
 package com.mirth.connect.util;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class StringUtil {
     // Four ways to specify character values and string values

@@ -26,11 +26,6 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api-2.6/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/commons/commons-configuration-1.7.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://commons.apache.org/configuration/apidocs/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons/commons-collections-3.2.1.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/collections/api-release/"/>

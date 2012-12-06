@@ -11,7 +11,7 @@ package com.mirth.connect.util;
 
 import java.nio.charset.Charset;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class CharsetUtils {
     public static final String DEFAULT_ENCODING = "DEFAULT_ENCODING";

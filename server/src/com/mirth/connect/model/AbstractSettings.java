@@ -11,8 +11,8 @@ package com.mirth.connect.model;
 
 import java.util.Properties;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 public abstract class AbstractSettings {
 

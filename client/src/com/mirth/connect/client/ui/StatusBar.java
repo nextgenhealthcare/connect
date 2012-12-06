@@ -12,7 +12,7 @@ package com.mirth.connect.client.ui;
 import javax.swing.ImageIcon;
 import javax.swing.border.BevelBorder;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Creates the status bar for the Mirth client application.

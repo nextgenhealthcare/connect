@@ -36,9 +36,9 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
@@ -208,7 +208,7 @@ public class CommandLineInterface {
         err.println("Error: " + message);
 
         if ((e != null) && debug) {
-            err.println(ExceptionUtils.getFullStackTrace(e));
+            err.println(ExceptionUtils.getStackTrace(e));
         }
     }
 

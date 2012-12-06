@@ -10,7 +10,7 @@
 package com.mirth.connect.connectors.vm;
 
 import org.apache.commons.codec.binary.StringUtils;
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

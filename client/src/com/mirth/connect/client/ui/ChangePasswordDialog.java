@@ -17,7 +17,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JDialog;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.model.User;
 

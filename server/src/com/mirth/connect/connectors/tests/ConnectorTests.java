@@ -11,7 +11,7 @@ package com.mirth.connect.connectors.tests;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
 
 import com.mirth.connect.connectors.js.JavaScriptDispatcher;

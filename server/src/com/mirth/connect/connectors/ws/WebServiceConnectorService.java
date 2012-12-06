@@ -26,7 +26,7 @@ import javax.wsdl.Service;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.eviware.soapui.DefaultSoapUICore;

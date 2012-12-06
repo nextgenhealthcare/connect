@@ -11,7 +11,7 @@ package com.mirth.connect.model;
 
 import java.util.Calendar;
 
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class CalendarToStringStyle extends ToStringStyle {
     public CalendarToStringStyle() {

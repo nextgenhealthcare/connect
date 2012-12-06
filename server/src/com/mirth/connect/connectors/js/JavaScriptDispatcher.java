@@ -11,7 +11,7 @@ package com.mirth.connect.connectors.js;
 
 import java.util.UUID;
 
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;

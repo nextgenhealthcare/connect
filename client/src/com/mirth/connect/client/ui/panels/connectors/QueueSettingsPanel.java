@@ -9,7 +9,7 @@
 
 package com.mirth.connect.client.ui.panels.connectors;
 
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.client.ui.ChannelSetup;
 import com.mirth.connect.client.ui.UIConstants;

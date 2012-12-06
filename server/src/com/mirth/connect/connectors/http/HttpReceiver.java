@@ -18,8 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -181,7 +181,7 @@ public class HttpReceiver extends SourceConnector {
                     }
                 }
             } catch (Exception e) {
-                responseError = ExceptionUtils.getFullStackTrace(e);
+                responseError = ExceptionUtils.getStackTrace(e);
                 
                 // TODO decide if we still want to send back the exception content or something else?
                 attemptedResponse = true;

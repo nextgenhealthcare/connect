@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.Stack;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xerces.parsers.SAXParser;
 import org.xml.sax.ContentHandler;

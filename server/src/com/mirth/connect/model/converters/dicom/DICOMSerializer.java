@@ -79,7 +79,7 @@ public class DICOMSerializer implements IXMLSerializer {
     @Override
     public String fromXML(String source) throws SerializerException {
         if (source == null || source.length() == 0) {
-            return org.apache.commons.lang.StringUtils.EMPTY;
+            return org.apache.commons.lang3.StringUtils.EMPTY;
         }
 
         try {
@@ -181,7 +181,7 @@ public class DICOMSerializer implements IXMLSerializer {
     @Override
     public Map<String, String> getMetadataFromDocument(Document document) {
         Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put("version", org.apache.commons.lang.StringUtils.EMPTY);
+        metadata.put("version", org.apache.commons.lang3.StringUtils.EMPTY);
         metadata.put("type", "DICOM");
         metadata.put("source", "dicom");
         return metadata;

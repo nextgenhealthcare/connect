@@ -9,7 +9,7 @@
 
 package com.mirth.connect.client.core;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 
 public class IgnoredComponent {

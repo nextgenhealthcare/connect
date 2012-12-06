@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

@@ -12,8 +12,8 @@ package com.mirth.connect.connectors.dimse;
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.SerializationUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.dcm4che2.net.UserIdentity;
 import org.dcm4che2.tool.dcmsnd.DcmSnd;

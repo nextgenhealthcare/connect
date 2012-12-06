@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.ibatis.exceptions.PersistenceException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.log4j.Logger;
 import org.apache.velocity.tools.generic.DateTool;
