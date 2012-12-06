@@ -29,7 +29,6 @@ import java.util.TimerTask;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.syntax.jedit.SyntaxDocument;
@@ -47,6 +46,7 @@ import com.mirth.connect.client.ui.beans.X12Properties;
 import com.mirth.connect.client.ui.beans.XMLProperties;
 import com.mirth.connect.client.ui.editors.BoundPropertiesSheetDialog;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
+import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.SerializerFactory;
 import com.mirth.connect.model.converters.dicom.DICOMSerializer;
@@ -162,7 +162,11 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 File file = ((List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor)).get(0);
 
                 if (getDataType().equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.DICOM))) {
-                    pasteBox.setText(new DICOMSerializer().toXML(new String(Base64.encodeBase64Chunked(FileUtils.readFileToByteArray(file)))));
+                    byte[] content = FileUtils.readFileToByteArray(file);
+                    
+                    // The pixel data must be stripped because that step is no longer part of the serializer.
+                    content = DICOMSerializer.removePixelData(content);
+                    pasteBox.setText(new DICOMSerializer().toXML(new String(Base64Util.encodeBase64(content))));
                 } else {
                     pasteBox.setText(FileUtils.readFileToString(file, UIConstants.CHARSET));
                 }
@@ -373,7 +377,9 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 byte[] content = PlatformUI.MIRTH_FRAME.browseForFileBytes(null);
                 
                 if (content != null) {
-                    pasteBox.setText(new DICOMSerializer().toXML(new String(Base64.encodeBase64Chunked(content))));
+                    // The pixel data must be stripped because that step is no longer part of the serializer.
+                    content = DICOMSerializer.removePixelData(content);
+                    pasteBox.setText(new DICOMSerializer().toXML(new String(Base64Util.encodeBase64(content))));
                 }
             } else {
                 String content = PlatformUI.MIRTH_FRAME.browseForFileString(null);

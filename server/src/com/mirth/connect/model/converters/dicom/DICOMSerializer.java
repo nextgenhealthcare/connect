@@ -11,6 +11,7 @@ package com.mirth.connect.model.converters.dicom;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,7 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.IOUtils;
 import org.dcm4che2.data.BasicDicomObject;
 import org.dcm4che2.data.DicomObject;
+import org.dcm4che2.data.Tag;
 import org.dcm4che2.io.ContentHandlerAdapter;
 import org.dcm4che2.io.DicomInputStream;
 import org.dcm4che2.io.SAXWriter;
@@ -61,6 +63,13 @@ public class DICOMSerializer implements IXMLSerializer {
 
     public static Map<String, String> getDefaultProperties() {
         return new HashMap<String, String>();
+    }
+    
+    public static byte[] removePixelData(byte[] content) throws IOException {
+        DicomObject dicomObject = DICOMUtil.byteArrayToDicomObject(content, false);
+        dicomObject.remove(Tag.PixelData);
+        
+        return DICOMUtil.dicomObjectToByteArray(dicomObject);
     }
     
     @Override
