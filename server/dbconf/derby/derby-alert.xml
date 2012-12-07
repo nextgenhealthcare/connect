@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
 
-<sqlMap namespace="Alert">
-	<parameterMap class="com.mirth.connect.model.Alert" id="insert-alert-param">
-		<parameter property="id" />
-		<parameter property="name" />
-		<parameter property="enabled" />
-		<parameter property="expression" jdbcType="CLOB" />
-		<parameter property="template" jdbcType="CLOB" />
-		<parameter property="subject" jdbcType="VARCHAR" />
-	</parameterMap>
-
-	<resultMap class="com.mirth.connect.model.Alert" id="get-alert-result">
+<mapper namespace="Alert">
+	<resultMap type="com.mirth.connect.model.Alert" id="get-alert-result">
 		<result property="id" column="ID" />
 		<result property="name" column="NAME" />
 		<result property="enabled" column="IS_ENABLED" />		
@@ -21,60 +12,56 @@
 		<result property="subject" column="SUBJECT" />
 	</resultMap>
 	
-	<select id="getAlert" parameterClass="com.mirth.connect.model.Alert" resultMap="get-alert-result">
+	<select id="getAlert" parameterType="com.mirth.connect.model.Alert" resultMap="get-alert-result">
 		SELECT A.ID, A.NAME, A.IS_ENABLED, A.EXPRESSION, A.TEMPLATE, A.SUBJECT
 		FROM ALERT A
-		<dynamic prepend="WHERE">
-			<isNotNull prepend="AND" property="id">
-				A.ID = #id#
-			</isNotNull>
-		</dynamic>
+		<where>
+         	<if test='id != null'>A.ID = #{id}</if>
+      	</where>
 	</select>
 
-	<select id="getAlertByChannelId" parameterClass="java.lang.String" resultMap="get-alert-result">
+	<select id="getAlertByChannelId" parameterType="java.lang.String" resultMap="get-alert-result">
 		SELECT A.ID, A.NAME, A.IS_ENABLED, A.EXPRESSION, A.TEMPLATE, A.SUBJECT
 		FROM ALERT A, CHANNEL_ALERT CA
-		WHERE A.ID = CA.ALERT_ID AND CA.CHANNEL_ID = #id#
+		WHERE A.ID = CA.ALERT_ID AND CA.CHANNEL_ID = #{id}
 	</select>
 	
-	<select id="getChannelIdsByAlertId" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<select id="getChannelIdsByAlertId" parameterType="java.lang.String" resultType="java.lang.String">
 		SELECT CA.CHANNEL_ID
 		FROM CHANNEL_ALERT CA
-		WHERE CA.ALERT_ID = #id#
+		WHERE CA.ALERT_ID = #{id}
 	</select>
 	
-	<select id="getEmailsByAlertId" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<select id="getEmailsByAlertId" parameterType="java.lang.String" resultType="java.lang.String">
 		SELECT AE.EMAIL
 		FROM ALERT_EMAIL AE
-		WHERE AE.ALERT_ID = #id#
+		WHERE AE.ALERT_ID = #{id}
 	</select>
 	
-	<insert id="insertAlert" parameterMap="insert-alert-param">
+	<insert id="insertAlert" parameterType="com.mirth.connect.model.Alert">
 		INSERT INTO ALERT (ID, NAME, IS_ENABLED, EXPRESSION, TEMPLATE, SUBJECT)
-		VALUES (?, ?, ?, ?, ?, ?)
+		VALUES (#{id}, #{name}, #{enabled}, #{expression}, #{template}, #{subject})
 	</insert>
 
-	<insert id="insertChannelAlert" parameterClass="java.util.Map">
+	<insert id="insertChannelAlert" parameterType="java.util.Map">
 		INSERT INTO CHANNEL_ALERT (CHANNEL_ID, ALERT_ID)
-		VALUES (#channelId#, #alertId#)
+		VALUES (#{channelId}, #{alertId})
 	</insert>
 
-	<insert id="insertAlertEmail" parameterClass="java.util.Map">
+	<insert id="insertAlertEmail" parameterType="java.util.Map">
 		INSERT INTO ALERT_EMAIL (ALERT_ID, EMAIL)
-		VALUES (#alertId#, #email#)
+		VALUES (#{alertId}, #{email})
 	</insert>
 	
-	<delete id="deleteAlert" parameterClass="com.mirth.connect.model.Alert">
+	<delete id="deleteAlert" parameterType="com.mirth.connect.model.Alert">
 		DELETE FROM ALERT
-		<dynamic prepend="WHERE">
-			<isNotNull prepend="AND" property="id">
-				ID=#id#
-			</isNotNull>
-		</dynamic>
+		<where>
+         	<if test='id != null'>ID=#{id}</if>
+      	</where>
 	</delete>
 	
-	<procedure id="vacuumAlertTable">
+	<select id="vacuumAlertTable" statementType="CALLABLE">
 		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'ALERT', 0)}
-	</procedure>
+	</select>
 	
-</sqlMap>
+</mapper>

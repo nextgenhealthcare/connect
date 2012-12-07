@@ -57,6 +57,7 @@ import com.mirth.connect.donkey.server.Stoppable;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.components.PostProcessor;
 import com.mirth.connect.donkey.server.channel.components.PreProcessor;
+import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
@@ -834,6 +835,10 @@ public class Channel implements Startable, Stoppable, Runnable {
         ThreadUtils.checkInterruptedStatus();
         long messageId = sourceMessage.getMessageId();
 
+        if (sourceMessage.getMetaDataId() != 0 || sourceMessage.getStatus() != Status.RECEIVED) {
+            throw new RuntimeException("Received a source message with an invalid state");
+        }
+        
         // create a final merged message that will contain the merged maps from each destination chain's processed message
         Message finalMessage = new Message();
         finalMessage.setMessageId(messageId);
@@ -841,11 +846,6 @@ public class Channel implements Startable, Stoppable, Runnable {
         finalMessage.setChannelId(channelId);
         finalMessage.setDateCreated(sourceMessage.getDateCreated());
         finalMessage.getConnectorMessages().put(0, sourceMessage);
-
-        if (sourceMessage.getMetaDataId() != 0 || sourceMessage.getStatus() != Status.RECEIVED) {
-            logger.error("Received a source message with an invalid state");
-            return finalMessage;
-        }
 
         // run the raw message through the pre-processor script
         String processedRawContent = null;
@@ -1033,15 +1033,29 @@ public class Channel implements Startable, Stoppable, Runnable {
                         throw new OutOfMemoryError();
                     }
 
-                    return finalMessage;
+                    if (e.getCause() instanceof InterruptedException) {
+                        Thread.currentThread().interrupt();
+                        throw new InterruptedException();
+                    }
+
+                    throw new RuntimeException(e.getCause());
                 } catch (CancellationException e) {
                     Thread.currentThread().interrupt();
                     throw new InterruptedException();
                 }
 
-                for (ConnectorMessage connectorMessage : connectorMessages) {
-                    finalMessage.getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
-                    sourceMessage.getResponseMap().putAll(connectorMessage.getResponseMap());
+                /*
+                 * Check for null here in case DestinationChain.call() returned null, which
+                 * indicates that the chain did not process and should be skipped. This would only
+                 * happen in very rare circumstances, possibly if a message is sent to the chain and
+                 * the destination connector that the message belongs to has been removed or
+                 * disabled.
+                 */
+                if (connectorMessages != null) {
+                    for (ConnectorMessage connectorMessage : connectorMessages) {
+                        finalMessage.getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
+                        sourceMessage.getResponseMap().putAll(connectorMessage.getResponseMap());
+                    }
                 }
             }
 
@@ -1132,7 +1146,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 finalMessage.setProcessed(true);
 
                 if (storageSettings.isRemoveContentOnCompletion() && MessageController.getInstance().isMessageCompleted(finalMessage)) {
-                    dao.deleteAllContent(channelId, finalMessage.getMessageId());
+                    dao.deleteMessageContent(channelId, finalMessage.getMessageId());
                 }
             }
         }
@@ -1227,6 +1241,8 @@ public class Channel implements Startable, Stoppable, Runnable {
 
         @Override
         public Void call() throws Exception {
+            ChannelController.getInstance().initChannelStorage(channelId);
+            
             try {
                 updateMetaDataColumns();
             } catch (SQLException e) {
@@ -1239,6 +1255,10 @@ public class Channel implements Startable, Stoppable, Runnable {
             try {
                 sourceFilterTransformerExecutor.setEncryptor(encryptor);
 
+                if (responseSelector == null) {
+                    responseSelector = new ResponseSelector(sourceConnector.getInboundDataType());
+                }
+                
                 // set the source queue data source
                 sourceQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, daoFactory, encryptor));
 
@@ -1296,12 +1316,12 @@ public class Channel implements Startable, Stoppable, Runnable {
                 List<MetaDataColumn> existingColumns = dao.getMetaDataColumns(channelId);
 
                 for (MetaDataColumn existingColumn : existingColumns) {
-                    existingColumnsMap.put(existingColumn.getName().toLowerCase(), existingColumn.getType());
-                    columnsToRemove.add(existingColumn.getName().toLowerCase());
+                    existingColumnsMap.put(existingColumn.getName(), existingColumn.getType());
+                    columnsToRemove.add(existingColumn.getName());
                 }
 
                 for (MetaDataColumn column : metaDataColumns) {
-                    String columnName = column.getName().toLowerCase();
+                    String columnName = column.getName();
 
                     if (existingColumnsMap.containsKey(columnName)) {
                         // The column name already exists in the table

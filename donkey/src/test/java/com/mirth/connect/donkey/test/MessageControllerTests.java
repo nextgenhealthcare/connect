@@ -118,13 +118,22 @@ public class MessageControllerTests {
     }
 
     private void assertNextMessageIdCorrect(String channelId) throws SQLException {
-        Connection connection = TestUtils.getConnection();
-        PreparedStatement statement = connection.prepareStatement("SELECT MAX(id) FROM d_m" + ChannelController.getInstance().getLocalChannelId(channelId));
-        ResultSet result = statement.executeQuery();
-        result.next();
-        Long maxId = result.getLong(1);
-        connection.close();
-        assertEquals(new Long(maxId + 1), Long.valueOf(MessageController.getInstance().getNextMessageId(channelId)));
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        
+        try {
+            connection = TestUtils.getConnection();
+            statement = connection.prepareStatement("SELECT MAX(id) FROM d_m" + ChannelController.getInstance().getLocalChannelId(channelId));
+            result = statement.executeQuery();
+            result.next();
+            Long maxId = result.getLong(1);
+            assertEquals(new Long(maxId + 1), Long.valueOf(MessageController.getInstance().getNextMessageId(channelId)));
+        } finally {
+            TestUtils.close(result);
+            TestUtils.close(statement);
+            TestUtils.close(connection);
+        }
     }
 
     /*
@@ -149,10 +158,7 @@ public class MessageControllerTests {
             logger.info("Testing MessageController.createNewMessage...");
 
             for (int i = 1; i <= TEST_SIZE; i++) {
-                DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage, null, channelMap), channel.getChannelId(), channel.getServerId(), dao).getConnectorMessages().get(0);
-                dao.commit();
-                dao.close();
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage, null, channelMap), channel.getChannelId(), channel.getServerId()).getConnectorMessages().get(0);
 
                 // Assert that the raw content was set
                 assertTrue(sourceMessage.getRaw().getContent().equals(testMessage));
@@ -160,15 +166,22 @@ public class MessageControllerTests {
                 // Assert that the channel map was set
                 assertTrue(sourceMessage.getChannelMap().containsKey("key"));
 
+                Connection connection = null;
+                PreparedStatement statement = null;
+                ResultSet result = null;
+                
                 // Assert that the Message was inserted into the database
-                Connection connection = TestUtils.getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM d_m" + localChannelId + " WHERE id = ?");
-                statement.setLong(1, sourceMessage.getMessageId());
-                ResultSet result = statement.executeQuery();
-                assertTrue(result.next());
-
-                result.close();
-                connection.close();
+                try {
+                    connection = TestUtils.getConnection();
+                    statement = connection.prepareStatement("SELECT * FROM d_m" + localChannelId + " WHERE id = ?");
+                    statement.setLong(1, sourceMessage.getMessageId());
+                    result = statement.executeQuery();
+                    assertTrue(result.next());
+                } finally {
+                    TestUtils.close(result);
+                    TestUtils.close(statement);
+                    TestUtils.close(connection);
+                }
 
                 // Assert that the source ConnectorMessage was inserted into the database
                 TestUtils.assertConnectorMessageExists(sourceMessage, false);
@@ -188,14 +201,13 @@ public class MessageControllerTests {
      * messages and message content, etc.
      * 
      * Import each message, and assert that:
-     * - The Message row was inserted (d_m#)
-     * - Each ConnectorMessage row was inserted (d_mm#)
-     * - Each MessageContent row was inserted (d_mc#)
+     * - The Message row was inserted (D_M#)
+     * - Each ConnectorMessage row was inserted (D_MM#)
+     * - Each MessageContent row was inserted (D_MC#)
      */
     @Test
     public void testImportMessage() throws Exception {
         Channel channel = TestUtils.createDefaultChannel(channelId, serverId);
-        ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
 
         Donkey.getInstance().deployChannel(channel);
         
@@ -259,7 +271,7 @@ public class MessageControllerTests {
     public void testDeleteMessage() throws Exception {
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId);
         channel.getSourceConnector().setRespondAfterProcessing(false);
-        channel.getSourceQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, Donkey.getInstance().getDaoFactory(), new PassthruEncryptor()));
+        channel.getSourceQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, TestUtils.getDaoFactory(), new PassthruEncryptor()));
         channel.getSourceQueue().updateSize();
 
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
@@ -267,13 +279,18 @@ public class MessageControllerTests {
         sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, testMessage, null));
         message.getConnectorMessages().put(0, sourceMessage);
 
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-        dao.insertMessage(message);
-        dao.insertConnectorMessage(sourceMessage, true);
-        dao.insertMessageContent(sourceMessage.getRaw());
-        dao.commit();
-        dao.close();
-
+        DonkeyDao dao = null;
+        
+        try {
+            dao = TestUtils.getDaoFactory().getDao();
+            dao.insertMessage(message);
+            dao.insertConnectorMessage(sourceMessage, true);
+            dao.insertMessageContent(sourceMessage.getRaw());
+            dao.commit();
+        } finally {
+            TestUtils.close(dao);
+        }
+        
         // put the message in the source queue
         channel.queue(sourceMessage);
 

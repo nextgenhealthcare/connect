@@ -9,14 +9,14 @@
 
 package com.mirth.connect.donkey.server.channel;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.mirth.connect.donkey.model.message.Status;
 
 public class Statistics {
-    private Map<String, Map<Integer, Map<Status, Long>>> stats = new HashMap<String, Map<Integer, Map<Status, Long>>>();
+    private Map<String, Map<Integer, Map<Status, Long>>> stats = new LinkedHashMap<String, Map<Integer, Map<Status, Long>>>();
 
     public Map<String, Map<Integer, Map<Status, Long>>> getStats() {
         return stats;
@@ -26,7 +26,7 @@ public class Statistics {
         Map<Integer, Map<Status, Long>> channelStats = stats.get(channelId);
 
         if (channelStats == null) {
-            channelStats = new HashMap<Integer, Map<Status, Long>>();
+            channelStats = new LinkedHashMap<Integer, Map<Status, Long>>();
             stats.put(channelId, channelStats);
         }
 
@@ -38,7 +38,7 @@ public class Statistics {
         Map<Status, Long> connectorStats = channelStats.get(metaDataId);
 
         if (connectorStats == null) {
-            connectorStats = new HashMap<Status, Long>();
+            connectorStats = new LinkedHashMap<Status, Long>();
             connectorStats.put(Status.RECEIVED, 0L);
             connectorStats.put(Status.FILTERED, 0L);
             connectorStats.put(Status.TRANSFORMED, 0L);
@@ -53,7 +53,7 @@ public class Statistics {
     }
 
     public void update(String channelId, int metaDataId, Status incrementStatus, Status decrementStatus) {
-        Map<Status, Long> statsDiff = new HashMap<Status, Long>();
+        Map<Status, Long> statsDiff = new LinkedHashMap<Status, Long>();
         statsDiff.put(incrementStatus, 1L);
 
         if (decrementStatus != null) {

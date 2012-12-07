@@ -41,6 +41,7 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
+import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
@@ -65,6 +66,7 @@ import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
+import com.mirth.connect.donkey.server.channel.ResponseSelector;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.channel.StorageSettings;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
@@ -72,12 +74,22 @@ import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
+import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
 import com.mirth.connect.donkey.server.data.passthru.DelayedStatisticsUpdater;
 import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
 import com.mirth.connect.donkey.server.event.Event;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
+import com.mirth.connect.donkey.test.util.TestChannel;
+import com.mirth.connect.donkey.test.util.TestConnectorProperties;
+import com.mirth.connect.donkey.test.util.TestDataType;
+import com.mirth.connect.donkey.test.util.TestDestinationConnector;
+import com.mirth.connect.donkey.test.util.TestFilterTransformer;
+import com.mirth.connect.donkey.test.util.TestPostProcessor;
+import com.mirth.connect.donkey.test.util.TestPreProcessor;
+import com.mirth.connect.donkey.test.util.TestResponseTransformer;
+import com.mirth.connect.donkey.test.util.TestSourceConnector;
 import com.mirth.connect.donkey.util.ResourceUtil;
 import com.mirth.connect.donkey.util.Serializer;
 
@@ -93,9 +105,26 @@ public class TestUtils {
     final public static String DEFAULT_RESPOND_FROM_NAME = ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED;
     final public static String DEFAULT_DESTINATION_NAME = "testdestination";
     final public static String DEFAULT_OUTBOUND_TEMPLATE = null;
+    
+    private static Logger logger = Logger.getLogger(TestUtils.class);
 
-    public static TestChannel createDefaultChannel(String channelId, String serverId) {
-        ChannelController.getInstance().getLocalChannelId(channelId);
+    public static DonkeyDaoFactory getDaoFactory() {
+        return new BufferedDaoFactory(Donkey.getInstance().getDaoFactory());
+    }
+    
+    public static void initChannel(String channelId) throws SQLException {
+        ChannelController channelController = ChannelController.getInstance();
+        
+        if (channelController.channelExists(channelId)) {
+            channelController.deleteAllMessages(channelId);
+            TestUtils.deleteChannelStatistics(channelId);
+        }
+        
+        ChannelController.getInstance().initChannelStorage(channelId);
+    }
+    
+    public static TestChannel createDefaultChannel(String channelId, String serverId) throws SQLException {
+        initChannel(channelId);
 
         TestChannel channel = new TestChannel();
 
@@ -109,6 +138,7 @@ public class TestUtils {
         TestSourceConnector sourceConnector = (TestSourceConnector) TestUtils.createDefaultSourceConnector();
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
+        channel.setResponseSelector(new ResponseSelector(sourceConnector.getInboundDataType()));
         channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
 
         TestDestinationConnector destinationConnector = (TestDestinationConnector) TestUtils.createDefaultDestinationConnector();
@@ -125,21 +155,17 @@ public class TestUtils {
         return channel;
     }
 
-    public static TestChannel createDefaultChannel(String channelId, String serverId, int numChains, int numDestinationsPerChain) {
+    public static TestChannel createDefaultChannel(String channelId, String serverId, int numChains, int numDestinationsPerChain) throws SQLException {
         return createDefaultChannel(channelId, serverId, true, numChains, numDestinationsPerChain, new StorageSettings());
     }
 
-    public static TestChannel createDefaultChannel(String channelId, String serverId, int numChains, int numDestinationsPerChain, StorageSettings storageSettings) {
-        return createDefaultChannel(channelId, serverId, true, numChains, numDestinationsPerChain, storageSettings);
+    public static TestChannel createDefaultChannel(String channelId, String serverId, Boolean respondAfterProcessing, int numChains, int numDestinationsPerChain) throws SQLException {
+        return createDefaultChannel(channelId, serverId, respondAfterProcessing, numChains, numDestinationsPerChain, new StorageSettings());
     }
 
-    public static TestChannel createDefaultChannel(String channelId, String serverId, Boolean waitForDestinations, int numChains, int numDestinationsPerChain) {
-        return createDefaultChannel(channelId, serverId, waitForDestinations, numChains, numDestinationsPerChain, new StorageSettings());
-    }
-
-    public static TestChannel createDefaultChannel(String channelId, String serverId, Boolean respondAfterProcessing, int numChains, int numDestinationsPerChain, StorageSettings storageSettings) {
-        ChannelController.getInstance().getLocalChannelId(channelId);
-
+    private static TestChannel createDefaultChannel(String channelId, String serverId, Boolean respondAfterProcessing, int numChains, int numDestinationsPerChain, StorageSettings storageSettings) throws SQLException {
+        initChannel(channelId);
+        
         TestChannel channel = new TestChannel();
 
         channel.setChannelId(channelId);
@@ -222,7 +248,7 @@ public class TestUtils {
         destinationConnector.setMetaDataId(metaDataId);
 
         ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
-        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, false, Donkey.getInstance().getDaoFactory(), new PassthruEncryptor()));
+        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, false, getDaoFactory(), new PassthruEncryptor()));
         destinationConnector.setQueue(destinationConnectorQueue);
     }
 
@@ -252,21 +278,19 @@ public class TestUtils {
         return connection;
     }
 
-    public static boolean channelExists(String channelId) throws SQLException {
-        return channelExists(channelId, false);
+    public static void assertChannelExists(String channelId) throws SQLException {
+        assertChannelExists(channelId, false);
     }
 
-    public static boolean channelExists(String channelId, boolean checkMessageTables) throws SQLException {
-        boolean exists = false;
-
+    public static void assertChannelExists(String channelId, boolean checkMessageTables) throws SQLException {
+        boolean channelExists = false;
+        long localChannelId = 0;
+        
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
 
         try {
-            boolean channelExists = false;
-            long localChannelId = 0;
-
             connection = getConnection();
             statement = connection.prepareStatement("SELECT local_channel_id FROM d_channels WHERE channel_id = ?");
             statement.setString(1, channelId);
@@ -276,20 +300,41 @@ public class TestUtils {
                 channelExists = true;
                 localChannelId = result.getLong("local_channel_id");
             }
+            
+            close(result);
+            close(statement);
 
-            boolean messageTablesExist = !checkMessageTables || channelMessageTablesExist(connection, localChannelId);
-
-            exists = channelExists && messageTablesExist;
+            if (checkMessageTables) {
+                assertChannelMessageTablesExist(connection, localChannelId);
+            }
+            
+            assertTrue(channelExists);
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            close(result);
+            close(statement);
+            close(connection);
         }
+    }
+    
+    public static void assertChannelDoesNotExist(String channelId) throws SQLException {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet result = null;
 
-        return exists;
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement("SELECT local_channel_id FROM d_channels WHERE channel_id = ?");
+            statement.setString(1, channelId);
+            result = statement.executeQuery();
+            assertFalse(result.next());
+        } finally {
+            close(result);
+            close(statement);
+            close(connection);
+        }
     }
 
-    public static boolean channelMessageTablesExist(Connection connection, long localChannelId) throws SQLException {
+    public static void assertChannelMessageTablesExist(Connection connection, long localChannelId) throws SQLException {
         boolean messageTableExists = false;
         boolean messageMetaDataTableExists = false;
         boolean messageContentTableExists = false;
@@ -300,8 +345,18 @@ public class TestUtils {
 
         try {
             result = connection.getMetaData().getTables(null, null, "d_m%", null);
-            while (result.next()) {
-                String name = result.getString("TABLE_NAME").toLowerCase();
+            
+            if (!result.next()) {
+                result = connection.getMetaData().getTables(null, null, "D_M%", null);
+                
+                if (!result.next()) {
+                    throw new AssertionError();
+                }
+            }
+            
+            do {
+                String name = result.getString("table_name").toLowerCase();
+                
                 if (name.equals("d_m" + localChannelId)) {
                     messageTableExists = true;
                 } else if (name.equals("d_mm" + localChannelId)) {
@@ -315,11 +370,16 @@ public class TestUtils {
                 } else if (name.equals("d_ms" + localChannelId)) {
                     messageStatisticsTableExists = true;
                 }
-            }
-
-            return messageTableExists && messageMetaDataTableExists && messageContentTableExists && messageCustomMetaDataTableExists && messageAttachmentTableExists && messageStatisticsTableExists;
+            } while (result.next());
+            
+            assertTrue(messageTableExists);
+            assertTrue(messageMetaDataTableExists);
+            assertTrue(messageContentTableExists);
+            assertTrue(messageCustomMetaDataTableExists);
+            assertTrue(messageAttachmentTableExists);
+            assertTrue(messageStatisticsTableExists);
         } finally {
-            DbUtils.close(result);
+            close(result);
         }
     }
 
@@ -339,6 +399,8 @@ public class TestUtils {
             if (result.next()) {
                 String serverId = result.getString("server_id");
                 Boolean processed = result.getBoolean("processed");
+                close(result);
+                close(statement);
 
                 assertTrue(testEquality(serverId, message.getServerId()));
                 assertTrue(testEquality(processed, message.isProcessed()));
@@ -352,9 +414,9 @@ public class TestUtils {
                 throw new AssertionError();
             }
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            close(result);
+            close(statement);
+            close(connection);
         }
     }
 
@@ -372,9 +434,9 @@ public class TestUtils {
             result = statement.executeQuery();
             assertFalse(result.next());
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            close(result);
+            close(statement);
+            close(connection);
         }
     }
 
@@ -393,12 +455,13 @@ public class TestUtils {
     }
 
     public static void assertConnectorMessageExists(ConnectorMessage connectorMessage, boolean deepSearch) throws SQLException {
-        Connection connection = getConnection();
+        Connection connection = null;
 
         try {
+            connection = getConnection();
             assertConnectorMessageExists(connectorMessage, deepSearch, connection);
         } finally {
-            DbUtils.close(connection);
+            close(connection);
         }
     }
 
@@ -413,41 +476,41 @@ public class TestUtils {
             statement.setLong(1, connectorMessage.getMessageId());
             statement.setLong(2, connectorMessage.getMetaDataId());
             result = statement.executeQuery();
-
-            if (result.next()) {
-                Calendar dateCreated = Calendar.getInstance();
-                dateCreated.setTimeInMillis(result.getTimestamp("date_created").getTime());
-                Status status = Status.fromChar(result.getString("status").charAt(0));
-                Map<String, Object> connectorMap = (Map<String, Object>) serializer.deserialize(result.getString("connector_map"));
-                Map<String, Object> channelMap = (Map<String, Object>) serializer.deserialize(result.getString("channel_map"));
-                Map<String, Response> responseMap = (Map<String, Response>) serializer.deserialize(result.getString("response_map"));
-                String errors = (String) serializer.deserialize(result.getString("errors"));
-
-                assertTrue(testEquality(dateCreated, connectorMessage.getDateCreated()));
-                assertTrue(testEquality(status, connectorMessage.getStatus()));
-                assertTrue(testEquality(connectorMap, connectorMessage.getConnectorMap()));
-                assertTrue(testEquality(channelMap, connectorMessage.getChannelMap()));
-                assertTrue(testEquality(responseMap, connectorMessage.getResponseMap()));
-                assertTrue(testEquality(errors, connectorMessage.getErrors()));
-
-                if (deepSearch) {
-                    for (ContentType contentType : ContentType.values()) {
-                        // Even though raw content exists on the destination connector message, it won't be stored in the database
-                        if (contentType != ContentType.RAW || connectorMessage.getMetaDataId() == 0) {
-                            MessageContent messageContent = connectorMessage.getContent(contentType);
-
-                            if (messageContent != null) {
-                                assertMessageContentExists(messageContent);
-                            }
-                        }
-                    }
-                }
-            } else {
+            
+            if (!result.next()) {
                 throw new AssertionError();
             }
+
+            Calendar dateCreated = Calendar.getInstance();
+            dateCreated.setTimeInMillis(result.getTimestamp("date_created").getTime());
+            Status status = Status.fromChar(result.getString("status").charAt(0));
+            Map<String, Object> connectorMap = (Map<String, Object>) serializer.deserialize(result.getString("connector_map"));
+            Map<String, Object> channelMap = (Map<String, Object>) serializer.deserialize(result.getString("channel_map"));
+            Map<String, Response> responseMap = (Map<String, Response>) serializer.deserialize(result.getString("response_map"));
+            String errors = (String) serializer.deserialize(result.getString("errors"));
+            
+            assertTrue(testEquality(dateCreated, connectorMessage.getDateCreated()));
+            assertTrue(testEquality(status, connectorMessage.getStatus()));
+            assertTrue(testEquality(connectorMap, connectorMessage.getConnectorMap()));
+            assertTrue(testEquality(channelMap, connectorMessage.getChannelMap()));
+            assertTrue(testEquality(responseMap, connectorMessage.getResponseMap()));
+            assertTrue(testEquality(errors, connectorMessage.getErrors()));
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
+            close(result);
+            close(statement);
+        }
+
+        if (deepSearch) {
+            for (ContentType contentType : ContentType.values()) {
+                // Even though raw content exists on the destination connector message, it won't be stored in the database
+                if (contentType != ContentType.RAW || connectorMessage.getMetaDataId() == 0) {
+                    MessageContent messageContent = connectorMessage.getContent(contentType);
+
+                    if (messageContent != null) {
+                        assertMessageContentExists(messageContent);
+                    }
+                }
+            }
         }
     }
 
@@ -466,23 +529,31 @@ public class TestUtils {
             result = statement.executeQuery();
             assertFalse(result.next());
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            close(result);
+            close(statement);
+            close(connection);
         }
     }
 
     public static void assertConnectorMessageStatusEquals(String channelId, long messageId, int metaDataId, Status status) throws SQLException {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
-        Connection connection = getConnection();
-        PreparedStatement statement = connection.prepareStatement("SELECT status FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ?");
-        statement.setLong(1, messageId);
-        statement.setInt(2, metaDataId);
-        ResultSet result = statement.executeQuery();
-        result.next();
-        assertEquals(status, Status.fromChar(result.getString("status").charAt(0)));
-        result.close();
-        connection.close();
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement("SELECT status FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ?");
+            statement.setLong(1, messageId);
+            statement.setInt(2, metaDataId);
+            result = statement.executeQuery();
+            result.next();
+            assertEquals(status, Status.fromChar(result.getString("status").charAt(0)));
+        } finally {
+            close(result);
+            close(statement);
+            close(connection);
+        }
     }
 
     public static void assertConnectorMessageListsEqual(List<ConnectorMessage> list1, List<ConnectorMessage> list2) {
@@ -521,11 +592,12 @@ public class TestUtils {
     public static void assertMessageContentExists(MessageContent content) throws SQLException {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(content.getChannelId());
 
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
-        Connection connection = getConnection();
 
         try {
+            connection = getConnection();
             statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
             statement.setLong(1, content.getMessageId());
             statement.setLong(2, content.getMetaDataId());
@@ -542,9 +614,50 @@ public class TestUtils {
                 throw new AssertionError();
             }
         } finally {
-            DbUtils.close(result);
+            close(result);
+            close(statement);
+            close(connection);
+        }
+    }
+    
+    public static void close(Connection connection) {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.rollback();
+                connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void close(Statement statement) {
+        try {
             DbUtils.close(statement);
-            DbUtils.close(connection);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void close(PreparedStatement preparedStatement) {
+        try {
+            DbUtils.close(preparedStatement);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void close(ResultSet resultSet) {
+        try {
+            DbUtils.close(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void close(DonkeyDao dao) {
+        if (dao != null && !dao.isClosed()) {
+            dao.close();
         }
     }
 
@@ -564,9 +677,9 @@ public class TestUtils {
             result = statement.executeQuery();
             assertFalse(result.next());
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            close(result);
+            close(statement);
+            close(connection);
         }
     }
 
@@ -583,19 +696,13 @@ public class TestUtils {
     }
 
     public static void assertAttachmentExists(String channelId, long messageId, Attachment attachment) throws SQLException {
-        Connection connection = getConnection();
-        try {
-            assertAttachmentExists(channelId, messageId, attachment, connection);
-        } finally {
-            DbUtils.close(connection);
-        }
-    }
-
-    public static void assertAttachmentExists(String channelId, long messageId, Attachment attachment, Connection connection) throws SQLException {
+        long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
+        
         try {
-            long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
+            connection = getConnection();
             statement = connection.prepareStatement("SELECT * FROM d_ma" + localChannelId + " WHERE message_id = ? AND id = ?");
             statement.setLong(1, messageId);
             statement.setString(2, attachment.getId());
@@ -606,24 +713,19 @@ public class TestUtils {
             assertTrue(Arrays.equals(content, attachment.getContent()));
             assertTrue(testEquality(type, attachment.getType()));
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
+            close(result);
+            close(statement);
+            close(connection);
         }
     }
 
     public static void assertEventExists(Event event) throws SQLException {
-        Connection connection = getConnection();
-        try {
-            assertEventExists(event, connection);
-        } finally {
-            DbUtils.close(connection);
-        }
-    }
-
-    public static void assertEventExists(Event event, Connection connection) throws SQLException {
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
+        
         try {
+            connection = getConnection();
             statement = connection.prepareStatement("SELECT * FROM d_events WHERE event_type = ? AND channel_id = ? AND metadata_id = ? AND message_id = ? AND message_status = ? AND event_date = ?");
             statement.setInt(1, event.getEventType().getEventCode());
             statement.setString(2, event.getChannelId());
@@ -634,37 +736,54 @@ public class TestUtils {
             result = statement.executeQuery();
             assertTrue(result.next());
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
+            close(result);
+            close(statement);
+            close(connection);
         }
     }
 
     public static void assertResponseExists(String channelId, long messageId) throws SQLException {
-        // Assert that the source connector response was created
-        Connection connection = TestUtils.getConnection();
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
-        PreparedStatement statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
-        statement.setLong(1, messageId);
-        statement.setInt(2, 0);
-        statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
-        ResultSet result = statement.executeQuery();
-        assertTrue(result.next());
-        result.close();
-        connection.close();
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        
+        // Assert that the source connector response was created
+        try {
+            connection = TestUtils.getConnection();
+            statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
+            statement.setLong(1, messageId);
+            statement.setInt(2, 0);
+            statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
+            result = statement.executeQuery();
+            assertTrue(result.next());
+        } finally {
+            close(result);
+            close(statement);
+            close(connection);
+        }
     }
 
     public static void assertResponseDoesNotExist(String channelId, long messageId) throws SQLException {
-        // Assert that the source connector response was created
-        Connection connection = TestUtils.getConnection();
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
-        PreparedStatement statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
-        statement.setLong(1, messageId);
-        statement.setInt(2, 0);
-        statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
-        ResultSet result = statement.executeQuery();
-        assertFalse(result.next());
-        result.close();
-        connection.close();
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        
+        // Assert that the source connector response was created
+        try {
+            connection = TestUtils.getConnection();
+            statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
+            statement.setLong(1, messageId);
+            statement.setInt(2, 0);
+            statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
+            result = statement.executeQuery();
+            assertFalse(result.next());
+        } finally {
+            close(result);
+            close(statement);
+            close(connection);
+        }
     }
 
     private static boolean testEquality(Object object1, Object object2) {
@@ -678,18 +797,29 @@ public class TestUtils {
     }
 
     public static List<MetaDataColumn> getExistingMetaDataColumns(String channelId) throws SQLException {
-        List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
-        Connection connection = getConnection();
+        List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
+        Connection connection = null;
         ResultSet columns = null;
-
+        
         try {
+            connection = getConnection();
             columns = connection.getMetaData().getColumns(connection.getCatalog(), null, "d_mcm" + localChannelId, null);
+            
+            if (!columns.next()) {
+                columns = connection.getMetaData().getColumns(connection.getCatalog(), null, "D_MCM" + localChannelId, null);
+                
+                if (!columns.next()) {
+                    return metaDataColumns;
+                }
+            }
 
-            while (columns.next()) {
-                String name = columns.getString("COLUMN_NAME").toLowerCase();
-                if (!name.equals("metadata_id") && !name.equals("message_id")) {
+            do {
+                String name = columns.getString("COLUMN_NAME").toUpperCase();
+                
+                if (!name.equals("METADATA_ID") && !name.equals("MESSAGE_ID")) {
                     int type = columns.getInt("DATA_TYPE");
+                    
                     if (type == Types.VARCHAR || type == Types.NVARCHAR || type == Types.LONGVARCHAR || type == Types.LONGNVARCHAR) {
                         metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.STRING, null));
                     } else if (type == Types.BIGINT || type == Types.INTEGER || type == Types.SMALLINT || type == Types.TINYINT) {
@@ -706,10 +836,10 @@ public class TestUtils {
                         metaDataColumns.add(new MetaDataColumn(name, MetaDataColumnType.TIMESTAMP, null));
                     }
                 }
-            }
-        } catch (Exception e) {
-            DbUtils.close(columns);
-            DbUtils.close(connection);
+            } while (columns.next());
+        } finally {
+            close(columns);
+            close(connection);
         }
 
         return metaDataColumns;
@@ -721,11 +851,12 @@ public class TestUtils {
 
         if (columns.size() > 0) {
             long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
-            Connection connection = getConnection();
+            Connection connection = null;
             PreparedStatement statement = null;
             ResultSet result = null;
 
             try {
+                connection = getConnection();
                 statement = connection.prepareStatement("SELECT * FROM d_mcm" + localChannelId + " WHERE message_id = ? AND metadata_id = ?");
                 statement.setLong(1, messageId);
                 statement.setInt(2, metaDataId);
@@ -760,9 +891,9 @@ public class TestUtils {
                     }
                 }
             } finally {
-                DbUtils.close(result);
-                DbUtils.close(statement);
-                DbUtils.close(connection);
+                close(result);
+                close(statement);
+                close(connection);
             }
         }
 
@@ -797,26 +928,26 @@ public class TestUtils {
             case LONG:
             case STRING:
                 try {
-                    assertEquals(type.castMetaDataFromString(value1.toString()), type.castMetaDataFromString(value2.toString()));
+                    assertEquals(type.toString(), type.castMetaDataFromString(value1.toString()), type.castMetaDataFromString(value2.toString()));
                 } catch (MetaDataColumnException e) {
                     throw new AssertionError();
                 }
                 break;
 
             case TIMESTAMP:
-                assertEquals(((Calendar) value1), (Calendar) value2);
+                assertEquals(type.toString(), ((Calendar) value1), (Calendar) value2);
                 break;
 
             case DATE:
                 date1 = new SimpleDateFormat("yyyyMMdd").format(((Calendar) value1).getTimeInMillis());
                 date2 = new SimpleDateFormat("yyyyMMdd").format(((Calendar) value2).getTimeInMillis());
-                assertEquals(date1, date2);
+                assertEquals(type.toString(), date1, date2);
                 break;
 
             case TIME:
-                date1 = new SimpleDateFormat("HHmmssSSS").format(((Calendar) value1).getTimeInMillis());
-                date2 = new SimpleDateFormat("HHmmssSSS").format(((Calendar) value2).getTimeInMillis());
-                assertEquals(date1, date2);
+                date1 = new SimpleDateFormat("HHmmss").format(((Calendar) value1).getTimeInMillis());
+                date2 = new SimpleDateFormat("HHmmss").format(((Calendar) value2).getTimeInMillis());
+                assertEquals(type.toString(), date1, date2);
                 break;
 
             default:
@@ -827,100 +958,110 @@ public class TestUtils {
     public static Map<String, Object> getConnectorMap(String channelId, long messageId, int metaDataId) throws SQLException {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         Serializer serializer = Donkey.getInstance().getSerializer();
-        Connection connection = getConnection();
+        String connectorMap;
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
 
         try {
+            connection = getConnection();
             statement = connection.prepareStatement("SELECT connector_map FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ?");
             statement.setLong(1, messageId);
             statement.setInt(2, metaDataId);
             result = statement.executeQuery();
             result.next();
-            String connectorMap = result.getString("connector_map");
-            return (Map<String, Object>) serializer.deserialize(connectorMap);
+            connectorMap = result.getString("connector_map");
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            close(result);
+            close(statement);
+            close(connection);
         }
+        
+        return (Map<String, Object>) serializer.deserialize(connectorMap);
     }
 
     public static Map<String, Object> getChannelMap(String channelId, long messageId, int metaDataId) throws SQLException {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         Serializer serializer = Donkey.getInstance().getSerializer();
-        Connection connection = getConnection();
+        String channelMap;
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
 
         try {
+            connection = getConnection();
             statement = connection.prepareStatement("SELECT channel_map FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ?");
             statement.setLong(1, messageId);
             statement.setInt(2, metaDataId);
             result = statement.executeQuery();
             result.next();
-            String channelMap = result.getString("channel_map");
-            result.close();
-            connection.close();
-            return (Map<String, Object>) serializer.deserialize(channelMap);
+            channelMap = result.getString("channel_map");
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            close(result);
+            close(statement);
+            close(connection);
         }
+        
+        return (Map<String, Object>) serializer.deserialize(channelMap);
     }
 
     public static Map<String, Response> getResponseMap(String channelId, long messageId, int metaDataId) throws SQLException {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         Serializer serializer = Donkey.getInstance().getSerializer();
-        Connection connection = getConnection();
+        String responseMap;
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
 
         try {
+            connection = getConnection();
             statement = connection.prepareStatement("SELECT response_map FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ?");
             statement.setLong(1, messageId);
             statement.setInt(2, metaDataId);
             result = statement.executeQuery();
             result.next();
-            String responseMap = result.getString("response_map");
-            return (Map<String, Response>) serializer.deserialize(responseMap);
+            responseMap = result.getString("response_map");
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            close(result);
+            close(statement);
+            close(connection);
         }
+        
+        return (Map<String, Response>) serializer.deserialize(responseMap);
     }
 
     public static boolean isMessageProcessed(String channelId, long messageId) throws SQLException {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
-        Connection connection = getConnection();
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
 
         try {
+            connection = getConnection();
             statement = connection.prepareStatement("SELECT processed FROM d_m" + localChannelId + " WHERE id = ?");
             statement.setLong(1, messageId);
             result = statement.executeQuery();
             result.next();
             return result.getBoolean("processed");
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            close(result);
+            close(statement);
+            close(connection);
         }
     }
 
     public static Map<Integer, Map<Status, Long>> getChannelStatistics(String channelId) throws SQLException {
+        long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         Map<Integer, Map<Status, Long>> stats = new HashMap<Integer, Map<Status, Long>>();
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
+        
         try {
-            long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
             connection = getConnection();
             statement = connection.prepareStatement("SELECT * FROM d_ms" + localChannelId);
             result = statement.executeQuery();
+            
             while (result.next()) {
                 Map<Status, Long> connectorStats = new HashMap<Status, Long>();
                 connectorStats.put(Status.RECEIVED, result.getLong("received"));
@@ -930,31 +1071,35 @@ public class TestUtils {
                 connectorStats.put(Status.SENT, result.getLong("sent"));
                 connectorStats.put(Status.ERROR, result.getLong("error"));
                 Integer metaDataId = result.getInt("metadata_id");
+                
                 if (result.wasNull()) {
                     metaDataId = null;
                 }
+                
                 stats.put(metaDataId, connectorStats);
             }
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            close(result);
+            close(statement);
+            close(connection);
         }
+        
         return stats;
     }
 
     public static void deleteChannelStatistics(String channelId) throws SQLException {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
-        Connection connection = getConnection();
+        Connection connection = null;
         PreparedStatement statement = null;
 
         try {
+            connection = getConnection();
             statement = connection.prepareStatement("DELETE FROM d_ms" + localChannelId);
             statement.executeUpdate();
             connection.commit();
         } finally {
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            close(statement);
+            close(connection);
         }
 
         ChannelController.getInstance().getStatistics().getStats().remove(channelId);
@@ -997,13 +1142,18 @@ public class TestUtils {
             stringBuilder.append(StringUtils.rightPad("Highest Time:", padding) + times.get(times.size() - 1) + "ms\n");
             stringBuilder.append(StringUtils.rightPad("Median Time:", padding) + times.get(times.size() / 2) + "ms\n");
             stringBuilder.append(StringUtils.rightPad("Average Time:", padding) + Precision.round((double) sum / (double) times.size(), 2) + "ms\n");
-            stringBuilder.append(StringUtils.rightPad("Total Time:", padding) + sum + "ms\n");
+            stringBuilder.append(StringUtils.rightPad("Total Send Time:", padding) + sum + "ms\n");
+            stringBuilder.append(StringUtils.rightPad("Total Test Time:", padding) + milliseconds + "ms\n");
         }
 
         return stringBuilder.toString();
     }
 
-    public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDao dao) {
+    public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId) {
+        return createAndStoreNewMessage(rawMessage, channelId, serverId, getDaoFactory());
+    }
+    
+    public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDaoFactory daoFactory) {
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getDateCreated(), Status.RECEIVED);
         sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null));
@@ -1014,30 +1164,47 @@ public class TestUtils {
 
         message.getConnectorMessages().put(0, sourceMessage);
 
-        dao.insertMessage(message);
-        dao.insertConnectorMessage(sourceMessage, true);
-        dao.insertMessageContent(sourceMessage.getRaw());
+        DonkeyDao dao = null;
+        
+        try {
+            dao = daoFactory.getDao();
+            dao.insertMessage(message);
+            dao.insertConnectorMessage(sourceMessage, true);
+            dao.insertMessageContent(sourceMessage.getRaw());
+            dao.commit();
+        } finally {
+            close(dao);
+        }
+        
         return message;
     }
 
-    public static ConnectorMessage createAndStoreDestinationConnectorMessage(DonkeyDao dao, String channelId, String serverId, long messageId, int metaDataId, String rawContent, Status status) {
+    public static ConnectorMessage createAndStoreDestinationConnectorMessage(DonkeyDaoFactory daoFactory, String channelId, String serverId, long messageId, int metaDataId, String rawContent, Status status) {
         ConnectorMessage connectorMessage = new ConnectorMessage(channelId, messageId, metaDataId, serverId, Calendar.getInstance(), status);
         connectorMessage.setRaw(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, rawContent, null));
 
-        dao.insertConnectorMessage(connectorMessage, false);
-        dao.insertMessageContent(connectorMessage.getRaw());
+        DonkeyDao dao = null;
+        
+        try {
+            dao = daoFactory.getDao();
+            dao.insertConnectorMessage(connectorMessage, false);
+            dao.insertMessageContent(connectorMessage.getRaw());
+            dao.commit();
+        } finally {
+            close(dao);
+        }
 
         return connectorMessage;
     }
 
     public static Integer getSendAttempts(String channelId, long messageId) throws SQLException {
+        long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
 
         try {
             connection = getConnection();
-            long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
             statement = connection.prepareStatement("SELECT send_attempts FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ?");
             statement.setLong(1, messageId);
             statement.setInt(2, 1);
@@ -1049,9 +1216,9 @@ public class TestUtils {
 
             return null;
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            close(result);
+            close(statement);
+            close(connection);
         }
     }
 
@@ -1067,43 +1234,57 @@ public class TestUtils {
         }
     }
 
-    public static void runChannelTest(String testMessage, String channelId, String serverId, final String testName, final int numChannels, final int numChains, final int numDestinations, final boolean waitForDestinations, final Integer testSize, final Integer testMillis, final Integer warmupMillis, StorageSettings storageSettings) throws Exception {
+    public static void runChannelTest(String testMessage, String channelId, String serverId, final String testName, final int numChannels, final int numChains, final int numDestinations, final boolean respondAfterProcessing, final Integer testSize, final Integer testMillis, final Integer warmupMillis, StorageSettings storageSettings) throws Exception {
         Channel[] channels = new Channel[numChannels];
 
         for (int i = 0; i < numChannels; i++) {
-            channels[i] = TestUtils.createDefaultChannel(channelId + i, serverId, waitForDestinations, numChains, numDestinations, storageSettings);
+            channels[i] = TestUtils.createDefaultChannel(channelId + i, serverId, respondAfterProcessing, numChains, numDestinations, storageSettings);
         }
 
         runChannelTest(testMessage, testName, testSize, testMillis, warmupMillis, channels);
+    }
+    
+    public static String getDatabaseType() {
+        return (String) Donkey.getInstance().getConfiguration().getDatabaseProperties().get("database");
     }
 
     public static void runChannelTest(String testMessage, final String testName, final Integer testSize, Integer testMillis, Integer warmupMillis, Channel[] channels) throws Exception {
         TestSourceConnector[] sourceConnectors = new TestSourceConnector[channels.length];
         List<List<Long>> sentMessageIds = new ArrayList<List<Long>>();
-        Connection connection = getConnection();
-        connection.setAutoCommit(true);
-        Statement statement = connection.createStatement();
+        boolean isPostgres = getDatabaseType().equals("postgres");
 
-        try {
-            for (int i = 0; i < channels.length; i++) {
-                ChannelController.getInstance().deleteAllMessages(channels[i].getChannelId());
-                long localChannelId = ChannelController.getInstance().getLocalChannelId(channels[i].getChannelId());
+        for (int i = 0; i < channels.length; i++) {
+            ChannelController.getInstance().deleteAllMessages(channels[i].getChannelId());
+            long localChannelId = ChannelController.getInstance().getLocalChannelId(channels[i].getChannelId());
 
+            if (isPostgres) {
                 System.out.print("Vacuuming tables for channel: " + channels[i].getChannelId() + "...");
-                statement.execute("VACUUM ANALYZE d_m" + localChannelId);
-                statement.execute("VACUUM ANALYZE d_mm" + localChannelId);
-                statement.execute("VACUUM ANALYZE d_mc" + localChannelId);
-                statement.execute("VACUUM ANALYZE d_mcm" + localChannelId);
-                statement.execute("VACUUM ANALYZE d_ms" + localChannelId);
-                statement.execute("VACUUM ANALYZE d_ma" + localChannelId);
+                Connection connection = null;
+                Statement statement = null;
+                
+                try {
+                    connection = getConnection();
+                    connection.setAutoCommit(true);
+                    statement = connection.createStatement();
+                    statement.execute("VACUUM ANALYZE d_m" + localChannelId);
+                    statement.execute("VACUUM ANALYZE d_mm" + localChannelId);
+                    statement.execute("VACUUM ANALYZE d_mc" + localChannelId);
+                    statement.execute("VACUUM ANALYZE d_mcm" + localChannelId);
+                    statement.execute("VACUUM ANALYZE d_ms" + localChannelId);
+                    statement.execute("VACUUM ANALYZE d_ma" + localChannelId);
+                } finally {
+                    close(statement);
+                    
+                    if (connection != null && !connection.isClosed()) {
+                        connection.close();
+                    }
+                }
+                
                 System.out.println("done");
-
-                sourceConnectors[i] = (TestSourceConnector) channels[i].getSourceConnector();
-                sentMessageIds.add(new ArrayList<Long>());
             }
-        } finally {
-            statement.close();
-            connection.close();
+
+            sourceConnectors[i] = (TestSourceConnector) channels[i].getSourceConnector();
+            sentMessageIds.add(new ArrayList<Long>());
         }
 
         for (Channel channel : channels) {
@@ -1126,6 +1307,7 @@ public class TestUtils {
 
             while (System.currentTimeMillis() < testEndTime) {
                 for (int j = 0; j < channels.length; j++) {
+                    logger.debug("Sending message");
                     long msgStartTime = System.currentTimeMillis();
                     sentMessageIds.get(j).add(sourceConnectors[j].readTestMessage(testMessage).getMessageId());
                     long totalTime = System.currentTimeMillis() - msgStartTime;
@@ -1139,11 +1321,16 @@ public class TestUtils {
             for (Channel channel : channels) {
                 channel.stop();
             }
+            
+            for (Channel channel : channels) {
+                channel.undeploy();
+            }
 
             duration = System.currentTimeMillis() - testBeginTime;
         } else {
             for (int i = 0; i < testSize; i++) {
                 for (int j = 0; j < channels.length; j++) {
+                    logger.debug("Sending message");
                     long msgStartTime = System.currentTimeMillis();
                     sentMessageIds.get(j).add(sourceConnectors[j].readTestMessage(testMessage).getMessageId());
                     long totalTime = System.currentTimeMillis() - msgStartTime;
@@ -1152,14 +1339,15 @@ public class TestUtils {
             }
 
             for (Channel channel : channels) {
+                channel.processSourceQueue(0);
                 channel.stop();
+            }
+            
+            for (Channel channel : channels) {
+                channel.undeploy();
             }
 
             duration = System.currentTimeMillis() - testStartTime;
-        }
-
-        for (Channel channel : channels) {
-            channel.undeploy();
         }
 
         if (testName != null) {
@@ -1230,21 +1418,25 @@ public class TestUtils {
                 ContentType contentType = ContentType.fromChar(resultSet.getString("content_type").charAt(0));
                 System.out.printf("%-20s%-5d%s\n", contentType.name(), resultSet.getInt("metadata_id"), content.substring(0, Math.min(10, content.length())));
             }
-
-            System.out.println();
         } finally {
-            DbUtils.close(connection);
-            DbUtils.close(statement);
-            DbUtils.close(resultSet);
+            close(connection);
+            close(statement);
+            close(resultSet);
         }
+        
+        System.out.println();
     }
-
+    
     public static long getChannelStorageSize(String channelId) throws Exception {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         return getTableSize("d_m" + localChannelId) + getTableSize("d_mm" + localChannelId) + getTableSize("d_mc" + localChannelId) + getTableSize("d_mcm" + localChannelId) + getTableSize("d_ma" + localChannelId) + getTableSize("d_ms" + localChannelId);
     }
 
     private static long getTableSize(String tableName) throws Exception {
+        if (!getDatabaseType().equals("postgres")) {
+            return 0;
+        }
+        
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
@@ -1260,9 +1452,51 @@ public class TestUtils {
 
             return resultSet.getLong(1);
         } finally {
-            DbUtils.close(resultSet);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            close(resultSet);
+            close(statement);
+            close(connection);
+        }
+    }
+    
+    public static Message createTestProcessedMessage(String channelId, String serverId, long messageId, String content) {
+        Calendar dateCreated = Calendar.getInstance();
+
+        Message message = new Message();
+        message.setMessageId(messageId);
+        message.setChannelId(channelId);
+        message.setServerId(serverId);
+        message.setDateCreated(dateCreated);
+        message.setProcessed(true);
+
+        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getDateCreated(), Status.TRANSFORMED);
+        message.getConnectorMessages().put(0, sourceMessage);
+
+        ConnectorMessage destinationMessage = new ConnectorMessage(channelId, message.getMessageId(), 1, serverId, message.getDateCreated(), Status.SENT);
+        message.getConnectorMessages().put(1, destinationMessage);
+
+        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, content, null));
+        destinationMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 1, ContentType.RAW, content, null));
+        
+        return message;
+    }
+    
+    public static void insertCompleteMessage(Message message, DonkeyDao dao) {
+        dao.insertMessage(message);
+
+        if (message.isProcessed()) {
+            dao.markAsProcessed(message.getChannelId(), message.getMessageId());
+        }
+
+        for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
+            dao.insertConnectorMessage(connectorMessage, true);
+
+            for (ContentType contentType : ContentType.values()) {
+                MessageContent messageContent = connectorMessage.getContent(contentType);
+
+                if (messageContent != null) {
+                    dao.insertMessageContent(messageContent);
+                }
+            }
         }
     }
 

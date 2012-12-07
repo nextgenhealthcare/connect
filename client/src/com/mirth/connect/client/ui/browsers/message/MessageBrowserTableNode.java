@@ -70,7 +70,7 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
         row[5] = connectorMessage.getSendAttempts();
 
         for (int i = NUM_STATIC_COLUMNS; i < model.getColumnCount(); i++) {
-            row[i] = connectorMessage.getMetaDataMap().get(model.getColumnName(i).toLowerCase());
+            row[i] = connectorMessage.getMetaDataMap().get(model.getColumnName(i).toUpperCase());
         }
     }
 

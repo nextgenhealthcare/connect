@@ -117,18 +117,17 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
     }
 
     @Override
-    public List<ConnectorMessage> call() throws Exception {
+    public List<ConnectorMessage> call() throws InterruptedException {
         List<ConnectorMessage> messages = new ArrayList<ConnectorMessage>();
         ConnectorMessage message = this.message;
-
-        if (message.getStatus() != Status.RECEIVED && message.getStatus() != Status.PENDING && message.getStatus() != Status.SENT) {
-            logger.error("Received an invalid destination message, message status must be either RECEIVED, PENDING or SENT");
-            return null;
-        }
-
         int startMetaDataId = enabledMetaDataIds.indexOf(message.getMetaDataId());
 
+        /*
+         * The message that we're starting with should be associated with one of the
+         * destinations in this chain, if it's not, we can't proceed.
+         */
         if (startMetaDataId == -1) {
+            logger.error("The message's metadata ID is not in the destination chain's list of enabled metadata IDs");
             return null;
         }
 
@@ -216,6 +215,14 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                             if (StringUtils.isNotBlank(message.getErrors())) {
                                 dao.updateErrors(message);
                             }
+                            break;
+                            
+                        case SENT:
+                            break;
+
+                        default:
+                            // the status should never be anything but one of the above statuses, but in case it's not, log an error
+                            logger.error("Received a message with an invalid status");
                             break;
                     }
                 } catch (RuntimeException e) { // TODO: remove this catch since we can't determine an error code

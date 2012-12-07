@@ -30,8 +30,6 @@
 	<classpathentry kind="lib" path="lib/commons/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-tools-2.0.jar"/>
-	<classpathentry kind="lib" path="lib/derby-10.8.2.2.jar"/>
-	<classpathentry kind="lib" path="lib/derbytools-10.8.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dicomviewer/ij.jar"/>
 	<classpathentry kind="lib" path="lib/jdom-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.8.1.jar"/>
@@ -73,6 +71,8 @@
 	<classpathentry kind="lib" path="lib/database/postgresql-9.1-902.jdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/database/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7r4.jar"/>
+	<classpathentry kind="lib" path="lib/donkey/derby-1414718.jar"/>
+	<classpathentry kind="lib" path="lib/donkey/derbytools-1414718.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>

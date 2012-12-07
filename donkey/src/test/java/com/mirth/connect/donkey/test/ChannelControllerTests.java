@@ -10,7 +10,6 @@
 package com.mirth.connect.donkey.test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -80,7 +79,7 @@ public class ChannelControllerTests {
                 long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
 
                 // Assert that the channel was created
-                assertTrue(TestUtils.channelExists(channelId, true));
+                TestUtils.assertChannelExists(channelId, true);
 
                 // Assert that subsequent calls return the same local channel ID
                 assertEquals(localChannelId, (long) ChannelController.getInstance().getLocalChannelId(channelId));
@@ -157,8 +156,10 @@ public class ChannelControllerTests {
             try {
                 long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
                 connection = TestUtils.getConnection();
-                statement = connection.prepareStatement("TRUNCATE d_ms" + localChannelId + " CASCADE");
+                statement = connection.prepareStatement("DELETE FROM d_ms" + localChannelId);
                 statement.executeUpdate();
+                statement.close();
+                
                 for (Integer metaDataId : new Integer[] { null, 0, 1 }) {
                     statement = connection.prepareStatement("INSERT INTO d_ms" + localChannelId + " (metadata_id, received, filtered, transformed, pending, sent, error) VALUES (?,?,?,?,?,?,?)");
                     if (metaDataId != null) {
@@ -170,17 +171,17 @@ public class ChannelControllerTests {
                         statement.setInt(i, (int) (Math.random() * 100));
                     }
                     statement.executeUpdate();
+                    statement.close();
                 }
                 connection.commit();
             } finally {
-                statement.close();
-                connection.close();
+                TestUtils.close(statement);
+                TestUtils.close(connection);
             }
 
             // Get the initial statistics
             Map<Integer, Map<Status, Long>> initialStats = TestUtils.getChannelStatistics(channel.getChannelId());
 
-            ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
             channel.deploy();
             channel.start();
 

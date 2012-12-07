@@ -59,9 +59,9 @@ public interface DonkeyDao {
 
     public void deleteConnectorMessages(String channelId, long messageId, List<Integer> metaDataIds, boolean deleteStatistics);
 
+    public void deleteMessageContent(String channelId, long messageId);
+    
     public void deleteAllMessages(String channelId);
-
-    public void deleteAllContent(String channelId, long messageId);
 
     public void createChannel(String channelId, long localChannelId);
 

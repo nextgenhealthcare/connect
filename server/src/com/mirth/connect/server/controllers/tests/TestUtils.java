@@ -14,6 +14,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -22,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 import org.apache.ibatis.session.SqlSession;
+import org.apache.log4j.Logger;
 
 import com.mirth.connect.connectors.tests.TestAutoResponder;
 import com.mirth.connect.connectors.tests.TestDestinationConnector;
@@ -38,13 +41,18 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.channel.Channel;
+import com.mirth.connect.donkey.server.channel.ChannelLock;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
+import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
+import com.mirth.connect.donkey.server.channel.ResponseSelector;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
+import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
 import com.mirth.connect.server.util.ResourceUtil;
@@ -53,9 +61,37 @@ public class TestUtils {
     final public static String TEST_HL7_MESSAGE = "MSH|^~\\&|LABNET|Acme Labs|||20090601105700||ORU^R01|HMCDOOGAL-0088|D|2.2\nPID|1|8890088|8890088^^^72777||McDoogal^Hattie^||19350118|F||2106-3|100 Beach Drive^Apt. 5^Mission Viejo^CA^92691^US^H||(949) 555-0025|||||8890088^^^72|604422825\nPV1|1|R|C3E^C315^B||||2^HIBBARD^JULIUS^|5^ZIMMERMAN^JOE^|9^ZOIDBERG^JOHN^|CAR||||4|||2301^OBRIEN, KEVIN C|I|1783332658^1^1||||||||||||||||||||DISNEY CLINIC||N|||20090514205600\nORC|RE|928272608|056696716^LA||CM||||20090601105600||||  C3E|||^RESULT PERFORMED\nOBR|1|928272608|056696716^LA|1001520^K|||20090601101300|||MLH25|||HEMOLYZED/VP REDRAW|20090601102400||2301^OBRIEN, KEVIN C||||01123085310001100100152023509915823509915800000000101|0000915200932|20090601105600||LAB|F||^^^20090601084100^^ST~^^^^^ST\nOBX|1|NM|1001520^K||5.3|MMOL/L|3.5-5.5||||F|||20090601105600|IIM|IIM";
     final public static String CHANNEL_ID = "newtestchannel";
     final public static String SERVER_ID = "testserver";
+    
+    private static Logger logger = Logger.getLogger(TestUtils.class);
+
+    public static void runChannelTest(Channel channel, final String testMessage, final int testSize) throws Exception {
+        channel.deploy();
+        channel.start();
+        
+        SourceConnector sourceConnector = channel.getSourceConnector();
+        RawMessage rawMessage = new RawMessage(testMessage);
+        
+        for (int i = 0; i < testSize; i++) {
+            DispatchResult dispatchResult = null;
+            
+            try {
+                dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
+                
+                if (dispatchResult.getChannelException() != null) {
+                    throw dispatchResult.getChannelException();
+                }
+            } finally {
+                sourceConnector.finishDispatch(dispatchResult);
+            }
+        }
+        
+        channel.stop();
+        channel.undeploy();
+    }
 
     public static Channel createChannel(String channelId, String serverId, SourceConnector sourceConnector, DestinationConnector destinationConnector) {
         Channel channel = new Channel();
+        channel.lock(ChannelLock.DEBUG);
         channel.setChannelId(channelId);
         channel.setServerId(serverId);
         channel.setEnabled(true);
@@ -87,9 +123,11 @@ public class TestUtils {
     public static Channel createChannel(String channelId, String serverId, boolean respondAfterProcessing, int numChains, int destinationsPerChain) {
         // create channel
         Channel channel = new Channel();
+        channel.lock(ChannelLock.DEBUG);
         channel.setChannelId(channelId);
         channel.setServerId(serverId);
         channel.setEnabled(true);
+        channel.setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory()));
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
 
@@ -97,12 +135,24 @@ public class TestUtils {
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
         channel.setSourceFilterTransformer(filterTransformer);
 
+        // create source connector
+        TestSourceConnector sourceConnector = new TestSourceConnector();
+        sourceConnector.setChannel(channel);
+        sourceConnector.setRespondAfterProcessing(respondAfterProcessing);
+        sourceConnector.setMetaDataReplacer(new MetaDataReplacer());
+        
+        channel.setSourceConnector(sourceConnector);
+        channel.setResponseSelector(new ResponseSelector(sourceConnector.getInboundDataType()));
+        channel.getResponseSelector().setRespondFromName("destination1");
+        
         int metaDataId = 1;
 
         // create destination chains
         for (int i = 0; i < numChains; i++) {
             DestinationChain chain = new DestinationChain();
             chain.setChannelId(channelId);
+            chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
+            
             channel.getDestinationChains().add(chain);
 
             for (int j = 0; j < destinationsPerChain; j++) {
@@ -121,13 +171,6 @@ public class TestUtils {
                 chain.addDestination(metaDataId++, filterTransformer, testDestinationConnector);
             }
         }
-
-        // create source connector
-        TestSourceConnector sourceConnector = new TestSourceConnector();
-        sourceConnector.setChannel(channel);
-        sourceConnector.setRespondAfterProcessing(respondAfterProcessing);
-        channel.setSourceConnector(sourceConnector);
-        channel.getResponseSelector().setRespondFromName("destination1");
 
         return channel;
     }
@@ -232,13 +275,54 @@ public class TestUtils {
             result.next();
             return result.getInt(1);
         } finally {
-            DbUtils.close(result);
+            close(result);
+            close(statement);
+            close(connection);
+        }
+    }
+    
+    public static void close(Connection connection) {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.rollback();
+                connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void close(Statement statement) {
+        try {
             DbUtils.close(statement);
-            DbUtils.close(connection);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void close(PreparedStatement preparedStatement) {
+        try {
+            DbUtils.close(preparedStatement);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void close(ResultSet resultSet) {
+        try {
+            DbUtils.close(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void close(DonkeyDao dao) {
+        if (dao != null && !dao.isClosed()) {
+            dao.close();
         }
     }
 
-    public static void deleteAllMessages(String channelId) {
+    public static void deleteAllMessages(String channelId) throws Exception {
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
         try {
@@ -247,6 +331,8 @@ public class TestUtils {
         } finally {
             dao.close();
         }
+        
+        fixMessageIdSequence(channelId);
     }
 
     public static void createTestMessages(String channelId, Message templateMessage, int count) throws Exception {
@@ -264,6 +350,7 @@ public class TestUtils {
     }
 
     public static void createTestMessagesFast(String channelId, Message templateMessage, int power) throws Exception {
+        long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         deleteAllMessages(channelId);
         createTestMessages(channelId, templateMessage, 1);
 
@@ -271,16 +358,15 @@ public class TestUtils {
         PreparedStatement messageStatement = null;
         PreparedStatement metaDataStatement = null;
         PreparedStatement contentStatement = null;
-        long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         long idOffset = templateMessage.getMessageId();
+        
+        logger.debug("Replicating messages in channel \"" + channelId + "\"");
 
         try {
             connection = getConnection();
             messageStatement = connection.prepareStatement("INSERT INTO d_m" + localChannelId + " (id, server_id, date_created, processed) SELECT id + ?, server_id, date_created, processed FROM d_m" + localChannelId);
             metaDataStatement = connection.prepareStatement("INSERT INTO d_mm" + localChannelId + " (id, message_id, date_created, status, connector_map, channel_map, response_map, errors, send_attempts) SELECT id, message_id + ?, date_created, status, connector_map, channel_map, response_map, errors, send_attempts FROM d_mm" + localChannelId);
-            contentStatement = connection.prepareStatement("INSERT INTO d_mc" + localChannelId + " (metadata_id, message_id, content_type, \"content\", is_encrypted, data_type) SELECT metadata_id, message_id + ?, content_type, \"content\", is_encrypted, data_type FROM d_mc" + localChannelId);
-
-            System.out.print("Creating test messages...");
+            contentStatement = connection.prepareStatement("INSERT INTO d_mc" + localChannelId + " (metadata_id, message_id, content_type, content, is_encrypted, data_type) SELECT metadata_id, message_id + ?, content_type, content, is_encrypted, data_type FROM d_mc" + localChannelId);
 
             for (int i = 0; i < power; i++) {
                 messageStatement.setLong(1, idOffset);
@@ -294,16 +380,49 @@ public class TestUtils {
                 idOffset *= 2;
 
                 connection.commit();
-                System.out.print(getNumMessages(channelId) + "...");
+                logger.debug("# of messages in channel \"" + channelId + "\" is now " + getNumMessages(channelId));
             }
-
-            System.out.println("done");
         } finally {
-            DbUtils.close(messageStatement);
-            DbUtils.close(metaDataStatement);
-            DbUtils.close(contentStatement);
-            DbUtils.close(connection);
+            close(messageStatement);
+            close(metaDataStatement);
+            close(contentStatement);
+            close(connection);
         }
+        
+        fixMessageIdSequence(channelId);
+        logger.debug("Finished replicating messages in channel \"" + channelId + "\"");
+    }
+    
+    public static void fixMessageIdSequence(String channelId) throws Exception {
+        Connection connection = null;
+        long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
+        String database = (String) Donkey.getInstance().getConfiguration().getDatabaseProperties().get("database");
+        Long maxId = null;
+        
+        if (database.equals("derby")) {
+            Statement statement = null;
+            ResultSet result = null;
+            
+            try {
+                connection = getConnection();
+                statement = connection.createStatement();
+                result = statement.executeQuery("SELECT MAX(id) FROM d_m" + localChannelId);
+                result.next();
+                maxId = result.getLong(1) + 1;
+                close(result);
+                statement.execute("DROP SEQUENCE d_msq" + localChannelId + " RESTRICT");
+                statement.execute("CREATE SEQUENCE d_msq" + localChannelId + " START WITH " + maxId + " INCREMENT BY 1 NO CYCLE");
+                connection.commit();
+            } finally {
+                close(result);
+                close(statement);
+                close(connection);
+            }
+        } else {
+            // TODO
+        }
+        
+        logger.debug("Message ID sequence updated to: " + maxId);
     }
 
     private static void insertCompleteMessage(Message message, DonkeyDao dao) {

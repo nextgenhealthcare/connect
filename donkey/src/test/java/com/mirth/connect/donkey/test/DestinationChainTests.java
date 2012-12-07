@@ -16,7 +16,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Map;
 
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -30,8 +29,8 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
-import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
+import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
@@ -132,32 +131,41 @@ public class DestinationChainTests {
 
         channel.deploy();
         channel.start();
-        ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
 
+        if (ChannelController.getInstance().channelExists(channelId)) {
+            ChannelController.getInstance().deleteAllMessages(channelId);
+        }
+        
         for (int i = 1; i <= TEST_SIZE; i++) {
             DispatchResult messageResponse = ((TestSourceConnector) channel.getSourceConnector()).readTestMessage(testMessage);
 
             for (DestinationChain chain : channel.getDestinationChains()) {
                 for (int metaDataId : chain.getDestinationConnectors().keySet()) {
-                    // Assert that the transformed data was stored
-                    Connection connection = TestUtils.getConnection();
-                    PreparedStatement statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
-                    statement.setLong(1, messageResponse.getMessageId());
-                    statement.setLong(2, metaDataId);
-                    statement.setString(3, String.valueOf(ContentType.TRANSFORMED.getContentTypeCode()));
-                    ResultSet result = statement.executeQuery();
-                    assertTrue(result.next());
-                    result.close();
-
-                    // Assert that the encoded data was stored
-                    statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
-                    statement.setLong(1, messageResponse.getMessageId());
-                    statement.setLong(2, metaDataId);
-                    statement.setString(3, String.valueOf(ContentType.ENCODED.getContentTypeCode()));
-                    result = statement.executeQuery();
-                    assertTrue(result.next());
-                    result.close();
-                    connection.close();
+                    Connection connection = null;
+                    PreparedStatement statement = null;
+                    ResultSet result = null;
+                    
+                    try {
+                        connection = TestUtils.getConnection();
+                        
+                        // Assert that the transformed data was stored
+                        statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
+                        statement.setLong(1, messageResponse.getMessageId());
+                        statement.setLong(2, metaDataId);
+                        statement.setString(3, String.valueOf(ContentType.TRANSFORMED.getContentTypeCode()));
+                        result = statement.executeQuery();
+                        assertTrue(result.next());
+                        TestUtils.close(result);
+    
+                        // Assert that the encoded data was stored
+                        statement.setString(3, String.valueOf(ContentType.ENCODED.getContentTypeCode()));
+                        result = statement.executeQuery();
+                        assertTrue(result.next());
+                    } finally {
+                        TestUtils.close(result);
+                        TestUtils.close(statement);
+                        TestUtils.close(connection);
+                    }
 
                     // Assert that the connector message maps were updated
                     Map<String, Object> connectorMap = TestUtils.getConnectorMap(channel.getChannelId(), messageResponse.getMessageId(), metaDataId);
@@ -195,7 +203,7 @@ public class DestinationChainTests {
     @Test
     public final void testCreateNextMessage() throws Exception {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
-        Channel channel = TestUtils.createDefaultChannel(channelId, serverId, 2, 2);
+        Channel channel = TestUtils.createDefaultChannel(channelId, serverId, true, 2, 2);
 
         channel.getSourceFilterTransformer().setFilterTransformer(new TestFilterTransformer() {
             @Override
@@ -209,27 +217,26 @@ public class DestinationChainTests {
 
         channel.deploy();
         channel.start();
-        ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet result = null;
 
         try {
+            connection = TestUtils.getConnection();
+            
             for (int i = 1; i <= TEST_SIZE; i++) {
                 DispatchResult messageResponse = ((TestSourceConnector) channel.getSourceConnector()).readTestMessage(testMessage);
 
                 for (DestinationChain chain : channel.getDestinationChains()) {
-                    int startMetaDataId = chain.getEnabledMetaDataIds().get(0);
-
                     for (int metaDataId : chain.getEnabledMetaDataIds()) {
                         // Assert that the connector message was stored
-                        connection = TestUtils.getConnection();
                         statement = connection.prepareStatement("SELECT * FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ?");
                         statement.setLong(1, messageResponse.getMessageId());
                         statement.setInt(2, metaDataId);
                         result = statement.executeQuery();
                         assertTrue(result.next());
                         result.close();
+                        statement.close();
 
                         // Assert that the channel and response maps were updated
                         Map<String, Object> channelMap = TestUtils.getChannelMap(channel.getChannelId(), messageResponse.getMessageId(), metaDataId);
@@ -244,14 +251,14 @@ public class DestinationChainTests {
                         result = statement.executeQuery();
                         assertTrue(result.next());
                         result.close();
-                        connection.close();
+                        statement.close();
                     }
                 }
             }
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            TestUtils.close(result);
+            TestUtils.close(statement);
+            TestUtils.close(connection);
         }
 
         channel.stop();

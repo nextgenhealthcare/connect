@@ -28,27 +28,6 @@
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
-	<query id="deleteConnectorMessage">
-		DELETE FROM d_mm${localChannelId}
-		WHERE message_id = ?
-	</query>
-	
-	<query id="deleteMessage">
-		DELETE FROM d_m${localChannelId}
-		WHERE id = ?
-	</query>
-	
-	<query id="deleteConnectorMessageByMetaDataIds">
-		DELETE FROM d_mm${localChannelId}
-		WHERE message_id = ?
-		AND id IN (${metaDataIds})
-	</query>
-	
-	<query id="deleteAllContent">
-		DELETE FROM d_mc${localChannelId}
-		WHERE message_id = ?
-	</query>
-	
 	<query id="updateSourceResponse">
 		UPDATE d_m${localChannelId}
 		SET attempted_response = ?, response_error = ?
@@ -95,7 +74,7 @@
 	</query>
 	
 	<query id="removeMetaDataColumn">
-		ALTER TABLE d_mcm${localChannelId} DROP COLUMN ${columnName}
+		ALTER TABLE d_mcm${localChannelId} DROP COLUMN "${columnName}"
 	</query>
 	
 	<query id="getMaxMessageId">
@@ -217,7 +196,7 @@
 	</query>
 
 	<query id="insertMetaData">
-		INSERT INTO d_mcm${localChannelId} (metadata_id, message_id, ${metaDataColumnNames})
+		INSERT INTO d_mcm${localChannelId} (METADATA_ID, MESSAGE_ID, ${metaDataColumnNames})
 		VALUES (?, ?, ${metaDataColumnPlaceholders})
 	</query>
 	
@@ -272,23 +251,88 @@
 		WHERE mm.id = ? AND mm.status = ?
 	</query>
 	
+	
+	
+	<!-- Delete Statements -->
+	
+	<query id="deleteMessage">
+		DELETE FROM d_m${localChannelId}
+		WHERE id = ?
+	</query>
+	
+	<!-- Optional cascade statements when not using ON DELETE CASCADE, define these in the database's xml file -->
+	<query id="deleteMessageCascadeConnectorMessage"></query>
+	<query id="deleteMessageCascadeContent"></query>
+	<query id="deleteMessageCascadeMetadata"></query>
+	<query id="deleteMessageCascadeAttachments"></query>
 
-	<!-- These queries must be defined in each driver-specific xml file -->
+	<query id="deleteConnectorMessages">
+		DELETE FROM d_mm${localChannelId}
+		WHERE message_id = ?
+	</query>
+	
+	<query id="deleteMessageContent">
+		DELETE FROM d_mc${localChannelId}
+		WHERE message_id = ?
+	</query>
+	
+	<query id="deleteAllMessages">
+		DELETE FROM d_m${localChannelId}
+	</query>
+	
+	<query id="deleteAllMessagesCascadeConnectorMessage"></query>
+	<query id="deleteAllMessagesCascadeContent"></query>
+	<query id="deleteAllMessagesCascadeMetadata"></query>
+	<query id="deleteAllMessagesCascadeAttachments"></query>
+	
+	<query id="deleteConnectorMessagesByMetaDataIds">
+		DELETE FROM d_mm${localChannelId}
+		WHERE message_id = ?
+		AND id IN (${metaDataIds})
+	</query>
+	
+	<query id="deleteConnectorMessagesByMetaDataIdsCascadeMetadata"></query>
+	<query id="deleteConnectorMessagesByMetaDataIdsCascadeContent"></query>
+	
+	
+
+	<!-- These queries must be defined in each database's xml file -->
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit"></query>
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange"></query>
 	<query id="createMessageTable"></query>
 	<query id="createConnectorMessageTable"></query>
+	<query id="createConnectorMessageTableIdIndex"></query>
+	<query id="createConnectorMessageTableIdStatusIndex"></query>
 	<query id="createMessageContentTable"></query>
+	<query id="createMessageContentTableIndex"></query>
 	<query id="createMessageCustomMetaDataTable"></query>
 	<query id="createMessageAttachmentTable"></query>
+	<query id="createMessageAttachmentTableIndex"></query>
 	<query id="createMessageStatisticsTable"></query>
-	<query id="tableExists"></query>
+	<query id="createMessageSequence"></query>
 	<query id="createChannelsTable"></query>
 	<query id="createEventsTable"></query>
+	<query id="getNextMessageId"></query>
 	<query id="addMetaDataColumnString"></query>
+	<query id="addMetaDataColumnStringIndex"></query>
 	<query id="addMetaDataColumnBoolean"></query>
+	<query id="addMetaDataColumnBooleanIndex"></query>
 	<query id="addMetaDataColumnDate"></query>
+	<query id="addMetaDataColumnDateIndex"></query>
 	<query id="addMetaDataColumnDouble"></query>
+	<query id="addMetaDataColumnDoubleIndex"></query>
 	<query id="addMetaDataColumnLong"></query>
+	<query id="addMetaDataColumnLongIndex"></query>
 	<query id="addMetaDataColumnTime"></query>
+	<query id="addMetaDataColumnTimeIndex"></query>
 	<query id="addMetaDataColumnTimestamp"></query>
-	<query id="deleteAllMessages"></query>
+	<query id="addMetaDataColumnTimestampIndex"></query>
+	<query id="dropMessageTable"></query>
+	<query id="dropMessageMetadataTable"></query>
+	<query id="dropMessageContentTable"></query>
+	<query id="dropCustomMetadataTable"></query>
+	<query id="dropAttachmentsTable"></query>
+	<query id="dropStatisticsTable"></query>
+	<query id="dropMessageSequence"></query>
+	<query id="deleteChannel"></query>
 </queries>

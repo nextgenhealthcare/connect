@@ -59,6 +59,12 @@ public class TestChannelWriter extends DestinationConnector {
             destinationChannel.getSourceConnector().finishDispatch(dispatchResult);
         }
 
-        return dispatchResult.getSelectedResponse();
+        Response response = dispatchResult.getSelectedResponse();
+        
+        if (response == null) {
+            response = new Response();
+        }
+        
+        return response;
     }
 }

@@ -4,6 +4,7 @@
 <configuration>
 	<settings>
 		<setting name="cacheEnabled" value="true" />
+		<setting name="jdbcTypeForNull" value="VARCHAR" />
 	</settings>
 	
 	<typeAliases>
@@ -14,6 +15,7 @@
 	</typeAliases>
 
 	<typeHandlers>
+		<typeHandler javaType="java.sql.Clob" handler="org.apache.ibatis.type.ClobTypeHandler" />
 		<typeHandler javaType="java.util.Calendar" handler="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />
 		<typeHandler javaType="java.util.GregorianCalendar" handler="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />
 		<typeHandler javaType="Status" handler="com.mirth.connect.server.sqlmap.extensions.StatusTypeHandler" />

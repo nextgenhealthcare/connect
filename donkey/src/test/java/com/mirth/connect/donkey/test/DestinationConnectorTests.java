@@ -18,8 +18,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Map;
 
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,7 +39,6 @@ import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
-import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.test.util.TestChannel;
 import com.mirth.connect.donkey.test.util.TestConnectorProperties;
 import com.mirth.connect.donkey.test.util.TestDestinationConnector;
@@ -58,7 +55,6 @@ public class DestinationConnectorTests {
     private static String channelId = TestUtils.DEFAULT_CHANNEL_ID;
     private static String serverId = TestUtils.DEFAULT_SERVER_ID;
     private static String testMessage = TestUtils.TEST_HL7_MESSAGE;
-    private Logger logger = Logger.getLogger(this.getClass());
 
     @BeforeClass
     final public static void beforeClass() throws StartException {
@@ -86,7 +82,7 @@ public class DestinationConnectorTests {
      */
     @Test
     public final void testStart() throws Exception {
-        ChannelController.getInstance().getLocalChannelId(channelId);
+        TestUtils.initChannel(channelId);
 
         TestChannel channel = new TestChannel();
 
@@ -326,30 +322,30 @@ public class DestinationConnectorTests {
         ResultSet result = null;
 
         try {
+            connection = TestUtils.getConnection();
+            
             for (int i = 1; i <= TEST_SIZE; i++) {
-                DispatchResult messageResponse = sourceConnector.readTestMessage(testMessage);
-
+                DispatchResult dispatchResult = sourceConnector.readTestMessage(testMessage);
+                sourceConnector.finishDispatch(dispatchResult);
+                
                 if (retryCount > 0) {
                     // assert that the connector attempted to send the message the correct number of times
-                    assertEquals(new Integer(queueConnectorProperties.getRetryCount() + 1), TestUtils.getSendAttempts(channel.getChannelId(), messageResponse.getMessageId()));
+                    assertEquals(new Integer(queueConnectorProperties.getRetryCount() + 1), TestUtils.getSendAttempts(channel.getChannelId(), dispatchResult.getMessageId()));
                 } else {
-                    if (queueNull || !queueEnabled || queueSendFirst || !queueRegenerate) {
+                    if (queueNull || !queueEnabled || queueSendFirst) {
                         // Assert that the sent content was stored
-                        connection = TestUtils.getConnection();
                         long localChannelId = ChannelController.getInstance().getLocalChannelId(channel.getChannelId());
                         statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
-                        statement.setLong(1, messageResponse.getMessageId());
+                        statement.setLong(1, dispatchResult.getMessageId());
                         statement.setInt(2, 1);
                         statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
                         result = statement.executeQuery();
                         assertTrue(result.next());
                         result.close();
-                        connection.close();
-                    }
+                        statement.close();
 
-                    if (queueNull || !queueEnabled || queueSendFirst) {
                         // Assert that the send attempts is at least one
-                        assertTrue(TestUtils.getSendAttempts(channel.getChannelId(), messageResponse.getMessageId()) > 0);
+                        assertTrue(TestUtils.getSendAttempts(channel.getChannelId(), dispatchResult.getMessageId()) > 0);
                     }
                 }
 
@@ -359,9 +355,9 @@ public class DestinationConnectorTests {
                 }
             }
         } finally {
-            DbUtils.close(result);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            TestUtils.close(result);
+            TestUtils.close(statement);
+            TestUtils.close(connection);
         }
 
         channel.stop();
@@ -434,7 +430,10 @@ public class DestinationConnectorTests {
         chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
         channel.getDestinationChains().add(chain);
 
-        ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
+        if (ChannelController.getInstance().channelExists(channelId)) {
+            ChannelController.getInstance().deleteAllMessages(channelId);
+        }
+        
         channel.deploy();
         channel.start();
 
@@ -449,16 +448,7 @@ public class DestinationConnectorTests {
             Thread thread = new Thread() {
                 @Override
                 public void run() {
-                    DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-                    ConnectorMessage sourceMessage = null;
-
-                    try {
-                        sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), dao).getConnectorMessages().get(0);
-                        dao.commit();
-                    } finally {
-                        dao.close();
-                    }
-
+                    ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId()).getConnectorMessages().get(0);
                     tempClass.messageId = sourceMessage.getMessageId();
 
                     try {
@@ -472,43 +462,52 @@ public class DestinationConnectorTests {
 
             Thread.sleep(100);
             // Assert that the response content was stored
-            Connection connection = TestUtils.getConnection();
-            long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
-            statement.setLong(1, tempClass.messageId);
-            statement.setInt(2, 1);
-            statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
-            ResultSet result = statement.executeQuery();
-            assertTrue(result.next());
-            result.close();
-            statement.close();
-
-            // Assert that the message status was updated to PENDING
-            statement = connection.prepareStatement("SELECT * FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ? AND status = ?");
-            statement.setLong(1, tempClass.messageId);
-            statement.setInt(2, 1);
-            statement.setString(3, String.valueOf(Status.PENDING.getStatusCode()));
-            result = statement.executeQuery();
-            assertTrue(result.next());
-            result.close();
-            statement.close();
-
-            responseTransformer.waiting = false;
-            thread.join();
-
-            // Assert that the response transformer was run
-            assertTrue(responseTransformer.isTransformed());
-
-            // Assert that the message status was updated to SENT
-            statement = connection.prepareStatement("SELECT * FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ? AND status = ?");
-            statement.setLong(1, tempClass.messageId);
-            statement.setInt(2, 1);
-            statement.setString(3, String.valueOf(Status.SENT.getStatusCode()));
-            result = statement.executeQuery();
-            assertTrue(result.next());
-            result.close();
-            statement.close();
-            connection.close();
+            Connection connection = null;
+            PreparedStatement statement = null;
+            ResultSet result = null;
+            
+            try {
+                connection = TestUtils.getConnection();
+                long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
+                statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
+                statement.setLong(1, tempClass.messageId);
+                statement.setInt(2, 1);
+                statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
+                result = statement.executeQuery();
+                assertTrue(result.next());
+                result.close();
+                statement.close();
+    
+                // Assert that the message status was updated to PENDING
+                statement = connection.prepareStatement("SELECT * FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ? AND status = ?");
+                statement.setLong(1, tempClass.messageId);
+                statement.setInt(2, 1);
+                statement.setString(3, String.valueOf(Status.PENDING.getStatusCode()));
+                result = statement.executeQuery();
+                assertTrue(result.next());
+                result.close();
+                statement.close();
+    
+                responseTransformer.waiting = false;
+                thread.join();
+    
+                // Assert that the response transformer was run
+                assertTrue(responseTransformer.isTransformed());
+    
+                // Assert that the message status was updated to SENT
+                statement = connection.prepareStatement("SELECT * FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ? AND status = ?");
+                statement.setLong(1, tempClass.messageId);
+                statement.setInt(2, 1);
+                statement.setString(3, String.valueOf(Status.SENT.getStatusCode()));
+                result = statement.executeQuery();
+                assertTrue(result.next());
+                result.close();
+                statement.close();
+            } finally {
+                TestUtils.close(result);
+                TestUtils.close(statement);
+                TestUtils.close(connection);
+            }
         }
 
         channel.stop();

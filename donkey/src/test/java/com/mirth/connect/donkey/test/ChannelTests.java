@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
-import org.apache.commons.dbutils.DbUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -48,7 +47,6 @@ import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.channel.StorageSettings;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
-import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.test.util.TestChannel;
 import com.mirth.connect.donkey.test.util.TestDestinationConnector;
 import com.mirth.connect.donkey.test.util.TestFilterTransformer;
@@ -89,8 +87,6 @@ public class ChannelTests {
      */
     @Test
     public final void testDeployChannel() throws Exception {
-        ChannelController.getInstance().deleteAllMessages(channelId);
-
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId, false, 1, 1);
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
 
@@ -126,8 +122,6 @@ public class ChannelTests {
      */
     @Test
     public final void testUndeployChannel() throws Exception {
-        ChannelController.getInstance().deleteAllMessages(channelId);
-
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId, false, 1, 1);
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
 
@@ -160,8 +154,6 @@ public class ChannelTests {
      */
     @Test
     public final void testStartChannel() throws Exception {
-        ChannelController.getInstance().deleteAllMessages(channelId);
-
         Channel channel = TestUtils.createDefaultChannel(channelId, serverId, false, 1, 1);
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
 
@@ -206,8 +198,6 @@ public class ChannelTests {
      */
     @Test
     public final void testPauseChannel() throws Exception {
-        ChannelController.getInstance().deleteAllMessages(channelId);
-
         Channel channel = TestUtils.createDefaultChannel(channelId, serverId, false, 1, 1);
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
 
@@ -252,8 +242,6 @@ public class ChannelTests {
      */
     @Test
     public final void testStopChannel() throws Exception {
-        ChannelController.getInstance().deleteAllMessages(channelId);
-
         Channel channel = TestUtils.createDefaultChannel(channelId, serverId, false, 1, 1);
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
 
@@ -301,8 +289,6 @@ public class ChannelTests {
      */
     @Test
     public final void testHardStop() throws Exception {
-        ChannelController.getInstance().deleteAllMessages(channelId);
-
         Channel channel = TestUtils.createDefaultChannel(channelId, serverId, false, 1, 1);
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
 
@@ -351,11 +337,11 @@ public class ChannelTests {
 
         // Create Channel
         TestUtils.createDefaultChannel(channelId, serverId, false, 1, 1);
-        assertTrue(TestUtils.channelExists(channelId));
+        TestUtils.assertChannelExists(channelId);
 
         // Delete Channel
         channelController.removeChannel(channelId);
-        assertFalse(TestUtils.channelExists(channelId));
+        TestUtils.assertChannelDoesNotExist(channelId);
     }
 
     /*
@@ -517,22 +503,12 @@ public class ChannelTests {
      */
     @Test
     public final void testProcess() throws Exception {
-        ChannelController.getInstance().deleteAllMessages(channelId);
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
-        DonkeyDao dao = null;
 
         channel.deploy();
         channel.start();
 
-        dao = Donkey.getInstance().getDaoFactory().getDao();
-        ConnectorMessage sourceMessage = null;
-
-        try {
-            sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, serverId, dao).getConnectorMessages().get(0);
-            dao.commit();
-        } finally {
-            dao.close();
-        }
+        ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, serverId).getConnectorMessages().get(0);
 
         Message message = null;
 
@@ -600,11 +576,13 @@ public class ChannelTests {
         channel.stop();
         channel.undeploy();
         
-        Connection connection = TestUtils.getConnection();
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         
         try {
+            connection = TestUtils.getConnection();
+            
             long messageId = dispatchResult.getProcessedMessage().getMessageId();
             
             statement = connection.prepareStatement("SELECT content, is_encrypted FROM d_mc" + ChannelController.getInstance().getLocalChannelId(channelId) + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
@@ -631,12 +609,14 @@ public class ChannelTests {
                     } else if (messageContent != null && (metaDataId == 0 || !contentType.equals(ContentType.RAW))) {
                         throw new AssertionError("Message content was not stored in the database (" + messageId + "/" + metaDataId + "/" + contentType.getContentTypeCode() + ")");
                     }
+                    
+                    resultSet.close();
                 }
             }
         } finally {
-            DbUtils.close(resultSet);
-            DbUtils.close(statement);
-            DbUtils.close(connection);
+            TestUtils.close(resultSet);
+            TestUtils.close(statement);
+            TestUtils.close(connection);
         }
     }
 

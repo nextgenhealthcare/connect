@@ -32,7 +32,6 @@ import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
-import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
@@ -58,7 +57,7 @@ public class StatisticsTests {
     @BeforeClass
     final public static void beforeClass() throws StartException {
         Donkey.getInstance().startEngine(TestUtils.getDonkeyTestConfiguration());
-        daoFactory = Donkey.getInstance().getDaoFactory();
+        daoFactory = TestUtils.getDaoFactory();
     }
 
     @AfterClass
@@ -82,9 +81,7 @@ public class StatisticsTests {
      */
     @Test
     public final void testStatistics1() throws Exception {
-        TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId, 2, 2);
-        ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
-        TestUtils.deleteChannelStatistics(channel.getChannelId());
+        TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId, true, 2, 2);
 
         channel.deploy();
         channel.start();
@@ -127,9 +124,7 @@ public class StatisticsTests {
      */
     @Test
     public final void testStatistics2() throws Exception {
-        TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId, 2, 2);
-        ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
-        TestUtils.deleteChannelStatistics(channel.getChannelId());
+        TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId, true, 2, 2);
 
         TestFilterTransformer filterTransformer = new TestFilterTransformer() {
             @Override
@@ -184,6 +179,8 @@ public class StatisticsTests {
      */
     @Test
     public final void testStatistics3() throws Exception {
+        TestUtils.initChannel(channelId);
+        
         TestChannel channel = new TestChannel();
 
         channel.setChannelId(channelId);
@@ -313,6 +310,8 @@ public class StatisticsTests {
         final int waitTime = 1000;
         long testSize = 5;
         Status returnStatus = Status.SENT;
+        
+        TestUtils.initChannel(channelId);
 
         TestChannel channel = new TestChannel();
 
@@ -405,7 +404,6 @@ public class StatisticsTests {
         channel.start();
 
         Map<Status, Long> stats;
-        DonkeyDao dao = daoFactory.getDao();
 
         logger.info(String.format("%-140s", "Testing destination connector statistics changing: RECEIVED->QUEUED->PENDING->SENT"));
         logger.info(String.format("%-140s", "Test size: " + testSize));
@@ -452,8 +450,6 @@ public class StatisticsTests {
             assertTrue(channelStatsCorrect());
         }
 
-        dao.close();
-
         // Assert that the messages were sent
         assertEquals(testSize, channel.getNumMessages());
 
@@ -471,10 +467,7 @@ public class StatisticsTests {
     }
 
     private void statsEqual(String channelId, Integer metaDataId, Long received, Long filtered, Long transformed, Long pending, Long sent, Long error) {
-        DonkeyDao dao = daoFactory.getDao();
-        Map<Status, Long> stats = ChannelController.getInstance().getStatistics().getConnectorStats(channelId, metaDataId);
-        dao.close();
-        assertStatsEqual(stats, received, filtered, transformed, pending, sent, error);
+        assertStatsEqual(ChannelController.getInstance().getStatistics().getConnectorStats(channelId, metaDataId), received, filtered, transformed, pending, sent, error);
     }
 
     private void assertStatsEqual(Map<Status, Long> stats, Long received, Long filtered, Long transformed, Long pending, Long sent, Long error) {
@@ -497,9 +490,7 @@ public class StatisticsTests {
      * connector.
      */
     private boolean channelStatsCorrect() {
-        DonkeyDao dao = daoFactory.getDao();
         Map<Integer, Map<Status, Long>> stats = ChannelController.getInstance().getStatistics().getChannelStats(channelId);
-        dao.close();
         Map<Status, Long> channelStats = createStatsMap();
 
         for (Integer metaDataId : stats.keySet()) {
@@ -537,15 +528,11 @@ public class StatisticsTests {
     }
 
     private void destinationStatsCorrect(String channelId, int metaDataId, long numMessages, Status returnStatus, Status currentStatus) {
-        DonkeyDao dao = daoFactory.getDao();
-        Map<Status, Long> stats = ChannelController.getInstance().getStatistics().getConnectorStats(channelId, metaDataId);
-        dao.close();
-        assertDestinationStatsCorrect(stats, numMessages, returnStatus, currentStatus);
+        assertDestinationStatsCorrect(ChannelController.getInstance().getStatistics().getConnectorStats(channelId, metaDataId), numMessages, returnStatus, currentStatus);
     }
 
     private void assertDestinationStatsCorrect(Map<Status, Long> stats, long numMessages, Status returnStatus, Status currentStatus) {
         long pending = 0;
-        long queued = 0;
         long remainder = numMessages;
         switch (currentStatus) {
             case PENDING:
@@ -553,7 +540,6 @@ public class StatisticsTests {
                 remainder--;
                 break;
             case QUEUED:
-                queued = 1;
                 remainder--;
                 break;
             default:

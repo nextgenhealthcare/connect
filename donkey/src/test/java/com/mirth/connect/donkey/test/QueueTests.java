@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +33,6 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
-import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
@@ -54,7 +54,7 @@ public class QueueTests {
     @BeforeClass
     final public static void beforeClass() throws StartException {
         Donkey.getInstance().startEngine(TestUtils.getDonkeyTestConfiguration());
-        daoFactory = Donkey.getInstance().getDaoFactory();
+        daoFactory = TestUtils.getDaoFactory();
     }
 
     @AfterClass
@@ -78,11 +78,11 @@ public class QueueTests {
      * - The buffer size shrank correctly
      */
     @Test
-    public final void testDatabaseLinkedBlockingQueue() {
+    public final void testDatabaseLinkedBlockingQueue() throws SQLException {
         int testSize = TEST_SIZE;
         int bufferCapacity = 10;
 
-        ChannelController.getInstance().deleteAllMessages(channelId);
+        TestUtils.initChannel(channelId);
 
         ConnectorMessageQueue queue = new ConnectorMessageQueue();
         queue.setBufferCapacity(bufferCapacity);
@@ -96,15 +96,11 @@ public class QueueTests {
         int initialSize = queue.size();
         int initialBufferSize = queue.getBufferSize();
 
-        DonkeyDao dao = daoFactory.getDao();
 
         for (int i = 0; i < testSize; i++) {
-            ConnectorMessage connectorMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, serverId, dao).getConnectorMessages().get(0);
-            dao.commit();
+            ConnectorMessage connectorMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, serverId, daoFactory).getConnectorMessages().get(0);
             queue.put(connectorMessage);
         }
-
-        dao.close();
 
         assertEquals(initialSize + testSize, queue.size());
         assertEquals(Math.min(bufferCapacity, queue.size()), queue.getBufferSize());
@@ -139,7 +135,6 @@ public class QueueTests {
      */
     @Test
     public final void testSourceQueue() throws Exception {
-        ChannelController.getInstance().deleteAllMessages(channelId);
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
         channel.getSourceConnector().setRespondAfterProcessing(false);
 
@@ -161,10 +156,7 @@ public class QueueTests {
 
         // Place messages in the channel's source queue while the channel is stopped
         for (int i = 1; i <= TEST_SIZE; i++) {
-            DonkeyDao dao = daoFactory.getDao();
-            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), dao).getConnectorMessages().get(0);
-            dao.commit();
-            dao.close();
+            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
             channel.queue(sourceMessage);
         }
 
@@ -181,10 +173,7 @@ public class QueueTests {
 
         // Place messages in the channel's source queue while the channel is started
         for (int i = 1; i <= TEST_SIZE; i++) {
-            DonkeyDao dao = daoFactory.getDao();
-            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), dao).getConnectorMessages().get(0);
-            dao.commit();
-            dao.close();
+            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
             channel.queue(sourceMessage);
         }
 
@@ -225,7 +214,6 @@ public class QueueTests {
         final List<Long> messageIds = new ArrayList<Long>();
         final TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
         channel.getSourceConnector().setRespondAfterProcessing(false);
-        ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
 
         // Deploy a default channel
         channel.deploy();
@@ -250,11 +238,8 @@ public class QueueTests {
          * incremented
          */
         System.out.println("Saving a message to the database without calling the queue method...");
-        DonkeyDao dao = daoFactory.getDao();
         RawMessage rawMessage = new RawMessage(testMessage, null, null);
-        sourceMessage = TestUtils.createAndStoreNewMessage(rawMessage, channel.getChannelId(), channel.getServerId(), dao).getConnectorMessages().get(0);
-        dao.commit();
-        dao.close();
+        sourceMessage = TestUtils.createAndStoreNewMessage(rawMessage, channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
         messageIds.add(sourceMessage.getMessageId());
 
         // Asynchronously queue up another message normally
@@ -347,7 +332,6 @@ public class QueueTests {
         final List<Long> messageIds = new ArrayList<Long>();
         final TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
         channel.getSourceConnector().setRespondAfterProcessing(false);
-        ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
 
         // Deploy a default channel
         channel.deploy();
@@ -373,11 +357,8 @@ public class QueueTests {
              * incremented
              */
             System.out.println("Saving a message to the database without calling the queue method...");
-            DonkeyDao dao = daoFactory.getDao();
             RawMessage rawMessage = new RawMessage(testMessage, null, null);
-            sourceMessage = TestUtils.createAndStoreNewMessage(rawMessage, channel.getChannelId(), channel.getServerId(), dao).getConnectorMessages().get(0);
-            dao.commit();
-            dao.close();
+            sourceMessage = TestUtils.createAndStoreNewMessage(rawMessage, channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
             messageIds.add(sourceMessage.getMessageId());
 
             // Asynchronously queue up another message normally
@@ -456,7 +437,7 @@ public class QueueTests {
      */
     @Test
     public final void testDestinationQueue() throws Exception {
-        ChannelController.getInstance().deleteAllMessages(channelId);
+        TestUtils.initChannel(channelId);
 
         TestChannel channel = new TestChannel();
 
@@ -521,24 +502,17 @@ public class QueueTests {
         // Assert that the destination connector queue thread is not running
         assertFalse(destinationConnector.isQueueThreadRunning());
 
-        DonkeyDao dao = daoFactory.getDao();
-
-        try {
-            // Place messages directly into the destination connector's queue
-            for (int i = 1; i <= TEST_SIZE; i++) {
-                synchronized (destinationConnector.getQueue()) {
-                    Message message = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, serverId, dao);
-                    ConnectorMessage destinationMessage = TestUtils.createAndStoreDestinationConnectorMessage(dao, channelId, serverId, message.getMessageId(), destinationConnector.getMetaDataId(), testMessage, Status.QUEUED);
-                    dao.commit();
-                    destinationConnector.getQueue().put(destinationMessage);
-                }
+        // Place messages directly into the destination connector's queue
+        for (int i = 1; i <= TEST_SIZE; i++) {
+            synchronized (destinationConnector.getQueue()) {
+                Message message = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channelId, serverId, daoFactory);
+                ConnectorMessage destinationMessage = TestUtils.createAndStoreDestinationConnectorMessage(daoFactory, channelId, serverId, message.getMessageId(), destinationConnector.getMetaDataId(), testMessage, Status.QUEUED);
+                destinationConnector.getQueue().put(destinationMessage);
             }
-        } finally {
-            dao.close();
         }
 
         // Assert that all the messages were successfully placed in the queue
-        assertEquals(TEST_SIZE, destinationConnector.getQueue().size());
+        assertEquals(TEST_SIZE, destinationConnector.getQueue().size() - 1);
 
         // Start the channel back up
         channel.start();

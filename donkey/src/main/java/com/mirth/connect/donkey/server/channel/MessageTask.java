@@ -117,7 +117,7 @@ final class MessageTask implements Callable<DispatchResult> {
 //            Donkey.getInstance().restartChannel(channel.getChannelId(), true);
             throw new ChannelException(true, e);
         } finally {
-            if (lockAcquired && (persistedMessageId == null && Thread.currentThread().isInterrupted())) {
+            if (lockAcquired && persistedMessageId == null && Thread.currentThread().isInterrupted()) {
                 // Release the process lock if an exception was thrown before a message was persisted
                 // or if the thread was interrupted because no additional processing will be done.
                 channel.releaseProcessLock();

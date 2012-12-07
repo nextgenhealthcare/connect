@@ -284,13 +284,13 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public void deleteAllContent(String channelId, long messageId) {
+    public void deleteMessageContent(String channelId, long messageId) {
         long startTime = System.currentTimeMillis();
 
         try {
-            dao.deleteAllContent(channelId, messageId);
+            dao.deleteMessageContent(channelId, messageId);
         } finally {
-            timer.log("deleteAllContent", System.currentTimeMillis() - startTime);
+            timer.log("deleteMessageContent", System.currentTimeMillis() - startTime);
         }
     }
 

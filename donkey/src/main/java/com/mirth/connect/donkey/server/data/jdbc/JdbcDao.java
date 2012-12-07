@@ -10,6 +10,7 @@
 package com.mirth.connect.donkey.server.data.jdbc;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -58,8 +59,9 @@ public class JdbcDao implements DonkeyDao {
     private Statistics transactionStats = new Statistics();
     private Map<String, Map<Integer, Set<Status>>> resetStats = new HashMap<String, Map<Integer, Set<Status>>>();
     private List<String> removedChannelIds = new ArrayList<String>();
-    private ChannelController channelController = ChannelController.getInstance();
     private String asyncCommitCommand;
+    private Map<String, Long> localChannelIds;
+    private boolean transactionAlteredChannels = false;
     private Logger logger = Logger.getLogger(this.getClass());
 
     protected JdbcDao(Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer) {
@@ -68,14 +70,19 @@ public class JdbcDao implements DonkeyDao {
         this.statementSource = statementSource;
         this.serializer = serializer;
         
+        ChannelController channelController = ChannelController.getInstance();
         currentStats = channelController.getStatistics();
         totalStats = channelController.getTotalStatistics();
+        
+        logger.debug("Opened connection");
     }
 
     @Override
     public void insertMessage(Message message) {
+        logger.debug(message.getChannelId() + "/" + message.getMessageId() + ": inserting message");
+        
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("insertMessage", channelController.getLocalChannelId(message.getChannelId()));
+            PreparedStatement statement = prepareStatement("insertMessage", message.getChannelId());
             statement.setLong(1, message.getMessageId());
             statement.setString(2, message.getServerId());
             statement.setTimestamp(3, new Timestamp(message.getDateCreated().getTimeInMillis()));
@@ -105,8 +112,10 @@ public class JdbcDao implements DonkeyDao {
     
     @Override
     public void updateSourceResponse(String channelId, long messageId, boolean attemptedResponse, String responseError) {
+        logger.debug(channelId + "/" + messageId + ": updating source response");
+        
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("updateSourceResponse", channelController.getLocalChannelId(channelId));
+            PreparedStatement statement = prepareStatement("updateSourceResponse", channelId);
             statement.setBoolean(1, attemptedResponse);
             statement.setString(2, responseError);
             statement.setLong(3, messageId);
@@ -118,8 +127,10 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void insertMessageContent(MessageContent messageContent) {
+        logger.debug(messageContent.getChannelId() + "/" + messageContent.getMessageId() + "/" + messageContent.getMetaDataId() + ": inserting message content (" + messageContent.getContentType().toString() + ")");
+        
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("insertMessageContent", channelController.getLocalChannelId(messageContent.getChannelId()));
+            PreparedStatement statement = prepareStatement("insertMessageContent", messageContent.getChannelId());
             statement.setInt(1, messageContent.getMetaDataId());
             statement.setLong(2, messageContent.getMessageId());
             statement.setString(3, Character.toString(messageContent.getContentType().getContentTypeCode()));
@@ -143,8 +154,10 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void batchInsertMessageContent(MessageContent messageContent) {
+        logger.debug(messageContent.getChannelId() + "/" + messageContent.getMessageId() + "/" + messageContent.getMetaDataId() + ": batch inserting message content (" + messageContent.getContentType().toString() + ")");
+        
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("insertMessageContent", channelController.getLocalChannelId(messageContent.getChannelId()));
+            PreparedStatement statement = prepareStatement("insertMessageContent", messageContent.getChannelId());
             statement.setInt(1, messageContent.getMetaDataId());
             statement.setLong(2, messageContent.getMessageId());
             statement.setString(3, Character.toString(messageContent.getContentType().getContentTypeCode()));
@@ -168,9 +181,10 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void executeBatchInsertMessageContent(String channelId) {
+        logger.debug(channelId + ": executing batch message content insert");
+        
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("insertMessageContent", channelController.getLocalChannelId(channelId));
-            statement.executeBatch();
+            prepareStatement("insertMessageContent", channelId).executeBatch();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         }
@@ -178,8 +192,10 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void storeMessageContent(MessageContent messageContent) {
+        logger.debug(messageContent.getChannelId() + "/" + messageContent.getMessageId() + "/" + messageContent.getMetaDataId() + ": updating message content (" + messageContent.getContentType().toString() + ")");
+        
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("storeMessageContent", channelController.getLocalChannelId(messageContent.getChannelId()));
+            PreparedStatement statement = prepareStatement("storeMessageContent", messageContent.getChannelId());
 
             String encryptedContent = messageContent.getEncryptedContent();
             
@@ -214,15 +230,16 @@ public class JdbcDao implements DonkeyDao {
     public void addChannelStatistics(Statistics statistics) {
         for (Entry<String, Map<Integer, Map<Status, Long>>> channelEntry : statistics.getStats().entrySet()) {
             String channelId = channelEntry.getKey();
-            long localChannelId = channelController.getLocalChannelId(channelId);
             
             try {
-                PreparedStatement channelStatement = statementSource.getPreparedStatement("updateChannelStatistics", localChannelId);
-                PreparedStatement connectorStatement = statementSource.getPreparedStatement("updateConnectorStatistics", localChannelId);
+                PreparedStatement channelStatement = prepareStatement("updateChannelStatistics", channelId);
+                PreparedStatement connectorStatement = prepareStatement("updateConnectorStatistics", channelId);
                 
                 for (Entry<Integer, Map<Status, Long>> connectorEntry : channelEntry.getValue().entrySet()) {
                     Integer metaDataId = connectorEntry.getKey();
                     Map<Status, Long> connectorStats = connectorEntry.getValue();
+                    
+                    logger.debug(channelId + "/" + metaDataId + ": saving statistics");
                     
                     PreparedStatement statement = (metaDataId == null) ? channelStatement : connectorStatement;
                     statement.setLong(1, connectorStats.get(Status.RECEIVED));
@@ -243,7 +260,7 @@ public class JdbcDao implements DonkeyDao {
                     }
         
                     if (statement.executeUpdate() == 0) {
-                        statement = statementSource.getPreparedStatement("insertChannelStatistics", localChannelId);
+                        statement = prepareStatement("insertChannelStatistics", channelId);
         
                         if (metaDataId == null) {
                             statement.setNull(1, Types.INTEGER);
@@ -274,8 +291,10 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void insertMessageAttachment(String channelId, long messageId, Attachment attachment) {
+        logger.debug(channelId + "/" + messageId + ": inserting message attachment");
+        
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("insertMessageAttachment", channelController.getLocalChannelId(channelId));
+            PreparedStatement statement = prepareStatement("insertMessageAttachment", channelId);
             statement.setLong(1, messageId);
             statement.setString(2, attachment.getId());
             statement.setBytes(3, attachment.getContent());
@@ -289,6 +308,9 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void insertMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {
+        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": inserting custom meta data");
+        PreparedStatement statement = null;
+        
         try {
             List<String> metaDataColumnNames = new ArrayList<String>();
 
@@ -297,11 +319,11 @@ public class JdbcDao implements DonkeyDao {
             }
 
             Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", channelController.getLocalChannelId(connectorMessage.getChannelId()));
-            values.put("metaDataColumnNames", StringUtils.join(metaDataColumnNames, ','));
+            values.put("localChannelId", getLocalChannelId(connectorMessage.getChannelId()));
+            values.put("metaDataColumnNames", "\"" + StringUtils.join(metaDataColumnNames, "\",\"") + "\"");
             values.put("metaDataColumnPlaceholders", "?" + StringUtils.repeat(", ?", metaDataColumnNames.size() - 1));
 
-            PreparedStatement statement = connection.prepareStatement(querySource.getQuery("insertMetaData", values));
+            statement = connection.prepareStatement(querySource.getQuery("insertMetaData", values));
             statement.setInt(1, connectorMessage.getMetaDataId());
             statement.setLong(2, connectorMessage.getMessageId());
             int n = 3;
@@ -347,17 +369,20 @@ public class JdbcDao implements DonkeyDao {
             }
 
             statement.executeUpdate();
-            statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
             throw new DonkeyDaoException("Failed to insert connector message meta data", e);
+        } finally {
+            close(statement);
         }
     }
 
     @Override
     public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps) {
+        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": inserting connector message with" + (storeMaps ? "" : "out") + " maps");
+        
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("insertConnectorMessage", channelController.getLocalChannelId(connectorMessage.getChannelId()));
+            PreparedStatement statement = prepareStatement("insertConnectorMessage", connectorMessage.getChannelId());
             statement.setInt(1, connectorMessage.getMetaDataId());
             statement.setLong(2, connectorMessage.getMessageId());
             statement.setTimestamp(3, new Timestamp(connectorMessage.getDateCreated().getTimeInMillis()));
@@ -414,14 +439,19 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void deleteMessage(String channelId, long messageId, boolean deleteStatistics) {
+        logger.debug(channelId + "/" + messageId + ": deleting message");
+        
         try {
-            long localChannelId = channelController.getLocalChannelId(channelId);
-
             if (deleteStatistics) {
                 deleteMessageStatistics(channelId, getConnectorMessages(channelId, messageId).values());
             }
-
-            PreparedStatement statement = statementSource.getPreparedStatement("deleteMessage", localChannelId);
+            
+            cascadeMessageDelete("deleteMessageCascadeAttachments", messageId, channelId);
+            cascadeMessageDelete("deleteMessageCascadeMetadata", messageId, channelId);
+            cascadeMessageDelete("deleteMessageCascadeContent", messageId, channelId);
+            cascadeMessageDelete("deleteMessageCascadeConnectorMessage", messageId, channelId);
+            
+            PreparedStatement statement = prepareStatement("deleteMessage", channelId);
             statement.setLong(1, messageId);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -431,16 +461,19 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void deleteConnectorMessages(String channelId, long messageId, List<Integer> metaDataIds, boolean deleteStatistics) {
-        try {
-            long localChannelId = channelController.getLocalChannelId(channelId);
-            PreparedStatement statement = null;
+        logger.debug(channelId + "/" + messageId + ": deleting connector messages");
+        long localChannelId = getLocalChannelId(channelId);
 
+        try {
             if (metaDataIds == null) {
                 if (deleteStatistics) {
                     deleteMessageStatistics(channelId, getConnectorMessages(channelId, messageId).values());
                 }
+                
+                cascadeMessageDelete("deleteMessageCascadeMetadata", messageId, channelId);
+                cascadeMessageDelete("deleteMessageCascadeContent", messageId, channelId);
 
-                statement = statementSource.getPreparedStatement("deleteConnectorMessage", localChannelId);
+                PreparedStatement statement = prepareStatement("deleteConnectorMessages", channelId);
                 statement.setLong(1, messageId);
                 statement.executeUpdate();
             } else {
@@ -456,16 +489,22 @@ public class JdbcDao implements DonkeyDao {
                     deleteMessageStatistics(channelId, connectorMessages);
                 }
 
-                String metaDataIdList = StringUtils.join(metaDataIds, ',');
-
                 Map<String, Object> values = new HashMap<String, Object>();
                 values.put("localChannelId", localChannelId);
-                values.put("metaDataIds", metaDataIdList);
+                values.put("metaDataIds", StringUtils.join(metaDataIds, ','));
 
-                statement = connection.prepareStatement(querySource.getQuery("deleteConnectorMessageByMetaDataIds", values));
-                statement.setLong(1, messageId);
-                statement.executeUpdate();
-                statement.close();
+                cascadeMessageDelete("deleteConnectorMessagesByMetaDataIdsCascadeContent", messageId, values);
+                cascadeMessageDelete("deleteConnectorMessagesByMetaDataIdsCascadeMetadata", messageId, values);
+                
+                PreparedStatement statement = null;
+                
+                try {
+                    statement = connection.prepareStatement(querySource.getQuery("deleteConnectorMessagesByMetaDataIds", values));
+                    statement.setLong(1, messageId);
+                    statement.executeUpdate();
+                } finally {
+                    close(statement);
+                }
             }
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -474,6 +513,8 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void updateStatus(ConnectorMessage connectorMessage, Status previousStatus) {
+        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating status from " + previousStatus.getStatusCode() + " to " + connectorMessage.getStatus().getStatusCode());
+        
         try {
             // don't decrement the previous status if it was RECEIVED
             if (previousStatus == Status.RECEIVED) {
@@ -482,7 +523,7 @@ public class JdbcDao implements DonkeyDao {
 
             transactionStats.update(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), connectorMessage.getStatus(), previousStatus);
 
-            PreparedStatement statement = statementSource.getPreparedStatement("updateStatus", channelController.getLocalChannelId(connectorMessage.getChannelId()));
+            PreparedStatement statement = prepareStatement("updateStatus", connectorMessage.getChannelId());
             statement.setString(1, Character.toString(connectorMessage.getStatus().getStatusCode()));
             statement.setInt(2, connectorMessage.getSendAttempts());
             statement.setInt(3, connectorMessage.getMetaDataId());
@@ -492,11 +533,13 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         }
     }
-
+    
     @Override
     public void updateErrors(ConnectorMessage connectorMessage) {
+        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating errors");
+        
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("updateErrors", channelController.getLocalChannelId(connectorMessage.getChannelId()));
+            PreparedStatement statement = prepareStatement("updateErrors", connectorMessage.getChannelId());
             statement.setString(1, connectorMessage.getErrors());
             statement.setInt(2, connectorMessage.getMetaDataId());
             statement.setLong(3, connectorMessage.getMessageId());
@@ -508,8 +551,10 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void updateMaps(ConnectorMessage connectorMessage) {
+        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating maps");
+        
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("updateMaps", channelController.getLocalChannelId(connectorMessage.getChannelId()));
+            PreparedStatement statement = prepareStatement("updateMaps", connectorMessage.getChannelId());
             Map<String, Object> connectorMap = connectorMessage.getConnectorMap();
             Map<String, Object> channelMap = connectorMessage.getChannelMap();
             Map<String, Response> responseMap = connectorMessage.getResponseMap();
@@ -542,8 +587,10 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void updateResponseMap(ConnectorMessage connectorMessage) {
+        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating response map");
+        
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("updateResponseMap", channelController.getLocalChannelId(connectorMessage.getChannelId()));
+            PreparedStatement statement = prepareStatement("updateResponseMap", connectorMessage.getChannelId());
             Map<String, Response> responseMap = connectorMessage.getResponseMap();
 
             if (responseMap == null) {
@@ -562,8 +609,10 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void markAsProcessed(String channelId, long messageId) {
+        logger.debug(channelId + "/" + messageId + ": marking as processed");
+        
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("markAsProcessed", channelController.getLocalChannelId(channelId));
+            PreparedStatement statement = prepareStatement("markAsProcessed", channelId);
             statement.setLong(1, messageId);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -573,40 +622,49 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public Map<String, Long> getLocalChannelIds() {
-        ResultSet resultSet = null;
+        if (localChannelIds == null) {
+            ResultSet resultSet = null;
 
-        try {
-            Map<String, Long> localChannelIds = new HashMap<String, Long>();
-            resultSet = statementSource.getPreparedStatement("getLocalChannelIds", null).executeQuery();
+            try {
+                localChannelIds = new HashMap<String, Long>();
+                resultSet = prepareStatement("getLocalChannelIds", null).executeQuery();
 
-            while (resultSet.next()) {
-                localChannelIds.put(resultSet.getString(1), resultSet.getLong(2));
+                while (resultSet.next()) {
+                    localChannelIds.put(resultSet.getString(1), resultSet.getLong(2));
+                }
+            } catch (SQLException e) {
+                throw new DonkeyDaoException(e);
+            } finally {
+                close(resultSet);
             }
-
-            return localChannelIds;
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(resultSet);
         }
+        
+        return localChannelIds;
     }
 
     @Override
     public void removeChannel(String channelId) {
-        Statement statement = null;
+        if (!getLocalChannelIds().containsKey(channelId)) {
+            return;
+        }
+        
+        logger.debug(channelId + ": removing channel");
+        
+        transactionAlteredChannels = true;
 
         try {
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", channelController.getLocalChannelId(channelId));
-
-            statement = connection.createStatement();
-            statement.executeUpdate(querySource.getQuery("removeChannel", values));
-
+            prepareStatement("dropStatisticsTable", channelId).executeUpdate();
+            prepareStatement("dropAttachmentsTable", channelId).executeUpdate();
+            prepareStatement("dropCustomMetadataTable", channelId).executeUpdate();
+            prepareStatement("dropMessageContentTable", channelId).executeUpdate();
+            prepareStatement("dropMessageMetadataTable", channelId).executeUpdate();
+            prepareStatement("dropMessageSequence", channelId).executeUpdate();
+            prepareStatement("dropMessageTable", channelId).executeUpdate();
+            prepareStatement("deleteChannel", channelId).executeUpdate();
+            
             removedChannelIds.add(channelId);
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
-        } finally {
-            close(statement);
         }
     }
 
@@ -616,7 +674,7 @@ public class JdbcDao implements DonkeyDao {
 
         try {
             Long maxLocalChannelId = 0L;
-            resultSet = statementSource.getPreparedStatement("selectMaxLocalChannelId", null).executeQuery();
+            resultSet = prepareStatement("selectMaxLocalChannelId", null).executeQuery();
 
             if (resultSet.next()) {
                 maxLocalChannelId = resultSet.getLong(1);
@@ -633,25 +691,26 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void deleteAllMessages(String channelId) {
-        Statement statement = null;
-
+        logger.debug(channelId + ": deleting all messages");
+        
         try {
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", channelController.getLocalChannelId(channelId));
+            cascadeMessageDelete("deleteAllMessagesCascadeAttachments", channelId);
+            cascadeMessageDelete("deleteAllMessagesCascadeMetadata", channelId);
+            cascadeMessageDelete("deleteAllMessagesCascadeContent", channelId);
+            cascadeMessageDelete("deleteAllMessagesCascadeConnectorMessage", channelId);
 
-            statement = connection.createStatement();
-            statement.executeUpdate(querySource.getQuery("deleteAllMessages", values));
+            prepareStatement("deleteAllMessages", channelId).executeUpdate();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
-        } finally {
-            close(statement);
         }
     }
 
     @Override
-    public void deleteAllContent(String channelId, long messageId) {
+    public void deleteMessageContent(String channelId, long messageId) {
+        logger.debug(channelId + "/" + messageId + ": deleting content");
+        
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("deleteAllContent", channelController.getLocalChannelId(channelId));
+            PreparedStatement statement = prepareStatement("deleteMessageContent", channelId);
             statement.setLong(1, messageId);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -665,13 +724,23 @@ public class JdbcDao implements DonkeyDao {
 
         try {
             List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
-            Long localChannelId = channelController.getLocalChannelId(channelId);
+            long localChannelId = getLocalChannelId(channelId);
+            
             columns = connection.getMetaData().getColumns(connection.getCatalog(), null, "d_mcm" + localChannelId, null);
-
-            while (columns.next()) {
-                String name = columns.getString("COLUMN_NAME");
-
-                if (!name.equals("metadata_id") && !name.equals("message_id")) {
+            
+            if (!columns.next()) {
+                columns.close();
+                columns = connection.getMetaData().getColumns(connection.getCatalog(), null, "D_MCM" + localChannelId, null);
+            
+                if (!columns.next()) {
+                    return metaDataColumns;
+                }
+            }
+            
+            do {
+                String name = columns.getString("COLUMN_NAME").toUpperCase();
+                
+                if (!name.equals("METADATA_ID") && !name.equals("MESSAGE_ID")) {
                     switch (columns.getInt("DATA_TYPE")) {
                         case Types.VARCHAR:
                         case Types.NVARCHAR:
@@ -716,7 +785,7 @@ public class JdbcDao implements DonkeyDao {
                             throw new SQLException("Invalid custom metadata column: " + name + " (type " + columns.getInt("DATA_TYPE") + ").");
                     }
                 }
-            }
+            } while (columns.next());
 
             return metaDataColumns;
         } catch (SQLException e) {
@@ -728,11 +797,12 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void removeMetaDataColumn(String channelId, String columnName) {
+        logger.debug(channelId + "/" + ": removing custom meta data column (" + columnName + ")");
         Statement statement = null;
 
         try {
             Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", channelController.getLocalChannelId(channelId));
+            values.put("localChannelId", getLocalChannelId(channelId));
             values.put("columnName", columnName);
 
             statement = connection.createStatement();
@@ -749,7 +819,7 @@ public class JdbcDao implements DonkeyDao {
         ResultSet resultSet = null;
 
         try {
-            resultSet = statementSource.getPreparedStatement("getMaxMessageId", channelController.getLocalChannelId(channelId)).executeQuery();
+            resultSet = prepareStatement("getMaxMessageId", channelId).executeQuery();
             return (resultSet.next()) ? resultSet.getLong(1) : null;
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -763,7 +833,7 @@ public class JdbcDao implements DonkeyDao {
         ResultSet resultSet = null;
 
         try {
-            resultSet = statementSource.getPreparedStatement("getNextMessageId", channelController.getLocalChannelId(channelId)).executeQuery();
+            resultSet = prepareStatement("getNextMessageId", channelId).executeQuery();
             return (resultSet.next()) ? resultSet.getLong(1) : null;
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -777,7 +847,7 @@ public class JdbcDao implements DonkeyDao {
         ResultSet resultSet = null;
 
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("getConnectorMessagesByMetaDataIdAndStatus", channelController.getLocalChannelId(channelId));
+            PreparedStatement statement = prepareStatement("getConnectorMessagesByMetaDataIdAndStatus", channelId);
             statement.setInt(1, metaDataId);
             statement.setString(2, Character.toString(status.getStatusCode()));
             resultSet = statement.executeQuery();
@@ -798,30 +868,34 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId) {
+        List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
+        
+        if (limit == 0) {
+            return connectorMessages;
+        }
+        
         ResultSet resultSet = null;
 
         try {
-        	PreparedStatement statement;
-        	
-        	if (minMessageId == null || maxMessageId == null) {
-        		statement = statementSource.getPreparedStatement("getConnectorMessagesByMetaDataIdAndStatusWithLimit", channelController.getLocalChannelId(channelId));
+            PreparedStatement statement;
+            
+            if (minMessageId == null || maxMessageId == null) {
+                statement = prepareStatement("getConnectorMessagesByMetaDataIdAndStatusWithLimit", channelId);
                 statement.setInt(1, metaDataId);
                 statement.setString(2, Character.toString(status.getStatusCode()));
                 statement.setInt(3, offset);
                 statement.setInt(4, limit);
-        	} else {
-        		statement = statementSource.getPreparedStatement("getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange", channelController.getLocalChannelId(channelId));
+            } else {
+                statement = prepareStatement("getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange", channelId);
                 statement.setInt(1, metaDataId);
                 statement.setString(2, Character.toString(status.getStatusCode()));
                 statement.setLong(3, minMessageId);
                 statement.setLong(4, maxMessageId);
                 statement.setInt(5, offset);
                 statement.setInt(6, limit);
-        	}
+            }
 
             resultSet = statement.executeQuery();
-
-            List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
 
             while (resultSet.next()) {
                 connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, true, true));
@@ -840,7 +914,7 @@ public class JdbcDao implements DonkeyDao {
         ResultSet resultSet = null;
 
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("getConnectorMessagesByMessageId", channelController.getLocalChannelId(channelId));
+            PreparedStatement statement = prepareStatement("getConnectorMessagesByMessageId", channelId);
             statement.setLong(1, messageId);
             resultSet = statement.executeQuery();
 
@@ -867,9 +941,8 @@ public class JdbcDao implements DonkeyDao {
         try {
             Map<Long, Message> messageMap = new HashMap<Long, Message>();
             List<Message> messageList = new ArrayList<Message>();
-            long localChannelId = channelController.getLocalChannelId(channelId);
 
-            statement = statementSource.getPreparedStatement("getUnfinishedMessages", localChannelId);
+            statement = prepareStatement("getUnfinishedMessages", channelId);
             statement.setString(1, serverId);
             resultSet = statement.executeQuery();
 
@@ -882,7 +955,7 @@ public class JdbcDao implements DonkeyDao {
             close(resultSet);
             close(statement);
 
-            statement = statementSource.getPreparedStatement("getUnfinishedConnectorMessages", localChannelId);
+            statement = prepareStatement("getUnfinishedConnectorMessages", channelId);
             statement.setString(1, serverId);
             resultSet = statement.executeQuery();
 
@@ -905,7 +978,7 @@ public class JdbcDao implements DonkeyDao {
         ResultSet resultSet = null;
 
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("getConnectorMessageCountByMetaDataIdAndStatus", channelController.getLocalChannelId(channelId));
+            PreparedStatement statement = prepareStatement("getConnectorMessageCountByMetaDataIdAndStatus", channelId);
             statement.setInt(1, metaDataId);
             statement.setString(2, Character.toString(status.getStatusCode()));
             resultSet = statement.executeQuery();
@@ -923,7 +996,7 @@ public class JdbcDao implements DonkeyDao {
         ResultSet resultSet = null;
 
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("getConnectorMessageMaxMessageIdByMetaDataIdAndStatus", channelController.getLocalChannelId(channelId));
+            PreparedStatement statement = prepareStatement("getConnectorMessageMaxMessageIdByMetaDataIdAndStatus", channelId);
             statement.setInt(1, metaDataId);
             statement.setString(2, Character.toString(status.getStatusCode()));
             resultSet = statement.executeQuery();
@@ -939,7 +1012,7 @@ public class JdbcDao implements DonkeyDao {
     @Override
     public void insertEvent(Event event) {
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("insertEvent", null);
+            PreparedStatement statement = prepareStatement("insertEvent", null);
             Long messageId = event.getMessageId();
             Integer metaDataId = event.getMetaDataId();
             Status status = event.getMessageStatus();
@@ -974,11 +1047,12 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void addMetaDataColumn(String channelId, MetaDataColumn metaDataColumn) {
+        logger.debug(channelId + ": adding custom meta data column (" + metaDataColumn.getName() + ")");
         Statement statement = null;
 
         try {
             Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", channelController.getLocalChannelId(channelId));
+            values.put("localChannelId", getLocalChannelId(channelId));
             values.put("columnName", metaDataColumn.getName());
 
             statement = connection.createStatement();
@@ -992,40 +1066,66 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void createChannel(String channelId, long localChannelId) {
+        logger.debug(channelId + ": creating channel");
         Statement createTableStatement = null;
+        transactionAlteredChannels = true;
 
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("createChannel", null);
+            PreparedStatement statement = prepareStatement("createChannel", null);
             statement.setString(1, channelId);
             statement.setLong(2, localChannelId);
             statement.executeUpdate();
 
-            Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", localChannelId);
-
-            createTableStatement = connection.createStatement();
-            createTableStatement.executeUpdate(querySource.getQuery("createMessageTable", values));
-            createTableStatement.executeUpdate(querySource.getQuery("createConnectorMessageTable", values));
-            createTableStatement.executeUpdate(querySource.getQuery("createMessageContentTable", values));
-            createTableStatement.executeUpdate(querySource.getQuery("createMessageCustomMetaDataTable", values));
-            createTableStatement.executeUpdate(querySource.getQuery("createMessageAttachmentTable", values));
-            createTableStatement.executeUpdate(querySource.getQuery("createMessageStatisticsTable", values));
-            createTableStatement.executeUpdate(querySource.getQuery("createMessageSequence", values));
+            createChannelTable(localChannelId, "createMessageTable");
+            createChannelTable(localChannelId, "createConnectorMessageTable");
+            createChannelTable(localChannelId, "createMessageContentTable");
+            createChannelTable(localChannelId, "createMessageCustomMetaDataTable");
+            createChannelTable(localChannelId, "createMessageAttachmentTable");
+            createChannelTable(localChannelId, "createMessageStatisticsTable");
+            createChannelTable(localChannelId, "createMessageSequence");
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
             close(createTableStatement);
         }
     }
+    
+    private void createChannelTable(long localChannelId, String query) {
+        Statement statement = null;
+        int n = 1;
+
+        Map<String, Object> values = new HashMap<String, Object>();
+        values.put("localChannelId", localChannelId);
+
+        try {
+            statement = connection.createStatement();
+            statement.executeUpdate(querySource.getQuery(query, values));
+
+            String indexQuery = querySource.getQuery(query + "Index", values);
+
+            while (indexQuery != null) {
+                statement.executeUpdate(indexQuery);
+                indexQuery = querySource.getQuery(query + "Index" + (++n), values);
+            }
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            close(statement);
+        }
+    }
 
     @Override
     public void resetStatistics(String channelId, Integer metaDataId, Set<Status> statuses) {
+        logger.debug(channelId +": resetting statistics" + (metaDataId == null ? "" : (" for metadata id " + metaDataId)));
+        PreparedStatement statement = null;
+        
         try {
             if (statuses == null || statuses.size() == 0) {
                 return;
             }
 
             Map<String, Object> values = new HashMap<String, Object>();
+            values.put("localChannelId", getLocalChannelId(channelId));
 
             int count = 0;
             StringBuilder builder = new StringBuilder();
@@ -1046,7 +1146,7 @@ public class JdbcDao implements DonkeyDao {
             values.put("statuses", builder.toString());
 
             String queryName = (metaDataId == null) ? "resetChannelStatistics" : "resetConnectorStatistics";
-            PreparedStatement statement = statementSource.getPreparedStatement(queryName, channelController.getLocalChannelId(channelId), values);
+            statement = connection.prepareStatement(querySource.getQuery(queryName, values));
 
             if (metaDataId != null) {
                 statement.setInt(1, metaDataId);
@@ -1066,6 +1166,8 @@ public class JdbcDao implements DonkeyDao {
 
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
+        } finally {
+            close(statement);
         }
     }
 
@@ -1080,19 +1182,14 @@ public class JdbcDao implements DonkeyDao {
     }
 
     private Statistics getChannelStatistics(boolean total) {
-        // FIXME: commented out use of channel controller since there is a problem with the unit tests, for some reason channelController.getLocalChannelIds() returns a channel id for a channel that has been removed
-//        Map<String, Long> channelIds = channelController.getLocalChannelIds();
         Map<String, Long> channelIds = getLocalChannelIds();
         String queryId = (total) ? "getChannelTotalStatistics" : "getChannelStatistics";
         Statistics statistics = new Statistics();
         ResultSet resultSet = null;
 
-        for (Entry<String, Long> channelIdEntry : channelIds.entrySet()) {
-            String channelId = channelIdEntry.getKey();
-            Long localChannelId = channelIdEntry.getValue();
-
+        for (String channelId : channelIds.keySet()) {
             try {
-                PreparedStatement statement = statementSource.getPreparedStatement(queryId, localChannelId);
+                PreparedStatement statement = prepareStatement(queryId, channelId);
                 resultSet = statement.executeQuery();
 
                 while (resultSet.next()) {
@@ -1131,6 +1228,8 @@ public class JdbcDao implements DonkeyDao {
     public void commit(boolean durable) {
         addChannelStatistics(transactionStats);
 
+        logger.debug("Committing transaction" + (durable ? "" : " asynchronously"));
+        
         try {
             if (!durable && asyncCommitCommand != null) {
                 Statement statement = null;
@@ -1146,6 +1245,11 @@ public class JdbcDao implements DonkeyDao {
             }
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
+        }
+        
+        if (transactionAlteredChannels) {
+            localChannelIds = null;
+            transactionAlteredChannels = false;
         }
 
         // TODO: need to test for any thread synchronization problems with updating stats across multiple threads
@@ -1190,6 +1294,8 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void rollback() {
+        logger.debug("Rolling back transaction");
+        
         try {
             connection.rollback();
             transactionStats.getStats().clear();
@@ -1200,12 +1306,13 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public void close() {
+        logger.debug("Closing connection");
+        
         try {
             if (!connection.isClosed()) {
                 connection.rollback();
+                connection.close();
             }
-
-            connection.close();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         }
@@ -1227,12 +1334,14 @@ public class JdbcDao implements DonkeyDao {
 
         try {
             if (!channelsTableExists) {
+                logger.debug("Creating channels table");
                 statement = connection.createStatement();
                 statement.executeUpdate(querySource.getQuery("createChannelsTable"));
                 close(statement);
             }
 
             if (!eventsTableExists) {
+                logger.debug("Creating events table");
                 statement = connection.createStatement();
                 statement.executeUpdate(querySource.getQuery("createEventsTable"));
             }
@@ -1246,20 +1355,22 @@ public class JdbcDao implements DonkeyDao {
     }
 
     private boolean tableExists(String tableName) {
-        PreparedStatement statement = null;
         ResultSet resultSet = null;
 
         try {
-            statement = connection.prepareStatement(querySource.getQuery("tableExists"));
-            statement.setString(1, tableName);
-            resultSet = statement.executeQuery();
-            resultSet.next();
-            return resultSet.getBoolean(1);
+            DatabaseMetaData metaData = connection.getMetaData();
+            resultSet = metaData.getTables(null, null, tableName, null);
+            
+            if (resultSet.next()) {
+                return true;
+            }
+            
+            resultSet = metaData.getTables(null, null, tableName.toUpperCase(), null);
+            return resultSet.next();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
             close(resultSet);
-            close(statement);
         }
     }
 
@@ -1374,7 +1485,7 @@ public class JdbcDao implements DonkeyDao {
         ResultSet resultSet = null;
 
         try {
-            PreparedStatement statement = statementSource.getPreparedStatement("getMessageContent", channelController.getLocalChannelId(channelId));
+            PreparedStatement statement = prepareStatement("getMessageContent", channelId);
             statement.setLong(1, messageId);
             statement.setInt(2, metaDataId);
             statement.setString(3, Character.toString(contentType.getContentTypeCode()));
@@ -1407,7 +1518,7 @@ public class JdbcDao implements DonkeyDao {
 
         try {
             Map<String, Object> values = new HashMap<String, Object>();
-            values.put("localChannelId", channelController.getLocalChannelId(channelId));
+            values.put("localChannelId", getLocalChannelId(channelId));
 
             // do not cache this statement since metadata columns may be added/removed
             PreparedStatement statement = connection.prepareStatement(querySource.getQuery("getMetaDataMap", values));
@@ -1422,7 +1533,7 @@ public class JdbcDao implements DonkeyDao {
                 int columnCount = resultSetMetaData.getColumnCount();
 
                 for (int i = 1; i <= columnCount; i++) {
-                    metaDataMap.put(resultSetMetaData.getColumnName(i), resultSet.getObject(i));
+                    metaDataMap.put(resultSetMetaData.getColumnName(i).toUpperCase(), resultSet.getObject(i));
                 }
             }
 
@@ -1446,7 +1557,62 @@ public class JdbcDao implements DonkeyDao {
             transactionStats.update(channelId, metaDataId, statsDiff);
         }
     }
-
+    
+    /**
+     * When using Derby, we manually cascade the deletion of records from dependent tables
+     * rather than relying on ON DELETE CASCADE behavior. Derby uses a table-level lock when
+     * cascading deletes, which hinders concurrency and can increase the risk of deadlocks.
+     */
+    private void cascadeMessageDelete(String queryId, String channelId) throws SQLException {
+        PreparedStatement statement = prepareStatement(queryId, channelId);
+        
+        if (statement != null) {
+            statement.executeUpdate();
+        }
+    }
+    
+    /**
+     * When using Derby, we manually cascade the deletion of records from dependent tables
+     * rather than relying on ON DELETE CASCADE behavior. Derby uses a table-level lock when
+     * cascading deletes, which hinders concurrency and can increase the risk of deadlocks.
+     */
+    private void cascadeMessageDelete(String queryId, long messageId, String channelId) throws SQLException {
+        PreparedStatement statement = prepareStatement(queryId, channelId);
+        
+        if (statement != null) {
+            statement.setLong(1, messageId);
+            statement.executeUpdate();
+        }
+    }
+    
+    /**
+     * When using Derby, we manually cascade the deletion of records from dependent tables
+     * rather than relying on ON DELETE CASCADE behavior. Derby uses a table-level lock when
+     * cascading deletes, which hinders concurrency and can increase the risk of deadlocks.
+     */
+    private void cascadeMessageDelete(String queryId, long messageId, Map<String, Object> values) throws SQLException {
+        String query = querySource.getQuery(queryId, values);
+        
+        if (query != null) {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setLong(1, messageId);
+            statement.executeUpdate();
+        }
+    }
+    
+    /**
+     * Returns a prepared statement from the statementSource for the given channelId.
+     */
+    private PreparedStatement prepareStatement(String queryId, String channelId) throws SQLException {
+        Long localChannelId = null;
+        
+        if (channelId != null) {
+            localChannelId = getLocalChannelId(channelId);
+        }
+        
+        return statementSource.getPreparedStatement(queryId, localChannelId);
+    }
+    
     private void close(Statement statement) {
         try {
             DbUtils.close(statement);
@@ -1461,5 +1627,15 @@ public class JdbcDao implements DonkeyDao {
         } catch (SQLException e) {
             logger.error("Failed to close JDBC result set", e);
         }
+    }
+    
+    protected long getLocalChannelId(String channelId) {
+        Long localChannelId = getLocalChannelIds().get(channelId);
+        
+        if (localChannelId == null) {
+            throw new DonkeyDaoException("Channel ID " + channelId + " does not exist");
+        }
+        
+        return localChannelId;
     }
 }

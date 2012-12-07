@@ -58,5 +58,6 @@
 	<classpathentry kind="lib" path="lib/cloning/objenesis-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-dbcp-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-pool-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/derby-1414718.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

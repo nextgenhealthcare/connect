@@ -72,7 +72,7 @@ public class XmlQuerySource implements QuerySource {
         String query = queries.get(queryName);
 
         if (query == null) {
-            throw new QueryNotFoundException("Query \"" + queryName + "\" was not found");
+            return null;
         }
 
         if (values != null) {

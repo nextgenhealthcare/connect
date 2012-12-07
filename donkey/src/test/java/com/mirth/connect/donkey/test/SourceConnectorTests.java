@@ -73,7 +73,6 @@ public class SourceConnectorTests {
 
         channel.deploy();
         channel.start();
-        ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
 
         // Assert that the default source connector behaviour is to wait for destinations
         assertTrue(sourceConnector.isRespondAfterProcessing());
@@ -182,7 +181,6 @@ public class SourceConnectorTests {
 
         channel.deploy();
         channel.start();
-        ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
 
         for (int i = 1; i <= TEST_SIZE; i++) {
             RawMessage rawMessage = new RawMessage(testMessage);
@@ -246,12 +244,8 @@ public class SourceConnectorTests {
     @Test
     public final void testGetResponse() throws Exception {
         String destinationName = TestUtils.DEFAULT_DESTINATION_NAME;
-
-        ChannelController.getInstance().deleteAllMessages(channelId);
-
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
-
         Response response = null;
 
         channel.deploy();

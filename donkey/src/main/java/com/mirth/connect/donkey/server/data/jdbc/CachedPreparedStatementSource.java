@@ -38,25 +38,28 @@ public class CachedPreparedStatementSource implements PreparedStatementSource {
         }
 
         if (statement == null || statement.isClosed()) {
+            statement = null;
+            
             if (localChannelId == null) {
-                statement = connection.prepareStatement(querySource.getQuery(queryId));
+                String query = querySource.getQuery(queryId);
+                
+                if (query != null) {
+                    statement = connection.prepareStatement(query);
+                }
             } else {
                 Map<String, Object> values = new HashMap<String, Object>();
                 values.put("localChannelId", localChannelId);
-                statement = connection.prepareStatement(querySource.getQuery(queryId, values));
+                
+                String query = querySource.getQuery(queryId, values);
+                
+                if (query != null) {
+                    statement = connection.prepareStatement(query);
+                }
             }
 
             channelStatements.put(queryId, statement);
         }
 
         return statement;
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement(String queryId, Long localChannelId, Map<String, Object> values) throws SQLException {
-        if (localChannelId != null) {
-            values.put("localChannelId", localChannelId);
-        }
-        return connection.prepareStatement(querySource.getQuery(queryId, values));
     }
 }

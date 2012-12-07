@@ -4,7 +4,6 @@
 	<resultMap id="connectorMessage" type="ConnectorMessage">		
 		<id property="messageId" column="message_id" />
 		<id property="metaDataId" column="id" />
-		<result property="channelId" column="channel_id" />
 		<result property="serverId" column="server_id" />
 		<result property="dateCreated" column="date_created" />
 		<result property="status" column="status" />
@@ -15,19 +14,44 @@
 		<result property="sendAttempts" column="send_attempts" />
 		<collection property="metaDataMap" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" ofType="map" select="selectCustomMetaData" />
 	</resultMap>
+	
+	<resultMap id="messageContent" type="com.mirth.connect.donkey.model.message.MessageContent">
+		<id property="messageId" column="message_id" />
+		<id property="metaDataId" column="metadata_id" />
+		<result property="contentType" column="content_type" typeHandler="com.mirth.connect.server.sqlmap.extensions.ContentTypeHandler" />
+		<result property="content" column="content" />
+		<result property="encryptedContent" column="encrypted_content" />
+	</resultMap>
+	
+	<!--<resultMap id="reprocessingTask" type="com.mirth.connect.server.util.ReprocessingTask">
+		<id property="reprocessingId" column="reprocessing_id" />
+		<id property="messageId" column="message_id" />
+		<result property="content" column="content" />
+		<result property="isEncrypted" column="is_encrypted" />
+	</resultMap>-->
 
 	<select id="searchMessages" parameterType="map" resultType="map">
-		SELECT m.id AS message_id, m.server_id, m.date_created, m.processed, m.import_id, m.import_channel_id, m.attempted_response, m.response_error, string_agg(mm.id::character varying, ',') AS metadata_ids
-		<include refid="searchMessagesBody" />
-		GROUP BY m.id
+		SELECT
+			m.id AS "message_id",
+			m.server_id AS "server_id",
+			m.date_created AS "date_created",
+			m.processed AS "processed",
+			m.import_id AS "import_id",
+			m.import_channel_id AS "import_channel_id",
+			m.attempted_response AS "attempted_response",
+			m.response_error AS "response_error",
+			GROUP_CONCAT(TRIM(CAST(CAST(mm.id AS CHAR(254)) AS VARCHAR(254)))) AS "metadata_ids"
 
+		<include refid="searchMessagesBody" />
+		
+		GROUP BY m.id, m.server_id, m.date_created, m.processed, m.import_id, m.import_channel_id, m.attempted_response, m.response_error
 		ORDER BY m.id DESC
 		
 		<if test="offset != null">
-			OFFSET ${offset}
+			OFFSET ${offset} ROWS
 		</if>
 		<if test="limit != null">
-			LIMIT ${limit}
+			FETCH FIRST ${limit} ROWS ONLY
 		</if>
 	</select>
 	
@@ -44,13 +68,18 @@
 	</insert>
 	
 	<select id="selectReprocessingTasks" parameterType="map" resultType="map">
-		SELECT rp.reprocessing_id, rp.message_id, mc.content, mc.is_encrypted
+		SELECT
+			rp.reprocessing_id AS "reprocessing_id",
+			rp.message_id AS "message_id",
+			mc.content AS "content",
+			mc.is_encrypted AS "is_encrypted"
+
 		FROM reprocessing rp
 		JOIN d_mc${localChannelId} mc ON rp.message_id = mc.message_id AND mc.metadata_id = 0 AND mc.content_type = 'R'
 		WHERE completed = FALSE
 		AND user_id = #{userId}
 		ORDER BY reprocessing_id ASC
-		LIMIT 100
+		FETCH FIRST 100 ROWS ONLY
 	</select>
 	
 	<insert id="insertReprocessingTasks" parameterType="map">
@@ -126,13 +155,13 @@
 				AND m.import_id = #{importId}
 			</if>
 			<if test="quickSearch != null">
-				AND (mc_raw.content ILIKE '%' || #{quickSearch} || '%'
-				OR mc_processed_raw.content ILIKE '%' || #{quickSearch} || '%'
-				OR mc_transformed.content ILIKE '%' || #{quickSearch} || '%'
-				OR mc_encoded.content ILIKE '%' || #{quickSearch} || '%'
-				OR mc_sent.content ILIKE '%' || #{quickSearch} || '%'
-				OR mc_response.content ILIKE '%' || #{quickSearch} || '%'
-				OR mc_processed_response.content ILIKE '%' || #{quickSearch} || '%')
+				AND (UPPER(mc_raw.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
+				OR UPPER(mc_processed_raw.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
+				OR UPPER(mc_transformed.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
+				OR UPPER(mc_encoded.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
+				OR UPPER(mc_sent.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
+				OR UPPER(mc_response.content) LIKE '%' || UPPER(#{quickSearch}) || '%'
+				OR UPPER(mc_processed_response.content) LIKE '%' || UPPER(#{quickSearch}) || '%')
 			</if>
 			<if test="statuses != null">
 				AND mm.status IN
@@ -147,25 +176,25 @@
 				</foreach>
 			</if>
 			<if test="rawSearch != null">
-				AND mc_raw.content ILIKE '%' || #{rawSearch} || '%'
+				AND UPPER(mc_raw.content) LIKE '%' || UPPER(#{rawSearch}) || '%'
 			</if>
 			<if test="processedRawSearch != null">
-				AND mc_processed_raw.content ILIKE '%' || #{processedRawSearch} || '%'
+				AND UPPER(mc_processed_raw.content) LIKE '%' || UPPER(#{processedRawSearch}) || '%'
 			</if>
 			<if test="transformedSearch != null">
-				AND mc_transformed.content ILIKE '%' || #{transformedSearch} || '%'
+				AND UPPER(mc_transformed.content) LIKE '%' || UPPER(#{transformedSearch}) || '%'
 			</if>
 			<if test="encodedSearch != null">
-				AND mc_encoded.content ILIKE '%' || #{encodedSearch} || '%'
+				AND UPPER(mc_encoded.content) LIKE '%' || UPPER(#{encodedSearch}) || '%'
 			</if>
 			<if test="sentSearch != null">
-				AND mc_sent.content ILIKE '%' || #{sentSearch} || '%'
+				AND UPPER(mc_sent.content) LIKE '%' || UPPER(#{sentSearch}) || '%'
 			</if>
 			<if test="responseSearch != null">
-				AND mc_response.content ILIKE '%' || #{responseSearch} || '%'
+				AND UPPER(mc_response.content) LIKE '%' || UPPER(#{responseSearch}) || '%'
 			</if>
 			<if test="processedResponseSearch != null">
-				AND mc_processed_response.content ILIKE '%' || #{processedResponseSearch} || '%'
+				AND UPPER(mc_processed_response.content) LIKE '%' || UPPER(#{processedResponseSearch}) || '%'
 			</if>
 			<if test="sendAttemptsLower != null">
 				AND mm.send_attempts <![CDATA[ >= ]]> #{sendAttemptsLower}
@@ -178,55 +207,77 @@
 			</if>
 			<if test="metaDataSearch != null">
 				<foreach item="element" collection="metaDataSearch">
-				AND mcm.${element.columnName} 
-				
-				<choose>
-					<when test="element.ignoreCase">
-						<![CDATA[ ILIKE ]]> 
-					</when>
-					<when test="element.operator == 'EQUAL'">
-						<![CDATA[ = ]]> 
-					</when>
-					<when test="element.operator == 'TEXT_EQUAL'">
-						<![CDATA[ = ]]> 
-					</when>
-					<when test="element.operator == 'NOT_EQUAL'">
-						<![CDATA[ != ]]> 
-					</when>
-					<when test="element.operator == 'LESS_THAN'">
-						<![CDATA[ < ]]> 
-					</when>
-					<when test="element.operator == 'LESS_THAN_OR_EQUAL'">
-						<![CDATA[ <= ]]> 
-					</when>
-					<when test="element.operator == 'GREATER_THAN'">
-						<![CDATA[ > ]]> 
-					</when>
-					<when test="element.operator == 'GREATER_THAN_OR_EQUAL'">
-						<![CDATA[ >= ]]> 
-					</when>
-					<when test="element.operator == 'CONTAINS' || element.operator == 'STARTS_WITH' || element.operator == 'ENDS_WITH'">
-						<![CDATA[ LIKE ]]> 
-					</when>
-				</choose>
-				
-				<if test="element.operator == 'CONTAINS' || element.operator == 'ENDS_WITH'">
-					'%' ||
-				</if>
-					#{element.value}
-				<if test="element.operator == 'CONTAINS' || element.operator == 'STARTS_WITH'">
-					|| '%'
-				</if>	
+					<choose>
+						<when test="element.ignoreCase">
+							AND UPPER(mcm.${element.columnName})
+						</when>
+						<otherwise>
+							AND mcm.${element.columnName}
+						</otherwise>
+					</choose>
 					
+					<choose>
+						<when test="element.ignoreCase">
+							<![CDATA[ LIKE ]]> 
+						</when>
+						<when test="element.operator == 'EQUAL'">
+							<![CDATA[ = ]]> 
+						</when>
+						<when test="element.operator == 'TEXT_EQUAL'">
+							<![CDATA[ = ]]> 
+						</when>
+						<when test="element.operator == 'NOT_EQUAL'">
+							<![CDATA[ != ]]> 
+						</when>
+						<when test="element.operator == 'LESS_THAN'">
+							<![CDATA[ < ]]> 
+						</when>
+						<when test="element.operator == 'LESS_THAN_OR_EQUAL'">
+							<![CDATA[ <= ]]> 
+						</when>
+						<when test="element.operator == 'GREATER_THAN'">
+							<![CDATA[ > ]]> 
+						</when>
+						<when test="element.operator == 'GREATER_THAN_OR_EQUAL'">
+							<![CDATA[ >= ]]> 
+						</when>
+						<when test="element.operator == 'CONTAINS' || element.operator == 'STARTS_WITH' || element.operator == 'ENDS_WITH'">
+							<![CDATA[ LIKE ]]> 
+						</when>
+					</choose>
+					
+					<if test="element.operator == 'CONTAINS' || element.operator == 'ENDS_WITH'">
+						'%' ||
+					</if>
+					
+					<choose>
+						<when test="element.ignoreCase">
+							UPPER(#{element.value})
+						</when>
+						<otherwise>
+							#{element.value}
+						</otherwise>
+					</choose>
+						
+					<if test="element.operator == 'CONTAINS' || element.operator == 'STARTS_WITH'">
+						|| '%'
+					</if>	
 				</foreach>
 			</if>
-			
-			
 		</where>
 	</sql>
 	
 	<select id="selectMessageById" resultType="map">
-		SELECT *
+		SELECT
+			id AS "id",
+			server_id AS "server_id",
+			date_created AS "date_created",
+			processed AS "processed",
+			import_id AS "import_id",
+			import_channel_id AS "import_channel_id",
+			attempted_response AS "attempted_response",
+			response_error AS "response_error"
+
 		FROM d_m${localChannelId}
 		WHERE id = #{messageId}
 	</select>
@@ -241,8 +292,21 @@
 		</foreach>
 	</select>
 	
-	<select id="selectMessageContent" resultType="map">
-		SELECT *
+	<select id="selectMessageContent" resultMap="messageContent">
+		SELECT
+			metadata_id,
+			message_id,
+			content_type,
+			(CASE
+				WHEN is_encrypted = TRUE THEN NULL
+				ELSE content
+			END) AS "content",
+			(CASE
+				WHEN is_encrypted = TRUE THEN content
+				ELSE NULL
+			END) AS "encrypted_content",
+			data_type
+
 		FROM d_mc${localChannelId}
 		WHERE message_id = #{messageId}
 		AND metadata_id IN
@@ -273,8 +337,6 @@
 		WHERE message_id = #{messageId}
 	</select>
 	
-	
-	
 	<!-- Message Pruner/Archiver -->
 	
 	<delete id="prunerDeleteMessages" parameterType="map">
@@ -283,11 +345,39 @@
 	</delete>
 	
 	<delete id="prunerDeleteMessageContent" parameterType="map">
-		DELETE FROM d_mc${localChannelId} mc
-		USING d_m${localChannelId} m
-		
-		<include refid="prunerDeleteCriteria" />
-		AND m.id = mc.message_id
+		DELETE FROM d_mc${localChannelId}
+		WHERE message_id IN (
+			SELECT DISTINCT m.id
+			FROM d_m${localChannelId} m
+			<include refid="prunerDeleteCriteria" />
+		)
+	</delete>
+	
+	<delete id="prunerDeleteConnectorMessages" parameterType="map">
+		DELETE FROM d_mm${localChannelId}
+		WHERE message_id IN (
+			SELECT DISTINCT m.id
+			FROM d_m${localChannelId} m
+			<include refid="prunerDeleteCriteria" />
+		)
+	</delete>
+	
+	<delete id="prunerDeleteCustomMetadata" parameterType="map">
+		DELETE FROM d_mcm${localChannelId}
+		WHERE message_id IN (
+			SELECT DISTINCT m.id
+			FROM d_m${localChannelId} m
+			<include refid="prunerDeleteCriteria" />
+		)
+	</delete>
+	
+	<delete id="prunerDeleteAttachments" parameterType="map">
+		DELETE FROM d_ma${localChannelId}
+		WHERE message_id IN (
+			SELECT DISTINCT m.id
+			FROM d_m${localChannelId} m
+			<include refid="prunerDeleteCriteria" />
+		)
 	</delete>
 	
 	<sql id="prunerDeleteCriteria">
@@ -311,7 +401,16 @@
 	</sql>
 	
 	<select id="prunerSelectMessagesToArchive" parameterType="map" resultType="map">
-		SELECT m.*
+		SELECT
+			m.id AS "id",
+			m.server_id AS "server_id",
+			m.date_created AS "date_created",
+			m.processed AS "processed",
+			m.import_id AS "import_id",
+			m.import_channel_id AS "import_channel_id",
+			m.attempted_response AS "attempted_response",
+			m.response_error AS "response_error"
+
 		FROM d_m${localChannelId} m
 		
 		<if test="skipStatuses != null">

@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<queries>
+	<query id="createMessageTable">
+		CREATE TABLE d_m${localChannelId} (
+	        id bigint NOT NULL PRIMARY KEY,
+	        server_id character varying(36),
+	        date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	        processed boolean NOT NULL DEFAULT FALSE,
+	        import_id bigint,
+	        import_channel_id character varying(36),
+	        attempted_response boolean NOT NULL DEFAULT FALSE,
+	        response_error character varying(1024)
+	    )
+	</query>
+	
+	<query id="createMessageTableIndex1">
+		CREATE INDEX d_m${localChannelId}_index1 ON d_m${localChannelId}(id)
+	</query>
+	
+	<query id="createMessageTableIndex2">
+		CREATE INDEX d_m${localChannelId}_index2 ON d_m${localChannelId}(id, date_created, processed)
+	</query>
+	
+	<query id="createConnectorMessageTable">
+		CREATE TABLE d_mm${localChannelId} (
+	        id integer NOT NULL,
+	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE RESTRICT,
+	        date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	        status character(1) NOT NULL,
+	        connector_map clob,
+	        channel_map clob,
+	        response_map clob,
+	        errors clob,
+	        send_attempts integer NOT NULL DEFAULT 0,
+	        constraint mm${localChannelId}_pkey PRIMARY KEY(message_id, id)
+        )
+	</query>
+	
+	<query id="createConnectorMessageTableIndex1">
+		CREATE INDEX d_mm${localChannelId}_index1 ON d_mm${localChannelId}(message_id)
+	</query>
+	
+	<query id="createConnectorMessageTableIndex2">
+		CREATE INDEX d_mm${localChannelId}_index2 ON d_mm${localChannelId}(message_id, id)
+	</query>
+	
+	<query id="createConnectorMessageTableIndex3">
+		CREATE INDEX d_mm${localChannelId}_index3 ON d_mm${localChannelId}(message_id, status)
+	</query>
+	
+	<query id="createConnectorMessageTableIndex4">
+		CREATE INDEX d_mm${localChannelId}_index4 ON d_mm${localChannelId}(message_id, id, status)
+	</query>
+	
+	<query id="createMessageContentTable">
+		CREATE TABLE d_mc${localChannelId} (
+	        metadata_id integer NOT NULL,
+	        message_id bigint NOT NULL,
+	        content_type character(1) NOT NULL,
+	        content clob,
+	        is_encrypted boolean NOT NULL,
+	        data_type character varying(255),
+	        CONSTRAINT mc${localChannelId}_PKEY PRIMARY KEY(message_id, metadata_id, content_type),
+	        CONSTRAINT mc${localChannelId}_FKEY FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE RESTRICT
+        )
+	</query>
+	
+	<query id="createMessageContentTableIndex1">
+		CREATE INDEX d_mc${localChannelId}_index1 ON d_mc${localChannelId}(message_id)
+	</query>
+	
+	<query id="createMessageContentTableIndex2">
+		CREATE INDEX d_mc${localChannelId}_index2 ON d_mc${localChannelId}(message_id, metadata_id)
+	</query>
+	
+	<query id="createMessageContentTableIndex3">
+		CREATE INDEX d_mc${localChannelId}_index3 ON d_mc${localChannelId}(message_id, metadata_id, content_type)
+	</query>
+	
+	<query id="createMessageCustomMetaDataTable">
+		CREATE TABLE d_mcm${localChannelId} (
+	        METADATA_ID integer NOT NULL,
+	        MESSAGE_ID bigint NOT NULL,
+	        CONSTRAINT mcm${localChannelId}_PKEY PRIMARY KEY(message_id, metadata_id),
+	        CONSTRAINT mcm${localChannelId}_FKEY FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE RESTRICT
+        )
+	</query>
+	
+	<query id="createMessageCustomMetaDataTableIndex1">
+		CREATE INDEX d_mcm${localChannelId}_index1 ON d_mcm${localChannelId}(message_id)
+	</query>
+	
+	<query id="createMessageCustomMetaDataTableIndex2">
+		CREATE INDEX d_mcm${localChannelId}_index2 ON d_mcm${localChannelId}(message_id, metadata_id)
+	</query>
+	
+	<query id="createMessageAttachmentTable">
+		CREATE TABLE d_ma${localChannelId} (
+	        id character varying(255) NOT NULL,
+	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE RESTRICT,
+	        content blob,
+	        type character varying(40),
+	        CONSTRAINT ma${localChannelId}_pkey PRIMARY KEY(id)
+        )
+	</query>
+	
+	<query id="createMessageAttachmentTableIndex1">
+		CREATE INDEX d_ma${localChannelId}_index1 ON d_ma${localChannelId}(message_id)
+	</query>
+	
+	<query id="createMessageStatisticsTable">
+		CREATE TABLE d_ms${localChannelId} (
+	        metadata_id integer,
+	        received bigint NOT NULL DEFAULT 0,
+	        received_total bigint NOT NULL DEFAULT 0,
+	        filtered bigint NOT NULL DEFAULT 0,
+	        filtered_total bigint NOT NULL DEFAULT 0,
+	        transformed bigint NOT NULL DEFAULT 0,
+	        transformed_total bigint NOT NULL DEFAULT 0,
+	        pending bigint NOT NULL DEFAULT 0,
+	        pending_total bigint NOT NULL DEFAULT 0,
+	        sent bigint NOT NULL DEFAULT 0,
+	        sent_total bigint NOT NULL DEFAULT 0,
+	        error bigint NOT NULL DEFAULT 0,
+	        error_total bigint NOT NULL DEFAULT 0
+        )
+	</query>
+	
+	<query id="createMessageStatisticsTableIndex1">
+		CREATE INDEX d_ms${localChannelId}_index1 ON d_ms${localChannelId}(metadata_id)
+	</query>
+	
+	<query id="createMessageSequence">
+		CREATE SEQUENCE d_msq${localChannelId}
+		START WITH 1
+		INCREMENT BY 1
+		NO CYCLE
+	</query>
+	
+	<query id="createChannelsTable">
+		CREATE TABLE d_channels (
+	        local_channel_id bigint NOT NULL PRIMARY KEY,
+	        channel_id character varying(36) NOT NULL,
+	        CONSTRAINT unique_channel_id UNIQUE (channel_id)
+        )
+	</query>
+	
+	<query id="createChannelsTableIndex1">
+		CREATE INDEX d_channels_index1 ON d_channels(local_channel_id)
+	</query>
+	
+	<query id="createEventsTable">
+		CREATE TABLE d_events (
+	        event_id bigint GENERATED ALWAYS AS IDENTITY (START WITH 1) NOT NULL PRIMARY KEY,
+	        event_type integer NOT NULL,
+	        channel_id character varying(36) NOT NULL,
+	        metadata_id integer,
+	        message_id bigint,
+	        message_status character(1),
+	        event_date timestamp NOT NULL
+        )
+	</query>
+	
+	<query id="getNextMessageId">
+		SELECT NEXT VALUE FOR d_msq${localChannelId} FROM d_channels
+	</query>
+	
+	<query id="addMetaDataColumnString">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} character varying(255)
+	</query>
+	
+	<query id="addMetaDataColumnStringIndex">
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
+	</query>
+	
+	<query id="addMetaDataColumnBoolean">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} boolean
+	</query>
+	
+	<query id="addMetaDataColumnBooleanIndex">
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
+	</query>
+	
+	<query id="addMetaDataColumnDate">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} date
+	</query>
+	
+	<query id="addMetaDataColumnDateIndex">
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
+	</query>
+	
+	<query id="addMetaDataColumnDouble">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} double precision
+	</query>
+	
+	<query id="addMetaDataColumnDoubleIndex">
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
+	</query>
+	
+	<query id="addMetaDataColumnLong">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} bigint
+	</query>
+	
+	<query id="addMetaDataColumnLongIndex">
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
+	</query>
+	
+	<query id="addMetaDataColumnTime">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} time
+	</query>
+	
+	<query id="addMetaDataColumnTimeIndex">
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
+	</query>
+	
+	<query id="addMetaDataColumnTimestamp">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN ${columnName} timestamp
+	</query>
+	
+	<query id="addMetaDataColumnTimestampIndex">
+		CREATE INDEX d_mcm${localChannelId}_${columnName} ON d_mcm${localChannelId}(${columnName})
+	</query>
+	
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimit">
+		SELECT mm.*, m.server_id
+		FROM d_mm${localChannelId} mm
+		JOIN d_m${localChannelId} m ON m.id = mm.message_id
+		WHERE mm.id = ? and mm.status = ?
+		ORDER BY m.id
+		OFFSET ? ROWS
+		FETCH FIRST ? ROWS ONLY
+	</query>
+	
+	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
+		SELECT mm.*, m.server_id
+		FROM d_mm${localChannelId} mm
+		JOIN d_m${localChannelId} m ON m.id = mm.message_id
+		WHERE mm.id = ? AND mm.status = ?
+		AND m.id <![CDATA[ >= ]]> ? AND m.id <![CDATA[ <= ]]> ?
+		ORDER BY m.id
+		OFFSET ? ROWS
+		FETCH FIRST ? ROWS ONLY
+	</query>
+
+	<query id="dropMessageTable">
+		DROP TABLE d_m${localChannelId}
+	</query>
+	
+	<query id="dropMessageMetadataTable">
+		DROP TABLE d_mm${localChannelId}
+	</query>
+	
+	<query id="dropMessageContentTable">
+		DROP TABLE d_mc${localChannelId}
+	</query>
+	
+	<query id="dropCustomMetadataTable">
+		DROP TABLE d_mcm${localChannelId}
+	</query>
+	
+	<query id="dropAttachmentsTable">
+		DROP TABLE d_ma${localChannelId}
+	</query>
+	
+	<query id="dropStatisticsTable">
+		DROP TABLE d_ms${localChannelId}
+	</query>
+	
+	<query id="dropMessageSequence">
+		DROP SEQUENCE d_msq${localChannelId} RESTRICT
+	</query>
+	
+	<query id="deleteChannel">
+        DELETE FROM d_channels WHERE local_channel_id = ${localChannelId}
+	</query>
+
+	<query id="deleteMessageCascadeConnectorMessage">
+		DELETE FROM d_mm${localChannelId}
+		WHERE message_id = ?
+	</query>
+	
+	<query id="deleteMessageCascadeContent">
+		DELETE FROM d_mc${localChannelId}
+		WHERE message_id = ?
+	</query>
+	
+	<query id="deleteMessageCascadeMetadata">
+		DELETE FROM d_mcm${localChannelId}
+		WHERE message_id = ?
+	</query>
+	
+	<query id="deleteMessageCascadeAttachments">
+		DELETE FROM d_ma${localChannelId}
+		WHERE message_id = ?
+	</query>
+	
+	<query id="deleteAllMessagesCascadeConnectorMessage">
+		DELETE FROM d_mm${localChannelId}
+	</query>
+	
+	<query id="deleteAllMessagesCascadeContent">
+		DELETE FROM d_mc${localChannelId}
+	</query>
+	
+	<query id="deleteAllMessagesCascadeMetadata">
+		DELETE FROM d_mcm${localChannelId}
+	</query>
+	
+	<query id="deleteAllMessagesCascadeAttachments">
+		DELETE FROM d_ma${localChannelId}
+	</query>
+	
+	<query id="deleteConnectorMessagesByMetaDataIdsCascadeMetadata">
+		DELETE FROM d_mcm${localChannelId}
+		WHERE message_id = ?
+		AND metadata_id IN (${metaDataIds})
+	</query>
+	
+	<query id="deleteConnectorMessagesByMetaDataIdsCascadeContent">
+		DELETE FROM d_mc${localChannelId}
+		WHERE message_id = ?
+		AND metadata_id IN (${metaDataIds})
+	</query>
+</queries>

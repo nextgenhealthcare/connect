@@ -18,7 +18,6 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
-import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.timed.TimedDaoFactory;
 import com.mirth.connect.donkey.test.util.TestChannel;
 import com.mirth.connect.donkey.test.util.TestChannelWriter;
@@ -29,8 +28,9 @@ import com.mirth.connect.donkey.util.ActionTimer;
 
 public class PerformanceTests {
     private final static String TEST_MESSAGE = "src/test/java/com/mirth/connect/donkey/test/hl7/large.hl7";
-    private final static int DEFAULT_TEST_MILLIS = 3000;
-    private final static int DEFAULT_WARMUP_MILLIS = 0;
+    private final static Integer DEFAULT_TEST_MILLIS = null;
+    private final static Integer DEFAULT_WARMUP_MILLIS = null;
+    private final static Integer DEFAULT_TEST_SIZE = 100;
     private final static int DEFAULT_CHANNELS = 1;
     private final static int DEFAULT_CHAINS = 4;
     private final static int DEFAULT_DEST_PER_CHAIN = 1;
@@ -93,7 +93,7 @@ public class PerformanceTests {
     private void testStorageMode(MessageStorageMode mode) throws Exception {
         //TestUtils.showContent(testMessage, channelId, serverId, TestUtils.getStorageSettings(mode, false), TestUtils.getStorageSettings(mode, true));
 
-        TestUtils.runChannelTest(testMessage, channelId, serverId, null, DEFAULT_CHANNELS, DEFAULT_CHAINS, DEFAULT_DEST_PER_CHAIN, DEFAULT_WAIT_FOR_DESTINATIONS, null, DEFAULT_TEST_MILLIS, DEFAULT_WARMUP_MILLIS, TestUtils.getStorageSettings(mode));
+        TestUtils.runChannelTest(testMessage, channelId, serverId, null, DEFAULT_CHANNELS, DEFAULT_CHAINS, DEFAULT_DEST_PER_CHAIN, DEFAULT_WAIT_FOR_DESTINATIONS, DEFAULT_TEST_SIZE, DEFAULT_TEST_MILLIS, DEFAULT_WARMUP_MILLIS, TestUtils.getStorageSettings(mode));
     }
 
     @Test
@@ -110,7 +110,6 @@ public class PerformanceTests {
 
         for (int i = 0; i < numSources; i++) {
             sourceChannels[i] = TestUtils.createDefaultChannel(channelId + i, serverId, waitForDestinations, 1, 1);
-            ChannelController.getInstance().deleteAllMessages(sourceChannels[i].getChannelId());
 
             DestinationChain chain = sourceChannels[i].getDestinationChains().get(0);
 

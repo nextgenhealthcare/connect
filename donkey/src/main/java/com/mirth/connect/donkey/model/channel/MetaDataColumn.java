@@ -24,7 +24,7 @@ public class MetaDataColumn implements Serializable {
     }
 
     public MetaDataColumn(String name, MetaDataColumnType type, String mappingName) {
-        this.name = name;
+        this.name = name.toUpperCase();
         this.type = type;
         this.mappingName = mappingName;
     }
@@ -34,7 +34,7 @@ public class MetaDataColumn implements Serializable {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name.toUpperCase();
     }
 
     public MetaDataColumnType getType() {

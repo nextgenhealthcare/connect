@@ -21,12 +21,12 @@ import com.mirth.connect.donkey.server.channel.SourceConnector;
 
 public class TestSourceConnector extends SourceConnector {
     protected TestConnectorProperties connectorProperties;
-    private List<DispatchResult> recoveredResponses = new ArrayList<DispatchResult>();
+    private List<DispatchResult> recoveredDispatchResults = new ArrayList<DispatchResult>();
     private boolean isDeployed = false;
     private List<Long> messageIds = new ArrayList<Long>();
 
-    public List<DispatchResult> getRecoveredResponses() {
-        return recoveredResponses;
+    public List<DispatchResult> getRecoveredDispatchResults() {
+        return recoveredDispatchResults;
     }
 
     public boolean isDeployed() {
@@ -55,8 +55,8 @@ public class TestSourceConnector extends SourceConnector {
     public void onStop() throws StopException {}
 
     @Override
-    public void handleRecoveredResponse(DispatchResult messageResponse) {
-        recoveredResponses.add(messageResponse);
+    public void handleRecoveredResponse(DispatchResult dispatchResult) {
+        recoveredDispatchResults.add(dispatchResult);
     }
 
     public DispatchResult readTestMessage(String raw) throws ChannelException {

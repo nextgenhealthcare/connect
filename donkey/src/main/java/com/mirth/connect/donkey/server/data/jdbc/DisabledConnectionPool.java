@@ -12,26 +12,16 @@ package com.mirth.connect.donkey.server.data.jdbc;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
-
-import com.mirth.connect.donkey.server.Donkey;
 
 public class DisabledConnectionPool implements ConnectionPool {
     private String url;
     private String username;
     private String password;
 
-    public DisabledConnectionPool() throws ClassNotFoundException {
-        Properties configuration = Donkey.getInstance().getConfiguration().getDatabaseProperties();
-        String driver = configuration.getProperty("database.driver");
-
-        if (driver != null) {
-            Class.forName(driver);
-        }
-
-        url = configuration.getProperty("database.url");
-        username = configuration.getProperty("database.username");
-        password = configuration.getProperty("database.password");
+    public DisabledConnectionPool(String url, String username, String password) {
+       this.url = url;
+       this.username = username;
+       this.password = password;
     }
 
     @Override

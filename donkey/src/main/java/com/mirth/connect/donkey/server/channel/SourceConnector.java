@@ -176,7 +176,7 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
                     dao.markAsProcessed(getChannelId(), messageId);
 
                     if (dispatchResult.isRemoveContent()) {
-                        dao.deleteAllContent(getChannelId(), messageId);
+                        dao.deleteMessageContent(getChannelId(), messageId);
                     }
                 }
                 

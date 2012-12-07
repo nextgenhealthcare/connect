@@ -32,39 +32,19 @@ public class ChannelController {
         }
     }
 
-    private Map<String, Long> localChannelIds;
     private Statistics currentStats;
     private Statistics totalStats;
 
     private ChannelController() {}
 
-    public Map<String, Long> getLocalChannelIds() {
-        if (localChannelIds == null) {
-            DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-
-            try {
-                localChannelIds = dao.getLocalChannelIds();
-            } finally {
-                dao.close();
-            }
-        }
-
-        return localChannelIds;
-    }
-
     public void removeChannel(String channelId) {
-        Long localChannelId = getLocalChannelIds().get(channelId);
+        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
-        if (localChannelId != null) {
-            DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-
-            try {
-                dao.removeChannel(channelId);
-                dao.commit();
-            } finally {
-                dao.close();
-                localChannelIds.remove(channelId);
-            }
+        try {
+            dao.removeChannel(channelId);
+            dao.commit();
+        } finally {
+            dao.close();
         }
     }
 
@@ -108,16 +88,53 @@ public class ChannelController {
     }
 
     public Long getLocalChannelId(String channelId) {
-        if (!getLocalChannelIds().containsKey(channelId)) {
-            initChannel(channelId);
+        Long localChannelId = null;
+        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+        
+        try {
+            localChannelId = dao.getLocalChannelIds().get(channelId);
+        } finally {
+            dao.close();
         }
+        
+        if (localChannelId == null) {
+            localChannelId = createChannel(channelId);
+        }
+        
+        return localChannelId;
+    }
+    
+    public void initChannelStorage(String channelId) {
+        getLocalChannelId(channelId);
+    }
+    
+    public boolean channelExists(String channelId) {
+        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
-        return getLocalChannelIds().get(channelId);
+        try {
+            return (dao.getLocalChannelIds().get(channelId) != null);
+        } finally {
+            dao.close();
+        }
     }
 
-    private synchronized long getNextLocalChannelId() {
+    public void deleteAllMessages(String channelId) {
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+
+        try {
+            if (dao.getLocalChannelIds().get(channelId) != null) {
+                dao.deleteAllMessages(channelId);
+            }
+            
+            dao.commit();
+        } finally {
+            dao.close();
+        }
+    }
+    
+    private synchronized long getNextLocalChannelId() {
         Long nextChannelId = null;
+        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
         try {
             nextChannelId = dao.selectMaxLocalChannelId();
@@ -132,20 +149,9 @@ public class ChannelController {
         return ++nextChannelId;
     }
 
-    public void deleteAllMessages(String channelId) {
+    private long createChannel(String channelId) {
+        long localChannelId = getNextLocalChannelId();
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-
-        try {
-            dao.deleteAllMessages(channelId);
-            dao.commit();
-        } finally {
-            dao.close();
-        }
-    }
-
-    private void initChannel(String channelId) {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-        Long localChannelId = getNextLocalChannelId();
 
         try {
             dao.createChannel(channelId, localChannelId);
@@ -153,7 +159,7 @@ public class ChannelController {
         } finally {
             dao.close();
         }
-
-        localChannelIds.put(channelId, localChannelId);
+        
+        return localChannelId;
     }
 }

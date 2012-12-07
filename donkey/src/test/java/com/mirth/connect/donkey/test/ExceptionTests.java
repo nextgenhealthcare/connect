@@ -13,8 +13,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -26,22 +24,18 @@ import org.junit.rules.ExpectedException;
 
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.ChannelState;
-import com.mirth.connect.donkey.model.channel.MetaDataColumn;
-import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
+import com.mirth.connect.donkey.server.channel.ResponseSelector;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
-import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.test.util.TestChannel;
 import com.mirth.connect.donkey.test.util.TestConnectorProperties;
 import com.mirth.connect.donkey.test.util.TestDataType;
@@ -71,38 +65,6 @@ public class ExceptionTests {
     @AfterClass
     final public static void afterClass() throws StartException {
         Donkey.getInstance().stopEngine();
-    }
-
-    /*
-     * Deploy a channel with a string metadata column
-     * Undeploy the channel, manually change the column to a bytea type
-     * Deploy the channel again, assert:
-     * - A DonkeyDaoException was thrown
-     */
-    @Test
-    final public void testChannelDeploy() throws Exception {
-        Channel channel = TestUtils.createDefaultChannel(channelId, serverId);
-
-        try {
-            logger.info("Testing Channel.deploy exceptions...");
-
-            MetaDataColumn metaDataColumn = new MetaDataColumn("test", MetaDataColumnType.STRING, null);
-            channel.getMetaDataColumns().add(metaDataColumn);
-
-            long localChannelId = ChannelController.getInstance().getLocalChannelId(channel.getChannelId());
-            channel.deploy();
-            channel.undeploy();
-
-            Connection connection = TestUtils.getConnection();
-            PreparedStatement statement = connection.prepareStatement("ALTER TABLE d_mcm" + localChannelId + " DROP COLUMN " + metaDataColumn.getName() + "; ALTER TABLE d_mcm" + localChannelId + " ADD COLUMN stringtest bytea;");
-            statement.executeUpdate();
-            connection.commit();
-
-            thrown.expect(DeployException.class);
-            channel.deploy();
-        } finally {
-            ChannelController.getInstance().removeChannel(channel.getChannelId());
-        }
     }
 
     /*
@@ -142,6 +104,7 @@ public class ExceptionTests {
 
         sourceConnector.setChannel(channel);
         channel.setSourceConnector(sourceConnector);
+        channel.setResponseSelector(new ResponseSelector(sourceConnector.getInboundDataType()));
         channel.setSourceFilterTransformer(TestUtils.createDefaultFilterTransformerExecutor());
         channel.getResponseSelector().setRespondFromName(TestUtils.DEFAULT_RESPOND_FROM_NAME);
 
@@ -211,8 +174,6 @@ public class ExceptionTests {
     final public void testChannelProcess() throws Exception {
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId);
 
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-
         try {
             logger.info("Testing Channel.process exceptions...");
 
@@ -220,8 +181,7 @@ public class ExceptionTests {
             channel.deploy();
             channel.start();
 
-            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), dao).getConnectorMessages().get(0);
-            dao.commit();
+            ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId()).getConnectorMessages().get(0);
 
             // Assert that an error in the preprocessor will update the message status to ERROR
             channel.setPreProcessor(new TestPreProcessor() {
@@ -234,33 +194,7 @@ public class ExceptionTests {
 
             assertEquals(Status.ERROR, sourceMessage.getStatus());
             assertNotNull(sourceMessage.getErrors());
-
-            channel.setPreProcessor(new TestPreProcessor());
-            sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), dao).getConnectorMessages().get(0);
-            dao.commit();
-
-            /*
-             * Assert that an exception thrown in the DestinationChain's call()
-             * method is caught in Channel.process, and the final message is
-             * immediately returned.
-             */
-            TestDestinationConnector destinationConnector = (TestDestinationConnector) TestUtils.createDestinationConnector(channel.getChannelId(), new TestConnectorProperties(), TestUtils.DEFAULT_DESTINATION_NAME, new TestDataType(), new TestDataType(), new TestResponseTransformer(), 2);
-            destinationConnector.setChannelId(channel.getChannelId());
-            DestinationChain chain = new DestinationChain() {
-                @Override
-                public List<ConnectorMessage> call() {
-                    throw new RuntimeException("testing");
-                }
-            };
-            chain.setChannelId(channel.getChannelId());
-            chain.setMetaDataReplacer(channel.getSourceConnector().getMetaDataReplacer());
-            chain.setMetaDataColumns(channel.getMetaDataColumns());
-            chain.addDestination(2, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
-            channel.getDestinationChains().add(chain);
-            Message message = channel.process(sourceMessage, true);
-            assertNotNull(message);
         } finally {
-            dao.close();
             channel.stop();
             channel.undeploy();
         }

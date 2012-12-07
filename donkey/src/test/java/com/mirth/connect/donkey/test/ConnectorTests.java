@@ -61,8 +61,10 @@ public class ConnectorTests {
         String channelId = TestUtils.DEFAULT_CHANNEL_ID;
         String serverId = TestUtils.DEFAULT_SERVER_ID;
 
-        ChannelController.getInstance().deleteAllMessages(channelId);
-
+        if (ChannelController.getInstance().channelExists(channelId)) {
+            ChannelController.getInstance().deleteAllMessages(channelId);
+        }
+        
         TestChannel channel = new TestChannel();
 
         channel.setChannelId(channelId);

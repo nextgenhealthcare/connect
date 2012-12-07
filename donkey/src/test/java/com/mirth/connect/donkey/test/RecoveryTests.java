@@ -39,6 +39,7 @@ import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
 import com.mirth.connect.donkey.server.data.timed.TimedDaoFactory;
 import com.mirth.connect.donkey.test.util.TestChannel;
 import com.mirth.connect.donkey.test.util.TestDestinationConnector;
@@ -60,7 +61,7 @@ public class RecoveryTests {
         Donkey donkey = Donkey.getInstance();
         donkey.startEngine(TestUtils.getDonkeyTestConfiguration());
 
-        daoFactory = new TimedDaoFactory(donkey.getDaoFactory(), daoTimer);
+        daoFactory = new BufferedDaoFactory(new TimedDaoFactory(donkey.getDaoFactory(), daoTimer));
         donkey.setDaoFactory(daoFactory);
     }
 
@@ -78,19 +79,14 @@ public class RecoveryTests {
     public final void testSourceRecovery() throws Exception {
         final int testSize = TEST_SIZE;
 
-        ChannelController.getInstance().deleteAllMessages(channelId);
+        TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId);
+        
         List<Long> messageIds = new ArrayList<Long>();
-        DonkeyDao dao = daoFactory.getDao();
-
+        
         // Add a bunch of RECEIVED source connector messages
         for (int i = 0; i < testSize; i++) {
-            messageIds.add(TestUtils.createAndStoreNewMessage(testMessage, channelId, serverId, dao).getMessageId());
+            messageIds.add(TestUtils.createAndStoreNewMessage(testMessage, channelId, serverId, daoFactory).getMessageId());
         }
-
-        dao.commit();
-        dao.close();
-
-        TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId);
 
         channel.deploy();
         channel.start();
@@ -114,33 +110,37 @@ public class RecoveryTests {
     @Test
     public final void testDestinationReceivedRecovery() throws Exception {
         final int testSize = TEST_SIZE;
-
-        ChannelController.getInstance().deleteAllMessages(channelId);
         List<Long> messageIds = new ArrayList<Long>();
-        DonkeyDao dao = daoFactory.getDao();
 
         // Channel should have two chains with destination connector metaDataIds 1, 2 and 3, 4
-        TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId, 2, 2);
+        TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId, true, 2, 2);
 
         for (int i = 0; i < testSize; i++) {
-            ConnectorMessage message = TestUtils.createAndStoreNewMessage(testMessage, channelId, serverId, dao).getConnectorMessages().get(0);
+            ConnectorMessage message = TestUtils.createAndStoreNewMessage(testMessage, channelId, serverId, daoFactory).getConnectorMessages().get(0);
             long messageId = message.getMessageId();
             message.setEncoded(message.getRaw());
             message.getEncoded().setContentType(ContentType.ENCODED);
             message.setStatus(Status.TRANSFORMED);
-            dao.storeMessageContent(message.getEncoded());
-            dao.updateStatus(message, Status.RECEIVED);
-
-            // create incomplete messages for destinations 1 and 4
-            createDestinationMessage(dao, message, 1, Status.RECEIVED);
-            createDestinationMessage(dao, message, 3, Status.SENT);
-            createDestinationMessage(dao, message, 4, Status.RECEIVED);
+            
+            DonkeyDao dao = null;
+            
+            try {
+                dao = daoFactory.getDao();
+                dao.storeMessageContent(message.getEncoded());
+                dao.updateStatus(message, Status.RECEIVED);
+    
+                // create incomplete messages for destinations 1 and 4
+                createDestinationMessage(dao, message, 1, Status.RECEIVED);
+                createDestinationMessage(dao, message, 3, Status.SENT);
+                createDestinationMessage(dao, message, 4, Status.RECEIVED);
+                
+                dao.commit();
+            } finally {
+                TestUtils.close(dao);
+            }
 
             messageIds.add(messageId);
         }
-
-        dao.commit();
-        dao.close();
 
         channel.deploy();
         channel.start();
@@ -166,33 +166,38 @@ public class RecoveryTests {
     public final void testDestinationPendingRecovery() throws Exception {
         final int testSize = TEST_SIZE;
 
-        ChannelController.getInstance().deleteAllMessages(channelId);
         List<Long> messageIds = new ArrayList<Long>();
-        DonkeyDao dao = daoFactory.getDao();
 
         // channel should have two chains with metaDataIds 1, 2 and 3, 4
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId, true, 2, 2);
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channel.getChannelId());
-
+        
         for (int i = 0; i < testSize; i++) {
-            ConnectorMessage message = TestUtils.createAndStoreNewMessage(testMessage, channelId, serverId, dao).getConnectorMessages().get(0);
+            ConnectorMessage message = TestUtils.createAndStoreNewMessage(testMessage, channelId, serverId, daoFactory).getConnectorMessages().get(0);
             long messageId = message.getMessageId();
             message.setEncoded(message.getRaw());
             message.getEncoded().setContentType(ContentType.ENCODED);
             message.setStatus(Status.TRANSFORMED);
-            dao.storeMessageContent(message.getEncoded());
-            dao.updateStatus(message, Status.RECEIVED);
-
-            // create incomplete messages for destinations 1 and 4
-            createDestinationMessage(dao, message, 1, Status.RECEIVED);
-            createDestinationMessage(dao, message, 3, Status.SENT);
-            createDestinationMessage(dao, message, 4, Status.PENDING);
+            
+            DonkeyDao dao = null;
+            
+            try {
+                dao = daoFactory.getDao();
+                dao.storeMessageContent(message.getEncoded());
+                dao.updateStatus(message, Status.RECEIVED);
+    
+                // create incomplete messages for destinations 1 and 4
+                createDestinationMessage(dao, message, 1, Status.RECEIVED);
+                createDestinationMessage(dao, message, 3, Status.SENT);
+                createDestinationMessage(dao, message, 4, Status.PENDING);
+                
+                dao.commit();
+            } finally {
+                TestUtils.close(dao);
+            }
 
             messageIds.add(messageId);
         }
-
-        dao.commit();
-        dao.close();
 
         // test that destination 1 has testSize SENT messages
         assertEquals((Integer) testSize, getMessageCount(localChannelId, 1, Status.RECEIVED));
@@ -211,7 +216,7 @@ public class RecoveryTests {
 
         TestSourceConnector testSourceConnector = (TestSourceConnector) channel.getSourceConnector();
 
-        List<DispatchResult> recoveredResponses = testSourceConnector.getRecoveredResponses();
+        List<DispatchResult> recoveredResponses = testSourceConnector.getRecoveredDispatchResults();
 
         // test that the correct number of messages were sent from the destination connector and were recovered by the channel
         assertEquals(testSize, recoveredResponses.size());
@@ -241,22 +246,17 @@ public class RecoveryTests {
      */
     @Test
     public final void testProcessedFalseRecovery() throws Exception {
-        TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId, 2, 2);
-
+        TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId, true, 2, 2);
         List<Long> messageIds = new ArrayList<Long>();
-
-        DonkeyDao dao = daoFactory.getDao();
 
         try {
             logger.info("Testing recovery on processed = false...");
 
-            ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
             channel.deploy();
             channel.start();
 
             for (int i = 1; i <= TEST_SIZE; i++) {
-                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(testMessage, channel.getChannelId(), channel.getServerId(), dao).getConnectorMessages().get(0);
-                dao.commit();
+                ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(testMessage, channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
                 Message finalMessage = channel.process(sourceMessage, false);
                 messageIds.add(finalMessage.getMessageId());
             }
@@ -271,7 +271,8 @@ public class RecoveryTests {
             channel.deploy();
             channel.start();
             channel.processUnfinishedMessages();
-            for (DispatchResult dispatchResult : ((TestSourceConnector) channel.getSourceConnector()).getRecoveredResponses()) {
+            
+            for (DispatchResult dispatchResult : ((TestSourceConnector) channel.getSourceConnector()).getRecoveredDispatchResults()) {
                 channel.getSourceConnector().finishDispatch(dispatchResult);
             }
 
@@ -281,7 +282,6 @@ public class RecoveryTests {
 
             System.out.println(daoTimer.getLog());
         } finally {
-            dao.close();
             channel.stop();
             channel.undeploy();
             ChannelController.getInstance().removeChannel(channel.getChannelId());
@@ -320,13 +320,16 @@ public class RecoveryTests {
     }
 
     private Integer getMessageCount(long localChannelId, int metaDataId, Status status) {
-        Connection connection = TestUtils.getConnection();
-
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        
         try {
-            PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) FROM d_mm" + localChannelId + " WHERE status = ? AND id = ?");
+            connection = TestUtils.getConnection();
+            statement = connection.prepareStatement("SELECT COUNT(*) FROM d_mm" + localChannelId + " WHERE status = ? AND id = ?");
             statement.setString(1, Character.toString(status.getStatusCode()));
             statement.setInt(2, metaDataId);
-            ResultSet result = statement.executeQuery();
+            result = statement.executeQuery();
             result.next();
             int count = result.getInt(1);
             result.close();
@@ -335,11 +338,9 @@ public class RecoveryTests {
             e.printStackTrace();
             return null;
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            TestUtils.close(result);
+            TestUtils.close(statement);
+            TestUtils.close(connection);
         }
     }
 }

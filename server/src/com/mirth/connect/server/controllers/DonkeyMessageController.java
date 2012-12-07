@@ -137,15 +137,16 @@ public class DonkeyMessageController extends MessageController {
     public List<Message> getMessages(MessageFilter filter, Channel channel, Boolean includeContent, Integer offset, Integer limit) {
         List<Message> messages = new ArrayList<Message>();
         SqlSession session = SqlConfig.getSqlSessionManager();
+        String channelId = channel.getChannelId();
 
         if (filter.getMetaDataIds() != null && filter.getMetaDataIds().isEmpty()) {
             return messages;
         }
 
-        Map<String, Object> params = getParameters(filter, channel.getChannelId(), offset, limit);
+        Map<String, Object> params = getParameters(filter, channelId, offset, limit);
         List<Map<String, Object>> rows = session.selectList("Message.searchMessages", params);
 
-        Long localChannelId = ChannelController.getInstance().getLocalChannelId(channel.getChannelId());
+        Long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
 
         for (Map<String, Object> row : rows) {
             Calendar dateCreated = Calendar.getInstance();
@@ -153,7 +154,7 @@ public class DonkeyMessageController extends MessageController {
 
             Message message = new Message();
             message.setMessageId((Long) row.get("message_id"));
-            message.setChannelId(channel.getChannelId());
+            message.setChannelId(channelId);
             message.setDateCreated(dateCreated);
             message.setServerId((String) row.get("server_id"));
             message.setProcessed((Boolean) row.get("processed"));
@@ -165,13 +166,14 @@ public class DonkeyMessageController extends MessageController {
             Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
 
             params = new HashMap<String, Object>();
-            params.put("channelId", channel.getChannelId());
             params.put("localChannelId", localChannelId);
             params.put("messageId", message.getMessageId());
             params.put("metaDataIds", metaDataIds);
             List<ConnectorMessage> connectorMessages = session.selectList("Message.selectConnectorMessagesByIds", params);
 
             for (ConnectorMessage connectorMessage : connectorMessages) {
+                connectorMessage.setChannelId(channelId);
+                
                 Integer metaDataId = connectorMessage.getMetaDataId();
 
                 if (metaDataId == 0) {
@@ -184,23 +186,10 @@ public class DonkeyMessageController extends MessageController {
             }
             
             if (includeContent) {
-                List<Map<String, Object>> contentList = session.selectList("Message.selectMessageContent", params);
+                List<MessageContent> contentList = session.selectList("Message.selectMessageContent", params);
                 
-                for (Map<String, Object> content : contentList) {
-                    MessageContent messageContent = new MessageContent();
+                for (MessageContent messageContent : contentList) {
                     messageContent.setChannelId(channel.getChannelId());
-                    messageContent.setMessageId((Long) content.get("message_id"));
-                    messageContent.setMetaDataId((Integer) content.get("metadata_id"));
-                    messageContent.setContentType(ContentType.fromChar(((String)content.get("content_type")).charAt(0)));
-                    
-                    String contentString = (String) content.get("content");
-                    
-                    if ((Boolean) content.get("is_encrypted")) {
-                        messageContent.setEncryptedContent(contentString);
-                    } else {
-                        messageContent.setContent(contentString);
-                    }
-                    
                     message.getConnectorMessages().get(messageContent.getMetaDataId()).setContent(messageContent);
                 }
             }

@@ -9,8 +9,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -23,6 +28,7 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConfiguration;
+import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -38,6 +44,8 @@ public class MessagePrunerTest {
     private static TestArchiver archiver;
     private static Calendar messageDateThreshold;
     private static Calendar contentDateThreshold;
+    
+    private Logger logger = Logger.getLogger(this.getClass());
 
     @BeforeClass
     public final static void init() throws Exception {
@@ -163,16 +171,15 @@ public class MessagePrunerTest {
             statement.setTimestamp(1, new Timestamp(dateCreated.getTimeInMillis()));
             statement.setInt(2, numPrunable);
 
-            System.out.print("Making " + numPrunable + " messages prunable...");
+            logger.info("Making " + numPrunable + " messages prunable");
             statement.executeUpdate();
             connection.commit();
-            System.out.println("done");
         } finally {
             DbUtils.close(statement);
             DbUtils.close(connection);
         }
 
-        System.out.print("Running performance test...");
+        logger.info("Running performance test");
         long startTime = System.currentTimeMillis();
 
         pruner.executePruner(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold);
@@ -184,7 +191,73 @@ public class MessagePrunerTest {
         assertEquals(testSize - numPrunable, TestUtils.getNumMessages(TEST_CHANNEL_ID));
         assertEquals(testSize - numPrunable, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
 
-        System.out.println("Pruned " + numPrunable + " messages in " + duration + "ms, " + TestUtils.getPerSecondRate(numPrunable, duration, 1) + " messages per second");
+        logger.info("Pruned " + numPrunable + " messages in " + duration + "ms, " + TestUtils.getPerSecondRate(numPrunable, duration, 1) + " messages per second");
+    }
+    
+    @Test
+    public final void testDerbyDeleteCascade() throws Exception {
+        ChannelController.getInstance().initChannelStorage(TEST_CHANNEL_ID);
+        
+        Message message = MessageController.getInstance().createNewMessage(TEST_CHANNEL_ID, TEST_SERVER_ID);
+        message.setDateCreated(Calendar.getInstance());
+        message.setProcessed(true);
+
+        ConnectorMessage sourceMessage = new ConnectorMessage(TEST_CHANNEL_ID, message.getMessageId(), 0, TEST_SERVER_ID, message.getDateCreated(), Status.RECEIVED);
+        message.getConnectorMessages().put(0, sourceMessage);
+
+        ConnectorMessage destinationMessage = new ConnectorMessage(TEST_CHANNEL_ID, message.getMessageId(), 1, TEST_SERVER_ID, message.getDateCreated(), Status.SENT);
+        message.getConnectorMessages().put(1, destinationMessage);
+
+        sourceMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 0, ContentType.RAW, TEST_MESSAGE_CONTENT, null));
+        destinationMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 1, ContentType.RAW, TEST_MESSAGE_CONTENT, null));
+        
+        TestUtils.deleteAllMessages(TEST_CHANNEL_ID);
+        TestUtils.createTestMessages(TEST_CHANNEL_ID, message, 1);
+        TestUtils.deleteAllMessages(TEST_CHANNEL_ID);
+    }
+    
+    @Test
+    public final void testPrunerConcurrency() throws Exception {
+        final int channelTestSize = 30000;
+        final int power = 12;
+        
+        logger.info("Starting pruner concurrency test");
+        
+        ChannelController.getInstance().initChannelStorage(TEST_CHANNEL_ID);
+        final Channel channel = TestUtils.createChannel(TEST_CHANNEL_ID, TEST_SERVER_ID, true, 4, 1);
+        prepareTestMessages(true, false, true, Status.SENT, power);
+        
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                
+                logger.info("Running channel test");
+                long startTime = System.currentTimeMillis();
+                
+                try {
+                    TestUtils.runChannelTest(channel, TestUtils.TEST_HL7_MESSAGE, channelTestSize);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                
+                long duration = System.currentTimeMillis() - startTime;
+                logger.info("Channel test completed in " + duration + "ms");
+                return null;
+            }
+        });
+        
+        logger.info("Executing pruner");
+        pruner.executePruner(TEST_CHANNEL_ID, messageDateThreshold, null);
+        logger.info("Pruner completed");
+        
+        future.get();
+        executor.shutdown();
     }
 
     private void prepareTestMessages(boolean messagesPrunable, Boolean contentPrunable, boolean processed, Status destinationStatus) throws Exception {
@@ -193,6 +266,8 @@ public class MessagePrunerTest {
 
     private void prepareTestMessages(boolean messagesPrunable, Boolean contentPrunable, boolean processed, Status destinationStatus, int power) throws Exception {
         Calendar dateThreshold;
+        
+        TestUtils.deleteAllMessages(TEST_CHANNEL_ID);
 
         if (messagesPrunable) {
             dateThreshold = messageDateThreshold;

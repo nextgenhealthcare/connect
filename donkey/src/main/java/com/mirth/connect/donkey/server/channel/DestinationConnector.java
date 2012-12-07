@@ -323,7 +323,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
                             connectorMessages.put(getMetaDataId(), connectorMessage);
 
                             if (MessageController.getInstance().isMessageCompleted(connectorMessages)) {
-                                dao.deleteAllContent(getChannelId(), connectorMessage.getMessageId());
+                                dao.deleteMessageContent(getChannelId(), connectorMessage.getMessageId());
                             }
                         }
 
