@@ -38,11 +38,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-codec-1.6.jar"/>
-	<classpathentry kind="lib" path="lib/postgresql-9.1-902.jdbc4.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://jdbc.postgresql.org/documentation/publicapi/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.6.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://www.slf4j.org/apidocs/"/>
@@ -58,6 +53,11 @@
 	<classpathentry kind="lib" path="lib/cloning/objenesis-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-dbcp-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-pool-1.6.jar"/>
-	<classpathentry kind="lib" path="lib/derby-1414718.jar"/>
+	<classpathentry kind="lib" path="lib/database/derby-1414718.jar"/>
+	<classpathentry kind="lib" path="lib/database/postgresql-9.1-902.jdbc4.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jdbc.postgresql.org/documentation/publicapi/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

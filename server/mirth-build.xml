@@ -25,9 +25,9 @@
 		<copy todir="${server}/lib/donkey">
 			<fileset dir="${donkey}/lib">
 				<exclude name="log4j-1.2.16.jar" />
-				<exclude name="postgresql-9.1-902.jdbc4.jar" />
 				<exclude name="xstream-1.4.3.jar" />
 				<exclude name="commons/**" />
+				<exclude name="database/**" />
 			</fileset>
 		</copy>
 		
