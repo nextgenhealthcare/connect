@@ -116,7 +116,7 @@ public class FrameStreamHandler extends StreamHandler {
                             firstBytes.add((byte) currentByte);
                         }
 
-                        if (currentByte == startOfMessageBytes[i]) {
+                        if (currentByte == (int) (startOfMessageBytes[i] & 0xFF)) {
                             i++;
                         } else {
                             i = 0;
