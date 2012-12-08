@@ -103,11 +103,11 @@
 	        segment_id integer NOT NULL,
 	        size integer NOT NULL,
 	        content blob
-        );
+        )
 	</query>
 	
 	<query id="createMessageAttachmentTableIndex1">
-		CREATE INDEX d_ma${localChannelId}_index1 ON d_ma${localChannelId}(id);
+		CREATE INDEX d_ma${localChannelId}_index1 ON d_ma${localChannelId}(id)
 	</query>
 	
 	<query id="createMessageAttachmentTableIndex2">
