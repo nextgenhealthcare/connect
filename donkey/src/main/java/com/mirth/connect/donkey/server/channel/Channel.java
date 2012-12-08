@@ -1030,6 +1030,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 } catch (ExecutionException e) {
                     // TODO: make sure we are catching out of memory errors correctly here
                     if (e.getCause().getMessage().contains("Java heap space")) {
+                        logger.error(e.getCause().getMessage(), e.getCause());
                         throw new OutOfMemoryError();
                     }
 

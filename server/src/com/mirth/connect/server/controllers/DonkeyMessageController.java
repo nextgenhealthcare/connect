@@ -33,6 +33,7 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
+import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
@@ -256,20 +257,24 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public Attachment getMessageAttachment(String channelId, String attachmentId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
-        params.put("attachmentId", attachmentId);
+        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
-        return SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageAttachment", params);
+        try {
+            return dao.getMessageAttachment(channelId, attachmentId);
+        } finally {
+            dao.close();
+        }
     }
 
     @Override
     public List<Attachment> getMessageAttachment(String channelId, Long messageId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
-        params.put("messageId", messageId);
+        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
-        return SqlConfig.getSqlSessionManager().selectList("Message.selectMessageAttachmentByMessageId", params);
+        try {
+            return dao.getMessageAttachment(channelId, messageId);
+        } finally {
+            dao.close();
+        }
     }
 
     @Override
@@ -402,7 +407,7 @@ public class DonkeyMessageController extends MessageController {
                 if (dataType.getType().equals(DataTypeFactory.DICOM)) {
                     rawMessage = new RawMessage(DICOMUtil.getDICOMRawBytes(connectorMessage));
                 } else {
-                    rawMessage = new RawMessage(AttachmentUtil.reAttachMessage(connectorMessage));
+                    rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(AttachmentUtil.reAttachMessage(rawContent, connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
                 }
 
                 if (replace) {

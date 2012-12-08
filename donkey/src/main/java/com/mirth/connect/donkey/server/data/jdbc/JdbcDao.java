@@ -9,6 +9,8 @@
 
 package com.mirth.connect.donkey.server.data.jdbc;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Date;
@@ -295,11 +297,45 @@ public class JdbcDao implements DonkeyDao {
         
         try {
             PreparedStatement statement = prepareStatement("insertMessageAttachment", channelId);
-            statement.setLong(1, messageId);
-            statement.setString(2, attachment.getId());
-            statement.setBytes(3, attachment.getContent());
-            statement.setString(4, attachment.getType());
-            statement.executeUpdate();
+            statement.setString(1, attachment.getId());
+            statement.setLong(2, messageId);
+            statement.setString(3, attachment.getType());
+            
+            // The size of each segment of the attachment.
+            int chunkSize = 10000000;
+            
+            if (attachment.getContent().length <= chunkSize) {
+                // If there is only one segment, just store it
+                statement.setInt(4, 1);
+                statement.setInt(5, attachment.getContent().length);
+                statement.setBytes(6, attachment.getContent());
+                statement.executeUpdate();
+            } else {
+                // Use an input stream on the attachment content to segment the data.
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(attachment.getContent());
+                // The order of the segment
+                int segmentIndex = 1;
+                
+                // As long as there are bytes left
+                while (inputStream.available() > 0) {
+                    // Set the segment number
+                    statement.setInt(4, segmentIndex++);
+                    // Determine the segment size. If there are more bytes left than the chunk size, the size is the chunk size. Otherwise it is the number of remaining bytes
+                    int segmentSize = Math.min(chunkSize, inputStream.available());
+                    // Create a byte array to store the chunk
+                    byte[] segment = new byte[segmentSize];
+                    // Read the chunk from the input stream to the byte array
+                    inputStream.read(segment, 0, segmentSize);
+                    // Set the segment size
+                    statement.setInt(5, segmentSize);
+                    // Set the byte data
+                    statement.setBytes(6, segment);
+                    // Perform the insert
+                    statement.executeUpdate();
+                }
+            }
+            
+            // Clear the parameters because the data held in memory could be quite large.
             statement.clearParameters();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -843,6 +879,148 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
+    public List<Attachment> getMessageAttachment(String channelId, long messageId) {
+        ResultSet resultSet = null;
+
+        try {
+            // Get the total size of each attachment by summing the sizes of its segments
+            PreparedStatement statement = prepareStatement("selectMessageAttachmentSizeByMessageId", channelId);
+            statement.setLong(1, messageId);
+            resultSet = statement.executeQuery();
+            
+            Map<String, Integer> attachmentSize = new HashMap<String, Integer>();
+            while (resultSet.next()) {
+                // Store the attachment size in a map with the attachment id as the key
+                attachmentSize.put(resultSet.getString("id"), resultSet.getInt("size"));
+            }
+            
+            close(resultSet);
+            close(statement); //TODO when does this need to be closed?
+            
+            // Get the attachment data
+            statement = prepareStatement("selectMessageAttachmentByMessageId", channelId);
+            statement.setLong(1, messageId);
+            // Set the number of rows to be fetched into memory at a time. This limits the amount of memory required for the query.
+            statement.setFetchSize(1);
+            resultSet = statement.executeQuery();
+
+            // Initialize the return object
+            List<Attachment> attachments = new ArrayList<Attachment>();
+            // The current attachment id that is being stitched together
+            String currentAttachmentId = null;
+            // The type of the current attachment
+            String type = null;
+            // Use an byte array to combine the segments
+            byte[] content = null;
+            int offset = 0;
+            
+            while (resultSet.next()) {
+                // Get the attachment id of the current segment
+                String attachmentId = resultSet.getString("id");
+                
+                // Ensure that the attachmentId is in the map we created earlier, otherwise don't return this attachment
+                if (attachmentSize.containsKey(attachmentId)) {
+                    // If starting a new attachment
+                    if (!attachmentId.equals(currentAttachmentId)) {
+                        // If there was a previous attachment, we need to finish it.
+                        if (content != null) {
+                            // Add the data in the output stream to the list of attachments to return
+                            attachments.add(new Attachment(attachmentId, content, type));
+                        }
+                        currentAttachmentId = attachmentId;
+                        type = resultSet.getString("type");
+                        
+                        // Initialize the byte array size to the exact size of the attachment. This should minimize the memory requirements if the numbers are correct.
+                        // Use 0 as a backup in case the size is not in the map. (If trying to return an attachment that no longer exists)
+                        content = new byte[attachmentSize.get(attachmentId)];
+                        offset = 0;
+                    }
+                    
+                    // write the current segment to the output stream buffer
+                    byte[] segment = resultSet.getBytes("content");
+                    System.arraycopy(segment, 0, content, offset, segment.length);
+                    
+                    offset += segment.length;
+                }
+            }
+            
+            // Finish the message if one exists by adding it to the list of attachments to return
+            if (content != null) {
+                attachments.add(new Attachment(currentAttachmentId, content, type));
+            }
+            content = null;
+
+            return attachments;
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            close(resultSet);
+        }
+    }
+    
+    @Override
+    public Attachment getMessageAttachment(String channelId, String attachmentId) {
+        ResultSet resultSet = null;
+        Attachment attachment = new Attachment();
+        try {
+            // Get the total size of each attachment by summing the sizes of its segments
+            PreparedStatement statement = prepareStatement("selectMessageAttachmentSize", channelId);
+            statement.setString(1, attachmentId);
+            resultSet = statement.executeQuery();
+            
+            int size = 0;
+            if (resultSet.next()) {
+                // Store the attachment size in a map with the attachment id as the key
+                size = resultSet.getInt("size");
+            }
+            
+            close(resultSet);
+            close(statement); //TODO when does this need to be closed?
+            
+            // Get the attachment data
+            statement = prepareStatement("selectMessageAttachment", channelId);
+            statement.setString(1, attachmentId);
+            // Set the number of rows to be fetched into memory at a time. This limits the amount of memory required for the query.
+            statement.setFetchSize(1);
+            resultSet = statement.executeQuery();
+
+            // The type of the current attachment
+            String type = null;
+            
+            // Initialize the output stream's buffer size to the exact size of the attachment. This should minimize the memory requirements if the numbers are correct.
+            byte[] content = null;
+            int offset = 0;
+            
+            while (resultSet.next()) {
+                if (content == null) {
+                    type = resultSet.getString("type");
+                    content = new byte[size];
+                }
+                    
+                // write the current segment to the output stream buffer
+                byte[] segment = resultSet.getBytes("content");
+                System.arraycopy(segment, 0, content, offset, segment.length);
+                
+                offset += segment.length;
+            }
+            
+            // Finish the message if one exists by adding it to the list of attachments to return
+            if (content != null) {
+                attachment.setId(attachmentId);
+                attachment.setContent(content);
+                attachment.setType(type);
+            }
+            content = null;
+
+            return attachment;
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            close(resultSet);
+        }
+    }
+
+    @Override
     public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status) {
         ResultSet resultSet = null;
 
@@ -1101,7 +1279,7 @@ public class JdbcDao implements DonkeyDao {
             statement = connection.createStatement();
             statement.executeUpdate(querySource.getQuery(query, values));
 
-            String indexQuery = querySource.getQuery(query + "Index", values);
+            String indexQuery = querySource.getQuery(query + "Index" + n, values);
 
             while (indexQuery != null) {
                 statement.executeUpdate(indexQuery);

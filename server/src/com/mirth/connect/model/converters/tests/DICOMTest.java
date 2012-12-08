@@ -21,7 +21,6 @@ import org.xml.sax.SAXException;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.donkey.model.message.SerializerException;
-import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.converters.dicom.DICOMSerializer;
 
 /**

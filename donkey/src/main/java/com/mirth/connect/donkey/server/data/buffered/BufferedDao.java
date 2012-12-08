@@ -304,6 +304,28 @@ public class BufferedDao implements DonkeyDao {
             dao.close();
         }
     }
+    
+    @Override
+    public List<Attachment> getMessageAttachment(String channelId, long messageId) {
+        DonkeyDao dao = daoFactory.getDao();
+
+        try {
+            return dao.getMessageAttachment(channelId, messageId);
+        } finally {
+            dao.close();
+        }
+    }
+    
+    @Override
+    public Attachment getMessageAttachment(String channelId, String attachmentId) {
+        DonkeyDao dao = daoFactory.getDao();
+
+        try {
+            return dao.getMessageAttachment(channelId, attachmentId);
+        } finally {
+            dao.close();
+        }
+    }
 
     @Override
     public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status) {

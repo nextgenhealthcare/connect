@@ -23,10 +23,12 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
+import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.Encryptor;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
+import com.mirth.connect.donkey.util.StringUtil;
 
 public class MessageController {
     private static MessageController instance;
@@ -83,7 +85,7 @@ public class MessageController {
         if (data instanceof byte[]) {
             byteData = (byte[]) data;
         } else if (data instanceof String) {
-            byteData = ((String) data).getBytes();
+            byteData = StringUtil.getBytesUncheckedChunked((String) data, Constants.ATTACHMENT_CHARSET);
         } else {
             throw new UnsupportedDataTypeException("Attachment can be of type String or byte[]");
         }

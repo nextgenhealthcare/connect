@@ -1,6 +1,5 @@
-package com.mirth.connect.server.util;
+package com.mirth.connect.donkey.util;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 public class ByteCounterOutputStream extends OutputStream {
@@ -10,7 +9,7 @@ public class ByteCounterOutputStream extends OutputStream {
      * Adds the number of bytes to be written to the counter.
      */
     @Override
-    public void write(int b) throws IOException {
+    public void write(int b) {
         count++;
     }
     
@@ -18,7 +17,7 @@ public class ByteCounterOutputStream extends OutputStream {
      * Adds the number of bytes to be written to the counter.
      */
     @Override
-    public void write(byte b[]) throws IOException {
+    public void write(byte b[]) {
         count += b.length;
     }
 
@@ -26,7 +25,7 @@ public class ByteCounterOutputStream extends OutputStream {
      * Adds the number of bytes to be written to the counter.
      */
     @Override
-    public void write(byte b[], int off, int len) throws IOException {
+    public void write(byte b[], int off, int len) {
         count += len;
     }
 

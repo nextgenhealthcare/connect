@@ -203,11 +203,6 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             });
         }
     }
-
-    public static long count = 0;
-    public static long sum = 0;
-    public static long min = Long.MAX_VALUE;
-    public static long max = Long.MIN_VALUE;
     
     public synchronized void processFile(FileInfo file) {
         boolean checkFileAge = connectorProperties.isCheckFileAge();

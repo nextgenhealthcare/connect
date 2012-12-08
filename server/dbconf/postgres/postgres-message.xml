@@ -261,16 +261,7 @@
 	<select id="selectMessageAttachmentIds" parameterType="map" resultType="Attachment">
 		SELECT id, type from d_ma${localChannelId}
 		WHERE message_id = #{messageId}
-	</select>
-	
-	<select id="selectMessageAttachment" parameterType="map" resultType="Attachment">
-		SELECT id, type, content from d_ma${localChannelId}
-		WHERE id = #{attachmentId}
-	</select>
-	
-	<select id="selectMessageAttachmentByMessageId" parameterType="map" resultType="Attachment">
-		SELECT id, type, content from d_ma${localChannelId}
-		WHERE message_id = #{messageId}
+		GROUP BY id, type
 	</select>
 	
 	

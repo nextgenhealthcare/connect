@@ -147,12 +147,7 @@ public class FileDispatcher extends DestinationConnector {
 
             is = new ByteArrayInputStream(bytes);
 
-            // TODO Decide whether to free the memory used by the template string at this point
-            template = null;
-            fileDispatcherProperties.setTemplate(null);
-
             fileSystemConnection = fileConnector.getConnection(uri, connectorMessage);
-
             if (fileDispatcherProperties.isErrorOnExists() && fileSystemConnection.exists(filename, path)) {
                 throw new IOException("Destination file already exists, will not overwrite.");
             } else if (fileDispatcherProperties.isTemporary()) {

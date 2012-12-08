@@ -220,6 +220,16 @@ public class PassthruDao implements DonkeyDao {
     public long getNextMessageId(String channelId) {
         return 1L;
     }
+    
+    @Override
+    public List<Attachment> getMessageAttachment(String channelId, long messageId) {
+        return new ArrayList<Attachment>();
+    }
+    
+    @Override
+    public Attachment getMessageAttachment(String channelId, String attachmentId) {
+        return new Attachment();
+    }
 
     @Override
     public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId) {

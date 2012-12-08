@@ -91,14 +91,19 @@
 		CREATE TABLE d_ma${localChannelId} (
 	        id character varying(255) NOT NULL,
 	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE,
-	        content bytea,
 	        type character varying(40),
-	        CONSTRAINT ma${localChannelId}_pkey PRIMARY KEY(id)
+	        segment_id integer NOT NULL,
+	        size integer NOT NULL,
+	        content bytea
         );
 	</query>
 	
 	<query id="createMessageAttachmentTableIndex1">
-		CREATE INDEX d_ma${localChannelId}_index1 ON d_ma${localChannelId} USING BTREE (message_id)
+		CREATE INDEX d_ma${localChannelId}_index1 ON d_ma${localChannelId} USING BTREE (id);
+	</query>
+	
+	<query id="createMessageAttachmentTableIndex2">
+		CREATE INDEX d_ma${localChannelId}_index2 ON d_ma${localChannelId} USING BTREE (message_id)
 	</query>
 	
 	<query id="createMessageStatisticsTable">

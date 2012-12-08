@@ -392,6 +392,28 @@ public class TimedDao implements DonkeyDao {
             timer.log("getNextMessageId", System.currentTimeMillis() - startTime);
         }
     }
+    
+    @Override
+    public List<Attachment> getMessageAttachment(String channelId, long messageId) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            return dao.getMessageAttachment(channelId, messageId);
+        } finally {
+            timer.log("getConnectorMessages", System.currentTimeMillis() - startTime);
+        }
+    }
+    
+    @Override
+    public Attachment getMessageAttachment(String channelId, String attachmentId) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            return dao.getMessageAttachment(channelId, attachmentId);
+        } finally {
+            timer.log("getConnectorMessages", System.currentTimeMillis() - startTime);
+        }
+    }
 
     @Override
     public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status) {

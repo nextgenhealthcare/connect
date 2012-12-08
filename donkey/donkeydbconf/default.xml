@@ -19,8 +19,35 @@
 	</query>
 	
 	<query id="insertMessageAttachment">
-		INSERT INTO d_ma${localChannelId} (message_id, id, content, type)
-		VALUES (?, ?, ?, ?)
+		INSERT INTO d_ma${localChannelId} (id, message_id, type, segment_id, size, content)
+		VALUES (?, ?, ?, ?, ?, ?)
+	</query>
+	
+	<query id="selectMessageAttachmentSize">
+		SELECT sum(size) AS size
+		FROM d_ma${localChannelId}
+		WHERE id = ?
+	</query>
+	
+	<query id="selectMessageAttachmentSizeByMessageId">
+		SELECT id, sum(size) AS size
+		FROM d_ma${localChannelId}
+		WHERE message_id = ?
+		GROUP BY id
+	</query>
+	
+	<query id="selectMessageAttachment">
+		SELECT type, segment_id, size, content
+		FROM d_ma${localChannelId}
+		WHERE id = ?
+		ORDER BY segment_id ASC
+	</query>
+	
+	<query id="selectMessageAttachmentByMessageId">
+		SELECT id, type, segment_id, size, content
+		FROM d_ma${localChannelId}
+		WHERE message_id = ?
+		ORDER BY id, segment_id ASC
 	</query>
 	
 	<query id="insertConnectorMessage">
@@ -301,13 +328,9 @@
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange"></query>
 	<query id="createMessageTable"></query>
 	<query id="createConnectorMessageTable"></query>
-	<query id="createConnectorMessageTableIdIndex"></query>
-	<query id="createConnectorMessageTableIdStatusIndex"></query>
 	<query id="createMessageContentTable"></query>
-	<query id="createMessageContentTableIndex"></query>
 	<query id="createMessageCustomMetaDataTable"></query>
 	<query id="createMessageAttachmentTable"></query>
-	<query id="createMessageAttachmentTableIndex"></query>
 	<query id="createMessageStatisticsTable"></query>
 	<query id="createMessageSequence"></query>
 	<query id="createChannelsTable"></query>

@@ -21,7 +21,9 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
+import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.util.Base64Util;
+import com.mirth.connect.donkey.util.StringUtil;
 import com.mirth.connect.server.controllers.MessageController;
 
 public class AttachmentUtil {
@@ -137,7 +139,7 @@ public class AttachmentUtil {
                 if (binary) {
                     templateSegment = StringUtils.getBytesUsAscii(raw.substring(segmentStartIndex, startReplacementIndex));
                 } else {
-                    templateSegment = StringUtils.getBytesUnchecked(raw.substring(segmentStartIndex, startReplacementIndex), charsetEncoding);
+                    templateSegment = StringUtil.getBytesUncheckedChunked(raw.substring(segmentStartIndex, startReplacementIndex), Constants.ATTACHMENT_CHARSET);
                 }
                 
                 baos.write(templateSegment);
@@ -150,7 +152,7 @@ public class AttachmentUtil {
             if (binary) {
                 templateSegment = StringUtils.getBytesUsAscii(raw.substring(segmentStartIndex));
             } else {
-                templateSegment = StringUtils.getBytesUnchecked(raw.substring(segmentStartIndex), charsetEncoding);
+                templateSegment = StringUtil.getBytesUncheckedChunked(raw.substring(segmentStartIndex), Constants.ATTACHMENT_CHARSET);
             }
             
             byte[] combined;
@@ -173,6 +175,15 @@ public class AttachmentUtil {
                 combined = Base64Util.decodeBase64(combined);
             }
             
+            if (!charsetEncoding.toUpperCase().equals(Constants.ATTACHMENT_CHARSET.toUpperCase())) {
+                // Convert the byte array to a string using the internal encoding.
+                String combinedString = StringUtils.newString(combined, Constants.ATTACHMENT_CHARSET);
+                // First release the reference to the old byte data so it can be reallocated if necessary.
+                combined = null;
+                // Convert the string to a byte array using the requested encoding
+                combined = StringUtil.getBytesUncheckedChunked(combinedString, charsetEncoding);
+            }
+            
             return combined;
         } catch (Exception e) {
             logger.error("Error reattaching attachments", e);
@@ -183,22 +194,12 @@ public class AttachmentUtil {
     public static String reAttachMessage(ConnectorMessage message) {
         String messageData = null;
         if (message.getEncoded() != null && message.getEncoded().getContent() != null) {
-            message.getEncoded().getContent();
+            messageData = message.getEncoded().getContent();
         } else if (message.getRaw() != null) {
             messageData = message.getRaw().getContent();
         }
-        try {
-            List<Attachment> list = getMessageAttachments(message);
-            if (list != null) {
-                for (Attachment attachment : list) {
-                    // backslash escaping - http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4626653
-                    messageData = messageData.replaceAll(attachment.getId(), new String(attachment.getContent()).replaceAll("\\\\", "\\\\\\\\"));
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Error reattaching attachments", e);
-        }
-        return messageData;
+        
+        return StringUtils.newString(reAttachMessage(messageData, message, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
     }
 
     public static List<Attachment> getMessageAttachments(ConnectorMessage message) throws SerializerException {

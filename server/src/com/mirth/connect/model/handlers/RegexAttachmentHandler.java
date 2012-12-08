@@ -20,7 +20,9 @@ import org.apache.commons.lang3.StringUtils;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
+import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.channel.Channel;
+import com.mirth.connect.donkey.util.StringUtil;
 import com.mirth.connect.server.util.UUIDGenerator;
 
 public class RegexAttachmentHandler extends AttachmentHandler {
@@ -77,7 +79,7 @@ public class RegexAttachmentHandler extends AttachmentHandler {
                     		attachmentString = attachmentString.replace(replaceKey, replaceValue);
                     	}
                     }
-                    Attachment attachment = new Attachment(uuid, attachmentString.getBytes(), mimeType);
+                    Attachment attachment = new Attachment(uuid, StringUtil.getBytesUncheckedChunked(attachmentString, Constants.ATTACHMENT_CHARSET), mimeType);
                     
                     attachmentString = null;
     
@@ -101,9 +103,7 @@ public class RegexAttachmentHandler extends AttachmentHandler {
             
             newMessage = null;
             message = null;
-            mimeType = null;
             matcher = null;
-            replacements.clear();
             
             return finalMessage;
         } catch (Throwable t) {

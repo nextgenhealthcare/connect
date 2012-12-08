@@ -48,6 +48,7 @@ import com.mirth.connect.donkey.model.message.ImmutableMessageContent;
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.Base64Util;
+import com.mirth.connect.donkey.util.ByteCounterOutputStream;
 import com.mirth.connect.server.controllers.MessageController;
 
 public class DICOMUtil {
@@ -205,10 +206,6 @@ public class DICOMUtil {
         }
 
         return org.apache.commons.lang3.StringUtils.EMPTY;
-    }
-
-    public static String reAttachMessage(ConnectorMessage message) {
-        return AttachmentUtil.reAttachMessage(message);
     }
 
     public static byte[] dicomToJpg(int sliceIndex, ImmutableConnectorMessage message, boolean autoThreshold) {
