@@ -50,7 +50,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             messageBrowserDateTimeCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnDate & Time", true));
             messageBrowserServerIdCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnServer Id", false));
             messageBrowserSendAttemptsCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnSend Attempts", false));
-            messageBrowserImportIdCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnImport ID", false));
+            messageBrowserImportIdCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnImport Id", false));
             messageBrowserReplySentCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnReply Sent", false));
         }
     }
@@ -90,7 +90,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             userPreferences.putBoolean("messageBrowserVisibleColumnDate & Time", messageBrowserDateTimeCheckBox.isSelected());
             userPreferences.putBoolean("messageBrowserVisibleColumnServer Id", messageBrowserServerIdCheckBox.isSelected());
             userPreferences.putBoolean("messageBrowserVisibleColumnSend Attempts", messageBrowserSendAttemptsCheckBox.isSelected());
-            userPreferences.putBoolean("messageBrowserVisibleColumnImport ID", messageBrowserImportIdCheckBox.isSelected());
+            userPreferences.putBoolean("messageBrowserVisibleColumnImport Id", messageBrowserImportIdCheckBox.isSelected());
             userPreferences.putBoolean("messageBrowserVisibleColumnReply Sent", messageBrowserReplySentCheckBox.isSelected());
             
             getFrame().setSaveEnabled(false);

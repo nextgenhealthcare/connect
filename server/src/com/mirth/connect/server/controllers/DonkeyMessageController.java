@@ -73,7 +73,10 @@ public class DonkeyMessageController extends MessageController {
         params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
         params.put("offset", offset);
         params.put("limit", limit);
-        params.put("messageId", filter.getMessageId());
+        params.put("messageIdUpper", filter.getMessageIdUpper());
+        params.put("messageIdLower", filter.getMessageIdLower());
+        params.put("importIdUpper", filter.getImportIdUpper());
+        params.put("importIdLower", filter.getImportIdLower());
         params.put("startDate", filter.getStartDate());
         params.put("endDate", filter.getEndDate());
         params.put("quickSearch", filter.getQuickSearch());
@@ -91,7 +94,6 @@ public class DonkeyMessageController extends MessageController {
         params.put("processedResponseSearch", filter.getContentSearch().get(ContentType.PROCESSED_RESPONSE));
         params.put("metaDataIds", filter.getMetaDataIds());
         params.put("serverId", filter.getServerId());
-        params.put("importId", filter.getImportId());
         params.put("maxMessageId", filter.getMaxMessageId());
         params.put("metaDataSearch", filter.getMetaDataSearch());
         params.put("attachment", filter.getAttachment());

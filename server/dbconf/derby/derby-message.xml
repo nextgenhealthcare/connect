@@ -132,8 +132,11 @@
 		</if>
 		
 		<where>
-			<if test="messageId != null">
-				m.id = #{messageId}
+			<if test="messageIdLower != null">
+				m.id <![CDATA[ >= ]]> #{messageIdLower}
+			</if>
+			<if test="messageIdUpper != null">
+				AND m.id <![CDATA[ <= ]]> #{messageIdUpper}
 			</if>
 			<if test="maxMessageId != null">
 				AND m.id <![CDATA[ <= ]]> #{maxMessageId}
@@ -147,8 +150,11 @@
 			<if test="serverId != null">
 				AND m.server_id = #{serverId}
 			</if>
-			<if test="importId != null">
-				AND m.import_id = #{importId}
+			<if test="importIdLower != null">
+				AND m.import_id <![CDATA[ >= ]]> #{importIdLower}
+			</if>
+			<if test="importIdUpper != null">
+				AND m.import_id <![CDATA[ <= ]]> #{importIdUpper}
 			</if>
 			<if test="quickSearch != null">
 				AND (UPPER(mc_raw.content) LIKE '%' || UPPER(#{quickSearch}) || '%'

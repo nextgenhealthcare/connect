@@ -35,15 +35,17 @@ public class MessageFilter implements Serializable {
      * Integer otherwise it will default to 0 and not pass the isNotNull check
      * in the SQL mapping.
      */
-    private Long messageId;
     private Long maxMessageId;
+    private Long messageIdUpper;
+    private Long messageIdLower;
+    private Long importIdUpper;
+    private Long importIdLower;
     private Calendar startDate;
     private Calendar endDate;
     private String quickSearch;
     private Set<Status> statuses;
     private List<Integer> metaDataIds;
     private String serverId;
-    private Long importId;
     private Map<ContentType, String> contentSearch = new HashMap<ContentType, String>();
     private List<MetaDataSearchElement> metaDataSearch;
     private Integer sendAttemptsLower;
@@ -52,12 +54,36 @@ public class MessageFilter implements Serializable {
     private String source;
     private Boolean attachment;
 
-    public Long getMessageId() {
-        return messageId;
+    public Long getMessageIdUpper() {
+        return messageIdUpper;
     }
 
-    public void setMessageId(Long messageId) {
-        this.messageId = messageId;
+    public void setMessageIdUpper(Long messageIdUpper) {
+        this.messageIdUpper = messageIdUpper;
+    }
+
+    public Long getMessageIdLower() {
+        return messageIdLower;
+    }
+
+    public void setMessageIdLower(Long messageIdLower) {
+        this.messageIdLower = messageIdLower;
+    }
+
+    public Long getImportIdUpper() {
+        return importIdUpper;
+    }
+
+    public void setImportIdUpper(Long importIdUpper) {
+        this.importIdUpper = importIdUpper;
+    }
+
+    public Long getImportIdLower() {
+        return importIdLower;
+    }
+
+    public void setImportIdLower(Long importIdLower) {
+        this.importIdLower = importIdLower;
     }
 
     public Calendar getStartDate() {
@@ -107,14 +133,6 @@ public class MessageFilter implements Serializable {
     public void setServerId(String serverId) {
         this.serverId = serverId;
     }
-
-    public Long getImportId() {
-		return importId;
-	}
-
-	public void setImportId(Long importId) {
-		this.importId = importId;
-	}
 
 	public Map<ContentType, String> getContentSearch() {
         return contentSearch;

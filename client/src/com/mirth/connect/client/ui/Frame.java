@@ -3582,7 +3582,8 @@ public class Frame extends JXFrame {
                 public Void doInBackground() {
                     try {
                         MessageFilter filter = new MessageFilter();
-                        filter.setMessageId(messageId);
+                        filter.setMessageIdLower(messageId);
+                        filter.setMessageIdUpper(messageId);
                         List<Integer> metaDataIds = new ArrayList<Integer>();
                         metaDataIds.add(metaDataId);
                         filter.setMetaDataIds(metaDataIds);
@@ -3613,7 +3614,8 @@ public class Frame extends JXFrame {
 
     public void doReprocessMessage() {
         MessageFilter filter = new MessageFilter();
-        filter.setMessageId(messageBrowser.getSelectedMessageId());
+        filter.setMessageIdLower(messageBrowser.getSelectedMessageId());
+        filter.setMessageIdUpper(messageBrowser.getSelectedMessageId());
         doReprocess(filter, messageBrowser.getSelectedMetaDataId());
     }
     

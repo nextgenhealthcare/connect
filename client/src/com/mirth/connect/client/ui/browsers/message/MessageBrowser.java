@@ -133,7 +133,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private MessageBrowserAdvancedFilter advancedSearchPopup;
     private MessageBrowserExportResults exportResultsPopup;
     private JPopupMenu attachmentPopupMenu;
-    private final String[] columns = new String[] { "ID", "Connector", "Status", "Date & Time", "Server Id", "Send Attempts", "Import ID", "Reply Sent" };
+    private final String[] columns = new String[] { "Id", "Connector", "Status", "Date & Time", "Server Id", "Send Attempts", "Import Id", "Reply Sent" };
     // Worker used for loading a page and counting the total number of messages
     private SwingWorker<Void, Void> worker;
     
@@ -276,7 +276,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         	String columnName = column.getTitle();
         	
         	boolean defaultVisible = false;
-        	if (columnName.equals("ID") || columnName.equals("Connector") || columnName.equals("Status") || columnName.equals("Date & Time")) {
+        	if (columnName.equals("Id") || columnName.equals("Connector") || columnName.equals("Status") || columnName.equals("Date & Time")) {
         		defaultVisible = true;
         	}
         	
@@ -483,7 +483,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         Calendar endDate = messageFilter.getEndDate();
         String padding = "\n";
 
-        text.append("ID <= ");
+        text.append("Max Message Id: ");
         text.append(messageFilter.getMaxMessageId());
 
         String startDateFormatString = mirthTimePicker1.isEnabled() ? "yyyy-MM-dd HH:mm" : "yyyy-MM-dd";
@@ -549,12 +549,30 @@ public class MessageBrowser extends javax.swing.JPanel {
             text.append(StringUtils.join(connectorNames, ", "));
         }
 
-        if (messageFilter.getMessageId() != null) {
-            text.append(padding + "Message ID: " + messageFilter.getMessageId());
+        if (messageFilter.getMessageIdLower() != null || messageFilter.getMessageIdUpper() != null) {
+            text.append(padding + "Message Id: ");
+            if (messageFilter.getMessageIdUpper() == null) {
+                text.append("Greater than " + messageFilter.getMessageIdLower());
+            } else if (messageFilter.getMessageIdLower() == null) {
+                text.append("Less than " + messageFilter.getMessageIdUpper());
+            } else {
+                text.append("Between " + messageFilter.getMessageIdLower() + " and " + messageFilter.getMessageIdUpper());
+            }
+        }
+        
+        if (messageFilter.getImportIdLower() != null || messageFilter.getImportIdUpper() != null) {
+            text.append(padding + "Import Id: ");
+            if (messageFilter.getImportIdUpper() == null) {
+                text.append("Greater than " + messageFilter.getImportIdLower());
+            } else if (messageFilter.getImportIdLower() == null) {
+                text.append("Less than " + messageFilter.getImportIdUpper());
+            } else {
+                text.append("Between " + messageFilter.getImportIdLower() + " and " + messageFilter.getImportIdUpper());
+            }
         }
 
         if (messageFilter.getServerId() != null) {
-            text.append(padding + "Server ID: " + messageFilter.getServerId());
+            text.append(padding + "Server Id: " + messageFilter.getServerId());
         }
 
         Integer sendAttemptsLower = messageFilter.getSendAttemptsLower();
