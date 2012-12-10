@@ -15,6 +15,14 @@
 		<result property="sendAttempts" column="send_attempts" />
 		<collection property="metaDataMap" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" ofType="map" select="selectCustomMetaData" />
 	</resultMap>
+	
+	<resultMap id="messageContent" type="com.mirth.connect.donkey.model.message.MessageContent">
+		<id property="messageId" column="message_id" />
+		<id property="metaDataId" column="metadata_id" />
+		<result property="contentType" column="content_type" typeHandler="com.mirth.connect.server.sqlmap.extensions.ContentTypeHandler" />
+		<result property="content" column="content" />
+		<result property="encryptedContent" column="encrypted_content" />
+	</resultMap>
 
 	<select id="searchMessages" parameterType="map" resultType="map">
 		SELECT m.id AS message_id, m.server_id, m.date_created, m.processed, m.import_id, m.import_channel_id, m.attempted_response, m.response_error, string_agg(mm.id::character varying, ',') AS metadata_ids
@@ -241,7 +249,7 @@
 		</foreach>
 	</select>
 	
-	<select id="selectMessageContent" resultType="map">
+	<select id="selectMessageContent" resultMap="messageContent">
 		SELECT *
 		FROM d_mc${localChannelId}
 		WHERE message_id = #{messageId}
