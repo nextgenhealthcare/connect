@@ -133,7 +133,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private MessageBrowserAdvancedFilter advancedSearchPopup;
     private MessageBrowserExportResults exportResultsPopup;
     private JPopupMenu attachmentPopupMenu;
-    private final String[] columns = new String[] { "Id", "Connector", "Status", "Date & Time", "Server Id", "Send Attempts", "Import Id", "Reply Sent" };
+    private final String[] columns = new String[] { "Id", "Connector", "Status", "Date & Time", "Server Id", "Send Attempts", "Import Id", "Response Sent" };
     // Worker used for loading a page and counting the total number of messages
     private SwingWorker<Void, Void> worker;
     
@@ -832,8 +832,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private JRadioButton getRadioButtonForErrorPane(String errorPaneName) {
         if (errorPaneName.equals("Processing Error")) {
             return ProcessingErrorRadioButton;
-        } else if (errorPaneName.equals("Reply Error")) {
-            return ReplyErrorRadioButton;
+        } else if (errorPaneName.equals("Response Error")) {
+            return ResponseErrorRadioButton;
         } else {
 
             return null;
@@ -1405,8 +1405,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         ProcessedResponseTextPane.setText(text != null ? text : "Select a message to view the processed response message.");
         ProcessingErrorTextPane.setDocument(new SyntaxDocument());
         ProcessingErrorTextPane.setText(text != null ? text : "Select a message to view any errors.");
-        ReplyErrorTextPane.setDocument(new SyntaxDocument());
-        ReplyErrorTextPane.setText(text != null ? text : "Select a message to view any errors.");
+        ResponseErrorTextPane.setDocument(new SyntaxDocument());
+        ResponseErrorTextPane.setText(text != null ? text : "Select a message to view any errors.");
         updateMappingsTable(new String[0][0], true);
         updateAttachmentsTable(null);
         descriptionTabbedPane.remove(attachmentsPane);
@@ -1747,9 +1747,9 @@ public class MessageBrowser extends javax.swing.JPanel {
     /**
      * Helper function to update the error tab
      */
-    private void updateDescriptionErrors(String processingError, String replyError, Integer metaDataId) {
+    private void updateDescriptionErrors(String processingError, String responseError, Integer metaDataId) {
         if (metaDataId != 0) {
-        	replyError = null;
+        	responseError = null;
         }
 
         ErrorsRadioPane.removeAll();
@@ -1765,14 +1765,14 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
         setCorrectDocument(ProcessingErrorTextPane, processingError, null);
 
-        if (replyError != null) {
-            ErrorsRadioPane.add(ReplyErrorRadioButton);
-            paneSelected = lastUserSelectedErrorType.equals(ReplyErrorRadioButton.getText());
+        if (responseError != null) {
+            ErrorsRadioPane.add(ResponseErrorRadioButton);
+            paneSelected = lastUserSelectedErrorType.equals(ResponseErrorRadioButton.getText());
             if (firstVisiblePane == null) {
-            	firstVisiblePane = ReplyErrorRadioButton.getText();
+            	firstVisiblePane = ResponseErrorRadioButton.getText();
             }
         }
-        setCorrectDocument(ReplyErrorTextPane, replyError, null);
+        setCorrectDocument(ResponseErrorTextPane, responseError, null);
         
         String paneToSelect;
         // Set the default pane if the last user selected one is not added.
@@ -1939,10 +1939,10 @@ public class MessageBrowser extends javax.swing.JPanel {
         ErrorsPanel = new javax.swing.JPanel();
         ErrorsRadioPane = new javax.swing.JPanel();
         ProcessingErrorRadioButton = new javax.swing.JRadioButton();
-        ReplyErrorRadioButton = new javax.swing.JRadioButton();
+        ResponseErrorRadioButton = new javax.swing.JRadioButton();
         ErrorsCardPane = new javax.swing.JPanel();
         ProcessingErrorTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
-        ReplyErrorTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        ResponseErrorTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         attachmentsPane = new javax.swing.JScrollPane();
         attachmentTable = null;
         messageScrollPane = new javax.swing.JScrollPane();
@@ -2190,17 +2190,17 @@ public class MessageBrowser extends javax.swing.JPanel {
         });
         ErrorsRadioPane.add(ProcessingErrorRadioButton);
 
-        ReplyErrorRadioButton.setBackground(new java.awt.Color(255, 255, 255));
-        errorsGroup.add(ReplyErrorRadioButton);
-        ReplyErrorRadioButton.setText("Reply Error");
-        ReplyErrorRadioButton.setFocusable(false);
-        ReplyErrorRadioButton.setRequestFocusEnabled(false);
-        ReplyErrorRadioButton.addActionListener(new java.awt.event.ActionListener() {
+        ResponseErrorRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        errorsGroup.add(ResponseErrorRadioButton);
+        ResponseErrorRadioButton.setText("Response Error");
+        ResponseErrorRadioButton.setFocusable(false);
+        ResponseErrorRadioButton.setRequestFocusEnabled(false);
+        ResponseErrorRadioButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ReplyErrorRadioButtonActionPerformed(evt);
+                ResponseErrorRadioButtonActionPerformed(evt);
             }
         });
-        ErrorsRadioPane.add(ReplyErrorRadioButton);
+        ErrorsRadioPane.add(ResponseErrorRadioButton);
 
         ErrorsCardPane.setBackground(new java.awt.Color(255, 255, 255));
         ErrorsCardPane.setLayout(new java.awt.CardLayout());
@@ -2209,9 +2209,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         ProcessingErrorTextPane.setEditable(false);
         ErrorsCardPane.add(ProcessingErrorTextPane, "Processing Error");
 
-        ReplyErrorTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        ReplyErrorTextPane.setEditable(false);
-        ErrorsCardPane.add(ReplyErrorTextPane, "Reply Error");
+        ResponseErrorTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        ResponseErrorTextPane.setEditable(false);
+        ErrorsCardPane.add(ResponseErrorTextPane, "Response Error");
 
         javax.swing.GroupLayout ErrorsPanelLayout = new javax.swing.GroupLayout(ErrorsPanel);
         ErrorsPanel.setLayout(ErrorsPanelLayout);
@@ -2677,9 +2677,9 @@ public class MessageBrowser extends javax.swing.JPanel {
     	errorsRadioButtonActionPerformed(evt);
     }//GEN-LAST:event_ProcessingErrorRadioButtonActionPerformed
 
-    private void ReplyErrorRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ReplyErrorRadioButtonActionPerformed
+    private void ResponseErrorRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResponseErrorRadioButtonActionPerformed
     	errorsRadioButtonActionPerformed(evt);
-    }//GEN-LAST:event_ReplyErrorRadioButtonActionPerformed
+    }//GEN-LAST:event_ResponseErrorRadioButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton EncodedMessageRadioButton;
@@ -2698,8 +2698,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ProcessingErrorTextPane;
     private javax.swing.JRadioButton RawMessageRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea RawMessageTextPane;
-    private javax.swing.JRadioButton ReplyErrorRadioButton;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ReplyErrorTextPane;
+    private javax.swing.JRadioButton ResponseErrorRadioButton;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ResponseErrorTextPane;
     private javax.swing.JRadioButton ResponseRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ResponseTextPane;
     private javax.swing.JRadioButton SentMessageRadioButton;

@@ -81,7 +81,7 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="messageBrowserReplySentCheckBox" min="-2" max="-2" attributes="0"/>
+                      <Component id="messageBrowserResponseSentCheckBox" min="-2" max="-2" attributes="0"/>
                       <Component id="messageBrowserServerIdCheckBox" min="-2" max="-2" attributes="0"/>
                       <Component id="messageBrowserImportIdCheckBox" min="-2" max="-2" attributes="0"/>
                       <Component id="messageBrowserSendAttemptsCheckBox" min="-2" max="-2" attributes="0"/>
@@ -142,7 +142,7 @@
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="messageBrowserReplySentCheckBox" min="-2" max="-2" attributes="0"/>
+                  <Component id="messageBrowserResponseSentCheckBox" min="-2" max="-2" attributes="0"/>
                   <EmptySpace pref="26" max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -278,12 +278,12 @@
             <Property name="text" type="java.lang.String" value="Server Id"/>
           </Properties>
         </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="messageBrowserReplySentCheckBox">
+        <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="messageBrowserResponseSentCheckBox">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Reply Sent"/>
+            <Property name="text" type="java.lang.String" value="Response Sent"/>
           </Properties>
         </Component>
       </SubComponents>

@@ -651,7 +651,7 @@
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ProcessingErrorRadioButtonActionPerformed"/>
                       </Events>
                     </Component>
-                    <Component class="javax.swing.JRadioButton" name="ReplyErrorRadioButton">
+                    <Component class="javax.swing.JRadioButton" name="ResponseErrorRadioButton">
                       <Properties>
                         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -659,12 +659,12 @@
                         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                           <ComponentRef name="errorsGroup"/>
                         </Property>
-                        <Property name="text" type="java.lang.String" value="Reply Error"/>
+                        <Property name="text" type="java.lang.String" value="Response Error"/>
                         <Property name="focusable" type="boolean" value="false"/>
                         <Property name="requestFocusEnabled" type="boolean" value="false"/>
                       </Properties>
                       <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ReplyErrorRadioButtonActionPerformed"/>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ResponseErrorRadioButtonActionPerformed"/>
                       </Events>
                     </Component>
                   </SubComponents>
@@ -693,7 +693,7 @@
                         </Constraint>
                       </Constraints>
                     </Component>
-                    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="ReplyErrorTextPane">
+                    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="ResponseErrorTextPane">
                       <Properties>
                         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -704,7 +704,7 @@
                       </Properties>
                       <Constraints>
                         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
-                          <CardConstraints cardName="Reply Error"/>
+                          <CardConstraints cardName="Response Error"/>
                         </Constraint>
                       </Constraints>
                     </Component>

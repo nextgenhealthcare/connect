@@ -62,8 +62,8 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 break;
             	
             case 7: // Reply Sent
-            	column.setMaxWidth(70);
-            	column.setMinWidth(70);
+            	column.setMaxWidth(85);
+            	column.setMinWidth(85);
             	renderer = new DefaultTableCellRenderer();
                 
             default: renderer = new DefaultTableCellRenderer();

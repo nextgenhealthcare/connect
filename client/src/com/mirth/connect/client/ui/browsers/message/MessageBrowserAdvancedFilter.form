@@ -253,7 +253,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="deleteContentSearchButton" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="jScrollPane4" pref="158" max="32767" attributes="0"/>
+                      <Component id="jScrollPane4" pref="162" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -261,7 +261,7 @@
                           <Component id="addMetaDataSearchButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="deleteMetaDataSearchButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="115" max="32767" attributes="0"/>
+                          <EmptySpace pref="118" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="jScrollPane7" pref="0" max="32767" attributes="0"/>
@@ -509,7 +509,8 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Attachment Only:"/>
+            <Property name="text" type="java.lang.String" value="Has Attachment:"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;If this is not checked, messages with and without attachments will be retrieved.&lt;br/&gt;&#xa;If this is checked, only messages with attachments will be retrieved.&#xa;&lt;/html&gt;"/>
           </Properties>
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="attachmentCheckBox">
