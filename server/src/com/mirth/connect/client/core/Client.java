@@ -199,7 +199,7 @@ public class Client {
     public List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ClientException {
         logger.debug("getting channel summary");
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_SUMMARY.getName()), new NameValuePair("cachedChannels", serializer.toXML(cachedChannels)) };
-        return (List<ChannelSummary>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_SERVLET, params));
+        return (List<ChannelSummary>) serializer.fromXML(serverConnection.executePostMethodAsync(CHANNEL_SERVLET, params));
     }
     
     public Set<String> getChannelTags() throws ClientException {
@@ -339,7 +339,7 @@ public class Client {
     public List<User> getUser(User user) throws ClientException {
         logger.debug("getting user: " + user);
         NameValuePair[] params = { new NameValuePair("op", Operations.USER_GET.getName()), new NameValuePair("user", serializer.toXML(user)) };
-        return (List<User>) serializer.fromXML(serverConnection.executePostMethod(USER_SERVLET, params));
+        return (List<User>) serializer.fromXML(serverConnection.executePostMethodAsync(USER_SERVLET, params));
     }
 
     /**
@@ -996,7 +996,7 @@ public class Client {
     public List<DashboardStatus> getChannelStatusList() throws ClientException {
         logger.debug("retrieving channel status list");
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_STATUS.getName()) };
-        return (List<DashboardStatus>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params));
+        return (List<DashboardStatus>) serializer.fromXML(serverConnection.executePostMethodAsync(CHANNEL_STATUS_SERVLET, params));
     }
 
     /**

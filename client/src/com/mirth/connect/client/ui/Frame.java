@@ -2214,16 +2214,12 @@ public class Frame extends JXFrame {
         channels = new HashMap<String, Channel>();
     }
 
-    public void setRefreshingStatuses(boolean refreshingStatuses) {
-        synchronized (this) {
-            this.refreshingStatuses = refreshingStatuses;
-        }
+    public synchronized void setRefreshingStatuses(boolean refreshingStatuses) {
+        this.refreshingStatuses = refreshingStatuses;
     }
 
-    public boolean isRefreshingStatuses() {
-        synchronized (this) {
-            return refreshingStatuses;
-        }
+    public synchronized boolean isRefreshingStatuses() {
+        return refreshingStatuses;
     }
 
     public synchronized void increaseSafeErrorFailCount(String safeErrorKey) {
