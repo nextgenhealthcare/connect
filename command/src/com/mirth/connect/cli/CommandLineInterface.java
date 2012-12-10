@@ -789,13 +789,15 @@ public class CommandLineInterface {
         
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Messages import complete.");
+        int errorCount = messageImportResult.getErroredMessageIds().size();
+        int successCount = messageImportResult.getTotal() - errorCount;
         
-        if (messageImportResult.getImported() > 0) {
-            stringBuilder.append(" " + messageImportResult.getImported() + " message" + ((messageImportResult.getImported() != 1) ? "s" : "") + " imported successfully.");
+        if (successCount > 0) {
+            stringBuilder.append(" " + successCount + " message" + ((successCount != 1) ? "s" : "") + " imported successfully.");
         }
         
-        if (messageImportResult.getErrored() > 0) {
-            stringBuilder.append(" " + messageImportResult.getErrored() + " message" + ((messageImportResult.getErrored() != 1) ? "s" : "") + " failed to import due to an error.");
+        if (errorCount > 0) {
+            stringBuilder.append(" " + errorCount + " message" + ((errorCount != 1) ? "s" : "") + " failed to import due to an error. Message IDs that failed: " + StringUtils.join(messageImportResult.getErroredMessageIds(), ", "));
         }
 
         out.println(stringBuilder.toString());
@@ -815,8 +817,6 @@ public class CommandLineInterface {
         String channelId = arguments[2].getText();
 
         // export mode
-        int exportMode = 0;
-        Character plainTextContentType = null;
         ContentType contentType = null;
 
         if (arguments.length == 4) {

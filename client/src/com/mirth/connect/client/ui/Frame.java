@@ -3381,13 +3381,37 @@ public class Frame extends JXFrame {
             public void done() {
                 if (result != null) {
                     StringBuilder stringBuilder = new StringBuilder();
+                    List<Long> erroredMessageIds = result.getErroredMessageIds();
+                    int errorCount = erroredMessageIds.size();
+                    int successCount = result.getTotal() - errorCount;
     
-                    if (result.getImported() > 0) {
-                        stringBuilder.append(result.getImported() + " message" + (result.getImported() == 1 ? " was" : "s were") + " imported successfully.\n");
+                    if (successCount > 0) {
+                        stringBuilder.append(successCount + " message" + (successCount == 1 ? " was" : "s were") + " imported successfully.\n");
                     }
     
-                    if (result.getErrored() > 0) {
-                        stringBuilder.append(result.getErrored() + " message" + (result.getErrored() == 1 ? "" : "s") + " failed to import due to an error.\n");
+                    if (errorCount > 0) {
+                        stringBuilder.append(errorCount + " message" + (errorCount == 1 ? "" : "s") + " failed to import due to an error.");
+                        
+                        // show a list of the message IDs that failed to import, unless it is too big
+                        if (errorCount < 100) {
+                            stringBuilder.append(" Message IDs that failed:\n\n");
+                            int offset = stringBuilder.length();
+                            Long lastMessageId = erroredMessageIds.get(errorCount - 1);
+                            
+                            for (Long messageId : erroredMessageIds) {
+                                stringBuilder.append(messageId);
+                                
+                                if (!messageId.equals(lastMessageId)) {
+                                    stringBuilder.append(", ");
+                                }
+                                
+                                // wrap to a new line after 75 characters are printed
+                                if ((stringBuilder.length() - offset) > 75) {
+                                    stringBuilder.append("\n");
+                                    offset = stringBuilder.length();
+                                }
+                            }
+                        }
                     }
                     
                     alertInformation(PlatformUI.MIRTH_FRAME, stringBuilder.toString());

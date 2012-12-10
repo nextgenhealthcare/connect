@@ -812,13 +812,13 @@ public class Client {
                         
                         if (line.equals(closeElement)) {
                             Message message = (Message) serializer.fromXML(serializedMessage.toString());
+                            result.incrementTotal();
                             
                             try {
                                 decryptMessage(message);
                                 importMessage(channelId, message);
-                                result.addImported(1);
                             } catch (Exception e) {
-                                result.addErrored(1);
+                                result.getErroredMessageIds().add(message.getMessageId());
                             }
                             
                             serializedMessage.delete(0, serializedMessage.length());

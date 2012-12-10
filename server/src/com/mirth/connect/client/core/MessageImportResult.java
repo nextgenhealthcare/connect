@@ -1,22 +1,29 @@
 package com.mirth.connect.client.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MessageImportResult {
-    private int imported = 0;
-    private int errored = 0;
+    private int total = 0;
+    private List<Long> erroredMessageIds = new ArrayList<Long>();
 
-    public int getImported() {
-        return imported;
-    }
-    
-    public void addImported(int addend) {
-        imported += addend;
+    public int getTotal() {
+        return total;
     }
 
-    public int getErrored() {
-        return errored;
+    public void setTotal(int total) {
+        this.total = total;
     }
     
-    public void addErrored(int addend) {
-        errored += addend;
+    public void incrementTotal() {
+        total++;
+    }
+
+    public List<Long> getErroredMessageIds() {
+        return erroredMessageIds;
+    }
+
+    public void setErroredMessageIds(List<Long> erroredMessageIds) {
+        this.erroredMessageIds = erroredMessageIds;
     }
 }
