@@ -11,6 +11,9 @@ package com.mirth.connect.client.core;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -38,7 +41,8 @@ public final class ServerConnection {
     private PostMethod post = null;
     private PostMethod channelPost = null;
     final private Operation currentOp = new Operation(null, null, false);
-    final private Operation channelOp = new Operation(null, null, false);
+    final private AbortTask abortTask = new AbortTask();
+    private ExecutorService abortExecutor = Executors.newSingleThreadExecutor();
 
     public ServerConnection(String address) {
         // Default timeout is infinite.
@@ -53,9 +57,14 @@ public final class ServerConnection {
         httpClientParams.setSoTimeout(timeout);
         httpConnectionManager.getParams().setConnectionTimeout(10 * 1000);
         httpConnectionManager.getParams().setSoTimeout(timeout);
-        httpConnectionManager.getParams().setDefaultMaxConnectionsPerHost(3);
+        httpConnectionManager.getParams().setDefaultMaxConnectionsPerHost(5);
 
         client = new HttpClient(httpClientParams, httpConnectionManager);
+        
+        // MIRTH-1872
+        HttpClientParams clientParams = new HttpClientParams();
+        clientParams.setContentCharset("UTF-8");
+        client.setParams(clientParams);
         
         try {
             Protocol mirthHttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 8443);
@@ -103,13 +112,7 @@ public final class ServerConnection {
             post.addResponseFooter(new Header("Accept-Encoding", "gzip,deflate"));
             post.setRequestBody(params);
 
-            // MIRTH-1872
-            HttpClientParams clientParams = new HttpClientParams();
-            clientParams.setContentCharset("UTF-8");
-            client.setParams(clientParams);
-
             int statusCode = client.executeMethod(post);
-            
 
             if (statusCode == HttpStatus.SC_FORBIDDEN) {
                 throw new InvalidLoginException(post.getStatusLine().toString());
@@ -140,7 +143,8 @@ public final class ServerConnection {
     }
     
     /**
-     * Executes a POST method on a servlet with a set of parameters
+     * Executes a POST method on a servlet with a set of parameters. The requests sent through this channel will be aborted on the client side
+     * when a new request arrives. Currently there is no guarantee of the order that pending requests will be sent
      * 
      * @param servletName
      *            The name of the servlet.
@@ -149,34 +153,24 @@ public final class ServerConnection {
      * @return
      * @throws ClientException
      */
-    public String executePostMethodChannel(String servletName, NameValuePair[] params) throws ClientException {       
-        if (channelOp.getName() != null && channelPost != null && channelPost.isRequestSent()) {
-            channelPost.abort();
-        }
+    public String executePostMethodAbortPending(String servletName, NameValuePair[] params) throws ClientException {      
+        //TODO make order sequential
+        abortTask.incrementRequestsInQueue();
         
-        synchronized(channelOp) {
-            if (params[0].getName().equals("op")) {
-                Operation op = Operations.getOperation(params[0].getValue());
-                channelOp.setName(op.getName());
-                channelOp.setDisplayName(op.getDisplayName());
-                channelOp.setAuditable(op.isAuditable());
+        synchronized(abortExecutor) { 
+            if (!abortTask.isRunning()) {
+                abortExecutor.execute(abortTask);
             }
             
-            channelPost = null;
-    
             try {
                 channelPost = new PostMethod(address + servletName);
                 channelPost.addResponseFooter(new Header("Content-Encoding", "gzip"));
                 channelPost.addResponseFooter(new Header("Accept-Encoding", "gzip,deflate"));
                 channelPost.setRequestBody(params);
     
-                // MIRTH-1872
-                HttpClientParams clientParams = new HttpClientParams();
-                clientParams.setContentCharset("UTF-8");
-                client.setParams(clientParams);
-    
+                abortTask.setAbortAllowed(true);
                 int statusCode = client.executeMethod(channelPost);
-                
+                abortTask.setAbortAllowed(false);
     
                 if (statusCode == HttpStatus.SC_FORBIDDEN) {
                     throw new InvalidLoginException(channelPost.getStatusLine().toString());
@@ -194,12 +188,10 @@ public final class ServerConnection {
                     throw new ClientException(e);
                 }
             } finally {
+                abortTask.decrementRequestsInQueue();
+                
                 if (channelPost != null) {
                     channelPost.releaseConnection();
-                    
-                    channelOp.setName(null);
-                    channelOp.setDisplayName(null);
-                    channelOp.setAuditable(false);
                 }
             }
         }
@@ -224,13 +216,7 @@ public final class ServerConnection {
             post.addResponseFooter(new Header("Accept-Encoding", "gzip,deflate"));
             post.setRequestBody(params);
 
-            // MIRTH-1872
-            HttpClientParams clientParams = new HttpClientParams();
-            clientParams.setContentCharset("UTF-8");
-            client.setParams(clientParams);
-
             int statusCode = client.executeMethod(post);
-            
 
             if (statusCode == HttpStatus.SC_FORBIDDEN) {
                 throw new InvalidLoginException(post.getStatusLine().toString());
@@ -330,6 +316,54 @@ public final class ServerConnection {
     public void shutdownTimeoutThread() {
         if (idleConnectionTimeoutThread != null) {
             idleConnectionTimeoutThread.shutdown();
+        }
+    }
+    
+    public class AbortTask implements Runnable {
+        private final AtomicBoolean running = new AtomicBoolean(false);
+        private int requestsInQueue = 0;
+        private boolean abortAllowed = false;
+        
+        public synchronized void incrementRequestsInQueue() {
+            requestsInQueue++;
+        }
+        
+        public synchronized void decrementRequestsInQueue() {
+            requestsInQueue--;
+        }
+        
+        public synchronized void setAbortAllowed(boolean abortAllowed) {
+            this.abortAllowed = abortAllowed;
+        }
+        
+        public boolean isRunning() {
+            return running.get();
+        }
+        
+        @Override
+        public void run() {
+            try {
+                running.set(true);
+                while (true) {
+                    synchronized (this) {
+                        if (requestsInQueue == 0) {
+                            return;
+                        }
+                        if (requestsInQueue > 1 && abortAllowed && channelPost.isRequestSent()) {
+                            channelPost.abort();
+                            abortAllowed = false;
+                        } 
+                    }
+                    
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                }
+            } finally {
+                running.set(false);
+            }
         }
     }
 }

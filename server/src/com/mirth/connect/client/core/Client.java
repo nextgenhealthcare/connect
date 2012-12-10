@@ -543,7 +543,7 @@ public class Client {
     public void redeployAllChannels() throws ClientException {
         logger.debug("deploying channels");
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_REDEPLOY.getName()) };
-        serverConnection.executePostMethodChannel(ENGINE_SERVLET, params);
+        serverConnection.executePostMethodAbortPending(ENGINE_SERVLET, params);
     }
 
     /**
@@ -554,7 +554,7 @@ public class Client {
     public void deployChannels(List<String> channelIds) throws ClientException {
         logger.debug("deploying channels");
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_DEPLOY.getName()), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
-        serverConnection.executePostMethodChannel(ENGINE_SERVLET, params);
+        serverConnection.executePostMethodAbortPending(ENGINE_SERVLET, params);
     }
 
     /**
@@ -565,7 +565,7 @@ public class Client {
     public void undeployChannels(List<String> channelIds) throws ClientException {
         logger.debug("undeploying channels");
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_UNDEPLOY.getName()), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
-        serverConnection.executePostMethodChannel(ENGINE_SERVLET, params);
+        serverConnection.executePostMethodAbortPending(ENGINE_SERVLET, params);
     }
 
     /**
@@ -577,7 +577,7 @@ public class Client {
     public void startChannel(String channelId) throws ClientException {
         logger.debug("starting channel: channelId=" + channelId);
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_START.getName()), new NameValuePair("id", channelId) };
-        serverConnection.executePostMethodChannel(CHANNEL_STATUS_SERVLET, params);
+        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
     }
 
     /**
@@ -589,7 +589,7 @@ public class Client {
     public void stopChannel(String channelId) throws ClientException {
         logger.debug("stopping channel: channelId=" + channelId);
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_STOP.getName()), new NameValuePair("id", channelId) };
-        serverConnection.executePostMethodChannel(CHANNEL_STATUS_SERVLET, params);
+        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
     }
     
     /**
@@ -613,7 +613,7 @@ public class Client {
     public void pauseChannel(String channelId) throws ClientException {
         logger.debug("pausing channel: channelId=" + channelId);
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_PAUSE.getName()), new NameValuePair("id", channelId) };
-        serverConnection.executePostMethodChannel(CHANNEL_STATUS_SERVLET, params);
+        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
     }
 
     /**
@@ -625,7 +625,7 @@ public class Client {
     public void resumeChannel(String channelId) throws ClientException {
         logger.debug("resuming channel: channelId=" + channelId);
         NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_RESUME.getName()), new NameValuePair("id", channelId) };
-        serverConnection.executePostMethodChannel(CHANNEL_STATUS_SERVLET, params);
+        serverConnection.executePostMethodAbortPending(CHANNEL_STATUS_SERVLET, params);
     }
 
     /**
