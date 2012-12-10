@@ -41,7 +41,7 @@ public class Connector implements Serializable {
     private Mode mode;
     private boolean enabled;
     private String version;
-    private boolean waitForPrevious;
+    private boolean waitForPrevious = true;
 
     public Connector() {}
 
