@@ -47,10 +47,6 @@
 		) AS subquery
 	</select>
 	
-	<insert id="insertTask">
-		INSERT INTO tasks (task_type, task_description) VALUES (#{taskType}, #{taskDescription})
-	</insert>
-	
 	<select id="selectReprocessingTasks" parameterType="map" resultType="map">
 		SELECT rp.reprocessing_id, rp.message_id, mc.content, mc.is_encrypted
 		FROM reprocessing rp

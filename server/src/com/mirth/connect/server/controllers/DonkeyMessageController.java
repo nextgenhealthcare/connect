@@ -359,20 +359,10 @@ public class DonkeyMessageController extends MessageController {
         return cleared;
     }
 
-    // TODO: move this method somewhere better?
-    public int insertTask(TaskType taskType, String taskDescription) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("taskType", taskType);
-        params.put("taskDescription", taskDescription);
-        return SqlConfig.getSqlSessionManager().insert("Message.insertTask", params);
-    }
-
     @Override
     public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds, int userId) {
-        int taskId = insertTask(TaskType.REPROCESS_MESSAGES, "Reprocess messages for channel ID " + channelId);
-
         Map<String, Object> params = getParameters(filter, channelId, null, null);
-        params.put("userId", taskId);
+        params.put("userId", userId);
         params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
 
         SqlConfig.getSqlSessionManager().update("Message.insertReprocessingTasks", params);
