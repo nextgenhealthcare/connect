@@ -353,6 +353,7 @@
           <SubComponents>
             <Component class="com.mirth.connect.client.ui.components.MirthTable" name="contentSearchTable">
               <Properties>
+                <Property name="toolTipText" type="java.lang.String" value="Any message content that was encrypted by this channel will not be searchable."/>
                 <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                   <TableColumnModel selectionModel="0"/>
                 </Property>

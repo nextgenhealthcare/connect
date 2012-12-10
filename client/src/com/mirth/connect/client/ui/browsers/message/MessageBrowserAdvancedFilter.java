@@ -592,6 +592,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
+        contentSearchTable.setToolTipText("Any message content that was encrypted by this channel will not be searchable.");
         jScrollPane4.setViewportView(contentSearchTable);
 
         addContentSearchButton.setText("New");

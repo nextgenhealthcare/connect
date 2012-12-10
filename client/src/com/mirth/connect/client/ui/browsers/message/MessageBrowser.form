@@ -28,6 +28,21 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="errorsGroup">
     </Component>
+    <Container class="javax.swing.JDialog" name="jDialog1">
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <EmptySpace min="0" pref="400" max="32767" attributes="0"/>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <EmptySpace min="0" pref="300" max="32767" attributes="0"/>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+    </Container>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -848,6 +863,9 @@
       </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="quickSearchField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Any message content that was encrypted by this channel will not be searchable."/>
+      </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="mirthTimePicker2">
     </Component>

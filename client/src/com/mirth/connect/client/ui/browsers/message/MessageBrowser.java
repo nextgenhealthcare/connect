@@ -1895,6 +1895,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         jList1 = new javax.swing.JList();
         messagesGroup = new javax.swing.ButtonGroup();
         errorsGroup = new javax.swing.ButtonGroup();
+        jDialog1 = new javax.swing.JDialog();
         jSplitPane1 = new javax.swing.JSplitPane();
         descriptionTabbedPane = new javax.swing.JTabbedPane();
         MessagesPanel = new javax.swing.JPanel();
@@ -1965,6 +1966,17 @@ public class MessageBrowser extends javax.swing.JPanel {
             public Object getElementAt(int i) { return strings[i]; }
         });
         jScrollPane1.setViewportView(jList1);
+
+        javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
+        jDialog1.getContentPane().setLayout(jDialog1Layout);
+        jDialog1Layout.setHorizontalGroup(
+            jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 400, Short.MAX_VALUE)
+        );
+        jDialog1Layout.setVerticalGroup(
+            jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 300, Short.MAX_VALUE)
+        );
 
         setBackground(new java.awt.Color(255, 255, 255));
         setFocusable(false);
@@ -2278,6 +2290,8 @@ public class MessageBrowser extends javax.swing.JPanel {
                 filterButtonActionPerformed(evt);
             }
         });
+
+        quickSearchField.setToolTipText("Any message content that was encrypted by this channel will not be searchable.");
 
         quickSearchLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         quickSearchLabel.setText("Quick Search:");
@@ -2683,6 +2697,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.ButtonGroup errorsGroup;
     private javax.swing.JButton filterButton;
     private javax.swing.JCheckBox formatXmlMessageCheckBox;
+    private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JList jList1;
