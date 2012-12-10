@@ -2138,12 +2138,11 @@ public class Frame extends JXFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                // was this code necessary?
-//                try {
-//                    status = mirthClient.getChannelStatusList();
-//                } catch (ClientException e) {
-//                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-//                }
+                try {
+                    status = mirthClient.getChannelStatusList();
+                } catch (ClientException e) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
 
                 retrieveChannels();
                 return null;
