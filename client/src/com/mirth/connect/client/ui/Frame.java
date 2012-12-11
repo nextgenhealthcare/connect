@@ -3439,7 +3439,7 @@ public class Frame extends JXFrame {
 
     public void doRemoveAllMessages() {
         if (alertOption(this, "<html>Are you sure you would like to remove all messages in the selected channel(s)?<br>Channel(s) must be stopped for messages to be removed.<br><font size='1'><br></font>WARNING: Queued messages will also be removed.</html>")) {
-            final boolean clearStats = alertOption(PlatformUI.MIRTH_FRAME, "Would you also like to clear all statistics?\n(Only stopped channels will be affected)");
+            final boolean clearStats = alertOption(PlatformUI.MIRTH_FRAME, "Would you also like to clear all statistics?");
 
             Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
 

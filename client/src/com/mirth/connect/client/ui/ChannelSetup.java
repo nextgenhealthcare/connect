@@ -2464,8 +2464,20 @@ public class ChannelSetup extends javax.swing.JPanel {
             currentChannel.getProperties().setAttachmentProperties(AttachmentHandlerFactory.getDefaults(type));
         }
         
-        if (type == AttachmentHandlerType.NONE) {
-            attachmentWarningLabel.setText("");
+        MessageStorageMode messageStorageMode = MessageStorageMode.fromInt(messageStorageSlider.getValue());
+        
+        switch (messageStorageMode) {
+            case METADATA: case DISABLED:
+                if (attachmentComboBox.getSelectedItem() == AttachmentHandlerType.NONE) {
+                    attachmentWarningLabel.setText("");
+                } else {
+                    attachmentWarningLabel.setText("Attachments will not be saved/reattached with the selected storage mode");
+                }
+                break;
+                
+            default:
+                attachmentWarningLabel.setText("");
+                break;
         }
     }//GEN-LAST:event_attachmentComboBoxActionPerformed
 
