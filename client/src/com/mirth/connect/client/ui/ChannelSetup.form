@@ -1194,7 +1194,7 @@
                 </Property>
                 <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="Wait for previous destination"/>
-                <Property name="toolTipText" type="java.lang.String" value="Enable this channel so that it can be deployed."/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Wait for the previous destination to finish before processing the current destination.&lt;br/&gt;Each destination connector for which this is not selected marks the beginning of a destination chain,&lt;br/&gt;such that all chains execute asynchronously, but each destination within a particular chain executes in order.&lt;br/&gt;This option has no effect on the first destination connector, which always marks the beginning of the first chain.&lt;/html&gt;"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>

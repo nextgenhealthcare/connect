@@ -2118,7 +2118,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         waitForPreviousCheckbox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         waitForPreviousCheckbox.setSelected(true);
         waitForPreviousCheckbox.setText("Wait for previous destination");
-        waitForPreviousCheckbox.setToolTipText("Enable this channel so that it can be deployed.");
+        waitForPreviousCheckbox.setToolTipText("<html>Wait for the previous destination to finish before processing the current destination.<br/>Each destination connector for which this is not selected marks the beginning of a destination chain,<br/>such that all chains execute asynchronously, but each destination within a particular chain executes in order.<br/>This option has no effect on the first destination connector, which always marks the beginning of the first chain.</html>");
         waitForPreviousCheckbox.setMargin(new java.awt.Insets(0, 0, 0, 0));
         waitForPreviousCheckbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
