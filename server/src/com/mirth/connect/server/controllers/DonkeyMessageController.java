@@ -362,7 +362,7 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds, int userId) {
+    public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds) {
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
         DataType dataType = engineController.getDeployedChannel(channelId).getSourceConnector().getInboundDataType();
         Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();

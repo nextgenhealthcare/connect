@@ -162,11 +162,10 @@ public class MessageObjectServlet extends MirthServlet {
                     if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        final int currentUserId = getCurrentUserId(request);
                         Runnable reprocessTask = new Runnable() {
                             @Override
                             public void run() {
-                                messageController.reprocessMessages(channelId, filter, replace, reprocessMetaDataIds, currentUserId);
+                                messageController.reprocessMessages(channelId, filter, replace, reprocessMetaDataIds);
                             }
                         };
                         
