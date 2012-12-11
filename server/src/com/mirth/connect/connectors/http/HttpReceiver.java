@@ -28,6 +28,7 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
@@ -143,16 +144,24 @@ public class HttpReceiver extends SourceConnector {
                 // set the status code
                 int statusCode = NumberUtils.toInt(replaceValues(connectorProperties.getResponseStatusCode(), dispatchResult), -1);
 
+                Response selectedResponse = dispatchResult.getSelectedResponse();
+                
                 /*
                  * set the response body and status code (if we choose a
                  * response from the drop-down)
                  */
-                if (dispatchResult.getSelectedResponse() != null) {
+                if (selectedResponse != null) {
                     attemptedResponse = true;
-                    servletResponse.getOutputStream().write(dispatchResult.getSelectedResponse().getMessage().getBytes(connectorProperties.getCharset()));
+                    String message = selectedResponse.getMessage();
+                    
+                    if (message != null) {
+                        servletResponse.getOutputStream().write(message.getBytes(connectorProperties.getCharset()));
 
-                    // TODO include full HTTP payload in sentResponse
-                    sentResponse = dispatchResult.getSelectedResponse().getMessage();
+                        // TODO include full HTTP payload in sentResponse
+                        sentResponse = message;
+                    }
+                    
+                    Status newMessageStatus = selectedResponse.getNewMessageStatus();
                     
                     /*
                      * If the status code is custom, use the
@@ -163,7 +172,7 @@ public class HttpReceiver extends SourceConnector {
                      */
                     if (statusCode != -1) {
                         servletResponse.setStatus(statusCode);
-                    } else if (dispatchResult.getSelectedResponse().getNewMessageStatus().equals(Status.ERROR)) {
+                    } else if (newMessageStatus != null && newMessageStatus.equals(Status.ERROR)) {
                         servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                     } else {
                         servletResponse.setStatus(HttpStatus.SC_OK);
