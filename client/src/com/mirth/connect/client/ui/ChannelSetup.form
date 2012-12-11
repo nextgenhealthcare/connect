@@ -375,34 +375,26 @@
                           <Component id="messageStorageSlider" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" attributes="0">
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                                          <Group type="102" attributes="0">
-                                              <Component id="durableLabel" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="durableStatusLabel" max="32767" attributes="0"/>
-                                          </Group>
-                                          <Component id="removeContentCheckbox" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="encryptMessagesCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Group type="102" alignment="0" attributes="0">
-                                              <Component id="performanceLabel" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="messageStorageProgressBar" pref="222" max="32767" attributes="0"/>
-                                          </Group>
-                                          <Component id="storageModeLabel" alignment="0" max="32767" attributes="0"/>
-                                          <Component id="storageLabel" alignment="0" max="32767" attributes="0"/>
-                                      </Group>
-                                      <Component id="removeAttachmentCheckbox" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                                  <Group type="102" attributes="0">
+                                      <Component id="durableLabel" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="durableStatusLabel" max="32767" attributes="0"/>
                                   </Group>
-                                  <EmptySpace max="32767" attributes="0"/>
+                                  <Component id="removeContentCheckbox" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="encryptMessagesCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="performanceLabel" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="messageStorageProgressBar" pref="222" max="32767" attributes="0"/>
+                                  </Group>
+                                  <Component id="storageModeLabel" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="storageLabel" alignment="0" max="32767" attributes="0"/>
                               </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
-                                  <Component id="queueWarningLabel" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="32767" attributes="0"/>
-                              </Group>
+                              <Component id="removeAttachmentsCheckbox" min="-2" max="-2" attributes="0"/>
+                              <Component id="queueWarningLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -427,7 +419,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="removeContentCheckbox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="removeAttachmentCheckbox" min="-2" max="-2" attributes="0"/>
+                          <Component id="removeAttachmentsCheckbox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="queueWarningLabel" min="-2" pref="15" max="-2" attributes="0"/>
                           <EmptySpace min="0" pref="4" max="32767" attributes="0"/>
@@ -533,7 +525,7 @@
                     <Property name="verticalAlignment" type="int" value="1"/>
                   </Properties>
                 </Component>
-                <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="removeAttachmentCheckbox">
+                <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="removeAttachmentsCheckbox">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -542,7 +534,7 @@
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Remove message attachments once the message has completed processing.&lt;br/&gt;Not applicable for messages that are errored or queued.&lt;/html&gt;"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="removeAttachmentCheckboxActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="removeAttachmentsCheckboxActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>
@@ -1016,6 +1008,7 @@
           <SubComponents>
             <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="sourceSourceDropdown">
               <Properties>
+                <Property name="maximumRowCount" type="int" value="20"/>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="3">
                     <StringItem index="0" value="NHIN CONNECT Gateway Listener"/>
@@ -1126,6 +1119,7 @@
           <SubComponents>
             <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="destinationSourceDropdown">
               <Properties>
+                <Property name="maximumRowCount" type="int" value="20"/>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="3">
                     <StringItem index="0" value="NHIN CONNECT Gateway Listener"/>
