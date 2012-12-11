@@ -79,6 +79,12 @@ public class RegexAttachmentHandler extends AttachmentHandler {
                     		attachmentString = attachmentString.replace(replaceKey, replaceValue);
                     	}
                     }
+                    
+                    // Don't store blank attachments.
+                    if (StringUtils.isBlank(attachmentString)) {
+                        return null;
+                    }
+                    
                     Attachment attachment = new Attachment(uuid, StringUtil.getBytesUncheckedChunked(attachmentString, Constants.ATTACHMENT_CHARSET), mimeType);
                     
                     attachmentString = null;
