@@ -17,19 +17,21 @@ public class DispatchResult {
     private Message processedMessage;
     private boolean markAsProcessed;
     private boolean removeContent;
+    private boolean removeAttachments;
     private boolean lockAcquired;
     private Response selectedResponse;
     private ChannelException channelException;
     
-    protected DispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean removeContent, boolean lockAcquired) {
-        this(messageId, processedMessage, selectedResponse, markAsProcessed, removeContent, lockAcquired, null);
+    protected DispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean removeContent, boolean removeAttachments, boolean lockAcquired) {
+        this(messageId, processedMessage, selectedResponse, markAsProcessed, removeContent, removeAttachments, lockAcquired, null);
     }
     
-    protected DispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean removeContent, boolean lockAcquired, ChannelException channelException) {
+    protected DispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean removeContent, boolean removeAttachments, boolean lockAcquired, ChannelException channelException) {
         this.messageId = messageId;
         this.processedMessage = processedMessage;
         this.markAsProcessed = markAsProcessed;
         this.removeContent = removeContent;
+        this.removeAttachments = removeAttachments;
         this.selectedResponse = selectedResponse;
         this.lockAcquired = lockAcquired;
         this.channelException = channelException;
@@ -51,6 +53,10 @@ public class DispatchResult {
         return removeContent;
     }
     
+    public boolean isRemoveAttachments() {
+        return removeAttachments;
+    }
+
     public boolean isLockAcquired() {
     	return lockAcquired;
     }

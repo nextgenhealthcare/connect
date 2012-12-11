@@ -16,6 +16,7 @@ public class StorageSettings {
     
     private boolean messageRecoveryEnabled = true;
     private boolean removeContentOnCompletion = false;
+    private boolean removeAttachmentsOnCompletion = false;
 
     private boolean storeAttachments = true;
     private boolean storeCustomMetaData = true;
@@ -87,6 +88,14 @@ public class StorageSettings {
 
     public void setRemoveContentOnCompletion(boolean removeContentOnCompletion) {
         this.removeContentOnCompletion = removeContentOnCompletion;
+    }
+
+    public boolean isRemoveAttachmentsOnCompletion() {
+        return removeAttachmentsOnCompletion;
+    }
+
+    public void setRemoveAttachmentsOnCompletion(boolean removeAttachmentsOnCompletion) {
+        this.removeAttachmentsOnCompletion = removeAttachmentsOnCompletion;
     }
 
     public boolean isStoreAttachments() {

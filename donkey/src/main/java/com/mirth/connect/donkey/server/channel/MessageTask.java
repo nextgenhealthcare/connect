@@ -87,6 +87,7 @@ final class MessageTask implements Callable<DispatchResult> {
             Message processedMessage = null;
             Response response = null;
             boolean removeContent = false;
+            boolean removeAttachments = false;
             ThreadUtils.checkInterruptedStatus();
 
             if (respondAfterProcessing) {
@@ -95,7 +96,12 @@ final class MessageTask implements Callable<DispatchResult> {
                 dao.close();
 
                 processedMessage = channel.process(sourceMessage, false);
-                removeContent = (storageSettings.isRemoveContentOnCompletion() && MessageController.getInstance().isMessageCompleted(processedMessage));
+                
+                boolean messageCompleted = MessageController.getInstance().isMessageCompleted(processedMessage);
+                if (messageCompleted) {
+                    removeContent = (storageSettings.isRemoveContentOnCompletion());
+                    removeAttachments = (storageSettings.isRemoveAttachmentsOnCompletion());
+                }
             } else {
                 // Block other threads from adding to the source queue until both the current commit and queue addition finishes
                 synchronized (channel.getSourceQueue()) {
@@ -109,7 +115,7 @@ final class MessageTask implements Callable<DispatchResult> {
             if (responseSelector.canRespond()) {
                 response = responseSelector.getResponse(sourceMessage, processedMessage);
             }
-            dispatchResult = new DispatchResult(persistedMessageId, processedMessage, response, respondAfterProcessing, removeContent, lockAcquired);
+            dispatchResult = new DispatchResult(persistedMessageId, processedMessage, response, respondAfterProcessing, removeContent, removeAttachments, lockAcquired);
 
             return dispatchResult;
         } catch (RuntimeException e) {

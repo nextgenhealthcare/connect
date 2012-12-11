@@ -204,6 +204,9 @@ public class PassthruDao implements DonkeyDao {
 
     @Override
     public void deleteMessageContent(String channelId, long messageId) {}
+    
+    @Override
+    public void deleteMessageAttachments(String channelId, long messageId) {}
 
     @Override
     public void addMetaDataColumn(String channelId, MetaDataColumn metaDataColumn) {}

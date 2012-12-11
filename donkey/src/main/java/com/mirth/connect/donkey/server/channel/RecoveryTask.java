@@ -120,9 +120,16 @@ public class RecoveryTask implements Callable<List<Message>> {
                     channel.finishMessage(message, true, !responseSelector.canRespond());
 
                     if (responseSelector.canRespond()) {
-                        boolean removeContent = (storageSettings.isRemoveContentOnCompletion() && MessageController.getInstance().isMessageCompleted(message));
+                        boolean removeContent = false;
+                        boolean removeAttachments = false;
+                        boolean messageCompleted = MessageController.getInstance().isMessageCompleted(message);
+                        
+                        if (messageCompleted) {
+                            removeContent = (storageSettings.isRemoveContentOnCompletion());
+                            removeAttachments = (storageSettings.isRemoveAttachmentsOnCompletion());
+                        }
 
-                        DispatchResult dispatchResult = new DispatchResult(message.getMessageId(), message, responseSelector.getResponse(sourceMessage, message), true, removeContent, false);
+                        DispatchResult dispatchResult = new DispatchResult(message.getMessageId(), message, responseSelector.getResponse(sourceMessage, message), true, removeContent, removeAttachments, false);
                         channel.getSourceConnector().handleRecoveredResponse(dispatchResult);
                     }
                 }

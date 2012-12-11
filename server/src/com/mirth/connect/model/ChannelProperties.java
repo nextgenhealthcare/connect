@@ -23,6 +23,7 @@ public class ChannelProperties implements Serializable {
     private MessageStorageMode messageStorageMode;
     private boolean encryptData;
     private boolean removeContentOnCompletion;
+    private boolean removeAttachmentsOnCompletion;
     private boolean initialStateStarted;
     private List<MetaDataColumn> metaDataColumns;
     private AttachmentHandlerProperties attachmentProperties;
@@ -68,6 +69,14 @@ public class ChannelProperties implements Serializable {
 
     public void setRemoveContentOnCompletion(boolean removeContentOnCompletion) {
         this.removeContentOnCompletion = removeContentOnCompletion;
+    }
+
+    public boolean isRemoveAttachmentsOnCompletion() {
+        return removeAttachmentsOnCompletion;
+    }
+
+    public void setRemoveAttachmentsOnCompletion(boolean removeAttachmentsOnCompletion) {
+        this.removeAttachmentsOnCompletion = removeAttachmentsOnCompletion;
     }
 
     public boolean isInitialStateStarted() {

@@ -178,6 +178,10 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
                     if (dispatchResult.isRemoveContent()) {
                         dao.deleteMessageContent(getChannelId(), messageId);
                     }
+                    
+                    if (dispatchResult.isRemoveAttachments()) {
+                        dao.deleteMessageAttachments(getChannelId(), messageId);
+                    }
                 }
                 
                 if (dao != null) {

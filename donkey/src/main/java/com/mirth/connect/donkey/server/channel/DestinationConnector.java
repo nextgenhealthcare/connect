@@ -316,14 +316,20 @@ public abstract class DestinationConnector extends Connector implements Connecto
                          * retrieve a list of the other connector messages for this message id and
                          * check if the message is "completed"
                          */
-                        if (storageSettings.isRemoveContentOnCompletion()) {
+                        if (storageSettings.isRemoveContentOnCompletion() || storageSettings.isRemoveAttachmentsOnCompletion()) {
                             Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(getChannelId(), connectorMessage.getMessageId());
 
                             // update the map with the message that was just sent
                             connectorMessages.put(getMetaDataId(), connectorMessage);
 
                             if (MessageController.getInstance().isMessageCompleted(connectorMessages)) {
-                                dao.deleteMessageContent(getChannelId(), connectorMessage.getMessageId());
+                                if (storageSettings.isRemoveContentOnCompletion()) {
+                                    dao.deleteMessageContent(getChannelId(), connectorMessage.getMessageId());
+                                }
+                                
+                                if (storageSettings.isRemoveAttachmentsOnCompletion()) {
+                                    dao.deleteMessageAttachments(getChannelId(), connectorMessage.getMessageId());
+                                }
                             }
                         }
 

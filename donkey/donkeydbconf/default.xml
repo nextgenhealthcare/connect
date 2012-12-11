@@ -303,6 +303,11 @@
 		WHERE message_id = ?
 	</query>
 	
+	<query id="deleteMessageAttachments">
+		DELETE FROM d_ma${localChannelId}
+		WHERE message_id = ?
+	</query>
+	
 	<query id="deleteAllMessages">
 		DELETE FROM d_m${localChannelId}
 	</query>

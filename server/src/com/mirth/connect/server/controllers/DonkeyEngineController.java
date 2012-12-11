@@ -471,6 +471,7 @@ public class DonkeyEngineController implements EngineController {
     public static StorageSettings getStorageSettings(MessageStorageMode messageStorageMode, ChannelProperties channelProperties) {
         StorageSettings storageSettings = new StorageSettings();
         storageSettings.setRemoveContentOnCompletion(channelProperties.isRemoveContentOnCompletion());
+        storageSettings.setRemoveAttachmentsOnCompletion(channelProperties.isRemoveAttachmentsOnCompletion());
 
         // we assume that all storage settings are enabled by default
         switch (messageStorageMode) {

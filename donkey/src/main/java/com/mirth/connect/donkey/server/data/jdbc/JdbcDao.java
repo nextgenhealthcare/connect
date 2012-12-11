@@ -753,6 +753,19 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         }
     }
+    
+    @Override
+    public void deleteMessageAttachments(String channelId, long messageId) {
+        logger.debug(channelId + "/" + messageId + ": deleting attachments");
+        
+        try {
+            PreparedStatement statement = prepareStatement("deleteMessageAttachments", channelId);
+            statement.setLong(1, messageId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        }
+    }
 
     @Override
     public List<MetaDataColumn> getMetaDataColumns(String channelId) {

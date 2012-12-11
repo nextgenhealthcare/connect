@@ -787,7 +787,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 throw channelException;
             }
 
-            return new DispatchResult(task.getPersistedMessageId(), null, null, false, false, task.isLockAcquired(), channelException);
+            return new DispatchResult(task.getPersistedMessageId(), null, null, false, false, false, task.isLockAcquired(), channelException);
         } finally {
             if (future != null) {
                 synchronized (channelTasks) {
@@ -1146,8 +1146,15 @@ public class Channel implements Startable, Stoppable, Runnable {
                 dao.markAsProcessed(channelId, finalMessage.getMessageId());
                 finalMessage.setProcessed(true);
 
-                if (storageSettings.isRemoveContentOnCompletion() && MessageController.getInstance().isMessageCompleted(finalMessage)) {
-                    dao.deleteMessageContent(channelId, finalMessage.getMessageId());
+                boolean messageCompleted = MessageController.getInstance().isMessageCompleted(finalMessage);
+                if (messageCompleted) {
+                    if (storageSettings.isRemoveContentOnCompletion()) {
+                        dao.deleteMessageContent(channelId, finalMessage.getMessageId());
+                    }
+                    
+                    if (storageSettings.isRemoveAttachmentsOnCompletion()) {
+                        dao.deleteMessageAttachments(channelId, finalMessage.getMessageId());
+                    }
                 }
             }
         }

@@ -65,6 +65,8 @@ public interface DonkeyDao {
 
     public void deleteMessageContent(String channelId, long messageId);
     
+    public void deleteMessageAttachments(String channelId, long messageId);
+    
     public void deleteAllMessages(String channelId);
 
     public void createChannel(String channelId, long localChannelId);
