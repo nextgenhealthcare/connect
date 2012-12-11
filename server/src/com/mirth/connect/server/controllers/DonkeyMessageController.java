@@ -363,68 +363,55 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds, int userId) {
-        Map<String, Object> params = getParameters(filter, channelId, null, null);
-        params.put("userId", userId);
-        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
-
-        SqlConfig.getSqlSessionManager().update("Message.insertReprocessingTasks", params);
-
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
         DataType dataType = engineController.getDeployedChannel(channelId).getSourceConnector().getInboundDataType();
-
-        List<Map<String, Object>> messages;
         Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
         
-        do {
-            messages = SqlConfig.getSqlSessionManager().selectList("Message.selectReprocessingTasks", params);
+        Map<String, Object> params = getParameters(filter, channelId, null, null);
+        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
+        
+        List<Long> messageIds = SqlConfig.getSqlSessionManager().selectList("Message.selectMessageIdsForReprocessing", params);
+        
+        params.clear();
+        params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
+        
+        for (Long messageId : messageIds) {
+            params.put("messageId", messageId);
+            Map<String, Object> messageResult = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageForReprocessing", params);
+            
+            String rawContent = (String) messageResult.get("content");
+            String encryptedRawContent = null;
+            RawMessage rawMessage = null;
 
-            for (Map<String, Object> message : messages) {
-                Integer reprocessingId = (Integer) message.get("reprocessing_id");
-                Long messageId = (Long) message.get("message_id");
-                String rawContent = (String) message.get("content");
-                String encryptedRawContent = null;
-                RawMessage rawMessage = null;
-
-                if ((Boolean) message.get("is_encrypted")) {
-                    encryptedRawContent = rawContent;
-                    rawContent = encryptor.decrypt(encryptedRawContent);
-                }
-
-                ConnectorMessage connectorMessage = new ConnectorMessage();
-                connectorMessage.setChannelId(channelId);
-                connectorMessage.setMessageId(messageId);
-                connectorMessage.setMetaDataId(0);
-                connectorMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, rawContent, encryptedRawContent));
-                
-                if (dataType.getType().equals(DataTypeFactory.DICOM)) {
-                    rawMessage = new RawMessage(DICOMUtil.getDICOMRawBytes(connectorMessage));
-                } else {
-                    rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(AttachmentUtil.reAttachMessage(rawContent, connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
-                }
-
-                if (replace) {
-                    rawMessage.setMessageIdToOverwrite(messageId);
-                }
-                
-                rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);
-                Throwable error = null;
-
-                try {
-                    engineController.dispatchRawMessage(channelId, rawMessage);
-                } catch (Throwable e) {
-                    //TODO decide what to do on error. Currently it will loop indefinitely.
-                    logger.error(e);
-                    error = e;
-                }
-
-                if (error == null) {
-                    params.put("reprocessingId", reprocessingId);
-                    SqlConfig.getSqlSessionManager().update("Message.updateReprocessingTasks", params);
-                }
+            if ((Boolean) messageResult.get("is_encrypted")) {
+                encryptedRawContent = rawContent;
+                rawContent = encryptor.decrypt(encryptedRawContent);
             }
-        } while (messages != null && messages.size() > 0);
+            
+            ConnectorMessage connectorMessage = new ConnectorMessage();
+            connectorMessage.setChannelId(channelId);
+            connectorMessage.setMessageId(messageId);
+            connectorMessage.setMetaDataId(0);
+            connectorMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, rawContent, encryptedRawContent));
+            
+            if (dataType.getType().equals(DataTypeFactory.DICOM)) {
+                rawMessage = new RawMessage(DICOMUtil.getDICOMRawBytes(connectorMessage));
+            } else {
+                rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(AttachmentUtil.reAttachMessage(rawContent, connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
+            }
 
-        SqlConfig.getSqlSessionManager().delete("Message.deleteReprocessingTasks", params);
+            if (replace) {
+                rawMessage.setMessageIdToOverwrite(messageId);
+            }
+            
+            rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);
+
+            try {
+                engineController.dispatchRawMessage(channelId, rawMessage);
+            } catch (Throwable e) {
+                logger.error(e);
+            }
+        }
     }
 
     @Override

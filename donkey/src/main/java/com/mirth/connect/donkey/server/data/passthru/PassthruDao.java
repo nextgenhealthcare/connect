@@ -185,6 +185,9 @@ public class PassthruDao implements DonkeyDao {
 
     @Override
     public void markAsProcessed(String channelId, long messageId) {}
+    
+    @Override
+    public void resetMessage(String channelId, long messageId) {}
 
     @Override
     public void createChannel(String channelId, long localChannelId) {}

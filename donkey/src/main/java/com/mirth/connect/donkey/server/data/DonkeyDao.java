@@ -58,6 +58,8 @@ public interface DonkeyDao {
     public void updateResponseMap(ConnectorMessage connectorMessage);
     
     public void markAsProcessed(String channelId, long messageId);
+    
+    public void resetMessage(String channelId, long messageId);
 
     public void deleteMessage(String channelId, long messageId, boolean deleteStatistics);
 

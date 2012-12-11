@@ -147,11 +147,12 @@ final class MessageTask implements Callable<DispatchResult> {
             dateCreated = message.getDateCreated();
             dao.insertMessage(message);
         } else {
+            messageId = rawMessage.getMessageIdToOverwrite();
             List<Integer> metaDataIds = new ArrayList<Integer>();
             metaDataIds.addAll(rawMessage.getDestinationMetaDataIds());
             metaDataIds.add(0);
-            dao.deleteConnectorMessages(channelId, rawMessage.getMessageIdToOverwrite(), metaDataIds, true);
-            messageId = rawMessage.getMessageIdToOverwrite();
+            dao.deleteConnectorMessages(channelId, messageId, metaDataIds, true);
+            dao.resetMessage(channelId, messageId);
             dateCreated = Calendar.getInstance();
         }
 

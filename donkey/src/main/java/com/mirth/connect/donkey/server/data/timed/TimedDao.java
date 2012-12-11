@@ -249,6 +249,17 @@ public class TimedDao implements DonkeyDao {
             timer.log("markAsProcessed", System.currentTimeMillis() - startTime);
         }
     }
+    
+    @Override
+    public void resetMessage(String channelId, long messageId) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            dao.resetMessage(channelId, messageId);
+        } finally {
+            timer.log("resetMessage", System.currentTimeMillis() - startTime);
+        }
+    }
 
     @Override
     public void deleteMessage(String channelId, long messageId, boolean deleteStatistics) {

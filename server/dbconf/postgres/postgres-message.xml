@@ -47,32 +47,18 @@
 		) AS subquery
 	</select>
 	
-	<select id="selectReprocessingTasks" parameterType="map" resultType="map">
-		SELECT rp.reprocessing_id, rp.message_id, mc.content, mc.is_encrypted
-		FROM reprocessing rp
-		JOIN d_mc${localChannelId} mc ON rp.message_id = mc.message_id AND mc.metadata_id = 0 AND mc.content_type = 'R'
-		WHERE completed = FALSE
-		AND user_id = #{userId}
-		ORDER BY reprocessing_id ASC
-		LIMIT 100
+	<select id="selectMessageIdsForReprocessing" parameterType="map" resultType="long">
+		SELECT DISTINCT m.id
+		<include refid="searchMessagesBody" />
 	</select>
 	
-	<insert id="insertReprocessingTasks" parameterType="map">
-		INSERT INTO reprocessing (user_id, message_id)
-		SELECT DISTINCT #{userId}, m.id
-		<include refid="searchMessagesBody" />
-	</insert>
-	
-	<update id="updateReprocessingTasks" parameterType="map">
-		UPDATE reprocessing
-		SET completed = TRUE
-		WHERE reprocessing_id = #{reprocessingId}
-	</update>
-	
-	<delete id="deleteReprocessingTasks" parameterType="map">
-		DELETE FROM reprocessing
-		WHERE user_id = #{userId}
-	</delete>
+	<select id="selectMessageForReprocessing" parameterType="map" resultType="map">
+		SELECT content, is_encrypted
+		FROM d_mc${localChannelId}
+		WHERE message_id = #{messageId}
+		AND metadata_id = 0
+		AND content_type = 'R'
+	</select>
 	
 	<sql id="searchMessagesBody">
 		FROM d_m${localChannelId} m

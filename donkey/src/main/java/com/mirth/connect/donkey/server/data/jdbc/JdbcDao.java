@@ -655,6 +655,19 @@ public class JdbcDao implements DonkeyDao {
             throw new DonkeyDaoException(e);
         }
     }
+    
+    @Override
+    public void resetMessage(String channelId, long messageId) {
+        logger.debug(channelId + "/" + messageId + ": resetting message");
+        
+        try {
+            PreparedStatement statement = prepareStatement("resetMessage", channelId);
+            statement.setLong(1, messageId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        }
+    }
 
     @Override
     public Map<String, Long> getLocalChannelIds() {

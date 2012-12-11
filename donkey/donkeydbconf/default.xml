@@ -90,6 +90,11 @@
 		WHERE id = ?
 	</query>
 	
+	<query id="resetMessage">
+		UPDATE d_m${localChannelId} SET processed = FALSE, attempted_response = FALSE, response_error = NULL
+		WHERE id = ?
+	</query>
+	
 	<query id="getLocalChannelIds">
 		SELECT channel_id, local_channel_id
 		FROM d_channels
