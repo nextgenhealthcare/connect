@@ -72,6 +72,19 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     @Override
     public Object getTableData(String channelId) {
         String connectorName = channelId + _SOURCE_CONNECTOR;
+        
+        if (currentStates != null && currentStates.containsKey(connectorName)) {
+            String[] stateData = currentStates.get(connectorName);
+            return new CellData(iconMap.get(stateData[0]), stateData[1]);
+        } else {
+            return new CellData(blackBullet, "Unknown");
+        }
+    }
+    
+    @Override
+    public Object getTableData(String channelId, Integer metaDataId) {
+        String connectorName = channelId + "_" + metaDataId;
+        
         if (currentStates != null && currentStates.containsKey(connectorName)) {
             String[] stateData = currentStates.get(connectorName);
             return new CellData(iconMap.get(stateData[0]), stateData[1]);

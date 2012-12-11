@@ -24,6 +24,8 @@ public abstract class DashboardColumnPlugin extends ClientPlugin {
     public abstract String getColumnHeader();
 
     public abstract Object getTableData(String channelId);
+    
+    public abstract Object getTableData(String channelId, Integer metaDataId);
 
     public abstract TableCellRenderer getCellRenderer();
 

@@ -49,7 +49,7 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
 
         for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
             if (plugin.isDisplayFirst()) {
-                row[i++] = plugin.getTableData(channelId);
+                row[i++] = plugin.getTableData(channelId, status.getMetaDataId());
             }
         }
 
@@ -60,7 +60,7 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
 
         for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {
             if (!plugin.isDisplayFirst()) {
-                row[i++] = plugin.getTableData(channelId);
+                row[i++] = plugin.getTableData(channelId, status.getMetaDataId());
             }
         }
 
