@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.configuration.ConfigurationConverter;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -139,18 +141,22 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
 
     @Override
     public Properties getProperties() {
-        Properties properties = new Properties();
-
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        
+        if (getDirBase() != null) {
+            configuration.setProperty(DIR_BASE, getDirBase());
+        }
+        
         if (getDatabase() != null) {
-            properties.put(DATABASE, getDatabase());
+            configuration.setProperty(DATABASE, getDatabase());
         }
 
         if (getDatabaseUrl() != null) {
-            properties.put(DATABASE_URL, getDatabaseUrl());
+            configuration.setProperty(DATABASE_URL, getDatabaseUrl());
         }
 
         if (getMappedDatabaseDriver() != null) {
-            properties.put(DATABASE_DRIVER, getMappedDatabaseDriver());
+            configuration.setProperty(DATABASE_DRIVER, getMappedDatabaseDriver());
         }
 
         /*
@@ -158,28 +164,24 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
          * password properties
          */
         if (getDatabaseUsername() != null) {
-            properties.put(DATABASE_USERNAME, getDatabaseUsername());
+            configuration.setProperty(DATABASE_USERNAME, getDatabaseUsername());
         } else {
-            properties.put(DATABASE_USERNAME, StringUtils.EMPTY);
+            configuration.setProperty(DATABASE_USERNAME, StringUtils.EMPTY);
         }
 
         if (getDatabasePassword() != null) {
-            properties.put(DATABASE_PASSWORD, getDatabasePassword());
+            configuration.setProperty(DATABASE_PASSWORD, getDatabasePassword());
         } else {
-            properties.put(DATABASE_PASSWORD, StringUtils.EMPTY);
+            configuration.setProperty(DATABASE_PASSWORD, StringUtils.EMPTY);
         }
         
         if (getDatabaseMaxConnections() != null) {
-            properties.put(DATABASE_MAX_CONNECTIONS, getDatabaseMaxConnections().toString());
+            configuration.setProperty(DATABASE_MAX_CONNECTIONS, getDatabaseMaxConnections().toString());
         } else {
-            properties.put(DATABASE_MAX_CONNECTIONS, StringUtils.EMPTY);
+            configuration.setProperty(DATABASE_MAX_CONNECTIONS, StringUtils.EMPTY);
         }
 
-        if (getDirBase() != null) {
-            properties.put(DIR_BASE, getDirBase());
-        }
-
-        return properties;
+        return ConfigurationConverter.getProperties(configuration);
     }
 
     @Override
