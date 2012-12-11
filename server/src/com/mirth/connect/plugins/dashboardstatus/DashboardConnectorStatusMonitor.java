@@ -253,8 +253,8 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
                 channelName = channel.getName();
                 // grab the channel's log from the HashMap, if not exist, create
                 // one.
-                if (connectorInfoLogs.containsKey(channelName)) {
-                    channelLog = connectorInfoLogs.get(channelName);
+                if (connectorInfoLogs.containsKey(channelId)) {
+                    channelLog = connectorInfoLogs.get(channelId);
                 } else {
                     channelLog = new LinkedList<String[]>();
                 }
@@ -288,17 +288,17 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
                     if (channelLog.size() == MAX_LOG_SIZE) {
                         channelLog.removeLast();
                     }
-                    channelLog.addFirst(new String[] { String.valueOf(logId), channelName, dateFormat.format(timestamp), connectorType, event.toString(), information });
+                    channelLog.addFirst(new String[] { String.valueOf(logId), channelName, dateFormat.format(timestamp), connectorType, event.toString(), information, channelId, new Integer(metaDataId).toString() });
 
                     if (entireConnectorInfoLogs.size() == MAX_LOG_SIZE) {
                         entireConnectorInfoLogs.removeLast();
                     }
-                    entireConnectorInfoLogs.addFirst(new String[] { String.valueOf(logId), channelName, dateFormat.format(timestamp), connectorType, event.toString(), information });
+                    entireConnectorInfoLogs.addFirst(new String[] { String.valueOf(logId), channelName, dateFormat.format(timestamp), connectorType, event.toString(), information, channelId, new Integer(metaDataId).toString() });
 
                     logId++;
 
                     // put the channel log into the HashMap.
-                    connectorInfoLogs.put(channelName, channelLog);
+                    connectorInfoLogs.put(channelId, channelLog);
                 }
             }
 
