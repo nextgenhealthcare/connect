@@ -92,6 +92,7 @@ import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTimePicker;
 import com.mirth.connect.client.ui.util.DisplayUtil;
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
@@ -100,6 +101,7 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
+import com.mirth.connect.donkey.util.DefaultSerializer;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.converters.DataTypeFactory;
@@ -1642,7 +1644,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         }
 
-        String content;
+        String content = null;
 
         content = (rawMessage == null) ? null : rawMessage.getContent();
         if (content != null) {
@@ -1668,11 +1670,22 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
         setCorrectDocument(EncodedMessageTextPane, content, outboundDataType);
 
-        content = (sentMessage == null) ? null : sentMessage.getContent();
+        if (sentMessage != null) {
+            if (metaDataId > 0) {
+                DefaultSerializer serializer = new DefaultSerializer();
+                Object sentObject = serializer.deserialize(sentMessage.getContent());
+                if (sentObject instanceof ConnectorProperties) {
+                    content = ((ConnectorProperties) sentObject).toFormattedString();
+                }
+            } else {
+                content = sentMessage.getContent();
+            }
+        }
         if (content != null) {
             MessagesRadioPane.add(SentMessageRadioButton);
         }
         setCorrectDocument(SentMessageTextPane, content, outboundDataType);
+
 
         content = (responseMessage == null) ? null : responseMessage.getContent();
         if (content != null) {
