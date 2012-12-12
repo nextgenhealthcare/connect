@@ -35,7 +35,6 @@ import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
-import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.server.Constants;
@@ -322,9 +321,18 @@ public class DatabaseReceiver extends PollConnector {
         // If a data source already exists for the current properties, do nothing
         if (dataSource != null) {
             BasicDataSource bds = (BasicDataSource) dataSource;
-            if (databaseReceiverProperties.getDriver().equals(bds.getDriverClassName()) && databaseReceiverProperties.getUsername().equals(bds.getUsername()) && databaseReceiverProperties.getPassword().equals(bds.getPassword()) && databaseReceiverProperties.getUrl().equals(bds.getUrl())) {
-                // Do Nothing
-                return;
+            if (!bds.isClosed()) {
+                if (databaseReceiverProperties.getDriver().equals(bds.getDriverClassName()) && databaseReceiverProperties.getUsername().equals(bds.getUsername()) && databaseReceiverProperties.getPassword().equals(bds.getPassword()) && databaseReceiverProperties.getUrl().equals(bds.getUrl())) {
+                    // Do Nothing
+                    return;
+                } else {
+                    try {
+                        // If we are going to create a new data source, we need to make sure the current one is closed.
+                        bds.close();
+                    } catch (SQLException e) {
+                        // Do Nothing
+                    }
+                }
             }
         }
 
