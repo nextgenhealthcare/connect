@@ -45,6 +45,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class DocumentDispatcher extends DestinationConnector {
@@ -107,7 +108,7 @@ public class DocumentDispatcher extends DestinationConnector {
         try {
             File file = createFile(documentDispatcherProperties.getHost() + "/" + documentDispatcherProperties.getOutputPattern());
             logger.info("Writing document to: " + file.getAbsolutePath());
-            writeDocument(documentDispatcherProperties.getTemplate(), file, documentDispatcherProperties);
+            writeDocument(documentDispatcherProperties.getTemplate(), file, documentDispatcherProperties, connectorMessage);
 
             responseData = "Document successfully written: " + documentDispatcherProperties.getOutputPattern();
             responseStatus = Status.SENT;
@@ -125,7 +126,7 @@ public class DocumentDispatcher extends DestinationConnector {
         return new Response(responseStatus, responseData, responseError);
     }
 
-    private void writeDocument(String template, File file, DocumentDispatcherProperties documentDispatcherProperties) throws Exception {
+    private void writeDocument(String template, File file, DocumentDispatcherProperties documentDispatcherProperties, ConnectorMessage connectorMessage) throws Exception {
         // add tags to the template to create a valid HTML document
         StringBuilder contents = new StringBuilder();
         if (template.lastIndexOf("<html") < 0) {
@@ -141,13 +142,15 @@ public class DocumentDispatcher extends DestinationConnector {
         } else {
             contents.append(template);
         }
+        
+        String stringContents = AttachmentUtil.reAttachMessage(contents.toString(), connectorMessage);
 
         if (documentDispatcherProperties.getDocumentType().toLowerCase().equals("pdf")) {
             FileOutputStream renderFos = null;
 
             try {
                 DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                org.w3c.dom.Document document = builder.parse(new InputSource(new StringReader(contents.toString())));
+                org.w3c.dom.Document document = builder.parse(new InputSource(new StringReader(stringContents)));
 
                 ITextRenderer renderer = new ITextRenderer();
                 renderer.setDocument(document, null);
@@ -188,7 +191,8 @@ public class DocumentDispatcher extends DestinationConnector {
 
             try {
                 document = new com.lowagie.text.Document();
-                ByteArrayInputStream bais = new ByteArrayInputStream(contents.toString().getBytes());
+                //TODO verify the character encoding
+                ByteArrayInputStream bais = new ByteArrayInputStream(stringContents.getBytes());
                 RtfWriter2.getInstance(document, new FileOutputStream(file));
                 document.open();
                 HtmlParser parser = new HtmlParser();

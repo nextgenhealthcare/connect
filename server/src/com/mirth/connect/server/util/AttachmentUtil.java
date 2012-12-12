@@ -202,6 +202,10 @@ public class AttachmentUtil {
         return StringUtils.newString(reAttachMessage(messageData, message, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
     }
     
+    public static String reAttachMessage(String raw, ConnectorMessage message) {
+        return StringUtils.newString(reAttachMessage(raw, message, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
+    }
+    
     public static boolean hasAttachmentKeys(String raw) {
         if (raw.contains(PREFIX + DICOM_KEY + SUFFIX) || raw.contains(PREFIX + ATTACHMENT_KEY)) {
             return true;
