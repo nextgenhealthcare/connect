@@ -19,7 +19,7 @@ import org.mozilla.javascript.Scriptable;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -75,7 +75,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
                 e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 0, "Filter/Transformer", null);
             }
 
-            logger.error(ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
+            logger.error(ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_300, null, e));
             throw new JavaScriptInitializationException("Error initializing JavaScript Filter/Transformer", e);
         }
     }
@@ -154,7 +154,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
                 }
 
                 //TODO change Error code to something that's both filter and transformer
-                throw new FilterTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_300, "Error evaluating filter/transformer", t));
+                throw new FilterTransformerException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_300, "Error evaluating filter/transformer", t));
             } finally {
                 Context.exit();
             }

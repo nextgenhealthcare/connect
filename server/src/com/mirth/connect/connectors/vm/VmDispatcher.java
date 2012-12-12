@@ -26,7 +26,7 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.model.converters.DataTypeFactory;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
@@ -114,7 +114,7 @@ public class VmDispatcher extends DestinationConnector {
             responseStatus = Status.SENT;
         } catch (Throwable e) {
             responseData = ErrorMessageBuilder.buildErrorResponse("Error routing message", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_412, "Error routing message", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_412, "Error routing message", e);
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
         }

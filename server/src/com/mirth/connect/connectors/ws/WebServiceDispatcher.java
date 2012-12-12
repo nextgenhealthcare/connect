@@ -55,7 +55,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -278,19 +278,19 @@ public class WebServiceDispatcher extends DestinationConnector {
             } catch (Exception e) {
                 // Leave the response status as QUEUED for ConnectException, otherwise ERROR
                 if ((e.getClass() == ConnectException.class) || ((e.getCause() != null) && (e.getCause().getClass() == ConnectException.class))) {
-                    alertController.sendAlerts(getChannelId(), Constants.ERROR_410, "Connection refused.", e);
+                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_410, "Connection refused.", e);
                 } else {
                     responseData = ErrorMessageBuilder.buildErrorResponse("Error invoking web service", e);
-                    responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_410, "Error invoking web service", e);
-                    alertController.sendAlerts(getChannelId(), Constants.ERROR_410, "Error invoking web service.", e);
+                    responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_410, "Error invoking web service", e);
+                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_410, "Error invoking web service.", e);
                 }
             }
 
         } catch (Exception e) {
             // Set the response status to ERROR if it failed to create the dispatch
             responseData = ErrorMessageBuilder.buildErrorResponse("Error creating web service dispatch", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_410, "Error creating web service dispatch", e);
-            alertController.sendAlerts(getChannelId(), Constants.ERROR_410, "Error creating web service dispatch.", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_410, "Error creating web service dispatch", e);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_410, "Error creating web service dispatch.", e);
         }
 
         return new Response(responseStatus, responseData, responseError);

@@ -37,7 +37,7 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -175,7 +175,7 @@ public class DatabaseReceiver extends PollConnector {
                     scriptResult = jsExecutor.execute(new DatabaseReceiverTask(queryScriptId, null));
                 } catch (JavaScriptExecutorException e) {
                     logger.error("Error executing " + connectorProperties.getName() + " script " + queryScriptId + ".", e.getCause());
-                    alertController.sendAlerts(getChannelId(), Constants.ERROR_406, null, e.getCause());
+                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, null, e.getCause());
                 }
 
                 if (scriptResult instanceof NativeJavaObject) {
@@ -259,7 +259,7 @@ public class DatabaseReceiver extends PollConnector {
         } catch (InterruptedException e) {
             throw e;
         } catch (Exception e) {
-            alertController.sendAlerts(getChannelId(), Constants.ERROR_406, null, e);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, null, e);
 //            throw e;
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
@@ -311,7 +311,7 @@ public class DatabaseReceiver extends PollConnector {
             throw e;
         } catch (Exception e) {
             logger.error("Error in channel: " + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName(), ExceptionUtils.getRootCause(e));
-            alertController.sendAlerts(getChannelId(), Constants.ERROR_406, null, e);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, null, e);
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
         }

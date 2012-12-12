@@ -27,7 +27,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -227,8 +227,8 @@ public class DICOMDispatcher extends DestinationConnector {
             responseStatus = Status.SENT;
         } catch (Exception e) {
             responseData = ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_415, e.getMessage(), null);
-            alertController.sendAlerts(getChannelId(), Constants.ERROR_415, e.getMessage(), null);
+            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_415, e.getMessage(), null);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_415, e.getMessage(), null);
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
         }

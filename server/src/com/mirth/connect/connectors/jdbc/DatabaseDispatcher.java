@@ -33,7 +33,7 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ChannelController;
@@ -198,9 +198,9 @@ public class DatabaseDispatcher extends DestinationConnector {
             } catch (SQLException e1) {
                 // TODO: Close quietly?
             }
-            alertController.sendAlerts(getChannelId(), Constants.ERROR_406, "Error writing to database", e);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, "Error writing to database", e);
             responseData = ErrorMessageBuilder.buildErrorResponse("Error writing to database", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_406, "Error writing to database", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_406, "Error writing to database", e);
             // TODO: Error data
 //            messageObjectController.setError(messageObject, Constants.ERROR_406, "Error writing to database: ", e, null);
 //            connector.handleException(e);

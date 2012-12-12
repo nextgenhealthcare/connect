@@ -42,7 +42,7 @@ import com.mirth.connect.model.converters.BatchMessageProcessor;
 import com.mirth.connect.model.converters.BatchMessageProcessorException;
 import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.delimited.DelimitedSerializer;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
@@ -172,7 +172,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 }
             }
         } catch (Throwable t) {
-            alertController.sendAlerts(getChannelId(), Constants.ERROR_403, null, t);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_403, null, t);
             // TODO: handleException
 //            handleException(new Exception(t));
         } finally {
@@ -308,7 +308,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 }
             }
         } catch (Exception e) {
-            alertController.sendAlerts(getChannelId(), Constants.ERROR_403, "", e);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_403, "", e);
             // TODO: handleException
 //            handleException(e);
         }

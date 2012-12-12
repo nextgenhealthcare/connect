@@ -26,7 +26,7 @@ import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.ncpdp.NCPDPReference;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 
 public class NCPDPSerializer implements IXMLSerializer {
@@ -136,7 +136,7 @@ public class NCPDPSerializer implements IXMLSerializer {
             reader.parse(new InputSource(new StringReader(source.replaceAll(">\\s+<", "><"))));
             return handler.getOutput().toString();
         } catch (Exception e) {
-            throw new SerializerException("Error converting XML to NCPDP message.", e, ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_500, "Error converting XML to NCPDP", e));
+            throw new SerializerException("Error converting XML to NCPDP message.", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to NCPDP", e));
         }
     }
 
@@ -150,7 +150,7 @@ public class NCPDPSerializer implements IXMLSerializer {
             ncpdpReader.parse(new InputSource(new StringReader(source)));
             return stringWriter.toString();
         } catch (Exception e) {
-            throw new SerializerException("Error converting NCPDP message to XML.", e, ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_500, "Error converting NCPDP to XML", e));
+            throw new SerializerException("Error converting NCPDP message to XML.", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting NCPDP to XML", e));
         }
     }
 

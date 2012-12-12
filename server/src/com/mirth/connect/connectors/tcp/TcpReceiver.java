@@ -49,7 +49,7 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.model.converters.DataTypeFactory;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
@@ -366,7 +366,7 @@ public class TcpReceiver extends SourceConnector {
                                         done = true;
                                         // Set the return value and send an alert
                                         t = new InterruptedException("TCP worker thread was interrupted before the message was sent (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                                        alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Error receiving message.", t);
+                                        alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_411, "Error receiving message.", t);
                                         break;
                                     }
                                 }
@@ -400,7 +400,7 @@ public class TcpReceiver extends SourceConnector {
                             // Set the return value and send an alert
                             t = new Exception("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
                             logger.error("Error receiving message (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                            alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Error receiving message.", e);
+                            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_411, "Error receiving message.", e);
                             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, "Error receiving message: " + e.getMessage() + " ");
                         }
                     } else {

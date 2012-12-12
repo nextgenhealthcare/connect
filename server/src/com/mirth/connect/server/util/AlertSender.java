@@ -9,7 +9,7 @@
 
 package com.mirth.connect.server.util;
 
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 
@@ -22,6 +22,6 @@ public class AlertSender {
 	}
 	
 	public void sendAlert(String errorMessage) {
-		alertController.sendAlerts(channelId, Constants.ERROR_302, errorMessage, null);
+		alertController.sendAlerts(channelId, ErrorConstants.ERROR_302, errorMessage, null);
 	}
 }

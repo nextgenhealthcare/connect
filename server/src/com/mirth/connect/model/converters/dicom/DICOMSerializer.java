@@ -46,7 +46,7 @@ import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.util.DICOMUtil;
 
@@ -139,7 +139,7 @@ public class DICOMSerializer implements IXMLSerializer {
             parser.parse(new InputSource(new ByteArrayInputStream(documentBytes)), contentHandler);
             return StringUtils.newStringUsAscii(Base64Util.encodeBase64(DICOMUtil.dicomObjectToByteArray(dicomObject)));
         } catch (Exception e) {
-            throw new SerializerException(e, ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_500, "Error converting XML to DICOM", e));
+            throw new SerializerException(e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to DICOM", e));
         }
     }
 
@@ -183,7 +183,7 @@ public class DICOMSerializer implements IXMLSerializer {
                 }
             }
         } catch (Exception e) {
-            throw new SerializerException(e, ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_500, "Error converting DICOM to XML", e));
+            throw new SerializerException(e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting DICOM to XML", e));
         }
     }
 

@@ -30,7 +30,7 @@ import com.mirth.connect.model.converters.BatchMessageProcessor;
 import com.mirth.connect.model.converters.BatchMessageProcessorException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 
 public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
@@ -73,7 +73,7 @@ public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
         } catch (Exception e) {
             String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();
             logger.error(exceptionMessage);
-            throw new SerializerException(e, ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_500, "Error converting XML to delimited text", e));
+            throw new SerializerException(e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to delimited text", e));
         }
         return builder.toString();
     }

@@ -26,7 +26,7 @@ import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 
 public class EDISerializer implements IXMLSerializer {
@@ -91,7 +91,7 @@ public class EDISerializer implements IXMLSerializer {
 		try {
 			xr = XMLReaderFactory.createXMLReader();
 		} catch (SAXException e) {
-			throw new SerializerException(e.getMessage(), ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_500, "Error converting XML to EDI", e));
+			throw new SerializerException(e.getMessage(), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
 		}
 		EDIXMLHandler handler = new EDIXMLHandler(segmentDelim, elementDelim, subelementDelim);
 		xr.setContentHandler(handler);
@@ -100,7 +100,7 @@ public class EDISerializer implements IXMLSerializer {
             //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
             xr.parse(new InputSource(new StringReader(source.replaceAll("</([^>]*)>\\s+<", "</$1><"))));
 		} catch (Exception e) {
-			throw new SerializerException(e.getMessage(), ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_500, "Error converting XML to EDI", e));
+			throw new SerializerException(e.getMessage(), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
 		}
 		return handler.getOutput().toString();
 	}

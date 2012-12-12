@@ -27,7 +27,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
@@ -84,7 +84,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
             return jsExecutor.execute(new JavaScriptDispatcherTask(message));
         } catch (JavaScriptExecutorException e) {
             // TODO: log error?
-            return new Response(Status.ERROR, ErrorMessageBuilder.buildErrorResponse("Error executing script", e), ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_414, "Error executing script", e));
+            return new Response(Status.ERROR, ErrorMessageBuilder.buildErrorResponse("Error executing script", e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Error executing script", e));
         }
     }
     
@@ -109,7 +109,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
             if (compiledScript == null) {
                 // TODO: throw exception?
                 responseData = ErrorMessageBuilder.buildErrorResponse("Script not found in cache", null);
-                responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_414, "Script not found in cache", null);
+                responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Script not found in cache", null);
                 responseStatus = Status.ERROR;
             } else {
                 Object result = compiledScript.exec(context, scope);

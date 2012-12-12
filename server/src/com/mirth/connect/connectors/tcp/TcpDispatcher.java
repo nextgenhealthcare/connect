@@ -40,7 +40,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -206,9 +206,9 @@ public class TcpDispatcher extends DestinationConnector {
                     responseData = e.getClass().getSimpleName() + ": " + e.getMessage();
                     String errorMessage = (e instanceof SocketTimeoutException || e.getCause() != null && e.getCause() instanceof SocketTimeoutException) ? "Timeout waiting for response" : "Error receiving response";
 
-                    responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_411, errorMessage + ": " + e.getMessage(), e);
+                    responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, errorMessage + ": " + e.getMessage(), e);
                     logger.warn(errorMessage + " (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
-                    alertController.sendAlerts(getChannelId(), Constants.ERROR_411, errorMessage + ".", e);
+                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_411, errorMessage + ".", e);
                     monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, errorMessage + ". ");
 
                     closeSocketQuietly();
@@ -229,7 +229,7 @@ public class TcpDispatcher extends DestinationConnector {
             // If an exception occurred then close the socket, even if keep connection open is true
             closeSocketQuietly();
             responseData = e.getClass().getSimpleName() + ": " + e.getMessage();
-            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_411, e.getMessage(), e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, e.getMessage(), e);
 
             if (e instanceof ConnectException || e.getCause() != null && e.getCause() instanceof ConnectException) {
                 logger.error("Error sending message via TCP (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
@@ -237,7 +237,7 @@ public class TcpDispatcher extends DestinationConnector {
                 logger.debug("Error sending message via TCP (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
             }
 
-            alertController.sendAlerts(getChannelId(), Constants.ERROR_411, "Error sending message via TCP.", e);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_411, "Error sending message via TCP.", e);
         }
 
         monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE, socket);

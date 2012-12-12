@@ -19,7 +19,7 @@ import org.mozilla.javascript.Scriptable;
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -67,7 +67,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 0, "response", null);
             }
 
-            logger.error(ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
+            logger.error(ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_300, null, e));
             throw new JavaScriptInitializationException("Error initializing JavaScript response transformer", e);
         }
     }
@@ -128,7 +128,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                     }
                 }
 
-                throw new DonkeyException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_600, "Error evaluating response transformer", t));
+                throw new DonkeyException(t.getMessage(), t, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_600, "Error evaluating response transformer", t));
             } finally {
                 Context.exit();
             }

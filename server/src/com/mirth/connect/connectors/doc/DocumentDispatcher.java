@@ -38,7 +38,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -112,9 +112,9 @@ public class DocumentDispatcher extends DestinationConnector {
             responseData = "Document successfully written: " + documentDispatcherProperties.getOutputPattern();
             responseStatus = Status.SENT;
         } catch (Exception e) {
-            alertController.sendAlerts(getChannelId(), Constants.ERROR_401, "Error writing document", e);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_401, "Error writing document", e);
             responseData = ErrorMessageBuilder.buildErrorResponse("Error writing document", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_401, "Error writing document", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_401, "Error writing document", e);
 
             // TODO: Handle exception
 //            connector.handleException(e);

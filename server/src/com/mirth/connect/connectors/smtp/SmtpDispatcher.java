@@ -29,7 +29,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -226,9 +226,9 @@ public class SmtpDispatcher extends DestinationConnector {
             responseData = email.send();
             responseStatus = Status.SENT;
         } catch (Exception e) {
-            alertController.sendAlerts(getChannelId(), Constants.ERROR_402, "Error sending email message.", e);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_402, "Error sending email message.", e);
             responseData = ErrorMessageBuilder.buildErrorResponse("Error sending email message", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_402, "Error sending email message", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_402, "Error sending email message", e);
 
             // TODO: Exception handling
 //            connector.handleException(new Exception(e));

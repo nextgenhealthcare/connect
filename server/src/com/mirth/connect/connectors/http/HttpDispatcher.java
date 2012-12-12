@@ -48,7 +48,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -173,9 +173,9 @@ public class HttpDispatcher extends DestinationConnector {
                 if (statusCode < HttpStatus.SC_BAD_REQUEST) {
                     responseStatus = Status.SENT;
                 } else {
-                    alertController.sendAlerts(getChannelId(), Constants.ERROR_404, "Received error response from HTTP server.", null);
+                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_404, "Received error response from HTTP server.", null);
                     responseData = ErrorMessageBuilder.buildErrorResponse(responseData, null);
-                    responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_404, responseData, null);
+                    responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_404, responseData, null);
                 }
             } catch (Exception e) {
                 throw e;
@@ -185,9 +185,9 @@ public class HttpDispatcher extends DestinationConnector {
                 }
             }
         } catch (Exception e) {
-            alertController.sendAlerts(getChannelId(), Constants.ERROR_404, "Error connecting to HTTP server.", e);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_404, "Error connecting to HTTP server.", e);
             responseData = ErrorMessageBuilder.buildErrorResponse("Error connecting to HTTP server", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_403, "Error connecting to HTTP server", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_403, "Error connecting to HTTP server", e);
 
             // TODO: Handle Exception
 //            connector.handleException(e);

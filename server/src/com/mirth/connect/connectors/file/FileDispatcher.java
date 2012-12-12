@@ -29,7 +29,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -164,9 +164,9 @@ public class FileDispatcher extends DestinationConnector {
             responseData = "File successfully written: " + filename;
             responseStatus = Status.SENT;
         } catch (Exception e) {
-            alertController.sendAlerts(fileConnector.getChannelId(), Constants.ERROR_403, "Error writing file", e);
+            alertController.sendAlerts(fileConnector.getChannelId(), ErrorConstants.ERROR_403, "Error writing file", e);
             responseData = ErrorMessageBuilder.buildErrorResponse("Error writing file", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_403, "Error writing file", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_403, "Error writing file", e);
             // TODO: handleException
 //            fileConnector.handleException(e);
         } finally {
