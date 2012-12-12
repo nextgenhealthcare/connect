@@ -1,7 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="com/mirth/connect/connectors/jms/" kind="src" path="src"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Server"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Server">
+		<accessrules>
+			<accessrule kind="accessible" pattern="com/mirth/connect/client/core/**"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/model/**"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/util/**"/>
+			<accessrule kind="accessible" pattern="com/thoughtworks/**"/>
+			<accessrule kind="accessible" pattern="org/mozilla/**"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/dimse/DICOMDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/dimse/DICOMReceiverProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/DocumentDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileReceiverProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileScheme"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpReceiverProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/DatabaseReceiverProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/DatabaseDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/DatabaseConnectionInfo"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/Table"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/Column"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/js/JavaScriptReceiverProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/js/JavaScriptDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/smtp/SmtpDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/smtp/Attachment"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/tcp/TcpReceiverProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/tcp/TcpDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/vm/VmReceiverProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/vm/VmDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceReceiverProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties"/>
+			<accessrule kind="nonaccessible" pattern="*/**"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/Donkey">
+		<accessrules>
+			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/model/**"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/util/**"/>
+			<accessrule kind="nonaccessible" pattern="*/**"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/databinding-0.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/l2fprod-common-sheet.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
@@ -35,18 +75,10 @@
 			<attribute name="javadoc_location" value="http://www.jarvana.com/jarvana/view/org/swinglabs/swingx-core/1.6.2-2/swingx-core-1.6.2-2-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/dcm4che-core-2.0.25.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-crypto.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Donkey">
-		<accessrules>
-			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/model/**"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/util/**"/>
-			<accessrule kind="nonaccessible" pattern="*/**"/>
-		</accessrules>
-	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Server">
+		<accessrules>
+			<accessrule kind="accessible" pattern="com/mirth/connect/client/core/**"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/model/**"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/util/**"/>
+			<accessrule kind="accessible" pattern="com/thoughtworks/**"/>
+			<accessrule kind="accessible" pattern="org/mozilla/**"/>
+			<accessrule kind="nonaccessible" pattern="*/**"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-codec-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
@@ -12,7 +23,5 @@
 	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Server"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

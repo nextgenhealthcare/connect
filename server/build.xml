@@ -99,6 +99,30 @@
 	</target>
 
 	<target name="create-connectors" depends="create-client-core">
+
+		<!-- connectors.dicom -->
+		<mkdir dir="${connectors.dicom}" />
+		<copy todir="${connectors.dicom}">
+			<fileset dir="${src}/com/mirth/connect/connectors/dimse">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${connectors.dicom}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/dimse" />
+		</copy>
+		<jar destfile="${connectors.dicom}/dicom-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/connectors/dimse/DICOMReceiverProperties.class" />
+			<include name="com/mirth/connect/connectors/dimse/DICOMDispatcherProperties.class" />
+		</jar>
+		<jar destfile="${connectors.dicom}/dicom-server.jar">
+			<fileset dir="${classes}">
+				<include name="com/mirth/connect/connectors/dimse/**" />
+				<include name="org/dcm4che2/**" />
+				<exclude name="com/mirth/connect/connectors/dimse/DICOMReceiverProperties.class" />
+				<exclude name="com/mirth/connect/connectors/dimse/DICOMDispatcherProperties.class" />
+			</fileset>
+		</jar>
+
 		<!-- connectors.doc -->
 		<mkdir dir="${connectors.doc}" />
 		<copy todir="${connectors.doc}">
@@ -116,28 +140,6 @@
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/doc/**" />
 				<exclude name="com/mirth/connect/connectors/doc/DocumentDispatcherProperties.class" />
-			</fileset>
-		</jar>
-
-		<!-- connectors.smtp -->
-		<mkdir dir="${connectors.smtp}" />
-		<copy todir="${connectors.smtp}">
-			<fileset dir="${src}/com/mirth/connect/connectors/smtp">
-				<include name="*.xml" />
-			</fileset>
-		</copy>
-		<copy todir="${connectors.smtp}/lib" failonerror="false">
-			<fileset dir="${lib.extensions}/smtp" />
-		</copy>
-		<jar destfile="${connectors.smtp}/smtp-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/smtp/SmtpDispatcherProperties.class" />
-			<include name="com/mirth/connect/connectors/smtp/Attachment.class" />
-		</jar>
-		<jar destfile="${connectors.smtp}/smtp-server.jar">
-			<fileset dir="${classes}">
-				<include name="com/mirth/connect/connectors/smtp/**" />
-				<exclude name="com/mirth/connect/connectors/smtp/SmtpDispatcherProperties.class" />
-				<exclude name="com/mirth/connect/connectors/smtp/Attachment.class" />
 			</fileset>
 		</jar>
 
@@ -259,25 +261,25 @@
 			</fileset>
 		</jar>
 
-		<!-- connectors.ws -->
-		<mkdir dir="${connectors.ws}" />
-		<copy todir="${connectors.ws}">
-			<fileset dir="${src}/com/mirth/connect/connectors/ws">
+		<!-- connectors.smtp -->
+		<mkdir dir="${connectors.smtp}" />
+		<copy todir="${connectors.smtp}">
+			<fileset dir="${src}/com/mirth/connect/connectors/smtp">
 				<include name="*.xml" />
 			</fileset>
 		</copy>
-		<copy todir="${connectors.ws}/lib" failonerror="false">
-			<fileset dir="${lib.extensions}/ws" />
+		<copy todir="${connectors.smtp}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/smtp" />
 		</copy>
-		<jar destfile="${connectors.ws}/ws-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/ws/WebServiceReceiverProperties.class" />
-			<include name="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties.class" />
+		<jar destfile="${connectors.smtp}/smtp-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/connectors/smtp/SmtpDispatcherProperties.class" />
+			<include name="com/mirth/connect/connectors/smtp/Attachment.class" />
 		</jar>
-		<jar destfile="${connectors.ws}/ws-server.jar">
+		<jar destfile="${connectors.smtp}/smtp-server.jar">
 			<fileset dir="${classes}">
-				<include name="com/mirth/connect/connectors/ws/**" />
-				<exclude name="com/mirth/connect/connectors/ws/WebServiceReceiverProperties.class" />
-				<exclude name="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties.class" />
+				<include name="com/mirth/connect/connectors/smtp/**" />
+				<exclude name="com/mirth/connect/connectors/smtp/SmtpDispatcherProperties.class" />
+				<exclude name="com/mirth/connect/connectors/smtp/Attachment.class" />
 			</fileset>
 		</jar>
 
@@ -303,29 +305,6 @@
 			</fileset>
 		</jar>
 
-		<!-- connectors.dicom -->
-		<mkdir dir="${connectors.dicom}" />
-		<copy todir="${connectors.dicom}">
-			<fileset dir="${src}/com/mirth/connect/connectors/dimse">
-				<include name="*.xml" />
-			</fileset>
-		</copy>
-		<copy todir="${connectors.dicom}/lib" failonerror="false">
-			<fileset dir="${lib.extensions}/dimse" />
-		</copy>
-		<jar destfile="${connectors.dicom}/dicom-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/dimse/DICOMReceiverProperties.class" />
-			<include name="com/mirth/connect/connectors/dimse/DICOMDispatcherProperties.class" />
-		</jar>
-		<jar destfile="${connectors.dicom}/dicom-server.jar">
-			<fileset dir="${classes}">
-				<include name="com/mirth/connect/connectors/dimse/**" />
-				<include name="org/dcm4che2/**" />
-				<exclude name="com/mirth/connect/connectors/dimse/DICOMReceiverProperties.class" />
-				<exclude name="com/mirth/connect/connectors/dimse/DICOMDispatcherProperties.class" />
-			</fileset>
-		</jar>
-
 		<!-- connectors.vm -->
 		<mkdir dir="${connectors.vm}" />
 		<copy todir="${connectors.vm}">
@@ -345,6 +324,28 @@
 				<include name="com/mirth/connect/connectors/vm/**" />
 				<exclude name="com/mirth/connect/connectors/vm/VmReceiverProperties.class" />
 				<exclude name="com/mirth/connect/connectors/vm/VmDispatcherProperties.class" />
+			</fileset>
+		</jar>
+
+		<!-- connectors.ws -->
+		<mkdir dir="${connectors.ws}" />
+		<copy todir="${connectors.ws}">
+			<fileset dir="${src}/com/mirth/connect/connectors/ws">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${connectors.ws}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/ws" />
+		</copy>
+		<jar destfile="${connectors.ws}/ws-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/connectors/ws/WebServiceReceiverProperties.class" />
+			<include name="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties.class" />
+		</jar>
+		<jar destfile="${connectors.ws}/ws-server.jar">
+			<fileset dir="${classes}">
+				<include name="com/mirth/connect/connectors/ws/**" />
+				<exclude name="com/mirth/connect/connectors/ws/WebServiceReceiverProperties.class" />
+				<exclude name="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties.class" />
 			</fileset>
 		</jar>
 
