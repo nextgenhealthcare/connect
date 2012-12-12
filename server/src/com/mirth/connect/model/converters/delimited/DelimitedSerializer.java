@@ -30,8 +30,8 @@ import com.mirth.connect.model.converters.BatchMessageProcessor;
 import com.mirth.connect.model.converters.BatchMessageProcessorException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
-import com.mirth.connect.server.ErrorConstants;
-import com.mirth.connect.server.builders.ErrorMessageBuilder;
+import com.mirth.connect.util.ErrorConstants;
+import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());

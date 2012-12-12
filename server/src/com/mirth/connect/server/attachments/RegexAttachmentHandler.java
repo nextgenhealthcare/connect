@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.model.handlers;
+package com.mirth.connect.server.attachments;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +23,7 @@ import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProper
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.util.StringUtil;
+import com.mirth.connect.model.attachments.AttachmentException;
 import com.mirth.connect.server.util.UUIDGenerator;
 
 public class RegexAttachmentHandler extends AttachmentHandler {

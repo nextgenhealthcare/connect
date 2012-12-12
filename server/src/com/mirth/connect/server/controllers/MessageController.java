@@ -49,8 +49,4 @@ public abstract class MessageController {
     public abstract int exportMessages(MessageExportOptions options) throws MessageExporterException;
 
     public abstract int pruneMessages(List<String> channelIds, int limit) throws MessagePrunerException;
-
-    public abstract void decryptMessage(Message message, Encryptor encryptor);
-
-    public abstract void encryptMessage(Message message, Encryptor encryptor);
 }

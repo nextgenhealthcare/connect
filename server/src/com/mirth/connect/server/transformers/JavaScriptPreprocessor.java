@@ -13,9 +13,9 @@ package com.mirth.connect.server.transformers;
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.channel.components.PreProcessor;
-import com.mirth.connect.server.ErrorConstants;
-import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.util.JavaScriptUtil;
+import com.mirth.connect.util.ErrorConstants;
+import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptPreprocessor implements PreProcessor {
     private String channelId;

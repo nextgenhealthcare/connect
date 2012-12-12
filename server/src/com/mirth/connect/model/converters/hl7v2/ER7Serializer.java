@@ -40,8 +40,8 @@ import com.mirth.connect.model.converters.BatchMessageProcessorException;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
-import com.mirth.connect.server.ErrorConstants;
-import com.mirth.connect.server.builders.ErrorMessageBuilder;
+import com.mirth.connect.util.ErrorConstants;
+import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
 public class ER7Serializer implements IXMLSerializer, BatchAdaptor {

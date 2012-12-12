@@ -26,8 +26,8 @@ import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
-import com.mirth.connect.server.ErrorConstants;
-import com.mirth.connect.server.builders.ErrorMessageBuilder;
+import com.mirth.connect.util.ErrorConstants;
+import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class EDISerializer implements IXMLSerializer {
 	private Logger logger = Logger.getLogger(this.getClass());

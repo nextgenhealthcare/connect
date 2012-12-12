@@ -42,7 +42,6 @@ import com.mirth.connect.model.converters.BatchMessageProcessor;
 import com.mirth.connect.model.converters.BatchMessageProcessorException;
 import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.delimited.DelimitedSerializer;
-import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
@@ -51,6 +50,7 @@ import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
+import com.mirth.connect.util.ErrorConstants;
 
 public class FileReceiver extends PollConnector implements BatchMessageProcessor {
     protected transient Log logger = LogFactory.getLog(getClass());

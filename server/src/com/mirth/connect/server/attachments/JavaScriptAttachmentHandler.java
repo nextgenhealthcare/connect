@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.model.handlers;
+package com.mirth.connect.server.attachments;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +16,7 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.channel.Channel;
+import com.mirth.connect.model.attachments.AttachmentException;
 import com.mirth.connect.server.util.JavaScriptUtil;
 
 public class JavaScriptAttachmentHandler extends AttachmentHandler {

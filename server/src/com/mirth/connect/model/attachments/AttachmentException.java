@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.model.handlers;
+package com.mirth.connect.model.attachments;
 
 public class AttachmentException extends Exception {
     public AttachmentException(Throwable cause) {

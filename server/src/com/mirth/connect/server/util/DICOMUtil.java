@@ -16,11 +16,9 @@ import ij.process.ImageProcessor;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import javax.imageio.IIOImage;
@@ -29,26 +27,20 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.dcm4che2.data.BasicDicomObject;
 import org.dcm4che2.data.DicomElement;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
-import org.dcm4che2.data.TransferSyntax;
 import org.dcm4che2.data.VR;
-import org.dcm4che2.io.DicomInputStream;
-import org.dcm4che2.io.DicomOutputStream;
-
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.ImmutableMessageContent;
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.Base64Util;
-import com.mirth.connect.donkey.util.ByteCounterOutputStream;
+import com.mirth.connect.model.converters.dicom.DICOMSerializer;
 import com.mirth.connect.server.controllers.MessageController;
 
 public class DICOMUtil {
@@ -141,7 +133,7 @@ public class DICOMUtil {
 
     public static byte[] mergeHeaderPixelData(byte[] header, List<Attachment> attachments) throws IOException {
         // 1. read in header
-        DicomObject dcmObj = byteArrayToDicomObject(header, false);
+        DicomObject dcmObj = DICOMSerializer.byteArrayToDicomObject(header, false);
 
         // 2. Add pixel data to DicomObject
         if (attachments != null && !attachments.isEmpty()) {
@@ -161,7 +153,7 @@ public class DICOMUtil {
         // Memory Optimization. Free the references to the data in the attachments list.
         attachments.clear();
 
-        return dicomObjectToByteArray(dcmObj);
+        return DICOMSerializer.dicomObjectToByteArray(dcmObj);
     }
 
     public static List<Attachment> getMessageAttachments(ConnectorMessage message) throws SerializerException {
@@ -271,86 +263,5 @@ public class DICOMUtil {
         }
 
         return null;
-    }
-
-    public static DicomObject byteArrayToDicomObject(byte[] bytes, boolean decodeBase64) throws IOException {
-        DicomObject basicDicomObject = new BasicDicomObject();
-        DicomInputStream dis = null;
-
-        try {
-            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-            InputStream inputStream;
-            if (decodeBase64) {
-                inputStream = new BufferedInputStream(new Base64InputStream(bais));
-            } else {
-                inputStream = bais;
-            }
-            dis = new DicomInputStream(inputStream);
-            dis.readDicomObject(basicDicomObject, -1);
-        } catch (IOException e) {
-            throw e;
-        } finally {
-            IOUtils.closeQuietly(dis);
-        }
-
-        return basicDicomObject;
-    }
-
-    public static byte[] dicomObjectToByteArray(DicomObject dicomObject) throws IOException {
-        BasicDicomObject basicDicomObject = (BasicDicomObject) dicomObject;
-        DicomOutputStream dos = null;
-        
-        try {
-            ByteCounterOutputStream bcos = new ByteCounterOutputStream();
-            ByteArrayOutputStream baos;
-            
-            if (basicDicomObject.fileMetaInfo().isEmpty()) {
-                try {
-                    // Create a dicom output stream with the byte counter output stream.
-                    dos = new DicomOutputStream(bcos);
-                    // "Write" the dataset once to determine the total number of bytes required. This is fast because no data is actually being copied.
-                    dos.writeDataset(basicDicomObject, TransferSyntax.ImplicitVRLittleEndian);
-                } finally {
-                    IOUtils.closeQuietly(dos);
-                }
-                
-                // Create the actual byte array output stream with a buffer size equal to the number of bytes required.
-                baos = new ByteArrayOutputStream(bcos.size());
-                // Create a dicom output stream with the byte array output stream
-                dos = new DicomOutputStream(baos);
-                
-                // Create ACR/NEMA Dump
-                dos.writeDataset(basicDicomObject, TransferSyntax.ImplicitVRLittleEndian);
-            } else {
-                try {
-                    // Create a dicom output stream with the byte counter output stream.
-                    dos = new DicomOutputStream(bcos);
-                    // "Write" the dataset once to determine the total number of bytes required. This is fast because no data is actually being copied.
-                    dos.writeDicomFile(basicDicomObject);
-                } finally {
-                    IOUtils.closeQuietly(dos);
-                }
-                
-                // Create the actual byte array output stream with a buffer size equal to the number of bytes required.
-                baos = new ByteArrayOutputStream(bcos.size());
-                // Create a dicom output stream with the byte array output stream
-                dos = new DicomOutputStream(baos);
-                
-                // Create DICOM File
-                dos.writeDicomFile(basicDicomObject);
-            }
-            
-            // Memory Optimization since the dicom object is no longer needed at this point.
-            dicomObject.clear();
-            
-            return baos.toByteArray();
-        } catch (IOException e) {
-            throw e;
-        } catch (Throwable t) {
-            t.printStackTrace();
-            return null;
-        } finally {
-            IOUtils.closeQuietly(dos);
-        }
     }
 }

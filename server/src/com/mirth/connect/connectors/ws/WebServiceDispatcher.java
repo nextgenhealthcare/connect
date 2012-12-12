@@ -55,11 +55,11 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.server.ErrorConstants;
-import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.util.ErrorConstants;
+import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class WebServiceDispatcher extends DestinationConnector {
     private Logger logger = Logger.getLogger(this.getClass());

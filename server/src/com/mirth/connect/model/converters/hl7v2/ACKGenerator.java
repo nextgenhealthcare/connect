@@ -9,13 +9,14 @@
 
 package com.mirth.connect.model.converters.hl7v2;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.SerializerFactory;
-import com.mirth.connect.server.util.DateUtil;
 
 // Supports ACKS from 2.1-2.4
 // 2.5 is supported but the advanced fields in ERR and SFT are not supported
@@ -165,7 +166,7 @@ public class ACKGenerator {
             receivingApplication = "MIRTH";
         }
 
-        String timestamp = DateUtil.getCurrentDate(dateFormat);
+        String timestamp = new SimpleDateFormat(dateFormat).format(new Date());
 
         StringBuilder ackBuilder = new StringBuilder();
 

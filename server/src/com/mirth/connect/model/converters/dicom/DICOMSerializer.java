@@ -11,7 +11,9 @@ package com.mirth.connect.model.converters.dicom;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +32,10 @@ import org.apache.commons.io.IOUtils;
 import org.dcm4che2.data.BasicDicomObject;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
+import org.dcm4che2.data.TransferSyntax;
 import org.dcm4che2.io.ContentHandlerAdapter;
 import org.dcm4che2.io.DicomInputStream;
+import org.dcm4che2.io.DicomOutputStream;
 import org.dcm4che2.io.SAXWriter;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -44,11 +48,11 @@ import org.xml.sax.InputSource;
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.util.Base64Util;
+import com.mirth.connect.donkey.util.ByteCounterOutputStream;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
-import com.mirth.connect.server.ErrorConstants;
-import com.mirth.connect.server.builders.ErrorMessageBuilder;
-import com.mirth.connect.server.util.DICOMUtil;
+import com.mirth.connect.util.ErrorConstants;
+import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DICOMSerializer implements IXMLSerializer {
     private DocumentSerializer documentSerializer = new DocumentSerializer();
@@ -66,10 +70,91 @@ public class DICOMSerializer implements IXMLSerializer {
     }
     
     public static byte[] removePixelData(byte[] content) throws IOException {
-        DicomObject dicomObject = DICOMUtil.byteArrayToDicomObject(content, false);
+        DicomObject dicomObject = byteArrayToDicomObject(content, false);
         dicomObject.remove(Tag.PixelData);
         
-        return DICOMUtil.dicomObjectToByteArray(dicomObject);
+        return dicomObjectToByteArray(dicomObject);
+    }
+    
+    public static DicomObject byteArrayToDicomObject(byte[] bytes, boolean decodeBase64) throws IOException {
+        DicomObject basicDicomObject = new BasicDicomObject();
+        DicomInputStream dis = null;
+
+        try {
+            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+            InputStream inputStream;
+            if (decodeBase64) {
+                inputStream = new BufferedInputStream(new Base64InputStream(bais));
+            } else {
+                inputStream = bais;
+            }
+            dis = new DicomInputStream(inputStream);
+            dis.readDicomObject(basicDicomObject, -1);
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            IOUtils.closeQuietly(dis);
+        }
+
+        return basicDicomObject;
+    }
+
+    public static byte[] dicomObjectToByteArray(DicomObject dicomObject) throws IOException {
+        BasicDicomObject basicDicomObject = (BasicDicomObject) dicomObject;
+        DicomOutputStream dos = null;
+        
+        try {
+            ByteCounterOutputStream bcos = new ByteCounterOutputStream();
+            ByteArrayOutputStream baos;
+            
+            if (basicDicomObject.fileMetaInfo().isEmpty()) {
+                try {
+                    // Create a dicom output stream with the byte counter output stream.
+                    dos = new DicomOutputStream(bcos);
+                    // "Write" the dataset once to determine the total number of bytes required. This is fast because no data is actually being copied.
+                    dos.writeDataset(basicDicomObject, TransferSyntax.ImplicitVRLittleEndian);
+                } finally {
+                    IOUtils.closeQuietly(dos);
+                }
+                
+                // Create the actual byte array output stream with a buffer size equal to the number of bytes required.
+                baos = new ByteArrayOutputStream(bcos.size());
+                // Create a dicom output stream with the byte array output stream
+                dos = new DicomOutputStream(baos);
+                
+                // Create ACR/NEMA Dump
+                dos.writeDataset(basicDicomObject, TransferSyntax.ImplicitVRLittleEndian);
+            } else {
+                try {
+                    // Create a dicom output stream with the byte counter output stream.
+                    dos = new DicomOutputStream(bcos);
+                    // "Write" the dataset once to determine the total number of bytes required. This is fast because no data is actually being copied.
+                    dos.writeDicomFile(basicDicomObject);
+                } finally {
+                    IOUtils.closeQuietly(dos);
+                }
+                
+                // Create the actual byte array output stream with a buffer size equal to the number of bytes required.
+                baos = new ByteArrayOutputStream(bcos.size());
+                // Create a dicom output stream with the byte array output stream
+                dos = new DicomOutputStream(baos);
+                
+                // Create DICOM File
+                dos.writeDicomFile(basicDicomObject);
+            }
+            
+            // Memory Optimization since the dicom object is no longer needed at this point.
+            dicomObject.clear();
+            
+            return baos.toByteArray();
+        } catch (IOException e) {
+            throw e;
+        } catch (Throwable t) {
+            t.printStackTrace();
+            return null;
+        } finally {
+            IOUtils.closeQuietly(dos);
+        }
     }
     
     @Override
@@ -137,7 +222,7 @@ public class DICOMSerializer implements IXMLSerializer {
             ContentHandlerAdapter contentHandler = new ContentHandlerAdapter(dicomObject);
             byte[] documentBytes = documentSerializer.toXML(document).trim().getBytes(charset);
             parser.parse(new InputSource(new ByteArrayInputStream(documentBytes)), contentHandler);
-            return StringUtils.newStringUsAscii(Base64Util.encodeBase64(DICOMUtil.dicomObjectToByteArray(dicomObject)));
+            return StringUtils.newStringUsAscii(Base64Util.encodeBase64(dicomObjectToByteArray(dicomObject)));
         } catch (Exception e) {
             throw new SerializerException(e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to DICOM", e));
         }

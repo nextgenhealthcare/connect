@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.model.handlers;
+package com.mirth.connect.server.attachments;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.dcm4che2.data.DicomElement;
@@ -19,7 +19,8 @@ import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.util.Base64Util;
-import com.mirth.connect.server.util.DICOMUtil;
+import com.mirth.connect.model.attachments.AttachmentException;
+import com.mirth.connect.model.converters.dicom.DICOMSerializer;
 import com.mirth.connect.server.util.UUIDGenerator;
 
 public class DICOMAttachmentHandler extends AttachmentHandler {
@@ -39,7 +40,7 @@ public class DICOMAttachmentHandler extends AttachmentHandler {
         // However, DICOM messages that use this initializer should be relatively small in size.
         index = 0;
         try {
-            dicomObject = DICOMUtil.byteArrayToDicomObject(StringUtils.getBytesUsAscii(message), true);
+            dicomObject = DICOMSerializer.byteArrayToDicomObject(StringUtils.getBytesUsAscii(message), true);
             dicomElement = dicomObject.remove(Tag.PixelData);
         } catch (Throwable t) {
             throw new AttachmentException(t);
@@ -50,7 +51,7 @@ public class DICOMAttachmentHandler extends AttachmentHandler {
     public void initialize(byte[] bytes, Channel channel) throws AttachmentException {
         index = 0;
         try {
-            dicomObject = DICOMUtil.byteArrayToDicomObject(bytes, false);
+            dicomObject = DICOMSerializer.byteArrayToDicomObject(bytes, false);
             dicomElement = dicomObject.remove(Tag.PixelData);
         } catch (Throwable t) {
             throw new AttachmentException(t);
@@ -81,7 +82,7 @@ public class DICOMAttachmentHandler extends AttachmentHandler {
     @Override
     public String shutdown() throws AttachmentException {
         try {
-            byte[] encodedMessage = Base64Util.encodeBase64(DICOMUtil.dicomObjectToByteArray(dicomObject));
+            byte[] encodedMessage = Base64Util.encodeBase64(DICOMSerializer.dicomObjectToByteArray(dicomObject));
             dicomElement = null;
             dicomObject = null;
             return StringUtils.newStringUsAscii(encodedMessage);

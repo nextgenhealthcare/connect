@@ -22,11 +22,11 @@ import org.apache.velocity.tools.generic.DateTool;
 
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SMTPConnectionFactory;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DefaultAlertController extends AlertController {
     private Logger logger = Logger.getLogger(this.getClass());

@@ -71,10 +71,10 @@ import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
+import com.mirth.connect.model.attachments.AttachmentHandlerFactory;
+import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.SerializerFactory;
-import com.mirth.connect.model.handlers.AttachmentHandlerFactory;
-import com.mirth.connect.model.handlers.AttachmentHandlerType;
 import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.util.PropertyVerifier;
 

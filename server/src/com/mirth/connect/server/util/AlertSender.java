@@ -9,9 +9,9 @@
 
 package com.mirth.connect.server.util;
 
-import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.util.ErrorConstants;
 
 public class AlertSender {
 	private AlertController alertController = ControllerFactory.getFactory().createAlertController();

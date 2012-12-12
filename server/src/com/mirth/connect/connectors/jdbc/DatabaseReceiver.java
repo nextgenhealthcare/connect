@@ -37,7 +37,6 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
-import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -49,6 +48,7 @@ import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
+import com.mirth.connect.util.ErrorConstants;
 
 public class DatabaseReceiver extends PollConnector {
     private Logger scriptLogger = Logger.getLogger("db-connector");

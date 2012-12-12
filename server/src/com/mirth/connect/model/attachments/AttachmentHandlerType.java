@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.model.handlers;
+package com.mirth.connect.model.attachments;
 
 public enum AttachmentHandlerType {
     NONE("None"), REGEX("Regex"), DICOM("DICOM"), JAVASCRIPT("JavaScript"), CUSTOM(

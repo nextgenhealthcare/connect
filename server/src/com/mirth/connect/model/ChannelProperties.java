@@ -15,8 +15,8 @@ import java.util.List;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
-import com.mirth.connect.model.handlers.AttachmentHandlerFactory;
-import com.mirth.connect.model.handlers.AttachmentHandlerType;
+import com.mirth.connect.model.attachments.AttachmentHandlerFactory;
+import com.mirth.connect.model.attachments.AttachmentHandlerType;
 
 public class ChannelProperties implements Serializable {
     private boolean clearGlobalChannelMap;

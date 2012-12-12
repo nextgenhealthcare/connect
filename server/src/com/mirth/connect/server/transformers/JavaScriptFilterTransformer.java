@@ -19,9 +19,7 @@ import org.mozilla.javascript.Scriptable;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
-import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
-import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.controllers.TemplateController;
@@ -31,6 +29,8 @@ import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
+import com.mirth.connect.util.ErrorConstants;
+import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptFilterTransformer implements FilterTransformer {
     private Logger logger = Logger.getLogger(this.getClass());

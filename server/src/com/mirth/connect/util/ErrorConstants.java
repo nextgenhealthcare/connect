@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server;
+package com.mirth.connect.util;
 
 public class ErrorConstants {
 	public static final String ERROR_000 = "ERROR-000: Server error";

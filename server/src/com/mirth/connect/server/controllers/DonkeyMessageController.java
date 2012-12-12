@@ -44,6 +44,7 @@ import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.DICOMUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.MessageEncryptionUtil;
 import com.mirth.connect.util.export.MessageExportOptions;
 import com.mirth.connect.util.export.MessageExporter;
 import com.mirth.connect.util.export.MessageExporter.MessageExporterException;
@@ -238,7 +239,7 @@ public class DonkeyMessageController extends MessageController {
                 Integer metaDataId = connectorMessageEntry.getKey();
                 ConnectorMessage connectorMessage = connectorMessageEntry.getValue();
                 
-                decryptConnectorMessage(connectorMessage, encryptor);
+                MessageEncryptionUtil.decryptConnectorMessage(connectorMessage, encryptor);
                 message.getConnectorMessages().put(metaDataId, connectorMessage);
             }
     
@@ -436,7 +437,7 @@ public class DonkeyMessageController extends MessageController {
     @Override
     public void importMessage(String channelId, Message message) throws MessageImportException {
         try {
-            decryptMessage(message, ConfigurationController.getInstance().getEncryptor());
+            MessageEncryptionUtil.decryptMessage(message, ConfigurationController.getInstance().getEncryptor());
             com.mirth.connect.donkey.server.controllers.MessageController.getInstance().importMessage(channelId, message);
         } catch (DonkeyException e) {
             throw new MessageImportException(e);
@@ -447,71 +448,5 @@ public class DonkeyMessageController extends MessageController {
     public int pruneMessages(List<String> channelIds, int limit) throws MessagePrunerException {
         // TODO Auto-generated method stub
         return 0;
-    }
-
-    @Override
-    public void decryptMessage(Message message, Encryptor encryptor) {
-        for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
-            decryptConnectorMessage(connectorMessage, encryptor);
-        }
-    }
-
-    private void decryptConnectorMessage(ConnectorMessage connectorMessage, Encryptor encryptor) {
-        if (connectorMessage != null) {
-            decryptMessageContent(connectorMessage.getRaw(), encryptor);
-            decryptMessageContent(connectorMessage.getProcessedRaw(), encryptor);
-            decryptMessageContent(connectorMessage.getTransformed(), encryptor);
-            decryptMessageContent(connectorMessage.getEncoded(), encryptor);
-            decryptMessageContent(connectorMessage.getSent(), encryptor);
-            decryptMessageContent(connectorMessage.getResponse(), encryptor);
-            decryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
-        }
-    }
-
-    private void decryptMessageContent(MessageContent content, Encryptor encryptor) {
-        if (content != null) {
-            if (content.getContent() == null) {
-                String encryptedContent = content.getEncryptedContent();
-                
-                if (encryptedContent != null) {
-                    content.setContent(encryptor.decrypt(encryptedContent));
-                }
-            }
-            
-            content.setEncryptedContent(null);
-        }
-    }
-    
-    @Override
-    public void encryptMessage(Message message, Encryptor encryptor) {
-        for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
-            encryptConnectorMessage(connectorMessage, encryptor);
-        }
-    }
-
-    private void encryptConnectorMessage(ConnectorMessage connectorMessage, Encryptor encryptor) {
-        if (connectorMessage != null) {
-            encryptMessageContent(connectorMessage.getRaw(), encryptor);
-            encryptMessageContent(connectorMessage.getProcessedRaw(), encryptor);
-            encryptMessageContent(connectorMessage.getTransformed(), encryptor);
-            encryptMessageContent(connectorMessage.getEncoded(), encryptor);
-            encryptMessageContent(connectorMessage.getSent(), encryptor);
-            encryptMessageContent(connectorMessage.getResponse(), encryptor);
-            encryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
-        }
-    }
-
-    private void encryptMessageContent(MessageContent content, Encryptor encryptor) {
-        if (content != null) {
-            if (content.getEncryptedContent() == null) {
-                String unencryptedContent = content.getContent();
-                
-                if (unencryptedContent != null) {
-                    content.setEncryptedContent(encryptor.encrypt(unencryptedContent));
-                }
-            }
-            
-            content.setContent(null);
-        }
     }
 }

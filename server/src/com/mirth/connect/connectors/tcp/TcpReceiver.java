@@ -52,7 +52,6 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.model.converters.DataTypeFactory;
-import com.mirth.connect.server.ErrorConstants;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
@@ -60,6 +59,7 @@ import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
+import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.TcpUtil;
 
 public class TcpReceiver extends SourceConnector {

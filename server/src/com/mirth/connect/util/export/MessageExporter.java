@@ -29,7 +29,7 @@ import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.util.Serializer;
-import com.mirth.connect.server.controllers.MessageController;
+import com.mirth.connect.util.MessageEncryptionUtil;
 
 public class MessageExporter {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -37,7 +37,6 @@ public class MessageExporter {
     private MessageRetriever messageRetriever;
     private Encryptor encryptor;
     private Serializer serializer;
-    private MessageController messageController = MessageController.getInstance();
     private String dateFormat = "yyyyMMdd";
 
     public MessageExportOptions getOptions() {
@@ -282,9 +281,9 @@ public class MessageExporter {
                 }
             } else {
                 if (isEncrypt) {
-                    messageController.encryptMessage(message, encryptor);
+                    MessageEncryptionUtil.encryptMessage(message, encryptor);
                 } else {
-                    messageController.decryptMessage(message, encryptor);
+                    MessageEncryptionUtil.decryptMessage(message, encryptor);
                 }
                 
                 content = serializer.serialize(message);
