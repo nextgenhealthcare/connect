@@ -72,7 +72,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     @Override
     public Object getTableData(String channelId) {
         String connectorName = channelId + _SOURCE_CONNECTOR;
-        
+
         if (currentStates != null && currentStates.containsKey(connectorName)) {
             String[] stateData = currentStates.get(connectorName);
             return new CellData(iconMap.get(stateData[0]), stateData[1]);
@@ -80,11 +80,11 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
             return new CellData(blackBullet, "Unknown");
         }
     }
-    
+
     @Override
     public Object getTableData(String channelId, Integer metaDataId) {
-        String connectorName = channelId + "_" + metaDataId;
-        
+        String connectorName = channelId + "_" + (metaDataId == null ? 0 : metaDataId);
+
         if (currentStates != null && currentStates.containsKey(connectorName)) {
             String[] stateData = currentStates.get(connectorName);
             return new CellData(iconMap.get(stateData[0]), stateData[1]);
@@ -115,16 +115,13 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     }
 
     @Override
-    public void start() {
-    }
+    public void start() {}
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 
     @Override
-    public void reset() {
-    }
+    public void reset() {}
 
     @Override
     public String getPluginPointName() {
