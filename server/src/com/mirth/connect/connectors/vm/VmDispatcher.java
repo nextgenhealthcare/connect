@@ -19,6 +19,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
@@ -83,17 +84,17 @@ public class VmDispatcher extends DestinationConnector {
 
         String responseData = null;
         String responseError = null;
-        Status responseStatus = Status.QUEUED; // Always set the status to SENT
+        Status responseStatus = Status.QUEUED; // Always set the status to QUEUED
 
         boolean isDICOM = this.getOutboundDataType().getType().equals(DataTypeFactory.DICOM);
-        byte[] data = AttachmentUtil.reAttachMessage(vmDispatcherProperties.getChannelTemplate(), message, "UTF-8", isDICOM);
+        byte[] data = AttachmentUtil.reAttachMessage(vmDispatcherProperties.getChannelTemplate(), message, Constants.ATTACHMENT_CHARSET, isDICOM);
         
         RawMessage rawMessage;
         
         if (isDICOM) {
             rawMessage = new RawMessage(data, null, null);
         } else {
-            rawMessage = new RawMessage(StringUtils.newString(data, "UTF-8"), null, null);
+            rawMessage = new RawMessage(StringUtils.newString(data, Constants.ATTACHMENT_CHARSET), null, null);
         }
         
         // Remove the reference to the raw message so its doesn't hold the entire message in memory.
