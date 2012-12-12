@@ -34,6 +34,7 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.builders.ErrorMessageBuilder;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -111,11 +112,6 @@ public class DatabaseDispatcher extends DestinationConnector {
         databaseDispatcherProperties.setUsername(replacer.replaceValues(databaseDispatcherProperties.getUsername(), connectorMessage));
         databaseDispatcherProperties.setPassword(replacer.replaceValues(databaseDispatcherProperties.getPassword(), connectorMessage));
 
-        // TODO: Replace variables if useScript?
-        if (!databaseDispatcherProperties.isUseScript()) {
-            databaseDispatcherProperties.setQuery(replacer.replaceValues(databaseDispatcherProperties.getQuery(), connectorMessage));
-        }
-
         return databaseDispatcherProperties;
     }
 
@@ -139,10 +135,12 @@ public class DatabaseDispatcher extends DestinationConnector {
 
             // execute the database script if selected
             if (databaseDispatcherProperties.isUseScript()) {
+                //TODO Attachments will not be reattached when using javascript yet.
                 try {
-                    jsExecutor.execute(new DatabaseDispatcherTask());
+                    jsExecutor.execute(new DatabaseDispatcherTask(connectorMessage));
                 } catch (JavaScriptExecutorException e) {
                     logger.error("Error executing " + connectorProperties.getName() + " script " + scriptId + ".", e.getCause());
+                    throw e;
                 }
 
                 responseStatus = Status.SENT;
@@ -201,7 +199,8 @@ public class DatabaseDispatcher extends DestinationConnector {
                 // TODO: Close quietly?
             }
             alertController.sendAlerts(getChannelId(), Constants.ERROR_406, "Error writing to database", e);
-
+            responseData = ErrorMessageBuilder.buildErrorResponse("Error writing to database", e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(Constants.ERROR_406, "Error writing to database", e);
             // TODO: Error data
 //            messageObjectController.setError(messageObject, Constants.ERROR_406, "Error writing to database: ", e, null);
 //            connector.handleException(e);
@@ -213,10 +212,16 @@ public class DatabaseDispatcher extends DestinationConnector {
     }
     
     private class DatabaseDispatcherTask extends JavaScriptTask<Object> {
+        private ConnectorMessage connectorMessage;
+        
+        public DatabaseDispatcherTask(ConnectorMessage connectorMessage) {
+            this.connectorMessage = connectorMessage;
+        }
+        
         @Override
         public Object call() throws Exception {
-            Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, getChannelId());
-            return JavaScriptUtil.executeScript(scriptId, scope, getChannelId(), "Source");
+            Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(getContextFactory(), scriptLogger, getChannelId(), connectorMessage);
+            return JavaScriptUtil.executeScript(scriptId, scope, getChannelId(), getDestinationName());
         }
     }
 
@@ -224,9 +229,18 @@ public class DatabaseDispatcher extends DestinationConnector {
         // If a data source already exists for the current properties, do nothing
         if (dataSource != null) {
             BasicDataSource bds = (BasicDataSource) dataSource;
-            if (databaseDispatcherProperties.getDriver().equals(bds.getDriverClassName()) && databaseDispatcherProperties.getUsername().equals(bds.getUsername()) && databaseDispatcherProperties.getPassword().equals(bds.getPassword()) && databaseDispatcherProperties.getUrl().equals(bds.getUrl())) {
-                // Do Nothing
-                return;
+            if (!bds.isClosed()) {
+                if (databaseDispatcherProperties.getDriver().equals(bds.getDriverClassName()) && databaseDispatcherProperties.getUsername().equals(bds.getUsername()) && databaseDispatcherProperties.getPassword().equals(bds.getPassword()) && databaseDispatcherProperties.getUrl().equals(bds.getUrl())) {
+                    // Do Nothing
+                    return;
+                } else {
+                    try {
+                        // If we are going to create a new data source, we need to make sure the current one is closed.
+                        bds.close();
+                    } catch (SQLException e) {
+                        // Do Nothing
+                    }
+                }
             }
         }
 

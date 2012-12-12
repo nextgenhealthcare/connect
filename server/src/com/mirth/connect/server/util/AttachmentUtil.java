@@ -175,7 +175,7 @@ public class AttachmentUtil {
                 combined = Base64Util.decodeBase64(combined);
             }
             
-            if (!charsetEncoding.toUpperCase().equals(Constants.ATTACHMENT_CHARSET.toUpperCase())) {
+            if (charsetEncoding != null && !charsetEncoding.toUpperCase().equals(Constants.ATTACHMENT_CHARSET.toUpperCase())) {
                 // Convert the byte array to a string using the internal encoding.
                 String combinedString = StringUtils.newString(combined, Constants.ATTACHMENT_CHARSET);
                 // First release the reference to the old byte data so it can be reallocated if necessary.
@@ -200,6 +200,14 @@ public class AttachmentUtil {
         }
         
         return StringUtils.newString(reAttachMessage(messageData, message, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
+    }
+    
+    public static boolean hasAttachmentKeys(String raw) {
+        if (raw.contains(PREFIX + DICOM_KEY + SUFFIX) || raw.contains(PREFIX + ATTACHMENT_KEY)) {
+            return true;
+        }
+        
+        return false;
     }
 
     public static List<Attachment> getMessageAttachments(ConnectorMessage message) throws SerializerException {

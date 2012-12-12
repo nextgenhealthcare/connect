@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.server.Constants;
+import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
@@ -123,6 +125,9 @@ public class JdbcUtils {
             } else if (root instanceof ConnectorMessage) {
                 TemplateValueReplacer parser = new TemplateValueReplacer();
                 value = parser.replaceValues(param, (ConnectorMessage) root);
+                if (AttachmentUtil.hasAttachmentKeys((String) value)) {
+                    value = org.apache.commons.codec.binary.StringUtils.newString(AttachmentUtil.reAttachMessage((String) value, (ConnectorMessage) root, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
+                }
             } else if (root instanceof Map) {
                 value = ((Map) root).get(name);
             }

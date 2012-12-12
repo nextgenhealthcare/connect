@@ -255,6 +255,12 @@ public class JavaScriptScopeUtil {
         addConnectorMessage(scope, message);
         return scope;
     }
+    
+    public static Scriptable getMessageDispatcherScope(ContextFactory contextFactory, Object logger, String channelId, ConnectorMessage message) {
+        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId);
+        addConnectorMessage(scope, message);
+        return scope;
+    }
 
     public static Scriptable getBatchProcessorScope(ContextFactory contextFactory, Object logger, String channelId, Reader in, DelimitedProperties props, Boolean skipHeader) {
         Scriptable scope = getBasicScope(getContext(contextFactory), logger);
