@@ -16,11 +16,14 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.BindException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -318,6 +321,16 @@ public class TcpReceiver extends SourceConnector {
 
                             // If a valid RawMessage object was created, attempt to send it to the channel
                             if (rawMessage != null) {
+                                // Add the socket information to the channelMap
+                                Map<String, Object> channelMap = new HashMap<String, Object>();
+                                channelMap.put("clientAddress", socket.getLocalAddress().getHostAddress());
+                                channelMap.put("clientPort", socket.getLocalPort());
+                                if (socket.getRemoteSocketAddress() instanceof InetSocketAddress) {
+                                    channelMap.put("localAddress", ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress());
+                                    channelMap.put("localPort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
+                                }
+                                rawMessage.setChannelMap(channelMap);
+
                                 while (dispatchResult == null && getCurrentState() == ChannelState.STARTED) {
                                     boolean attemptedResponse = false;
                                     String response = null;
