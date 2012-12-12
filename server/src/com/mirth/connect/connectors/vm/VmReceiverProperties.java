@@ -13,10 +13,10 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 
-public class VmListenerProperties extends ConnectorProperties implements ResponseConnectorPropertiesInterface {
+public class VmReceiverProperties extends ConnectorProperties implements ResponseConnectorPropertiesInterface {
     private ResponseConnectorProperties responseConnectorProperties;
 
-    public VmListenerProperties() {
+    public VmReceiverProperties() {
         responseConnectorProperties = new ResponseConnectorProperties();
     }
 

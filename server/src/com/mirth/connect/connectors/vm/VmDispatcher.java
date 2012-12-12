@@ -36,8 +36,8 @@ import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.server.util.VMRouter;
 
-public class VmSender extends DestinationConnector {
-    private VmSenderProperties connectorProperties;
+public class VmDispatcher extends DestinationConnector {
+    private VmDispatcherProperties connectorProperties;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private ConnectorType connectorType = ConnectorType.SENDER;
@@ -45,7 +45,7 @@ public class VmSender extends DestinationConnector {
 
     @Override
     public void onDeploy() throws DeployException {
-        this.connectorProperties = (VmSenderProperties) getConnectorProperties();
+        this.connectorProperties = (VmDispatcherProperties) getConnectorProperties();
     }
 
     @Override
@@ -65,19 +65,19 @@ public class VmSender extends DestinationConnector {
 
     @Override
     public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {
-        VmSenderProperties vmSenderProperties = (VmSenderProperties) SerializationUtils.clone(connectorProperties);
+        VmDispatcherProperties vmDispatcherProperties = (VmDispatcherProperties) SerializationUtils.clone(connectorProperties);
 
-        vmSenderProperties.setChannelId(replacer.replaceValues(vmSenderProperties.getChannelId(), connectorMessage));
-        vmSenderProperties.setChannelTemplate(replacer.replaceValues(vmSenderProperties.getChannelTemplate(), connectorMessage));
+        vmDispatcherProperties.setChannelId(replacer.replaceValues(vmDispatcherProperties.getChannelId(), connectorMessage));
+        vmDispatcherProperties.setChannelTemplate(replacer.replaceValues(vmDispatcherProperties.getChannelTemplate(), connectorMessage));
 
-        return vmSenderProperties;
+        return vmDispatcherProperties;
     }
 
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) {
-        VmSenderProperties vmSenderProperties = (VmSenderProperties) connectorProperties;
+        VmDispatcherProperties vmDispatcherProperties = (VmDispatcherProperties) connectorProperties;
 
-        String channelId = vmSenderProperties.getChannelId();
+        String channelId = vmDispatcherProperties.getChannelId();
 
         monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, "Target Channel: " + channelId);
 
@@ -86,7 +86,7 @@ public class VmSender extends DestinationConnector {
         Status responseStatus = Status.QUEUED; // Always set the status to SENT
 
         boolean isDICOM = this.getOutboundDataType().getType().equals(DataTypeFactory.DICOM);
-        byte[] data = AttachmentUtil.reAttachMessage(vmSenderProperties.getChannelTemplate(), message, "UTF-8", isDICOM);
+        byte[] data = AttachmentUtil.reAttachMessage(vmDispatcherProperties.getChannelTemplate(), message, "UTF-8", isDICOM);
         
         RawMessage rawMessage;
         

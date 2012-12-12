@@ -16,7 +16,7 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 
-public class VmListener extends SourceConnector {
+public class VmReceiver extends SourceConnector {
 
     @Override
     public void onDeploy() throws DeployException {

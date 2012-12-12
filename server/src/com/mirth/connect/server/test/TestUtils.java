@@ -13,8 +13,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.mirth.connect.client.core.Client;
-import com.mirth.connect.connectors.vm.VmListenerProperties;
-import com.mirth.connect.connectors.vm.VmSenderProperties;
+import com.mirth.connect.connectors.vm.VmReceiverProperties;
+import com.mirth.connect.connectors.vm.VmDispatcherProperties;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
@@ -35,7 +35,7 @@ public class TestUtils {
         sourceConnector.setFilter(new Filter());
         sourceConnector.setTransformer(sourceTransformer);
         sourceConnector.setTransportName("Channel Reader");
-        sourceConnector.setProperties(new VmListenerProperties());
+        sourceConnector.setProperties(new VmReceiverProperties());
         
         Transformer destinationTransformer = new Transformer();
         destinationTransformer.setInboundDataType("HL7");
@@ -48,7 +48,7 @@ public class TestUtils {
         destinationConnector.setFilter(new Filter());
         destinationConnector.setTransformer(destinationTransformer);
         destinationConnector.setTransportName("Channel Writer");
-        destinationConnector.setProperties(new VmSenderProperties());
+        destinationConnector.setProperties(new VmDispatcherProperties());
         
         Channel channel = new Channel();
         channel.setId(channelId);

@@ -337,14 +337,14 @@
 			<fileset dir="${lib.extensions}/vm" />
 		</copy>
 		<jar destfile="${connectors.vm}/vm-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/vm/VmListenerProperties.class" />
-			<include name="com/mirth/connect/connectors/vm/VmSenderProperties.class" />
+			<include name="com/mirth/connect/connectors/vm/VmReceiverProperties.class" />
+			<include name="com/mirth/connect/connectors/vm/VmDispatcherProperties.class" />
 		</jar>
 		<jar destfile="${connectors.vm}/vm-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/vm/**" />
-				<exclude name="com/mirth/connect/connectors/vm/VmListenerProperties.class" />
-				<exclude name="com/mirth/connect/connectors/vm/VmSenderProperties.class" />
+				<exclude name="com/mirth/connect/connectors/vm/VmReceiverProperties.class" />
+				<exclude name="com/mirth/connect/connectors/vm/VmDispatcherProperties.class" />
 			</fileset>
 		</jar>
 

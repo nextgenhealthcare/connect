@@ -32,7 +32,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
     @Override
     public String getConnectorName() {
-        return new VmSenderProperties().getName();
+        return new VmDispatcherProperties().getName();
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
             return null;
         }
         
-        VmSenderProperties properties = new VmSenderProperties();
+        VmDispatcherProperties properties = new VmDispatcherProperties();
 
         properties.setChannelId(channelList.get((String) channelNames.getSelectedItem()));
         properties.setChannelTemplate(template.getText());
@@ -53,7 +53,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
     @Override
     public void setProperties(ConnectorProperties properties) {
-        VmSenderProperties props = (VmSenderProperties) properties;
+        VmDispatcherProperties props = (VmDispatcherProperties) properties;
 
         ArrayList<String> channelNameArray = new ArrayList<String>();
         channelList = new HashMap<String, String>();
@@ -95,7 +95,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
     @Override
     public ConnectorProperties getDefaults() {
-        return new VmSenderProperties();
+        return new VmDispatcherProperties();
     }
 
     @Override

@@ -11,8 +11,8 @@ package com.mirth.connect.plugins;
 
 import java.util.Calendar;
 
-import com.mirth.connect.connectors.vm.VmListenerProperties;
-import com.mirth.connect.connectors.vm.VmSenderProperties;
+import com.mirth.connect.connectors.vm.VmReceiverProperties;
+import com.mirth.connect.connectors.vm.VmDispatcherProperties;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
@@ -43,7 +43,7 @@ public abstract class ChannelWizardPlugin extends ClientPlugin {
         sourceConnector.setTransformer(sourceTransformer);
         sourceConnector.setMode(Mode.SOURCE);
         sourceConnector.setName("sourceConnector");
-        ConnectorProperties sourceConnectorProperties = new VmListenerProperties();
+        ConnectorProperties sourceConnectorProperties = new VmReceiverProperties();
         sourceConnector.setTransportName(sourceConnectorProperties.getName());
         sourceConnector.setProperties(sourceConnectorProperties);
         channel.setSourceConnector(sourceConnector);
@@ -54,7 +54,7 @@ public abstract class ChannelWizardPlugin extends ClientPlugin {
         destinationConnector.setTransformer(new Transformer());
         destinationConnector.setMode(Mode.DESTINATION);
         destinationConnector.setName("Destination 1");
-        ConnectorProperties destinationConnectorProperties = new VmSenderProperties();
+        ConnectorProperties destinationConnectorProperties = new VmDispatcherProperties();
         destinationConnector.setTransportName(destinationConnectorProperties.getName());
         destinationConnector.setProperties(destinationConnectorProperties);
         channel.addDestination(destinationConnector);

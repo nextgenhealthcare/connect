@@ -6,8 +6,8 @@
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send events to other channels in the same Mirth instance.</description>
 	<clientClassName>com.mirth.connect.connectors.vm.ChannelWriter</clientClassName>
-	<serverClassName>com.mirth.connect.connectors.vm.VmSender</serverClassName>
-	<sharedClassName>com.mirth.connect.connectors.vm.VmSenderProperties</sharedClassName>
+	<serverClassName>com.mirth.connect.connectors.vm.VmDispatcher</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.vm.VmDispatcherProperties</sharedClassName>
 	<library type="CLIENT" path="vm-client.jar" />
 	<library type="SHARED" path="vm-shared.jar" />
 	<library type="SERVER" path="vm-server.jar" />

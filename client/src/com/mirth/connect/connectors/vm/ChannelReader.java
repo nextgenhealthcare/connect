@@ -25,12 +25,12 @@ public class ChannelReader extends ConnectorSettingsPanel {
 
     @Override
     public String getConnectorName() {
-        return new VmListenerProperties().getName();
+        return new VmReceiverProperties().getName();
     }
 
     @Override
     public ConnectorProperties getProperties() {
-        VmListenerProperties properties = new VmListenerProperties();
+        VmReceiverProperties properties = new VmReceiverProperties();
 
         return properties;
     }
@@ -41,7 +41,7 @@ public class ChannelReader extends ConnectorSettingsPanel {
 
     @Override
     public ConnectorProperties getDefaults() {
-        return new VmListenerProperties();
+        return new VmReceiverProperties();
     }
 
     @Override

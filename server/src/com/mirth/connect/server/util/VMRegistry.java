@@ -12,10 +12,10 @@ package com.mirth.connect.server.util;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.mirth.connect.connectors.vm.VmListener;
+import com.mirth.connect.connectors.vm.VmReceiver;
 
 public class VMRegistry {
-    private Map<String, VmListener> vmRegistry = null;
+    private Map<String, VmReceiver> vmRegistry = null;
     private static VMRegistry instance = null;
 
     private VMRegistry() {
@@ -34,18 +34,18 @@ public class VMRegistry {
     }
 
     private void initialize() {
-        vmRegistry = new ConcurrentHashMap<String, VmListener>();
+        vmRegistry = new ConcurrentHashMap<String, VmReceiver>();
     }
 
     public synchronized void unregister(String key) {
         vmRegistry.remove(key);
     }
 
-    public VmListener get(String key) {
+    public VmReceiver get(String key) {
         return vmRegistry.get(key);
     }
 
-    public synchronized void register(String key, VmListener value) {
+    public synchronized void register(String key, VmReceiver value) {
         vmRegistry.put(key, value);
     }
 }

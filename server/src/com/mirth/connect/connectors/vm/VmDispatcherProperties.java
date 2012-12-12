@@ -13,14 +13,14 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 
-public class VmSenderProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
+public class VmDispatcherProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
     private QueueConnectorProperties queueConnectorProperties;
     
     private String channelId;
     private boolean isWaitForDestinations;
     private String channelTemplate;
 
-    public VmSenderProperties() {
+    public VmDispatcherProperties() {
         queueConnectorProperties = new QueueConnectorProperties();
         
         this.channelId = "sink";
@@ -64,8 +64,8 @@ public class VmSenderProperties extends ConnectorProperties implements QueueConn
 
     @Override
     public String toFormattedString() {
-        // TODO Auto-generated method stub
-        return null;
+        //TODO review this
+        return channelTemplate;
     }
 
     @Override
