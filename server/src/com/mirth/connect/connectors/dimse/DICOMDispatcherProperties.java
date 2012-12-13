@@ -407,8 +407,17 @@ public class DICOMDispatcherProperties extends ConnectorProperties implements Qu
 
     @Override
     public String toFormattedString() {
-        // TODO Auto-generated method stub
-        return null;
+        StringBuilder builder = new StringBuilder();
+        String newLine = "\n";
+        builder.append("HOST: ");
+        builder.append(host + ":" + port);
+        builder.append(newLine);
+        
+        builder.append(newLine);
+        builder.append("[CONTENT]");
+        builder.append(newLine);
+        builder.append(template);
+        return builder.toString();
     }
 
 }

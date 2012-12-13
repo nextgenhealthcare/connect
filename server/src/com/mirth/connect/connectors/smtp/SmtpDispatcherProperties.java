@@ -14,6 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
@@ -221,7 +223,59 @@ public class SmtpDispatcherProperties extends ConnectorProperties implements Que
 
     @Override
     public String toFormattedString() {
-        return null;
+        StringBuilder builder = new StringBuilder();
+        String newLine = "\n";
+        
+        builder.append("HOST: ");
+        builder.append(smtpHost + ":" + smtpPort);
+        builder.append(newLine);
+        
+        if (StringUtils.isNotBlank(username)) {
+            builder.append("USERNAME: ");
+            builder.append(username);
+            builder.append(newLine);
+        }
+        
+        builder.append("TO: ");
+        builder.append(to);
+        builder.append(newLine);
+        
+        builder.append("FROM: ");
+        builder.append(from);
+        builder.append(newLine);
+        
+        builder.append("CC: ");
+        builder.append(cc);
+        builder.append(newLine);
+        
+        builder.append("SUBJECT: ");
+        builder.append(subject);
+        builder.append(newLine);
+        
+        builder.append(newLine);
+        builder.append("[HEADERS]");
+        for (Map.Entry<String, String> header : headers.entrySet()) {
+            builder.append(newLine);
+            builder.append(header.getKey() + ": " + header.getValue());
+        }
+        builder.append(newLine);
+        
+        builder.append(newLine);
+        builder.append("[ATTACHMENTS]");
+        for (Attachment attachment: attachments) {
+            builder.append(newLine);
+            builder.append(attachment.getName());
+            builder.append(" (");
+            builder.append(attachment.getMimeType());
+            builder.append(")");
+        }
+        builder.append(newLine);
+        
+        builder.append(newLine);
+        builder.append("[CONTENT]");
+        builder.append(newLine);
+        builder.append(body);
+        return builder.toString();
     }
 
     @Override

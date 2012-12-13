@@ -64,8 +64,17 @@ public class VmDispatcherProperties extends ConnectorProperties implements Queue
 
     @Override
     public String toFormattedString() {
-        //TODO review this
-        return channelTemplate;
+        StringBuilder builder = new StringBuilder();
+        String newLine = "\n";
+        builder.append("CHANNEL ID: ");
+        builder.append(channelId);
+        builder.append(newLine);
+        
+        builder.append(newLine);
+        builder.append("[CONTENT]");
+        builder.append(newLine);
+        builder.append(channelTemplate);
+        return builder.toString();
     }
 
     @Override

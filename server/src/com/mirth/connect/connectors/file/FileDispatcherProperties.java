@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.file;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
@@ -202,8 +204,41 @@ public class FileDispatcherProperties extends ConnectorProperties implements Que
 
     @Override
     public String toFormattedString() {
-        // TODO Auto-generated method stub
-        return null;
+        StringBuilder builder = new StringBuilder();
+        String newLine = "\n";
+        
+        builder.append("URI: ");
+        switch (scheme) {
+            case FTP: builder.append("ftp://");
+                break;
+        
+            case SFTP: builder.append("sftp://");
+                break;
+        
+            case SMB: builder.append("smb://");
+                break;
+        
+            case WEBDAV: builder.append("https://");
+                break;
+        }
+        builder.append(host);
+        if (host.charAt(host.length() - 1) != '/') {
+            builder.append("/");
+        }
+        builder.append(outputPattern);
+        builder.append(newLine);
+        
+        if (StringUtils.isNotBlank(username)) {
+            builder.append("USERNAME: ");
+            builder.append(username);
+            builder.append(newLine);
+        }
+        
+        builder.append(newLine);
+        builder.append("[CONTENT]");
+        builder.append(newLine);
+        builder.append(template);
+        return builder.toString();
     }
 
 }

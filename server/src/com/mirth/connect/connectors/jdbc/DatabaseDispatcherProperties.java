@@ -50,8 +50,21 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
 
     @Override
     public String toFormattedString() {
-        // TODO Auto-generated method stub
-        return null;
+        StringBuilder builder = new StringBuilder();
+        String newLine = "\n";
+        builder.append("URL: ");
+        builder.append(url);
+        builder.append(newLine);
+        
+        builder.append("USERNAME: ");
+        builder.append(username);
+        builder.append(newLine);
+        
+        builder.append(newLine);
+        builder.append("[QUERY]");
+        builder.append(newLine);
+        builder.append(query);
+        return builder.toString();
     }
 
     @Override

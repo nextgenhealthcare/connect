@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.tcp;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
@@ -205,8 +207,24 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
 
     @Override
     public String toFormattedString() {
-        // TODO Auto-generated method stub
-        return null;
+        StringBuilder builder = new StringBuilder();
+        String newLine = "\n";
+        
+        builder.append("REMOTE ADDRESS: ");
+        builder.append(remoteAddress + ":" + remotePort);
+        builder.append(newLine);
+        
+        if (overrideLocalBinding) {
+            builder.append("LOCAL ADDRESS: ");
+            builder.append(localAddress + ":" + localPort);
+            builder.append(newLine);
+        }
+        
+        builder.append(newLine);
+        builder.append("[CONTENT]");
+        builder.append(newLine);
+        builder.append(template);
+        return builder.toString();
     }
 
     @Override

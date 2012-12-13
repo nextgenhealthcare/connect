@@ -11,7 +11,11 @@ package com.mirth.connect.connectors.ws;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.mirth.connect.connectors.smtp.Attachment;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
@@ -204,7 +208,47 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
 
     @Override
     public String toFormattedString() {
-        return null;
+        StringBuilder builder = new StringBuilder();
+        String newLine = "\n";
+        
+        builder.append("URL: ");
+        builder.append(wsdlUrl + ":" + port);
+        builder.append(newLine);
+        
+        if (StringUtils.isNotBlank(username)) {
+            builder.append("USERNAME: ");
+            builder.append(username);
+            builder.append(newLine);
+        }
+        
+        if (StringUtils.isNotBlank(service)) {
+            builder.append("SERVICE: ");
+            builder.append(service);
+            builder.append(newLine);
+        }
+        
+        if (StringUtils.isNotBlank(soapAction)) {
+            builder.append("SOAP ACTION: ");
+            builder.append(soapAction);
+            builder.append(newLine);
+        }
+        
+        builder.append(newLine);
+        builder.append("[ATTACHMENTS]");
+        for (int i = 0; i < attachmentNames.size(); i++) {
+            builder.append(newLine);
+            builder.append(attachmentNames.get(i));
+            builder.append(" (");
+            builder.append(attachmentTypes.get(i));
+            builder.append(")");
+        }
+        builder.append(newLine);
+        
+        builder.append(newLine);
+        builder.append("[CONTENT]");
+        builder.append(newLine);
+        builder.append(envelope);
+        return builder.toString();
     }
 
     @Override

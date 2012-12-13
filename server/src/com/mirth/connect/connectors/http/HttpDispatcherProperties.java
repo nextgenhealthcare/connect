@@ -12,6 +12,8 @@ package com.mirth.connect.connectors.http;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
@@ -178,7 +180,48 @@ public class HttpDispatcherProperties extends ConnectorProperties implements Que
 
     @Override
     public String toFormattedString() {
-        return null;
+        StringBuilder builder = new StringBuilder();
+        String newLine = "\n";
+        
+        builder.append("URL: ");
+        builder.append(host);
+        builder.append(newLine);
+        
+        builder.append("METHOD: ");
+        builder.append(method);
+        builder.append(newLine);
+        
+        if (StringUtils.isNotBlank(username)) {
+            builder.append("USERNAME: ");
+            builder.append(username);
+            builder.append(newLine);
+        }
+        
+        builder.append("METHOD: ");
+        builder.append(method);
+        builder.append(newLine);
+        
+        builder.append(newLine);
+        builder.append("[HEADERS]");
+        for (Map.Entry<String, String> header : headers.entrySet()) {
+            builder.append(newLine);
+            builder.append(header.getKey() + ": " + header.getValue());
+        }
+        builder.append(newLine);
+        
+        builder.append(newLine);
+        builder.append("[PARAMETERS]");
+        for (Map.Entry<String, String> parameter : parameters.entrySet()) {
+            builder.append(newLine);
+            builder.append(parameter.getKey() + ": " + parameter.getValue());
+        }
+        builder.append(newLine);
+        
+        builder.append(newLine);
+        builder.append("[CONTENT]");
+        builder.append(newLine);
+        builder.append(content);
+        return builder.toString();
     }
 
     @Override

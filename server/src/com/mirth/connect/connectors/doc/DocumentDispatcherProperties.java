@@ -98,7 +98,21 @@ public class DocumentDispatcherProperties extends ConnectorProperties implements
 
     @Override
     public String toFormattedString() {
-        return null;
+        StringBuilder builder = new StringBuilder();
+        String newLine = "\n";
+        builder.append("URI: ");
+        builder.append(host + outputPattern);
+        builder.append(newLine);
+        
+        builder.append("DOCUMENT TYPE: ");
+        builder.append(documentType);
+        builder.append(newLine);
+        
+        builder.append(newLine);
+        builder.append("[CONTENT]");
+        builder.append(newLine);
+        builder.append(template);
+        return builder.toString();
     }
 
     @Override

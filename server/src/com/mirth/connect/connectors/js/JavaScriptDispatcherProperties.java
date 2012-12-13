@@ -45,8 +45,7 @@ public class JavaScriptDispatcherProperties extends ConnectorProperties implemen
 
     @Override
     public String toFormattedString() {
-        // TODO Auto-generated method stub
-        return null;
+        return "Script Executed";
     }
 
     @Override
