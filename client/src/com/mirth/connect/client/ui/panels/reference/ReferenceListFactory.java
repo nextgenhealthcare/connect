@@ -25,7 +25,11 @@ public class ReferenceListFactory {
 
     public enum ListType {
 
-        ALL("All"), CONVERSION("Conversion Functions"), LOGGING_AND_ALERTS("Logging and Alerts"), DATABASE("Database Functions"), UTILITY("Utility Functions"), DATE("Date Functions"), MESSAGE("Message Functions"), MAP("Map Functions"), CHANNEL("Channel Functions");
+        ALL("All"), CONVERSION("Conversion Functions"), LOGGING_AND_ALERTS(
+                "Logging and Alerts"), DATABASE("Database Functions"), UTILITY(
+                "Utility Functions"), DATE("Date Functions"), MESSAGE(
+                "Message Functions"), MAP("Map Functions"), CHANNEL(
+                "Channel Functions");
         private String value;
 
         ListType(String value) {
@@ -36,6 +40,7 @@ public class ReferenceListFactory {
             return value;
         }
     }
+
     public static final String USER_TEMPLATE_VARIABLES = "User Defined Variables";
     public static final String USER_TEMPLATE_CODE = "User Defined Code";
     public static final String USER_TEMPLATE_FUNCTIONS = "User Defined Functions";
@@ -79,7 +84,7 @@ public class ReferenceListFactory {
                 references.put(connectorEntry.getKey() + " Functions", items);
             }
         }
-        
+
         for (Entry<String, CodeTemplatePlugin> codeTemplatePluginEntry : LoadedExtensions.getInstance().getCodeTemplatePlugins().entrySet()) {
             ArrayList<CodeTemplate> items = codeTemplatePluginEntry.getValue().getReferenceItems();
             if (items.size() > 0) {
@@ -162,7 +167,7 @@ public class ReferenceListFactory {
         variablelistItems.add(new CodeTemplate("Convert HL7 to XML (custom parameters)", "Converts an encoded HL7 string to XML with custom serializer parameters", "SerializerFactory.getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents).toXML(message);\n// Setting the default namespace is required when using the strict parser\ndefault xml namespace = new Namespace('urn:hl7-org:v2xml');\n", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Convert XML to HL7 (default parameters)", "Converts an XML string to HL7 with the default serializer parameters", "SerializerFactory.getHL7Serializer().fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Convert XML to HL7 (custom parameters)", "Converts an XML string to HL7 with custom serializer parameters", "SerializerFactory.getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions, convertLFtoCR, handleSubcomponents).fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        
+
         variablelistItems.add(new CodeTemplate("Convert X12 to XML", "Converts an encoded X12 string to XML", "SerializerFactory.getX12Serializer(inferDelimiters).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:x12:xml');\n", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Convert XML to X12", "Converts an XML string to X12", "SerializerFactory.getX12Serializer(inferDelimiters).fromXML(message);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
 
@@ -221,16 +226,16 @@ public class ReferenceListFactory {
         variablelistItems.add(new CodeTemplate("Create Segment (in message, index)", "Create a new segment in specified message (msg or tmp) at segment index i", "createSegment('segmentName', msg, i)", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Create Segment After Segment", "Create a new segment and insert it after the target segment", "createSegmentAfter('insertSegmentName', afterThisSegment)", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Delete Segment", "Delete a segment from the message", "delete msg['segment']", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
-        
+
         return variablelistItems;
     }
-    
+
     private ArrayList<CodeTemplate> setupChannelItems() {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
 
         variablelistItems.add(new CodeTemplate("Channel ID", "The message channel id", "channelId", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CHANNEL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Channel Name", "The message channel name", "var channelName = Packages.com.mirth.connect.server.controllers.ChannelController.getInstance().getDeployedChannelById(channelId).getName();", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CHANNEL_CONTEXT.getContext()));
-        
+
         return variablelistItems;
     }
 
@@ -246,8 +251,10 @@ public class ReferenceListFactory {
         variablelistItems.add(new CodeTemplate("Get Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.get('key')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Put Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.put('key','value')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Get Response Variable Map", "The variable map that stores responses.", "responseMap.get('key')", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Put Success Response Variable", "The variable map that stores responses.", "responseMap.put('key', ResponseFactory.getSuccessResponse('message'))", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Put Error Response Variable", "The variable map that stores responses.", "responseMap.put('key', ResponseFactory.getFailureResponse('message'))", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Success Response Variable", "Places a successful response in the response variable map.", "responseMap.put('key', ResponseFactory.getSentResponse('message'))", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Error Response Variable", "Places an unsuccessful response in the response variable map.", "responseMap.put('key', ResponseFactory.getErrorResponse('message'))", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Create Success Response", "Creates a successful response object.", "ResponseFactory.getSentResponse('message')", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Create Error Response", "Creates an unsuccessful response object.", "ResponseFactory.getErrorResponse('message')", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
 
         return variablelistItems;
     }
@@ -275,7 +282,7 @@ public class ReferenceListFactory {
         variablelistItems.add(new CodeTemplate("Get Attachments", "Get List of Attachments associated with this message.  This will get all attachments that have been added in the source and destination(s).", "getAttachments()", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Strip Namespaces", "Remove namespaces from an XML string", "var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Parse HTTP Headers", "Takes the string of an HTTP Response and returns it represented as a map for easy access.", "var headers = HTTPUtil.parseHeaders(header);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Remove Illegal XML Characters", "Removes illegal XML characters like control characters that cause a parsing error in e4x (\\x00-\\x1F besides TAB, LF, and CR)", "var newMessage = message.replace(/[\\x00-\\x08]|[\\x0B-\\x0C]|[\\x0E-\\x1F]/g, '');\n", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));  // MIRTH-1202
+        variablelistItems.add(new CodeTemplate("Remove Illegal XML Characters", "Removes illegal XML characters like control characters that cause a parsing error in e4x (\\x00-\\x1F besides TAB, LF, and CR)", "var newMessage = message.replace(/[\\x00-\\x08]|[\\x0B-\\x0C]|[\\x0E-\\x1F]/g, '');\n", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext())); // MIRTH-1202
 
         return variablelistItems;
     }

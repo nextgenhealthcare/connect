@@ -9,27 +9,41 @@
 
 package com.mirth.connect.server.util;
 
-import com.mirth.connect.model.Response;
-import com.mirth.connect.model.Response.Status;
+import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.model.message.Status;
 
 public class ResponseFactory {
-	public static Response getFailureResponse(String message) {
-		return new Response(Status.FAILURE, message);
-	}
+    public static Response getSentResponse(String message) {
+        return new Response(Status.SENT, message);
+    }
 
-	public static Response getSuccessResponse(String message) {
-		return new Response(Status.SUCCESS, message);
-	}
+    /**
+     * This method has been deprecated; use getSentResponse instead
+     */
+    // TODO: Decide whether we want to remove/convert this
+    @Deprecated
+    public static Response getSuccessResponse(String message) {
+        return new Response(Status.SENT, message);
+    }
 
-	public static Response getFilteredResponse(String message) {
-		return new Response(Status.FILTERED, message);
-	}
+    public static Response getErrorResponse(String message) {
+        return new Response(Status.ERROR, message);
+    }
 
-	public static Response getQueudResponse(String message) {
-		return new Response(Status.QUEUED, message);
-	}
+    /**
+     * This method has been deprecated; use getErrorResponse instead
+     */
+    // TODO: Decide whether we want to remove/convert this
+    @Deprecated
+    public static Response getFailureResponse(String message) {
+        return new Response(Status.ERROR, message);
+    }
 
-	public static Response getResponse(String message) {
-		return new Response(Status.UNKNOWN, message);
-	}
+    public static Response getFilteredResponse(String message) {
+        return new Response(Status.FILTERED, message);
+    }
+
+    public static Response getQueuedResponse(String message) {
+        return new Response(Status.QUEUED, message);
+    }
 }
