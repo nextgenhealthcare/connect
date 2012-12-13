@@ -9,37 +9,38 @@
 
 package com.mirth.connect.connectors.vm;
 
+import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
 
 public class VmReceiver extends SourceConnector {
 
-    @Override
-    public void onDeploy() throws DeployException {
-        // TODO Auto-generated method stub
-
-    }
+    private ConnectorType connectorType = ConnectorType.LISTENER;
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 
     @Override
-    public void onUndeploy() throws UndeployException {
-        // TODO Auto-generated method stub
+    public void onDeploy() throws DeployException {}
 
-    }
+    @Override
+    public void onUndeploy() throws UndeployException {}
 
     @Override
     public void onStart() throws StartException {
-        // TODO Auto-generated method stub
-
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
     }
 
     @Override
     public void onStop() throws StopException {
-        // TODO Auto-generated method stub
-
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DISCONNECTED);
     }
 
     @Override
@@ -47,4 +48,15 @@ public class VmReceiver extends SourceConnector {
         finishDispatch(dispatchResult);
     }
 
+    @Override
+    public DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY);
+        return super.dispatchRawMessage(rawMessage);
+    }
+
+    @Override
+    public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String response, String errorMessage) {
+        super.finishDispatch(dispatchResult, attemptedResponse, response, errorMessage);
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
+    }
 }

@@ -50,18 +50,16 @@ public class VmDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
-        // TODO Auto-generated method stub
-    }
+    public void onUndeploy() throws UndeployException {}
 
     @Override
     public void onStart() throws StartException {
-        // TODO Auto-generated method stub
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
     }
 
     @Override
     public void onStop() throws StopException {
-        // TODO Auto-generated method stub
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DISCONNECTED);
     }
 
     @Override
@@ -88,30 +86,30 @@ public class VmDispatcher extends DestinationConnector {
 
         boolean isDICOM = this.getOutboundDataType().getType().equals(DataTypeFactory.DICOM);
         byte[] data = AttachmentUtil.reAttachMessage(vmDispatcherProperties.getChannelTemplate(), message, Constants.ATTACHMENT_CHARSET, isDICOM);
-        
+
         RawMessage rawMessage;
-        
+
         if (isDICOM) {
             rawMessage = new RawMessage(data, null, null);
         } else {
             rawMessage = new RawMessage(StringUtils.newString(data, Constants.ATTACHMENT_CHARSET), null, null);
         }
-        
+
         // Remove the reference to the raw message so its doesn't hold the entire message in memory.
         data = null;
 
         DispatchResult dispatchResult = null;
-        
+
         try {
             dispatchResult = ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage);
-            
+
             if (dispatchResult == null) {
-            	responseData = "Message Successfully Sinked";
+                responseData = "Message Successfully Sinked";
             } else if (dispatchResult.getSelectedResponse() != null) {
                 // If a response was returned from the channel then use that message
                 responseData = dispatchResult.getSelectedResponse().getMessage();
             }
-            
+
             responseStatus = Status.SENT;
         } catch (Throwable e) {
             responseData = ErrorMessageBuilder.buildErrorResponse("Error routing message", e);
@@ -119,7 +117,7 @@ public class VmDispatcher extends DestinationConnector {
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
         }
-        
+
         return new Response(responseStatus, responseData, responseError);
     }
 }
