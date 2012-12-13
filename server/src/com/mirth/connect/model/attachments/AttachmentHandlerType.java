@@ -27,11 +27,11 @@ public enum AttachmentHandlerType {
         if (type == NONE) {
             return null;
         } else if (type == REGEX) {
-            return "com.mirth.connect.model.handlers.RegexAttachmentHandler";
+            return "com.mirth.connect.server.attachments.RegexAttachmentHandler";
         } else if (type == DICOM) {
-            return "com.mirth.connect.model.handlers.DICOMAttachmentHandler";
+            return "com.mirth.connect.server.attachments.DICOMAttachmentHandler";
         } else if (type == JAVASCRIPT) {
-            return "com.mirth.connect.model.handlers.JavaScriptAttachmentHandler";
+            return "com.mirth.connect.server.attachments.JavaScriptAttachmentHandler";
         } else if (type == CUSTOM) {
             return "";
         }
