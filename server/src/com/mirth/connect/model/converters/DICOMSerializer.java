@@ -10,6 +10,8 @@
 package com.mirth.connect.model.converters;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,8 +33,10 @@ import org.dcm4che2.data.BasicDicomObject;
 import org.dcm4che2.data.DicomElement;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
+import org.dcm4che2.data.TransferSyntax;
 import org.dcm4che2.io.ContentHandlerAdapter;
 import org.dcm4che2.io.DicomInputStream;
+import org.dcm4che2.io.DicomOutputStream;
 import org.dcm4che2.io.SAXWriter;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -41,8 +45,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-
-import com.mirth.connect.server.util.DICOMUtil;
 
 public class DICOMSerializer implements IXMLSerializer<String> {
     private String rawData;
@@ -59,6 +61,46 @@ public class DICOMSerializer implements IXMLSerializer<String> {
 
     public static Map<String, String> getDefaultProperties() {
         return new HashMap<String, String>();
+    }
+    
+    public static DicomObject byteArrayToDicomObject(byte[] bytes) throws IOException {
+        DicomObject basicDicomObject = new BasicDicomObject();
+        DicomInputStream dis = null;
+
+        try {
+            dis = new DicomInputStream(new ByteArrayInputStream(bytes));
+            dis.readDicomObject(basicDicomObject, -1);
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            IOUtils.closeQuietly(dis);
+        }
+
+        return basicDicomObject;
+    }
+
+    public static byte[] dicomObjectToByteArray(DicomObject dicomObject) throws IOException {
+        BasicDicomObject basicDicomObject = (BasicDicomObject) dicomObject;
+        DicomOutputStream dos = null;
+
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            dos = new DicomOutputStream(bos);
+
+            if (basicDicomObject.fileMetaInfo().isEmpty()) {
+                // Create ACR/NEMA Dump
+                dos.writeDataset(basicDicomObject, TransferSyntax.ImplicitVRLittleEndian);
+            } else {
+                // Create DICOM File
+                dos.writeDicomFile(basicDicomObject);
+            }
+
+            return bos.toByteArray();
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            IOUtils.closeQuietly(dos);
+        }
     }
 
     public List<String> getPixelData() {
@@ -121,7 +163,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
             ContentHandlerAdapter contentHandler = new ContentHandlerAdapter(dicomObject);
             byte[] documentBytes = documentSerializer.toXML(document).trim().getBytes(charset);
             parser.parse(new InputSource(new ByteArrayInputStream(documentBytes)), contentHandler);
-            return new String(Base64.encodeBase64Chunked(DICOMUtil.dicomObjectToByteArray(dicomObject)));
+            return new String(Base64.encodeBase64Chunked(dicomObjectToByteArray(dicomObject)));
         } catch (Exception e) {
             throw new SerializerException(e);
         }
@@ -130,10 +172,10 @@ public class DICOMSerializer implements IXMLSerializer<String> {
     @Override
     public String toXML(String source) throws SerializerException {
         try {
-            DicomObject dicomObject = DICOMUtil.byteArrayToDicomObject(Base64.decodeBase64(source));
+            DicomObject dicomObject = byteArrayToDicomObject(Base64.decodeBase64(source));
             // read in header and pixel data
             pixelData = extractPixelDataFromDicomObject(dicomObject);
-            byte[] decodedMessage = DICOMUtil.dicomObjectToByteArray(dicomObject);
+            byte[] decodedMessage = dicomObjectToByteArray(dicomObject);
             rawData = new String(Base64.encodeBase64Chunked(decodedMessage));
 
             StringWriter output = new StringWriter();

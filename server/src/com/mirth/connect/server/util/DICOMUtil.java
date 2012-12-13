@@ -31,17 +31,14 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.dcm4che2.data.BasicDicomObject;
 import org.dcm4che2.data.DicomElement;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
-import org.dcm4che2.data.TransferSyntax;
 import org.dcm4che2.data.VR;
-import org.dcm4che2.io.DicomInputStream;
-import org.dcm4che2.io.DicomOutputStream;
 
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.DICOMSerializer;
 import com.mirth.connect.model.converters.SerializerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MessageObjectController;
@@ -108,7 +105,7 @@ public class DICOMUtil {
 
     public static String mergeHeaderPixelData(byte[] header, List<byte[]> images) throws IOException {
         // 1. read in header
-        DicomObject dcmObj = byteArrayToDicomObject(header);
+        DicomObject dcmObj = DICOMSerializer.byteArrayToDicomObject(header);
 
         // 2. Add pixel data to DicomObject
         if (images != null && !images.isEmpty()) {
@@ -125,7 +122,7 @@ public class DICOMUtil {
             }
         }
 
-        return new String(Base64.encodeBase64Chunked(dicomObjectToByteArray(dcmObj)));
+        return new String(Base64.encodeBase64Chunked(DICOMSerializer.dicomObjectToByteArray(dcmObj)));
     }
 
     public static List<Attachment> getMessageAttachments(MessageObject message) throws SerializerException {
@@ -234,45 +231,5 @@ public class DICOMUtil {
         }
         
         return null;
-    }
-
-    public static DicomObject byteArrayToDicomObject(byte[] bytes) throws IOException {
-        DicomObject basicDicomObject = new BasicDicomObject();
-        DicomInputStream dis = null;
-
-        try {
-            dis = new DicomInputStream(new ByteArrayInputStream(bytes));
-            dis.readDicomObject(basicDicomObject, -1);
-        } catch (IOException e) {
-            throw e;
-        } finally {
-            IOUtils.closeQuietly(dis);
-        }
-
-        return basicDicomObject;
-    }
-
-    public static byte[] dicomObjectToByteArray(DicomObject dicomObject) throws IOException {
-        BasicDicomObject basicDicomObject = (BasicDicomObject) dicomObject;
-        DicomOutputStream dos = null;
-
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            dos = new DicomOutputStream(bos);
-
-            if (basicDicomObject.fileMetaInfo().isEmpty()) {
-                // Create ACR/NEMA Dump
-                dos.writeDataset(basicDicomObject, TransferSyntax.ImplicitVRLittleEndian);
-            } else {
-                // Create DICOM File
-                dos.writeDicomFile(basicDicomObject);
-            }
-
-            return bos.toByteArray();
-        } catch (IOException e) {
-            throw e;
-        } finally {
-            IOUtils.closeQuietly(dos);
-        }
     }
 }
