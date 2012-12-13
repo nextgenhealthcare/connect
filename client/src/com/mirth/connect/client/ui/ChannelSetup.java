@@ -12,6 +12,7 @@ package com.mirth.connect.client.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
@@ -663,6 +664,8 @@ public class ChannelSetup extends javax.swing.JPanel {
             initialState.setSelectedItem("Stopped");
         }
         
+        attachmentStoreCheckBox.setSelected(currentChannel.getProperties().isStoreAttachments());
+        
         parent.setSaveEnabled(enabled);
     }
     
@@ -929,6 +932,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         currentChannel.getProperties().setClearGlobalChannelMap(clearGlobalChannelMapCheckBox.isSelected());
         currentChannel.getProperties().setEncryptData(encryptMessagesCheckBox.isSelected());
         currentChannel.getProperties().setInitialStateStarted(((String) initialState.getSelectedItem()).equalsIgnoreCase("Started"));
+        currentChannel.getProperties().setStoreAttachments(attachmentStoreCheckBox.isSelected());
 
         String validationMessage = checkAllForms(currentChannel);
         if (validationMessage != null) {
@@ -1424,6 +1428,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         summaryRevision = new javax.swing.JLabel();
         lastModified = new javax.swing.JLabel();
         attachmentWarningLabel = new javax.swing.JLabel();
+        attachmentStoreCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         messageStoragePanel = new javax.swing.JPanel();
         storageModeLabel = new javax.swing.JLabel();
         storageLabel = new javax.swing.JLabel();
@@ -1547,6 +1552,11 @@ public class ChannelSetup extends javax.swing.JPanel {
         clearGlobalChannelMapCheckBox.setText("Clear global channel map on deploy");
         clearGlobalChannelMapCheckBox.setToolTipText("Clear the global channel map on both single channel deploy and a full redeploy.");
         clearGlobalChannelMapCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        clearGlobalChannelMapCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearGlobalChannelMapCheckBoxActionPerformed(evt);
+            }
+        });
 
         summaryRevision.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         summaryRevision.setText("Revision: ");
@@ -1555,6 +1565,18 @@ public class ChannelSetup extends javax.swing.JPanel {
         lastModified.setText("Last Modified: ");
 
         attachmentWarningLabel.setForeground(new java.awt.Color(255, 0, 0));
+        attachmentWarningLabel.setText("Attachments will be removed but not stored or reattached.");
+
+        attachmentStoreCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        attachmentStoreCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        attachmentStoreCheckBox.setText("Store Attachments");
+        attachmentStoreCheckBox.setToolTipText("Attachments will be stored in the database and it will be possible for them to be reattached.");
+        attachmentStoreCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        attachmentStoreCheckBox.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                attachmentStoreCheckBoxItemStateChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout channelPropertiesPanelLayout = new javax.swing.GroupLayout(channelPropertiesPanel);
         channelPropertiesPanel.setLayout(channelPropertiesPanelLayout);
@@ -1577,20 +1599,20 @@ public class ChannelSetup extends javax.swing.JPanel {
                         .addComponent(changeDataTypesButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(initialState, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(summaryNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(12, 12, 12)
                 .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                        .addGap(34, 34, 34)
-                        .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(clearGlobalChannelMapCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(summaryEnabledCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(summaryRevision, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lastModified, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(summaryEnabledCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(195, 195, 195)
+                        .addComponent(summaryRevision, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
+                        .addComponent(attachmentStoreCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(attachmentWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(attachmentWarningLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
+                        .addComponent(clearGlobalChannelMapCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(34, 34, 34)
+                        .addComponent(lastModified, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         channelPropertiesPanelLayout.setVerticalGroup(
@@ -1603,23 +1625,24 @@ public class ChannelSetup extends javax.swing.JPanel {
                     .addComponent(summaryEnabledCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
-                        .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(summaryPatternLabel1)
-                            .addComponent(changeDataTypesButton))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(initialState, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(initialStateLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(attachmentLabel)
-                            .addComponent(attachmentComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(attachmentPropertiesButton)
-                            .addComponent(attachmentWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(lastModified)
-                    .addComponent(clearGlobalChannelMapCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lastModified)
+                        .addComponent(clearGlobalChannelMapCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(summaryPatternLabel1)
+                        .addComponent(changeDataTypesButton)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(initialState, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(initialStateLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(channelPropertiesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(attachmentLabel)
+                    .addComponent(attachmentComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(attachmentStoreCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(attachmentPropertiesButton)
+                    .addComponent(attachmentWarningLabel))
+                .addContainerGap())
         );
 
         messageStoragePanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -1733,8 +1756,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(removeAttachmentsCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(queueWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 4, Short.MAX_VALUE))
+                .addComponent(queueWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addComponent(messageStorageSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
 
@@ -1981,7 +2003,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(summaryDescriptionScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+                .addComponent(summaryDescriptionScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -2014,8 +2036,8 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(messageStoragePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(messagePruningPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(messagePruningPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 0, Short.MAX_VALUE))
+                .addGap(4, 4, 4)
                 .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(customMetadataPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(channelTagsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -2468,16 +2490,20 @@ public class ChannelSetup extends javax.swing.JPanel {
         
         switch (messageStorageMode) {
             case METADATA: case DISABLED:
-                if (attachmentComboBox.getSelectedItem() == AttachmentHandlerType.NONE) {
-                    attachmentWarningLabel.setText("");
-                } else {
-                    attachmentWarningLabel.setText("Attachments will not be saved/reattached with the selected storage mode");
-                }
+                attachmentStoreCheckBox.setSelected(false);
+                attachmentStoreCheckBox.setEnabled(false);
                 break;
                 
             default:
-                attachmentWarningLabel.setText("");
+                attachmentStoreCheckBox.setSelected(type != AttachmentHandlerType.NONE);
+                attachmentStoreCheckBox.setEnabled(type != AttachmentHandlerType.NONE);
                 break;
+        }
+        
+        if (type == AttachmentHandlerType.NONE) {
+            attachmentWarningLabel.setVisible(false);
+        } else {
+            attachmentWarningLabel.setVisible(!attachmentStoreCheckBox.isEnabled());
         }
     }//GEN-LAST:event_attachmentComboBoxActionPerformed
 
@@ -2573,15 +2599,17 @@ public class ChannelSetup extends javax.swing.JPanel {
         
         switch (messageStorageMode) {
             case METADATA: case DISABLED:
-                if (attachmentComboBox.getSelectedItem() == AttachmentHandlerType.NONE) {
-                    attachmentWarningLabel.setText("");
-                } else {
-                    attachmentWarningLabel.setText("Attachments will not be saved/reattached with the selected storage mode");
+                if (attachmentStoreCheckBox.isEnabled()) {
+                    attachmentStoreCheckBox.setSelected(false);
+                    attachmentStoreCheckBox.setEnabled(false);
                 }
                 break;
                 
             default:
-                attachmentWarningLabel.setText("");
+                if (!attachmentStoreCheckBox.isEnabled()) {
+                    attachmentStoreCheckBox.setSelected(attachmentComboBox.getSelectedItem() != AttachmentHandlerType.NONE);
+                    attachmentStoreCheckBox.setEnabled(attachmentComboBox.getSelectedItem() != AttachmentHandlerType.NONE);
+                }
                 break;
         }
     }//GEN-LAST:event_messageStorageSliderStateChanged
@@ -2616,6 +2644,14 @@ public class ChannelSetup extends javax.swing.JPanel {
         parent.setSaveEnabled(true);
         updateStorageMode();
     }//GEN-LAST:event_removeAttachmentsCheckboxActionPerformed
+
+    private void clearGlobalChannelMapCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearGlobalChannelMapCheckBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_clearGlobalChannelMapCheckBoxActionPerformed
+
+    private void attachmentStoreCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_attachmentStoreCheckBoxItemStateChanged
+        attachmentWarningLabel.setVisible(evt.getStateChange() != ItemEvent.SELECTED && attachmentComboBox.getSelectedItem() != AttachmentHandlerType.NONE);
+    }//GEN-LAST:event_attachmentStoreCheckBoxItemStateChanged
 
     public void generateMultipleDestinationPage() {
         // Get the selected destination connector and set it.
@@ -2837,6 +2873,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private com.mirth.connect.client.ui.components.MirthComboBox attachmentComboBox;
     private javax.swing.JLabel attachmentLabel;
     private javax.swing.JButton attachmentPropertiesButton;
+    public com.mirth.connect.client.ui.components.MirthCheckBox attachmentStoreCheckBox;
     private javax.swing.JLabel attachmentWarningLabel;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton changeDataTypesButton;

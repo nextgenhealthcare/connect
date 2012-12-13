@@ -117,9 +117,9 @@
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="messageStoragePanel" max="32767" attributes="0"/>
-                          <Component id="messagePruningPanel" pref="190" max="32767" attributes="0"/>
+                          <Component id="messagePruningPanel" pref="0" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="customMetadataPanel" max="32767" attributes="0"/>
                           <Component id="channelTagsPanel" min="-2" max="-2" attributes="0"/>
@@ -168,23 +168,22 @@
                               </Group>
                               <Component id="summaryNameField" alignment="0" min="-2" pref="185" max="-2" attributes="0"/>
                           </Group>
+                          <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" attributes="0">
-                                  <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="clearGlobalChannelMapCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="summaryEnabledCheckbox" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="1" attributes="0">
-                                      <Component id="summaryRevision" max="32767" attributes="0"/>
-                                      <Component id="lastModified" max="32767" attributes="0"/>
-                                  </Group>
+                                  <Component id="summaryEnabledCheckbox" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="195" max="-2" attributes="0"/>
+                                  <Component id="summaryRevision" max="32767" attributes="0"/>
                               </Group>
-                              <Group type="102" alignment="0" attributes="0">
+                              <Group type="102" attributes="0">
+                                  <Component id="attachmentStoreCheckBox" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="attachmentWarningLabel" min="-2" pref="374" max="-2" attributes="0"/>
-                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                  <Component id="attachmentWarningLabel" max="32767" attributes="0"/>
+                              </Group>
+                              <Group type="102" attributes="0">
+                                  <Component id="clearGlobalChannelMapCheckBox" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
+                                  <Component id="lastModified" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -200,30 +199,31 @@
                               <Component id="summaryRevision" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="summaryEnabledCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace max="-2" attributes="0"/>
+                          <EmptySpace min="-2" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" attributes="0">
-                                  <Group type="103" groupAlignment="3" attributes="0">
-                                      <Component id="summaryPatternLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="changeDataTypesButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="3" attributes="0">
-                                      <Component id="initialState" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="initialStateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="3" attributes="0">
-                                      <Component id="attachmentLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="attachmentComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="attachmentPropertiesButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="attachmentWarningLabel" alignment="3" min="-2" pref="15" max="-2" attributes="0"/>
-                                  </Group>
+                              <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                                  <Component id="lastModified" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="clearGlobalChannelMapCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Component id="lastModified" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="clearGlobalChannelMapCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="summaryPatternLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="changeDataTypesButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="initialState" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="initialStateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="attachmentLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="attachmentComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="attachmentStoreCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="attachmentPropertiesButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="attachmentWarningLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -330,6 +330,9 @@
                       <Insets value="[0, 0, 0, 0]"/>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="clearGlobalChannelMapCheckBoxActionPerformed"/>
+                  </Events>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
                   </AuxValues>
@@ -351,7 +354,31 @@
                     <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="0" green="0" red="ff" type="rgb"/>
                     </Property>
+                    <Property name="text" type="java.lang.String" value="Attachments will be removed but not stored or reattached."/>
                   </Properties>
+                </Component>
+                <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="attachmentStoreCheckBox">
+                  <Properties>
+                    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                    </Property>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                        <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+                      </Border>
+                    </Property>
+                    <Property name="text" type="java.lang.String" value="Store Attachments"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Attachments will be stored in the database and it will be possible for them to be reattached."/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[0, 0, 0, 0]"/>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="attachmentStoreCheckBoxItemStateChanged"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
@@ -422,7 +449,6 @@
                           <Component id="removeAttachmentsCheckbox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="queueWarningLabel" min="-2" pref="15" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="4" max="32767" attributes="0"/>
                       </Group>
                       <Component id="messageStorageSlider" pref="0" max="32767" attributes="0"/>
                   </Group>
@@ -927,7 +953,7 @@
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="summaryDescriptionScrollPane" pref="100" max="32767" attributes="0"/>
+                          <Component id="summaryDescriptionScrollPane" pref="106" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>

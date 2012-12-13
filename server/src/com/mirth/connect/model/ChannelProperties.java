@@ -25,6 +25,7 @@ public class ChannelProperties implements Serializable {
     private boolean removeContentOnCompletion;
     private boolean removeAttachmentsOnCompletion;
     private boolean initialStateStarted;
+    private boolean storeAttachments;
     private List<MetaDataColumn> metaDataColumns;
     private AttachmentHandlerProperties attachmentProperties;
     private Integer pruneMetaDataDays;
@@ -85,6 +86,14 @@ public class ChannelProperties implements Serializable {
 
     public void setInitialStateStarted(boolean initialStateStarted) {
         this.initialStateStarted = initialStateStarted;
+    }
+
+    public boolean isStoreAttachments() {
+        return storeAttachments;
+    }
+
+    public void setStoreAttachments(boolean storeAttachments) {
+        this.storeAttachments = storeAttachments;
     }
 
     public List<MetaDataColumn> getMetaDataColumns() {

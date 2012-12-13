@@ -472,6 +472,7 @@ public class DonkeyEngineController implements EngineController {
         StorageSettings storageSettings = new StorageSettings();
         storageSettings.setRemoveContentOnCompletion(channelProperties.isRemoveContentOnCompletion());
         storageSettings.setRemoveAttachmentsOnCompletion(channelProperties.isRemoveAttachmentsOnCompletion());
+        storageSettings.setStoreAttachments(channelProperties.isStoreAttachments());
 
         // we assume that all storage settings are enabled by default
         switch (messageStorageMode) {
@@ -500,7 +501,6 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setMessageRecoveryEnabled(false);
                 storageSettings.setDurable(false);
                 storageSettings.setRawDurable(false);
-                storageSettings.setStoreAttachments(false);
                 storageSettings.setStoreCustomMetaData(false);
                 storageSettings.setStoreMaps(false);
                 storageSettings.setStoreRaw(false);
@@ -519,7 +519,6 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setMessageRecoveryEnabled(false);
                 storageSettings.setDurable(false);
                 storageSettings.setRawDurable(false);
-                storageSettings.setStoreAttachments(false);
                 storageSettings.setStoreCustomMetaData(false);
                 storageSettings.setStoreMaps(false);
                 storageSettings.setStoreRaw(false);
