@@ -89,19 +89,13 @@ public class HttpDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
-        // TODO Auto-generated method stub
-    }
+    public void onUndeploy() throws UndeployException {}
 
     @Override
-    public void onStart() throws StartException {
-        // TODO Auto-generated method stub
-    }
+    public void onStart() throws StartException {}
 
     @Override
-    public void onStop() throws StopException {
-        // TODO Auto-generated method stub
-    }
+    public void onStop() throws StopException {}
 
     @Override
     public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {

@@ -57,14 +57,20 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class WebServiceDispatcher extends DestinationConnector {
+    private final static ConnectorType CONNECTOR_TYPE = ConnectorType.SENDER;
+    
     private Logger logger = Logger.getLogger(this.getClass());
     protected WebServiceDispatcherProperties connectorProperties;
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     /*
@@ -84,19 +90,13 @@ public class WebServiceDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
-        // TODO Auto-generated method stub
-    }
+    public void onUndeploy() throws UndeployException {}
 
     @Override
-    public void onStart() throws StartException {
-        // TODO Auto-generated method stub
-    }
+    public void onStart() throws StartException {}
 
     @Override
-    public void onStop() throws StopException {
-        // TODO Auto-generated method stub
-    }
+    public void onStop() throws StopException {}
 
     private String sourceToXmlString(Source source) throws TransformerConfigurationException, TransformerException {
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -204,6 +204,9 @@ public class WebServiceDispatcher extends DestinationConnector {
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
         WebServiceDispatcherProperties webServiceDispatcherProperties = (WebServiceDispatcherProperties) connectorProperties;
+        
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.BUSY);
+        
         String responseData = null;
         String responseError = null;
         Status responseStatus = Status.QUEUED;
@@ -280,6 +283,7 @@ public class WebServiceDispatcher extends DestinationConnector {
                 if ((e.getClass() == ConnectException.class) || ((e.getCause() != null) && (e.getCause().getClass() == ConnectException.class))) {
                     alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_410, "Connection refused.", e);
                 } else {
+                    responseStatus = Status.ERROR;
                     responseData = ErrorMessageBuilder.buildErrorResponse("Error invoking web service", e);
                     responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_410, "Error invoking web service", e);
                     alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_410, "Error invoking web service.", e);
@@ -288,9 +292,12 @@ public class WebServiceDispatcher extends DestinationConnector {
 
         } catch (Exception e) {
             // Set the response status to ERROR if it failed to create the dispatch
+            responseStatus = Status.ERROR;
             responseData = ErrorMessageBuilder.buildErrorResponse("Error creating web service dispatch", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_410, "Error creating web service dispatch", e);
             alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_410, "Error creating web service dispatch.", e);
+        } finally {
+            monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
         }
 
         return new Response(responseStatus, responseData, responseError);

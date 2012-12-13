@@ -24,8 +24,13 @@ import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
@@ -33,9 +38,12 @@ import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 
 public class JavaScriptReceiver extends PollConnector {
+    private final static ConnectorType CONNECTOR_TYPE = ConnectorType.READER;
+    
     private String scriptId;
     private JavaScriptReceiverProperties connectorProperties;
     private JavaScriptExecutor<Object> jsExecutor = new JavaScriptExecutor<Object>();
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private Logger logger = Logger.getLogger(getClass());
 
     @Override
@@ -72,6 +80,7 @@ public class JavaScriptReceiver extends PollConnector {
     @Override
     public void poll() throws InterruptedException {
         Object result = null;
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.BUSY);
         
         try {
             result = jsExecutor.execute(new JavaScriptReceiverTask());
@@ -83,14 +92,19 @@ public class JavaScriptReceiver extends PollConnector {
             DispatchResult dispatchResult = null;
             
             try {
-                try {
-                    dispatchResult = dispatchRawMessage(rawMessage);
-                } finally {
-                    finishDispatch(dispatchResult);
+                dispatchResult = dispatchRawMessage(rawMessage);
+            } catch (ChannelException e) {
+                if (e.isStopped()) {
+                    logger.error("Channel ID " + getChannelId() + " failed to dispatch message from " + connectorProperties.getName() + ". The channel is stopped.");
+                } else {
+                    logger.error("Channel ID " + getChannelId() + " failed to dispatch message from " + connectorProperties.getName() + ". Cause: " + e.getMessage());
                 }
-            } catch (Exception e) {
+            } finally {
+                finishDispatch(dispatchResult);
             }
         }
+
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
     }
     
     private class JavaScriptReceiverTask extends JavaScriptTask<Object> {

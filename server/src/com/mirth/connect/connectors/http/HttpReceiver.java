@@ -73,15 +73,11 @@ public class HttpReceiver extends SourceConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
-        // TODO Auto-generated method stub
-
-    }
+    public void onUndeploy() throws UndeployException {}
 
     @Override
     public void onStart() throws StartException {
-        server = new Server();
-        String host = connectorProperties.getListenerConnectorProperties().getHost();
+        String host = replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost());
         int port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort()));
         int timeout = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getTimeout()), 0);
 
@@ -93,11 +89,11 @@ public class HttpReceiver extends SourceConnector {
         }
 
         try {
+            server = new Server();
             configuration.configureReceiver(server, host, port, timeout);
 
             // add the request handler
             ContextHandler contextHandler = new ContextHandler();
-
             contextHandler.setContextPath(contextPath);
             contextHandler.setHandler(new RequestHandler());
             server.setHandler(contextHandler);
@@ -106,9 +102,9 @@ public class HttpReceiver extends SourceConnector {
             server.start();
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
         } catch (Exception e) {
+            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE);
             throw new StartException("Failed to start HTTP Listener", e);
         }
-
     }
 
     @Override
@@ -134,7 +130,7 @@ public class HttpReceiver extends SourceConnector {
             try {
                 dispatchResult = processData(baseRequest);
                 
-                servletResponse.setContentType(connectorProperties.getResponseContentType());
+                servletResponse.setContentType(replacer.replaceValues(connectorProperties.getResponseContentType()));
 
                 // set the response headers
                 for (Entry<String, String> entry : connectorProperties.getResponseHeaders().entrySet()) {
@@ -213,7 +209,6 @@ public class HttpReceiver extends SourceConnector {
     };
 
     private DispatchResult processData(Request request) throws IOException, ChannelException {
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY);
         HttpMessageConverter converter = new HttpMessageConverter();
 
         HttpRequestMessage requestMessage = new HttpRequestMessage();
@@ -242,14 +237,16 @@ public class HttpReceiver extends SourceConnector {
             rawMessageContent = requestMessage.getContent();
         }
 
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY);
+        
         return dispatchRawMessage(new RawMessage(rawMessageContent));
     }
 
-    private String replaceValues(String template, DispatchResult messageResponse) {
+    private String replaceValues(String template, DispatchResult dispatchResult) {
         ConnectorMessage mergedConnectorMessage = null;
 
-        if (messageResponse.getProcessedMessage() != null) {
-            mergedConnectorMessage = messageResponse.getProcessedMessage().getMergedConnectorMessage();
+        if (dispatchResult.getProcessedMessage() != null) {
+            mergedConnectorMessage = dispatchResult.getProcessedMessage().getMergedConnectorMessage();
         }
 
         return (mergedConnectorMessage == null ? replacer.replaceValues(template, getChannelId()) : replacer.replaceValues(template, mergedConnectorMessage));
@@ -259,5 +256,4 @@ public class HttpReceiver extends SourceConnector {
 	public void handleRecoveredResponse(DispatchResult dispatchResult) {
 		finishDispatch(dispatchResult);
 	}
-
 }

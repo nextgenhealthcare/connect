@@ -40,7 +40,7 @@ public abstract class PollConnector extends SourceConnector {
         } else if (connectorProperties.getPollingType().equals(PollConnectorProperties.POLLING_TYPE_TIME)) {
             task = new PollConnectorTask(this, true);
             // if polling type is time, schedule the polling task to execute at the given time, repeating every 24 hours
-            scheduleTask();
+            scheduleTimeBasedTask();
         }
     }
 
@@ -67,7 +67,7 @@ public abstract class PollConnector extends SourceConnector {
 
     protected abstract void poll() throws InterruptedException;
 
-    public void scheduleTask() {
+    public void scheduleTimeBasedTask() {
         PollConnectorProperties connectorProperties = ((PollConnectorPropertiesInterface) getConnectorProperties()).getPollConnectorProperties();
 
         Calendar triggerTime = Calendar.getInstance();
@@ -83,7 +83,7 @@ public abstract class PollConnector extends SourceConnector {
             triggerTime.set(Calendar.DAY_OF_MONTH, triggerTime.get(Calendar.DAY_OF_MONTH) + 1);
         }
 
-        timer.schedule(task, triggerTime.getTime());
+        timer.schedule(new PollConnectorTask(this, true), triggerTime.getTime());
     }
 
     private class PollConnectorTask extends TimerTask {
@@ -106,7 +106,7 @@ public abstract class PollConnector extends SourceConnector {
                     }
 
                     if (reschedule && !terminated) {
-                        pollConnector.scheduleTask();
+                        pollConnector.scheduleTimeBasedTask();
                     }
                 }
             }

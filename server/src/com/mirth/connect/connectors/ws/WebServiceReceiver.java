@@ -21,10 +21,10 @@ import javax.xml.ws.Binding;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.handler.Handler;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
@@ -35,6 +35,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
@@ -45,8 +46,9 @@ public class WebServiceReceiver extends SourceConnector {
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private ConnectorType connectorType = ConnectorType.LISTENER;
     private HttpServer server;
-    private ExecutorService threads;
+    private ExecutorService executor;
     private Endpoint webServiceEndpoint;
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     @Override
     public void onDeploy() {
@@ -54,15 +56,12 @@ public class WebServiceReceiver extends SourceConnector {
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
-        // TODO Auto-generated method stub
-    }
+    public void onUndeploy() throws UndeployException {}
 
     @Override
     public void onStart() throws StartException {
-        // TODO: TemplateValueReplacer
-        String host = connectorProperties.getListenerConnectorProperties().getHost();
-        int port = Integer.parseInt(connectorProperties.getListenerConnectorProperties().getPort());
+        String host = replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getHost(), getChannelId());
+        int port = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getListenerConnectorProperties().getPort(), getChannelId()));
 
         logger.debug("starting Web Service HTTP server on port: " + port);
 
@@ -74,14 +73,14 @@ public class WebServiceReceiver extends SourceConnector {
             throw new StartException("Error creating HTTP Server.", e.getCause());
         }
 
-        threads = Executors.newFixedThreadPool(5);
-        server.setExecutor(threads);
+        executor = Executors.newFixedThreadPool(5);
+        server.setExecutor(executor);
         server.start();
 
         AcceptMessage acceptMessageWebService = null;
 
         try {
-            Class<?> clazz = Class.forName(connectorProperties.getClassName());
+            Class<?> clazz = Class.forName(replacer.replaceValues(connectorProperties.getClassName(), getChannelId()));
 
             if (clazz.getSuperclass().equals(AcceptMessage.class)) {
                 Constructor<?>[] constructors = clazz.getDeclaredConstructors();
@@ -112,10 +111,12 @@ public class WebServiceReceiver extends SourceConnector {
         List<Handler> handlerChain = new LinkedList<Handler>();
         handlerChain.add(new LoggingSOAPHandler(this));
         binding.setHandlerChain(handlerChain);
-        HttpContext context = server.createContext("/services/" + connectorProperties.getServiceName());
+        
+        String serviceName = replacer.replaceValues(connectorProperties.getServiceName(), getChannelId());
+        HttpContext context = server.createContext("/services/" + serviceName);
 
         if (connectorProperties.getUsernames().size() > 0) {
-            context.setAuthenticator(new BasicAuthenticator("/services/" + connectorProperties.getServiceName()) {
+            context.setAuthenticator(new BasicAuthenticator("/services/" + serviceName) {
                 @Override
                 public boolean checkCredentials(String username, String password) {
                     List<String> usernames = connectorProperties.getUsernames();
@@ -140,7 +141,7 @@ public class WebServiceReceiver extends SourceConnector {
             logger.debug("stopping Web Service HTTP server");
             webServiceEndpoint.stop();
             server.stop(1);
-            threads.shutdown();
+            executor.shutdown();
         } catch (Exception e) {
             throw new StopException("Failed to stop Web Service Listener", e.getCause());
         }
@@ -159,20 +160,22 @@ public class WebServiceReceiver extends SourceConnector {
         String response = null;
         
         try {
-            dispatchResult = super.dispatchRawMessage(rawMessage);
+            dispatchResult = dispatchRawMessage(rawMessage);
             
             if (dispatchResult.getSelectedResponse() != null) {
                 response = dispatchResult.getSelectedResponse().getMessage();
             }
         } catch (ChannelException e) {
             // TODO auto-generate an error response?
-            response = "";
+            response = null;
         } finally {
             // TODO: response should be returned before it is marked as finished
             // TODO: figure out how to get the error message if an error occurred in sending the response back
             finishDispatch(dispatchResult, true, response, null);
         }
 
+        // TODO find a way to call this after the response was sent
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
         return response;
     }
 }

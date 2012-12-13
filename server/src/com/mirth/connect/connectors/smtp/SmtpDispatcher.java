@@ -53,23 +53,18 @@ public class SmtpDispatcher extends DestinationConnector {
     public void onDeploy() throws DeployException {
         this.connectorProperties = (SmtpDispatcherProperties) getConnectorProperties();
 
+        // TODO remove hardcoded HL7v2 reference?
         this.charsetEncoding = CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
     }
 
     @Override
-    public void onUndeploy() throws UndeployException {
-        // TODO Auto-generated method stub
-    }
+    public void onUndeploy() throws UndeployException {}
 
     @Override
-    public void onStart() throws StartException {
-        // TODO Auto-generated method stub
-    }
+    public void onStart() throws StartException {}
 
     @Override
-    public void onStop() throws StopException {
-        // TODO Auto-generated method stub
-    }
+    public void onStop() throws StopException {}
 
     @Override
     public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {

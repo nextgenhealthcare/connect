@@ -9,7 +9,9 @@
 
 package com.mirth.connect.connectors.smtp;
 
-public class Attachment {
+import java.io.Serializable;
+
+public class Attachment implements Serializable {
     private String name;
     private String content;
     private String mimeType;

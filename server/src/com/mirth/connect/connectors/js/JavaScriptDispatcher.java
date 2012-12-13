@@ -27,6 +27,10 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.JavaScriptUtil;
@@ -37,8 +41,11 @@ import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptDispatcher extends DestinationConnector {
+    private final static ConnectorType CONNECTOR_TYPE = ConnectorType.SENDER;
+    
     private Logger scriptLogger = Logger.getLogger("js-connector");
     private JavaScriptExecutor<Response> jsExecutor = new JavaScriptExecutor<Response>();
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private JavaScriptDispatcherProperties connectorProperties;
     private String scriptId;
@@ -64,14 +71,10 @@ public class JavaScriptDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onStart() throws StartException {
-        // TODO Auto-generated method stub
-    }
+    public void onStart() throws StartException {}
 
     @Override
-    public void onStop() throws StopException {
-        // TODO Auto-generated method stub
-    }
+    public void onStop() throws StopException {}
 
     @Override
     public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage message) {
@@ -81,10 +84,13 @@ public class JavaScriptDispatcher extends DestinationConnector {
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {
         try {
+            monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.BUSY);
             return jsExecutor.execute(new JavaScriptDispatcherTask(message));
         } catch (JavaScriptExecutorException e) {
             // TODO: log error?
             return new Response(Status.ERROR, ErrorMessageBuilder.buildErrorResponse("Error executing script", e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Error executing script", e));
+        } finally {
+            monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
         }
     }
     
@@ -103,7 +109,6 @@ public class JavaScriptDispatcher extends DestinationConnector {
 
             Context context = JavaScriptScopeUtil.getContext();
             Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, getChannelId(), message);
-
             Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
 
             if (compiledScript == null) {
@@ -117,12 +122,12 @@ public class JavaScriptDispatcher extends DestinationConnector {
                 // Set the response message to the returned object (casted to a string)
                 if (result != null) {
                     responseData = (String) Context.jsToJava(result, java.lang.String.class);
-                }
-
-                // TODO: Decide 1) if queuing is ever appropriate for JavaScript Writers and 2) how to implement it
-                // If queuing is enabled, then only update the response status to SENT if the result value isn't null or Undefined
-                if (result != null && !(result instanceof Undefined)) {
-                    responseStatus = Status.SENT;
+                    
+                    // TODO: Decide 1) if queuing is ever appropriate for JavaScript Writers and 2) how to implement it
+                    // If queuing is enabled, then only update the response status to SENT if the result value isn't null or Undefined
+                    if (!(result instanceof Undefined)) {
+                        responseStatus = Status.SENT;
+                    }
                 }
             }
 
