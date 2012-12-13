@@ -47,7 +47,7 @@
 
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.cli.launcher.CommandLineLauncher" />
-				<attribute name="Class-Path" value="cli-lib/log4j-1.2.15.jar cli-lib/commons-io-2.1.jar conf/" />
+				<attribute name="Class-Path" value="cli-lib/log4j-1.2.16.jar cli-lib/commons-io-2.3.jar conf/" />
 			</manifest>
 		</jar>
 
