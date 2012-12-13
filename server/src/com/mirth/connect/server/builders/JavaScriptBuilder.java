@@ -19,11 +19,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
-import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.server.controllers.ControllerException;
@@ -360,20 +360,20 @@ public class JavaScriptBuilder {
     private static void appendAttachmentFunctions(StringBuilder builder, Set<String> scriptOptions) {
         // Helper function to access attachments (returns List<Attachment>)
         builder.append("function getAttachments() {");
-        builder.append("return Packages.com.mirth.connect.donkey.controllers.MessageController.getInstance().getAttachmentsByMessage(messageObject);");
+        builder.append("return Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().getAttachmentsByMessage(messageObject);");
         builder.append("}\n");
 
         // Helper function to set attachment
         if (scriptOptions != null && scriptOptions.contains("useAttachmentList")) {
 
             builder.append("function addAttachment(data, type) {");
-            builder.append("var attachment = Packages.com.mirth.connect.donkey.controllers.MessageController.getInstance().createAttachment(data, type);");
+            builder.append("var attachment = Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().createAttachment(data, type);");
             builder.append("attachments.add(attachment); \n");
             builder.append("return attachment; }\n");
         } else {
             builder.append("function addAttachment(data, type) {");
-            builder.append("var attachment = Packages.com.mirth.connect.donkey.controllers.MessageController.getInstance().createAttachment(data, type);");
-            builder.append("Packages.com.mirth.connect.donkey.controllers.MessageController.getInstance().insertAttachment(attachment, channelId, messageObject.getMessageId())\n");
+            builder.append("var attachment = Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().createAttachment(data, type);");
+            builder.append("Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().insertAttachment(attachment, channelId, messageObject.getMessageId())\n");
             builder.append("return attachment; }\n");
         }
     }
