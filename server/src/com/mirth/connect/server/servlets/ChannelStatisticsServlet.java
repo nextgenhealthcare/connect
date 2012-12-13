@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -67,7 +66,6 @@ public class ChannelStatisticsServlet extends MirthServlet {
                         channelStatistics.setAlerted(0L);
                         channelStatistics.setError(map.get(Status.ERROR));
                         channelStatistics.setFiltered(map.get(Status.FILTERED));
-                        channelStatistics.setQueued(map.get(Status.QUEUED));
                         channelStatistics.setReceived(map.get(Status.RECEIVED));
                         channelStatistics.setSent(map.get(Status.SENT));
 
@@ -84,9 +82,9 @@ public class ChannelStatisticsServlet extends MirthServlet {
                         boolean deleteFiltered = Boolean.valueOf(request.getParameter("deleteFiltered"));
                         boolean deleteSent = Boolean.valueOf(request.getParameter("deleteSent"));
                         boolean deleteErrored = Boolean.valueOf(request.getParameter("deleteErrored"));
-                        
+
                         Set<Status> statusesToClear = new HashSet<Status>();
-                        
+
                         if (deleteReceived) {
                             statusesToClear.add(Status.RECEIVED);
                         }
@@ -99,7 +97,7 @@ public class ChannelStatisticsServlet extends MirthServlet {
                         if (deleteErrored) {
                             statusesToClear.add(Status.ERROR);
                         }
-                        
+
                         channelController.resetStatistics(channelConnectorMap, statusesToClear);
                     }
                 }

@@ -499,7 +499,7 @@ public class CommandLineInterface {
             // Get the new user object that contains the user id
             User newUser = client.getUser(user).get(0);
             responses = client.checkOrUpdateUserPassword(newUser, password);
-            
+
             if (responses != null) {
                 System.out.println("User \"" + username + "\" has been created but the password could not be set:");
                 for (String response : responses) {
@@ -569,9 +569,9 @@ public class CommandLineInterface {
                 break;
             }
         }
-        
+
         client.redeployAllChannels();
-        
+
         if (hasChannels) {
             try {
                 Thread.sleep(500);
@@ -779,23 +779,23 @@ public class CommandLineInterface {
         String channelId = arguments[2].getText();
 
         MessageImportResult messageImportResult = new MessageImportResult();
-        
+
         try {
             messageImportResult = client.importMessages(channelId, fXml, DEFAULT_CHARSET);
         } catch (Exception e) {
             error("cannot read " + path, e);
             return;
         }
-        
+
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Messages import complete.");
         int errorCount = messageImportResult.getErroredMessageIds().size();
         int successCount = messageImportResult.getTotal() - errorCount;
-        
+
         if (successCount > 0) {
             stringBuilder.append(" " + successCount + " message" + ((successCount != 1) ? "s" : "") + " imported successfully.");
         }
-        
+
         if (errorCount > 0) {
             stringBuilder.append(" " + errorCount + " message" + ((errorCount != 1) ? "s" : "") + " failed to import due to an error. Message IDs that failed: " + StringUtils.join(messageImportResult.getErroredMessageIds(), ", "));
         }
@@ -821,7 +821,7 @@ public class CommandLineInterface {
 
         if (arguments.length == 4) {
             String modeArg = arguments[3].getText();
-            
+
             if (StringUtils.equals(modeArg, "raw")) {
                 contentType = ContentType.RAW;
             } else if (StringUtils.equals(modeArg, "processedraw")) {
@@ -838,19 +838,19 @@ public class CommandLineInterface {
                 contentType = ContentType.PROCESSED_RESPONSE;
             }
         }
-        
+
         // page size
         int pageSize = 100;
-        
+
         if (arguments.length == 5) {
             pageSize = NumberUtils.toInt(arguments[4].getText());
         }
-        
+
         int messageCount = 0;
-        
+
         try {
             out.println("Exporting messages to file: " + fXml.getPath());
-            
+
             MessageExportOptions options = new MessageExportOptions();
             options.setChannelId(channelId);
             options.setMessageFilter(filter);
@@ -860,7 +860,7 @@ public class CommandLineInterface {
             options.setOutputType(MessageExportOptions.SINGLE);
             options.setEncrypt(false);
             options.setCharset(DEFAULT_CHARSET);
-            
+
             messageCount = client.exportMessagesLocal(options);
         } catch (Exception e) {
             error("unable to write file " + path + ": " + e, e);
@@ -929,7 +929,7 @@ public class CommandLineInterface {
 
         for (DashboardStatus channelStatus : channelStatuses) {
             ChannelStatistics stats = client.getStatistics(channelStatus.getChannelId());
-            out.println(stats.getReceived() + "\t\t" + stats.getFiltered() + "\t\t" + stats.getQueued() + "\t\t" + stats.getSent() + "\t\t" + stats.getError() + "\t\t" + stats.getAlerted() + "\t\t" + channelStatus.getName());
+            out.println(stats.getReceived() + "\t\t" + stats.getFiltered() + "\t\t" + channelStatus.getQueued() + "\t\t" + stats.getSent() + "\t\t" + stats.getError() + "\t\t" + stats.getAlerted() + "\t\t" + channelStatus.getName());
         }
     }
 
@@ -1025,7 +1025,7 @@ public class CommandLineInterface {
             out.println("Channel Stats for " + channel.getName());
             out.println("Received: " + stats.getReceived());
             out.println("Filtered: " + stats.getFiltered());
-            out.println("Queued: " + stats.getQueued());
+            out.println("Queued: " + channel.getQueued());
             out.println("Sent: " + stats.getSent());
             out.println("Errored: " + stats.getError());
             out.println("Alerted: " + stats.getAlerted());
@@ -1049,7 +1049,7 @@ public class CommandLineInterface {
         for (Channel channel : getMatchingChannels(arguments[2])) {
             channelIds.add(channel.getId());
         }
-        
+
         client.deployChannels(channelIds);
     }
 
@@ -1161,17 +1161,17 @@ public class CommandLineInterface {
 
     private void commandResetstats(Token[] arguments) throws ClientException {
         List<DashboardStatus> channelStatuses = client.getChannelStatusList();
-        
+
         // TODO: separate this code into a utility method since this code is also duplicated in com.mirth.connect.client.ui.Frame.clearStats()
         Map<String, List<Integer>> channelConnectorMap = new HashMap<String, List<Integer>>();
-        
+
         for (DashboardStatus status : channelStatuses) {
             String channelId = status.getChannelId();
             Integer metaDataId = status.getMetaDataId();
 
             if (channelConnectorMap.containsKey(channelId)) {
                 List<Integer> metaDataIds = channelConnectorMap.get(channelId);
-                
+
                 if (metaDataIds != null && metaDataId != null) {
                     metaDataIds.add(metaDataId);
                 }
@@ -1234,7 +1234,7 @@ public class CommandLineInterface {
 
         for (DashboardStatus channelStatus : channelStatuses) {
             ChannelStatistics stats = client.getStatistics(channelStatus.getChannelId());
-            builder.append(channelStatus.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + stats.getQueued() + ", " + stats.getSent() + ", " + stats.getError() + ", " + stats.getAlerted() + "\n");
+            builder.append(channelStatus.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + channelStatus.getQueued() + ", " + stats.getSent() + ", " + stats.getError() + ", " + stats.getAlerted() + "\n");
         }
 
         File dumpFile = new File(dumpFilename);
@@ -1306,13 +1306,13 @@ public class CommandLineInterface {
         } else {
             // Start the revision number over for a new channel
             importChannel.setRevision(0);
-            
+
             // If the channel name didn't already exist, make sure
             // the id doesn't exist either.
             if (!checkChannelId(importChannel.getId())) {
                 importChannel.setId(tempId);
             }
-            
+
         }
 
         importChannel.setVersion(client.getVersion());
