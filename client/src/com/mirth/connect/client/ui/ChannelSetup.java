@@ -35,12 +35,14 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.SerializationException;
@@ -90,7 +92,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     private static final String STATUS_COLUMN_NAME = "Status";
     private static final String DESTINATION_COLUMN_NAME = "Destination";
     private static final String CONNECTOR_TYPE_COLUMN_NAME = "Connector Type";
-    private static final String WAIT_FOR_PREVIOUS_COLUMN_NAME = "Wait for previous";
+    private static final String DESTINATION_CHAIN_COLUMN_NAME = "Chain";
     private static final int SOURCE_TAB_INDEX = 1;
     private static final int DESTINATIONS_TAB_INDEX = 2;
     
@@ -282,6 +284,8 @@ public class ChannelSetup extends javax.swing.JPanel {
             tableSize++;
         }
         
+        int chain = 1;
+        
         tableData = new Object[tableSize][4];
         
         for (int i = 0; i < tableSize; i++) {
@@ -309,7 +313,12 @@ public class ChannelSetup extends javax.swing.JPanel {
                 }
                 tableData[i][1] = connector.getName();
                 tableData[i][2] = connector.getTransportName();
-                tableData[i][3] = connector.isWaitForPrevious();
+                
+                if (i > 0 && !connector.isWaitForPrevious()) {
+                    chain++;
+                }
+                
+                tableData[i][3] = chain;
 
                 currentChannel.addDestination(connector);
             } else {
@@ -321,13 +330,18 @@ public class ChannelSetup extends javax.swing.JPanel {
                 }
                 tableData[i][1] = destinationConnectors.get(i).getName();
                 tableData[i][2] = destinationConnectors.get(i).getTransportName();
-                tableData[i][3] = destinationConnectors.get(i).isWaitForPrevious();
+                
+                if (i > 0 && !destinationConnectors.get(i).isWaitForPrevious()) {
+                    chain++;
+                }
+                
+                tableData[i][3] = chain;
             }
         }
 
         destinationTable = new MirthTable();
 
-        destinationTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { STATUS_COLUMN_NAME, DESTINATION_COLUMN_NAME, CONNECTOR_TYPE_COLUMN_NAME, WAIT_FOR_PREVIOUS_COLUMN_NAME }) {
+        destinationTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { STATUS_COLUMN_NAME, DESTINATION_COLUMN_NAME, CONNECTOR_TYPE_COLUMN_NAME, DESTINATION_CHAIN_COLUMN_NAME }) {
 
             boolean[] canEdit = new boolean[] { false, true, false, false };
 
@@ -349,6 +363,10 @@ public class ChannelSetup extends javax.swing.JPanel {
         // Set the cell renderer for the status column.
         destinationTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
 
+        // Set the cell renderer and the max width for the destination chain column
+        destinationTable.getColumnExt(DESTINATION_CHAIN_COLUMN_NAME).setCellRenderer(new NumberCellRenderer(SwingConstants.CENTER, false));
+        destinationTable.getColumnExt(DESTINATION_CHAIN_COLUMN_NAME).setMaxWidth(50);
+        
         destinationTable.setSelectionMode(0);
         destinationTable.setRowSelectionAllowed(true);
         destinationTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -2455,9 +2473,19 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     private void waitForPreviousCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_waitForPreviousCheckboxActionPerformed
         currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex()).setWaitForPrevious(waitForPreviousCheckbox.isSelected());
-        destinationTable.getModel().setValueAt(waitForPreviousCheckbox.isSelected(), destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(WAIT_FOR_PREVIOUS_COLUMN_NAME));
+        
+        TableModel model = destinationTable.getModel();
+        int rowCount = model.getRowCount();
+        int colNum = destinationTable.getColumnModelIndex(DESTINATION_CHAIN_COLUMN_NAME);
+        boolean waitForPrevious = waitForPreviousCheckbox.isSelected();
+        
+        for (int i = destinationTable.getSelectedModelIndex(); i < rowCount; i++) {
+            Integer chain = (Integer) model.getValueAt(i, colNum);
+            chain += (waitForPrevious) ? -1 : 1;
+            model.setValueAt(chain, i, colNum);
+        }
     }//GEN-LAST:event_waitForPreviousCheckboxActionPerformed
-
+    
     private void summaryComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_summaryComponentShown
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 12, false);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 14, 14, false);
@@ -2663,8 +2691,14 @@ public class ChannelSetup extends javax.swing.JPanel {
         int connectorIndex = destinationTable.getSelectedModelIndex();
         Connector destinationConnector = destinationConnectors.get(connectorIndex);
 
-        waitForPreviousCheckbox.setSelected(destinationConnector.isWaitForPrevious());
-
+        if (connectorIndex == 0) {
+            waitForPreviousCheckbox.setSelected(false);
+            waitForPreviousCheckbox.setEnabled(false);
+        } else {
+            waitForPreviousCheckbox.setSelected(destinationConnector.isWaitForPrevious());
+            waitForPreviousCheckbox.setEnabled(true);
+        }
+        
         String connectorName = "";
 
         if (destinationConnector.getProperties() != null) {
