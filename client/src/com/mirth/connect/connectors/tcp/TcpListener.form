@@ -207,13 +207,11 @@
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
         <Property name="text" type="java.lang.String" value="Receive Timeout (ms):"/>
-        <Property name="toolTipText" type="java.lang.String" value="The amount of time, in milliseconds, to wait without receiving a message before closing a connection."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel4">
       <Properties>
         <Property name="text" type="java.lang.String" value="Buffer Size (bytes):"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Use larger values for larger messages, and smaller values &lt;br&gt;for smaller messages. Generally, the default value is fine.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="bufferSizeField">
@@ -245,13 +243,11 @@
     <Component class="javax.swing.JLabel" name="encodingLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Encoding:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the character set encoding used by the message sender,&lt;br/&gt;or Select Default to use the default character set encoding for the JVM running Mirth.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="ackOnNewConnectionLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Respond on New Connection:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;br/&gt;&lt;br/&gt;When responding on a new connection, the client socket will be bound locally on the same interface chosen in the Listener Settings, and an ephemeral port will be automatically assigned.&lt;br/&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="respondOnNewConnectionYesRadio">
@@ -268,7 +264,7 @@
           <ComponentRef name="respondOnNewConnectionButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;br/&gt;&lt;br/&gt;When responding on a new connection, the client socket will be bound locally on the same interface chosen in the Listener Settings, and an ephemeral port will be automatically assigned.&lt;br/&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send responses only via the same connection the inbound message was received on.&lt;br/&gt;Select Yes to always send responses on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to only send responses on a new connection during message recovery.&lt;br/&gt;Connections will be bound locally on the same interface chosen in the Listener Settings with an ephemeral port.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -291,7 +287,7 @@
           <ComponentRef name="respondOnNewConnectionButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;br/&gt;&lt;br/&gt;When responding on a new connection, the client socket will be bound locally on the same interface chosen in the Listener Settings, and an ephemeral port will be automatically assigned.&lt;br/&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send responses only via the same connection the inbound message was received on.&lt;br/&gt;Select Yes to always send responses on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to only send responses on a new connection during message recovery.&lt;br/&gt;Connections will be bound locally on the same interface chosen in the Listener Settings with an ephemeral port.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -314,7 +310,7 @@
           <ComponentRef name="respondOnNewConnectionButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Message Recovery"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).&lt;br/&gt;Select Yes to send the response on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.&lt;br/&gt;&lt;br/&gt;When responding on a new connection, the client socket will be bound locally on the same interface chosen in the Listener Settings, and an ephemeral port will be automatically assigned.&lt;br/&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send responses only via the same connection the inbound message was received on.&lt;br/&gt;Select Yes to always send responses on a new connection (during normal processing as well as recovery).&lt;br/&gt;Select Message Recovery to only send responses on a new connection during message recovery.&lt;br/&gt;Connections will be bound locally on the same interface chosen in the Listener Settings with an ephemeral port.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -326,13 +322,11 @@
     <Component class="javax.swing.JLabel" name="ackIPLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Response Address:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the DNS domain name or IP address to send message responses to.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="ackPortLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Response Port:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the port to send message responses to.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="responsePortField">
@@ -395,13 +389,11 @@
     <Component class="javax.swing.JLabel" name="dataTypeLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Data Type:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.&lt;br&gt;Select ASCII if the inbound messages are text streams; the payload will be encoded with the specified charset.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="keepConnectionOpenLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Keep Connection Open:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to close the listening socket after each message is received and the response (if selected) is sent.&lt;br/&gt;Select Yes to always keep the socket open unless the sending system closes it.&lt;br/&gt;If Yes is selected, messages will only be processed if data is received and either the receive timeout is reached,&lt;br/&gt;the sending system closes the socket, or an end of message byte sequence has been detected.&lt;br/&gt;The sending system will also need to use a timeout or delimiter method of processing responses.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="keepConnectionOpenYesRadio">
@@ -418,7 +410,7 @@
           <ComponentRef name="keepConnectionOpenGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to close the listening socket after each message is received and the response (if selected) is sent.&lt;br/&gt;Select Yes to always keep the socket open unless the sending system closes it.&lt;br/&gt;If Yes is selected, messages will only be processed if data is received and either the receive timeout is reached,&lt;br/&gt;the sending system closes the socket, or an end of message byte sequence has been detected.&lt;br/&gt;The sending system will also need to use a timeout or delimiter method of processing responses.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to close the listening socket after a received message has finished processing.&lt;br/&gt;Otherwise the socket will remain open until the sending system closes it. In that case,&lt;br/&gt;messages will only be processed if data is received and either the receive timeout is reached,&lt;br/&gt;the client closes the socket, or an end of message byte sequence has been detected.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -439,7 +431,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to close the listening socket after each message is received and the response (if selected) is sent.&lt;br/&gt;Select Yes to always keep the socket open unless the sending system closes it.&lt;br/&gt;If Yes is selected, messages will only be processed if data is received and either the receive timeout is reached,&lt;br/&gt;the sending system closes the socket, or an end of message byte sequence has been detected.&lt;br/&gt;The sending system will also need to use a timeout or delimiter method of processing responses.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to close the listening socket after a received message has finished processing.&lt;br/&gt;Otherwise the socket will remain open until the sending system closes it. In that case,&lt;br/&gt;messages will only be processed if data is received and either the receive timeout is reached,&lt;br/&gt;the client closes the socket, or an end of message byte sequence has been detected.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -447,7 +439,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="startOfMessageBytesField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to come before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to come before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="startOfMessageBytesFieldActionPerformed"/>
@@ -455,7 +447,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="endOfMessageBytesField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to come before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to come before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="endOfMessageBytesFieldActionPerformed"/>
@@ -464,19 +456,18 @@
     <Component class="javax.swing.JLabel" name="startOfMessageBytes0XLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="0x"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to come before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to come before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="endOfMessageBytes0XLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="0x"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to come before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to come before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>
         <Property name="text" type="java.lang.String" value="Mode:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Server to listen for connections from clients.&lt;br/&gt;Select Client to connect to a TCP Server.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="modeServerRadio">
@@ -528,7 +519,6 @@
     <Component class="javax.swing.JLabel" name="reconnectIntervalLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Reconnect Interval (ms):"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Client mode is selected, enter the time (in milliseconds) to wait&lt;br/&gt;between disconnecting from the TCP server and connecting to it again.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectIntervalField">
@@ -539,7 +529,6 @@
     <Component class="javax.swing.JLabel" name="maxConnectionsLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Max Connections:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The maximum number of client connections to accept.&lt;br/&gt;After this number has been reached, subsequent socket requests will result in a rejection.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="maxConnectionsField">
@@ -550,7 +539,6 @@
     <Component class="javax.swing.JLabel" name="processBatchLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Process Batch:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to allow Mirth to automatically split batched HL7 v2.x messages into discrete messages.&lt;br/&gt;This can be used with batch files containing FHS/BHS/BTS/FTS segments, or it can be used on batch files that just have multiple MSH segments.&lt;br/&gt;The location of each MSH segment signifies the start of a new message to be processed.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processBatchYesRadio">
@@ -605,7 +593,7 @@
             <StringItem index="1" value="Custom"/>
           </StringArray>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.&lt;br/&gt;Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.&lt;br/&gt;Select Custom to enter user-defined frame encoding characters.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select MLLP to use the default frame encoding characters as per the MLLPv1 specifications.&lt;br/&gt;Select Custom to enter user-defined frame encoding characters.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="frameEncodingComboBoxActionPerformed"/>
@@ -614,7 +602,6 @@
     <Component class="javax.swing.JLabel" name="frameEncodingLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Frame Encoding:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.&lt;br/&gt;Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.&lt;br/&gt;Select Custom to enter user-defined frame encoding characters.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="messageDataLabel">
@@ -623,7 +610,7 @@
           <Font name="Dialog" size="12" style="2"/>
         </Property>
         <Property name="text" type="java.lang.String" value="&lt;Message Data&gt;"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to come before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes expected to come before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
     </Component>

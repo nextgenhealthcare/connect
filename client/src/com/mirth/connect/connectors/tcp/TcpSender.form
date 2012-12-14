@@ -217,31 +217,26 @@
     <Component class="javax.swing.JLabel" name="keepConnectionOpenLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Keep Connection Open:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to keep the connection to the host open across multiple messages.&lt;br&gt;Select No to immediately the close the connection to the host after sending each message.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel15">
       <Properties>
         <Property name="text" type="java.lang.String" value="Buffer Size (bytes):"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The size, in bytes, of the buffer to be used to hold messages waiting to be sent. Generally, the default value is fine.&lt;html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="sendTimeoutLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Send Timeout (ms):"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of milliseconds to keep the connection to the host open,&lt;br/&gt;if Keep Connection Open is enabled.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel17">
       <Properties>
         <Property name="text" type="java.lang.String" value="Remote Port:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port on which to connect.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel18">
       <Properties>
         <Property name="text" type="java.lang.String" value="Remote Address:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The DNS domain name or IP address on which to connect.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="remotePortField">
@@ -318,7 +313,6 @@
     <Component class="javax.swing.JLabel" name="responseTimeoutLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Response Timeout (ms):"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of milliseconds the connector should wait for a response from the host after sending a message.&lt;br/&gt;If the End of Message byte sequence is defined, a response will be received when it is detected.&lt;br/&gt;If the timeout elapses, all data received at that point will be stored as the response data.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
@@ -343,7 +337,6 @@
     <Component class="javax.swing.JLabel" name="encodingLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Encoding:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The character set encoding to use when converting the outbound message to a byte stream if Data Type ASCII is selected.&lt;br&gt;Select Default to use the default character set encoding for the JVM running the Mirth server.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel7">
@@ -430,7 +423,6 @@
     <Component class="javax.swing.JLabel" name="dataTypeLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Data Type:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).&lt;br/&gt;Select ASCII if the outbound message is text (will be encoded with the specified charset).&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="testConnection">
@@ -443,7 +435,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="startOfMessageBytesField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="startOfMessageBytesFieldActionPerformed"/>
@@ -451,7 +443,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="endOfMessageBytesField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="endOfMessageBytesFieldActionPerformed"/>
@@ -460,7 +452,6 @@
     <Component class="javax.swing.JLabel" name="processHL7ACKLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Process HL7 ACK:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as successful.&lt;br/&gt;If disabled, the response will not be parsed and the message will always be marked as successful.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processHL7ACKYesRadio">
@@ -506,7 +497,7 @@
     <Component class="javax.swing.JLabel" name="startOfMessageBytes0XLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="0x"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="frameEncodingComboBox">
@@ -517,7 +508,7 @@
             <StringItem index="1" value="Custom"/>
           </StringArray>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.&lt;br/&gt;Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.&lt;br/&gt;Select Custom to enter user-defined frame encoding characters.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select MLLP to use the default frame encoding characters as per the MLLPv1 specifications.&lt;br/&gt;Select Custom to enter user-defined frame encoding characters.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="frameEncodingComboBoxActionPerformed"/>
@@ -526,7 +517,6 @@
     <Component class="javax.swing.JLabel" name="frameEncodingLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Frame Encoding:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.&lt;br/&gt;Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.&lt;br/&gt;Select Custom to enter user-defined frame encoding characters.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="messageDataLabel">
@@ -535,14 +525,14 @@
           <Font name="Dialog" size="12" style="2"/>
         </Property>
         <Property name="text" type="java.lang.String" value="&lt;Message Data&gt;"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="endOfMessageBytes0XLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="0x"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel19">
@@ -562,7 +552,6 @@
     <Component class="javax.swing.JLabel" name="localAddressLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Local Address:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The local address that the client socket will be bound to, if Override Local Binding is set to Yes.&lt;br/&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="localAddressField">
@@ -573,7 +562,6 @@
     <Component class="javax.swing.JLabel" name="localPortLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Local Port:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The local port that the client socket will be bound to, if Override Local Binding is set to Yes.&lt;br/&gt;&lt;br/&gt;Note that if a specific (non-zero) local port is chosen, then after a socket is closed it&apos;s up to the&lt;br/&gt;underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.&lt;br/&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="localPortField">
@@ -584,7 +572,6 @@
     <Component class="javax.swing.JLabel" name="keepConnectionOpenLabel1">
       <Properties>
         <Property name="text" type="java.lang.String" value="Override Local Binding:"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to override the local address and port that the client socket will be bound to.&lt;br/&gt;Select No to use the default values of 0.0.0.0:0.&lt;br/&gt;A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.&lt;br/&gt;&lt;br/&gt;Note that if a specific (non-zero) local port is chosen, then after a socket is closed it&apos;s up to the&lt;br/&gt;underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.&lt;br/&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="overrideLocalBindingYesRadio">
