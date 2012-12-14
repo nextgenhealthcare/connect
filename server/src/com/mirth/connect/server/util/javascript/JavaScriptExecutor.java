@@ -14,6 +14,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.mozilla.javascript.Context;
+
 public class JavaScriptExecutor<T> {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -25,8 +27,16 @@ public class JavaScriptExecutor<T> {
         } catch (ExecutionException e) {
             throw new JavaScriptExecutorException(e.getCause());
         } catch (InterruptedException e) {
-            future.cancel(true);
-            task.getContextFactory().setRunning(false);
+            // synchronize with JavaScriptTask.executeScript() so that it will not initialize the context while we are halting the task
+            synchronized (task) {
+                future.cancel(true);
+                Context context = task.getContext();
+            
+                if (context != null && context instanceof StoppableContext) {
+                    ((StoppableContext) context).setRunning(false);
+                }
+            }
+            
             // TODO wait for the task thread to complete before exiting?
             throw e;
         }

@@ -110,8 +110,8 @@ public class JavaScriptReceiver extends PollConnector {
     private class JavaScriptReceiverTask extends JavaScriptTask<Object> {
         @Override
         public Object call() throws Exception {
-            Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), Logger.getLogger("js-connector"), getChannelId());
-            return JavaScriptUtil.executeScript(scriptId, scope, getChannelId(), "Source");
+            Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(Logger.getLogger("js-connector"), getChannelId());
+            return JavaScriptUtil.executeScript(this, scriptId, scope, getChannelId(), "Source");
         }
     }
     

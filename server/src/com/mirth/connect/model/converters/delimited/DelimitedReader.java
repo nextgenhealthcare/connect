@@ -248,8 +248,8 @@ public class DelimitedReader extends SAXParser {
                             logger.error("Batch script could not be found in cache");
                             return null;
                         } else {
-                            Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(getContextFactory(), logger, batchScriptId, in, props, skipHeader);
-                            return Context.toString(compiledScript.exec(JavaScriptScopeUtil.getContext(), scope));
+                            Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(logger, batchScriptId, in, props, skipHeader);
+                            return Context.toString(executeScript(compiledScript, scope));
                         }
                     }
                 });

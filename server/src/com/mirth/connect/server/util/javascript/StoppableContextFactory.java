@@ -13,20 +13,8 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 
 public class StoppableContextFactory extends ContextFactory {
-    private boolean running = true;
-
-    public boolean isRunning() {
-        return running;
-    }
-
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
-
     @Override
-    protected void observeInstructionCount(Context context, int count) {
-        if (!running) {
-            throw new Error();
-        }
+    protected Context makeContext() {
+        return new StoppableContext(this);
     }
 }

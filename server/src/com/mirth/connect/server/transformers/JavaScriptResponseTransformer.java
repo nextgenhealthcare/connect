@@ -104,8 +104,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
             Logger scriptLogger = Logger.getLogger("response");
 
             try {
-                Context context = JavaScriptScopeUtil.getContext();
-                Scriptable scope = JavaScriptScopeUtil.getResponseTransformerScope(getContextFactory(), scriptLogger, response);
+                Scriptable scope = JavaScriptScopeUtil.getResponseTransformerScope(scriptLogger, response);
 
                 // Get the script from the cache
                 Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
@@ -115,7 +114,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 }
 
                 // Execute the script
-                compiledScript.exec(context, scope);
+                executeScript(compiledScript, scope);
             } catch (Throwable t) {
                 if (t instanceof RhinoException) {
                     try {

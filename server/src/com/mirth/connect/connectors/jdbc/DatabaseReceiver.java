@@ -361,7 +361,7 @@ public class DatabaseReceiver extends PollConnector {
         
         @Override
         public Object call() throws Exception {
-            Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, getChannelId());
+            Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, getChannelId());
             
             if (row != null) {
                 scope.put("resultMap", scope, row);
@@ -371,7 +371,7 @@ public class DatabaseReceiver extends PollConnector {
 //            scope.put("dbMap", scope, jdbcMap);
 //          scope.put("responseMap", scope, messageObject.getResponseMap());
 
-            return JavaScriptUtil.executeScript(scriptId, scope, getChannelId(), "Source");
+            return JavaScriptUtil.executeScript(this, scriptId, scope, getChannelId(), "Source");
         }
     }
 

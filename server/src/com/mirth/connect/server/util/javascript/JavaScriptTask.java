@@ -11,14 +11,31 @@ package com.mirth.connect.server.util.javascript;
 
 import java.util.concurrent.Callable;
 
-public abstract class JavaScriptTask<T> implements Callable<T> {
-    private StoppableContextFactory contextFactory = new StoppableContextFactory();
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.Scriptable;
 
-    public StoppableContextFactory getContextFactory() {
-        return contextFactory;
+import com.mirth.connect.donkey.util.ThreadUtils;
+import com.mirth.connect.server.util.JavaScriptScopeUtil;
+
+public abstract class JavaScriptTask<T> implements Callable<T> {
+    private Context context;
+    
+    protected Context getContext() {
+        return context;
     }
 
-    public void setContextFactory(StoppableContextFactory contextFactory) {
-        this.contextFactory = contextFactory;
+    public Object executeScript(Script compiledScript, Scriptable scope) throws InterruptedException {
+        // if the executor is halting this task, we don't want to initialize the context yet
+        synchronized (this) {
+            ThreadUtils.checkInterruptedStatus();
+            context = JavaScriptScopeUtil.getContext();
+
+            if (context instanceof StoppableContext) {
+                ((StoppableContext) context).setRunning(true);
+            }
+        }
+
+        return compiledScript.exec(context, scope);
     }
 }

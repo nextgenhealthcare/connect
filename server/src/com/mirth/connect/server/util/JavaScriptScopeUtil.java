@@ -36,8 +36,11 @@ public class JavaScriptScopeUtil {
     private static Logger logger = Logger.getLogger(JavaScriptScopeUtil.class);
     private static ScriptableObject sealedSharedScope = null;
     private static Integer rhinoOptimizationLevel = null;
-    private static StoppableContextFactory contextFactory = new StoppableContextFactory();
 
+    static {
+        ContextFactory.initGlobal(new StoppableContextFactory());
+    }
+    
     private static void initialize() {
         if (rhinoOptimizationLevel == null) {
             rhinoOptimizationLevel = -1;
@@ -64,21 +67,6 @@ public class JavaScriptScopeUtil {
         Context context = Context.getCurrentContext();
         if (context == null)
             context = Context.enter();
-        context.setOptimizationLevel(rhinoOptimizationLevel);
-
-        if (sealedSharedScope == null) {
-            sealedSharedScope = new ImporterTopLevel(context);
-            Script script = JavaScriptUtil.getCompiledGlobalSealedScript(context);
-            script.exec(context, sealedSharedScope);
-            sealedSharedScope.sealObject();
-        }
-
-        return context;
-    }
-
-    public static Context getContext(ContextFactory contextFactory) {
-        initialize();
-        Context context = contextFactory.enterContext();
         context.setOptimizationLevel(rhinoOptimizationLevel);
 
         if (sealedSharedScope == null) {
@@ -182,8 +170,8 @@ public class JavaScriptScopeUtil {
      * Public Phase-specific Scopes
      */
 
-    public static Scriptable getAttachmentScope(ContextFactory contextFactory, Object logger, String channelId, String message, List<Attachment> attachments) {
-        Context context = getContext(contextFactory);
+    public static Scriptable getAttachmentScope(Object logger, String channelId, String message, List<Attachment> attachments) {
+        Context context = getContext();
         Scriptable scope = getBasicScope(context, logger, channelId);
         addRawMessage(scope, message);
         scope.put("attachments", scope, attachments);
@@ -191,79 +179,73 @@ public class JavaScriptScopeUtil {
     }
 
     // TODO: Add attachments
-    public static Scriptable getPreprocessorScope(ContextFactory contextFactory, Object logger, String channelId, String message, ConnectorMessage connectorMessage) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId);
+    public static Scriptable getPreprocessorScope(Object logger, String channelId, String message, ConnectorMessage connectorMessage) {
+        Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addRawMessage(scope, message);
         scope.put("messageObject", scope, new ImmutableConnectorMessage(connectorMessage));
         return scope;
     }
 
     // TODO: Add attachments
-    public static Scriptable getPostprocessorScope(ContextFactory contextFactory, Object logger, String channelId, Message message) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId);
+    public static Scriptable getPostprocessorScope(Object logger, String channelId, Message message) {
+        Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addMessage(scope, message);
         return scope;
     }
 
-    public static Scriptable getPostprocessorScope(ContextFactory contextFactory, Object logger, String channelId, Message message, Response response) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId);
+    public static Scriptable getPostprocessorScope(Object logger, String channelId, Message message, Response response) {
+        Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addMessage(scope, message);
         scope.put("response", scope, response);
         return scope;
     }
 
-    public static Scriptable getFilterTransformerScope(ContextFactory contextFactory, Object logger, ConnectorMessage message, String template, String phase) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger, message);
+    public static Scriptable getFilterTransformerScope(Object logger, ConnectorMessage message, String template, String phase) {
+        Scriptable scope = getBasicScope(getContext(), logger, message);
         addConnectorMessage(scope, message);
         scope.put("template", scope, template);
         scope.put("phase", scope, phase);
         return scope;
     }
 
-    public static Scriptable getResponseTransformerScope(ContextFactory contextFactory, Object logger, Response response) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger);
+    public static Scriptable getResponseTransformerScope(Object logger, Response response) {
+        Scriptable scope = getBasicScope(getContext(), logger);
         scope.put("response", scope, response);
         return scope;
     }
 
-    public static Scriptable getDeployScope(ContextFactory contextFactory, Object logger, String channelId) {
-        return getBasicScope(getContext(contextFactory), logger, channelId);
+    public static Scriptable getDeployScope(Object logger, String channelId) {
+        return getBasicScope(getContext(), logger, channelId);
     }
 
-    public static Scriptable getDeployScope(ContextFactory contextFactory, Object logger) {
-        return getBasicScope(getContext(contextFactory), logger);
+    public static Scriptable getDeployScope(Object logger) {
+        return getBasicScope(getContext(), logger);
     }
 
-    public static Scriptable getShutdownScope(ContextFactory contextFactory, Object logger, String channelId) {
-        return getBasicScope(getContext(contextFactory), logger, channelId);
+    public static Scriptable getShutdownScope(Object logger, String channelId) {
+        return getBasicScope(getContext(), logger, channelId);
     }
 
-    public static Scriptable getShutdownScope(ContextFactory contextFactory, Object logger) {
-        return getBasicScope(getContext(contextFactory), logger);
+    public static Scriptable getShutdownScope(Object logger) {
+        return getBasicScope(getContext(), logger);
     }
 
-    public static Scriptable getMessageReceiverScope(ContextFactory contextFactory, Object logger) {
-        return getBasicScope(getContext(contextFactory), logger);
+    public static Scriptable getMessageReceiverScope(Object logger) {
+        return getBasicScope(getContext(), logger);
     }
 
-    public static Scriptable getMessageReceiverScope(ContextFactory contextFactory, Object logger, String channelId) {
-        return getBasicScope(getContext(contextFactory), logger, channelId);
+    public static Scriptable getMessageReceiverScope(Object logger, String channelId) {
+        return getBasicScope(getContext(), logger, channelId);
     }
 
     public static Scriptable getMessageDispatcherScope(Object logger, String channelId, ConnectorMessage message) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId);
-        addConnectorMessage(scope, message);
-        return scope;
-    }
-    
-    public static Scriptable getMessageDispatcherScope(ContextFactory contextFactory, Object logger, String channelId, ConnectorMessage message) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger, channelId);
+        Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addConnectorMessage(scope, message);
         return scope;
     }
 
-    public static Scriptable getBatchProcessorScope(ContextFactory contextFactory, Object logger, String channelId, Reader in, DelimitedProperties props, Boolean skipHeader) {
-        Scriptable scope = getBasicScope(getContext(contextFactory), logger);
+    public static Scriptable getBatchProcessorScope(Object logger, String channelId, Reader in, DelimitedProperties props, Boolean skipHeader) {
+        Scriptable scope = getBasicScope(getContext(), logger);
 
         // Provide the reader in the scope
         scope.put("reader", scope, in);

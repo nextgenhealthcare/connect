@@ -121,8 +121,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
 
             try {
                 // TODO: Get rid of template and phase
-                Context context = JavaScriptScopeUtil.getContext();
-                Scriptable scope = JavaScriptScopeUtil.getFilterTransformerScope(getContextFactory(), scriptLogger, message, template, phase);
+                Scriptable scope = JavaScriptScopeUtil.getFilterTransformerScope(scriptLogger, message, template, phase);
 
                 // get the script from the cache and execute it
                 Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
@@ -131,7 +130,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
                     logger.debug("script could not be found in cache");
                     return new FilterTransformerResult(true, null);
                 } else {
-                    Object result = compiledScript.exec(context, scope);
+                    Object result = executeScript(compiledScript, scope);
 
                     String transformedData = JavaScriptScopeUtil.getTransformedDataFromScope(scope, StringUtils.isNotBlank(template));
 

@@ -107,7 +107,6 @@ public class JavaScriptDispatcher extends DestinationConnector {
             String responseError = null;
             Status responseStatus = Status.QUEUED;
 
-            Context context = JavaScriptScopeUtil.getContext();
             Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, getChannelId(), message);
             Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
 
@@ -117,7 +116,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
                 responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Script not found in cache", null);
                 responseStatus = Status.ERROR;
             } else {
-                Object result = compiledScript.exec(context, scope);
+                Object result = executeScript(compiledScript, scope);
 
                 // Set the response message to the returned object (casted to a string)
                 if (result != null) {

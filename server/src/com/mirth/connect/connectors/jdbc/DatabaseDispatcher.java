@@ -220,8 +220,8 @@ public class DatabaseDispatcher extends DestinationConnector {
         
         @Override
         public Object call() throws Exception {
-            Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(getContextFactory(), scriptLogger, getChannelId(), connectorMessage);
-            return JavaScriptUtil.executeScript(scriptId, scope, getChannelId(), getDestinationName());
+            Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, getChannelId(), connectorMessage);
+            return JavaScriptUtil.executeScript(this, scriptId, scope, getChannelId(), getDestinationName());
         }
     }
 
