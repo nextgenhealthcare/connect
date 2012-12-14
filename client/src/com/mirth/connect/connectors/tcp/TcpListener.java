@@ -50,7 +50,7 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         endOfMessageBytesField.getDocument().addDocumentListener(this);
 
         frameEncodingComboBox.addActionListener(this);
-        frameEncodingToolTipText = frameEncodingLabel.getToolTipText();
+        frameEncodingToolTipText = frameEncodingComboBox.getToolTipText();
         messageBytesToolTipText = messageDataLabel.getToolTipText();
         startOfMessageAbbreviation = "";
         endOfMessageAbbreviation = "";
@@ -291,7 +291,6 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         String newFrameEncodingToolTipText = frameEncodingToolTipText.replace("SOM", startReplaced).replace("EOM", endReplaced);
         String newMessageBytesToolTipText = messageBytesToolTipText.replace("SOM", startReplaced).replace("EOM", endReplaced);
 
-        frameEncodingLabel.setToolTipText(newFrameEncodingToolTipText);
         frameEncodingComboBox.setToolTipText(newFrameEncodingToolTipText);
         startOfMessageBytes0XLabel.setToolTipText(newMessageBytesToolTipText);
         startOfMessageBytesField.setToolTipText(newMessageBytesToolTipText);
@@ -382,29 +381,27 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         jLabel3.setText("Receive Timeout (ms):");
-        jLabel3.setToolTipText("The amount of time, in milliseconds, to wait without receiving a message before closing a connection.");
 
         jLabel4.setText("Buffer Size (bytes):");
-        jLabel4.setToolTipText("<html>Use larger values for larger messages, and smaller values <br>for smaller messages. Generally, the default value is fine.</html>");
 
         bufferSizeField.setToolTipText("<html>Use larger values for larger messages, and smaller values <br>for smaller messages. Generally, the default value is fine.</html>");
 
         receiveTimeoutField.setToolTipText("The amount of time, in milliseconds, to wait without receiving a message before closing a connection.");
 
-        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
+        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] {
+                "Default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)",
+                "us-ascii" }));
         charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding used by the message sender,<br/>or Select Default to use the default character set encoding for the JVM running Mirth.</html>");
 
         encodingLabel.setText("Encoding:");
-        encodingLabel.setToolTipText("<html>Select the character set encoding used by the message sender,<br/>or Select Default to use the default character set encoding for the JVM running Mirth.</html>");
 
         ackOnNewConnectionLabel.setText("Respond on New Connection:");
-        ackOnNewConnectionLabel.setToolTipText("<html>Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).<br/>Select Yes to send the response on a new connection (during normal processing as well as recovery).<br/>Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.<br/><br/>When responding on a new connection, the client socket will be bound locally on the same interface chosen in the Listener Settings, and an ephemeral port will be automatically assigned.<br/></html>");
 
         respondOnNewConnectionYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         respondOnNewConnectionYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         respondOnNewConnectionButtonGroup.add(respondOnNewConnectionYesRadio);
         respondOnNewConnectionYesRadio.setText("Yes");
-        respondOnNewConnectionYesRadio.setToolTipText("<html>Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).<br/>Select Yes to send the response on a new connection (during normal processing as well as recovery).<br/>Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.<br/><br/>When responding on a new connection, the client socket will be bound locally on the same interface chosen in the Listener Settings, and an ephemeral port will be automatically assigned.<br/></html>");
+        respondOnNewConnectionYesRadio.setToolTipText("<html>Select No to send responses only via the same connection the inbound message was received on.<br/>Select Yes to always send responses on a new connection (during normal processing as well as recovery).<br/>Select Message Recovery to only send responses on a new connection during message recovery.<br/>Connections will be bound locally on the same interface chosen in the Listener Settings with an ephemeral port.</html>");
         respondOnNewConnectionYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         respondOnNewConnectionYesRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -416,7 +413,7 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         respondOnNewConnectionNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         respondOnNewConnectionButtonGroup.add(respondOnNewConnectionNoRadio);
         respondOnNewConnectionNoRadio.setText("No");
-        respondOnNewConnectionNoRadio.setToolTipText("<html>Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).<br/>Select Yes to send the response on a new connection (during normal processing as well as recovery).<br/>Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.<br/><br/>When responding on a new connection, the client socket will be bound locally on the same interface chosen in the Listener Settings, and an ephemeral port will be automatically assigned.<br/></html>");
+        respondOnNewConnectionNoRadio.setToolTipText("<html>Select No to send responses only via the same connection the inbound message was received on.<br/>Select Yes to always send responses on a new connection (during normal processing as well as recovery).<br/>Select Message Recovery to only send responses on a new connection during message recovery.<br/>Connections will be bound locally on the same interface chosen in the Listener Settings with an ephemeral port.</html>");
         respondOnNewConnectionNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         respondOnNewConnectionNoRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -428,7 +425,7 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         respondOnNewConnectionRecoveryRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         respondOnNewConnectionButtonGroup.add(respondOnNewConnectionRecoveryRadio);
         respondOnNewConnectionRecoveryRadio.setText("Message Recovery");
-        respondOnNewConnectionRecoveryRadio.setToolTipText("<html>Select No to send the message response on the same connection as the inbound message was received on (Responses will not be sent during message recovery).<br/>Select Yes to send the response on a new connection (during normal processing as well as recovery).<br/>Select Message Recovery to send the message response on the same connection during normal processing, and on a new connection during message recovery.<br/><br/>When responding on a new connection, the client socket will be bound locally on the same interface chosen in the Listener Settings, and an ephemeral port will be automatically assigned.<br/></html>");
+        respondOnNewConnectionRecoveryRadio.setToolTipText("<html>Select No to send responses only via the same connection the inbound message was received on.<br/>Select Yes to always send responses on a new connection (during normal processing as well as recovery).<br/>Select Message Recovery to only send responses on a new connection during message recovery.<br/>Connections will be bound locally on the same interface chosen in the Listener Settings with an ephemeral port.</html>");
         respondOnNewConnectionRecoveryRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         respondOnNewConnectionRecoveryRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -437,10 +434,8 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         });
 
         ackIPLabel.setText("Response Address:");
-        ackIPLabel.setToolTipText("<html>Enter the DNS domain name or IP address to send message responses to.</html>");
 
         ackPortLabel.setText("Response Port:");
-        ackPortLabel.setToolTipText("<html>Enter the port to send message responses to.</html>");
 
         responsePortField.setToolTipText("<html>Enter the port to send message responses to.</html>");
 
@@ -472,16 +467,14 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         });
 
         dataTypeLabel.setText("Data Type:");
-        dataTypeLabel.setToolTipText("<html>Select Binary if the inbound messages are raw byte streams; the payload will be Base64 encoded.<br>Select ASCII if the inbound messages are text streams; the payload will be encoded with the specified charset.</html>");
 
         keepConnectionOpenLabel.setText("Keep Connection Open:");
-        keepConnectionOpenLabel.setToolTipText("<html>Select No to close the listening socket after each message is received and the response (if selected) is sent.<br/>Select Yes to always keep the socket open unless the sending system closes it.<br/>If Yes is selected, messages will only be processed if data is received and either the receive timeout is reached,<br/>the sending system closes the socket, or an end of message byte sequence has been detected.<br/>The sending system will also need to use a timeout or delimiter method of processing responses.</html>");
 
         keepConnectionOpenYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         keepConnectionOpenYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         keepConnectionOpenGroup.add(keepConnectionOpenYesRadio);
         keepConnectionOpenYesRadio.setText("Yes");
-        keepConnectionOpenYesRadio.setToolTipText("<html>Select No to close the listening socket after each message is received and the response (if selected) is sent.<br/>Select Yes to always keep the socket open unless the sending system closes it.<br/>If Yes is selected, messages will only be processed if data is received and either the receive timeout is reached,<br/>the sending system closes the socket, or an end of message byte sequence has been detected.<br/>The sending system will also need to use a timeout or delimiter method of processing responses.</html>");
+        keepConnectionOpenYesRadio.setToolTipText("<html>Select No to close the listening socket after a received message has finished processing.<br/>Otherwise the socket will remain open until the sending system closes it. In that case,<br/>messages will only be processed if data is received and either the receive timeout is reached,<br/>the client closes the socket, or an end of message byte sequence has been detected.</html>");
         keepConnectionOpenYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         keepConnectionOpenNoRadio.setBackground(new java.awt.Color(255, 255, 255));
@@ -489,17 +482,17 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         keepConnectionOpenGroup.add(keepConnectionOpenNoRadio);
         keepConnectionOpenNoRadio.setSelected(true);
         keepConnectionOpenNoRadio.setText("No");
-        keepConnectionOpenNoRadio.setToolTipText("<html>Select No to close the listening socket after each message is received and the response (if selected) is sent.<br/>Select Yes to always keep the socket open unless the sending system closes it.<br/>If Yes is selected, messages will only be processed if data is received and either the receive timeout is reached,<br/>the sending system closes the socket, or an end of message byte sequence has been detected.<br/>The sending system will also need to use a timeout or delimiter method of processing responses.</html>");
+        keepConnectionOpenNoRadio.setToolTipText("<html>Select No to close the listening socket after a received message has finished processing.<br/>Otherwise the socket will remain open until the sending system closes it. In that case,<br/>messages will only be processed if data is received and either the receive timeout is reached,<br/>the client closes the socket, or an end of message byte sequence has been detected.</html>");
         keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        startOfMessageBytesField.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        startOfMessageBytesField.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         startOfMessageBytesField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startOfMessageBytesFieldActionPerformed(evt);
             }
         });
 
-        endOfMessageBytesField.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        endOfMessageBytesField.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         endOfMessageBytesField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 endOfMessageBytesFieldActionPerformed(evt);
@@ -507,13 +500,12 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         });
 
         startOfMessageBytes0XLabel.setText("0x");
-        startOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        startOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         endOfMessageBytes0XLabel.setText("0x");
-        endOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        endOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         jLabel5.setText("Mode:");
-        jLabel5.setToolTipText("<html>Select Server to listen for connections from clients.<br/>Select Client to connect to a TCP Server.</html>");
 
         modeServerRadio.setBackground(new java.awt.Color(255, 255, 255));
         modeServerRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -540,17 +532,14 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         });
 
         reconnectIntervalLabel.setText("Reconnect Interval (ms):");
-        reconnectIntervalLabel.setToolTipText("<html>If Client mode is selected, enter the time (in milliseconds) to wait<br/>between disconnecting from the TCP server and connecting to it again.</html>");
 
         reconnectIntervalField.setToolTipText("<html>If Client mode is selected, enter the time (in milliseconds) to wait<br/>between disconnecting from the TCP server and connecting to it again.</html>");
 
         maxConnectionsLabel.setText("Max Connections:");
-        maxConnectionsLabel.setToolTipText("<html>The maximum number of client connections to accept.<br/>After this number has been reached, subsequent socket requests will result in a rejection.</html>");
 
         maxConnectionsField.setToolTipText("<html>The maximum number of client connections to accept.<br/>After this number has been reached, subsequent socket requests will result in a rejection.</html>");
 
         processBatchLabel.setText("Process Batch:");
-        processBatchLabel.setToolTipText("<html>Select Yes to allow Mirth to automatically split batched HL7 v2.x messages into discrete messages.<br/>This can be used with batch files containing FHS/BHS/BTS/FTS segments, or it can be used on batch files that just have multiple MSH segments.<br/>The location of each MSH segment signifies the start of a new message to be processed.</html>");
 
         processBatchYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         processBatchYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -572,8 +561,9 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
             }
         });
 
-        frameEncodingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP", "Custom" }));
-        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        frameEncodingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP",
+                "Custom" }));
+        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv1 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         frameEncodingComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 frameEncodingComboBoxActionPerformed(evt);
@@ -581,11 +571,10 @@ public class TcpListener extends ConnectorSettingsPanel implements DocumentListe
         });
 
         frameEncodingLabel.setText("Frame Encoding:");
-        frameEncodingLabel.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         messageDataLabel.setFont(new java.awt.Font("Dialog", 2, 12)); // NOI18N
         messageDataLabel.setText("<Message Data>");
-        messageDataLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        messageDataLabel.setToolTipText("<html>Enter the bytes expected to come before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         messageDataLabel.setEnabled(false);
 
         jLabel19.setText("Sample Frame:");

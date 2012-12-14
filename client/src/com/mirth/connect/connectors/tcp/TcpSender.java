@@ -50,7 +50,7 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         startOfMessageBytesField.getDocument().addDocumentListener(this);
         endOfMessageBytesField.getDocument().addDocumentListener(this);
 
-        frameEncodingToolTipText = frameEncodingLabel.getToolTipText();
+        frameEncodingToolTipText = frameEncodingComboBox.getToolTipText();
         messageBytesToolTipText = messageDataLabel.getToolTipText();
         startOfMessageAbbreviation = "";
         endOfMessageAbbreviation = "";
@@ -300,7 +300,6 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         String newFrameEncodingToolTipText = frameEncodingToolTipText.replace("SOM", startReplaced).replace("EOM", endReplaced);
         String newMessageBytesToolTipText = messageBytesToolTipText.replace("SOM", startReplaced).replace("EOM", endReplaced);
 
-        frameEncodingLabel.setToolTipText(newFrameEncodingToolTipText);
         frameEncodingComboBox.setToolTipText(newFrameEncodingToolTipText);
         startOfMessageBytes0XLabel.setToolTipText(newMessageBytesToolTipText);
         startOfMessageBytesField.setToolTipText(newMessageBytesToolTipText);
@@ -392,19 +391,14 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         keepConnectionOpenLabel.setText("Keep Connection Open:");
-        keepConnectionOpenLabel.setToolTipText("<html>Select Yes to keep the connection to the host open across multiple messages.<br>Select No to immediately the close the connection to the host after sending each message.</html>");
 
         jLabel15.setText("Buffer Size (bytes):");
-        jLabel15.setToolTipText("<html>The size, in bytes, of the buffer to be used to hold messages waiting to be sent. Generally, the default value is fine.<html>");
 
         sendTimeoutLabel.setText("Send Timeout (ms):");
-        sendTimeoutLabel.setToolTipText("<html>The number of milliseconds to keep the connection to the host open,<br/>if Keep Connection Open is enabled.</html>");
 
         jLabel17.setText("Remote Port:");
-        jLabel17.setToolTipText("<html>The port on which to connect.</html>");
 
         jLabel18.setText("Remote Address:");
-        jLabel18.setToolTipText("<html>The DNS domain name or IP address on which to connect.</html>");
 
         remotePortField.setToolTipText("<html>The port on which to connect.</html>");
 
@@ -441,9 +435,10 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         responseTimeoutField.setToolTipText("<html>The number of milliseconds the connector should wait for a response from the host after sending a message.<br/>If the End of Message byte sequence is defined, a response will be received when it is detected.<br/>If the timeout elapses, all data received at that point will be stored as the response data.</html>");
 
         responseTimeoutLabel.setText("Response Timeout (ms):");
-        responseTimeoutLabel.setToolTipText("<html>The number of milliseconds the connector should wait for a response from the host after sending a message.<br/>If the End of Message byte sequence is defined, a response will be received when it is detected.<br/>If the timeout elapses, all data received at that point will be stored as the response data.</html>");
 
-        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
+        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] {
+                "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)",
+                "US-ASCII" }));
         charsetEncodingCombobox.setToolTipText("<html>The character set encoding to use when converting the outbound message to a byte stream if Data Type ASCII is selected.<br>Select Default to use the default character set encoding for the JVM running the Mirth server.</html>");
         charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -452,7 +447,6 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         });
 
         encodingLabel.setText("Encoding:");
-        encodingLabel.setToolTipText("<html>The character set encoding to use when converting the outbound message to a byte stream if Data Type ASCII is selected.<br>Select Default to use the default character set encoding for the JVM running the Mirth server.</html>");
 
         jLabel7.setText("Template:");
 
@@ -495,7 +489,6 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         });
 
         dataTypeLabel.setText("Data Type:");
-        dataTypeLabel.setToolTipText("<html>Select Binary if the outbound message is a Base64 string (will be decoded before it is sent out).<br/>Select ASCII if the outbound message is text (will be encoded with the specified charset).</html>");
 
         testConnection.setText("Test Connection");
         testConnection.addActionListener(new java.awt.event.ActionListener() {
@@ -504,14 +497,14 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
             }
         });
 
-        startOfMessageBytesField.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        startOfMessageBytesField.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         startOfMessageBytesField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startOfMessageBytesFieldActionPerformed(evt);
             }
         });
 
-        endOfMessageBytesField.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        endOfMessageBytesField.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         endOfMessageBytesField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 endOfMessageBytesFieldActionPerformed(evt);
@@ -519,7 +512,6 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         });
 
         processHL7ACKLabel.setText("Process HL7 ACK:");
-        processHL7ACKLabel.setToolTipText("<html>If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as successful.<br/>If disabled, the response will not be parsed and the message will always be marked as successful.</html>");
 
         processHL7ACKYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         processHL7ACKYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -536,10 +528,11 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         processHL7ACKNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         startOfMessageBytes0XLabel.setText("0x");
-        startOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        startOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
-        frameEncodingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP", "Custom" }));
-        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        frameEncodingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP",
+                "Custom" }));
+        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv1 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         frameEncodingComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 frameEncodingComboBoxActionPerformed(evt);
@@ -547,15 +540,14 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         });
 
         frameEncodingLabel.setText("Frame Encoding:");
-        frameEncodingLabel.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv2 specifications.<br/>Select ASTM to use the default frame encoding characters as per the ASTM 1381 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         messageDataLabel.setFont(new java.awt.Font("Dialog", 2, 12)); // NOI18N
         messageDataLabel.setText("<Message Data>");
-        messageDataLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        messageDataLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
         messageDataLabel.setEnabled(false);
 
         endOfMessageBytes0XLabel.setText("0x");
-        endOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>An even number of characters must be entered, and only the characters 0-9 and A-F are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
+        endOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
 
         jLabel19.setText("Sample Frame:");
 
@@ -564,17 +556,14 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         sampleMessageLabel.setEnabled(false);
 
         localAddressLabel.setText("Local Address:");
-        localAddressLabel.setToolTipText("<html>The local address that the client socket will be bound to, if Override Local Binding is set to Yes.<br/></html>");
 
         localAddressField.setToolTipText("<html>The local address that the client socket will be bound to, if Override Local Binding is set to Yes.<br/></html>");
 
         localPortLabel.setText("Local Port:");
-        localPortLabel.setToolTipText("<html>The local port that the client socket will be bound to, if Override Local Binding is set to Yes.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>");
 
         localPortField.setToolTipText("<html>The local port that the client socket will be bound to, if Override Local Binding is set to Yes.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>");
 
         keepConnectionOpenLabel1.setText("Override Local Binding:");
-        keepConnectionOpenLabel1.setToolTipText("<html>Select Yes to override the local address and port that the client socket will be bound to.<br/>Select No to use the default values of 0.0.0.0:0.<br/>A local port of zero (0) indicates that the OS should assign an ephemeral port automatically.<br/><br/>Note that if a specific (non-zero) local port is chosen, then after a socket is closed it's up to the<br/>underlying OS to release the port before the next socket creation, otherwise the bind attempt will fail.<br/></html>");
 
         overrideLocalBindingYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         overrideLocalBindingYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
