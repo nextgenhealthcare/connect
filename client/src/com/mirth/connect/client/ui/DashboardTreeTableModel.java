@@ -11,6 +11,7 @@ package com.mirth.connect.client.ui;
 
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
             setRoot(root);
             add(statuses, root);
         } else {
-            update(statuses, root);
+            updateChannel(statuses, root);
         }
     }
     
@@ -103,33 +104,90 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
             add(status.getChildStatuses(), newNode);
         }
     }
-
-    private void update(List<DashboardStatus> statuses, MutableTreeTableNode parent) {
+    
+    private void updateChannel(List<DashboardStatus> statuses, MutableTreeTableNode root) {
         // index the status entries by status key so that they can be retrieved quickly as we traverse the tree
         Map<String, DashboardStatus> statusMap = new LinkedHashMap<String, DashboardStatus>();
-
+        
         for (DashboardStatus status : statuses) {
             statusMap.put(status.getKey(), status);
-        }
-
-        for (int i = 0; i < parent.getChildCount(); i++) {
-            DashboardTableNode node = (DashboardTableNode) parent.getChildAt(i);
-
-            // for each child node of parent, extract the updated status from statusMap
-            DashboardStatus status = statusMap.remove(node.getStatus().getKey());
-
-            if (status == null) {
-                // if no status is found, then the node needs to be removed from the tree
-                removeNodeFromParent(node);
-                i--; // decrement i since the subsequent node indices have been shifted -1
-            } else {
-                // otherwise, replace the node's status with the new status and recursively update the node's child nodes
-                node.setStatus(status);
-                update(status.getChildStatuses(), node);
+            for (DashboardStatus child : status.getChildStatuses()) {
+                statusMap.put(child.getKey(), status);
             }
         }
+        
+        for (int i = 0; i < root.getChildCount(); i++) {
+            DashboardTableNode node = (DashboardTableNode) root.getChildAt(i);
 
-        // any remaining entries in statusMap are new status entries that need to be added as nodes to the parent node
-        add(statusMap.values(), parent);
+            if (!statusMap.containsKey(node.getStatus().getKey())) {
+                // Remove channels that no longer exist
+                removeNodeFromParent(node);
+                i--;
+            } else {
+                // Remove channels that do exist from the list of statuses so the
+                statuses.remove(statusMap.get(node.getStatus().getKey()));
+            }
+        }
+        
+        // Update the connector level statuses
+        for (int i = 0; i < root.getChildCount(); i++) {
+            updateConnector(statusMap, (DashboardTableNode) root.getChildAt(i));
+        }
+        
+        // any remaining entries in the status list are new status entries that need to be added as nodes to the root node
+        add(statuses, root);
+    }
+    
+    private void updateConnector(Map<String, DashboardStatus> statusMap, DashboardTableNode channelNode) {
+        Map<String, DashboardTableNode> nodeMap = new HashMap<String, DashboardTableNode>();
+        
+        DashboardStatus channelStatus = statusMap.get(channelNode.getStatus().getKey());
+        
+        // Remove connectors that no longer exist
+        for (int i = 0; i < channelNode.getChildCount(); i++) {
+            DashboardTableNode node = (DashboardTableNode) channelNode.getChildAt(i);
+
+            if (!statusMap.containsKey(node.getStatus().getKey())) {
+                removeNodeFromParent(node);
+                i--;
+            } else {
+                nodeMap.put(node.getStatus().getKey(), node);
+            }
+        }
+        
+        // At this point, the only connectors remaining in the table should have an update.
+        // Iterate across all the new statuses
+        for (int i = 0; i < channelStatus.getChildStatuses().size(); i++) {
+            // The new connector status at the current pointer
+            DashboardStatus newConnectorStatus = channelStatus.getChildStatuses().get(i);
+            // The node containing the old status
+            DashboardTableNode oldConnectorNode = null;
+            
+            if (i < channelNode.getChildCount()) {
+                oldConnectorNode = (DashboardTableNode)channelNode.getChildAt(i);
+            }
+            
+            // If the new connector key is equal to the old one, then update the node's status
+            if (oldConnectorNode != null && newConnectorStatus.getKey().equals(oldConnectorNode.getStatus().getKey())) {
+                oldConnectorNode.setStatus(newConnectorStatus);
+            } else {
+                DashboardTableNode node;
+                
+                if (nodeMap.containsKey(newConnectorStatus.getKey())) {
+                    // If the key is already in the table, remove it because it is out of order.
+                    node = nodeMap.get(newConnectorStatus.getKey());
+                    removeNodeFromParent(node);
+                    
+                    // Update the node's status before it gets readded.
+                    node.setStatus(newConnectorStatus);
+                } else {
+                    // If the key is not in the table yet, create a node for it.
+                    node = new DashboardTableNode(newConnectorStatus.getChannelId(), newConnectorStatus);
+                }
+                
+                // Insert the node
+                insertNodeInto(node, channelNode, i);
+            }
+        }
     }
 }
