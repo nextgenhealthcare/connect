@@ -75,23 +75,19 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
     private void initComponents() {
 
         formatButtonGroup = new javax.swing.ButtonGroup();
-        compressionButtonGroup = new javax.swing.ButtonGroup();
         destinationButtonGroup = new javax.swing.ButtonGroup();
         containerPanel = new javax.swing.JPanel();
         formatPanel = new javax.swing.JPanel();
         formatComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
         formatFileMultiple = new javax.swing.JRadioButton();
         formatFileSingle = new javax.swing.JRadioButton();
+        compressCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         destinationPanel = new javax.swing.JPanel();
         exportTypeLocal = new javax.swing.JRadioButton();
         exportTypeServer = new javax.swing.JRadioButton();
         exportTypeLocalText = new javax.swing.JTextField();
         exportTypeServerText = new javax.swing.JTextField();
         exportTypeLocalBrowse = new com.mirth.connect.client.ui.components.MirthButton();
-        compressionPanel = new javax.swing.JPanel();
-        compressionNone = new javax.swing.JRadioButton();
-        compressionEach = new javax.swing.JRadioButton();
-        compressionArchive = new javax.swing.JRadioButton();
         buttonExport = new com.mirth.connect.client.ui.components.MirthButton();
         buttonCancel = new com.mirth.connect.client.ui.components.MirthButton();
 
@@ -114,6 +110,19 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
         formatFileSingle.setBackground(new java.awt.Color(255, 255, 255));
         formatButtonGroup.add(formatFileSingle);
         formatFileSingle.setText("One File");
+        formatFileSingle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                formatFileSingleActionPerformed(evt);
+            }
+        });
+
+        compressCheckbox.setBackground(new java.awt.Color(255, 255, 255));
+        compressCheckbox.setText("Compress to .zip");
+        compressCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                compressCheckboxActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout formatPanelLayout = new javax.swing.GroupLayout(formatPanel);
         formatPanel.setLayout(formatPanelLayout);
@@ -121,12 +130,14 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
             formatPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(formatPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(formatComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(formatComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(formatFileMultiple)
                 .addGap(18, 18, 18)
                 .addComponent(formatFileSingle)
-                .addGap(32, 32, 32))
+                .addGap(18, 18, 18)
+                .addComponent(compressCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         formatPanelLayout.setVerticalGroup(
             formatPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -134,8 +145,9 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
                 .addGroup(formatPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(formatComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(formatFileMultiple)
-                    .addComponent(formatFileSingle))
-                .addGap(0, 10, Short.MAX_VALUE))
+                    .addComponent(formatFileSingle)
+                    .addComponent(compressCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 6, Short.MAX_VALUE))
         );
 
         destinationPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -144,7 +156,7 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
         exportTypeLocal.setBackground(new java.awt.Color(255, 255, 255));
         destinationButtonGroup.add(exportTypeLocal);
         exportTypeLocal.setSelected(true);
-        exportTypeLocal.setText("Export to local filesystem");
+        exportTypeLocal.setText("Export to my computer");
         exportTypeLocal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exportTypeLocalActionPerformed(evt);
@@ -153,7 +165,7 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
 
         exportTypeServer.setBackground(new java.awt.Color(255, 255, 255));
         destinationButtonGroup.add(exportTypeServer);
-        exportTypeServer.setText("Export to server filesystem");
+        exportTypeServer.setText("Export to folder on Mirth Connect server");
         exportTypeServer.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exportTypeServerActionPerformed(evt);
@@ -212,46 +224,7 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
                 .addComponent(exportTypeServer)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(exportTypeServerText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 10, Short.MAX_VALUE))
-        );
-
-        compressionPanel.setBackground(new java.awt.Color(255, 255, 255));
-        compressionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Compression"));
-
-        compressionNone.setBackground(new java.awt.Color(255, 255, 255));
-        compressionButtonGroup.add(compressionNone);
-        compressionNone.setSelected(true);
-        compressionNone.setText("No Compression");
-
-        compressionEach.setBackground(new java.awt.Color(255, 255, 255));
-        compressionButtonGroup.add(compressionEach);
-        compressionEach.setText("Compress Each File");
-
-        compressionArchive.setBackground(new java.awt.Color(255, 255, 255));
-        compressionButtonGroup.add(compressionArchive);
-        compressionArchive.setText("Compress to Archive");
-
-        javax.swing.GroupLayout compressionPanelLayout = new javax.swing.GroupLayout(compressionPanel);
-        compressionPanel.setLayout(compressionPanelLayout);
-        compressionPanelLayout.setHorizontalGroup(
-            compressionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(compressionPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(compressionNone)
-                .addGap(18, 18, 18)
-                .addComponent(compressionEach)
-                .addGap(18, 18, 18)
-                .addComponent(compressionArchive)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        compressionPanelLayout.setVerticalGroup(
-            compressionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(compressionPanelLayout.createSequentialGroup()
-                .addGroup(compressionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(compressionNone)
-                    .addComponent(compressionEach)
-                    .addComponent(compressionArchive))
-                .addGap(0, 5, Short.MAX_VALUE))
+                .addGap(0, 8, Short.MAX_VALUE))
         );
 
         buttonExport.setText("Export");
@@ -276,7 +249,6 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(formatPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(compressionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(destinationPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, containerPanelLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
@@ -289,27 +261,25 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
             containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(containerPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(formatPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(destinationPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(compressionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(buttonExport, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(buttonCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                .addComponent(formatPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(destinationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(buttonCancel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(buttonExport, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(containerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(containerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(containerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(containerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -319,37 +289,15 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
         MessageExportOptions options = new MessageExportOptions();
         options.setChannelId(channelId);
         options.setMessageFilter(messageFilter);
-        
-        Object format = formatComboBox.getSelectedItem();
-        
-        if (format instanceof ContentType) {
-            options.setContentType((ContentType) format);
-        }
-        
         options.setBufferSize(pageSize);
-        
-        if (formatFileSingle.isSelected()) {
-            if (compressionNone.isSelected()) {
-                options.setOutputType(MessageExportOptions.SINGLE);
-            } else {
-                options.setOutputType(MessageExportOptions.SINGLE_COMPRESSED);
-            }
-        } else {
-            if (compressionNone.isSelected()) {
-                options.setOutputType(MessageExportOptions.MULTIPLE);
-            } else if (compressionEach.isSelected()) {
-                options.setOutputType(MessageExportOptions.MULTIPLE_COMPRESSED_EACH);
-            } else {
-                options.setOutputType(MessageExportOptions.MULTIPLE_COMPRESSED_ARCHIVE);
-            }
-        }
-        
-        if (format instanceof ContentType) {
-            options.setContentType((ContentType) format);
-        }
-        
+        options.setSingleFile(formatFileSingle.isSelected());
+        options.setCompress(compressCheckbox.isSelected());
         options.setEncrypt(parent.mirthClient.isEncryptExport());
         options.setCharset(UIConstants.CHARSET);
+        
+        if (formatComboBox.getSelectedItem() instanceof ContentType) {
+            options.setContentType((ContentType) formatComboBox.getSelectedItem());
+        }
         
         try {
             int exportCount = 0;
@@ -442,6 +390,14 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
         exportTypeServer.setSelected(true);
         exportTypeLocalBrowse.setEnabled(false);
     }//GEN-LAST:event_exportTypeServerTextFocusGained
+
+    private void formatFileSingleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatFileSingleActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formatFileSingleActionPerformed
+
+    private void compressCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compressCheckboxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_compressCheckboxActionPerformed
     
     private void reset() {
         formatComboBox.setSelectedIndex(0);
@@ -450,17 +406,13 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
         exportTypeLocalText.setText(null);
         exportTypeLocalBrowse.setEnabled(true);
         exportTypeServerText.setText(null);
-        compressionNone.setSelected(true);
+        compressCheckbox.setSelected(false);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthButton buttonCancel;
     private com.mirth.connect.client.ui.components.MirthButton buttonExport;
-    private javax.swing.JRadioButton compressionArchive;
-    private javax.swing.ButtonGroup compressionButtonGroup;
-    private javax.swing.JRadioButton compressionEach;
-    private javax.swing.JRadioButton compressionNone;
-    private javax.swing.JPanel compressionPanel;
+    private com.mirth.connect.client.ui.components.MirthCheckBox compressCheckbox;
     private javax.swing.JPanel containerPanel;
     private javax.swing.ButtonGroup destinationButtonGroup;
     private javax.swing.JPanel destinationPanel;

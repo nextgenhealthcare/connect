@@ -13,18 +13,13 @@ import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.model.filters.MessageFilter;
 
 public class MessageExportOptions {
-    final public static int SINGLE = 1; // working
-    final public static int SINGLE_COMPRESSED = 2; // not working
-    final public static int MULTIPLE = 3; // working
-    final public static int MULTIPLE_COMPRESSED_EACH = 4; // working
-    final public static int MULTIPLE_COMPRESSED_ARCHIVE = 5; // not working
-    
     private String channelId;
     private MessageFilter messageFilter;
     private ContentType contentType;
     private int bufferSize = 100;
     private String folder;
-    private int outputType = MessageExportOptions.SINGLE;
+    private boolean singleFile;
+    private boolean compress;
     private boolean encrypt = false;
     private String charset = "UTF-8";
 
@@ -68,12 +63,20 @@ public class MessageExportOptions {
         this.folder = folder;
     }
 
-    public int getOutputType() {
-        return outputType;
+    public boolean isSingleFile() {
+        return singleFile;
     }
 
-    public void setOutputType(int outputType) {
-        this.outputType = outputType;
+    public void setSingleFile(boolean singleFile) {
+        this.singleFile = singleFile;
+    }
+
+    public boolean isCompress() {
+        return compress;
+    }
+
+    public void setCompress(boolean compress) {
+        this.compress = compress;
     }
 
     public boolean isEncrypt() {

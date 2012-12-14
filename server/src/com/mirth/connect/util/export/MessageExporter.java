@@ -94,7 +94,8 @@ public class MessageExporter {
         String filePrefix = "msgexport_" + new SimpleDateFormat(dateFormat).format(new Date());
         String fileName = null;
         String fileExtension = (options.getContentType() == null) ? ".xml" : ".txt";
-        int outputType = options.getOutputType();
+        boolean singleFile = options.isSingleFile();
+        boolean compress = options.isCompress();
         int bufferSize = options.getBufferSize();
         int exportCount = 0;
         int offset = 0;
@@ -115,22 +116,17 @@ public class MessageExporter {
         }
 
         try {
-            switch (outputType) {
-                case MessageExportOptions.SINGLE_COMPRESSED:
-                case MessageExportOptions.MULTIPLE_COMPRESSED_ARCHIVE:
-                    fileName = folder + filePrefix + ".zip";
-                    zipOutputStream = new ZipOutputStream(new FileOutputStream(fileName));
-                    writer = new OutputStreamWriter(zipOutputStream);
+            if (compress) {
+                fileName = folder + filePrefix + ".zip";
+                zipOutputStream = new ZipOutputStream(new FileOutputStream(fileName));
+                writer = new OutputStreamWriter(zipOutputStream);
 
-                    if (outputType == MessageExportOptions.SINGLE_COMPRESSED) {
-                        zipOutputStream.putNextEntry(new ZipEntry(filePrefix + fileExtension));
-                    }
-                    break;
-
-                case MessageExportOptions.SINGLE:
-                    fileName = folder + filePrefix + fileExtension;
-                    writer = new OutputStreamWriter(new FileOutputStream(fileName));
-                    break;
+                if (singleFile) {
+                    zipOutputStream.putNextEntry(new ZipEntry(filePrefix + fileExtension));
+                }
+            } else if (singleFile) {
+                fileName = folder + filePrefix + fileExtension;
+                writer = new OutputStreamWriter(new FileOutputStream(fileName));
             }
         } catch (Exception e) {
             throw new MessageExporterException("Failed to write to file: " + fileName, e);
@@ -149,22 +145,13 @@ public class MessageExporter {
                 String filePrefixWithId = filePrefix + "_" + message.getMessageId();
 
                 try {
-                    switch (outputType) {
-                        case MessageExportOptions.MULTIPLE_COMPRESSED_EACH:
-                            fileName = folder + filePrefixWithId + ".zip";
-                            zipOutputStream = new ZipOutputStream(new FileOutputStream(fileName));
+                    if (!singleFile) {
+                        if (compress) {
                             zipOutputStream.putNextEntry(new ZipEntry(filePrefixWithId + fileExtension));
-                            writer = new OutputStreamWriter(zipOutputStream);
-                            break;
-
-                        case MessageExportOptions.MULTIPLE_COMPRESSED_ARCHIVE:
-                            zipOutputStream.putNextEntry(new ZipEntry(filePrefixWithId + fileExtension));
-                            break;
-
-                        case MessageExportOptions.MULTIPLE:
+                        } else {
                             fileName = folder + filePrefixWithId + fileExtension;
                             writer = new OutputStreamWriter(new FileOutputStream(fileName));
-                            break;
+                        }
                     }
                 } catch (Exception e) {
                     throw new MessageExporterException("Failed to write to file: " + fileName, e);
@@ -173,7 +160,7 @@ public class MessageExporter {
                 boolean exportWasSuccessful = exportMessage(message, writer);
                 
                 if (exportWasSuccessful) {
-                    if (outputType == MessageExportOptions.SINGLE || outputType == MessageExportOptions.SINGLE_COMPRESSED) {
+                    if (singleFile) {
                         try {
                             writer.append(IOUtils.LINE_SEPARATOR);
                             writer.flush();
@@ -181,36 +168,25 @@ public class MessageExporter {
                             throw new MessageExporterException("Failed to write line separator when exporting messages", e);
                         }
                     }
-
+                    
                     exportCount++;
                 }
 
                 try {
-                    switch (outputType) {
-                        case MessageExportOptions.MULTIPLE_COMPRESSED_EACH:
-                            zipOutputStream.close();
-                            writer.close();
-                            
-                            if (!exportWasSuccessful) {
-                                FileUtils.deleteQuietly(new File(fileName));
-                            }
-                            break;
-
-                        case MessageExportOptions.MULTIPLE_COMPRESSED_ARCHIVE:
+                    if (!singleFile) {
+                        if (compress) {
                             try {
                                 zipOutputStream.closeEntry();
                             } catch (IOException e) {
                                 throw new MessageExporterException("Failed in writing to file: " + fileName, e);
                             }
-                            break;
-
-                        case MessageExportOptions.MULTIPLE:
+                        } else {
                             writer.close();
                             
                             if (!exportWasSuccessful) {
                                 FileUtils.deleteQuietly(new File(fileName));
                             }
-                            break;
+                        }
                     }
                 } catch (IOException e) {
                     logger.error("Failed to close resources when writing to file: " + fileName, e);
@@ -227,24 +203,19 @@ public class MessageExporter {
         }
         
         try {
-            switch (outputType) {
-                case MessageExportOptions.SINGLE_COMPRESSED:
-                case MessageExportOptions.MULTIPLE_COMPRESSED_ARCHIVE:
-                    zipOutputStream.close();
-                    writer.close();
-                    
-                    if (exportCount == 0) {
-                        FileUtils.deleteQuietly(new File(fileName));
-                    }
-                    break;
-    
-                case MessageExportOptions.SINGLE:
-                    writer.close();
-                    
-                    if (exportCount == 0) {
-                        FileUtils.deleteQuietly(new File(fileName));
-                    }
-                    break;
+            if (compress) {
+                zipOutputStream.close();
+                writer.close();
+                
+                if (exportCount == 0) {
+                    FileUtils.deleteQuietly(new File(fileName));
+                }
+            } else if (singleFile) {
+                writer.close();
+                
+                if (exportCount == 0) {
+                    FileUtils.deleteQuietly(new File(fileName));
+                }
             }
         } catch (IOException e) {
             logger.error("Failed to close resources after exporting messages", e);

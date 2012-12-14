@@ -857,7 +857,8 @@ public class CommandLineInterface {
             options.setContentType(contentType);
             options.setBufferSize(pageSize);
             options.setFolder(fXml.getAbsolutePath());
-            options.setOutputType(MessageExportOptions.SINGLE);
+            options.setSingleFile(true);
+            options.setCompress(false);
             options.setEncrypt(false);
             options.setCharset(DEFAULT_CHARSET);
 
