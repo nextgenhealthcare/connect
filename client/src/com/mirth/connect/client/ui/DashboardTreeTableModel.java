@@ -124,8 +124,11 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
                 removeNodeFromParent(node);
                 i--;
             } else {
-                // Remove channels that do exist from the list of statuses so the
-                statuses.remove(statusMap.get(node.getStatus().getKey()));
+                // Remove channels that do exist from the list of statuses so they will not be added again later.
+                DashboardStatus status = statusMap.get(node.getStatus().getKey());
+                statuses.remove(status);
+                // Update the channel status
+                node.setStatus(status);
             }
         }
         
