@@ -78,12 +78,23 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     public void onDeploy() throws DeployException {
         this.connectorProperties = (FileReceiverProperties) getConnectorProperties();
 
-        this.fileConnector = new FileConnector(getChannelId(), connectorProperties);
-
         this.charsetEncoding = CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding(), System.getProperty("ca.uhn.hl7v2.llp.charset"));
 
-        // Replace variables in the readDir now, all others will be done every message
-        this.readDir = replacer.replaceValues(connectorProperties.getHost(), getChannelId());
+        // Replace variables in the readDir, username, and password now, all others will be done every message
+        connectorProperties.setHost(replacer.replaceValues(connectorProperties.getHost(), getChannelId()));
+        connectorProperties.setUsername(replacer.replaceValues(connectorProperties.getUsername(), getChannelId()));
+        connectorProperties.setPassword(replacer.replaceValues(connectorProperties.getPassword(), getChannelId()));
+        
+        this.fileConnector = new FileConnector(getChannelId(), connectorProperties);
+
+        URI uri;
+        try {
+            uri = getEndpointURI();
+        } catch (URISyntaxException e1) {
+            throw new DeployException("Error creating URI.", e1);
+        }
+        
+        this.readDir = uri.getPath();
         this.moveDir = connectorProperties.getMoveToDirectory();
         this.moveToPattern = connectorProperties.getMoveToPattern();
         this.errorDir = connectorProperties.getMoveToErrorDirectory();
@@ -129,7 +140,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             FileSystemConnection con = fileConnector.getConnection(getEndpointURI(), null);
             fileConnector.releaseConnection(getEndpointURI(), con, null);
         } catch (Exception e) {
-            throw new StartException(e);
+            throw new StartException(e.getMessage(), e);
         }
     }
 
@@ -219,12 +230,12 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         originalFilename = file.getName();
 
         Map<String, Object> channelMap = new HashMap<String, Object>();
-        channelMap.put("originalFilename", originalFilename);
+        channelMap.put("ORIGINALNAME", originalFilename);
 
-        if (moveDir != null) {
+        if (StringUtils.isNotBlank(moveDir)) {
             destinationName = file.getName();
 
-            if (moveToPattern != null) {
+            if (StringUtils.isNotBlank(moveToPattern)) {
                 destinationName = replacer.replaceValues(moveToPattern, getChannelId(), channelMap);
             }
 
@@ -272,7 +283,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                     // poll method
                     routingError = true;
 
-                    if (errorDir != null) {
+                    if (StringUtils.isNotBlank(errorDir)) {
                         logger.error("Moving file to error directory: " + errorDir);
 
                         destinationDir = replacer.replaceValues(errorDir, getChannelId(), channelMap);
@@ -285,7 +296,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 }
 
                 // move the file if needed
-                if (destinationDir != null) {
+                if (StringUtils.isNotBlank(destinationDir)) {
                     deleteFile(destinationName, destinationDir, true);
 
                     resultOfFileMoveOperation = renameFile(file.getName(), readDir, destinationName, destinationDir);
@@ -455,7 +466,18 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     }
 
     private URI getEndpointURI() throws URISyntaxException {
-        return new URI(connectorProperties.getScheme().getDisplayName(), connectorProperties.getHost(), null);
+        StringBuilder sspBuilder = new StringBuilder();
+        FileScheme scheme = connectorProperties.getScheme();
+        String host = connectorProperties.getHost();
+        
+        sspBuilder.append("//");
+        if (scheme == FileScheme.FILE && StringUtils.isNotBlank(host) && host.length() >= 3 && host.substring(1, 3).equals(":/")) {
+            sspBuilder.append("/");
+        }
+        
+        sspBuilder.append(host);
+        
+        return new URI(scheme.getDisplayName(), sspBuilder.toString(), null);
     }
 
     @Override

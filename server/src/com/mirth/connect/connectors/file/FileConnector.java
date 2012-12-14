@@ -26,14 +26,12 @@ import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class FileConnector {
     private Logger logger = Logger.getLogger(this.getClass());
 
     private Map<String, ObjectPool> pools = new HashMap<String, ObjectPool>();
     private FileOutputStream outputStream = null;
-    private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     private String channelId;
     private FileScheme scheme;
@@ -134,17 +132,6 @@ public class FileConnector {
     }
 
     /**
-     * Extract the path part of a URI as needed by the rest of this code.
-     * 
-     * @param uri
-     *            The URI from which the path part is to be taken.
-     * @return The path (directory, folder) part of the URI.
-     */
-    protected String getPathPart(URI uri) {
-        return uri.getPath();
-    }
-
-    /**
      * Registers a listener for a particular directory The following properties
      * can be overriden in the endpoint declaration
      * <ul>
@@ -239,16 +226,6 @@ public class FileConnector {
         }
     }
 
-    private String replace(String src, ConnectorMessage message) {
-        if (message == null) {
-            return replacer.replaceValues(src, getChannelId());
-        } else if (src.indexOf('$') > -1) {
-            return replacer.replaceValues(src, message);
-        } else {
-            return src;
-        }
-    }
-
     /**
      * Gets the pool of connections to the "server" for the specified endpoint,
      * creating the pool if necessary.
@@ -260,22 +237,9 @@ public class FileConnector {
      *            ???
      * @return The pool of connections for this endpoint.
      */
-    private synchronized ObjectPool getConnectionPool(URI endpointUri, ConnectorMessage message) {
+    private synchronized ObjectPool getConnectionPool(URI uri, ConnectorMessage message) {
 
-        // Resolve all the connection parameters to final substituted values,
-        // since we're about to actually use them.
-        String username = replace(getUsername(), message);
-        String password = replace(getPassword(), message);
-        URI uri;
-
-        try {
-            uri = new URI(replace(endpointUri.toString(), message));
-        } catch (URISyntaxException e) {
-            logger.error("Could not create URI from endpoint: " + endpointUri.toString());
-            uri = endpointUri;
-        }
-
-        String key = FileSystemConnectionFactory.getPoolKey(getScheme(), username, password, uri.getHost(), uri.getPort(), isSecure());
+        String key = FileSystemConnectionFactory.getPoolKey(getScheme(), getUsername(), getPassword(), uri.getHost(), uri.getPort(), isSecure());
         ObjectPool pool = pools.get(key);
         if (pool == null) {
             GenericObjectPool.Config config = new GenericObjectPool.Config();

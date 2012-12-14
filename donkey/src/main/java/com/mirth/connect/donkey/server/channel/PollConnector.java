@@ -47,7 +47,10 @@ public abstract class PollConnector extends SourceConnector {
     @Override
     public void stop() throws StopException {
         terminated = true;
-        task.terminate();
+        //TODO Possible nullpointerexception if channel start fails
+        if (task != null) {
+            task.terminate();
+        }
         super.stop();
     }
 

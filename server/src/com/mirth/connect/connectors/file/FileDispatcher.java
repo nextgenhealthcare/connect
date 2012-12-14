@@ -17,6 +17,7 @@ import java.net.URISyntaxException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
@@ -140,7 +141,7 @@ public class FileDispatcher extends DestinationConnector {
                 throw new IOException("Filename is null");
             }
 
-            String path = replacer.replaceValues(fileConnector.getPathPart(uri), connectorMessage);
+            String path = uri.getPath();
             String template = fileDispatcherProperties.getTemplate();
 
             byte[] bytes = AttachmentUtil.reAttachMessage(template, connectorMessage, charsetEncoding, fileDispatcherProperties.isBinary());
@@ -187,6 +188,17 @@ public class FileDispatcher extends DestinationConnector {
     }
 
     private URI getEndpointURI() throws URISyntaxException {
-        return new URI(connectorProperties.getScheme().getDisplayName(), connectorProperties.getHost(), null);
+        StringBuilder sspBuilder = new StringBuilder();
+        FileScheme scheme = connectorProperties.getScheme();
+        String host = connectorProperties.getHost();
+        
+        sspBuilder.append("//");
+        if (scheme == FileScheme.FILE && StringUtils.isNotBlank(host) && host.length() >= 3 && host.substring(1, 3).equals(":/")) {
+            sspBuilder.append("/");
+        }
+        
+        sspBuilder.append(host);
+        
+        return new URI(scheme.getDisplayName(), sspBuilder.toString(), null);
     }
 }
