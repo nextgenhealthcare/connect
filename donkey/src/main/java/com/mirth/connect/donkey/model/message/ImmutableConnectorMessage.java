@@ -10,6 +10,7 @@
 package com.mirth.connect.donkey.model.message;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Map;
 
 public class ImmutableConnectorMessage {
@@ -168,15 +169,15 @@ public class ImmutableConnectorMessage {
     }
 
     public Map<String, Object> getConnectorMap() {
-        return connectorMessage.getConnectorMap();
+        return Collections.unmodifiableMap(connectorMessage.getConnectorMap());
     }
 
     public Map<String, Object> getChannelMap() {
-        return connectorMessage.getChannelMap();
+        return Collections.unmodifiableMap(connectorMessage.getChannelMap());
     }
 
     public Map<String, Response> getResponseMap() {
-        return connectorMessage.getResponseMap();
+        return Collections.unmodifiableMap(connectorMessage.getResponseMap());
     }
 
     public String getErrors() {
