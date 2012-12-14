@@ -278,7 +278,7 @@
         <Component class="javax.swing.JLabel" name="messageIdLabel">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="4"/>
-            <Property name="text" type="java.lang.String" value="Message ID:"/>
+            <Property name="text" type="java.lang.String" value="Message Id:"/>
           </Properties>
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="messageIdLowerField">
@@ -291,7 +291,7 @@
         <Component class="javax.swing.JLabel" name="serverIdLabel">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="4"/>
-            <Property name="text" type="java.lang.String" value="Server ID:"/>
+            <Property name="text" type="java.lang.String" value="Server Id:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel2">
@@ -523,7 +523,7 @@
         <Component class="javax.swing.JLabel" name="importIdLabel">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="4"/>
-            <Property name="text" type="java.lang.String" value="Import ID:"/>
+            <Property name="text" type="java.lang.String" value="Import Id:"/>
           </Properties>
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="importIdLowerField">

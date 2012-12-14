@@ -1439,8 +1439,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         encryptMessagesCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         durableStatusLabel = new javax.swing.JLabel();
         removeContentCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        queueWarningLabel = new javax.swing.JLabel();
         removeAttachmentsCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        queueWarningLabel = new javax.swing.JLabel();
         messagePruningPanel = new javax.swing.JPanel();
         metadataLabel = new javax.swing.JLabel();
         metadataPruningOffRadio = new javax.swing.JRadioButton();
@@ -1565,12 +1565,12 @@ public class ChannelSetup extends javax.swing.JPanel {
         lastModified.setText("Last Modified: ");
 
         attachmentWarningLabel.setForeground(new java.awt.Color(255, 0, 0));
-        attachmentWarningLabel.setText("Attachments will be removed but not stored or reattached.");
+        attachmentWarningLabel.setText("Attachments will be extracted but not stored or reattached.");
 
         attachmentStoreCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         attachmentStoreCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         attachmentStoreCheckBox.setText("Store Attachments");
-        attachmentStoreCheckBox.setToolTipText("Attachments will be stored in the database and it will be possible for them to be reattached.");
+        attachmentStoreCheckBox.setToolTipText("If checked, attachments will be stored in the database and available for reattachment.");
         attachmentStoreCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
         attachmentStoreCheckBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -1608,11 +1608,12 @@ public class ChannelSetup extends javax.swing.JPanel {
                     .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
                         .addComponent(attachmentStoreCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(attachmentWarningLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(attachmentWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(channelPropertiesPanelLayout.createSequentialGroup()
                         .addComponent(clearGlobalChannelMapCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(34, 34, 34)
-                        .addComponent(lastModified, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(lastModified, javax.swing.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         channelPropertiesPanelLayout.setVerticalGroup(
@@ -1695,11 +1696,6 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
         });
 
-        queueWarningLabel.setFont(new java.awt.Font("Dialog", 0, 11)); // NOI18N
-        queueWarningLabel.setForeground(new java.awt.Color(255, 0, 0));
-        queueWarningLabel.setText("<html>Disable source & destination queueing before using this mode</html>");
-        queueWarningLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-
         removeAttachmentsCheckbox.setBackground(new java.awt.Color(255, 255, 255));
         removeAttachmentsCheckbox.setText("Remove attachments on completion");
         removeAttachmentsCheckbox.setToolTipText("<html>Remove message attachments once the message has completed processing.<br/>Not applicable for messages that are errored or queued.</html>");
@@ -1708,6 +1704,11 @@ public class ChannelSetup extends javax.swing.JPanel {
                 removeAttachmentsCheckboxActionPerformed(evt);
             }
         });
+
+        queueWarningLabel.setFont(new java.awt.Font("Dialog", 0, 11)); // NOI18N
+        queueWarningLabel.setForeground(new java.awt.Color(255, 0, 0));
+        queueWarningLabel.setText("<html>Disable source & destination queueing before using this mode</html>");
+        queueWarningLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         javax.swing.GroupLayout messageStoragePanelLayout = new javax.swing.GroupLayout(messageStoragePanel);
         messageStoragePanel.setLayout(messageStoragePanelLayout);
@@ -1755,9 +1756,11 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addComponent(removeContentCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(removeAttachmentsCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(queueWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(messageStorageSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addGroup(messageStoragePanelLayout.createSequentialGroup()
+                .addComponent(messageStorageSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         messagePruningPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -1916,7 +1919,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addComponent(addTagButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(deleteTagButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 72, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(channelTagsPanelLayout.createSequentialGroup()
                 .addComponent(channelTagsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
@@ -1980,7 +1983,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                         .addComponent(addMetaDataButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteMetaDataButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
                         .addComponent(revertMetaDataButton))
                     .addComponent(metaDataTablePane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
@@ -2018,10 +2021,8 @@ public class ChannelSetup extends javax.swing.JPanel {
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(summaryLayout.createSequentialGroup()
                         .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(summaryLayout.createSequentialGroup()
-                                .addGap(2, 2, 2)
-                                .addComponent(messageStoragePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 408, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(channelTagsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 0, Short.MAX_VALUE))
+                            .addComponent(channelTagsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
+                            .addComponent(messageStoragePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 0, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(messagePruningPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -2039,8 +2040,8 @@ public class ChannelSetup extends javax.swing.JPanel {
                     .addComponent(messagePruningPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 0, Short.MAX_VALUE))
                 .addGap(4, 4, 4)
                 .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(customMetadataPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(channelTagsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(channelTagsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(customMetadataPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())

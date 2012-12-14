@@ -92,11 +92,8 @@
                           <Component id="jPanel1" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Group type="102" attributes="0">
-                                      <EmptySpace min="2" pref="2" max="-2" attributes="0"/>
-                                      <Component id="messageStoragePanel" min="-2" pref="408" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Component id="channelTagsPanel" pref="0" max="32767" attributes="0"/>
+                                  <Component id="channelTagsPanel" pref="410" max="32767" attributes="0"/>
+                                  <Component id="messageStoragePanel" pref="0" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
@@ -121,8 +118,8 @@
                       </Group>
                       <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="channelTagsPanel" max="32767" attributes="0"/>
                           <Component id="customMetadataPanel" max="32767" attributes="0"/>
-                          <Component id="channelTagsPanel" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel1" max="32767" attributes="0"/>
@@ -178,12 +175,13 @@
                               <Group type="102" attributes="0">
                                   <Component id="attachmentStoreCheckBox" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="attachmentWarningLabel" max="32767" attributes="0"/>
+                                  <Component id="attachmentWarningLabel" min="-2" pref="351" max="-2" attributes="0"/>
+                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
                               <Group type="102" attributes="0">
                                   <Component id="clearGlobalChannelMapCheckBox" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
-                                  <Component id="lastModified" max="32767" attributes="0"/>
+                                  <Component id="lastModified" pref="249" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -354,7 +352,7 @@
                     <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="0" green="0" red="ff" type="rgb"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Attachments will be removed but not stored or reattached."/>
+                    <Property name="text" type="java.lang.String" value="Attachments will be extracted but not stored or reattached."/>
                   </Properties>
                 </Component>
                 <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="attachmentStoreCheckBox">
@@ -368,7 +366,7 @@
                       </Border>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Store Attachments"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Attachments will be stored in the database and it will be possible for them to be reattached."/>
+                    <Property name="toolTipText" type="java.lang.String" value="If checked, attachments will be stored in the database and available for reattachment."/>
                     <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                       <Insets value="[0, 0, 0, 0]"/>
                     </Property>
@@ -419,7 +417,7 @@
                                   <Component id="storageLabel" alignment="0" max="32767" attributes="0"/>
                               </Group>
                               <Component id="removeAttachmentsCheckbox" min="-2" max="-2" attributes="0"/>
-                              <Component id="queueWarningLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="queueWarningLabel" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
@@ -447,10 +445,13 @@
                           <Component id="removeContentCheckbox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="removeAttachmentsCheckbox" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                           <Component id="queueWarningLabel" min="-2" pref="15" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="messageStorageSlider" pref="0" max="32767" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <Component id="messageStorageSlider" pref="0" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                      </Group>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -539,18 +540,6 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="removeContentCheckboxActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JLabel" name="queueWarningLabel">
-                  <Properties>
-                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                      <Font name="Dialog" size="11" style="0"/>
-                    </Property>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="0" green="0" red="ff" type="rgb"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="&lt;html&gt;Disable source &amp; destination queueing before using this mode&lt;/html&gt;"/>
-                    <Property name="verticalAlignment" type="int" value="1"/>
-                  </Properties>
-                </Component>
                 <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="removeAttachmentsCheckbox">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -562,6 +551,18 @@
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="removeAttachmentsCheckboxActionPerformed"/>
                   </Events>
+                </Component>
+                <Component class="javax.swing.JLabel" name="queueWarningLabel">
+                  <Properties>
+                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                      <Font name="Dialog" size="11" style="0"/>
+                    </Property>
+                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="0" green="0" red="ff" type="rgb"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" value="&lt;html&gt;Disable source &amp; destination queueing before using this mode&lt;/html&gt;"/>
+                    <Property name="verticalAlignment" type="int" value="1"/>
+                  </Properties>
                 </Component>
               </SubComponents>
             </Container>
@@ -770,7 +771,7 @@
                           <Component id="addTagButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="deleteTagButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="72" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="channelTagsScrollPane" pref="0" max="32767" attributes="0"/>
@@ -868,7 +869,7 @@
                                   <Component id="addMetaDataButton" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="deleteMetaDataButton" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="32767" attributes="0"/>
+                                  <EmptySpace pref="38" max="32767" attributes="0"/>
                                   <Component id="revertMetaDataButton" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <Component id="metaDataTablePane" pref="0" max="32767" attributes="0"/>

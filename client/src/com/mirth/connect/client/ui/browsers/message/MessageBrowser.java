@@ -649,6 +649,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         previousPageButton.setEnabled(false);
         countButton.setEnabled(false);
         pageGoButton.setEnabled(false);
+        
+        // Give focus to the message tree table since these buttons will lose focus. That way the user can also immediately use the arrow keys after a search.
+        messageTreeTable.requestFocus();
 
         worker = new SwingWorker<Void, Void>() {
             private boolean foundItems = false;

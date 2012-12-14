@@ -114,7 +114,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     }
     
     private void initMetaDataSearchTable() {
-        metaDataSearchTable.setModel(new DefaultTableModel(new Object [][] {}, new String[] { "MetaData", "Operator", "Value", "Ignore Case" }) {
+        metaDataSearchTable.setModel(new DefaultTableModel(new Object [][] {}, new String[] { "Metadata", "Operator", "Value", "Ignore Case" }) {
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 if (columnIndex == 3 && cachedMetaDataColumns.get(getValueAt(rowIndex, 0)).getType() != MetaDataColumnType.STRING) {
                     return false;
@@ -155,6 +155,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         
         metaDataSearchTable.setSortable(false);
         metaDataSearchTable.getTableHeader().setReorderingAllowed(false);
+        
+        addMetaDataSearchButton.setEnabled(!messageBrowser.getChannel().getProperties().getMetaDataColumns().isEmpty());
         
         metaDataSearchTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent evt) {
@@ -553,12 +555,12 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         containerPanel.setBackground(new java.awt.Color(255, 255, 255));
 
         messageIdLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        messageIdLabel.setText("Message ID:");
+        messageIdLabel.setText("Message Id:");
 
         serverIdField.setToolTipText("<html>The GUID of the message in the Mirth Connect database.<br>This can be retrieved from the Meta Data tab in the Message Browser.</html>");
 
         serverIdLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        serverIdLabel.setText("Server ID:");
+        serverIdLabel.setText("Server Id:");
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel2.setText("# of Send Attempts");
@@ -673,7 +675,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         attachmentCheckBox.setBackground(new java.awt.Color(255, 255, 255));
 
         importIdLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        importIdLabel.setText("Import ID:");
+        importIdLabel.setText("Import Id:");
 
         importIdLowerField.setToolTipText("<html>The GUID of the message in the Mirth Connect database.<br>This can be retrieved from the Meta Data tab in the Message Browser.</html>");
 
