@@ -22,7 +22,7 @@ public class JavaScriptDispatcherProperties extends ConnectorProperties implemen
     public JavaScriptDispatcherProperties() {
         queueConnectorProperties = new QueueConnectorProperties();
 
-        script = "";
+        script = "// The return value of this script is stored as the response\nreturn 'Script execution successful';";
     }
 
     @Override

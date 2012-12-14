@@ -42,7 +42,7 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptDispatcher extends DestinationConnector {
     private final static ConnectorType CONNECTOR_TYPE = ConnectorType.SENDER;
-    
+
     private Logger scriptLogger = Logger.getLogger("js-connector");
     private JavaScriptExecutor<Response> jsExecutor = new JavaScriptExecutor<Response>();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
@@ -93,14 +93,14 @@ public class JavaScriptDispatcher extends DestinationConnector {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
         }
     }
-    
+
     private class JavaScriptDispatcherTask extends JavaScriptTask<Response> {
         private ConnectorMessage message;
-        
+
         public JavaScriptDispatcherTask(ConnectorMessage message) {
             this.message = message;
         }
-        
+
         @Override
         public Response call() throws Exception {
             String responseData = null;
@@ -122,8 +122,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
                 // Set the response message to the returned object (casted to a string)
                 if (result != null) {
                     responseData = (String) Context.jsToJava(result, java.lang.String.class);
-                    
-                    // TODO: Decide 1) if queuing is ever appropriate for JavaScript Writers and 2) how to implement it
+
                     // If queuing is enabled, then only update the response status to SENT if the result value isn't null or Undefined
                     if (!(result instanceof Undefined)) {
                         responseStatus = Status.SENT;
