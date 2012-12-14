@@ -46,11 +46,11 @@
 	<classpathentry kind="lib" path="lib/database/ojdbc6.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.44.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/servlet-api-2.5.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-core-2.0.27.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-filecache-2.0.27.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-net-2.0.27.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-tool-dcmrcv-2.0.27.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-tool-dcmsnd-2.0.27.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-core-2.0.25.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-filecache-2.0.25.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-net-2.0.25.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-tool-dcmrcv-2.0.25.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-tool-dcmsnd-2.0.25.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/policy-xmlbeans-1.5.jar"/>
