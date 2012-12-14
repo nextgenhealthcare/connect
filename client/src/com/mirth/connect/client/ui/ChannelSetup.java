@@ -2447,7 +2447,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         // data. Continue when deleting a destination because the selected
         // destination index will not be different than the last index.
         if (!loadingChannel && !isDeleting) {
-            if (destinationConnectorPanel.getName() != null && destinationConnectorPanel.getName().equals(destinationSourceDropdown.getSelectedItem()) && lastModelIndex == destinationTable.getSelectedModelIndex()) {
+            if (destinationConnectorPanel.getProperties().getName() != null && destinationConnectorPanel.getProperties().getName().equals(destinationSourceDropdown.getSelectedItem()) && lastModelIndex == destinationTable.getSelectedModelIndex()) {
                 return;
             }
 
