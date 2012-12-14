@@ -81,8 +81,8 @@ public class ChannelStatusServlet extends MirthServlet {
         } catch (RuntimeIOException rio) {
             logger.debug(rio);
         } catch (Throwable t) {
+            // log the error, but don't throw the exception back since the client may no longer be waiting for a response
             logger.error(ExceptionUtils.getStackTrace(t));
-            throw new ServletException(t);
         }
     }
 
