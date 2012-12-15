@@ -45,6 +45,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorConstants;
@@ -161,7 +162,7 @@ public class TcpDispatcher extends DestinationConnector {
             BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream(), parseInt(tcpSenderProperties.getBufferSize()));
             BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
             StreamHandler streamHandler = new FrameStreamHandler(socket.getInputStream(), bos, batchStreamReader, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
-            streamHandler.write(getTemplateBytes(tcpSenderProperties));
+            streamHandler.write(getTemplateBytes(tcpSenderProperties, message));
             bos.flush();
 
             if (!tcpSenderProperties.isIgnoreResponse()) {
@@ -317,15 +318,11 @@ public class TcpDispatcher extends DestinationConnector {
      * template, using the properties to determine whether or not to encode in
      * Base64, and what charset to use.
      */
-    private byte[] getTemplateBytes(TcpDispatcherProperties tcpSenderProperties) throws UnsupportedEncodingException {
+    private byte[] getTemplateBytes(TcpDispatcherProperties tcpSenderProperties, ConnectorMessage connectorMessage) throws UnsupportedEncodingException {
         byte[] bytes = new byte[0];
 
         if (tcpSenderProperties.getTemplate() != null) {
-            if (tcpSenderProperties.isDataTypeBinary()) {
-                bytes = Base64.decodeBase64(tcpSenderProperties.getTemplate());
-            } else {
-                bytes = tcpSenderProperties.getTemplate().getBytes(CharsetUtils.getEncoding(tcpSenderProperties.getCharsetEncoding()));
-            }
+            bytes = AttachmentUtil.reAttachMessage(tcpSenderProperties.getTemplate(), connectorMessage, tcpSenderProperties.getCharsetEncoding(), tcpSenderProperties.isDataTypeBinary());
         }
 
         return bytes;
