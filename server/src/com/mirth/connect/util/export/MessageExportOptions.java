@@ -16,6 +16,7 @@ public class MessageExportOptions {
     private String channelId;
     private MessageFilter messageFilter;
     private ContentType contentType;
+    private boolean destinationContent;
     private int bufferSize = 100;
     private String folder;
     private boolean singleFile;
@@ -45,6 +46,14 @@ public class MessageExportOptions {
 
     public void setContentType(ContentType contentType) {
         this.contentType = contentType;
+    }
+
+    public boolean isDestinationContent() {
+        return destinationContent;
+    }
+
+    public void setDestinationContent(boolean destinationContent) {
+        this.destinationContent = destinationContent;
     }
 
     public int getBufferSize() {

@@ -17,6 +17,7 @@ import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -26,6 +27,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.util.Serializer;
@@ -157,19 +160,38 @@ public class MessageExporter {
                     throw new MessageExporterException("Failed to write to file: " + fileName, e);
                 }
 
-                boolean exportWasSuccessful = exportMessage(message, writer);
-                
-                if (exportWasSuccessful) {
-                    if (singleFile) {
-                        try {
+                boolean contentWasWritten = false;
+
+                try {
+                    if (options.getContentType() != null) {
+                        ContentType contentType = options.getContentType();
+                        boolean destinationContent = options.isDestinationContent();
+                        
+                        for (Entry<Integer, ConnectorMessage> entry : message.getConnectorMessages().entrySet()) {
+                            Integer metaDataId = entry.getKey();
+                            ConnectorMessage connectorMessage = entry.getValue();
+
+                            if (((destinationContent && metaDataId != 0) || (!destinationContent && metaDataId == 0)) && exportMessageContent(connectorMessage.getContent(contentType), writer)) {
+                                writer.append(IOUtils.LINE_SEPARATOR);
+                                writer.append(IOUtils.LINE_SEPARATOR);
+                                contentWasWritten = true;
+                            }
+                        }
+                    } else {
+                        contentWasWritten = exportMessage(message, writer);
+                        
+                        if (singleFile) {
                             writer.append(IOUtils.LINE_SEPARATOR);
-                            writer.flush();
-                        } catch (IOException e) {
-                            throw new MessageExporterException("Failed to write line separator when exporting messages", e);
                         }
                     }
-                    
-                    exportCount++;
+    
+                    if (contentWasWritten) {
+                        writer.flush();
+                        exportCount++;
+                    }
+                } catch (IOException e) {
+                    IOUtils.closeQuietly(writer);
+                    throw new MessageExporterException("An error occurred while exporting message Id " + message.getMessageId() + ", channel Id " + options.getChannelId(), e);
                 }
 
                 try {
@@ -183,7 +205,7 @@ public class MessageExporter {
                         } else {
                             writer.close();
                             
-                            if (!exportWasSuccessful) {
+                            if (!contentWasWritten) {
                                 FileUtils.deleteQuietly(new File(fileName));
                             }
                         }
@@ -223,54 +245,56 @@ public class MessageExporter {
 
         return exportCount;
     }
-
-    private boolean exportMessage(Message message, Writer writer) throws MessageExporterException {
-        try {
-            String content = null;
-            boolean isEncrypt = options.isEncrypt();
-
-            if (options.getContentType() != null) {
-                MessageContent messageContent = message.getConnectorMessages().get(0).getContent(options.getContentType());
-                
-                if (messageContent != null) {
-                    String unencrypted = messageContent.getContent();
-                    String encrypted = messageContent.getEncryptedContent();
-                    
-                    if (isEncrypt) {
-                        if (encrypted != null) {
-                            content = encrypted;
-                        } else if (unencrypted != null && !StringUtils.isBlank(unencrypted)) {
-                            content = encryptor.encrypt(unencrypted);
-                        }
-                    } else {
-                        if (unencrypted != null) {
-                            content = unencrypted;
-                        } else if (encrypted != null && !StringUtils.isBlank(encrypted)) {
-                            content = encryptor.decrypt(encrypted);
-                        }
-                    }
-                }
-            } else {
-                if (isEncrypt) {
-                    MessageEncryptionUtil.encryptMessage(message, encryptor);
-                } else {
-                    MessageEncryptionUtil.decryptMessage(message, encryptor);
-                }
-                
-                content = serializer.serialize(message);
-            }
-
-            if (StringUtils.isNotBlank(content)) {
-                writer.write(content);
-                writer.flush();
-                return true;
-            }
-
+    
+    private boolean exportMessageContent(MessageContent messageContent, Writer writer) throws IOException {
+        if (messageContent == null) {
             return false;
-        } catch (IOException e) {
-            IOUtils.closeQuietly(writer);
-            throw new MessageExporterException("Failed to export message ID " + message.getMessageId() + ", channel ID " + options.getChannelId(), e);
         }
+        
+        boolean isEncrypt = options.isEncrypt();
+        String unencrypted = messageContent.getContent();
+        String encrypted = messageContent.getEncryptedContent();
+        String content = null;
+        
+        if (isEncrypt) {
+            if (encrypted != null) {
+                content = encrypted;
+            } else if (unencrypted != null && !StringUtils.isBlank(unencrypted)) {
+                content = encryptor.encrypt(unencrypted);
+            }
+        } else {
+            if (unencrypted != null) {
+                content = unencrypted;
+            } else if (encrypted != null && !StringUtils.isBlank(encrypted)) {
+                content = encryptor.decrypt(encrypted);
+            }
+        }
+        
+        if (StringUtils.isNotBlank(content)) {
+            writer.write(content);
+            return true;
+        }
+        
+        return false;
+    }
+    
+    private boolean exportMessage(Message message, Writer writer) throws IOException {
+        boolean isEncrypt = options.isEncrypt();
+        
+        if (isEncrypt) {
+            MessageEncryptionUtil.encryptMessage(message, encryptor);
+        } else {
+            MessageEncryptionUtil.decryptMessage(message, encryptor);
+        }
+        
+        String content = serializer.serialize(message);
+        
+        if (StringUtils.isNotBlank(content)) {
+            writer.write(content);
+            return true;
+        }
+        
+        return false;
     }
 
     public class MessageExporterException extends Exception {

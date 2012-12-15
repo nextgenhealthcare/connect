@@ -45,12 +45,43 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
     private void initComponentsCustom() {
         DefaultComboBoxModel model = new DefaultComboBoxModel();
         model.addElement("XML serialized message");
-        
-        for (ContentType contentType : ContentType.values()) {
-            model.addElement(contentType);
-        }
+        model.addElement(new ExportFormat(false, ContentType.RAW));
+        model.addElement(new ExportFormat(false, ContentType.PROCESSED_RAW));
+        model.addElement(new ExportFormat(false, ContentType.TRANSFORMED));
+        model.addElement(new ExportFormat(false, ContentType.ENCODED));
+        model.addElement(new ExportFormat(false, ContentType.RESPONSE));
+        model.addElement(new ExportFormat(true, ContentType.TRANSFORMED));
+        model.addElement(new ExportFormat(true, ContentType.ENCODED));
+        model.addElement(new ExportFormat(true, ContentType.RESPONSE));
+        model.addElement(new ExportFormat(true, ContentType.PROCESSED_RESPONSE));
         
         formatComboBox.setModel(model);
+    }
+    
+    private class ExportFormat {
+        private boolean destination = false;
+        private ContentType contentType;
+
+        public ExportFormat(boolean destination, ContentType contentType) {
+            this.destination = destination;
+            this.contentType = contentType;
+        }
+        
+        public boolean isDestination() {
+            return destination;
+        }
+
+        public ContentType getContentType() {
+            return contentType;
+        }
+        
+        public String toString() {
+            if (contentType != null) {
+                return (destination ? "Destination" : "Source") + " - " + contentType.toString();
+            }
+            
+            return "";
+        }
     }
     
     public void loadChannel(String channelId) {
@@ -165,7 +196,7 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
 
         exportTypeServer.setBackground(new java.awt.Color(255, 255, 255));
         destinationButtonGroup.add(exportTypeServer);
-        exportTypeServer.setText("Export to folder on Mirth Connect server");
+        exportTypeServer.setText("Export to folder on Mirth Connect Server");
         exportTypeServer.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exportTypeServerActionPerformed(evt);
@@ -295,8 +326,10 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
         options.setEncrypt(parent.mirthClient.isEncryptExport());
         options.setCharset(UIConstants.CHARSET);
         
-        if (formatComboBox.getSelectedItem() instanceof ContentType) {
-            options.setContentType((ContentType) formatComboBox.getSelectedItem());
+        if (formatComboBox.getSelectedItem() instanceof ExportFormat) {
+            ExportFormat exportFormat = (ExportFormat) formatComboBox.getSelectedItem();
+            options.setContentType(exportFormat.getContentType());
+            options.setDestinationContent(exportFormat.isDestination());
         }
         
         try {

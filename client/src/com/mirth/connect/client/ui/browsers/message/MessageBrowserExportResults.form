@@ -255,7 +255,7 @@
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="destinationButtonGroup"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Export to folder on Mirth Connect server"/>
+                <Property name="text" type="java.lang.String" value="Export to folder on Mirth Connect Server"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="exportTypeServerActionPerformed"/>
