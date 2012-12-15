@@ -14,9 +14,10 @@ import java.util.UUID;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.NativeJavaObject;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.Undefined;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -27,6 +28,8 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
@@ -43,8 +46,10 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 public class JavaScriptDispatcher extends DestinationConnector {
     private final static ConnectorType CONNECTOR_TYPE = ConnectorType.SENDER;
 
+    private Logger logger = Logger.getLogger(this.getClass());
     private Logger scriptLogger = Logger.getLogger("js-connector");
     private JavaScriptExecutor<Response> jsExecutor = new JavaScriptExecutor<Response>();
+    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private JavaScriptDispatcherProperties connectorProperties;
@@ -59,7 +64,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
         try {
             JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), null, null);
         } catch (Exception e) {
-            // TODO: handle exception
+            throw new DeployException("Error compiling/adding script.", e);
         }
 
         this.scriptId = scriptId;
@@ -87,7 +92,8 @@ public class JavaScriptDispatcher extends DestinationConnector {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.BUSY);
             return jsExecutor.execute(new JavaScriptDispatcherTask(message));
         } catch (JavaScriptExecutorException e) {
-            // TODO: log error?
+            logger.error("Error executing script (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_414, "Error executing script.", e);
             return new Response(Status.ERROR, ErrorMessageBuilder.buildErrorResponse("Error executing script", e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Error executing script", e));
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
@@ -105,27 +111,66 @@ public class JavaScriptDispatcher extends DestinationConnector {
         public Response call() throws Exception {
             String responseData = null;
             String responseError = null;
-            Status responseStatus = Status.QUEUED;
+            Status responseStatus = Status.SENT;
 
             Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, getChannelId(), message);
             Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
 
             if (compiledScript == null) {
-                // TODO: throw exception?
                 responseData = ErrorMessageBuilder.buildErrorResponse("Script not found in cache", null);
                 responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Script not found in cache", null);
                 responseStatus = Status.ERROR;
+
+                logger.error("Script not found in cache (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
+                alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_414, "Script not found in cache.", null);
             } else {
-                Object result = executeScript(compiledScript, scope);
+                try {
+                    Object result = executeScript(compiledScript, scope);
 
-                // Set the response message to the returned object (casted to a string)
-                if (result != null) {
-                    responseData = (String) Context.jsToJava(result, java.lang.String.class);
+                    if (result != null) {
+                        /*
+                         * If the script return value is a response, return it as-is. If it's a
+                         * status, only update the response status. Otherwise, set the response data
+                         * to the string representation of the object.
+                         */
+                        if (result instanceof NativeJavaObject) {
+                            Object object = ((NativeJavaObject) result).unwrap();
 
-                    // If queuing is enabled, then only update the response status to SENT if the result value isn't null or Undefined
-                    if (!(result instanceof Undefined)) {
-                        responseStatus = Status.SENT;
+                            if (object instanceof Response) {
+                                return (Response) object;
+                            } else if (object instanceof Status) {
+                                responseStatus = (Status) object;
+                            } else {
+                                responseData = object.toString();
+                            }
+                        } else if (result instanceof Response) {
+                            return (Response) result;
+                        } else if (result instanceof Status) {
+                            responseStatus = (Status) result;
+                        } else {
+                            responseData = (String) Context.jsToJava(result, java.lang.String.class);
+                        }
                     }
+                } catch (Throwable t) {
+                    if (t instanceof RhinoException) {
+                        try {
+                            String script = CompiledScriptCache.getInstance().getSourceScript(scriptId);
+                            int linenumber = ((RhinoException) t).lineNumber();
+                            String errorReport = JavaScriptUtil.getSourceCode(script, linenumber, 0);
+                            t = new MirthJavascriptTransformerException((RhinoException) t, getChannelId(), getDestinationName(), 0, getConnectorProperties().getName(), errorReport);
+                        } catch (Exception ee) {
+                            t = new MirthJavascriptTransformerException((RhinoException) t, getChannelId(), getDestinationName(), 0, getConnectorProperties().getName(), null);
+                        }
+                    }
+
+                    responseData = ErrorMessageBuilder.buildErrorResponse("Error evaluating " + getConnectorProperties().getName(), t);
+                    responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Error evaluating " + getConnectorProperties().getName(), t);
+                    responseStatus = Status.ERROR;
+
+                    logger.error("Error evaluating " + getConnectorProperties().getName() + " (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", t);
+                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_414, "Error evaluating " + getConnectorProperties().getName(), t);
+                } finally {
+                    Context.exit();
                 }
             }
 

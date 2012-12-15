@@ -27,6 +27,7 @@ import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.ImmutableMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.converters.delimited.DelimitedProperties;
 import com.mirth.connect.server.util.javascript.StoppableContextFactory;
@@ -40,7 +41,7 @@ public class JavaScriptScopeUtil {
     static {
         ContextFactory.initGlobal(new StoppableContextFactory());
     }
-    
+
     private static void initialize() {
         if (rhinoOptimizationLevel == null) {
             rhinoOptimizationLevel = -1;
@@ -139,6 +140,13 @@ public class JavaScriptScopeUtil {
         scope.put("logger", scope, logger);
     }
 
+    // Status enum builder
+    private static void addStatusValues(Scriptable scope) {
+        for (Status status : Status.values()) {
+            scope.put(status.toString(), scope, status);
+        }
+    }
+
     /*
      * Private Basic Scopes
      */
@@ -196,6 +204,7 @@ public class JavaScriptScopeUtil {
     public static Scriptable getPostprocessorScope(Object logger, String channelId, Message message, Response response) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addMessage(scope, message);
+        addStatusValues(scope);
         scope.put("response", scope, response);
         return scope;
     }
@@ -210,6 +219,7 @@ public class JavaScriptScopeUtil {
 
     public static Scriptable getResponseTransformerScope(Object logger, Response response) {
         Scriptable scope = getBasicScope(getContext(), logger);
+        addStatusValues(scope);
         scope.put("response", scope, response);
         return scope;
     }
@@ -241,6 +251,7 @@ public class JavaScriptScopeUtil {
     public static Scriptable getMessageDispatcherScope(Object logger, String channelId, ConnectorMessage message) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addConnectorMessage(scope, message);
+        addStatusValues(scope);
         return scope;
     }
 
