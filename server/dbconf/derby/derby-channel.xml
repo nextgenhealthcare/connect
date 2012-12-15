@@ -6,6 +6,7 @@
 	<resultMap type="com.mirth.connect.model.Channel" id="get-channel-result">
 		<result property="id" column="ID" />
 		<result property="name" column="NAME" />
+		<result property='nextMetaDataId' column='NEXT_METADATA_ID' />
 		<result property="description" column="DESCRIPTION" />
 		<result property="enabled" column="IS_ENABLED" />
 		<result property="version" column="VERSION" />
@@ -59,13 +60,14 @@
 	
 	<insert id="insertChannel" parameterType="com.mirth.connect.model.Channel">
 		INSERT INTO
-		CHANNEL (ID, NAME, DESCRIPTION, IS_ENABLED, VERSION, REVISION, LAST_MODIFIED, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT)
-		VALUES (#{id}, #{name}, #{description}, #{enabled}, #{version}, #{revision}, #{lastModified}, #{sourceConnector}, #{destinationConnectors}, #{properties}, #{preprocessingScript}, #{postprocessingScript}, #{deployScript}, #{shutdownScript})
+		CHANNEL (ID, NAME, NEXT_METADATA_ID, DESCRIPTION, IS_ENABLED, VERSION, REVISION, LAST_MODIFIED, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT)
+		VALUES (#{id}, #{name}, #{nextMetaDataId}, #{description}, #{enabled}, #{version}, #{revision}, #{lastModified}, #{sourceConnector}, #{destinationConnectors}, #{properties}, #{preprocessingScript}, #{postprocessingScript}, #{deployScript}, #{shutdownScript})
 	</insert>
 	
 	<update id="updateChannel" parameterType="com.mirth.connect.model.Channel">
 		UPDATE CHANNEL
 		SET NAME = #{name},
+			NEXT_METADATA_ID = #{nextMetaDataId},
 			DESCRIPTION = #{description},
 			IS_ENABLED = #{enabled},
 			VERSION = #{version},

@@ -222,6 +222,9 @@ public class DefaultChannelController extends ChannelController {
             }
 
             currentRevision = matchingChannels.get(0).getRevision();
+            
+            // Use the larger nextMetaDataId to ensure a metadata ID will never be reused if an older version of a channel is imported or saved.
+            channel.setNextMetaDataId(Math.max(matchingChannels.get(0).getNextMetaDataId(), channel.getNextMetaDataId()));
         }
 
         /*

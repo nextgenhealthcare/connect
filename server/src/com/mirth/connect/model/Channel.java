@@ -30,6 +30,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("channel")
 public class Channel implements Serializable, Auditable {
     private String id;
+    private Integer nextMetaDataId;
     private String name;
     private String description;
     private boolean enabled;
@@ -50,6 +51,7 @@ public class Channel implements Serializable, Auditable {
         destinationConnectors = new ArrayList<Connector>();
         tags = new HashSet<String>();
         properties = new ChannelProperties();
+        nextMetaDataId = 1;
     }
 
     public String getId() {
@@ -58,6 +60,14 @@ public class Channel implements Serializable, Auditable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Integer getNextMetaDataId() {
+        return nextMetaDataId;
+    }
+
+    public void setNextMetaDataId(Integer nextMetaDataId) {
+        this.nextMetaDataId = nextMetaDataId;
     }
 
     public int getRevision() {
@@ -114,7 +124,7 @@ public class Channel implements Serializable, Auditable {
     }
 
     public void addDestination(Connector destinationConnector) {
-        destinationConnector.setMetaDataId(getNextMetaDataId());
+        destinationConnector.setMetaDataId(nextMetaDataId++);
         destinationConnectors.add(destinationConnector);
     }
 
@@ -200,19 +210,5 @@ public class Channel implements Serializable, Auditable {
 
     public String toAuditString() {
         return new ToStringBuilder(this, CalendarToStringStyle.instance()).append("id", id).append("name", name).toString();
-    }
-
-    private int getNextMetaDataId() {
-        int nextMetaDataId = 1;
-
-        for (Connector destinationConnector : destinationConnectors) {
-            Integer metaDataId = destinationConnector.getMetaDataId();
-
-            if (metaDataId >= nextMetaDataId) {
-                nextMetaDataId = metaDataId + 1;
-            }
-        }
-
-        return nextMetaDataId;
     }
 }
