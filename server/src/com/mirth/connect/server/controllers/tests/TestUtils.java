@@ -237,7 +237,7 @@ public class TestUtils {
     public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDao dao) {
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getDateCreated(), Status.RECEIVED);
-        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null));
+        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, null));
 
         if (rawMessage.getChannelMap() != null) {
             sourceMessage.setChannelMap(rawMessage.getChannelMap());

@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.DeployedChannelInfo;
@@ -67,6 +68,10 @@ public abstract class ChannelController extends Controller {
     public abstract Set<String> getChannelTags();
     
     public abstract Set<String> getChannelTags(Set<String> channelIds);
+    
+    public abstract Map<Integer, String> getConnectorNames(String channelId);
+    
+    public abstract List<MetaDataColumn> getMetaDataColumns(String channelId);
 
     @Deprecated
     // TODO: Remove in 3.0

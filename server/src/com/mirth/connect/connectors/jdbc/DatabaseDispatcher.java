@@ -150,9 +150,9 @@ public class DatabaseDispatcher extends DestinationConnector {
                  * The user could write Javascript that sets the response for
                  * this connector if that's the case, then let's save it.
                  */
-                String connectorName = getConnectorName();
-                if (connectorName != null && connectorMessage.getResponseMap().containsKey(getConnectorName())) {
-                    return connectorMessage.getResponseMap().get(getConnectorName());
+                String connectorName = getDestinationName();
+                if (connectorName != null && connectorMessage.getResponseMap().containsKey(connectorName)) {
+                    return connectorMessage.getResponseMap().get(connectorName);
                 }
             } else {
                 // otherwise run the SQL insert/update/delete statement
@@ -258,16 +258,5 @@ public class DatabaseDispatcher extends DestinationConnector {
             BasicDataSource bds = (BasicDataSource) dataSource;
             bds.close();
         }
-    }
-
-    private String getConnectorName() {
-        List<Connector> destinations = channelController.getCachedChannelById(getChannelId()).getDestinationConnectors();
-        for (Connector destination : destinations) {
-            if (destination.getMetaDataId() == getMetaDataId()) {
-                return destination.getName();
-            }
-        }
-
-        return null;
     }
 }

@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.commons.encryption.KeyEncryptor;
+import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
@@ -921,6 +922,18 @@ public class Client {
         logger.debug("checking if " + extensionName + " is installed/enabled");
         NameValuePair[] params = { new NameValuePair("op", Operations.EXTENSION_IS_ENABLED.getName()), new NameValuePair("name", extensionName) };
         return Boolean.valueOf(serverConnection.executePostMethod(EXTENSION_SERVLET, params)).booleanValue();
+    }
+    
+    public Map<Integer, String> getConnectorNames(String channelId) throws ClientException {
+        logger.debug("retrieving channel connector names");
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_CONNECTOR_NAMES.getName()), new NameValuePair("channelId", channelId) };
+        return (Map<Integer, String>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_SERVLET, params));
+    }
+    
+    public List<MetaDataColumn> getMetaDataColumns(String channelId) throws ClientException {
+        logger.debug("retrieving channel metadata columns");
+        NameValuePair[] params = { new NameValuePair("op", Operations.CHANNEL_GET_METADATA_COLUMNS.getName()), new NameValuePair("channelId", channelId) };
+        return (List<MetaDataColumn>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_SERVLET, params));
     }
 
     /**

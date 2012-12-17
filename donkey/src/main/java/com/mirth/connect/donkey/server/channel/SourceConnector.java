@@ -28,6 +28,7 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
     private boolean respondAfterProcessing = true;
     private MetaDataReplacer metaDataReplacer;
     private ChannelState currentState = ChannelState.STOPPED;
+    private String sourceName = "Source";
 
     public void setChannel(Channel channel) {
         this.channel = channel;
@@ -56,6 +57,14 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
 
     public void setCurrentState(ChannelState currentState) {
         this.currentState = currentState;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 
     @Deprecated
@@ -157,7 +166,8 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
             try {
                 if (response != null && storageSettings.isStoreSentResponse()) {
                     dao = daoFactory.getDao();
-                    dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.SENT, response, encryptor.encrypt(response)));
+                    //TODO does this have a data type?
+                    dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.SENT, response, null, encryptor.encrypt(response)));
                 }
                 
                 if (attemptedResponse || errorMessage != null) {

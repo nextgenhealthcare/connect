@@ -17,8 +17,8 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -489,7 +489,7 @@ public class DashboardPanel extends javax.swing.JPanel {
     }
 
     public Map<Integer, String> getDestinationConnectorNames(String channelId) {
-        Map<Integer, String> destinationConnectors = new HashMap<Integer, String>();
+        Map<Integer, String> destinationConnectors = new LinkedHashMap<Integer, String>();
         DashboardTreeTableModel model = (DashboardTreeTableModel) statusTable.getTreeTableModel();
         TreeTableNode root = model.getRoot();
         int channelCount = model.getChildCount(root);

@@ -24,6 +24,8 @@ public class Operations {
     public static final Operation CHANNEL_REMOVE = new Operation("removeChannel", "Remove channel", true);
     public static final Operation CHANNEL_GET_SUMMARY = new Operation("getChannelSummary", "Get channel summary", false);
     public static final Operation CHANNEL_GET_TAGS = new Operation("getChannelTags", "Get channel tags", false);
+    public static final Operation CHANNEL_GET_CONNECTOR_NAMES = new Operation("getConnectorNames", "Get connector names", false);
+    public static final Operation CHANNEL_GET_METADATA_COLUMNS = new Operation("getMetaDataColumns", "Get metadata columns", false);
 
     // Channel Statistics
     public static final Operation CHANNEL_STATS_GET = new Operation("getStatistics", "Get statistics", false);
@@ -131,6 +133,8 @@ public class Operations {
         operationMap.put(CHANNEL_REMOVE.getName(), CHANNEL_REMOVE);
         operationMap.put(CHANNEL_GET_SUMMARY.getName(), CHANNEL_GET_SUMMARY);
         operationMap.put(CHANNEL_GET_TAGS.getName(), CHANNEL_GET_TAGS);
+        operationMap.put(CHANNEL_GET_CONNECTOR_NAMES.getName(), CHANNEL_GET_CONNECTOR_NAMES);
+        operationMap.put(CHANNEL_GET_METADATA_COLUMNS.getName(), CHANNEL_GET_METADATA_COLUMNS);
         operationMap.put(CHANNEL_STATS_GET.getName(), CHANNEL_STATS_GET);
         operationMap.put(CHANNEL_STATS_CLEAR.getName(), CHANNEL_STATS_CLEAR);
         operationMap.put(CHANNEL_START.getName(), CHANNEL_START);

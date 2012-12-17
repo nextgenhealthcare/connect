@@ -245,13 +245,13 @@ public class MessageControllerTests {
                 message.setMessageId((long) i);
                 for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
                     connectorMessage.setMessageId(message.getMessageId());
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RAW, testMessage, null));
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSED_RAW, testMessage, null));
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.TRANSFORMED, testMessage, null));
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.ENCODED, testMessage, null));
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.SENT, testMessage, null));
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE, testMessage, null));
-                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSED_RESPONSE, testMessage, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RAW, testMessage, null, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSED_RAW, testMessage, null, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.TRANSFORMED, testMessage, null, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.ENCODED, testMessage, null, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.SENT, testMessage, null, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE, testMessage, null, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSED_RESPONSE, testMessage, null, null));
                 }
 
                 MessageController.getInstance().importMessage(channel.getChannelId(), message);
@@ -276,7 +276,7 @@ public class MessageControllerTests {
 
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getDateCreated(), Status.RECEIVED);
-        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, testMessage, null));
+        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, testMessage, null, null));
         message.getConnectorMessages().put(0, sourceMessage);
 
         DonkeyDao dao = null;

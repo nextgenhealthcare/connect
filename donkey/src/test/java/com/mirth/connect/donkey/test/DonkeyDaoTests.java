@@ -283,7 +283,7 @@ public class DonkeyDaoTests {
                 TestUtils.assertMessageContentExists(sourceMessage.getRaw());
                 
                 for (ContentType contentType : ContentType.values()) {
-                    MessageContent messageContent = new MessageContent(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId(), contentType, testMessage, null);
+                    MessageContent messageContent = new MessageContent(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId(), contentType, testMessage, null, null);
                     sourceMessage.setContent(messageContent);
 
                     if (contentType != ContentType.RAW) {
@@ -442,7 +442,7 @@ public class DonkeyDaoTests {
                 ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
 
                 for (ContentType contentType : ContentType.values()) {
-                    MessageContent messageContent = new MessageContent(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId(), contentType, testMessage, null);
+                    MessageContent messageContent = new MessageContent(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId(), contentType, testMessage, null, null);
                     sourceMessage.setContent(messageContent);
                     dao.storeMessageContent(messageContent);
                     dao.commit();

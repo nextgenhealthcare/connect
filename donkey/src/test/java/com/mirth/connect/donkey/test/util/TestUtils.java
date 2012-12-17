@@ -1156,7 +1156,7 @@ public class TestUtils {
     public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDaoFactory daoFactory) {
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getDateCreated(), Status.RECEIVED);
-        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null));
+        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, null));
 
         if (rawMessage.getChannelMap() != null) {
             sourceMessage.setChannelMap(rawMessage.getChannelMap());
@@ -1181,7 +1181,7 @@ public class TestUtils {
 
     public static ConnectorMessage createAndStoreDestinationConnectorMessage(DonkeyDaoFactory daoFactory, String channelId, String serverId, long messageId, int metaDataId, String rawContent, Status status) {
         ConnectorMessage connectorMessage = new ConnectorMessage(channelId, messageId, metaDataId, serverId, Calendar.getInstance(), status);
-        connectorMessage.setRaw(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, rawContent, null));
+        connectorMessage.setRaw(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, rawContent, null, null));
 
         DonkeyDao dao = null;
         
@@ -1474,8 +1474,8 @@ public class TestUtils {
         ConnectorMessage destinationMessage = new ConnectorMessage(channelId, message.getMessageId(), 1, serverId, message.getDateCreated(), Status.SENT);
         message.getConnectorMessages().put(1, destinationMessage);
 
-        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, content, null));
-        destinationMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 1, ContentType.RAW, content, null));
+        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, content, null, null));
+        destinationMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 1, ContentType.RAW, content, null, null));
         
         return message;
     }

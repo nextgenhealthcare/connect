@@ -37,6 +37,7 @@ import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public abstract class DestinationConnector extends Connector implements ConnectorInterface, Runnable {
+    private Integer orderId;
     private Thread thread;
     private QueueConnectorProperties queueProperties;
     private ConnectorMessageQueue queue = new ConnectorMessageQueue();
@@ -75,6 +76,14 @@ public abstract class DestinationConnector extends Connector implements Connecto
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
     }
 
     @Deprecated
@@ -192,7 +201,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
     private MessageContent getSentContent(ConnectorMessage message, ConnectorProperties connectorProperties) {
         // TODO: store the serializer as a class variable?
         String content = Donkey.getInstance().getSerializer().serialize(connectorProperties);
-        return new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.SENT, content, encryptor.encrypt(content));
+        return new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.SENT, content, null, encryptor.encrypt(content));
     }
 
     /**
@@ -409,7 +418,8 @@ public abstract class DestinationConnector extends Connector implements Connecto
         }
     	
         String responseString = response.toString();
-        MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, responseString, encryptor.encrypt(responseString));
+        //TODO add data type
+        MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, responseString, null, encryptor.encrypt(responseString));
 
         if (storageSettings.isStoreResponse()) {
             ThreadUtils.checkInterruptedStatus();
@@ -473,7 +483,8 @@ public abstract class DestinationConnector extends Connector implements Connecto
 
         // store the processed response in the message
         String responseString = response.toString();
-        MessageContent processedResponse = new MessageContent(getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.PROCESSED_RESPONSE, responseString, encryptor.encrypt(responseString));
+        //TODO add data type
+        MessageContent processedResponse = new MessageContent(getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.PROCESSED_RESPONSE, responseString, null, encryptor.encrypt(responseString));
         message.setProcessedResponse(processedResponse);
 
         if (storageSettings.isStoreProcessedResponse()) {

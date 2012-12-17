@@ -28,7 +28,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -269,6 +268,11 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void setPostProcessor(PostProcessor postProcessor) {
         this.postProcessor = postProcessor;
+    }
+    
+    public void addDestinationChain(DestinationChain chain) {
+        destinationChains.add(chain);
+        chain.setChainId(destinationChains.size());
     }
 
     public List<DestinationChain> getDestinationChains() {
@@ -889,7 +893,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             if (processedRawContent != null) {
                 // store the processed raw content
-                sourceMessage.setProcessedRaw(new MessageContent(channelId, messageId, 0, ContentType.PROCESSED_RAW, processedRawContent, encryptor.encrypt(processedRawContent)));
+                sourceMessage.setProcessedRaw(new MessageContent(channelId, messageId, 0, ContentType.PROCESSED_RAW, processedRawContent, sourceConnector.getInboundDataType().getType(), encryptor.encrypt(processedRawContent)));
             }
 
             // send the message to the source filter/transformer and then update it's status
@@ -976,21 +980,34 @@ public class Channel implements Startable, Stoppable, Runnable {
             }
 
             for (DestinationChain chain : destinationChains) {
-                // if we are only processing the message for specific destinations, enable only the appropriate destinations in the chain
+                // The order of the enabledMetaDataId list needs to be based on the chain order.
+                // We do not use ListUtils here because there is no official guarantee of order.
                 if (metaDataIds != null && metaDataIds.size() > 0) {
-                    chain.setEnabledMetaDataIds(ListUtils.intersection(chain.getMetaDataIds(), metaDataIds));
+                    List<Integer> enabledMetaDataIds = new ArrayList<Integer>();
+                    for (Integer id : chain.getMetaDataIds()) {
+                        if (metaDataIds.contains(id)) {
+                            enabledMetaDataIds.add(id);
+                        }
+                    }
+                    chain.setEnabledMetaDataIds(enabledMetaDataIds);
                 }
 
                 // if any destinations in this chain are enabled, create messages for them
                 if (!chain.getEnabledMetaDataIds().isEmpty()) {
                     ThreadUtils.checkInterruptedStatus();
                     Integer metaDataId = chain.getEnabledMetaDataIds().get(0);
+                    
+                    DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
 
                     // create the raw content from the source's encoded content
-                    MessageContent raw = new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, sourceEncoded.getContent(), sourceEncoded.getEncryptedContent());
-
+                    MessageContent raw = new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, sourceEncoded.getContent(), destinationConnector.getInboundDataType().getType(), sourceEncoded.getEncryptedContent());
+                    
                     // create the message and set the raw content
                     ConnectorMessage message = new ConnectorMessage(channelId, messageId, metaDataId, sourceMessage.getServerId(), Calendar.getInstance(), Status.RECEIVED);
+                    message.setConnectorName(destinationConnector.getDestinationName());
+                    message.setChainId(chain.getChainId());
+                    message.setOrderId(destinationConnector.getOrderId());
+                    
                     message.setChannelMap((Map<String, Object>) cloner.clone(sourceMessage.getChannelMap()));
                     message.setResponseMap((Map<String, Response>) cloner.clone(sourceMessage.getResponseMap()));
                     message.setRaw(raw);

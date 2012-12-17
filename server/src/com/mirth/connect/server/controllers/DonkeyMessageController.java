@@ -51,8 +51,6 @@ import com.mirth.connect.util.export.MessageExporter.MessageExporterException;
 import com.mirth.connect.util.export.MessageRetriever;
 
 public class DonkeyMessageController extends MessageController {
-    private static final String SOURCE_CONNECTOR_NAME = "Source";
-
     private static DonkeyMessageController instance = null;
 
     public static MessageController create() {
@@ -178,14 +176,6 @@ public class DonkeyMessageController extends MessageController {
             for (ConnectorMessage connectorMessage : connectorMessages) {
                 connectorMessage.setChannelId(channelId);
                 
-                Integer metaDataId = connectorMessage.getMetaDataId();
-
-                if (metaDataId == 0) {
-                    connectorMessage.setConnectorName(SOURCE_CONNECTOR_NAME);
-                } else {
-                    connectorMessage.setConnectorName(channel.getDestinationConnector(metaDataId).getDestinationName());
-                }
-
                 message.getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
             }
             
@@ -393,7 +383,7 @@ public class DonkeyMessageController extends MessageController {
             connectorMessage.setChannelId(channelId);
             connectorMessage.setMessageId(messageId);
             connectorMessage.setMetaDataId(0);
-            connectorMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, rawContent, encryptedRawContent));
+            connectorMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, rawContent, dataType.getType(), encryptedRawContent));
             
             if (dataType.getType().equals(DataTypeFactory.DICOM)) {
                 rawMessage = new RawMessage(DICOMUtil.getDICOMRawBytes(connectorMessage));

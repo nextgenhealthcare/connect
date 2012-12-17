@@ -102,8 +102,6 @@ import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.DefaultSerializer;
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
@@ -126,7 +124,9 @@ public class MessageBrowser extends javax.swing.JPanel {
     private String lastUserSelectedMessageType = "Raw";
     private String lastUserSelectedErrorType = "Processing Error";
     private Frame parent;
-    private Channel channel;
+    private String channelId;
+    private Map<Integer, String> connectors;
+    private List<MetaDataColumn> metaDataColumns;
     private MessageBrowserTableModel tableModel;
     private PaginatedMessageList messages;
     private Map<Long, Message> messageCache;
@@ -247,14 +247,16 @@ public class MessageBrowser extends javax.swing.JPanel {
         });
     }
 
-    public void loadChannel(Channel channel) {
+    public void loadChannel(String channelId, Map<Integer, String> connectors, List<MetaDataColumn> metaDataColumns) {
         //Set the FormatXmlCheckboxes to their default setting
         formatXmlMessageCheckBox.setSelected(Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserFormatXml", true));
     	
-        this.channel = channel;
+        this.channelId = channelId;
+        this.connectors = connectors;
+        this.metaDataColumns = metaDataColumns;
         tableModel.clear();
-        advancedSearchPopup.loadChannel(channel);
-        exportResultsPopup.loadChannel(channel.getId());
+        advancedSearchPopup.loadChannel();
+        exportResultsPopup.loadChannel(this.channelId);
         resetSearchCriteria();
         lastUserSelectedMessageType = "Raw";
         updateMessageRadioGroup();
@@ -268,7 +270,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         // Add standard columns
         columnList.addAll(Arrays.asList(columns));
         // Add custom columns
-        columnList.addAll(getMetaDataColumns());
+        columnList.addAll(getMetaDataColumnNames());
         tableModel.setColumnIdentifiers(columnList);
         
         // Create the column objects and add them to the message table
@@ -286,6 +288,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         	
             messageTreeTable.addColumn(column);
         }
+        
+        runSearch();
     }
 
     public List<Operation> getAbortOperations() {
@@ -329,17 +333,25 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
     }
 
-    public List<String> getMetaDataColumns() {
+    public String getChannelId() {
+        return channelId;
+    }
+    
+    private List<String> getMetaDataColumnNames() {
         List<String> metaDataColumnNames = new ArrayList<String>();
-        for (MetaDataColumn column : channel.getProperties().getMetaDataColumns()) {
+        for (MetaDataColumn column : metaDataColumns) {
             metaDataColumnNames.add(column.getName());
         }
 
         return metaDataColumnNames;
     }
-
-    public Channel getChannel() {
-        return channel;
+    
+    public Map<Integer, String> getConnectors() {
+        return connectors;
+    }
+    
+    public List<MetaDataColumn> getMetaDataColumns() {
+        return metaDataColumns;
     }
 
     public MessageFilter getMessageFilter() {
@@ -448,7 +460,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         exportResultsPopup.setMessageFilter(messageFilter);
 
         try {
-            Long maxMessageId = parent.mirthClient.getMaxMessageId(channel.getId());
+            Long maxMessageId = parent.mirthClient.getMaxMessageId(channelId);
             messageFilter.setMaxMessageId(maxMessageId);
         } catch (ClientException e) {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
@@ -461,7 +473,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         updateFilterButtonFont(Font.PLAIN);
         messages = new PaginatedMessageList();
         messages.setClient(parent.mirthClient);
-        messages.setChannelId(channel.getId());
+        messages.setChannelId(channelId);
         messages.setMessageFilter(messageFilter);
 
         try {
@@ -538,13 +550,9 @@ public class MessageBrowser extends javax.swing.JPanel {
             List<Integer> metaDataIds = messageFilter.getMetaDataIds();
             List<String> connectorNames = new ArrayList<String>();
 
-            if (metaDataIds.contains(0)) {
-                connectorNames.add("Source");
-            }
-
-            for (Connector connector : channel.getDestinationConnectors()) {
-                if (metaDataIds.contains(connector.getMetaDataId())) {
-                    connectorNames.add(connector.getName());
+            for (Entry<Integer, String> connectorEntry : connectors.entrySet()) {
+                if (metaDataIds.contains(connectorEntry.getKey())) {
+                    connectorNames.add(connectorEntry.getValue());
                 }
             }
 
@@ -954,7 +962,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                             }
 
                             if (connectorMessage.getRaw() != null) {
-                                new EditMessageDialog(connectorMessage.getRaw().getContent(), channel.getSourceConnector().getTransformer().getInboundDataType(), channel.getId(), parent.dashboardPanel.getDestinationConnectorNames(channel.getId()), selectedMetaDataIds);
+                                new EditMessageDialog(connectorMessage.getRaw().getContent(), connectorMessage.getRaw().getDataType(), channelId, parent.dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds);
                             }
                         }
                     }
@@ -1492,7 +1500,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                     public Void doInBackground() {
-                        attachmentViewer.viewAttachments(finalAttachmentIds, channel.getId());
+                        attachmentViewer.viewAttachments(finalAttachmentIds, channelId);
                         return null;
                     }
 
@@ -1514,7 +1522,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         
         if (file != null) {
             try {
-                result = parent.mirthClient.importMessages(channel.getId(), file, UIConstants.CHARSET);
+                result = parent.mirthClient.importMessages(channelId, file, UIConstants.CHARSET);
             } catch (ClientException e) {
                 parent.alertException(this, e.getStackTrace(), "Error importing messages. " + e.getMessage());
             }
@@ -1562,7 +1570,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     // If the message is not in the cache, retrieve it from the server
                     if (message == null) {
                         try {
-                            message = parent.mirthClient.getMessageContent(channel.getId(), messageId);
+                            message = parent.mirthClient.getMessageContent(channelId, messageId);
                             // If the message was not found (ie. it may have been deleted during the request), do nothing
                             if (message == null || message.getConnectorMessages().size() == 0) {
                                 clearDescription("Could not retrieve message content. The message may have been deleted.");
@@ -1570,7 +1578,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                                 return;
                             }
 
-                            attachments = parent.mirthClient.getAttachmentIdsByMessageId(channel.getId(), messageId);
+                            attachments = parent.mirthClient.getAttachmentIdsByMessageId(channelId, messageId);
                         } catch (Throwable t) {
                             if (t.getMessage().contains("Java heap space")) {
                                 parent.alertError(parent, "There was an out of memory error when trying to retrieve message content.\nIncrease your heap size and try again.");
@@ -1628,51 +1636,38 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         MessagesRadioPane.removeAll();
 
-        //TODO update data types for response and processed response
-
-        String inboundDataType = null;
-        String outboundDataType = null;
-
-        if (metaDataId == 0) {
-            inboundDataType = channel.getSourceConnector().getTransformer().getInboundDataType();
-            outboundDataType = channel.getSourceConnector().getTransformer().getOutboundDataType();
-        } else {
-
-            inboundDataType = channel.getSourceConnector().getTransformer().getOutboundDataType();
-            for (Connector destinationConnector : channel.getDestinationConnectors()) {
-                if (metaDataId.equals(destinationConnector.getMetaDataId())) {
-                    outboundDataType = destinationConnector.getTransformer().getOutboundDataType();
-                    break;
-                }
-            }
-        }
-
         String content = null;
+        String dataType = null;
 
         content = (rawMessage == null) ? null : rawMessage.getContent();
+        dataType = (rawMessage == null) ? null : rawMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(RawMessageRadioButton);
         }
-        setCorrectDocument(RawMessageTextPane, content, inboundDataType);
+        setCorrectDocument(RawMessageTextPane, content, dataType);
 
         content = (processedRawMessage == null) ? null : processedRawMessage.getContent();
+        dataType = (processedRawMessage == null) ? null : processedRawMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(ProcessedRawMessageRadioButton);
         }
-        setCorrectDocument(ProcessedRawMessageTextPane, content, inboundDataType);
+        setCorrectDocument(ProcessedRawMessageTextPane, content, dataType);
 
         content = (transformedMessage == null) ? null : transformedMessage.getContent();
+        dataType = (transformedMessage == null) ? null : transformedMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(TransformedMessageRadioButton);
         }
-        setCorrectDocument(TransformedMessageTextPane, content, DataTypeFactory.XML);
+        setCorrectDocument(TransformedMessageTextPane, content, dataType);
 
         content = (encodedMessage == null) ? null : encodedMessage.getContent();
+        dataType = (encodedMessage == null) ? null : encodedMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(EncodedMessageRadioButton);
         }
-        setCorrectDocument(EncodedMessageTextPane, content, outboundDataType);
+        setCorrectDocument(EncodedMessageTextPane, content, dataType);
 
+        content = null;
         if (sentMessage != null) {
             if (metaDataId > 0) {
                 DefaultSerializer serializer = new DefaultSerializer();
@@ -1684,25 +1679,26 @@ public class MessageBrowser extends javax.swing.JPanel {
                 content = sentMessage.getContent();
             }
         }
+        dataType = (sentMessage == null) ? null : sentMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(SentMessageRadioButton);
         }
-        setCorrectDocument(SentMessageTextPane, content, outboundDataType);
+        setCorrectDocument(SentMessageTextPane, content, dataType);
 
 
         content = (responseMessage == null) ? null : responseMessage.getContent();
+        dataType = (responseMessage == null) ? null : responseMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(ResponseRadioButton);
         }
-        //TODO determine where data type comes from
-        setCorrectDocument(ResponseTextPane, content, outboundDataType);
+        setCorrectDocument(ResponseTextPane, content, dataType);
 
         content = (processedResponseMessage == null) ? null : processedResponseMessage.getContent();
+        dataType = (processedResponseMessage == null) ? null : processedResponseMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(ProcessedResponseRadioButton);
         }
-        //TODO determine where data type comes from.
-        setCorrectDocument(ProcessedResponseTextPane, content, outboundDataType);
+        setCorrectDocument(ProcessedResponseTextPane, content, dataType);
     }
 
     /**
@@ -1844,44 +1840,31 @@ public class MessageBrowser extends javax.swing.JPanel {
             MessageBrowserTableNode messageNode = (MessageBrowserTableNode) messageTreeTable.getPathForRow(row).getLastPathComponent();
 
             if (messageNode.isNodeActive()) {
+                Long messageId = messageNode.getMessageId();
                 Integer metaDataId = messageNode.getMetaDataId();
-
+                
+                Message message = messageCache.get(messageId);
+                ConnectorMessage connectorMessage = message.getConnectorMessages().get(metaDataId);
+                
                 String dataType = null;
 
-                if (messagePaneName.equals("Raw") || messagePaneName.equals("Processed Raw")) {
-                    if (metaDataId == 0) {
-                        dataType = channel.getSourceConnector().getTransformer().getInboundDataType();
-                    } else {
-                        dataType = channel.getSourceConnector().getTransformer().getOutboundDataType();
-                    }
+                if (messagePaneName.equals("Raw")) {
+                    dataType = connectorMessage.getRaw().getDataType();
+                } else if (messagePaneName.equals("Processed Raw")) {
+                    dataType = connectorMessage.getProcessedRaw().getDataType();
                 } else if (messagePaneName.equals("Transformed")) {
-                    dataType = DataTypeFactory.XML;
-                } else if (messagePaneName.equals("Sent") || messagePaneName.equals("Encoded")) {
-                    if (metaDataId == 0) {
-                        dataType = channel.getSourceConnector().getTransformer().getOutboundDataType();
-                    } else {
-                        for (Connector destinationConnector : channel.getDestinationConnectors()) {
-                            if (metaDataId.equals(destinationConnector.getMetaDataId())) {
-                                dataType = destinationConnector.getTransformer().getOutboundDataType();
-                                break;
-                            }
-                        }
-                    }
-                } else if (messagePaneName.equals("Response") || messagePaneName.equals("Processed Response")) {
-                    //TODO update this logic once response and processed response are added
-                    if (metaDataId == 0) {
-                        dataType = channel.getSourceConnector().getTransformer().getOutboundDataType();
-                    } else {
-                        for (Connector destinationConnector : channel.getDestinationConnectors()) {
-                            if (metaDataId.equals(destinationConnector.getMetaDataId())) {
-                                dataType = destinationConnector.getTransformer().getOutboundDataType();
-                                break;
-                            }
-                        }
-                    }
+                    dataType = connectorMessage.getTransformed().getDataType();
+                } else if (messagePaneName.equals("Encoded")) {
+                    dataType = connectorMessage.getEncoded().getDataType();
+                } else if (messagePaneName.equals("Sent")) {
+                    dataType = connectorMessage.getSent().getDataType();
+                } else if (messagePaneName.equals("Response")) {
+                    dataType = connectorMessage.getResponse().getDataType();
+                } else if (messagePaneName.equals("Processed Response")) {
+                    dataType = connectorMessage.getProcessedResponse().getDataType();
                 }
 
-                if (dataType.equals(DataTypeFactory.XML) || dataType.equals(DataTypeFactory.HL7V3)) {
+                if (dataType != null && (dataType.equals(DataTypeFactory.XML) || dataType.equals(DataTypeFactory.HL7V3))) {
                     formatXmlMessageCheckBox.setEnabled(true);
                 } else {
                     formatXmlMessageCheckBox.setEnabled(false);
@@ -2608,7 +2591,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
             public Void doInBackground() {
                 try {
-                    messages.setItemCount(parent.mirthClient.getMessageCount(channel.getId(), messageFilter));
+                    messages.setItemCount(parent.mirthClient.getMessageCount(channelId, messageFilter));
                 } catch (ClientException e) {
                     if (e.getCause() instanceof RequestAbortedException) {
                         // The client is no longer waiting for the count request

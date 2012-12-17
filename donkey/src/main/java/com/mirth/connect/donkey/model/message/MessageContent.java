@@ -17,16 +17,18 @@ public class MessageContent implements Serializable {
     private int metaDataId;
     private ContentType contentType;
     private String content;
+    private String dataType;
     private String encryptedContent;
 
     public MessageContent() {}
 
-    public MessageContent(String channelId, long messageId, int metaDataId, ContentType contentType, String content, String encryptedContent) {
+    public MessageContent(String channelId, long messageId, int metaDataId, ContentType contentType, String content, String dataType, String encryptedContent) {
         this.channelId = channelId;
         this.messageId = messageId;
         this.metaDataId = metaDataId;
         this.contentType = contentType;
         this.content = content;
+        this.dataType = dataType;
         this.encryptedContent = encryptedContent;
     }
 
@@ -56,6 +58,14 @@ public class MessageContent implements Serializable {
 
     public String getEncryptedContent() {
         return encryptedContent;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
     }
 
     public void setEncryptedContent(String encryptedContent) {

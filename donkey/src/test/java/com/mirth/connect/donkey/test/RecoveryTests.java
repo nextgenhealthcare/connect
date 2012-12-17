@@ -295,17 +295,17 @@ public class RecoveryTests {
         destinationMessage.setChannelMap(sourceMessage.getChannelMap());
         dao.insertConnectorMessage(destinationMessage, true);
 
-        destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.RAW, sourceMessage.getEncoded().getContent(), null));
-        destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.PROCESSED_RAW, sourceMessage.getEncoded().getContent(), null));
+        destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.RAW, sourceMessage.getEncoded().getContent(), null, null));
+        destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.PROCESSED_RAW, sourceMessage.getEncoded().getContent(), null, null));
 
         dao.storeMessageContent(destinationMessage.getRaw());
         dao.storeMessageContent(destinationMessage.getProcessedRaw());
 
         if (status == Status.PENDING || status == Status.SENT) {
-            destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.TRANSFORMED, sourceMessage.getEncoded().getContent(), null));
-            destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.ENCODED, sourceMessage.getEncoded().getContent(), null));
-            destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.SENT, sourceMessage.getEncoded().getContent(), null));
-            destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.RESPONSE, responseContent, null));
+            destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.TRANSFORMED, sourceMessage.getEncoded().getContent(), null, null));
+            destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.ENCODED, sourceMessage.getEncoded().getContent(), null, null));
+            destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.SENT, sourceMessage.getEncoded().getContent(), null, null));
+            destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.RESPONSE, responseContent, null, null));
 
             dao.storeMessageContent(destinationMessage.getTransformed());
             dao.storeMessageContent(destinationMessage.getEncoded());
@@ -313,7 +313,7 @@ public class RecoveryTests {
             dao.storeMessageContent(destinationMessage.getResponse());
 
             if (status == Status.SENT) {
-                destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.PROCESSED_RESPONSE, responseContent, null));
+                destinationMessage.setContent(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, ContentType.PROCESSED_RESPONSE, responseContent, null, null));
                 dao.storeMessageContent(destinationMessage.getProcessedResponse());
             }
         }

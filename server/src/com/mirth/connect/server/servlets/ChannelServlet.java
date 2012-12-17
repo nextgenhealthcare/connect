@@ -14,6 +14,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import org.eclipse.jetty.io.RuntimeIOException;
 
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
+import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.ServerEventContext;
@@ -121,6 +123,42 @@ public class ChannelServlet extends MirthServlet {
                     }
 
                     serializer.toXML(tags, out);
+                } else if (operation.equals(Operations.CHANNEL_GET_CONNECTOR_NAMES)) {
+                    response.setContentType(APPLICATION_XML);
+                    String channelId = request.getParameter("channelId");
+                    parameterMap.put("channelId", channelId);
+                    
+                    Map<Integer, String> connectorNames = null;
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        connectorNames = new LinkedHashMap<Integer, String>();
+                    } else if (doesUserHaveChannelRestrictions(request)) {
+                        if (getAuthorizedChannelIds(request).contains(channelId)) {
+                            connectorNames = channelController.getConnectorNames(channelId);
+                        }
+                    } else {
+                        connectorNames = channelController.getConnectorNames(channelId);
+                    }
+
+                    serializer.toXML(connectorNames, out);
+                } else if (operation.equals(Operations.CHANNEL_GET_METADATA_COLUMNS)) {
+                    response.setContentType(APPLICATION_XML);
+                    String channelId = request.getParameter("channelId");
+                    parameterMap.put("channelId", channelId);
+                    
+                    List<MetaDataColumn> metaDataColumns = null;
+
+                    if (!isUserAuthorized(request, parameterMap)) {
+                        metaDataColumns = new ArrayList<MetaDataColumn>();
+                    } else if (doesUserHaveChannelRestrictions(request)) {
+                        if (getAuthorizedChannelIds(request).contains(channelId)) {
+                            metaDataColumns = channelController.getMetaDataColumns(channelId);
+                        }
+                    } else {
+                        metaDataColumns = channelController.getMetaDataColumns(channelId);
+                    }
+
+                    serializer.toXML(metaDataColumns, out);
                 }
             } catch (RuntimeIOException rio) {
                 logger.debug(rio);

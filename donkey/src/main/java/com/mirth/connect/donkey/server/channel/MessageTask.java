@@ -28,6 +28,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Encryptor;
+import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
@@ -157,7 +158,11 @@ final class MessageTask implements Callable<DispatchResult> {
         }
 
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, messageId, 0, channel.getServerId(), dateCreated, Status.RECEIVED);
-        sourceMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, null, null));
+        sourceMessage.setConnectorName(channel.getSourceConnector().getSourceName());
+        sourceMessage.setChainId(0);
+        sourceMessage.setOrderId(0);
+        
+        sourceMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, null, channel.getSourceConnector().getInboundDataType().getType(), null));
 
         if (rawMessage.getChannelMap() != null) {
             sourceMessage.setChannelMap(rawMessage.getChannelMap());

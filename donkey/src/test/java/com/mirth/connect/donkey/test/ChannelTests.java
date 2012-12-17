@@ -748,7 +748,7 @@ public class ChannelTests {
         if (storageSettings.isStoreSent()) {
             TestUtils.assertMessageContentExists(destinationMessage.getSent());
         } else {
-            TestUtils.assertMessageContentDoesNotExist(new MessageContent(channelId, dispatchResult.getMessageId(), 1, ContentType.SENT, null, null));
+            TestUtils.assertMessageContentDoesNotExist(new MessageContent(channelId, dispatchResult.getMessageId(), 1, ContentType.SENT, null, null, null));
         }
 
         if (storageSettings.isStoreResponse()) {

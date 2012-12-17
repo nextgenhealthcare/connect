@@ -89,6 +89,7 @@ import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionUpdateDialog;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
 import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
@@ -2811,7 +2812,7 @@ public class Frame extends JXFrame {
             return;
         }
 
-        String channelId = selectedStatuses.get(0).getChannelId();
+        final String channelId = selectedStatuses.get(0).getChannelId();
         
         for (DashboardStatus status : selectedStatuses) {
             if (status.getChannelId() != channelId) {
@@ -2821,15 +2822,41 @@ public class Frame extends JXFrame {
         }
         
         retrieveChannels();
-        Channel channel = channels.get(channelId);
         
         setBold(viewPane, -1);
-        setPanelName("Channel Messages - " + channel.getName());
+        setPanelName("Channel Messages - " + selectedStatuses.get(0).getName());
         setCurrentContentPage(messageBrowser);
         setFocus(messageTasks);
         
-        messageBrowser.loadChannel(channel);
-        messageBrowser.runSearch();
+        
+        
+        final String workingId = startWorking("Retrieving channel metadata...");
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            Map<Integer, String> connectors;
+            List<MetaDataColumn> metaDataColumns;
+
+            public Void doInBackground() {
+                try {
+                    connectors = mirthClient.getConnectorNames(channelId);
+                    metaDataColumns = mirthClient.getMetaDataColumns(channelId);
+                } catch (ClientException e) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+
+            public void done() {
+                stopWorking(workingId);
+                
+                if (connectors == null || metaDataColumns == null) {
+                    alertError(PlatformUI.MIRTH_FRAME, "Could not retrieve metadata for channel.");
+                } else {
+                    messageBrowser.loadChannel(channelId, connectors, metaDataColumns);
+                }
+            }
+        };
+
+        worker.execute();
     }
 
     public void doShowEvents() {
@@ -3545,7 +3572,7 @@ public class Frame extends JXFrame {
 
                 public Void doInBackground() {
                     try {
-                        mirthClient.removeMessages(messageBrowser.getChannel().getId(), messageBrowser.getMessageFilter());
+                        mirthClient.removeMessages(messageBrowser.getChannelId(), messageBrowser.getMessageFilter());
                     } catch (ClientException e) {
                         if (e.getCause() instanceof RequestAbortedException) {
                             // The client is no longer waiting for the delete request
@@ -3573,7 +3600,7 @@ public class Frame extends JXFrame {
     public void doRemoveMessage() {
     	final Integer metaDataId = messageBrowser.getSelectedMetaDataId();
     	final Long messageId = messageBrowser.getSelectedMessageId();
-    	final String channelId = messageBrowser.getChannel().getId();
+    	final String channelId = messageBrowser.getChannelId();
         if (alertOption(this, "Are you sure you would like to remove the selected message?\nChannel must be stopped for an unfinished message to be removed.")) {
             final String workingId = startWorking("Removing message...");
 
@@ -3633,9 +3660,9 @@ public class Frame extends JXFrame {
 
             public void done() {
                 stopWorking(workingId);
-                Map<Integer, String> destinationConnectors = new HashMap<Integer, String>();
-                destinationConnectors.putAll(dashboardPanel.getDestinationConnectorNames(messageBrowser.getChannel().getId()));
-                new ReprocessMessagesDialog(messageBrowser.getChannel().getId(), filter, destinationConnectors, selectedMetaDataId);
+                Map<Integer, String> destinationConnectors = new LinkedHashMap<Integer, String>();
+                destinationConnectors.putAll(dashboardPanel.getDestinationConnectorNames(messageBrowser.getChannelId()));
+                new ReprocessMessagesDialog(messageBrowser.getChannelId(), filter, destinationConnectors, selectedMetaDataId);
             }
         };
         

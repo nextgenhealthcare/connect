@@ -69,13 +69,9 @@ public class MessageBrowserTableModel extends SortableTreeTableModel {
         
         insertNodeInto(sourceNode, root);
         
-        // reorder the connectors by their natural order
-        TreeSet<Integer> keys = new TreeSet<Integer>(message.getConnectorMessages().keySet()); 
-        
-        // add the connector messages as child nodes
-        for (Integer key : keys) {
-            if (key > 0) {            
-                insertNodeInto(new MessageBrowserTableNode(message, key, this), sourceNode);
+        for (Integer metaDataId : message.getConnectorMessages().keySet()) {
+            if (metaDataId > 0) {            
+                insertNodeInto(new MessageBrowserTableNode(message, metaDataId, this), sourceNode);
             }
         }
     }

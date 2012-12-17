@@ -44,8 +44,6 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnException;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.message.ContentType;
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchOperator;
@@ -156,7 +154,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         metaDataSearchTable.setSortable(false);
         metaDataSearchTable.getTableHeader().setReorderingAllowed(false);
         
-        addMetaDataSearchButton.setEnabled(!messageBrowser.getChannel().getProperties().getMetaDataColumns().isEmpty());
+        addMetaDataSearchButton.setEnabled(!messageBrowser.getMetaDataColumns().isEmpty());
         
         metaDataSearchTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent evt) {
@@ -168,7 +166,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             metaDataSearchTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
         }
         
-        List<MetaDataColumn> metaDataColumns = messageBrowser.getChannel().getProperties().getMetaDataColumns();
+        List<MetaDataColumn> metaDataColumns = messageBrowser.getMetaDataColumns();
         cachedMetaDataColumns.clear();
         
         String[] metaDataNames = new String[metaDataColumns.size()];
@@ -226,15 +224,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         deleteMetaDataSearchButton.setEnabled(false);
     }
 
-    public void loadChannel(Channel channel) {
-        Map<Integer, String> connectors = new HashMap<Integer, String>();
-        connectors.put(0, SOURCE_CONNECTOR_NAME);
-        
-        for (Connector connector : channel.getDestinationConnectors()) {
-            connectors.put(connector.getMetaDataId(), connector.getName());
-        }
-
-        connectorTable.setModel(new ItemSelectionTableModel<Integer, String>(connectors, null, "Connector", "Included"));
+    public void loadChannel() {
+        connectorTable.setModel(new ItemSelectionTableModel<Integer, String>(messageBrowser.getConnectors(), null, "Current Connector Name", "Included"));
         
         initMetaDataSearchTable();
     }
@@ -907,7 +898,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         DefaultTableModel model = ((DefaultTableModel) metaDataSearchTable.getModel());
         int row = model.getRowCount();
         
-        List<MetaDataColumn> metaDataColumns = messageBrowser.getChannel().getProperties().getMetaDataColumns();
+        List<MetaDataColumn> metaDataColumns = messageBrowser.getMetaDataColumns();
         if (metaDataColumns.size() > 0) {
             MetaDataColumn metaDataColumn = metaDataColumns.get(0);
             MetaDataSearchOperator operator = MetaDataSearchOperator.getDefaultForColumnType(metaDataColumn.getType());

@@ -458,7 +458,7 @@ public class DonkeyEngineController implements EngineController {
                 // if there are currently no chains, add a new one regardless of 'waitForPrevious'
                 if (!connector.isWaitForPrevious() || channel.getDestinationChains().size() == 0) {
                     chain = createDestinationChain(channel);
-                    channel.getDestinationChains().add(chain);
+                    channel.addDestinationChain(chain);
                 }
 
                 chain.addDestination(connector.getMetaDataId(), createFilterTransformerExecutor(channelId, connector), createDestinationConnector(channelId, connector, storageSettings));

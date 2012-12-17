@@ -38,6 +38,8 @@ public class ConnectorMessage implements Serializable {
     private Map<String, Object> metaDataMap = new HashMap<String, Object>();
     private String errors;
     private int sendAttempts = 0;
+    private int chainId;
+    private int orderId;
 
     public ConnectorMessage() {}
 
@@ -263,6 +265,22 @@ public class ConnectorMessage implements Serializable {
 
     public void setSendAttempts(int sendAttempts) {
         this.sendAttempts = sendAttempts;
+    }
+
+    public int getChainId() {
+        return chainId;
+    }
+
+    public void setChainId(int chainId) {
+        this.chainId = chainId;
+    }
+
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
     }
 
     public String toString() {

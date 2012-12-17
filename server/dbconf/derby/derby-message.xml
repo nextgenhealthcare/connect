@@ -4,6 +4,7 @@
 	<resultMap id="connectorMessage" type="ConnectorMessage">		
 		<id property="messageId" column="message_id" />
 		<id property="metaDataId" column="id" />
+		<result property="connectorName" column="connector_name" />
 		<result property="serverId" column="server_id" />
 		<result property="dateCreated" column="date_created" />
 		<result property="status" column="status" />
@@ -12,6 +13,8 @@
 		<result property="responseMap" column="response_map" typeHandler="MapTypeHandler"/>
 		<result property="errors" column="errors" />
 		<result property="sendAttempts" column="send_attempts" />
+		<result property="chainId" column="chain_id" />
+		<result property="orderId" column="order_id" />
 		<collection property="metaDataMap" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" ofType="map" select="selectCustomMetaData" />
 	</resultMap>
 	
@@ -20,6 +23,7 @@
 		<id property="metaDataId" column="metadata_id" />
 		<result property="contentType" column="content_type" typeHandler="com.mirth.connect.server.sqlmap.extensions.ContentTypeHandler" />
 		<result property="content" column="content" />
+		<result property="data_type" column="data_type" />
 		<result property="encryptedContent" column="encrypted_content" />
 	</resultMap>
 
@@ -62,7 +66,7 @@
 	</select>
 	
 	<select id="selectMessageForReprocessing" parameterType="map" resultType="map">
-		SELECT content AS "content", is_encrypted AS "is_encrypted"
+		SELECT content AS "content", data_type AS "data_type", is_encrypted AS "is_encrypted"
 		FROM d_mc${localChannelId}
 		WHERE message_id = #{messageId}
 		AND metadata_id = 0
@@ -259,13 +263,25 @@
 	</select>
 	
 	<select id="selectConnectorMessagesByIds" resultMap="connectorMessage">
-		SELECT id, message_id, date_created, status, connector_map, channel_map, response_map, errors, send_attempts, ${localChannelId} AS local_channel_id
+		SELECT 
+			id AS "id",
+			message_id AS "message_id",
+			date_created AS "date_created",
+			status AS "status",
+			connector_name AS "connector_name",
+			connector_map AS "connector_map",
+			channel_map AS "channel_map",
+			response_map AS "response_map",
+			errors AS "errors",
+			send_attempts AS "send_attempts",
+			${localChannelId} AS local_channel_id
 		FROM d_mm${localChannelId}
 		WHERE message_id = #{messageId}
 		AND id IN
 		<foreach item="metaDataId" collection="metaDataIds" open="(" separator="," close=")">
 			#{metaDataId}
 		</foreach>
+		ORDER BY chain_id ASC, order_id ASC
 	</select>
 	
 	<select id="selectMessageContent" resultMap="messageContent">

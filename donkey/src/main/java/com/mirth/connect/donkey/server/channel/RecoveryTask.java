@@ -9,11 +9,10 @@
 
 package com.mirth.connect.donkey.server.channel;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
-
-import org.apache.commons.collections.ListUtils;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
@@ -65,7 +64,15 @@ public class RecoveryTask implements Callable<List<Message>> {
                             }
 
                             if (metaDataIds != null && metaDataIds.size() > 0) {
-                                chain.setEnabledMetaDataIds(ListUtils.intersection(chain.getMetaDataIds(), metaDataIds));
+                                // The order of the enabledMetaDataId list needs to be based on the chain order.
+                                // We do not use ListUtils here because there is no official guarantee of order.
+                                List<Integer> enabledMetaDataIds = new ArrayList<Integer>();
+                                for (Integer id : chain.getMetaDataIds()) {
+                                    if (metaDataIds.contains(id)) {
+                                        enabledMetaDataIds.add(id);
+                                    }
+                                }
+                                chain.setEnabledMetaDataIds(enabledMetaDataIds);
                             }
 
                             chain.setMessage(recoveredConnectorMessage);

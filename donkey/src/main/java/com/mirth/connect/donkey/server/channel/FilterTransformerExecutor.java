@@ -85,7 +85,7 @@ public class FilterTransformerExecutor {
             // Convert the content to xml
             String serializedContent = inbound.getSerializer().toXML(content);
 
-            connectorMessage.setTransformed(new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.TRANSFORMED, serializedContent, encryptor.encrypt(serializedContent)));
+            connectorMessage.setTransformed(new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.TRANSFORMED, serializedContent, "XML", encryptor.encrypt(serializedContent)));
             ThreadUtils.checkInterruptedStatus();
 
             // Perform the filter and transformation
@@ -106,7 +106,7 @@ public class FilterTransformerExecutor {
             encodedContent = content;
         }
 
-        connectorMessage.setEncoded(new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.ENCODED, encodedContent, encryptor.encrypt(encodedContent)));
+        connectorMessage.setEncoded(new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.ENCODED, encodedContent, outbound.getType(), encryptor.encrypt(encodedContent)));
         connectorMessage.setStatus(Status.TRANSFORMED);
     }
 }

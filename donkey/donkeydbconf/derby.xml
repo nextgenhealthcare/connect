@@ -28,11 +28,14 @@
 	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE RESTRICT,
 	        date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        status character(1) NOT NULL,
+	        connector_name character varying(256),
 	        connector_map clob,
 	        channel_map clob,
 	        response_map clob,
 	        errors clob,
 	        send_attempts integer NOT NULL DEFAULT 0,
+	        chain_id integer NOT NULL,
+	        order_id integer NOT NULL,
 	        constraint mm${localChannelId}_pkey PRIMARY KEY(message_id, id)
         )
 	</query>

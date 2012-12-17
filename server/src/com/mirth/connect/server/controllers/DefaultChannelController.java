@@ -12,6 +12,7 @@ package com.mirth.connect.server.controllers;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.Connector;
@@ -468,5 +470,36 @@ public class DefaultChannelController extends ChannelController {
         }
 
         throw new Exception("Connector name not found");
+    }
+
+    @Override
+    public Map<Integer, String> getConnectorNames(String channelId) {
+        logger.debug("getting connector names");
+        Channel channel = getCachedChannelById(channelId);
+        
+        if (channel == null) {
+            return null;
+        }
+        
+        Map<Integer, String> connectorNames = new LinkedHashMap<Integer, String>();
+        connectorNames.put(0, "Source");
+        
+        for (Connector connector : channel.getDestinationConnectors()) {
+            connectorNames.put(connector.getMetaDataId(), connector.getName());
+        }
+        
+        return connectorNames;
+    }
+
+    @Override
+    public List<MetaDataColumn> getMetaDataColumns(String channelId) {
+        logger.debug("getting metadata columns");
+        Channel channel = getCachedChannelById(channelId);
+        
+        if (channel == null) {
+            return null;
+        }
+        
+        return channel.getProperties().getMetaDataColumns();
     }
 }

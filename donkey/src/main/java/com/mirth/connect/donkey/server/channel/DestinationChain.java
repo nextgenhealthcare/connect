@@ -34,6 +34,7 @@ import com.mirth.connect.donkey.util.DonkeyClonerFactory;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public class DestinationChain implements Callable<List<ConnectorMessage>> {
+    private Integer chainId;
     private String channelId;
     private ConnectorMessage message;
     private List<Integer> metaDataIds = new ArrayList<Integer>();
@@ -46,6 +47,14 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
     private DonkeyDaoFactory daoFactory;
     private StorageSettings storageSettings;
     private Logger logger = Logger.getLogger(getClass());
+
+    public Integer getChainId() {
+        return chainId;
+    }
+
+    public void setChainId(Integer chainId) {
+        this.chainId = chainId;
+    }
 
     public String getChannelId() {
         return channelId;
@@ -66,6 +75,8 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
 
         filterTransformerExecutors.put(metaDataId, filterTransformerExecutor);
         destinationConnectors.put(metaDataId, connector);
+        connector.setOrderId(destinationConnectors.size());
+        
     }
 
     public Map<Integer, FilterTransformerExecutor> getFilterTransformerExecutors() {
@@ -241,9 +252,15 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                 // now that we're finished processing the current message, we can create the next message in the chain
                 if (nextMetaDataId != null) {
                     nextMessage = new ConnectorMessage(message.getChannelId(), message.getMessageId(), nextMetaDataId, message.getServerId(), Calendar.getInstance(), Status.RECEIVED);
+                    
+                    DestinationConnector nextDestinationConnector = destinationConnectors.get(nextMetaDataId);
+                    nextMessage.setConnectorName(nextDestinationConnector.getDestinationName());
+                    nextMessage.setChainId(chainId);
+                    nextMessage.setOrderId(nextDestinationConnector.getOrderId());
+                    
                     nextMessage.setChannelMap((Map<String, Object>) cloner.clone(message.getChannelMap()));
                     nextMessage.setResponseMap((Map<String, Response>) cloner.clone(message.getResponseMap()));
-                    nextMessage.setRaw(new MessageContent(message.getChannelId(), message.getMessageId(), nextMetaDataId, ContentType.RAW, message.getRaw().getContent(), message.getRaw().getEncryptedContent()));
+                    nextMessage.setRaw(new MessageContent(message.getChannelId(), message.getMessageId(), nextMetaDataId, ContentType.RAW, message.getRaw().getContent(), nextDestinationConnector.getInboundDataType().getType(), message.getRaw().getEncryptedContent()));
 
                     ThreadUtils.checkInterruptedStatus();
                     dao.insertConnectorMessage(nextMessage, storageSettings.isStoreMaps());

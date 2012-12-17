@@ -24,11 +24,14 @@
 	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE,
 	        date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        status character(1) NOT NULL,
+	        connector_name text,
 	        connector_map text,
 	        channel_map text,
 	        response_map text,
 	        errors text,
 	        send_attempts integer NOT NULL DEFAULT 0,
+	        chain_id integer NOT NULL,
+	        order_id integer NOT NULL,
 	        CONSTRAINT mm${localChannelId}_pkey PRIMARY KEY(message_id, id)
         );
 	</query>
@@ -99,7 +102,7 @@
 	</query>
 	
 	<query id="createMessageAttachmentTableIndex1">
-		CREATE INDEX d_ma${localChannelId}_index1 ON d_ma${localChannelId} USING BTREE (id);
+		CREATE INDEX d_ma${localChannelId}_index1 ON d_ma${localChannelId} USING BTREE (id)
 	</query>
 	
 	<query id="createMessageAttachmentTableIndex2">

@@ -208,8 +208,8 @@ public class MessagePrunerTest {
         ConnectorMessage destinationMessage = new ConnectorMessage(TEST_CHANNEL_ID, message.getMessageId(), 1, TEST_SERVER_ID, message.getDateCreated(), Status.SENT);
         message.getConnectorMessages().put(1, destinationMessage);
 
-        sourceMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 0, ContentType.RAW, TEST_MESSAGE_CONTENT, null));
-        destinationMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 1, ContentType.RAW, TEST_MESSAGE_CONTENT, null));
+        sourceMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 0, ContentType.RAW, TEST_MESSAGE_CONTENT, null, null));
+        destinationMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 1, ContentType.RAW, TEST_MESSAGE_CONTENT, null, null));
         
         TestUtils.deleteAllMessages(TEST_CHANNEL_ID);
         TestUtils.createTestMessages(TEST_CHANNEL_ID, message, 1);
@@ -292,8 +292,8 @@ public class MessagePrunerTest {
         message.getConnectorMessages().put(1, destinationMessage);
 
         if (contentPrunable != null) {
-            sourceMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 0, ContentType.RAW, TEST_MESSAGE_CONTENT, null));
-            destinationMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 1, ContentType.RAW, TEST_MESSAGE_CONTENT, null));
+            sourceMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 0, ContentType.RAW, TEST_MESSAGE_CONTENT, null, null));
+            destinationMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 1, ContentType.RAW, TEST_MESSAGE_CONTENT, null, null));
         }
 
         TestUtils.createTestMessagesFast(TEST_CHANNEL_ID, message, power);
