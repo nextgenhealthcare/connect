@@ -31,6 +31,7 @@ import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
+import com.mirth.connect.client.ui.panels.connectors.ListenerSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
 public class HttpListener extends ConnectorSettingsPanel {
@@ -294,6 +295,13 @@ public class HttpListener extends ConnectorSettingsPanel {
             }
         }
         return "";
+    }
+    
+    @Override
+    public void updatedField(String field) {
+        if (ListenerSettingsPanel.FIELD_PORT.equals(field)) {
+            updateHttpUrl();
+        }
     }
 
     /**
