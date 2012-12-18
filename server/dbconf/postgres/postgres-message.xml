@@ -44,6 +44,7 @@
 			</if>
 			) AS subquery
 		INNER JOIN d_m${localChannelId} message ON subquery.id = message.id
+		ORDER BY message.id DESC
 	</select>
 	
 	<select id="searchMessagesCount" parameterType="map" resultType="long">
