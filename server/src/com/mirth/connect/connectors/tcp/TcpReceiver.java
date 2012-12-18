@@ -248,7 +248,7 @@ public class TcpReceiver extends SourceConnector {
                         attemptedResponse = true;
                         sendResponse(response, responseSocket, streamHandler);
                     } catch (IOException e) {
-                        // TODO
+                        errorMessage = e.getMessage();
                     } finally {
                         closeSocketQuietly(responseSocket);
                     }
@@ -295,14 +295,12 @@ public class TcpReceiver extends SourceConnector {
 
                     while (!streamDone && !done) {
                         /*
-                         * Read from the socket's input stream. If we're keeping
-                         * the connection open, then bytes will be read until
-                         * the socket timeout is reached, or until an EOF marker
-                         * or the ending bytes are encountered. If we're not
-                         * keeping the connection open, then a socket timeout
-                         * will not be silently caught, and instead will be
-                         * thrown from here and cause the worker thread to
-                         * abort.
+                         * Read from the socket's input stream. If we're keeping the connection
+                         * open, then bytes will be read until the socket timeout is reached, or
+                         * until an EOF marker or the ending bytes are encountered. If we're not
+                         * keeping the connection open, then a socket timeout will not be silently
+                         * caught, and instead will be thrown from here and cause the worker thread
+                         * to abort.
                          */
                         logger.debug("Reading from socket input stream (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")...");
                         byte[] bytes = streamHandler.read();
@@ -319,69 +317,66 @@ public class TcpReceiver extends SourceConnector {
                                 rawMessage = new RawMessage(new String(bytes, CharsetUtils.getEncoding(connectorProperties.getCharsetEncoding())));
                             }
 
-                            // If a valid RawMessage object was created, attempt to send it to the channel
-                            if (rawMessage != null) {
-                                // Add the socket information to the channelMap
-                                Map<String, Object> channelMap = new HashMap<String, Object>();
-                                channelMap.put("clientAddress", socket.getLocalAddress().getHostAddress());
-                                channelMap.put("clientPort", socket.getLocalPort());
-                                if (socket.getRemoteSocketAddress() instanceof InetSocketAddress) {
-                                    channelMap.put("localAddress", ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress());
-                                    channelMap.put("localPort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
-                                }
-                                rawMessage.setChannelMap(channelMap);
+                            // Add the socket information to the channelMap
+                            Map<String, Object> channelMap = new HashMap<String, Object>();
+                            channelMap.put("clientAddress", socket.getLocalAddress().getHostAddress());
+                            channelMap.put("clientPort", socket.getLocalPort());
+                            if (socket.getRemoteSocketAddress() instanceof InetSocketAddress) {
+                                channelMap.put("localAddress", ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().getHostAddress());
+                                channelMap.put("localPort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
+                            }
+                            rawMessage.setChannelMap(channelMap);
 
-                                while (dispatchResult == null && getCurrentState() == ChannelState.STARTED) {
-                                    boolean attemptedResponse = false;
-                                    String response = null;
-                                    String errorMessage = null;
+                            // Keep attempting while the channel is still started
+                            while (dispatchResult == null && getCurrentState() == ChannelState.STARTED) {
+                                boolean attemptedResponse = false;
+                                String response = null;
+                                String errorMessage = null;
 
-                                    // Send the message to the source connector
-                                    try {
-                                        // If more than one message will be sent to the channel, we'll only be sending back the first response
-                                        dispatchResult = dispatchRawMessage(rawMessage);
+                                // Send the message to the source connector
+                                try {
+                                    dispatchResult = dispatchRawMessage(rawMessage);
 
-                                        // Check to see if we have a response to send
-                                        if (dispatchResult.getSelectedResponse() != null) {
-                                            response = dispatchResult.getSelectedResponse().getMessage();
+                                    // Check to see if we have a response to send
+                                    if (dispatchResult.getSelectedResponse() != null) {
+                                        response = dispatchResult.getSelectedResponse().getMessage();
 
-                                            // If the response socket hasn't been initialized, do that now
-                                            if (responseSocket == null) {
-                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
-                                                    responseSocket = createResponseSocket();
-                                                } else {
-                                                    // If we're not responding on a new connection, then write to the output stream of the same socket
-                                                    responseSocket = socket;
-                                                }
-                                            }
-
-                                            // Send the response; in the case of batch messages, only the first response will be sent
-                                            attemptedResponse = true;
-
-                                            try {
-                                                sendResponse(response, responseSocket, streamHandler);
-                                            } catch (IOException e) {
-                                                errorMessage = e.getMessage();
-                                            } finally {
-                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
-                                                    closeSocketQuietly(responseSocket);
-                                                }
+                                        // If the response socket hasn't been initialized, do that now
+                                        if (responseSocket == null) {
+                                            if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
+                                                responseSocket = createResponseSocket();
+                                            } else {
+                                                // If we're not responding on a new connection, then write to the output stream of the same socket
+                                                responseSocket = socket;
                                             }
                                         }
-                                    } catch (ChannelException e) {
-                                    } finally {
-                                        finishDispatch(dispatchResult, attemptedResponse, response, errorMessage);
-                                    }
 
-                                    // Check to see if the thread has been interrupted before the message was sent
-                                    if (Thread.currentThread().isInterrupted() && dispatchResult == null) {
-                                        // Stop trying to receive data
-                                        done = true;
-                                        // Set the return value and send an alert
-                                        t = new InterruptedException("TCP worker thread was interrupted before the message was sent (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-                                        alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_411, "Error receiving message.", t);
-                                        break;
+                                        // Send the response
+                                        attemptedResponse = true;
+
+                                        try {
+                                            sendResponse(response, responseSocket, streamHandler);
+                                        } catch (IOException e) {
+                                            errorMessage = e.getMessage();
+                                        } finally {
+                                            if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
+                                                closeSocketQuietly(responseSocket);
+                                            }
+                                        }
                                     }
+                                } catch (ChannelException e) {
+                                } finally {
+                                    finishDispatch(dispatchResult, attemptedResponse, response, errorMessage);
+                                }
+
+                                // Check to see if the thread has been interrupted before the message was sent
+                                if (Thread.currentThread().isInterrupted() && dispatchResult == null) {
+                                    // Stop trying to receive data
+                                    done = true;
+                                    // Set the return value and send an alert
+                                    t = new InterruptedException("TCP worker thread was interrupted before the message was sent (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
+                                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_411, "Error receiving message.", t);
+                                    break;
                                 }
                             }
 
