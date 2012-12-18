@@ -435,7 +435,8 @@
           <ComponentRef name="buttonGroup4"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Specify the SQL statements to get messages to be processed and mark messages in the database as processed."/>
+        <Property name="toolTipText" type="java.lang.String" value="Not yet implemented."/>
+        <Property name="enabled" type="boolean" value="false"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -455,7 +456,8 @@
           <ComponentRef name="buttonGroup4"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Implement JavaScript code using JDBC to get the messages to be processed and mark messages in the database as processed."/>
+        <Property name="toolTipText" type="java.lang.String" value="Not yet implemented."/>
+        <Property name="enabled" type="boolean" value="false"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -464,6 +466,7 @@
     <Component class="javax.swing.JLabel" name="jLabel10">
       <Properties>
         <Property name="text" type="java.lang.String" value="Cache Results:"/>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="insertURLTemplateButton">

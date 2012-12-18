@@ -52,7 +52,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
     public DatabaseReader() {
         this.parent = PlatformUI.MIRTH_FRAME;
-        
+
         try {
             drivers = this.parent.mirthClient.getDatabaseDrivers();
         } catch (ClientException e) {
@@ -84,8 +84,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         sqlMappingDoc.addDocumentListener(new DocumentListener() {
 
-            public void changedUpdate(DocumentEvent e) {
-            }
+            public void changedUpdate(DocumentEvent e) {}
 
             public void removeUpdate(DocumentEvent e) {
                 update();
@@ -98,8 +97,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         jsMappingDoc.addDocumentListener(new DocumentListener() {
 
-            public void changedUpdate(DocumentEvent e) {
-            }
+            public void changedUpdate(DocumentEvent e) {}
 
             public void removeUpdate(DocumentEvent e) {
                 update();
@@ -110,7 +108,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
             }
         });
     }
-    
+
     @Override
     public String getConnectorName() {
         return new DatabaseReceiverProperties().getName();
@@ -119,7 +117,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
     @Override
     public ConnectorProperties getProperties() {
         DatabaseReceiverProperties properties = new DatabaseReceiverProperties();
-        
+
         for (int i = 0; i < drivers.size(); i++) {
             DriverInfo driver = drivers.get(i);
             if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
@@ -156,7 +154,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         }
 
         parent.setSaveEnabled(enabled);
-        
+
         databaseURLField.setText(props.getUrl());
         databaseUsernameField.setText(props.getUsername());
         databasePasswordField.setText(props.getPassword());
@@ -174,7 +172,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
             useJavaScriptNo.setSelected(true);
             useJavaScriptNoActionPerformed(null);
         }
-        
+
         databaseSQLTextPane.setText(props.getQuery());
         databaseUpdateSQLTextPane.setText(props.getAck());
 
@@ -195,7 +193,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
     @Override
     public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
         DatabaseReceiverProperties props = (DatabaseReceiverProperties) properties;
-        
+
         boolean valid = true;
 
         if (props.getUrl().length() == 0) {
@@ -218,7 +216,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
                 databaseUpdateSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        
+
         if (props.getDriver().equals(DatabaseReceiverProperties.DRIVER_DEFAULT)) {
             valid = false;
             if (highlight) {
@@ -240,7 +238,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
     @Override
     public String doValidate(ConnectorProperties properties, boolean highlight) {
         DatabaseReceiverProperties props = (DatabaseReceiverProperties) properties;
-        
+
         String error = null;
 
         if (props.isUseScript()) {
@@ -263,10 +261,10 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
                 Context.exit();
             }
-            
+
             if (props.isUseAck()) {
                 String onUpdateScript = props.getAck();
-                
+
                 if (onUpdateScript.length() != 0) {
                     Context context = Context.enter();
                     try {
@@ -285,13 +283,13 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
                     Context.exit();
                 }
-                
+
             }
         }
-        
+
         return error;
     }
-    
+
     @Override
     public boolean requiresXmlDataType() {
         return true;
@@ -326,7 +324,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
             data = spu.Parse();
 
         } else {
-            data = new String[]{};
+            data = new String[] {};
         }
         dbVarList.setListData(data);
         updateIncomingData(data);
@@ -350,9 +348,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 //            parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));  // Not required with current text area
             parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml);
 
-            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundDataType().equals(DataTypeFactory.XML)
-                    && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null
-                    && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0) {
+            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundDataType().equals(DataTypeFactory.XML) && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0) {
                 List<Connector> list = parent.channelEditPanel.currentChannel.getDestinationConnectors();
                 for (Connector c : list) {
 //                    c.getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));  // Not required with current text area
@@ -390,8 +386,8 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         jLabel8 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         dbVarList = new com.mirth.connect.client.ui.components.MirthVariableList();
-        databaseSQLTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
-        databaseUpdateSQLTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
+        databaseSQLTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true, false);
+        databaseUpdateSQLTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true, false);
         jLabel6 = new javax.swing.JLabel();
         useJavaScriptYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         useJavaScriptNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -419,7 +415,9 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         sqlLabel.setText("SQL:");
 
-        databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Sun JDBC-ODBC Bridge", "ODBC - MySQL", "ODBC - PostgresSQL", "ODBC - SQL Server/Sybase", "ODBC - Oracle 10g Release 2" }));
+        databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] {
+                "Sun JDBC-ODBC Bridge", "ODBC - MySQL", "ODBC - PostgresSQL",
+                "ODBC - SQL Server/Sybase", "ODBC - Oracle 10g Release 2" }));
         databaseDriverCombobox.setToolTipText("Specifies the type of database driver to use to connect to the database.");
 
         databaseURLField.setToolTipText("<html>The JDBC URL to connect to the database. This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
@@ -528,17 +526,20 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         cacheResultsNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup4.add(cacheResultsNoButton);
         cacheResultsNoButton.setText("No");
-        cacheResultsNoButton.setToolTipText("Specify the SQL statements to get messages to be processed and mark messages in the database as processed.");
+        cacheResultsNoButton.setToolTipText("Not yet implemented.");
+        cacheResultsNoButton.setEnabled(false);
         cacheResultsNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         cacheResultsYesButton.setBackground(new java.awt.Color(255, 255, 255));
         cacheResultsYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup4.add(cacheResultsYesButton);
         cacheResultsYesButton.setText("Yes");
-        cacheResultsYesButton.setToolTipText("Implement JavaScript code using JDBC to get the messages to be processed and mark messages in the database as processed.");
+        cacheResultsYesButton.setToolTipText("Not yet implemented.");
+        cacheResultsYesButton.setEnabled(false);
         cacheResultsYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel10.setText("Cache Results:");
+        jLabel10.setEnabled(false);
 
         insertURLTemplateButton.setText("Insert URL Template");
         insertURLTemplateButton.addActionListener(new java.awt.event.ActionListener() {
@@ -549,124 +550,15 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel8, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel10, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(sqlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(onUpdateLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(databasePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(databaseUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(databaseURLField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(databaseDriverCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(insertURLTemplateButton)))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(readOnUpdateYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(readOnUpdateNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 81, Short.MAX_VALUE)
-                        .addComponent(jLabel9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(generateUpdateConnection)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(generateUpdateSelect))
-                    .addComponent(databaseSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(databaseUpdateSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(cacheResultsYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cacheResultsNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(useJavaScriptYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(useJavaScriptNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(generateConnection)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(generateSelect)))
-                .addContainerGap())
-        );
+        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGap(10, 10, 10).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jLabel8, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel10, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(sqlLabel, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(onUpdateLabel, javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(databasePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(databaseUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(databaseURLField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addComponent(databaseDriverCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(insertURLTemplateButton))).addGap(0, 0, Short.MAX_VALUE)).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addComponent(readOnUpdateYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(readOnUpdateNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 81, Short.MAX_VALUE).addComponent(jLabel9).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(generateUpdateConnection).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(generateUpdateSelect)).addComponent(databaseSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE).addGroup(layout.createSequentialGroup().addComponent(databaseUpdateSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup().addComponent(cacheResultsYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(cacheResultsNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup().addComponent(useJavaScriptYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(useJavaScriptNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(jLabel7).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(generateConnection).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(generateSelect))).addContainerGap()));
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {generateConnection, generateSelect});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {
+                generateConnection, generateSelect });
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {generateUpdateConnection, generateUpdateSelect});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {
+                generateUpdateConnection, generateUpdateSelect });
 
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(databaseDriverCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1)
-                    .addComponent(insertURLTemplateButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(databaseURLField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(databaseUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(databasePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel10)
-                            .addComponent(cacheResultsYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cacheResultsNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel6)
-                            .addComponent(useJavaScriptYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(useJavaScriptNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(generateSelect)
-                        .addComponent(generateConnection)
-                        .addComponent(jLabel7)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(sqlLabel)
-                    .addComponent(databaseSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
-                    .addComponent(readOnUpdateYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(readOnUpdateNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(generateUpdateConnection)
-                    .addComponent(generateUpdateSelect)
-                    .addComponent(jLabel9))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-                    .addComponent(databaseUpdateSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-                    .addComponent(onUpdateLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
+        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(databaseDriverCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel1).addComponent(insertURLTemplateButton)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(databaseURLField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel2)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(databaseUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel3)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(databasePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(jLabel4)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel10).addComponent(cacheResultsYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(cacheResultsNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel6).addComponent(useJavaScriptYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(useJavaScriptNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(generateSelect).addComponent(generateConnection).addComponent(jLabel7))).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(sqlLabel).addComponent(databaseSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel8).addComponent(readOnUpdateYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(readOnUpdateNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(generateUpdateConnection).addComponent(generateUpdateSelect).addComponent(jLabel9)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE).addComponent(databaseUpdateSQLTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE).addComponent(onUpdateLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)).addContainerGap()));
     }// </editor-fold>//GEN-END:initComponents
 
     private void generateUpdateConnectionActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_generateUpdateConnectionActionPerformed
@@ -677,54 +569,54 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         databaseUpdateSQLTextPane.requestFocus();
         databaseUpdateSQLTextPane.setCaretPosition(databaseUpdateSQLTextPane.getText().indexOf("\n\n") + 1);
         parent.setSaveEnabled(true);
-}//GEN-LAST:event_generateUpdateConnectionActionPerformed
+    }//GEN-LAST:event_generateUpdateConnectionActionPerformed
 
-private void generateSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateSelectActionPerformed
-    showDatabaseMetaData(STATEMENT_TYPE.SELECT_TYPE);
-}//GEN-LAST:event_generateSelectActionPerformed
+    private void generateSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateSelectActionPerformed
+        showDatabaseMetaData(STATEMENT_TYPE.SELECT_TYPE);
+    }//GEN-LAST:event_generateSelectActionPerformed
 
-private void generateUpdateSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateUpdateSelectActionPerformed
-    showDatabaseMetaData(STATEMENT_TYPE.UPDATE_TYPE);
-}//GEN-LAST:event_generateUpdateSelectActionPerformed
+    private void generateUpdateSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateUpdateSelectActionPerformed
+        showDatabaseMetaData(STATEMENT_TYPE.UPDATE_TYPE);
+    }//GEN-LAST:event_generateUpdateSelectActionPerformed
 
-private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertURLTemplateButtonActionPerformed
+    private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertURLTemplateButtonActionPerformed
 
-    if (!databaseURLField.getText().equals("")) {
-        if (!parent.alertOption(parent, "Are you sure you would like to replace your current connection URL with the template URL?")) {
-            return;
+        if (!databaseURLField.getText().equals("")) {
+            if (!parent.alertOption(parent, "Are you sure you would like to replace your current connection URL with the template URL?")) {
+                return;
+            }
         }
-    }
 
-    String template = "";
+        String template = "";
 
-    for (int i = 0; i < drivers.size(); i++) {
-        DriverInfo driverInfo = drivers.get(i);
-        if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
-            template = driverInfo.getTemplate();
+        for (int i = 0; i < drivers.size(); i++) {
+            DriverInfo driverInfo = drivers.get(i);
+            if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
+                template = driverInfo.getTemplate();
+            }
         }
-    }
 
-    databaseURLField.setText(template);
-    databaseURLField.grabFocus();
-    parent.setSaveEnabled(true);
+        databaseURLField.setText(template);
+        databaseURLField.grabFocus();
+        parent.setSaveEnabled(true);
 
-}//GEN-LAST:event_insertURLTemplateButtonActionPerformed
+    }//GEN-LAST:event_insertURLTemplateButtonActionPerformed
 
     public void showDatabaseMetaData(STATEMENT_TYPE type) {
         DatabaseReceiverProperties properties = (DatabaseReceiverProperties) getProperties();
-        
+
         if (properties.getUrl().length() == 0 || properties.getDriver().equals(DatabaseReceiverProperties.DRIVER_DEFAULT)) {
             parent.alertError(parent, "A valid Driver and URL are required to perform this operation.");
         } else {
             String selectLimit = null;
-                
+
             for (int i = 0; i < drivers.size(); i++) {
                 DriverInfo driver = drivers.get(i);
                 if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
                     selectLimit = driver.getSelectLimit();
                 }
             }
-            
+
             new DatabaseMetadataDialog(this, type, new DatabaseConnectionInfo(properties.getDriver(), properties.getUrl(), properties.getUsername(), properties.getPassword(), "", selectLimit));
         }
     }
@@ -840,7 +732,8 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
             generateUpdateConnection.setEnabled(true);
         }
     }// GEN-LAST:event_readOnUpdateYesActionPerformed
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+     // Variables declaration - do not modify//GEN-BEGIN:variables
+
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup4;
