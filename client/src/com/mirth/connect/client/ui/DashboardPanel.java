@@ -265,6 +265,10 @@ public class DashboardPanel extends javax.swing.JPanel {
                 }
             });
         }
+        
+        // MIRTH-2301
+        // Since we are using addHighlighter here instead of using setHighlighters, we need to remove the old ones first.
+        statusTable.setHighlighters();
 
         // Add the highlighters.  Always add the error highlighter.
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
