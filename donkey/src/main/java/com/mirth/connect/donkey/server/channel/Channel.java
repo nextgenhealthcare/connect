@@ -670,7 +670,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         destinationChainExecutor.shutdown();
 
         if (firstCause != null) {
-            setCurrentState(ChannelState.UNKNOWN);
+            setCurrentState(ChannelState.STOPPED);
             throw new StopException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);
         }
     }
@@ -703,7 +703,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
 
         if (firstCause != null) {
-            setCurrentState(ChannelState.UNKNOWN);
+            setCurrentState(ChannelState.STOPPED);
             throw new StopException("Failed to stop channel " + name + " (" + channelId + "): One or more connectors failed to stop.", firstCause);
         }
     }
@@ -1480,7 +1480,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                             stop(startedMetaDataIds);
                             setCurrentState(ChannelState.STOPPED);
                         } catch (StopException e2) {
-                            setCurrentState(ChannelState.UNKNOWN);
+                            setCurrentState(ChannelState.STOPPED);
                         }
 
                         throw e;

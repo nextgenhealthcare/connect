@@ -10,8 +10,7 @@
 package com.mirth.connect.donkey.model.channel;
 
 public enum ChannelState {
-    STARTING('T'), STARTED('S'), PAUSING('A'), PAUSED('P'), STOPPING('O'), STOPPED('D'), UNKNOWN(
-            'U');
+    STARTING('T'), STARTED('S'), PAUSING('A'), PAUSED('P'), STOPPING('O'), STOPPED('D');
 
     private char state;
 
@@ -36,8 +35,6 @@ public enum ChannelState {
             return STOPPING;
         if (state == 'D')
             return STOPPED;
-        if (state == 'U')
-            return UNKNOWN;
 
         return null;
     }
