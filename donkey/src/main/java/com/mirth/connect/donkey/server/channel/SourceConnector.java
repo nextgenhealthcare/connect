@@ -167,7 +167,7 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
                 if (response != null && storageSettings.isStoreSentResponse()) {
                     dao = daoFactory.getDao();
                     //TODO does this have a data type?
-                    dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.SENT, response, null, encryptor.encrypt(response)));
+                    dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.RESPONSE, response, null, encryptor.encrypt(response)));
                 }
                 
                 if (attemptedResponse || errorMessage != null) {
