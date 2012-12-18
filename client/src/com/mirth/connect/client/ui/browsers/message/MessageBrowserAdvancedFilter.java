@@ -123,7 +123,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             
             @Override
             public void setValueAt(Object value, int row, int column) {
-                int metaDataColumnIndex = findColumn("MetaData");
+                int metaDataColumnIndex = findColumn("Metadata");
                 int operatorColumnIndex = findColumn("Operator");
                 int valueColumnIndex = findColumn("Value");
                 

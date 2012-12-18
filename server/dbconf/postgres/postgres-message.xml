@@ -181,7 +181,7 @@
 			</if>
 			<if test="metaDataSearch != null">
 				<foreach item="element" collection="metaDataSearch">
-				AND mcm.${element.columnName} 
+				AND mcm."${element.columnName}"
 				
 				<choose>
 					<when test="element.ignoreCase">
