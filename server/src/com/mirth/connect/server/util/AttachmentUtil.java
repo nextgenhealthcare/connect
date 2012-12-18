@@ -52,7 +52,7 @@ public class AttachmentUtil {
             // Handle the special case if only a dicom message is requested. 
             // In this case we can skip any byte appending and thus do not need to base64 encode the dicom object
             // if the type is binary.
-            if (raw.equals(PREFIX + DICOM_KEY + SUFFIX)) {
+            if (raw.trim().equals(PREFIX + DICOM_KEY + SUFFIX)) {
                 dicomObject = DICOMUtil.getDICOMRawBytes(connectorMessage);
                 
                 if (!binary) {
@@ -174,9 +174,7 @@ public class AttachmentUtil {
             // If binary, the content should be in base64 so it is necessary to decode the data.
             if (binary) {
                 combined = Base64Util.decodeBase64(combined);
-            }
-            
-            if (charsetEncoding != null && !charsetEncoding.toUpperCase().equals(Constants.ATTACHMENT_CHARSET.toUpperCase())) {
+            } else if (charsetEncoding != null && !charsetEncoding.toUpperCase().equals(Constants.ATTACHMENT_CHARSET.toUpperCase())) {
                 // Convert the byte array to a string using the internal encoding.
                 String combinedString = StringUtils.newString(combined, Constants.ATTACHMENT_CHARSET);
                 // First release the reference to the old byte data so it can be reallocated if necessary.
