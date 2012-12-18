@@ -284,7 +284,12 @@ public class MessageBrowser extends javax.swing.JPanel {
         		defaultVisible = true;
         	}
         	
-        	column.setVisible(Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserVisibleColumn" + columnName, defaultVisible));
+        	// For system columns, check the preferences to see if they should be visible.
+        	// Custom metadata columns will always be visible for now.
+        	//TODO add option in channel setup to determine whether custom metadata columns should be visible by default.
+        	if (modelIndex < columns.length) {
+        	    column.setVisible(Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserVisibleColumn" + columnName, defaultVisible));
+        	}
         	
             messageTreeTable.addColumn(column);
         }
