@@ -1,4 +1,4 @@
-<?xml version="1.1" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
@@ -113,7 +113,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="fileContentsTextPane" pref="430" max="32767" attributes="0"/>
+                  <Component id="fileContentsTextPane" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Component id="tempFileYesRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -529,6 +529,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fileTypeBinaryActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="fileTypeASCII">
       <Properties>
@@ -550,6 +553,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fileTypeASCIIActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
       <Properties>

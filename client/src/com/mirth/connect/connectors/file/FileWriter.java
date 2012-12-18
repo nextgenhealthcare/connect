@@ -499,6 +499,11 @@ public class FileWriter extends ConnectorSettingsPanel {
         fileTypeBinary.setText("Binary");
         fileTypeBinary.setToolTipText("<html>If ASCII is selected, messages are written as text,<br> and the character set encoding used can be selected in the Encoding control below.<br>If Binary is selected, messages are written as binary byte streams.</html>");
         fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        fileTypeBinary.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fileTypeBinaryActionPerformed(evt);
+            }
+        });
 
         fileTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
         fileTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -507,6 +512,11 @@ public class FileWriter extends ConnectorSettingsPanel {
         fileTypeASCII.setText("ASCII");
         fileTypeASCII.setToolTipText("<html>If ASCII is selected, messages are written as text,<br> and the character set encoding used can be selected in the Encoding control below.<br>If Binary is selected, messages are written as binary byte streams.</html>");
         fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        fileTypeASCII.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fileTypeASCIIActionPerformed(evt);
+            }
+        });
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
         charsetEncodingCombobox.setToolTipText("<html>Select the character encoding system to use to write the files accepted by the destination connector.<br>Selecting Default uses the default character encoding for the JVM in which Mirth is running.<br>Selecting any other value selects the corresponding character encoding.</html>");
@@ -642,7 +652,7 @@ public class FileWriter extends ConnectorSettingsPanel {
                         .addComponent(passiveModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(passiveModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
+                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(tempFileYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -928,18 +938,17 @@ private void fileExistsErrorRadioActionPerformed(java.awt.event.ActionEvent evt)
     tempFileNoRadio.setEnabled(true);
 }//GEN-LAST:event_fileExistsErrorRadioActionPerformed
 
-    private void fileTypeASCIIActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_fileTypeASCIIActionPerformed
-    {// GEN-HEADEREND:event_fileTypeASCIIActionPerformed
-        encodingLabel.setEnabled(true);
-        charsetEncodingCombobox.setEnabled(true);
-    }// GEN-LAST:event_fileTypeASCIIActionPerformed
+private void fileTypeASCIIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileTypeASCIIActionPerformed
+    encodingLabel.setEnabled(true);
+    charsetEncodingCombobox.setEnabled(true);
+}//GEN-LAST:event_fileTypeASCIIActionPerformed
 
-    private void fileTypeBinaryActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_fileTypeBinaryActionPerformed
-    {// GEN-HEADEREND:event_fileTypeBinaryActionPerformed
-        encodingLabel.setEnabled(false);
-        charsetEncodingCombobox.setEnabled(false);
-        charsetEncodingCombobox.setSelectedIndex(0);
-    }// GEN-LAST:event_fileTypeBinaryActionPerformed
+private void fileTypeBinaryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileTypeBinaryActionPerformed
+    encodingLabel.setEnabled(false);
+    charsetEncodingCombobox.setEnabled(false);
+    charsetEncodingCombobox.setSelectedIndex(0);
+}//GEN-LAST:event_fileTypeBinaryActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel anonymousLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton anonymousNo;
