@@ -20,7 +20,7 @@
 
         <ul id="myTab" class="nav nav-tabs">
             <li class="active"><a id="current" href="#" data-toggle="tab">Current Statistics</a></li>
-            <li><a id="overall" href="#" data-toggle="tab">Overall Statistics</a></li>
+            <li><a id="lifetime" href="#" data-toggle="tab">Lifetime Statistics</a></li>
         </ul>
 
         <table class="table table-striped table-bordered table-condensed tablesorter" style="width: 98%;" id="treeTable">
@@ -75,11 +75,11 @@
         <!-- Script to update stats dynamically every x seconds via ajax -->
         <script type="text/javascript">
             var timeout = 5000;
-            var showOverallStats = false;
+            var showLifetimeStats = false;
             var updateTimeout;
 
             function updateStats() {
-                $.get('DashboardStatistics.action?getStats&showOverallStats=' + showOverallStats, function(nodes) {
+                $.get('DashboardStatistics.action?getStats&showLifetimeStats=' + showLifetimeStats, function(nodes) {
 					var showAlert = ${actionBean.showAlert};
 
                     // Refresh
@@ -144,10 +144,10 @@
                     e.preventDefault();
 
                     if ($(this).attr("id") == "current") {
-                        showOverallStats = false;
+                        showLifetimeStats = false;
                         clearTimeout(updateTimeout);
                     } else {
-                        showOverallStats = true;
+                        showLifetimeStats = true;
                         clearTimeout(updateTimeout);
                     }
                     updateStats();

@@ -32,7 +32,7 @@ import com.mirth.connect.webadmin.utils.Constants;
 public class DashboardStatisticsActionBean extends BaseActionBean {
     private List<DashboardStatus> dashboardStatusList;
     private int nextNodeCount = 1;
-    private boolean showOverallStats = false;
+    private boolean showLifetimeStats = false;
     private boolean showAlert;
 
     @DefaultHandler
@@ -58,11 +58,11 @@ public class DashboardStatisticsActionBean extends BaseActionBean {
         return new ForwardResolution(Constants.DASHBOARD_STATS_JSP);
     }
 
-    private JSONObject populateStats(DashboardStatus dashboardStatus, String nodeId, boolean overallStats) {
+    private JSONObject populateStats(DashboardStatus dashboardStatus, String nodeId, boolean lifetimeStats) {
         JSONObject jsonObj = new JSONObject();
         jsonObj.put("id", nodeId);
 
-        Map<Status, Long> statistics = (overallStats ? dashboardStatus.getOverallStatistics() : dashboardStatus.getStatistics());
+        Map<Status, Long> statistics = (lifetimeStats ? dashboardStatus.getLifetimeStatistics() : dashboardStatus.getStatistics());
 
         jsonObj.put("name", dashboardStatus.getName());
         jsonObj.put("status", checkState(dashboardStatus.getState()));
@@ -101,12 +101,12 @@ public class DashboardStatisticsActionBean extends BaseActionBean {
             if (dashboardStatusList != null) {
                 for (int i = 0; i < dashboardStatusList.size(); i++) {
                     DashboardStatus dashboardStatus = dashboardStatusList.get(i);
-                    jsonArray.add(populateStats(dashboardStatus, "node-" + i, showOverallStats));
+                    jsonArray.add(populateStats(dashboardStatus, "node-" + i, showLifetimeStats));
 
                     List<DashboardStatus> childStatuses = dashboardStatus.getChildStatuses();
                     for (int j = 0; j < childStatuses.size(); j++) {
                         String childId = ((childStatuses.get(j).getName()).replaceAll("\\s", "-")) + "-" + i;
-                        jsonArray.add(populateStats(childStatuses.get(j), childId, showOverallStats));
+                        jsonArray.add(populateStats(childStatuses.get(j), childId, showLifetimeStats));
                     }
                 }
             }
@@ -134,12 +134,12 @@ public class DashboardStatisticsActionBean extends BaseActionBean {
         this.nextNodeCount = nextNodeCount;
     }
 
-    public boolean isShowOverallStats() {
-        return showOverallStats;
+    public boolean isShowLifetimeStats() {
+        return showLifetimeStats;
     }
 
-    public void setShowOverallStats(boolean showOverallStats) {
-        this.showOverallStats = showOverallStats;
+    public void setShowLifetimeStats(boolean showLifetimeStats) {
+        this.showLifetimeStats = showLifetimeStats;
     }
 
     public boolean isShowAlert() {
