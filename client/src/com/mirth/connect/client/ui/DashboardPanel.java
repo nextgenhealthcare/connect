@@ -369,6 +369,10 @@ public class DashboardPanel extends javax.swing.JPanel {
     }
     
     public synchronized void updateTableHighlighting() {
+        // MIRTH-2301
+        // Since we are using addHighlighter here instead of using setHighlighters, we need to remove the old ones first.
+        statusTable.setHighlighters();
+        
         // Add the highlighters. Always add the error highlighter.
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);

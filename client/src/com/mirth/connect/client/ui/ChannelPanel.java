@@ -429,11 +429,15 @@ public class ChannelPanel extends javax.swing.JPanel {
                 }
             });
         }
+        
+        // MIRTH-2301
+        // Since we are using addHighlighter here instead of using setHighlighters, we need to remove the old ones first.
+        channelTable.setHighlighters();
 
         // Set highlighter.
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-            channelTable.setHighlighters(highlighter);
+            channelTable.addHighlighter(highlighter);
         }
         
         HighlightPredicate revisionDeltaHighlighterPredicate = new HighlightPredicate() {
