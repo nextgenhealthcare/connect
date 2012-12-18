@@ -123,7 +123,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="showCurrentStatsButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="showOverallStatsButton" min="-2" max="-2" attributes="0"/>
+                          <Component id="showLifetimeStatsButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -133,7 +133,7 @@
                       <Component id="tagsLabel" alignment="1" max="32767" attributes="0"/>
                       <Component id="showLabel" alignment="0" max="32767" attributes="0"/>
                       <Component id="showCurrentStatsButton" max="32767" attributes="0"/>
-                      <Component id="showOverallStatsButton" alignment="0" max="32767" attributes="0"/>
+                      <Component id="showLifetimeStatsButton" alignment="0" max="32767" attributes="0"/>
                       <Component id="tagFilterButton" alignment="1" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
@@ -151,15 +151,15 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showCurrentStatsButtonActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JRadioButton" name="showOverallStatsButton">
+                <Component class="javax.swing.JRadioButton" name="showLifetimeStatsButton">
                   <Properties>
                     <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                       <ComponentRef name="buttonGroup1"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Overall Statistics"/>
+                    <Property name="text" type="java.lang.String" value="Lifetime Statistics"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showOverallStatsButtonActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showLifetimeStatsButtonActionPerformed"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JLabel" name="showLabel">

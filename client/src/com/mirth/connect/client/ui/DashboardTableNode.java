@@ -21,7 +21,7 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
     private String channelId;
     private Object[] row;
     private DashboardStatus status;
-    private boolean showOverallStats = false;
+    private boolean showLifetimeStats = false;
 
     public DashboardTableNode(String channelId, DashboardStatus status) {
         this.channelId = channelId;
@@ -114,7 +114,7 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
     }
     
     private void setStatistics(int colOffset) {
-        Map<Status, Long> statistics = showOverallStats ? status.getOverallStatistics() : status.getStatistics();
+        Map<Status, Long> statistics = showLifetimeStats ? status.getLifetimeStatistics() : status.getStatistics();
         
         if (statistics != null) {
             row[colOffset + 4] = (statistics.get(Status.RECEIVED) == null) ? 0L : statistics.get(Status.RECEIVED);
@@ -130,12 +130,12 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
         }
     }
     
-    public boolean isShowOverallStats() {
-        return showOverallStats;
+    public boolean isShowLifetimeStats() {
+        return showLifetimeStats;
     }
 
-    public void setShowOverallStats(boolean showOverallStats) {
-        this.showOverallStats = showOverallStats;
+    public void setShowLifetimeStats(boolean showLifetimeStats) {
+        this.showLifetimeStats = showLifetimeStats;
         int colOffset = 0;
         
         for (DashboardColumnPlugin plugin : LoadedExtensions.getInstance().getDashboardColumnPlugins().values()) {

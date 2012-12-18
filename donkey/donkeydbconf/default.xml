@@ -142,29 +142,29 @@
 	</query>
 	
 	<query id="getChannelTotalStatistics">
-		SELECT metadata_id, received_total AS received, filtered_total AS filtered, transformed_total AS transformed, pending_total AS pending, sent_total AS sent, error_total AS error
+		SELECT metadata_id, received_lifetime AS received, filtered_lifetime AS filtered, transformed_lifetime AS transformed, pending_lifetime AS pending, sent_lifetime AS sent, error_lifetime AS error
 		FROM d_ms${localChannelId}
 	</query>
 	
 	<query id="insertChannelStatistics">
-		INSERT INTO d_ms${localChannelId} (metadata_id, received, received_total, filtered, filtered_total, transformed, transformed_total, pending, pending_total, sent, sent_total, error, error_total)
+		INSERT INTO d_ms${localChannelId} (metadata_id, received, received_lifetime, filtered, filtered_lifetime, transformed, transformed_lifetime, pending, pending_lifetime, sent, sent_lifetime, error, error_lifetime)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="updateChannelStatistics">
 		UPDATE d_ms${localChannelId}
 		SET received = received + ?,
-			received_total = received_total + ?,
+			received_lifetime = received_lifetime + ?,
 			filtered = filtered + ?,
-			filtered_total = filtered_total + ?,
+			filtered_lifetime = filtered_lifetime + ?,
 			transformed = transformed + ?,
-			transformed_total = transformed_total + ?,
+			transformed_lifetime = transformed_lifetime + ?,
 			pending = pending + ?,
-			pending_total = pending_total + ?,
+			pending_lifetime = pending_lifetime + ?,
 			sent = sent + ?,
-			sent_total = sent_total + ?,
+			sent_lifetime = sent_lifetime + ?,
 			error = error + ?,
-			error_total = error_total + ?
+			error_lifetime = error_lifetime + ?
 		
 		WHERE metadata_id IS NULL
 	</query>
@@ -172,17 +172,17 @@
 	<query id="updateConnectorStatistics">
 		UPDATE d_ms${localChannelId}
 		SET received = received + ?,
-			received_total = received_total + ?,
+			received_lifetime = received_lifetime + ?,
 			filtered = filtered + ?,
-			filtered_total = filtered_total + ?,
+			filtered_lifetime = filtered_lifetime + ?,
 			transformed = transformed + ?,
-			transformed_total = transformed_total + ?,
+			transformed_lifetime = transformed_lifetime + ?,
 			pending = pending + ?,
-			pending_total = pending_total + ?,
+			pending_lifetime = pending_lifetime + ?,
 			sent = sent + ?,
-			sent_total = sent_total + ?,
+			sent_lifetime = sent_lifetime + ?,
 			error = error + ?,
-			error_total = error_total + ?
+			error_lifetime = error_lifetime + ?
 		
 		WHERE metadata_id = ?
 	</query>

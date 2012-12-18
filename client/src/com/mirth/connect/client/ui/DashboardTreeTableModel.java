@@ -47,15 +47,15 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
         // @formatter:on
     }
     
-    public void setShowOverallStats(boolean showOverallStats) {
-        setShowOverallStats(showOverallStats, (MutableTreeTableNode) getRoot());
+    public void setShowLifetimeStats(boolean showLifetimeStats) {
+        setShowLifetimeStats(showLifetimeStats, (MutableTreeTableNode) getRoot());
     }
     
-    private void setShowOverallStats(boolean showOverallStats, MutableTreeTableNode parent) {
+    private void setShowLifetimeStats(boolean showLifetimeStats, MutableTreeTableNode parent) {
         for (int i = 0; i < parent.getChildCount(); i++) {
             DashboardTableNode node = (DashboardTableNode) parent.getChildAt(i);
-            node.setShowOverallStats(showOverallStats);
-            setShowOverallStats(showOverallStats, node);
+            node.setShowLifetimeStats(showLifetimeStats);
+            setShowLifetimeStats(showLifetimeStats, node);
         }
     }
     

@@ -41,7 +41,7 @@ public class DashboardStatus implements Serializable {
     private int deployedRevisionDelta;
     private Calendar deployedDate;
     private Map<Status, Long> statistics;
-    private Map<Status, Long> overallStatistics;
+    private Map<Status, Long> lifetimeStatistics;
     private List<DashboardStatus> childStatuses = new ArrayList<DashboardStatus>();
     private Integer metaDataId;
     private Long queued = 0L;
@@ -101,12 +101,12 @@ public class DashboardStatus implements Serializable {
         this.statistics = statistics;
     }
 
-    public Map<Status, Long> getOverallStatistics() {
-        return overallStatistics;
+    public Map<Status, Long> getLifetimeStatistics() {
+        return lifetimeStatistics;
     }
 
-    public void setOverallStatistics(Map<Status, Long> overallStatistics) {
-        this.overallStatistics = overallStatistics;
+    public void setLifetimeStatistics(Map<Status, Long> lifetimeStatistics) {
+        this.lifetimeStatistics = lifetimeStatistics;
     }
 
     public List<DashboardStatus> getChildStatuses() {

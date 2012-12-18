@@ -65,7 +65,7 @@ public class DashboardPanel extends javax.swing.JPanel {
     private static final String[] defaultColumns = new String[] { STATUS_COLUMN_NAME, NAME_COLUMN_NAME, DEPLOYED_REVISION_DELTA_COLUMN_NAME, LAST_DEPLOYED_COLUMN_NAME, RECEIVED_COLUMN_NAME, FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME, SENT_COLUMN_NAME, ERROR_COLUMN_NAME, ALERTED_COLUMN_NAME };
 
     private Frame parent;
-    private boolean showOverallStats = false;
+    private boolean showLifetimeStats = false;
 
     public DashboardPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -327,7 +327,7 @@ public class DashboardPanel extends javax.swing.JPanel {
             }
         }
         
-        if (showOverallStats) {
+        if (showLifetimeStats) {
             parent.setVisibleTasks(parent.dashboardTasks, parent.dashboardPopupMenu, 4, 4, false);
         }
 
@@ -356,7 +356,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         
         DashboardTreeTableModel model = (DashboardTreeTableModel) statusTable.getTreeTableModel();
         model.setStatuses(statuses);
-        model.setShowOverallStats(showOverallStatsButton.isSelected());
+        model.setShowLifetimeStats(showLifetimeStatsButton.isSelected());
         
         // The ListSelectionListener is not notified that the tree table model has changed so we must update the menu items manually.
         // If we switch everything to use a TreeSelectionListener then we should remove this.
@@ -545,7 +545,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable = null;
         controlPanel = new javax.swing.JPanel();
         showCurrentStatsButton = new javax.swing.JRadioButton();
-        showOverallStatsButton = new javax.swing.JRadioButton();
+        showLifetimeStatsButton = new javax.swing.JRadioButton();
         showLabel = new javax.swing.JLabel();
         tagsLabel = new javax.swing.JLabel();
         tagFilterButton = new com.mirth.connect.client.ui.components.IconButton();
@@ -572,11 +572,11 @@ public class DashboardPanel extends javax.swing.JPanel {
             }
         });
 
-        buttonGroup1.add(showOverallStatsButton);
-        showOverallStatsButton.setText("Overall Statistics");
-        showOverallStatsButton.addActionListener(new java.awt.event.ActionListener() {
+        buttonGroup1.add(showLifetimeStatsButton);
+        showLifetimeStatsButton.setText("Lifetime Statistics");
+        showLifetimeStatsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                showOverallStatsButtonActionPerformed(evt);
+                showLifetimeStatsButtonActionPerformed(evt);
             }
         });
 
@@ -603,7 +603,7 @@ public class DashboardPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(showCurrentStatsButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(showOverallStatsButton)
+                .addComponent(showLifetimeStatsButton)
                 .addContainerGap())
         );
         controlPanelLayout.setVerticalGroup(
@@ -611,7 +611,7 @@ public class DashboardPanel extends javax.swing.JPanel {
             .addComponent(tagsLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(showLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(showCurrentStatsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(showOverallStatsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(showLifetimeStatsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(tagFilterButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
@@ -647,8 +647,8 @@ public class DashboardPanel extends javax.swing.JPanel {
 
     private void showCurrentStatsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showCurrentStatsButtonActionPerformed
         DashboardTreeTableModel model = (DashboardTreeTableModel) statusTable.getTreeTableModel();
-        showOverallStats = false;
-        model.setShowOverallStats(showOverallStats);
+        showLifetimeStats = false;
+        model.setShowLifetimeStats(showLifetimeStats);
         if (statusTable.getSelectedRowCount() == 0) {
             deselectRows();
         } else {
@@ -659,10 +659,10 @@ public class DashboardPanel extends javax.swing.JPanel {
         updateTableHighlighting();
     }//GEN-LAST:event_showCurrentStatsButtonActionPerformed
 
-    private void showOverallStatsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showOverallStatsButtonActionPerformed
+    private void showLifetimeStatsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showLifetimeStatsButtonActionPerformed
         DashboardTreeTableModel model = (DashboardTreeTableModel) statusTable.getTreeTableModel();
-        showOverallStats = true;
-        model.setShowOverallStats(showOverallStats);
+        showLifetimeStats = true;
+        model.setShowLifetimeStats(showLifetimeStats);
         if (statusTable.getSelectedRowCount() == 0) {
             deselectRows();
         } else {
@@ -671,7 +671,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         
         // TODO: updateTableHighlighting() is called to force the table to refresh, there is probably a more direct way to do this
         updateTableHighlighting();
-    }//GEN-LAST:event_showOverallStatsButtonActionPerformed
+    }//GEN-LAST:event_showLifetimeStatsButtonActionPerformed
 
     private void tagFilterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tagFilterButtonActionPerformed
         parent.channelFilter.setVisible(true);
@@ -683,7 +683,7 @@ public class DashboardPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JRadioButton showCurrentStatsButton;
     private javax.swing.JLabel showLabel;
-    private javax.swing.JRadioButton showOverallStatsButton;
+    private javax.swing.JRadioButton showLifetimeStatsButton;
     private javax.swing.JSplitPane split;
     private javax.swing.JScrollPane statusPane;
     private com.mirth.connect.client.ui.components.MirthTreeTable statusTable;

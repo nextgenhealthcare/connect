@@ -113,17 +113,17 @@
 		CREATE TABLE d_ms${localChannelId} (
 	        metadata_id integer,
 	        received bigint NOT NULL DEFAULT 0,
-	        received_total bigint NOT NULL DEFAULT 0,
+	        received_lifetime bigint NOT NULL DEFAULT 0,
 	        filtered bigint NOT NULL DEFAULT 0,
-	        filtered_total bigint NOT NULL DEFAULT 0,
+	        filtered_lifetime bigint NOT NULL DEFAULT 0,
 	        transformed bigint NOT NULL DEFAULT 0,
-	        transformed_total bigint NOT NULL DEFAULT 0,
+	        transformed_lifetime bigint NOT NULL DEFAULT 0,
 	        pending bigint NOT NULL DEFAULT 0,
-	        pending_total bigint NOT NULL DEFAULT 0,
+	        pending_lifetime bigint NOT NULL DEFAULT 0,
 	        sent bigint NOT NULL DEFAULT 0,
-	        sent_total bigint NOT NULL DEFAULT 0,
+	        sent_lifetime bigint NOT NULL DEFAULT 0,
 	        error bigint NOT NULL DEFAULT 0,
-	        error_total bigint NOT NULL DEFAULT 0
+	        error_lifetime bigint NOT NULL DEFAULT 0
         );
 	</query>
 	

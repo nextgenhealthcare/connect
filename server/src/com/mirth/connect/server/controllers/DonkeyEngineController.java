@@ -284,7 +284,7 @@ public class DonkeyEngineController implements EngineController {
 
         for (com.mirth.connect.donkey.server.channel.Channel donkeyChannel : donkey.getDeployedChannels().values()) {
             Statistics stats = donkeyChannelController.getStatistics();
-            Statistics overallStats = donkeyChannelController.getTotalStatistics();
+            Statistics lifetimeStats = donkeyChannelController.getTotalStatistics();
 
             DashboardStatus status = new DashboardStatus();
             status.setStatusType(StatusType.CHANNEL);
@@ -302,7 +302,7 @@ public class DonkeyEngineController implements EngineController {
             Channel channel = channelController.getCachedChannelById(donkeyChannel.getChannelId());
             status.setDeployedRevisionDelta(channel.getRevision() - donkeyChannel.getRevision());
             status.setStatistics(stats.getConnectorStats(donkeyChannel.getChannelId(), null));
-            status.setOverallStatistics(overallStats.getConnectorStats(donkeyChannel.getChannelId(), null));
+            status.setLifetimeStatistics(lifetimeStats.getConnectorStats(donkeyChannel.getChannelId(), null));
             status.setTags(channel.getTags());
 
             DashboardStatus sourceStatus = new DashboardStatus();
@@ -312,7 +312,7 @@ public class DonkeyEngineController implements EngineController {
             sourceStatus.setName("Source");
             sourceStatus.setState(donkeyChannel.getSourceConnector().getCurrentState());
             sourceStatus.setStatistics(stats.getConnectorStats(donkeyChannel.getChannelId(), 0));
-            sourceStatus.setOverallStatistics(overallStats.getConnectorStats(donkeyChannel.getChannelId(), 0));
+            sourceStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(donkeyChannel.getChannelId(), 0));
             sourceStatus.setTags(channel.getTags());
             sourceStatus.setQueued(new Long(donkeyChannel.getSourceQueue().size()));
 
@@ -332,7 +332,7 @@ public class DonkeyEngineController implements EngineController {
                     destinationStatus.setName(connector.getDestinationName());
                     destinationStatus.setState(connector.getCurrentState());
                     destinationStatus.setStatistics(stats.getConnectorStats(donkeyChannel.getChannelId(), metaDataId));
-                    destinationStatus.setOverallStatistics(overallStats.getConnectorStats(donkeyChannel.getChannelId(), metaDataId));
+                    destinationStatus.setLifetimeStatistics(lifetimeStats.getConnectorStats(donkeyChannel.getChannelId(), metaDataId));
                     destinationStatus.setTags(channel.getTags());
                     destinationStatus.setQueued(new Long(connector.getQueue().size()));
 
