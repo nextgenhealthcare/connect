@@ -28,28 +28,34 @@
 	</resultMap>
 
 	<select id="searchMessages" parameterType="map" resultType="map">
-		SELECT
-			m.id AS "message_id",
-			m.server_id AS "server_id",
-			m.date_created AS "date_created",
-			m.processed AS "processed",
-			m.import_id AS "import_id",
-			m.import_channel_id AS "import_channel_id",
-			m.attempted_response AS "attempted_response",
-			m.response_error AS "response_error",
-			GROUP_CONCAT(TRIM(CAST(CAST(mm.id AS CHAR(254)) AS VARCHAR(254)))) AS "metadata_ids"
-
-		<include refid="searchMessagesBody" />
-		
-		GROUP BY m.id, m.server_id, m.date_created, m.processed, m.import_id, m.import_channel_id, m.attempted_response, m.response_error
-		ORDER BY m.id DESC
-		
-		<if test="offset != null">
-			OFFSET ${offset} ROWS
-		</if>
-		<if test="limit != null">
-			FETCH FIRST ${limit} ROWS ONLY
-		</if>
+		SELECT 
+			message.id AS "message_id",
+			message.server_id AS "server_id",
+			message.date_created AS "date_created",
+			message.processed AS "processed",
+			message.import_id AS "import_id",
+			message.import_channel_id AS "import_channel_id",
+			message.attempted_response AS "attempted_response",
+			message.response_error AS "response_error",
+			subquery."metadata_ids"
+		FROM (
+			SELECT
+				m.id,
+				GROUP_CONCAT(TRIM(CAST(CAST(mm.id AS CHAR(254)) AS VARCHAR(254)))) AS "metadata_ids"
+	
+			<include refid="searchMessagesBody" />
+			
+			GROUP BY m.id
+			ORDER BY m.id DESC
+			
+			<if test="offset != null">
+				OFFSET ${offset} ROWS
+			</if>
+			<if test="limit != null">
+				FETCH FIRST ${limit} ROWS ONLY
+			</if>
+			) AS subquery
+		INNER JOIN d_m${localChannelId} message ON subquery.id = message.id
 	</select>
 	
 	<select id="searchMessagesCount" parameterType="map" resultType="long">

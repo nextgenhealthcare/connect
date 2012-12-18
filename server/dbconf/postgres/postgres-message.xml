@@ -28,18 +28,22 @@
 	</resultMap>
 
 	<select id="searchMessages" parameterType="map" resultType="map">
-		SELECT m.id AS message_id, m.server_id, m.date_created, m.processed, m.import_id, m.import_channel_id, m.attempted_response, m.response_error, string_agg(mm.id::character varying, ',') AS metadata_ids
-		<include refid="searchMessagesBody" />
-		GROUP BY m.id
-
-		ORDER BY m.id DESC
-		
-		<if test="offset != null">
-			OFFSET ${offset}
-		</if>
-		<if test="limit != null">
-			LIMIT ${limit}
-		</if>
+		SELECT message.id as message_id, message.server_id, message.date_created, message.processed, message.import_id, message.import_channel_id, message.attempted_response, message.response_error, metadata_ids
+		FROM (
+			SELECT m.id, string_agg(mm.id::character varying, ',') AS metadata_ids
+			<include refid="searchMessagesBody" />
+			GROUP BY m.id
+	
+			ORDER BY m.id DESC
+			
+			<if test="offset != null">
+				OFFSET ${offset}
+			</if>
+			<if test="limit != null">
+				LIMIT ${limit}
+			</if>
+			) AS subquery
+		INNER JOIN d_m${localChannelId} message ON subquery.id = message.id
 	</select>
 	
 	<select id="searchMessagesCount" parameterType="map" resultType="long">
