@@ -19,6 +19,7 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Constants;
@@ -37,7 +38,7 @@ public class AttachmentUtil {
     private static int KEY_DATA = 0;
     private static int KEY_END_INDEX = 1;
     
-    public static byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary) {
+    public static byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary) {
         try {
             Map<Integer, Map<Integer, Object>> replacementObjects = new TreeMap<Integer, Map<Integer, Object>>();
             // Determine the buffersize during the first pass for better memory performance
@@ -190,8 +191,16 @@ public class AttachmentUtil {
             return null;
         }
     }
-
+    
+    public static byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary) {
+        return reAttachMessage(raw, new ImmutableConnectorMessage(connectorMessage), charsetEncoding, binary);
+    }
+    
     public static String reAttachMessage(ConnectorMessage message) {
+        return reAttachMessage(new ImmutableConnectorMessage(message));
+    }
+
+    public static String reAttachMessage(ImmutableConnectorMessage message) {
         String messageData = null;
         if (message.getEncoded() != null && message.getEncoded().getContent() != null) {
             messageData = message.getEncoded().getContent();
@@ -203,6 +212,10 @@ public class AttachmentUtil {
     }
     
     public static String reAttachMessage(String raw, ConnectorMessage message) {
+        return reAttachMessage(raw, new ImmutableConnectorMessage(message));
+    }
+    
+    public static String reAttachMessage(String raw, ImmutableConnectorMessage message) {
         return StringUtils.newString(reAttachMessage(raw, message, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET);
     }
     
@@ -214,7 +227,7 @@ public class AttachmentUtil {
         return false;
     }
 
-    public static List<Attachment> getMessageAttachments(ConnectorMessage message) throws SerializerException {
+    public static List<Attachment> getMessageAttachments(ImmutableConnectorMessage message) throws SerializerException {
         List<Attachment> attachments;
         try {
             attachments = MessageController.getInstance().getMessageAttachment(message.getChannelId(), message.getMessageId());

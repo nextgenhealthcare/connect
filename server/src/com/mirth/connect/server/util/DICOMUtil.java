@@ -156,10 +156,6 @@ public class DICOMUtil {
         return DICOMSerializer.dicomObjectToByteArray(dcmObj);
     }
 
-    public static List<Attachment> getMessageAttachments(ConnectorMessage message) throws SerializerException {
-        return AttachmentUtil.getMessageAttachments(message);
-    }
-
     // commented out until we determine how to handle attachments in 3.0
     public static String convertDICOM(String imageType, ImmutableConnectorMessage message, boolean autoThreshold) {
         return returnOtherImageFormat(message, imageType, autoThreshold);
