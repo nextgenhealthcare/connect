@@ -73,6 +73,7 @@ public class JavaScriptBuilder {
     public static String generateScript(String script, CodeTemplate.ContextType context, Set<String> scriptOptions) {
         StringBuilder builder = new StringBuilder();
 
+        appendImports(builder, scriptOptions);
         appendMapFunctions(builder);
         appendAttachmentFunctions(builder, scriptOptions);
         appendCodeTemplates(builder, context);
@@ -375,6 +376,12 @@ public class JavaScriptBuilder {
             builder.append("var attachment = Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().createAttachment(data, type);");
             builder.append("Packages.com.mirth.connect.donkey.server.controllers.MessageController.getInstance().insertAttachment(attachment, channelId, messageObject.getMessageId())\n");
             builder.append("return attachment; }\n");
+        }
+    }
+
+    private static void appendImports(StringBuilder builder, Set<String> scriptOptions) {
+        if (scriptOptions != null && scriptOptions.contains("importUtilPackage")) {
+            builder.append("importPackage(Packages.com.mirth.connect.util);\n");
         }
     }
 

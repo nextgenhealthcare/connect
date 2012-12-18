@@ -9,6 +9,8 @@
 
 package com.mirth.connect.connectors.js;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.SerializationUtils;
@@ -60,9 +62,11 @@ public class JavaScriptDispatcher extends DestinationConnector {
         this.connectorProperties = (JavaScriptDispatcherProperties) getConnectorProperties();
 
         String scriptId = UUID.randomUUID().toString();
+        Set<String> scriptOptions = new HashSet<String>();
+        scriptOptions.add("importUtilPackage");
 
         try {
-            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), null, null);
+            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), scriptOptions, null);
         } catch (Exception e) {
             throw new DeployException("Error compiling/adding script.", e);
         }

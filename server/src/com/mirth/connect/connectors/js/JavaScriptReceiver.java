@@ -10,7 +10,9 @@
 package com.mirth.connect.connectors.js;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +41,7 @@ import com.mirth.connect.server.util.javascript.JavaScriptTask;
 
 public class JavaScriptReceiver extends PollConnector {
     private final static ConnectorType CONNECTOR_TYPE = ConnectorType.READER;
-    
+
     private String scriptId;
     private JavaScriptReceiverProperties connectorProperties;
     private JavaScriptExecutor<Object> jsExecutor = new JavaScriptExecutor<Object>();
@@ -51,9 +53,11 @@ public class JavaScriptReceiver extends PollConnector {
         this.connectorProperties = (JavaScriptReceiverProperties) getConnectorProperties();
 
         String scriptId = UUID.randomUUID().toString();
+        Set<String> scriptOptions = new HashSet<String>();
+        scriptOptions.add("importUtilPackage");
 
         try {
-            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), null, null);
+            JavaScriptUtil.compileAndAddScript(scriptId, connectorProperties.getScript(), scriptOptions, null);
         } catch (Exception e) {
             throw new DeployException("Error compiling " + connectorProperties.getName() + " script " + scriptId + ".", e);
         }
@@ -74,23 +78,23 @@ public class JavaScriptReceiver extends PollConnector {
 
     @Override
     public void handleRecoveredResponse(DispatchResult dispatchResult) {
-    	finishDispatch(dispatchResult);
+        finishDispatch(dispatchResult);
     }
 
     @Override
     public void poll() throws InterruptedException {
         Object result = null;
         monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.BUSY);
-        
+
         try {
             result = jsExecutor.execute(new JavaScriptReceiverTask());
         } catch (JavaScriptExecutorException e) {
             logger.error("Error executing " + connectorProperties.getName() + " script " + scriptId + ".", e);
         }
-        
+
         for (RawMessage rawMessage : convertJavaScriptResult(result)) {
             DispatchResult dispatchResult = null;
-            
+
             try {
                 dispatchResult = dispatchRawMessage(rawMessage);
             } catch (ChannelException e) {
@@ -106,7 +110,7 @@ public class JavaScriptReceiver extends PollConnector {
 
         monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
     }
-    
+
     private class JavaScriptReceiverTask extends JavaScriptTask<Object> {
         @Override
         public Object call() throws Exception {
@@ -114,7 +118,7 @@ public class JavaScriptReceiver extends PollConnector {
             return JavaScriptUtil.executeScript(this, scriptId, scope, getChannelId(), "Source");
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private List<RawMessage> convertJavaScriptResult(Object result) {
         List<RawMessage> messages = new ArrayList<RawMessage>();
