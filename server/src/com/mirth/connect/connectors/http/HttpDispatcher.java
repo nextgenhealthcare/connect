@@ -54,6 +54,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
@@ -129,7 +130,7 @@ public class HttpDispatcher extends DestinationConnector {
             HttpMethod httpMethod = null;
 
             try {
-                httpMethod = buildHttpRequest(httpDispatcherProperties);
+                httpMethod = buildHttpRequest(httpDispatcherProperties, connectorMessage);
 
                 // authentication
                 if (httpDispatcherProperties.isUseAuthentication()) {
@@ -192,10 +193,10 @@ public class HttpDispatcher extends DestinationConnector {
         return new Response(responseStatus, responseData, responseError);
     }
 
-    private HttpMethod buildHttpRequest(HttpDispatcherProperties httpDispatcherProperties) throws Exception {
+    private HttpMethod buildHttpRequest(HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage) throws Exception {
         String address = httpDispatcherProperties.getHost();
         String method = httpDispatcherProperties.getMethod();
-        String content = httpDispatcherProperties.getContent();
+        String content = AttachmentUtil.reAttachMessage(httpDispatcherProperties.getContent(), connectorMessage);
         String contentType = httpDispatcherProperties.getContentType();
         String charset = httpDispatcherProperties.getCharset();
         boolean isMultipart = httpDispatcherProperties.isMultipart();

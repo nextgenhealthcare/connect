@@ -60,6 +60,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
@@ -237,7 +238,7 @@ public class WebServiceDispatcher extends DestinationConnector {
 
             // build the message
             logger.debug("Creating SOAP envelope.");
-            String content = webServiceDispatcherProperties.getEnvelope();
+            String content = AttachmentUtil.reAttachMessage(webServiceDispatcherProperties.getEnvelope(), connectorMessage);
             Source source = new StreamSource(new StringReader(content));
             SOAPMessage message = soapBinding.getMessageFactory().createMessage();
             message.getSOAPPart().setContent(source);
@@ -252,7 +253,7 @@ public class WebServiceDispatcher extends DestinationConnector {
                 for (int i = 0; i < attachmentIds.size(); i++) {
                     String attachmentContentId = attachmentIds.get(i);
                     String attachmentContentType = attachmentTypes.get(i);
-                    String attachmentContent = attachmentContents.get(i);
+                    String attachmentContent = AttachmentUtil.reAttachMessage(attachmentContents.get(i), connectorMessage);
 
                     AttachmentPart attachment = message.createAttachmentPart();
                     attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentContentType);

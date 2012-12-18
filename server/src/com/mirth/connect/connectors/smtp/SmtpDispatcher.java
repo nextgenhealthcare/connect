@@ -34,6 +34,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorConstants;
@@ -178,7 +179,7 @@ public class SmtpDispatcher extends DestinationConnector {
             email.setFrom(smtpDispatcherProperties.getFrom());
             email.setSubject(smtpDispatcherProperties.getSubject());
 
-            String body = smtpDispatcherProperties.getBody();
+            String body = AttachmentUtil.reAttachMessage(smtpDispatcherProperties.getBody(), connectorMessage);
 
             if (smtpDispatcherProperties.isHtml()) {
                 ((HtmlEmail) email).setHtmlMsg(body);
@@ -202,13 +203,13 @@ public class SmtpDispatcher extends DestinationConnector {
                 if (StringUtils.indexOf(mimeType, "/") < 0) {
                     logger.warn("valid MIME type is missing for email attachment: \"" + name + "\", using default of text/plain");
                     attachment.setMimeType("text/plain");
-                    bytes = content.getBytes();
+                    bytes = AttachmentUtil.reAttachMessage(content, connectorMessage, charsetEncoding, false);
                 } else if ("application/xml".equalsIgnoreCase(mimeType) || StringUtils.startsWith(mimeType, "text/")) {
                     logger.debug("text or XML MIME type detected for attachment \"" + name + "\"");
-                    bytes = content.getBytes();
+                    bytes = AttachmentUtil.reAttachMessage(content, connectorMessage, charsetEncoding, false);
                 } else {
                     logger.debug("binary MIME type detected for attachment \"" + name + "\", performing Base64 decoding");
-                    bytes = Base64.decodeBase64(content);
+                    bytes = AttachmentUtil.reAttachMessage(content, connectorMessage, null, true);
                 }
 
                 ((MultiPartEmail) email).attach(new ByteArrayDataSource(bytes, mimeType), name, null);
