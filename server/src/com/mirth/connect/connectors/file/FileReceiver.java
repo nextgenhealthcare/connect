@@ -230,7 +230,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         originalFilename = file.getName();
 
         Map<String, Object> channelMap = new HashMap<String, Object>();
-        channelMap.put("ORIGINALNAME", originalFilename);
+        channelMap.put("originalFilename", originalFilename);
 
         if (StringUtils.isNotBlank(moveDir)) {
             destinationName = file.getName();

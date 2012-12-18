@@ -728,7 +728,7 @@ public class FileReader extends ConnectorSettingsPanel {
 
         mirthVariableList1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         mirthVariableList1.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "DATE", "COUNT", "UUID", "SYSTIME", "ORIGINALNAME" };
+            String[] strings = { "DATE", "COUNT", "UUID", "SYSTIME", "originalFilename" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });

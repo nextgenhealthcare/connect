@@ -958,7 +958,7 @@
                 <StringItem index="1" value="COUNT"/>
                 <StringItem index="2" value="UUID"/>
                 <StringItem index="3" value="SYSTIME"/>
-                <StringItem index="4" value="ORIGINALNAME"/>
+                <StringItem index="4" value="originalFilename"/>
               </StringArray>
             </Property>
           </Properties>

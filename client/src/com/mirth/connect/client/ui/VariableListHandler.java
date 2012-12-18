@@ -42,7 +42,7 @@ public class VariableListHandler extends TransferHandler {
         staticVelocityReferences.put("Timestamp", "${SYSTIME}");
         staticVelocityReferences.put("Unique ID", "${UUID}");
         staticVelocityReferences.put("Date", "${DATE}");
-        staticVelocityReferences.put("Original File Name", "${ORIGINALNAME}");
+        staticVelocityReferences.put("Original File Name", "${originalFilename}");
         staticVelocityReferences.put("Count", "${COUNT}");
         staticVelocityReferences.put("DICOM Message Raw Data", "${DICOMMESSAGE}");
         staticVelocityReferences.put("Formatted Date", "${date.get('yyyy-M-d H.m.s')}");
