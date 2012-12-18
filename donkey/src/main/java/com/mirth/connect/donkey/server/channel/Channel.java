@@ -1451,14 +1451,14 @@ public class Channel implements Startable, Stoppable, Runnable {
                         }
 
                         ThreadUtils.checkInterruptedStatus();
-                        //                    try {
-                        //                        processUnfinishedMessages();
-                        //                    } catch (InterruptedException e) {
-                        //                        logger.error("Startup recovery interrupted");
-                        //                        Thread.currentThread().interrupt();
-                        //                    } catch (Exception e) {
-                        //                        logger.error("Startup recovery failed");
-                        //                    }
+                        try {
+                            processUnfinishedMessages();
+                        } catch (InterruptedException e) {
+                            logger.error("Startup recovery interrupted");
+                            Thread.currentThread().interrupt();
+                        } catch (Exception e) {
+                            logger.error("Startup recovery failed");
+                        }
 
                         ThreadUtils.checkInterruptedStatus();
                         // start up the worker thread that will process queued messages
