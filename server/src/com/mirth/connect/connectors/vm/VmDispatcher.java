@@ -84,30 +84,30 @@ public class VmDispatcher extends DestinationConnector {
         String responseError = null;
         Status responseStatus = Status.QUEUED; // Always set the status to QUEUED
 
-        boolean isDICOM = this.getOutboundDataType().getType().equals(DataTypeFactory.DICOM);
-        byte[] data = AttachmentUtil.reAttachMessage(vmDispatcherProperties.getChannelTemplate(), message, Constants.ATTACHMENT_CHARSET, isDICOM);
-
-        RawMessage rawMessage;
-
-        if (isDICOM) {
-            rawMessage = new RawMessage(data, null, null);
-        } else {
-            rawMessage = new RawMessage(StringUtils.newString(data, Constants.ATTACHMENT_CHARSET), null, null);
-        }
-
-        // Remove the reference to the raw message so its doesn't hold the entire message in memory.
-        data = null;
-
-        DispatchResult dispatchResult = null;
-
         try {
-            dispatchResult = ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage);
-
-            if (dispatchResult == null) {
+            if (channelId.equals("sink")) {
                 responseData = "Message Successfully Sinked";
-            } else if (dispatchResult.getSelectedResponse() != null) {
-                // If a response was returned from the channel then use that message
-                responseData = dispatchResult.getSelectedResponse().getMessage();
+            } else {
+                boolean isDICOM = this.getOutboundDataType().getType().equals(DataTypeFactory.DICOM);
+                byte[] data = AttachmentUtil.reAttachMessage(vmDispatcherProperties.getChannelTemplate(), message, Constants.ATTACHMENT_CHARSET, isDICOM);
+        
+                RawMessage rawMessage;
+        
+                if (isDICOM) {
+                    rawMessage = new RawMessage(data, null, null);
+                } else {
+                    rawMessage = new RawMessage(StringUtils.newString(data, Constants.ATTACHMENT_CHARSET), null, null);
+                }
+        
+                // Remove the reference to the raw message so its doesn't hold the entire message in memory.
+                data = null;
+        
+                DispatchResult dispatchResult = ControllerFactory.getFactory().createEngineController().dispatchRawMessage(channelId, rawMessage);
+    
+                if (dispatchResult.getSelectedResponse() != null) {
+                    // If a response was returned from the channel then use that message
+                    responseData = dispatchResult.getSelectedResponse().getMessage();
+                }
             }
 
             responseStatus = Status.SENT;

@@ -376,9 +376,7 @@ public class DonkeyEngineController implements EngineController {
 
     @Override
     public DispatchResult dispatchRawMessage(String channelId, RawMessage rawMessage) throws ChannelException {
-        if (channelId.equals("sink")) {
-            return null;
-        } else if (!isDeployed(channelId)) {
+        if (!isDeployed(channelId)) {
             logger.error("Could not find channel to route to for channel id: " + channelId);
             throw new ChannelException(true);
         }
