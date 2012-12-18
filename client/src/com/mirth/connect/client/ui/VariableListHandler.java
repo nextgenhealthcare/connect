@@ -37,7 +37,7 @@ public class VariableListHandler extends TransferHandler {
         staticVelocityReferences.put("Message Type", "${message.type}");
         staticVelocityReferences.put("Message Version", "${message.version}");
         staticVelocityReferences.put("Message Source", "${message.source}");
-        staticVelocityReferences.put("Message ID", "${message.id}");
+        staticVelocityReferences.put("Message ID", "${message.messageId}");
         staticVelocityReferences.put("Encoded Data", "${message.encodedData}");
         staticVelocityReferences.put("Timestamp", "${SYSTIME}");
         staticVelocityReferences.put("Unique ID", "${UUID}");
@@ -55,7 +55,7 @@ public class VariableListHandler extends TransferHandler {
         staticJsReferences.put("Message Type", "messageObject.getType()");
         staticJsReferences.put("Message Version", "messageObject.getVersion()");
         staticJsReferences.put("Message Source", "messageObject.getSource()");
-        staticJsReferences.put("Message ID", "messageObject.getId()");
+        staticJsReferences.put("Message ID", "messageObject.getMessageId()");
         staticJsReferences.put("Encoded Data", "messageObject.getEncodedData()");
         staticJsReferences.put("Timestamp", "var dateString = DateUtil.getCurrentDate('yyyyMMddHHmmss');");
         staticJsReferences.put("Unique ID", "var uuid = UUIDGenerator.getUUID();");
