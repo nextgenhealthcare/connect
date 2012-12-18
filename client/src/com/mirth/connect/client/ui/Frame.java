@@ -2315,11 +2315,7 @@ public class Frame extends JXFrame {
         }
         
         for (final DashboardStatus status : selectedStatuses) {
-            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 5, 5, false);   // Hide Start
-            
             final String workingId = startWorking("Starting channel...");
-            
-            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 6, 7, true);    // Show Pause & Stop
             
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                 public Void doInBackground() {
@@ -2354,9 +2350,6 @@ public class Frame extends JXFrame {
         }
         
         for (final DashboardStatus status : selectedStatuses) {
-            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 6, 7, false);    // Hide Pause & Stop
-            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 5, 5, true);     // Show Start
-            
             final String workingId = startWorking("Stopping channel...");
             
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -2388,9 +2381,6 @@ public class Frame extends JXFrame {
         }
         
         for (final DashboardStatus status : selectedStatuses) {
-            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 6, 7, false);    // Hide Pause & Stop
-            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 5, 5, true);     // Show Start
-            
             final String workingId = startWorking("Halting channel...");
             
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -2423,10 +2413,6 @@ public class Frame extends JXFrame {
 
         for (final DashboardStatus channelStatus : selectedChannelStatuses) {
             final String workingId = startWorking("Pausing channel...");
-            
-            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 6, 6, false);    // Hide Pause
-            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 5, 5, true);     // Show Start
-            setVisibleTasks(dashboardTasks, dashboardPopupMenu, 7, 7, true);     // Show Stop
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
