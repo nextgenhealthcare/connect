@@ -122,7 +122,6 @@ public class HL7Properties implements Serializable {
      */
     private String inputSegmentDelimiter = "\\r\\n|\\r|\\n";
 
-    
     /**
      * Getter for property inputSegmentDelimiter.
      * 
@@ -141,13 +140,12 @@ public class HL7Properties implements Serializable {
     public void setInputSegmentDelimiter(String inputSegmentDelimiter) {
         this.inputSegmentDelimiter = inputSegmentDelimiter;
     }
-    
+
     /**
      * Holds value of property outputSegmentDelimiter.
      */
     private String outputSegmentDelimiter = "\\r";
 
-    
     /**
      * Getter for property outputSegmentDelimiter.
      * 
@@ -221,7 +219,7 @@ public class HL7Properties implements Serializable {
         this.errorACKCode = errorACKCode;
     }
 
-    private String errorACKMessage = "An Error Occured Processing Message.";
+    private String errorACKMessage = "An Error Occurred Processing Message.";
 
     public String getErrorACKMessage() {
         return errorACKMessage;
