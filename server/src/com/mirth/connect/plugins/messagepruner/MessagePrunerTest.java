@@ -219,7 +219,7 @@ public class MessagePrunerTest {
     @Test
     public final void testPrunerConcurrency() throws Exception {
         final int channelTestSize = 30000;
-        final int power = 12;
+        final int power = 10;
         
         logger.info("Starting pruner concurrency test");
         
