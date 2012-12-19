@@ -197,6 +197,7 @@ public class JavaScriptScopeUtil {
     // TODO: Add attachments
     public static Scriptable getPostprocessorScope(Object logger, String channelId, Message message) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
+        addStatusValues(scope);
         addMessage(scope, message);
         return scope;
     }
