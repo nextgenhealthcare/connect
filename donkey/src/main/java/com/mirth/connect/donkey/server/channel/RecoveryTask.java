@@ -16,6 +16,7 @@ import java.util.concurrent.Callable;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Encryptor;
@@ -136,7 +137,18 @@ public class RecoveryTask implements Callable<List<Message>> {
                             removeAttachments = (storageSettings.isRemoveAttachmentsOnCompletion());
                         }
 
-                        DispatchResult dispatchResult = new DispatchResult(message.getMessageId(), message, responseSelector.getResponse(sourceMessage, message), true, removeContent, removeAttachments, false);
+                        Response response = null;
+                        
+                        /*
+                         * only put a response in the dispatchResult if a response was not already
+                         * stored in the source message (which happens when the source queue is
+                         * enabled)
+                         */
+                        if (sourceMessage.getResponse() == null) {
+                            response = responseSelector.getResponse(sourceMessage, message);
+                        }
+                        
+                        DispatchResult dispatchResult = new DispatchResult(message.getMessageId(), message, response, true, removeContent, removeAttachments, false);
                         channel.getSourceConnector().handleRecoveredResponse(dispatchResult);
                     }
                 }
