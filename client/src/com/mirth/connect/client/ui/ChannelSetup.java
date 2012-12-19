@@ -2544,11 +2544,9 @@ public class ChannelSetup extends javax.swing.JPanel {
         new DataTypesDialog();
         if (currentChannel.getSourceConnector().getTransformer().getInboundDataType().equals(DataTypeFactory.DICOM)) {
             attachmentComboBox.setSelectedItem(AttachmentHandlerType.DICOM);
-            attachmentComboBox.setEnabled(false);
         } else {
             if (attachmentComboBox.getSelectedItem() == AttachmentHandlerType.DICOM) {
                 attachmentComboBox.setSelectedItem(AttachmentHandlerType.NONE);
-                attachmentComboBox.setEnabled(true);
             }
         }
     }//GEN-LAST:event_changeDataTypesButtonActionPerformed
