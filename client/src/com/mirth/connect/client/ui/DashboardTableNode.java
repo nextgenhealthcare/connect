@@ -26,7 +26,9 @@ public class DashboardTableNode extends AbstractSortableTreeTableNode {
     public DashboardTableNode(String channelId, DashboardStatus status) {
         this.channelId = channelId;
         row = new Object[DashboardPanel.getNumberOfDefaultColumns() + LoadedExtensions.getInstance().getDashboardColumnPlugins().size()];
-
+        
+        // The children of these nodes should not be sortable. Only the root node will be sortable
+        setSortable(false);
         setStatus(status);
     }
 
