@@ -211,7 +211,7 @@ public class FileDispatcherProperties extends ConnectorProperties implements Que
         appendURIString(builder);
         builder.append(newLine);
 
-        if (StringUtils.isNotBlank(username)) {
+        if (!anonymous) {
             builder.append("USERNAME: ");
             builder.append(username);
             builder.append(newLine);
@@ -231,23 +231,20 @@ public class FileDispatcherProperties extends ConnectorProperties implements Que
     }
 
     private void appendURIString(StringBuilder builder) {
-        switch (scheme) {
-            case FTP:
-                builder.append("ftp://");
-                break;
-
-            case SFTP:
-                builder.append("sftp://");
-                break;
-
-            case SMB:
-                builder.append("smb://");
-                break;
-
-            case WEBDAV:
+        if (scheme == FileScheme.FTP) {
+            builder.append("ftp://");
+        } else if (scheme == FileScheme.SFTP) {
+            builder.append("sftp://");
+        } else if (scheme == FileScheme.SMB) {
+            builder.append("smb://");
+        } else if (scheme == FileScheme.WEBDAV) {
+            if (secure) {
                 builder.append("https://");
-                break;
+            } else {
+                builder.append("http://");
+            }
         }
+        
         builder.append(host);
         if (host.charAt(host.length() - 1) != '/') {
             builder.append("/");

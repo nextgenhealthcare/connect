@@ -198,7 +198,18 @@ public class FileDispatcher extends DestinationConnector {
         }
 
         sspBuilder.append(host);
-
-        return new URI(scheme.getDisplayName(), sspBuilder.toString(), null);
+        
+        String schemeName;
+        if (scheme == FileScheme.WEBDAV) {
+            if (connectorProperties.isSecure()) {
+                schemeName = "https";
+            } else {
+                schemeName = "http";
+            }
+        } else {
+            schemeName = scheme.getDisplayName();
+        }
+        
+        return new URI(schemeName, sspBuilder.toString(), null);
     }
 }
