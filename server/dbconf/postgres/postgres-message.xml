@@ -23,7 +23,7 @@
 		<id property="metaDataId" column="metadata_id" />
 		<result property="contentType" column="content_type" typeHandler="com.mirth.connect.server.sqlmap.extensions.ContentTypeHandler" />
 		<result property="content" column="content" />
-		<result property="data_type" column="data_type" />
+		<result property="dataType" column="data_type" />
 		<result property="encryptedContent" column="encrypted_content" />
 	</resultMap>
 
