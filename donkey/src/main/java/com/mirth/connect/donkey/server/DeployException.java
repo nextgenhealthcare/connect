@@ -10,6 +10,10 @@
 package com.mirth.connect.donkey.server;
 
 public class DeployException extends Exception {
+    public DeployException(Throwable cause) {
+        super(cause);
+    }
+    
     public DeployException(String message) {
         super(message);
     }

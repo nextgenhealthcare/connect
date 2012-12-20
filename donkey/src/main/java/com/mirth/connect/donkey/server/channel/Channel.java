@@ -640,7 +640,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     private void stop(List<Integer> metaDataIds) throws StopException, InterruptedException {
         stopSourceQueue = true;
-        StopException firstCause = null;
+        Throwable firstCause = null;
 
         // If an exception occurs, then still proceed by stopping the rest of the connectors
         for (Integer metaDataId : metaDataIds) {
@@ -648,9 +648,9 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             try {
                 stopConnector(metaDataId);
-            } catch (StopException e) {
+            } catch (Throwable t) {
                 if (firstCause == null) {
-                    firstCause = e;
+                    firstCause = t;
                 }
             }
         }
@@ -689,15 +689,15 @@ public class Channel implements Startable, Stoppable, Runnable {
             }
         }
 
-        StopException firstCause = null;
+        Throwable firstCause = null;
 
         // If an exception occurs, then still proceed by stopping the rest of the connectors
         for (Integer metaDataId : metaDataIds) {
             try {
                 haltConnector(metaDataId);
-            } catch (StopException e) {
+            } catch (Throwable t) {
                 if (firstCause == null) {
-                    firstCause = e;
+                    firstCause = t;
                 }
             }
         }
@@ -1315,7 +1315,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                         destinationConnector.onDeploy();
                     }
                 }
-            } catch (DeployException e) {
+            } catch (Throwable t) {
                 // If an exception occurred, then attempt to rollback by undeploying all the connectors that were deployed
                 for (Integer metaDataId : deployedMetaDataIds) {
                     try {
@@ -1324,7 +1324,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     }
                 }
 
-                throw e;
+                throw new DeployException(t);
             }
 
             responseSelector.setNumDestinations(getDestinationCount());
@@ -1379,7 +1379,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         @Override
         public Void call() throws Exception {
             // Call the connector onUndeploy() methods so they can run their onUndeploy logic
-            UndeployException firstCause = null;
+            Throwable firstCause = null;
 
             List<Integer> deployedMetaDataIds = new ArrayList<Integer>();
             deployedMetaDataIds.add(0);
@@ -1394,9 +1394,9 @@ public class Channel implements Startable, Stoppable, Runnable {
             for (Integer metaDataId : deployedMetaDataIds) {
                 try {
                     undeployConnector(metaDataId);
-                } catch (UndeployException e) {
+                } catch (Throwable t) {
                     if (firstCause == null) {
-                        firstCause = e;
+                        firstCause = t;
                     }
                 }
             }
@@ -1474,16 +1474,16 @@ public class Channel implements Startable, Stoppable, Runnable {
                         }
 
                         setCurrentState(ChannelState.STARTED);
-                    } catch (StartException e) {
+                    } catch (Throwable t) {
                         // If an exception occurred, then attempt to rollback by stopping all the connectors that were started
                         try {
                             stop(startedMetaDataIds);
                             setCurrentState(ChannelState.STOPPED);
-                        } catch (StopException e2) {
+                        } catch (Throwable t2) {
                             setCurrentState(ChannelState.STOPPED);
                         }
 
-                        throw e;
+                        throw new StartException(t);
                     }
                 }
             } else {
@@ -1553,9 +1553,9 @@ public class Channel implements Startable, Stoppable, Runnable {
         public Void call() throws Exception {
             if (currentState == ChannelState.STARTED && sourceConnector.isRunning()) {
                 try {
-                    sourceConnector.halt();
-                } catch (StopException e) {
-                    throw new PauseException("Failed to pause channel " + name + " (" + channelId + ").", e);
+                    sourceConnector.stop();
+                } catch (Throwable t) {
+                    throw new PauseException("Failed to pause channel " + name + " (" + channelId + ").", t);
                 }
             } else {
                 //TODO what to do here?
@@ -1579,13 +1579,13 @@ public class Channel implements Startable, Stoppable, Runnable {
             if (!sourceConnector.isRunning()) {
                 try {
                     sourceConnector.start();
-                } catch (StartException e) {
+                } catch (Throwable t) {
                     try {
                         sourceConnector.stop();
-                    } catch (StopException e2) {
+                    } catch (Throwable e2) {
                     }
 
-                    throw new StartException("Failed to resume channel " + name + " (" + channelId + ").", e);
+                    throw new StartException("Failed to resume channel " + name + " (" + channelId + ").", t);
                 }
             } else {
                 logger.warn("Failed to resume channel " + name + " (" + channelId + "): The source connector is already running.");
