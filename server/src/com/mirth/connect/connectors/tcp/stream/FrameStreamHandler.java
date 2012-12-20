@@ -212,7 +212,16 @@ public class FrameStreamHandler extends StreamHandler {
             capturedBytes.write(bufByte);
         }
 
-        return capturedBytes.size() > 0 ? capturedBytes.toByteArray() : null;
+        // Return the captured bytes if there are any
+        if (capturedBytes.size() > 0) {
+            if (endOfMessageBytes.length > 0) {
+                // The end of message bytes were not detected
+                throw new FrameStreamHandlerException(false, endOfMessageBytes, getLastBytes());
+            }
+            return capturedBytes.toByteArray();
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -256,7 +265,7 @@ public class FrameStreamHandler extends StreamHandler {
         if (capturedBytes != null) {
             byte[] capturedByteArray = capturedBytes.toByteArray();
             for (int i = capturedByteArray.length - 1; i >= 0 && lastBytes.size() < endOfMessageBytes.length; i--) {
-                lastBytes.add(capturedByteArray[i]);
+                lastBytes.add(0, capturedByteArray[i]);
             }
         }
 
