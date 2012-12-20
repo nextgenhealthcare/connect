@@ -2313,7 +2313,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         });
 
-        quickSearchField.setToolTipText("Any message content that was encrypted by this channel will not be searchable.");
+        quickSearchField.setToolTipText("<html>\nSearch all message content for the given string. This process could take a long<br/>\ntime depending on the amount of message content currently stored. Any message<br/>\ncontent that was encrypted by this channel will not be searchable.\n</html>");
 
         quickSearchLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         quickSearchLabel.setText("Quick Search:");
@@ -2331,6 +2331,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         resultsLabel.setText("Results");
 
         countButton.setText("Count");
+        countButton.setToolTipText("Count the number of overall messages for the current search criteria.");
         countButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 countButtonActionPerformed(evt);
@@ -2341,7 +2342,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         pageSizeLabel.setText("Page Size:");
         pageSizeLabel.setMaximumSize(new java.awt.Dimension(78, 15));
 
-        pageSizeField.setToolTipText("After changing the page size, a new search must be performed for the changes to take effect.  The default page size can also be configured on the Settings panel.");
+        pageSizeField.setToolTipText("<html>\nAfter changing the page size, a new search must be performed for the changes to<br/>\ntake effect.  The default page size can also be configured on the Settings panel.\n</html>");
         pageSizeField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 pageSizeFieldActionPerformed(evt);

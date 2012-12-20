@@ -613,6 +613,7 @@ public class ChannelPanel extends javax.swing.JPanel {
         infoPanel.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(164, 164, 164)));
 
         tagFilterButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirth/connect/client/ui/images/wrench.png"))); // NOI18N
+        tagFilterButton.setToolTipText("Show Channel Filter");
         tagFilterButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tagFilterButtonActionPerformed(evt);

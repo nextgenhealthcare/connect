@@ -864,7 +864,7 @@
     </Component>
     <Component class="javax.swing.JTextField" name="quickSearchField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="Any message content that was encrypted by this channel will not be searchable."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Search all message content for the given string. This process could take a long&lt;br/&gt;&#xa;time depending on the amount of message content currently stored. Any message&lt;br/&gt;&#xa;content that was encrypted by this channel will not be searchable.&#xa;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="mirthTimePicker2">
@@ -911,6 +911,7 @@
     <Component class="com.mirth.connect.client.ui.components.MirthButton" name="countButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Count"/>
+        <Property name="toolTipText" type="java.lang.String" value="Count the number of overall messages for the current search criteria."/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="countButtonActionPerformed"/>
@@ -930,7 +931,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="pageSizeField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="After changing the page size, a new search must be performed for the changes to take effect.  The default page size can also be configured on the Settings panel."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;After changing the page size, a new search must be performed for the changes to&lt;br/&gt;&#xa;take effect.  The default page size can also be configured on the Settings panel.&#xa;&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pageSizeFieldActionPerformed"/>

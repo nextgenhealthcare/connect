@@ -77,15 +77,13 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="queueMessagesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="regenerateTemplateCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="rotateCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Group type="103" alignment="3" groupAlignment="3" attributes="0">
-                      <Component id="queueAlwaysRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="queueAttemptFirstRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="queueNeverRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
+              <Group type="103" groupAlignment="2" attributes="0">
+                  <Component id="rotateCheckbox" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="regenerateTemplateCheckbox" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="queueAlwaysRadio" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="queueAttemptFirstRadio" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="queueNeverRadio" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="queueMessagesLabel" alignment="2" min="-2" max="-2" attributes="0"/>
               </Group>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
@@ -130,7 +128,7 @@
           <ComponentRef name="queueButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Always"/>
-        <Property name="toolTipText" type="java.lang.String" value=""/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Immediately queue the message. Subsequent destinations and the&lt;br/&gt;&#xa;Postprocessor will always see this destination&apos;s response as QUEUED.&#xa;&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -147,7 +145,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="retryIntervalField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The amount of time that should elapse between retry attempts to send messages in the queue.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;The amount of time that should elapse between retry attempts to send&lt;br/&gt;&#xa;messages. This interval applies to both the queue and initial retry attempts.&#xa;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="queueNeverRadio">
@@ -164,7 +162,7 @@
           <ComponentRef name="queueButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Never"/>
-        <Property name="toolTipText" type="java.lang.String" value=""/>
+        <Property name="toolTipText" type="java.lang.String" value="Disable the destination queue."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -188,7 +186,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Attempt First"/>
-        <Property name="toolTipText" type="java.lang.String" value=""/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Attempt to send the message first before queueing it. This will allow subsequent&lt;br/&gt;&#xa;destinations and the Postprocessor to use the response from this destination if it&lt;br/&gt;&#xa;successfully sends before queueing.&#xa;&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -204,6 +202,9 @@
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="retryCountField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;The maximum number of times the connector will attempt to send&lt;br/&gt;&#xa;the message before queueing or erroring.&#xa;&lt;/html&gt;"/>
+      </Properties>
       <Events>
         <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="retryCountFieldKeyReleased"/>
       </Events>
@@ -214,6 +215,7 @@
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Regenerate Template"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Regenerate the template and other connector properties by replacing variables&lt;br/&gt;&#xa;each time the connector attempts to send the message from the queue. If this is&lt;br/&gt;&#xa;disabled, the original variable replacements will be used for each attempt.&#xa;&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="queueWarningLabel">
@@ -231,6 +233,7 @@
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Rotate"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;If checked, when any message fails to be sent from the queue, the connector will&lt;br/&gt;&#xa;place the message at the end of the queue and attempt to send the next message.&lt;br/&gt;&#xa;This will prevent a single message from holding up the entire queue. If the order&lt;br/&gt;&#xa;of messages processed is important, this should be unchecked.&lt;/html&gt;"/>
       </Properties>
     </Component>
   </SubComponents>

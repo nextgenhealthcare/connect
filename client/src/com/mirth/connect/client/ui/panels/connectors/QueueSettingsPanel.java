@@ -152,7 +152,7 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
         queueAlwaysRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         queueButtonGroup.add(queueAlwaysRadio);
         queueAlwaysRadio.setText("Always");
-        queueAlwaysRadio.setToolTipText("");
+        queueAlwaysRadio.setToolTipText("<html>\nImmediately queue the message. Subsequent destinations and the<br/>\nPostprocessor will always see this destination's response as QUEUED.\n</html>");
         queueAlwaysRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         queueAlwaysRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -163,13 +163,13 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
         retryIntervalLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         retryIntervalLabel.setText("Retry Interval (ms):");
 
-        retryIntervalField.setToolTipText("<html>The amount of time that should elapse between retry attempts to send messages in the queue.</html>");
+        retryIntervalField.setToolTipText("<html>\nThe amount of time that should elapse between retry attempts to send<br/>\nmessages. This interval applies to both the queue and initial retry attempts.\n</html>");
 
         queueNeverRadio.setBackground(new java.awt.Color(255, 255, 255));
         queueNeverRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         queueButtonGroup.add(queueNeverRadio);
         queueNeverRadio.setText("Never");
-        queueNeverRadio.setToolTipText("");
+        queueNeverRadio.setToolTipText("Disable the destination queue.");
         queueNeverRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         queueNeverRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -182,7 +182,7 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
         queueButtonGroup.add(queueAttemptFirstRadio);
         queueAttemptFirstRadio.setSelected(true);
         queueAttemptFirstRadio.setText("Attempt First");
-        queueAttemptFirstRadio.setToolTipText("");
+        queueAttemptFirstRadio.setToolTipText("<html>\nAttempt to send the message first before queueing it. This will allow subsequent<br/>\ndestinations and the Postprocessor to use the response from this destination if it<br/>\nsuccessfully sends before queueing.\n</html>");
         queueAttemptFirstRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         queueAttemptFirstRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -193,6 +193,7 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
         retryCountLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         retryCountLabel.setText("Retry Count Before Queue/Error:");
 
+        retryCountField.setToolTipText("<html>\nThe maximum number of times the connector will attempt to send<br/>\nthe message before queueing or erroring.\n</html>");
         retryCountField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 retryCountFieldKeyReleased(evt);
@@ -201,6 +202,7 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
 
         regenerateTemplateCheckbox.setBackground(new java.awt.Color(255, 255, 255));
         regenerateTemplateCheckbox.setText("Regenerate Template");
+        regenerateTemplateCheckbox.setToolTipText("<html>\nRegenerate the template and other connector properties by replacing variables<br/>\neach time the connector attempts to send the message from the queue. If this is<br/>\ndisabled, the original variable replacements will be used for each attempt.\n</html>");
 
         queueWarningLabel.setForeground(new java.awt.Color(255, 0, 0));
         queueWarningLabel.setText("<html>test text</html>");
@@ -208,6 +210,7 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
 
         rotateCheckbox.setBackground(new java.awt.Color(255, 255, 255));
         rotateCheckbox.setText("Rotate");
+        rotateCheckbox.setToolTipText("<html>\nIf checked, when any message fails to be sent from the queue, the connector will<br/>\nplace the message at the end of the queue and attempt to send the next message.<br/>\nThis will prevent a single message from holding up the entire queue. If the order<br/>\nof messages processed is important, this should be unchecked.</html>");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -242,14 +245,13 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(queueMessagesLabel)
-                    .addComponent(regenerateTemplateCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(rotateCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(queueAlwaysRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(queueAttemptFirstRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(queueNeverRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(regenerateTemplateCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(queueAlwaysRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(queueAttemptFirstRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(queueNeverRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(queueMessagesLabel))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(5, 5, 5)
