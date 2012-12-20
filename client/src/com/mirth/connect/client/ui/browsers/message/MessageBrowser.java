@@ -1851,22 +1851,27 @@ public class MessageBrowser extends javax.swing.JPanel {
                 Message message = messageCache.get(messageId);
                 ConnectorMessage connectorMessage = message.getConnectorMessages().get(metaDataId);
                 
-                String dataType = null;
+                MessageContent content = null;
 
                 if (messagePaneName.equals("Raw")) {
-                    dataType = connectorMessage.getRaw().getDataType();
+                    content = connectorMessage.getRaw();
                 } else if (messagePaneName.equals("Processed Raw")) {
-                    dataType = connectorMessage.getProcessedRaw().getDataType();
+                    content = connectorMessage.getProcessedRaw();
                 } else if (messagePaneName.equals("Transformed")) {
-                    dataType = connectorMessage.getTransformed().getDataType();
+                    content = connectorMessage.getTransformed();
                 } else if (messagePaneName.equals("Encoded")) {
-                    dataType = connectorMessage.getEncoded().getDataType();
+                    content = connectorMessage.getEncoded();
                 } else if (messagePaneName.equals("Sent")) {
-                    dataType = connectorMessage.getSent().getDataType();
+                    content = connectorMessage.getSent();
                 } else if (messagePaneName.equals("Response")) {
-                    dataType = connectorMessage.getResponse().getDataType();
+                    content = connectorMessage.getResponse();
                 } else if (messagePaneName.equals("Processed Response")) {
-                    dataType = connectorMessage.getProcessedResponse().getDataType();
+                    content = connectorMessage.getProcessedResponse();
+                }
+                
+                String dataType = null;
+                if (content != null) {
+                    dataType = content.getDataType();
                 }
 
                 if (dataType != null && (dataType.equals(DataTypeFactory.XML) || dataType.equals(DataTypeFactory.HL7V3))) {
