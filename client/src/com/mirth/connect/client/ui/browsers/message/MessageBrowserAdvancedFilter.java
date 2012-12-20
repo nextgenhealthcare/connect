@@ -600,7 +600,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
-        contentSearchTable.setToolTipText("Any message content that was encrypted by this channel will not be searchable.");
+        contentSearchTable.setToolTipText("<html> \nSearch specific message content. This process could take a long time<br/>\ndepending on the amount of message content currently stored. Any message<br/>\ncontent that was encrypted by this channel will not be searchable. </html>");
         jScrollPane4.setViewportView(contentSearchTable);
 
         addContentSearchButton.setText("New");
@@ -617,6 +617,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             }
         });
 
+        connectorTable.setToolTipText("<html>\nInclude messages from the selected connectors. Connectors that were<br/>\nremoved from this channel are not available to select. Messages for removed<br/>\nconnectors will only be included if all connectors are selected. If a connector's<br/>\nname has changed, messages before the name change will still be included.\n</html>");
         jScrollPane6.setViewportView(connectorTable);
 
         connectorSelectAll.setFont(new java.awt.Font("Lucida Grande", 0, 12)); // NOI18N
@@ -651,6 +652,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             }
         });
 
+        metaDataSearchTable.setToolTipText("Search on custom metadata stored for this channel.");
         jScrollPane7.setViewportView(metaDataSearchTable);
 
         deleteMetaDataSearchButton.setText("Delete");
@@ -664,11 +666,10 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         jLabel1.setToolTipText("<html>\nIf this is not checked, messages with and without attachments will be retrieved.<br/>\nIf this is checked, only messages with attachments will be retrieved.\n</html>");
 
         attachmentCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        attachmentCheckBox.setToolTipText("If checked, only messages with attachments will be included.");
 
         importIdLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         importIdLabel.setText("Import Id:");
-
-        importIdLowerField.setToolTipText("<html>The GUID of the message in the Mirth Connect database.<br>This can be retrieved from the Meta Data tab in the Message Browser.</html>");
 
         jLabel4.setText("-");
 

@@ -375,7 +375,7 @@
           <SubComponents>
             <Component class="com.mirth.connect.client.ui.components.MirthTable" name="contentSearchTable">
               <Properties>
-                <Property name="toolTipText" type="java.lang.String" value="Any message content that was encrypted by this channel will not be searchable."/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt; &#xa;Search specific message content. This process could take a long time&lt;br/&gt;&#xa;depending on the amount of message content currently stored. Any message&lt;br/&gt;&#xa;content that was encrypted by this channel will not be searchable. &lt;/html&gt;"/>
                 <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                   <TableColumnModel selectionModel="0"/>
                 </Property>
@@ -416,6 +416,7 @@
                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <SerializedValue value="-84,-19,0,5,115,114,0,64,111,114,103,46,110,101,116,98,101,97,110,115,46,109,111,100,117,108,101,115,46,102,111,114,109,46,101,100,105,116,111,114,115,50,46,84,97,98,108,101,77,111,100,101,108,69,100,105,116,111,114,36,78,98,84,97,98,108,101,77,111,100,101,108,-95,8,-65,-35,21,111,108,-106,12,0,0,120,114,0,36,106,97,118,97,120,46,115,119,105,110,103,46,116,97,98,108,101,46,65,98,115,116,114,97,99,116,84,97,98,108,101,77,111,100,101,108,114,-53,-21,56,-82,1,-1,-66,2,0,1,76,0,12,108,105,115,116,101,110,101,114,76,105,115,116,116,0,37,76,106,97,118,97,120,47,115,119,105,110,103,47,101,118,101,110,116,47,69,118,101,110,116,76,105,115,116,101,110,101,114,76,105,115,116,59,120,112,119,8,0,0,0,4,0,0,0,0,117,114,0,19,91,76,106,97,118,97,46,108,97,110,103,46,83,116,114,105,110,103,59,-83,-46,86,-25,-23,29,123,71,2,0,0,120,112,0,0,0,0,117,114,0,2,91,90,87,-113,32,57,20,-72,93,-30,2,0,0,120,112,0,0,0,0,120"/>
                 </Property>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Include messages from the selected connectors. Connectors that were&lt;br/&gt;&#xa;removed from this channel are not available to select. Messages for removed&lt;br/&gt;&#xa;connectors will only be included if all connectors are selected. If a connector&apos;s&lt;br/&gt;&#xa;name has changed, messages before the name change will still be included.&#xa;&lt;/html&gt;"/>
                 <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                   <TableColumnModel selectionModel="0"/>
                 </Property>
@@ -489,6 +490,7 @@
           <SubComponents>
             <Component class="com.mirth.connect.client.ui.components.MirthTable" name="metaDataSearchTable">
               <Properties>
+                <Property name="toolTipText" type="java.lang.String" value="Search on custom metadata stored for this channel."/>
                 <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                   <TableColumnModel selectionModel="0"/>
                 </Property>
@@ -518,6 +520,7 @@
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
+            <Property name="toolTipText" type="java.lang.String" value="If checked, only messages with attachments will be included."/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="importIdLabel">
@@ -527,9 +530,6 @@
           </Properties>
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="importIdLowerField">
-          <Properties>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The GUID of the message in the Mirth Connect database.&lt;br&gt;This can be retrieved from the Meta Data tab in the Message Browser.&lt;/html&gt;"/>
-          </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel4">
           <Properties>
