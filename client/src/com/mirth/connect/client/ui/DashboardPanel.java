@@ -566,6 +566,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         buttonGroup1.add(showCurrentStatsButton);
         showCurrentStatsButton.setSelected(true);
         showCurrentStatsButton.setText("Current Statistics");
+        showCurrentStatsButton.setToolTipText("Show the statistics accumulated since the last time the statistics were reset");
         showCurrentStatsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 showCurrentStatsButtonActionPerformed(evt);
@@ -574,6 +575,7 @@ public class DashboardPanel extends javax.swing.JPanel {
 
         buttonGroup1.add(showLifetimeStatsButton);
         showLifetimeStatsButton.setText("Lifetime Statistics");
+        showLifetimeStatsButton.setToolTipText("Show the statistics accumulated over the entire lifetime of the channel");
         showLifetimeStatsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 showLifetimeStatsButtonActionPerformed(evt);
@@ -583,6 +585,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         showLabel.setText("Show:");
 
         tagFilterButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirth/connect/client/ui/images/wrench.png"))); // NOI18N
+        tagFilterButton.setToolTipText("Show Channel Filter");
         tagFilterButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tagFilterButtonActionPerformed(evt);

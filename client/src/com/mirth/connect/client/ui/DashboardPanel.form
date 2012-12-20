@@ -146,6 +146,7 @@
                     </Property>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="Current Statistics"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Show the statistics accumulated since the last time the statistics were reset"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showCurrentStatsButtonActionPerformed"/>
@@ -157,6 +158,7 @@
                       <ComponentRef name="buttonGroup1"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Lifetime Statistics"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Show the statistics accumulated over the entire lifetime of the channel"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showLifetimeStatsButtonActionPerformed"/>
@@ -174,6 +176,7 @@
                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                       <Image iconType="3" name="/com/mirth/connect/client/ui/images/wrench.png"/>
                     </Property>
+                    <Property name="toolTipText" type="java.lang.String" value="Show Channel Filter"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tagFilterButtonActionPerformed"/>
