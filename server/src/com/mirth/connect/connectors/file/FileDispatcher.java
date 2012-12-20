@@ -112,7 +112,7 @@ public class FileDispatcher extends DestinationConnector {
     @Override
     public Response send(ConnectorProperties connectorProperties, ConnectorMessage connectorMessage) {
         FileDispatcherProperties fileDispatcherProperties = (FileDispatcherProperties) connectorProperties;
-        
+
         String info = fileDispatcherProperties.getHost() + "/" + fileDispatcherProperties.getOutputPattern();
         if (fileDispatcherProperties.getScheme().equals(FileScheme.FTP) || fileDispatcherProperties.getScheme().equals(FileScheme.SFTP)) {
             if (fileDispatcherProperties.isBinary()) {
@@ -121,7 +121,7 @@ public class FileDispatcher extends DestinationConnector {
                 info += "   File Type: ASCII";
             }
         }
-        
+
         monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, "Writing file to: " + info);
 
         String responseData = null;
@@ -162,7 +162,7 @@ public class FileDispatcher extends DestinationConnector {
             }
 
             // update the message status to sent
-            responseData = "File successfully written: " + filename;
+            responseData = "File successfully written: " + fileDispatcherProperties.toURIString();
             responseStatus = Status.SENT;
         } catch (Exception e) {
             alertController.sendAlerts(fileConnector.getChannelId(), ErrorConstants.ERROR_403, "Error writing file", e);
@@ -191,14 +191,14 @@ public class FileDispatcher extends DestinationConnector {
         StringBuilder sspBuilder = new StringBuilder();
         FileScheme scheme = connectorProperties.getScheme();
         String host = connectorProperties.getHost();
-        
+
         sspBuilder.append("//");
         if (scheme == FileScheme.FILE && StringUtils.isNotBlank(host) && host.length() >= 3 && host.substring(1, 3).equals(":/")) {
             sspBuilder.append("/");
         }
-        
+
         sspBuilder.append(host);
-        
+
         return new URI(scheme.getDisplayName(), sspBuilder.toString(), null);
     }
 }

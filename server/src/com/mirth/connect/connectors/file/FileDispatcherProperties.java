@@ -206,34 +206,17 @@ public class FileDispatcherProperties extends ConnectorProperties implements Que
     public String toFormattedString() {
         StringBuilder builder = new StringBuilder();
         String newLine = "\n";
-        
+
         builder.append("URI: ");
-        switch (scheme) {
-            case FTP: builder.append("ftp://");
-                break;
-        
-            case SFTP: builder.append("sftp://");
-                break;
-        
-            case SMB: builder.append("smb://");
-                break;
-        
-            case WEBDAV: builder.append("https://");
-                break;
-        }
-        builder.append(host);
-        if (host.charAt(host.length() - 1) != '/') {
-            builder.append("/");
-        }
-        builder.append(outputPattern);
+        appendURIString(builder);
         builder.append(newLine);
-        
+
         if (StringUtils.isNotBlank(username)) {
             builder.append("USERNAME: ");
             builder.append(username);
             builder.append(newLine);
         }
-        
+
         builder.append(newLine);
         builder.append("[CONTENT]");
         builder.append(newLine);
@@ -241,4 +224,34 @@ public class FileDispatcherProperties extends ConnectorProperties implements Que
         return builder.toString();
     }
 
+    public String toURIString() {
+        StringBuilder builder = new StringBuilder();
+        appendURIString(builder);
+        return builder.toString();
+    }
+
+    private void appendURIString(StringBuilder builder) {
+        switch (scheme) {
+            case FTP:
+                builder.append("ftp://");
+                break;
+
+            case SFTP:
+                builder.append("sftp://");
+                break;
+
+            case SMB:
+                builder.append("smb://");
+                break;
+
+            case WEBDAV:
+                builder.append("https://");
+                break;
+        }
+        builder.append(host);
+        if (host.charAt(host.length() - 1) != '/') {
+            builder.append("/");
+        }
+        builder.append(outputPattern);
+    }
 }
