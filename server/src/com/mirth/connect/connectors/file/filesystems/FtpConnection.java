@@ -87,6 +87,9 @@ public class FtpConnection implements FileSystemConnection {
 	public FtpConnection(String host, int port, String username, String password, boolean passive, int timeout) throws Exception {
 		client = new FTPClient();
 		
+		// This sets the timeout for the initial connection.
+		client.setConnectTimeout(timeout);
+		
 		try {
 			if (port > 0) {
 				client.connect(host, port);
