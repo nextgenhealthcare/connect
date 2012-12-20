@@ -213,6 +213,9 @@ public class TcpDispatcher extends DestinationConnector {
 
                     closeSocketQuietly();
                 }
+            } else {
+                // We're ignoring the response, so always return a successful response
+                responseStatus = Status.SENT;
             }
 
             if (tcpSenderProperties.isKeepConnectionOpen()) {
