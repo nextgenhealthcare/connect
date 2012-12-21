@@ -186,19 +186,19 @@ public class FrameStreamHandler extends StreamHandler {
                     }
                 }
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
+            if (checkStartOfMessageBytes && firstBytes.size() > 0) {
+                // At least some bytes have been read, but the start of message bytes were not detected
+                throw new FrameStreamHandlerException(true, startOfMessageBytes, ArrayUtils.toPrimitive(firstBytes.toArray(new Byte[0])), e);
+            }
+            if (capturedBytes.size() + endBytesBuffer.size() > 0 && endOfMessageBytes.length > 0) {
+                // At least some bytes have been captured, but the end of message bytes were not detected
+                throw new FrameStreamHandlerException(false, endOfMessageBytes, getLastBytes(), e);
+            }
+
             if (!returnDataOnException) {
                 if (e instanceof IOException) {
                     // If an IOException occurred and we're not allowing data to return, throw the exception
-
-                    if (checkStartOfMessageBytes && firstBytes.size() > 0) {
-                        // At least some bytes have been read, but the start of message bytes were not detected
-                        throw new FrameStreamHandlerException(true, startOfMessageBytes, ArrayUtils.toPrimitive(firstBytes.toArray(new Byte[0])), e);
-                    }
-                    if (capturedBytes.size() + endBytesBuffer.size() > 0 && endOfMessageBytes.length > 0) {
-                        // At least some bytes have been captured, but the end of message bytes were not detected
-                        throw new FrameStreamHandlerException(false, endOfMessageBytes, getLastBytes(), e);
-                    }
                     throw (IOException) e;
                 } else {
                     // If any other Throwable was caught, return null to indicate that we're done
