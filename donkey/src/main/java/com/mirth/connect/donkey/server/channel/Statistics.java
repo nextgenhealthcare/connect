@@ -77,9 +77,9 @@ public class Statistics {
 
             // update the channel statistics
             switch (status) {
-            	// update the following statuses based on the source connector
+            // update the following statuses based on the source connector
                 case RECEIVED:
-                	connectorStats.put(status, connectorStats.get(status) + count);
+                    connectorStats.put(status, connectorStats.get(status) + count);
                     if (metaDataId == 0) {
                         channelStats.put(status, channelStats.get(status) + count);
                     }
@@ -89,27 +89,27 @@ public class Statistics {
                 case FILTERED:
                 case TRANSFORMED:
                 case ERROR:
-                	connectorStats.put(status, connectorStats.get(status) + count);
+                    connectorStats.put(status, connectorStats.get(status) + count);
                     channelStats.put(status, channelStats.get(status) + count);
                     break;
 
                 // update the following statuses based on the destination connectors
                 case PENDING:
                 case SENT:
-                	connectorStats.put(status, connectorStats.get(status) + count);
+                    connectorStats.put(status, connectorStats.get(status) + count);
                     if (metaDataId > 0) {
                         channelStats.put(status, channelStats.get(status) + count);
                     }
                     break;
-                  
+
                 // Queued statistics are managed by the queue itself. Neither the channel nor connector should store them.
                 // This case is added here for readability.
                 case QUEUED:
-                	break;
+                    break;
             }
         }
     }
-    
+
     /**
      * Updates (increments/decrements) values from another Statistics object
      */
@@ -117,7 +117,7 @@ public class Statistics {
         for (Entry<String, Map<Integer, Map<Status, Long>>> entry : statistics.getStats().entrySet()) {
             for (Entry<Integer, Map<Status, Long>> connectorEntry : entry.getValue().entrySet()) {
                 Integer metaDataId = connectorEntry.getKey();
-                
+
                 if (metaDataId != null) {
                     update(entry.getKey(), metaDataId, connectorEntry.getValue());
                 }

@@ -53,7 +53,7 @@ public class TimedDao implements DonkeyDao {
     public void commit() {
         dao.commit();
     }
-    
+
     @Override
     public void commit(boolean durable) {
         dao.commit(durable);
@@ -172,7 +172,7 @@ public class TimedDao implements DonkeyDao {
             timer.log("storeMessageContent", System.currentTimeMillis() - startTime);
         }
     }
-    
+
     @Override
     public void addChannelStatistics(Statistics statistics) {
         long startTime = System.currentTimeMillis();
@@ -183,7 +183,7 @@ public class TimedDao implements DonkeyDao {
             timer.log("addChannelStatistics", System.currentTimeMillis() - startTime);
         }
     }
-    
+
     @Override
     public void updateSourceResponse(String channelId, long messageId, boolean attemptedResponse, String responseError) {
         long startTime = System.currentTimeMillis();
@@ -249,7 +249,7 @@ public class TimedDao implements DonkeyDao {
             timer.log("markAsProcessed", System.currentTimeMillis() - startTime);
         }
     }
-    
+
     @Override
     public void resetMessage(String channelId, long messageId) {
         long startTime = System.currentTimeMillis();
@@ -304,7 +304,7 @@ public class TimedDao implements DonkeyDao {
             timer.log("deleteMessageContent", System.currentTimeMillis() - startTime);
         }
     }
-    
+
     @Override
     public void deleteMessageAttachments(String channelId, long messageId) {
         long startTime = System.currentTimeMillis();
@@ -414,7 +414,7 @@ public class TimedDao implements DonkeyDao {
             timer.log("getNextMessageId", System.currentTimeMillis() - startTime);
         }
     }
-    
+
     @Override
     public List<Attachment> getMessageAttachment(String channelId, long messageId) {
         long startTime = System.currentTimeMillis();
@@ -425,7 +425,7 @@ public class TimedDao implements DonkeyDao {
             timer.log("getConnectorMessages", System.currentTimeMillis() - startTime);
         }
     }
-    
+
     @Override
     public Attachment getMessageAttachment(String channelId, String attachmentId) {
         long startTime = System.currentTimeMillis();
@@ -480,7 +480,7 @@ public class TimedDao implements DonkeyDao {
             timer.log("getConnectorMessageCount", System.currentTimeMillis() - startTime);
         }
     }
-    
+
     @Override
     public long getConnectorMessageMaxMessageId(String channelId, int metaDataId, Status status) {
         long startTime = System.currentTimeMillis();

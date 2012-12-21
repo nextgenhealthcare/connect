@@ -77,7 +77,7 @@ public class ChannelController {
 
                 for (Integer metaDataId : metaDataIds) {
                     dao.resetStatistics(channelId, metaDataId, statuses);
-                    
+
                     // Each update here must have its own transaction, otherwise deadlocks may occur.
                     dao.commit();
                 }
@@ -90,24 +90,24 @@ public class ChannelController {
     public Long getLocalChannelId(String channelId) {
         Long localChannelId = null;
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-        
+
         try {
             localChannelId = dao.getLocalChannelIds().get(channelId);
         } finally {
             dao.close();
         }
-        
+
         if (localChannelId == null) {
             localChannelId = createChannel(channelId);
         }
-        
+
         return localChannelId;
     }
-    
+
     public void initChannelStorage(String channelId) {
         getLocalChannelId(channelId);
     }
-    
+
     public boolean channelExists(String channelId) {
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
@@ -125,13 +125,13 @@ public class ChannelController {
             if (dao.getLocalChannelIds().get(channelId) != null) {
                 dao.deleteAllMessages(channelId);
             }
-            
+
             dao.commit();
         } finally {
             dao.close();
         }
     }
-    
+
     private synchronized long getNextLocalChannelId() {
         Long nextChannelId = null;
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
@@ -159,7 +159,7 @@ public class ChannelController {
         } finally {
             dao.close();
         }
-        
+
         return localChannelId;
     }
 }

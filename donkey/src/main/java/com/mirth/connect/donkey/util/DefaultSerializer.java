@@ -20,7 +20,6 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
 
-
 public class DefaultSerializer implements Serializer {
     @Override
     public String serialize(Serializable serializable) {

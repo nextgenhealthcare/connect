@@ -68,11 +68,11 @@ public class QueueConnectorProperties implements Serializable {
         this.retryCount = retryCount;
     }
 
-	public boolean isRotate() {
-		return rotate;
-	}
+    public boolean isRotate() {
+        return rotate;
+    }
 
-	public void setRotate(boolean rotate) {
-		this.rotate = rotate;
-	}
+    public void setRotate(boolean rotate) {
+        this.rotate = rotate;
+    }
 }

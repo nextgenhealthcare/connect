@@ -13,5 +13,6 @@ import java.sql.SQLException;
 
 public interface ConnectionPool {
     public PooledConnection getConnection() throws SQLException;
+
     public Integer getMaxConnections();
 }

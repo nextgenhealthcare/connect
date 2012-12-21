@@ -38,7 +38,7 @@ import com.mirth.connect.donkey.util.ThreadUtils;
 
 public abstract class DestinationConnector extends Connector implements ConnectorInterface, Runnable {
     private final static String QUEUED_RESPONSE = "Message queued successfully";
-    
+
     private Integer orderId;
     private Thread thread;
     private QueueConnectorProperties queueProperties;
@@ -113,7 +113,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
     protected void setStorageSettings(StorageSettings storageSettings) {
         this.storageSettings = storageSettings;
     }
-    
+
     protected void setDaoFactory(DonkeyDaoFactory daoFactory) {
         this.daoFactory = daoFactory;
     }
@@ -136,12 +136,12 @@ public abstract class DestinationConnector extends Connector implements Connecto
     public boolean isQueueEnabled() {
         return (queueProperties != null && queueProperties.isQueueEnabled());
     }
-    
+
     /**
      * Tells whether or not queue rotation is enabled
      */
     public boolean isQueueRotate() {
-    	return (queueProperties != null && queueProperties.isRotate());
+        return (queueProperties != null && queueProperties.isRotate());
     }
 
     @Override
@@ -149,7 +149,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
         setCurrentState(ChannelState.STARTING);
 
         if (isQueueEnabled()) {
-        	// Remove any items in the queue's buffer because they may be outdated.
+            // Remove any items in the queue's buffer because they may be outdated.
             queue.invalidate();
             // refresh the queue size from it's data source
             queue.updateSize();
@@ -268,7 +268,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
                 dao.updateResponseMap(message);
                 ThreadUtils.checkInterruptedStatus();
             }
-            
+
             dao.updateStatus(message, previousStatus);
         }
     }
@@ -317,7 +317,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
                         } else {
                             connectorProperties = (ConnectorProperties) serializer.deserialize(connectorMessage.getSent().getContent());
                         }
-                        
+
                         ThreadUtils.checkInterruptedStatus();
                         Response response = handleSend(connectorProperties, connectorMessage);
                         connectorMessage.setSendAttempts(connectorMessage.getSendAttempts() + 1);
@@ -344,7 +344,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
                                 if (storageSettings.isRemoveContentOnCompletion()) {
                                     dao.deleteMessageContent(getChannelId(), connectorMessage.getMessageId());
                                 }
-                                
+
                                 if (storageSettings.isRemoveAttachmentsOnCompletion()) {
                                     dao.deleteMessageAttachments(getChannelId(), connectorMessage.getMessageId());
                                 }
@@ -361,24 +361,24 @@ public abstract class DestinationConnector extends Connector implements Connecto
                             // If the queue was invalidated, a different message could have been inserted to the front of the queue.
                             // Therefore, only poll the queue if the head is the same as the current message
                             synchronized (queue) {
-                            	ConnectorMessage firstMessage = queue.peek();
-                            	if (connectorMessage.getMessageId() == firstMessage.getMessageId() && connectorMessage.getMetaDataId() == firstMessage.getMetaDataId()) {
-                            		queue.poll();
-                            	}
+                                ConnectorMessage firstMessage = queue.peek();
+                                if (connectorMessage.getMessageId() == firstMessage.getMessageId() && connectorMessage.getMetaDataId() == firstMessage.getMetaDataId()) {
+                                    queue.poll();
+                                }
                             }
                         } else {
-                        	if (queueProperties.isRotate()) {
-                        		// If the message is still queued and rotation is enabled, notify the queue that the message is to be rotated.
-	                        	synchronized (queue) {
-	                        		ConnectorMessage firstMessage = queue.peek();
-	                        		if (connectorMessage.getMessageId() == firstMessage.getMessageId() && connectorMessage.getMetaDataId() == firstMessage.getMetaDataId()) {
-	                        			queue.rotate(connectorMessage);
-	                        		}
-	                        	}
-	                        }
-                        	
-                        	// If the same message is still queued, allow some time before attempting another message.
-                        	pauseBeforeNextMessage = true;
+                            if (queueProperties.isRotate()) {
+                                // If the message is still queued and rotation is enabled, notify the queue that the message is to be rotated.
+                                synchronized (queue) {
+                                    ConnectorMessage firstMessage = queue.peek();
+                                    if (connectorMessage.getMessageId() == firstMessage.getMessageId() && connectorMessage.getMetaDataId() == firstMessage.getMetaDataId()) {
+                                        queue.rotate(connectorMessage);
+                                    }
+                                }
+                            }
+
+                            // If the same message is still queued, allow some time before attempting another message.
+                            pauseBeforeNextMessage = true;
                         }
                     } catch (RuntimeException e) {
                         logger.error("Error processing queued " + (connectorMessage != null ? connectorMessage.toString() : "message (null)") + " for channel " + getChannelId() + " (" + destinationName + "). This error is expected if the message was manually removed from the queue.", e);
@@ -393,19 +393,19 @@ public abstract class DestinationConnector extends Connector implements Connecto
                 } else {
                     pauseBeforeNextMessage = true;
                 }
-                
+
                 // Pause at the end of the loop instead of during so we don't keep the connections open longer than they need to be.
                 if (pauseBeforeNextMessage) {
-                	Thread.sleep(retryIntervalMillis);
-                	pauseBeforeNextMessage = false;
+                    Thread.sleep(retryIntervalMillis);
+                    pauseBeforeNextMessage = false;
                 }
             } while (currentState == ChannelState.STARTED || currentState == ChannelState.STARTING);
         } catch (InterruptedException e) {
         } catch (Exception e) {
             logger.error(e);
         } finally {
-        	// Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
-        	// unsynchronized with the data store.
+            // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
+            // unsynchronized with the data store.
             queue.invalidate();
             currentState = ChannelState.STOPPED;
 
@@ -420,12 +420,12 @@ public abstract class DestinationConnector extends Connector implements Connecto
     }
 
     private void afterSend(DonkeyDao dao, ConnectorMessage message, Response response, Status previousStatus) throws InterruptedException {
-    	// Insert errors if necessary
+        // Insert errors if necessary
         if (StringUtils.isNotBlank(response.getError())) {
             message.setErrors(response.getError());
             dao.updateErrors(message);
         }
-    	
+
         String responseString = response.toString();
         //TODO add data type
         MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, responseString, null, encryptor.encrypt(responseString));

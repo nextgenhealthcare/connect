@@ -24,7 +24,7 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
     public static JdbcDaoFactory getInstance() {
         return getInstance(null);
     }
-    
+
     public static JdbcDaoFactory getInstance(String database) {
         if (database == null) {
             return new JdbcDaoFactory();
@@ -33,7 +33,7 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
         } else if (database.equals("oracle")) {
             return new OracleDaoFactory();
         }
-        
+
         return new JdbcDaoFactory();
     }
 
@@ -42,9 +42,9 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
     private Serializer serializer;
     private Map<Connection, PreparedStatementSource> statementSources = new ConcurrentHashMap<Connection, PreparedStatementSource>();
     private Logger logger = Logger.getLogger(getClass());
-    
+
     protected JdbcDaoFactory() {}
-    
+
     public ConnectionPool getConnectionPool() {
         return connectionPool;
     }
@@ -91,13 +91,13 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
         if (statementSource == null) {
             statementSource = new CachedPreparedStatementSource(internalConnection, querySource);
             statementSources.put(internalConnection, statementSource);
-            
+
             Integer maxConnections = connectionPool.getMaxConnections();
-            
+
             // TODO: find a more efficient way of cleaning up old connections
             if (maxConnections == null || statementSources.size() > maxConnections) {
                 logger.debug("cleaning up prepared statement cache");
-                
+
                 try {
                     for (Connection currentConnection : statementSources.keySet()) {
                         if (currentConnection.isClosed()) {

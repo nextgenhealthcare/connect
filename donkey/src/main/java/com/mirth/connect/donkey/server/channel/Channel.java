@@ -269,7 +269,7 @@ public class Channel implements Startable, Stoppable, Runnable {
     public void setPostProcessor(PostProcessor postProcessor) {
         this.postProcessor = postProcessor;
     }
-    
+
     public void addDestinationChain(DestinationChain chain) {
         destinationChains.add(chain);
         chain.setChainId(destinationChains.size());
@@ -842,7 +842,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         if (sourceMessage.getMetaDataId() != 0 || sourceMessage.getStatus() != Status.RECEIVED) {
             throw new RuntimeException("Received a source message with an invalid state");
         }
-        
+
         // create a final merged message that will contain the merged maps from each destination chain's processed message
         Message finalMessage = new Message();
         finalMessage.setMessageId(messageId);
@@ -996,18 +996,18 @@ public class Channel implements Startable, Stoppable, Runnable {
                 if (!chain.getEnabledMetaDataIds().isEmpty()) {
                     ThreadUtils.checkInterruptedStatus();
                     Integer metaDataId = chain.getEnabledMetaDataIds().get(0);
-                    
+
                     DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
 
                     // create the raw content from the source's encoded content
                     MessageContent raw = new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, sourceEncoded.getContent(), destinationConnector.getInboundDataType().getType(), sourceEncoded.getEncryptedContent());
-                    
+
                     // create the message and set the raw content
                     ConnectorMessage message = new ConnectorMessage(channelId, messageId, metaDataId, sourceMessage.getServerId(), Calendar.getInstance(), Status.RECEIVED);
                     message.setConnectorName(destinationConnector.getDestinationName());
                     message.setChainId(chain.getChainId());
                     message.setOrderId(destinationConnector.getOrderId());
-                    
+
                     message.setChannelMap((Map<String, Object>) cloner.clone(sourceMessage.getChannelMap()));
                     message.setResponseMap((Map<String, Response>) cloner.clone(sourceMessage.getResponseMap()));
                     message.setRaw(raw);
@@ -1166,7 +1166,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     if (storageSettings.isRemoveContentOnCompletion()) {
                         dao.deleteMessageContent(channelId, finalMessage.getMessageId());
                     }
-                    
+
                     if (storageSettings.isRemoveAttachmentsOnCompletion()) {
                         dao.deleteMessageAttachments(channelId, finalMessage.getMessageId());
                     }
@@ -1265,7 +1265,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         @Override
         public Void call() throws Exception {
             ChannelController.getInstance().initChannelStorage(channelId);
-            
+
             try {
                 updateMetaDataColumns();
             } catch (SQLException e) {
@@ -1281,7 +1281,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 if (responseSelector == null) {
                     responseSelector = new ResponseSelector(sourceConnector.getInboundDataType());
                 }
-                
+
                 // set the source queue data source
                 sourceQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, daoFactory, encryptor));
 

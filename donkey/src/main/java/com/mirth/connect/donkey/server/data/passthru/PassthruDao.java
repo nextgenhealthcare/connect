@@ -54,7 +54,7 @@ public class PassthruDao implements DonkeyDao {
     public void commit() {
         commit(false);
     }
-    
+
     @Override
     public void commit(boolean durable) {
         synchronized (currentStats) {
@@ -62,40 +62,40 @@ public class PassthruDao implements DonkeyDao {
             for (Entry<String, Map<Integer, Set<Status>>> entry : resetStats.entrySet()) {
                 String channelId = entry.getKey();
                 Map<Integer, Set<Status>> metaDataIds = entry.getValue();
-    
+
                 for (Entry<Integer, Set<Status>> metaDataEntry : metaDataIds.entrySet()) {
                     Integer metaDataId = metaDataEntry.getKey();
                     Set<Status> statuses = metaDataEntry.getValue();
-    
+
                     for (Status status : statuses) {
                         currentStats.getChannelStats(channelId).get(metaDataId).put(status, 0L);
                     }
                 }
             }
-    
+
             // update the in-memory stats with the stats we just saved in storage
             currentStats.update(transactionStats);
-            
+
             // remove the in-memory stats for any channels that were removed
             for (String channelId : removedChannelIds) {
                 currentStats.getStats().remove(channelId);
             }
         }
-        
+
         synchronized (totalStats) {
             // update the in-memory total stats with the stats we just saved in storage
             totalStats.update(transactionStats);
-            
+
             // remove the in-memory total stats for any channels that were removed
             for (String channelId : removedChannelIds) {
                 totalStats.getStats().remove(channelId);
             }
         }
-        
+
         if (statisticsUpdater != null) {
             statisticsUpdater.update(transactionStats);
         }
-        
+
         transactionStats.getStats().clear();
     }
 
@@ -113,27 +113,27 @@ public class PassthruDao implements DonkeyDao {
     public boolean isClosed() {
         return closed;
     }
-    
+
     @Override
     public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps) {
         transactionStats.update(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), connectorMessage.getStatus(), null);
     }
-    
+
     @Override
     public void updateStatus(ConnectorMessage connectorMessage, Status previousStatus) {
         // don't decrement the previous status if it was RECEIVED
         if (previousStatus == Status.RECEIVED) {
             previousStatus = null;
         }
-        
+
         transactionStats.update(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), connectorMessage.getStatus(), previousStatus);
     }
-    
+
     @Override
     public void removeChannel(String channelId) {
         removedChannelIds.add(channelId);
     }
-    
+
     @Override
     public void resetStatistics(String channelId, Integer metaDataId, Set<Status> statuses) {
         for (Status status : statuses) {
@@ -141,7 +141,7 @@ public class PassthruDao implements DonkeyDao {
                 transactionStats.getChannelStats(channelId).get(metaDataId).remove(status);
             }
         }
-        
+
         if (!resetStats.containsKey(channelId)) {
             resetStats.put(channelId, new HashMap<Integer, Set<Status>>());
         }
@@ -167,13 +167,13 @@ public class PassthruDao implements DonkeyDao {
 
     @Override
     public void storeMessageContent(MessageContent messageContent) {}
-    
+
     @Override
     public void addChannelStatistics(Statistics statistics) {}
 
     @Override
     public void updateSourceResponse(String channelId, long messageId, boolean attemptedResponse, String responseError) {}
-    
+
     @Override
     public void updateErrors(ConnectorMessage connectorMessage) {}
 
@@ -185,7 +185,7 @@ public class PassthruDao implements DonkeyDao {
 
     @Override
     public void markAsProcessed(String channelId, long messageId) {}
-    
+
     @Override
     public void resetMessage(String channelId, long messageId) {}
 
@@ -207,7 +207,7 @@ public class PassthruDao implements DonkeyDao {
 
     @Override
     public void deleteMessageContent(String channelId, long messageId) {}
-    
+
     @Override
     public void deleteMessageAttachments(String channelId, long messageId) {}
 
@@ -226,12 +226,12 @@ public class PassthruDao implements DonkeyDao {
     public long getNextMessageId(String channelId) {
         return 1L;
     }
-    
+
     @Override
     public List<Attachment> getMessageAttachment(String channelId, long messageId) {
         return new ArrayList<Attachment>();
     }
-    
+
     @Override
     public Attachment getMessageAttachment(String channelId, String attachmentId) {
         return new Attachment();
@@ -261,7 +261,7 @@ public class PassthruDao implements DonkeyDao {
     public int getConnectorMessageCount(String channelId, int metaDataId, Status status) {
         return 0;
     }
-    
+
     @Override
     public long getConnectorMessageMaxMessageId(String channelId, int metaDataId, Status status) {
         return 0;

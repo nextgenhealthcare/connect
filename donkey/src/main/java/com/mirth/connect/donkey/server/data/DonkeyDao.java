@@ -34,9 +34,9 @@ public interface DonkeyDao {
     public void executeBatchInsertMessageContent(String channelId);
 
     public void insertMessageAttachment(String channelId, long messageId, Attachment attachment);
-    
+
     public List<Attachment> getMessageAttachment(String channelId, long messageId);
-    
+
     public Attachment getMessageAttachment(String channelId, String attachmentId);
 
     public void insertMetaData(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns);
@@ -44,11 +44,11 @@ public interface DonkeyDao {
     public void insertEvent(Event event);
 
     public void storeMessageContent(MessageContent messageContent);
-    
+
     public void addChannelStatistics(Statistics statistics);
-    
+
     public void updateSourceResponse(String channelId, long messageId, boolean attemptedResponse, String responseError);
-    
+
     public void updateStatus(ConnectorMessage connectorMessage, Status previousStatus);
 
     public void updateErrors(ConnectorMessage connectorMessage);
@@ -56,9 +56,9 @@ public interface DonkeyDao {
     public void updateMaps(ConnectorMessage connectorMessage);
 
     public void updateResponseMap(ConnectorMessage connectorMessage);
-    
+
     public void markAsProcessed(String channelId, long messageId);
-    
+
     public void resetMessage(String channelId, long messageId);
 
     public void deleteMessage(String channelId, long messageId, boolean deleteStatistics);
@@ -66,9 +66,9 @@ public interface DonkeyDao {
     public void deleteConnectorMessages(String channelId, long messageId, List<Integer> metaDataIds, boolean deleteStatistics);
 
     public void deleteMessageContent(String channelId, long messageId);
-    
+
     public void deleteMessageAttachments(String channelId, long messageId);
-    
+
     public void deleteAllMessages(String channelId);
 
     public void createChannel(String channelId, long localChannelId);
@@ -90,13 +90,13 @@ public interface DonkeyDao {
     public long getNextMessageId(String channelId);
 
     public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status);
-    
+
     public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId);
 
     public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId);
 
     public int getConnectorMessageCount(String channelId, int metaDataId, Status status);
-    
+
     public long getConnectorMessageMaxMessageId(String channelId, int metaDataId, Status status);
 
     public List<Message> getUnfinishedMessages(String channelId, String serverId);
@@ -108,7 +108,7 @@ public interface DonkeyDao {
     public Statistics getChannelTotalStatistics();
 
     public void commit();
-    
+
     public void commit(boolean durable);
 
     public void rollback();

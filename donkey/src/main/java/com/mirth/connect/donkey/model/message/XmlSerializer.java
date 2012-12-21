@@ -13,8 +13,8 @@ public interface XmlSerializer {
     public String toXML(String message) throws SerializerException;
 
     public String fromXML(String message) throws SerializerException;
-    
+
     public boolean isTransformerRequired();
-    
+
     public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer);
 }

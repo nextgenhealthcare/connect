@@ -71,7 +71,7 @@ public class MessageController {
 
     public void importMessage(String channelId, Message message) throws DonkeyException {
         Channel channel = Donkey.getInstance().getDeployedChannels().get(channelId);
-        
+
         if (channel == null) {
             throw new DonkeyException("Failed to import message, channel ID " + channelId + " is not currently deployed");
         } else {
@@ -150,13 +150,13 @@ public class MessageController {
             dao.close();
         }
     }
-    
+
     public void decryptMessage(Message message, Encryptor encryptor) {
         for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
             decryptConnectorMessage(connectorMessage, encryptor);
         }
     }
-    
+
     public void decryptConnectorMessage(ConnectorMessage connectorMessage, Encryptor encryptor) {
         if (connectorMessage != null) {
             decryptMessageContent(connectorMessage.getRaw(), encryptor);
@@ -168,11 +168,11 @@ public class MessageController {
             decryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
         }
     }
-    
+
     public void decryptMessageContent(MessageContent content, Encryptor encryptor) {
         if (content != null && content.getContent() == null) {
             String encryptedContent = content.getEncryptedContent();
-            
+
             if (encryptedContent != null) {
                 content.setContent(encryptor.decrypt(encryptedContent));
             }

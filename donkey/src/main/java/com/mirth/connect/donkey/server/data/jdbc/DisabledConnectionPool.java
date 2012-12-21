@@ -19,9 +19,9 @@ public class DisabledConnectionPool implements ConnectionPool {
     private String password;
 
     public DisabledConnectionPool(String url, String username, String password) {
-       this.url = url;
-       this.username = username;
-       this.password = password;
+        this.url = url;
+        this.username = username;
+        this.password = password;
     }
 
     @Override

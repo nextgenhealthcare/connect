@@ -69,15 +69,15 @@ public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDa
     public void setStatus(Status status) {
         this.status = status;
     }
-    
+
     @Override
     public boolean wasItemRotated() {
-    	return (rotate && minMessageId != null && minMessageId != 0L);
+        return (rotate && minMessageId != null && minMessageId != 0L);
     }
-    
+
     @Override
     public void rotateItem(Object o) {
-    	this.minMessageId = ((ConnectorMessage) o).getMessageId() + 1;
+        this.minMessageId = ((ConnectorMessage) o).getMessageId() + 1;
     }
 
     public Encryptor getEncryptor() {
@@ -93,14 +93,14 @@ public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDa
         DonkeyDao dao = getDaoFactory().getDao();
 
         try {
-        	if (rotate) {
-        		minMessageId = 0L;
-        		maxMessageId = dao.getConnectorMessageMaxMessageId(channelId, metaDataId, status);
-        	} else {
-        		minMessageId = null;
-        		maxMessageId = null;
-        	}
-        	
+            if (rotate) {
+                minMessageId = 0L;
+                maxMessageId = dao.getConnectorMessageMaxMessageId(channelId, metaDataId, status);
+            } else {
+                minMessageId = null;
+                maxMessageId = null;
+            }
+
             return dao.getConnectorMessageCount(channelId, metaDataId, status);
         } finally {
             dao.close();
@@ -113,17 +113,17 @@ public class ConnectorMessageQueueDataSource implements PersistedBlockingQueueDa
 
         try {
             List<ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
-            
+
             if (rotate && connectorMessages.size() == 0) {
                 minMessageId = 0L;
                 maxMessageId = dao.getConnectorMessageMaxMessageId(channelId, metaDataId, status);
                 connectorMessages = dao.getConnectorMessages(channelId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
             }
-            
+
             for (ConnectorMessage connectorMessage : connectorMessages) {
                 messageController.decryptConnectorMessage(connectorMessage, encryptor);
             }
-            
+
             return connectorMessages;
         } finally {
             dao.close();

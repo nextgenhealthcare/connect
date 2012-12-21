@@ -47,7 +47,7 @@ public class BufferedDao implements DonkeyDao {
     public void commit(boolean durable) {
         commit(new Boolean(durable));
     }
-    
+
     private void commit(Boolean durable) {
         if (closed) {
             logger.error("Failed to commit, the storage buffer has been closed");
@@ -60,10 +60,10 @@ public class BufferedDao implements DonkeyDao {
 
         executeTasks(durable);
     }
-    
+
     private void executeTasks(Boolean durable) {
         DonkeyDao dao = daoFactory.getDao();
-        
+
         try {
             while (!tasks.isEmpty()) {
                 DaoTask task = tasks.poll();
@@ -101,7 +101,7 @@ public class BufferedDao implements DonkeyDao {
                 }
                 // @formatter:on
             }
-            
+
             if (durable == null) {
                 dao.commit();
             } else {
@@ -113,7 +113,7 @@ public class BufferedDao implements DonkeyDao {
             }
         }
     }
-    
+
     @Override
     public void rollback() {
         tasks.clear();
@@ -176,15 +176,16 @@ public class BufferedDao implements DonkeyDao {
     public void storeMessageContent(MessageContent messageContent) {
         tasks.add(new DaoTask(DaoTaskType.STORE_MESSAGE_CONTENT, new Object[] { messageContent }));
     }
-    
+
     @Override
     public void addChannelStatistics(Statistics statistics) {
         tasks.add(new DaoTask(DaoTaskType.STORE_CHANNEL_STATISTICS, new Object[] { statistics }));
     }
-    
+
     @Override
     public void updateSourceResponse(String channelId, long messageId, boolean attemptedResponse, String responseError) {
-        tasks.add(new DaoTask(DaoTaskType.UPDATE_RESPONSE_ERROR, new Object[] { channelId, messageId, attemptedResponse, responseError }));
+        tasks.add(new DaoTask(DaoTaskType.UPDATE_RESPONSE_ERROR, new Object[] { channelId,
+                messageId, attemptedResponse, responseError }));
     }
 
     @Override
@@ -212,7 +213,7 @@ public class BufferedDao implements DonkeyDao {
     public void markAsProcessed(String channelId, long messageId) {
         tasks.add(new DaoTask(DaoTaskType.MARK_AS_PROCESSED, new Object[] { channelId, messageId }));
     }
-    
+
     @Override
     public void resetMessage(String channelId, long messageId) {
         tasks.add(new DaoTask(DaoTaskType.RESET_MESSAGE, new Object[] { channelId, messageId }));
@@ -237,12 +238,14 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public void deleteMessageContent(String channelId, long messageId) {
-        tasks.add(new DaoTask(DaoTaskType.DELETE_MESSAGE_CONTENT, new Object[] { channelId, messageId }));
+        tasks.add(new DaoTask(DaoTaskType.DELETE_MESSAGE_CONTENT, new Object[] { channelId,
+                messageId }));
     }
-    
+
     @Override
     public void deleteMessageAttachments(String channelId, long messageId) {
-        tasks.add(new DaoTask(DaoTaskType.DELETE_MESSAGE_ATTACHMENTS, new Object[] { channelId, messageId }));
+        tasks.add(new DaoTask(DaoTaskType.DELETE_MESSAGE_ATTACHMENTS, new Object[] { channelId,
+                messageId }));
     }
 
     @Override
@@ -316,7 +319,7 @@ public class BufferedDao implements DonkeyDao {
             dao.close();
         }
     }
-    
+
     @Override
     public List<Attachment> getMessageAttachment(String channelId, long messageId) {
         DonkeyDao dao = daoFactory.getDao();
@@ -327,7 +330,7 @@ public class BufferedDao implements DonkeyDao {
             dao.close();
         }
     }
-    
+
     @Override
     public Attachment getMessageAttachment(String channelId, String attachmentId) {
         DonkeyDao dao = daoFactory.getDao();
@@ -382,9 +385,9 @@ public class BufferedDao implements DonkeyDao {
             dao.close();
         }
     }
-    
+
     public long getConnectorMessageMaxMessageId(String channelId, int metaDataId, Status status) {
-    	DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = daoFactory.getDao();
 
         try {
             return dao.getConnectorMessageMaxMessageId(channelId, metaDataId, status);
@@ -392,7 +395,7 @@ public class BufferedDao implements DonkeyDao {
             dao.close();
         }
     }
-    
+
     @Override
     public List<Message> getUnfinishedMessages(String channelId, String serverId) {
         DonkeyDao dao = daoFactory.getDao();

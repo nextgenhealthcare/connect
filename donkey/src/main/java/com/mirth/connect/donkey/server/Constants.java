@@ -52,9 +52,10 @@ public class Constants {
      * The number of messages to buffer in memory for connector message queues
      */
     public static final int CONNECTOR_MESSAGE_QUEUE_BUFFER_SIZE = 100;
-    
+
     /**
-     * The charset to use when converting attachment Strings to byte arrays for storage in the database
+     * The charset to use when converting attachment Strings to byte arrays for storage in the
+     * database
      * and reattaching them.
      */
     public static final String ATTACHMENT_CHARSET = "UTF-8";

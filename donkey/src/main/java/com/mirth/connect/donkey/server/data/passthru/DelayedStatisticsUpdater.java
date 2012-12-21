@@ -17,11 +17,11 @@ public class DelayedStatisticsUpdater implements StatisticsUpdater, Runnable {
     private int delayMillis = 5000;
     private boolean running = false;
     private Logger logger = Logger.getLogger(getClass());
-    
+
     public DelayedStatisticsUpdater(DonkeyDaoFactory daoFactory) {
         this.daoFactory = daoFactory;
     }
-    
+
     public int getDelayMillis() {
         return delayMillis;
     }
@@ -37,7 +37,7 @@ public class DelayedStatisticsUpdater implements StatisticsUpdater, Runnable {
     public synchronized void setDaoFactory(DonkeyDaoFactory daoFactory) {
         this.daoFactory = daoFactory;
     }
-    
+
     @Override
     public synchronized void update(Statistics statistics) {
         this.statistics.update(statistics);

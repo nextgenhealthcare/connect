@@ -13,7 +13,7 @@ public class StorageSettings {
     private boolean enabled = true;
     private boolean durable = true;
     private boolean rawDurable = true;
-    
+
     private boolean messageRecoveryEnabled = true;
     private boolean removeContentOnCompletion = false;
     private boolean removeAttachmentsOnCompletion = false;

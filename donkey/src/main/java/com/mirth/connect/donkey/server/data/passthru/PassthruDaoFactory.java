@@ -15,11 +15,11 @@ public class PassthruDaoFactory implements DonkeyDaoFactory {
     private StatisticsUpdater statisticsUpdater;
 
     public PassthruDaoFactory() {}
-    
+
     public PassthruDaoFactory(StatisticsUpdater statisticsUpdater) {
         this.statisticsUpdater = statisticsUpdater;
     }
-    
+
     public StatisticsUpdater getStatisticsUpdater() {
         return statisticsUpdater;
     }
@@ -31,11 +31,11 @@ public class PassthruDaoFactory implements DonkeyDaoFactory {
     @Override
     public PassthruDao getDao() {
         PassthruDao dao = new PassthruDao();
-        
+
         if (statisticsUpdater != null) {
             dao.setStatisticsUpdater(statisticsUpdater);
         }
-        
+
         return dao;
     }
 }

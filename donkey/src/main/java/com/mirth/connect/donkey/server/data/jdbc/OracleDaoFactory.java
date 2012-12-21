@@ -29,7 +29,7 @@ public class OracleDaoFactory extends JdbcDaoFactory {
                 DatabaseMetaData metaData = dao.getConnection().getMetaData();
                 int majorVersion = metaData.getDatabaseMajorVersion();
                 int minorVersion = metaData.getDatabaseMinorVersion();
-                
+
                 if (majorVersion > REQUIRED_MAJOR_VERSION || (majorVersion == REQUIRED_MAJOR_VERSION && minorVersion >= REQUIRED_MINOR_VERSION)) {
                     supported = true;
                     logger.debug("Detected support for asynchronous commits in Oracle");

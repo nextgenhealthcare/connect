@@ -54,9 +54,11 @@ public class ResponseConnectorProperties implements Serializable {
      * destinations, use this precedence order in determining which status to
      * use when the destination statuses are different
      */
-    public static final Status[] RESPONSE_STATUS_PRECEDENCE = new Status[] { Status.ERROR, Status.QUEUED, Status.SENT, Status.FILTERED };
+    public static final Status[] RESPONSE_STATUS_PRECEDENCE = new Status[] { Status.ERROR,
+            Status.QUEUED, Status.SENT, Status.FILTERED };
 
-    public static final String[] DEFAULT_QUEUE_ON_RESPONSES = new String[] { RESPONSE_NONE, RESPONSE_AUTO_BEFORE };
+    public static final String[] DEFAULT_QUEUE_ON_RESPONSES = new String[] { RESPONSE_NONE,
+            RESPONSE_AUTO_BEFORE };
     public static final String[] DEFAULT_QUEUE_OFF_RESPONSES = ArrayUtils.addAll(DEFAULT_QUEUE_ON_RESPONSES, RESPONSE_SOURCE_TRANSFORMED, RESPONSE_DESTINATIONS_COMPLETED, RESPONSE_POST_PROCESSOR);
 
     private String responseVariable;

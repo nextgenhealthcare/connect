@@ -4,7 +4,7 @@ import java.io.OutputStream;
 
 public class ByteCounterOutputStream extends OutputStream {
     private int count = 0;
-    
+
     /**
      * Adds the number of bytes to be written to the counter.
      */
@@ -12,7 +12,7 @@ public class ByteCounterOutputStream extends OutputStream {
     public void write(int b) {
         count++;
     }
-    
+
     /**
      * Adds the number of bytes to be written to the counter.
      */

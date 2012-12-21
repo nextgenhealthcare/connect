@@ -131,14 +131,14 @@ public class RecoveryTask implements Callable<List<Message>> {
                         boolean removeContent = false;
                         boolean removeAttachments = false;
                         boolean messageCompleted = MessageController.getInstance().isMessageCompleted(message);
-                        
+
                         if (messageCompleted) {
                             removeContent = (storageSettings.isRemoveContentOnCompletion());
                             removeAttachments = (storageSettings.isRemoveAttachmentsOnCompletion());
                         }
 
                         Response response = null;
-                        
+
                         /*
                          * only put a response in the dispatchResult if a response was not already
                          * stored in the source message (which happens when the source queue is
@@ -147,7 +147,7 @@ public class RecoveryTask implements Callable<List<Message>> {
                         if (sourceMessage.getResponse() == null) {
                             response = responseSelector.getResponse(sourceMessage, message);
                         }
-                        
+
                         DispatchResult dispatchResult = new DispatchResult(message.getMessageId(), message, response, true, removeContent, removeAttachments, false);
                         channel.getSourceConnector().handleRecoveredResponse(dispatchResult);
                     }

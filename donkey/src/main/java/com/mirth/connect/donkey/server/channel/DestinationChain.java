@@ -76,7 +76,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
         filterTransformerExecutors.put(metaDataId, filterTransformerExecutor);
         destinationConnectors.put(metaDataId, connector);
         connector.setOrderId(destinationConnectors.size());
-        
+
     }
 
     public Map<Integer, FilterTransformerExecutor> getFilterTransformerExecutors() {
@@ -172,11 +172,11 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                     switch (message.getStatus()) {
                     // if the message status is RECEIVED, send it to the destination's filter/transformer script
                         case RECEIVED:
-                        	try {
-                        		filterTransformerExecutors.get(metaDataId).processConnectorMessage(message);
+                            try {
+                                filterTransformerExecutors.get(metaDataId).processConnectorMessage(message);
                             } catch (DonkeyException e) {
-                            	message.setStatus(Status.ERROR);
-                            	message.setErrors(e.getFormattedError());
+                                message.setStatus(Status.ERROR);
+                                message.setErrors(e.getFormattedError());
                             }
 
                             // Insert errors if necessary
@@ -192,7 +192,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                                 ThreadUtils.checkInterruptedStatus();
                                 dao.insertMetaData(message, metaDataColumns);
                             }
-                            
+
                             // Always store the transformed content if it exists
                             if (storageSettings.isStoreTransformed() && message.getTransformed() != null) {
                                 ThreadUtils.checkInterruptedStatus();
@@ -227,7 +227,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                                 dao.updateErrors(message);
                             }
                             break;
-                            
+
                         case SENT:
                             break;
 
@@ -252,12 +252,12 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                 // now that we're finished processing the current message, we can create the next message in the chain
                 if (nextMetaDataId != null) {
                     nextMessage = new ConnectorMessage(message.getChannelId(), message.getMessageId(), nextMetaDataId, message.getServerId(), Calendar.getInstance(), Status.RECEIVED);
-                    
+
                     DestinationConnector nextDestinationConnector = destinationConnectors.get(nextMetaDataId);
                     nextMessage.setConnectorName(nextDestinationConnector.getDestinationName());
                     nextMessage.setChainId(chainId);
                     nextMessage.setOrderId(nextDestinationConnector.getOrderId());
-                    
+
                     nextMessage.setChannelMap((Map<String, Object>) cloner.clone(message.getChannelMap()));
                     nextMessage.setResponseMap((Map<String, Response>) cloner.clone(message.getResponseMap()));
                     nextMessage.setRaw(new MessageContent(message.getChannelId(), message.getMessageId(), nextMetaDataId, ContentType.RAW, message.getRaw().getContent(), nextDestinationConnector.getInboundDataType().getType(), message.getRaw().getEncryptedContent()));
@@ -265,21 +265,21 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                     ThreadUtils.checkInterruptedStatus();
                     dao.insertConnectorMessage(nextMessage, storageSettings.isStoreMaps());
                 }
-                
+
                 ThreadUtils.checkInterruptedStatus();
-                
+
                 if (message.getStatus() != Status.QUEUED) {
-                	dao.commit(storageSettings.isDurable());
+                    dao.commit(storageSettings.isDurable());
                 } else {
-                	// Block other threads from reading from or modifying the destination queue until both the current commit and queue addition finishes
-                	// Otherwise the same message could be sent multiple times.
-	                synchronized (destinationConnector.getQueue()) {
-		                dao.commit(storageSettings.isDurable());
-		
-		                if (message.getStatus() == Status.QUEUED) {
-		                    destinationConnector.getQueue().put(message);
-		                }
-	                }
+                    // Block other threads from reading from or modifying the destination queue until both the current commit and queue addition finishes
+                    // Otherwise the same message could be sent multiple times.
+                    synchronized (destinationConnector.getQueue()) {
+                        dao.commit(storageSettings.isDurable());
+
+                        if (message.getStatus() == Status.QUEUED) {
+                            destinationConnector.getQueue().put(message);
+                        }
+                    }
                 }
 
                 messages.add(message);

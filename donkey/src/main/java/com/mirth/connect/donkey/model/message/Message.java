@@ -70,14 +70,14 @@ public class Message implements Serializable {
     }
 
     public Long getImportId() {
-		return importId;
-	}
+        return importId;
+    }
 
-	public void setImportId(Long importId) {
-		this.importId = importId;
-	}
+    public void setImportId(Long importId) {
+        this.importId = importId;
+    }
 
-	public String getImportChannelId() {
+    public String getImportChannelId() {
         return importChannelId;
     }
 
@@ -120,22 +120,22 @@ public class Message implements Serializable {
     }
 
     public boolean isAttemptedResponse() {
-		return attemptedResponse;
-	}
+        return attemptedResponse;
+    }
 
-	public void setAttemptedResponse(boolean attemptedResponse) {
-		this.attemptedResponse = attemptedResponse;
-	}
+    public void setAttemptedResponse(boolean attemptedResponse) {
+        this.attemptedResponse = attemptedResponse;
+    }
 
-	public String getResponseError() {
-		return responseError;
-	}
+    public String getResponseError() {
+        return responseError;
+    }
 
-	public void setResponseError(String responseError) {
-		this.responseError = responseError;
-	}
+    public void setResponseError(String responseError) {
+        this.responseError = responseError;
+    }
 
-	public String toString() {
+    public String toString() {
         return "message " + messageId;
     }
 }

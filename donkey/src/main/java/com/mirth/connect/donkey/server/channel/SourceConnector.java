@@ -128,7 +128,7 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
 
         return channel.dispatchRawMessage(rawMessage);
     }
-    
+
     /**
      * Handles a response generated for a message that was recovered by the
      * channel
@@ -136,64 +136,64 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
      * @throws ChannelException
      */
     public abstract void handleRecoveredResponse(DispatchResult dispatchResult);
-    
+
     public void finishDispatch(DispatchResult dispatchResult) {
         String response = null;
-        
+
         if (dispatchResult != null) {
             Response selectedResponse = dispatchResult.getSelectedResponse();
-            
+
             if (selectedResponse != null) {
                 response = selectedResponse.getMessage();
             }
         }
-        
+
         finishDispatch(dispatchResult, false, response, null);
     }
-    
+
     public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String response, String errorMessage) {
         try {
             if (dispatchResult == null) {
                 return;
             }
-            
+
             DonkeyDaoFactory daoFactory = channel.getDaoFactory();
             StorageSettings storageSettings = channel.getStorageSettings();
             Encryptor encryptor = channel.getEncryptor();
             DonkeyDao dao = null;
             long messageId = dispatchResult.getMessageId();
-            
+
             try {
                 if (response != null && storageSettings.isStoreSentResponse()) {
                     dao = daoFactory.getDao();
                     //TODO does this have a data type?
                     dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.RESPONSE, response, null, encryptor.encrypt(response)));
                 }
-                
+
                 if (attemptedResponse || errorMessage != null) {
                     if (dao == null) {
                         dao = daoFactory.getDao();
                     }
-                    
+
                     dao.updateSourceResponse(getChannelId(), messageId, attemptedResponse, errorMessage);
                 }
-                
+
                 if (dispatchResult.isMarkAsProcessed()) {
                     if (dao == null) {
                         dao = daoFactory.getDao();
                     }
-                    
+
                     dao.markAsProcessed(getChannelId(), messageId);
 
                     if (dispatchResult.isRemoveContent()) {
                         dao.deleteMessageContent(getChannelId(), messageId);
                     }
-                    
+
                     if (dispatchResult.isRemoveAttachments()) {
                         dao.deleteMessageAttachments(getChannelId(), messageId);
                     }
                 }
-                
+
                 if (dao != null) {
                     dao.commit(storageSettings.isDurable());
                 }
@@ -203,9 +203,9 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
                 }
             }
         } finally {
-        	if (dispatchResult != null && dispatchResult.isLockAcquired()) {
-        		channel.releaseProcessLock();
-        	}
+            if (dispatchResult != null && dispatchResult.isLockAcquired()) {
+                channel.releaseProcessLock();
+            }
         }
     }
 }

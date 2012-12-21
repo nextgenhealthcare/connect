@@ -27,16 +27,16 @@ public class MetaDataReplacer {
      */
     public void setMetaDataMap(ConnectorMessage connectorMessage, List<MetaDataColumn> metaDataColumns) {
         for (MetaDataColumn column : metaDataColumns) {
-        	if (StringUtils.isNotEmpty(column.getMappingName())) {
-	            Object value = getMetaDataValue(connectorMessage, column);
-	            try {
-	                castAndSetValue(connectorMessage, column, value);
-	            } catch (MetaDataColumnException e) {
-	                // If there is an error casting the value, log a warning but continue with processing because
-	                // the metadata values are not essential for processing
-	                logger.warn("Could not cast value '" + value.toString() + "' to " + column.getType().toString(), e);
-	            }
-        	}
+            if (StringUtils.isNotEmpty(column.getMappingName())) {
+                Object value = getMetaDataValue(connectorMessage, column);
+                try {
+                    castAndSetValue(connectorMessage, column, value);
+                } catch (MetaDataColumnException e) {
+                    // If there is an error casting the value, log a warning but continue with processing because
+                    // the metadata values are not essential for processing
+                    logger.warn("Could not cast value '" + value.toString() + "' to " + column.getType().toString(), e);
+                }
+            }
         }
     }
 

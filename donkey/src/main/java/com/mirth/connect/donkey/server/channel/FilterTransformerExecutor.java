@@ -73,14 +73,14 @@ public class FilterTransformerExecutor {
         ThreadUtils.checkInterruptedStatus();
         String content;
         String encodedContent;
-        
+
         // If there is no processed raw content (no preprocessor step), use the raw instead.
         if (connectorMessage.getProcessedRaw() == null) {
-        	content = connectorMessage.getRaw().getContent();
+            content = connectorMessage.getRaw().getContent();
         } else {
-        	content = connectorMessage.getProcessedRaw().getContent();
+            content = connectorMessage.getProcessedRaw().getContent();
         }
-        
+
         if (filterTransformer != null) {
             // Convert the content to xml
             String serializedContent = inbound.getSerializer().toXML(content);
@@ -101,8 +101,8 @@ public class FilterTransformerExecutor {
             // Since this condition can only occur if the inbound and outbound datatypes are the same, it is safe to pass the outbound serializer to the inbound serializer 
             // so that it can compare/use the properties from both. The purpose of this method is to allow the optimization of not serializing, but still modifying the message in certain circumstances.
             // It should NOT be used anywhere other than here.
-        	content = inbound.getSerializer().transformWithoutSerializing(content, outbound.getSerializer());
-        	
+            content = inbound.getSerializer().transformWithoutSerializing(content, outbound.getSerializer());
+
             encodedContent = content;
         }
 

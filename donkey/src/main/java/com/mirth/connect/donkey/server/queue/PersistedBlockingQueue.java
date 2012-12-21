@@ -53,9 +53,9 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
     public synchronized void updateSize() {
         size = dataSource.getSize();
     }
-    
+
     public synchronized void invalidate() {
-    	buffer.clear();
+        buffer.clear();
         size = null;
     }
 
@@ -70,13 +70,13 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
         if (!reachedCapacity) {
             if (size < bufferCapacity && !dataSource.wasItemRotated()) {
                 success = buffer.add(e);
-                
+
                 // If there is a poll with timeout waiting, notify that an item was added to the buffer.
                 if (timeoutLock.get()) {
-	                synchronized(timeoutLock) {
-	                	timeoutLock.notifyAll();
-	                	timeoutLock.set(false);
-	                }
+                    synchronized (timeoutLock) {
+                        timeoutLock.notifyAll();
+                        timeoutLock.set(false);
+                    }
                 }
             } else {
                 reachedCapacity = true;
@@ -84,7 +84,7 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
         }
 
         size++;
-        
+
         return success;
     }
 
@@ -106,12 +106,12 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
 
         return (size == 0);
     }
-    
+
     public synchronized void rotate(Object o) {
-    	// Pass the item to rotate to the data source
-    	dataSource.rotateItem(o);
-    	// remove the first item from the queue, but do not decrease size so it will be picked up again
-    	buffer.poll();
+        // Pass the item to rotate to the data source
+        dataSource.rotateItem(o);
+        // remove the first item from the queue, but do not decrease size so it will be picked up again
+        buffer.poll();
     }
 
     @Override
@@ -121,18 +121,18 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
         }
 
         E element = null;
-        
+
         if (size > 0) {
-	        element = buffer.peek();
-	
-	        // if no element was received and there are elements in the database,
-	        // fill the buffer from the database and get the next element in the queue
-	        if (element == null) {
-	            fillBuffer();
-	            element = buffer.peek();
-	        }
+            element = buffer.peek();
+
+            // if no element was received and there are elements in the database,
+            // fill the buffer from the database and get the next element in the queue
+            if (element == null) {
+                fillBuffer();
+                element = buffer.peek();
+            }
         }
-        
+
         return element;
     }
 
@@ -143,42 +143,42 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
         }
 
         E element = null;
-        
+
         if (size > 0) {
-	        element = buffer.poll();
-	
-	        // if no element was received and there are elements in the database,
-	        // fill the buffer from the database and get the next element in the queue
-	        if (element == null) {
-	            fillBuffer();
-	            element = buffer.poll();
-	        }
-	
-	        // if an element was found, decrement the overall count
-	        if (element != null) {
-	            size--;
-	
-	            // reset the reachedCapacity flag if we have exhausted the queue, so
-	            // that elements will once again be polled from the buffer
-	            if (size == 0) {
-	                reachedCapacity = false;
-	            }
-	        }
+            element = buffer.poll();
+
+            // if no element was received and there are elements in the database,
+            // fill the buffer from the database and get the next element in the queue
+            if (element == null) {
+                fillBuffer();
+                element = buffer.poll();
+            }
+
+            // if an element was found, decrement the overall count
+            if (element != null) {
+                size--;
+
+                // reset the reachedCapacity flag if we have exhausted the queue, so
+                // that elements will once again be polled from the buffer
+                if (size == 0) {
+                    reachedCapacity = false;
+                }
+            }
         }
-        
+
         return element;
     }
-    
+
     @Override
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
-    	if ((size == null || size == 0) && timeout > 0) {
-    		synchronized (timeoutLock) {
-    			timeoutLock.set(true);
-    			timeoutLock.wait(TimeUnit.MILLISECONDS.convert(timeout, unit));
-    		}
+        if ((size == null || size == 0) && timeout > 0) {
+            synchronized (timeoutLock) {
+                timeoutLock.set(true);
+                timeoutLock.wait(TimeUnit.MILLISECONDS.convert(timeout, unit));
+            }
         }
-    	
-    	return poll();
+
+        return poll();
     }
 
     @Override
@@ -209,9 +209,9 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
     @Override
     public int size() {
         if (size == null) {
-        	if (dataSource == null) {
-        		return 0;
-        	}
+            if (dataSource == null) {
+                return 0;
+            }
             updateSize();
         }
 
@@ -238,12 +238,12 @@ public class PersistedBlockingQueue<E> implements BlockingQueue<E> {
         for (E e : nextItems) {
             buffer.add(e);
         }
-        
+
         // If there is a poll with timeout waiting, notify that an item was added to the buffer.
         if (nextItems.size() > 0 && timeoutLock.get()) {
-        	synchronized(timeoutLock) {
-            	timeoutLock.notifyAll();
-            	timeoutLock.set(false);
+            synchronized (timeoutLock) {
+                timeoutLock.notifyAll();
+                timeoutLock.set(false);
             }
         }
     }

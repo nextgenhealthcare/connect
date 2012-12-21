@@ -28,7 +28,6 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Encryptor;
-import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
@@ -97,7 +96,7 @@ final class MessageTask implements Callable<DispatchResult> {
                 dao.close();
 
                 processedMessage = channel.process(sourceMessage, false);
-                
+
                 boolean messageCompleted = MessageController.getInstance().isMessageCompleted(processedMessage);
                 if (messageCompleted) {
                     removeContent = (storageSettings.isRemoveContentOnCompletion());
@@ -161,7 +160,7 @@ final class MessageTask implements Callable<DispatchResult> {
         sourceMessage.setConnectorName(channel.getSourceConnector().getSourceName());
         sourceMessage.setChainId(0);
         sourceMessage.setOrderId(0);
-        
+
         sourceMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, null, channel.getSourceConnector().getInboundDataType().getType(), null));
 
         if (rawMessage.getChannelMap() != null) {
