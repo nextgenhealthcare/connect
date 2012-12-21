@@ -125,7 +125,7 @@ public class RecoveryTask implements Callable<List<Message>> {
                     ThreadUtils.checkInterruptedStatus();
                     ResponseSelector responseSelector = channel.getResponseSelector();
 
-                    channel.finishMessage(message, true, !responseSelector.canRespond());
+                    channel.finishMessage(message, !responseSelector.canRespond());
 
                     if (responseSelector.canRespond()) {
                         boolean removeContent = false;

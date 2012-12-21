@@ -887,7 +887,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 ThreadUtils.checkInterruptedStatus();
                 dao.commit(storageSettings.isDurable());
                 dao.close();
-                finishMessage(finalMessage, false, markAsProcessed);
+                finishMessage(finalMessage, markAsProcessed);
                 return finalMessage;
             }
 
@@ -934,7 +934,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 dao.commit();
                 dao.close();
 
-                finishMessage(finalMessage, false, markAsProcessed);
+                finishMessage(finalMessage, markAsProcessed);
                 return finalMessage;
             }
 
@@ -1085,7 +1085,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 }
             }
 
-            finishMessage(finalMessage, true, markAsProcessed);
+            finishMessage(finalMessage, markAsProcessed);
             return finalMessage;
         } finally {
             if (!dao.isClosed()) {
@@ -1128,20 +1128,18 @@ public class Channel implements Startable, Stoppable, Runnable {
         }
     }
 
-    public void finishMessage(Message finalMessage, boolean runPostProcessor, boolean markAsProcessed) throws InterruptedException {
-        if (runPostProcessor) {
-            ThreadUtils.checkInterruptedStatus();
-            Response response = null;
+    public void finishMessage(Message finalMessage, boolean markAsProcessed) throws InterruptedException {
+        ThreadUtils.checkInterruptedStatus();
+        Response response = null;
 
-            try {
-                response = postProcessor.doPostProcess(finalMessage);
-            } catch (Exception e) {
-                logger.error("Error executing postprocessor for channel " + finalMessage.getChannelId() + ".", e);
-            }
+        try {
+            response = postProcessor.doPostProcess(finalMessage);
+        } catch (Exception e) {
+            logger.error("Error executing postprocessor for channel " + finalMessage.getChannelId() + ".", e);
+        }
 
-            if (response != null) {
-                finalMessage.getConnectorMessages().get(0).getResponseMap().put(ResponseConnectorProperties.RESPONSE_POST_PROCESSOR, response);
-            }
+        if (response != null) {
+            finalMessage.getConnectorMessages().get(0).getResponseMap().put(ResponseConnectorProperties.RESPONSE_POST_PROCESSOR, response);
         }
 
         /*
@@ -1153,8 +1151,8 @@ public class Channel implements Startable, Stoppable, Runnable {
         ThreadUtils.checkInterruptedStatus();
         DonkeyDao dao = daoFactory.getDao();
 
-        if (runPostProcessor || markAsProcessed) {
-            if (runPostProcessor && storageSettings.isStoreMergedResponseMap()) {
+        if (markAsProcessed) {
+            if (storageSettings.isStoreMergedResponseMap()) {
                 ThreadUtils.checkInterruptedStatus();
                 dao.updateResponseMap(finalMessage.getConnectorMessages().get(0));
             }
