@@ -176,7 +176,7 @@ public class ImmutableConnectorMessage {
         return Collections.unmodifiableMap(connectorMessage.getChannelMap());
     }
 
-    public Map<String, Response> getResponseMap() {
+    public Map<String, Object> getResponseMap() {
         return Collections.unmodifiableMap(connectorMessage.getResponseMap());
     }
 

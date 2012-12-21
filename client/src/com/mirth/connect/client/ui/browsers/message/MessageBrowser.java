@@ -98,7 +98,6 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
-import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.DefaultSerializer;
@@ -1712,7 +1711,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private void updateDescriptionMappings(ConnectorMessage connectorMessage, Integer metaDataId) {
         Map<String, Object> connectorMap = connectorMessage.getConnectorMap();
         Map<String, Object> channelMap = connectorMessage.getChannelMap();
-        Map<String, Response> responseMap = connectorMessage.getResponseMap();
+        Map<String, Object> responseMap = connectorMessage.getResponseMap();
         
         int rowCount = 0;
         
@@ -1750,7 +1749,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
 
         if (responseMap != null) {
-            for (Entry<String, Response> variableMapEntry : responseMap.entrySet()) {
+            for (Entry<String, Object> variableMapEntry : responseMap.entrySet()) {
                 tableData[row][0] = "Response";
                 tableData[row][1] = variableMapEntry.getKey().toString();
                 tableData[row][2] = variableMapEntry.getValue().toString();

@@ -577,7 +577,7 @@ public class DestinationConnectorTests {
             TestUtils.assertMessageContentExists(messageContent);
 
             // Assert that the entry in the response map was overwritten
-            Map<String, Response> responseMap = TestUtils.getResponseMap(channel.getChannelId(), messageResponse.getMessageId(), 1);
+            Map<String, Object> responseMap = TestUtils.getResponseMap(channel.getChannelId(), messageResponse.getMessageId(), 1);
             assertTrue(responseMap.get(channel.getDestinationConnector(1).getDestinationName()).equals(finalResponse));
 
             // Assert that the message status was changed

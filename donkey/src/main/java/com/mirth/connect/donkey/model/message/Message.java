@@ -100,7 +100,7 @@ public class Message implements Serializable {
         connectorMessage.setRaw(sourceConnectorMessage.getRaw());
         connectorMessage.setProcessedRaw(sourceConnectorMessage.getProcessedRaw());
 
-        Map<String, Response> responseMap = sourceConnectorMessage.getResponseMap();
+        Map<String, Object> responseMap = sourceConnectorMessage.getResponseMap();
 
         for (ConnectorMessage destinationMessage : connectorMessages.values()) {
             responseMap.putAll(destinationMessage.getResponseMap());

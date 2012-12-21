@@ -1009,7 +1009,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     message.setOrderId(destinationConnector.getOrderId());
 
                     message.setChannelMap((Map<String, Object>) cloner.clone(sourceMessage.getChannelMap()));
-                    message.setResponseMap((Map<String, Response>) cloner.clone(sourceMessage.getResponseMap()));
+                    message.setResponseMap((Map<String, Object>) cloner.clone(sourceMessage.getResponseMap()));
                     message.setRaw(raw);
 
                     // store the new message, but we don't need to store the content because we will reference the source's encoded content

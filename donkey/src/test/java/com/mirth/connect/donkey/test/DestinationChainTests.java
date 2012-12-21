@@ -170,7 +170,7 @@ public class DestinationChainTests {
                     // Assert that the connector message maps were updated
                     Map<String, Object> connectorMap = TestUtils.getConnectorMap(channel.getChannelId(), messageResponse.getMessageId(), metaDataId);
                     Map<String, Object> channelMap = TestUtils.getChannelMap(channel.getChannelId(), messageResponse.getMessageId(), metaDataId);
-                    Map<String, Response> responseMap = TestUtils.getResponseMap(channel.getChannelId(), messageResponse.getMessageId(), metaDataId);
+                    Map<String, Object> responseMap = TestUtils.getResponseMap(channel.getChannelId(), messageResponse.getMessageId(), metaDataId);
                     assertTrue(connectorMap.get("key").equals("value"));
                     assertTrue(channelMap.get("key").equals("value"));
                     assertTrue(responseMap.get("key").equals(new Response(Status.SENT, "value")));
@@ -240,7 +240,7 @@ public class DestinationChainTests {
 
                         // Assert that the channel and response maps were updated
                         Map<String, Object> channelMap = TestUtils.getChannelMap(channel.getChannelId(), messageResponse.getMessageId(), metaDataId);
-                        Map<String, Response> responseMap = TestUtils.getResponseMap(channel.getChannelId(), messageResponse.getMessageId(), metaDataId);
+                        Map<String, Object> responseMap = TestUtils.getResponseMap(channel.getChannelId(), messageResponse.getMessageId(), metaDataId);
                         assertTrue(channelMap.get("key").equals("value"));
                         assertTrue(responseMap.get("key").equals(new Response(Status.SENT, "value")));
 

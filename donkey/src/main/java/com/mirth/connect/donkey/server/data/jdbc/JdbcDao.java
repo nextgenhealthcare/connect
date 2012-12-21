@@ -433,7 +433,7 @@ public class JdbcDao implements DonkeyDao {
 
             Map<String, Object> connectorMap;
             Map<String, Object> channelMap;
-            Map<String, Response> responseMap;
+            Map<String, Object> responseMap;
 
             if (storeMaps) {
                 connectorMap = connectorMessage.getConnectorMap();
@@ -460,7 +460,7 @@ public class JdbcDao implements DonkeyDao {
             if (responseMap == null) {
                 statement.setNull(8, Types.LONGVARCHAR);
             } else {
-                statement.setString(8, serializer.serialize((HashMap<String, Response>) responseMap));
+                statement.setString(8, serializer.serialize((HashMap<String, Object>) responseMap));
             }
 
             String errors = connectorMessage.getErrors();
@@ -602,7 +602,7 @@ public class JdbcDao implements DonkeyDao {
             PreparedStatement statement = prepareStatement("updateMaps", connectorMessage.getChannelId());
             Map<String, Object> connectorMap = connectorMessage.getConnectorMap();
             Map<String, Object> channelMap = connectorMessage.getChannelMap();
-            Map<String, Response> responseMap = connectorMessage.getResponseMap();
+            Map<String, Object> responseMap = connectorMessage.getResponseMap();
 
             if (connectorMap == null) {
                 statement.setNull(1, Types.LONGVARCHAR);
@@ -619,7 +619,7 @@ public class JdbcDao implements DonkeyDao {
             if (responseMap == null) {
                 statement.setNull(3, Types.LONGVARCHAR);
             } else {
-                statement.setString(3, serializer.serialize((HashMap<String, Response>) responseMap));
+                statement.setString(3, serializer.serialize((HashMap<String, Object>) responseMap));
             }
 
             statement.setInt(4, connectorMessage.getMetaDataId());
@@ -636,12 +636,12 @@ public class JdbcDao implements DonkeyDao {
 
         try {
             PreparedStatement statement = prepareStatement("updateResponseMap", connectorMessage.getChannelId());
-            Map<String, Response> responseMap = connectorMessage.getResponseMap();
+            Map<String, Object> responseMap = connectorMessage.getResponseMap();
 
             if (responseMap == null) {
                 statement.setNull(1, Types.LONGVARCHAR);
             } else {
-                statement.setString(1, serializer.serialize((HashMap<String, Response>) responseMap));
+                statement.setString(1, serializer.serialize((HashMap<String, Object>) responseMap));
             }
 
             statement.setInt(2, connectorMessage.getMetaDataId());
@@ -1639,7 +1639,7 @@ public class JdbcDao implements DonkeyDao {
             connectorMessage.setStatus(Status.fromChar(resultSet.getString("status").charAt(0)));
             connectorMessage.setConnectorMap((HashMap<String, Object>) serializer.deserialize(resultSet.getString("connector_map")));
             connectorMessage.setChannelMap((HashMap<String, Object>) serializer.deserialize(resultSet.getString("channel_map")));
-            connectorMessage.setResponseMap((HashMap<String, Response>) serializer.deserialize(resultSet.getString("response_map")));
+            connectorMessage.setResponseMap((HashMap<String, Object>) serializer.deserialize(resultSet.getString("response_map")));
             connectorMessage.setErrors(resultSet.getString("errors"));
             connectorMessage.setSendAttempts(resultSet.getInt("send_attempts"));
             connectorMessage.setChainId(resultSet.getInt("chain_id"));

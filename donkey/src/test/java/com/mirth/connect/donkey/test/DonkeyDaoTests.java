@@ -181,7 +181,7 @@ public class DonkeyDaoTests {
         Map<String, Object> channelMap = new HashMap<String, Object>();
         channelMap.put("key", "value");
 
-        Map<String, Response> responseMap = new HashMap<String, Response>();
+        Map<String, Object> responseMap = new HashMap<String, Object>();
         responseMap.put("key", new Response(Status.SENT, "message"));
 
         DonkeyDao dao = null;
@@ -239,7 +239,7 @@ public class DonkeyDaoTests {
                 assertTrue(connectorMessage.getChannelMap().equals((HashMap<String, Object>) serializer.deserialize(result.getString("channel_map"))));
 
                 // Assert that the response map is correct
-                assertTrue(connectorMessage.getResponseMap().equals((HashMap<String, Response>) serializer.deserialize(result.getString("response_map"))));
+                assertTrue(connectorMessage.getResponseMap().equals((HashMap<String, Object>) serializer.deserialize(result.getString("response_map"))));
 
                 // Assert that the errors column is correct
                 assertTrue(connectorMessage.getErrors().equals(serializer.deserialize(result.getString("errors"))));
@@ -563,7 +563,7 @@ public class DonkeyDaoTests {
             channelMap.put("key2", null);
             channelMap.put("key3", connection);
     
-            Map<String, Response> responseMap = new HashMap<String, Response>();
+            Map<String, Object> responseMap = new HashMap<String, Object>();
             responseMap.put("key1", new Response("message"));
             responseMap.put("key2", new Response(Status.FILTERED, "message"));
     
@@ -589,7 +589,7 @@ public class DonkeyDaoTests {
 
                 Map<String, Object> insertedConnectorMap = TestUtils.getConnectorMap(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId());
                 Map<String, Object> insertedChannelMap = TestUtils.getChannelMap(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId());
-                Map<String, Response> insertedResponseMap = TestUtils.getResponseMap(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId());
+                Map<String, Object> insertedResponseMap = TestUtils.getResponseMap(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId());
 
                 // Assert that both connector maps have all the same keys
                 assertTrue(connectorMap.keySet().equals(insertedConnectorMap.keySet()));
@@ -649,7 +649,7 @@ public class DonkeyDaoTests {
     public final void testUpdateResponseMap() throws Exception {
         Channel channel = TestUtils.createDefaultChannel(channelId, serverId);
 
-        Map<String, Response> responseMap = new HashMap<String, Response>();
+        Map<String, Object> responseMap = new HashMap<String, Object>();
         responseMap.put("key1", new Response("message"));
         responseMap.put("key2", new Response(Status.FILTERED, "message"));
 
@@ -665,7 +665,7 @@ public class DonkeyDaoTests {
                 dao.updateResponseMap(sourceMessage);
                 dao.commit();
 
-                Map<String, Response> insertedResponseMap = TestUtils.getResponseMap(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId());
+                Map<String, Object> insertedResponseMap = TestUtils.getResponseMap(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId());
 
                 // Assert that both response maps are equal
                 assertTrue(responseMap.equals(insertedResponseMap));

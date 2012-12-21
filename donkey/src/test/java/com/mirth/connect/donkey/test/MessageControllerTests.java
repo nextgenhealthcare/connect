@@ -225,7 +225,7 @@ public class MessageControllerTests {
         Map<String, Object> channelMap = new HashMap<String, Object>();
         channelMap.put("key", "value");
 
-        Map<String, Response> responseMap = new HashMap<String, Response>();
+        Map<String, Object> responseMap = new HashMap<String, Object>();
         responseMap.put("key", new Response(Status.SENT, "message"));
 
         try {

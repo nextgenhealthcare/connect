@@ -486,7 +486,7 @@ public class TestUtils {
             Status status = Status.fromChar(result.getString("status").charAt(0));
             Map<String, Object> connectorMap = (Map<String, Object>) serializer.deserialize(result.getString("connector_map"));
             Map<String, Object> channelMap = (Map<String, Object>) serializer.deserialize(result.getString("channel_map"));
-            Map<String, Response> responseMap = (Map<String, Response>) serializer.deserialize(result.getString("response_map"));
+            Map<String, Object> responseMap = (Map<String, Object>) serializer.deserialize(result.getString("response_map"));
             String errors = (String) serializer.deserialize(result.getString("errors"));
             
             assertTrue(testEquality(dateCreated, connectorMessage.getDateCreated()));
@@ -1005,7 +1005,7 @@ public class TestUtils {
         return (Map<String, Object>) serializer.deserialize(channelMap);
     }
 
-    public static Map<String, Response> getResponseMap(String channelId, long messageId, int metaDataId) throws SQLException {
+    public static Map<String, Object> getResponseMap(String channelId, long messageId, int metaDataId) throws SQLException {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         Serializer serializer = Donkey.getInstance().getSerializer();
         String responseMap;
@@ -1027,7 +1027,7 @@ public class TestUtils {
             close(connection);
         }
         
-        return (Map<String, Response>) serializer.deserialize(responseMap);
+        return (Map<String, Object>) serializer.deserialize(responseMap);
     }
 
     public static boolean isMessageProcessed(String channelId, long messageId) throws SQLException {

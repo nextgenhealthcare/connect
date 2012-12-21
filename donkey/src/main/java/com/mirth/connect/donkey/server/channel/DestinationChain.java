@@ -259,7 +259,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                     nextMessage.setOrderId(nextDestinationConnector.getOrderId());
 
                     nextMessage.setChannelMap((Map<String, Object>) cloner.clone(message.getChannelMap()));
-                    nextMessage.setResponseMap((Map<String, Response>) cloner.clone(message.getResponseMap()));
+                    nextMessage.setResponseMap((Map<String, Object>) cloner.clone(message.getResponseMap()));
                     nextMessage.setRaw(new MessageContent(message.getChannelId(), message.getMessageId(), nextMetaDataId, ContentType.RAW, message.getRaw().getContent(), nextDestinationConnector.getInboundDataType().getType(), message.getRaw().getEncryptedContent()));
 
                     ThreadUtils.checkInterruptedStatus();

@@ -32,7 +32,6 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
-import com.mirth.connect.model.Connector;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -152,7 +151,14 @@ public class DatabaseDispatcher extends DestinationConnector {
                  */
                 String connectorName = getDestinationName();
                 if (connectorName != null && connectorMessage.getResponseMap().containsKey(connectorName)) {
-                    return connectorMessage.getResponseMap().get(connectorName);
+                    Object responseObject = connectorMessage.getResponseMap().get(connectorName);
+                    if (responseObject != null) {
+                        if (responseObject instanceof Response) {
+                            return (Response) responseObject;
+                        } else {
+                            return new Response(Status.SENT, responseObject.toString());
+                        }
+                    }
                 }
             } else {
                 // otherwise run the SQL insert/update/delete statement

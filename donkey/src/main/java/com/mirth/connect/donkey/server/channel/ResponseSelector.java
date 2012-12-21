@@ -90,8 +90,15 @@ public class ResponseSelector {
 
             return dataType.getAutoResponder().getResponse(status, sourceMessage.getRaw().getContent(), message.getMergedConnectorMessage());
         } else if (respondFromName != null) {
+            Object responseObject = message.getMergedConnectorMessage().getResponseMap().get(respondFromName);
             // Get the appropriate response from the response map (includes the post-processor variable)
-            return message.getMergedConnectorMessage().getResponseMap().get(respondFromName);
+            if (responseObject != null) {
+                if (responseObject instanceof Response) {
+                    return (Response) responseObject;
+                } else {
+                    return new Response(Status.SENT, responseObject.toString());
+                }
+            }
         }
 
         return null;

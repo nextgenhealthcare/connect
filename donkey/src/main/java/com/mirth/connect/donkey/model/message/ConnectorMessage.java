@@ -34,7 +34,7 @@ public class ConnectorMessage implements Serializable {
     private MessageContent processedResponse;
     private Map<String, Object> connectorMap = new HashMap<String, Object>();
     private Map<String, Object> channelMap = new HashMap<String, Object>();
-    private Map<String, Response> responseMap = new HashMap<String, Response>();
+    private Map<String, Object> responseMap = new HashMap<String, Object>();
     private Map<String, Object> metaDataMap = new HashMap<String, Object>();
     private String errors;
     private int sendAttempts = 0;
@@ -235,11 +235,11 @@ public class ConnectorMessage implements Serializable {
         this.channelMap = channelMap;
     }
 
-    public Map<String, Response> getResponseMap() {
+    public Map<String, Object> getResponseMap() {
         return responseMap;
     }
 
-    public void setResponseMap(Map<String, Response> responseMap) {
+    public void setResponseMap(Map<String, Object> responseMap) {
         this.responseMap = responseMap;
     }
 
