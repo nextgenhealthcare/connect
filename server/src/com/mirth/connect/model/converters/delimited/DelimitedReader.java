@@ -22,6 +22,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
@@ -155,7 +156,7 @@ public class DelimitedReader extends SAXParser {
      *            otherwise false.
      * @return The next message, or null if there are no more messages.
      * @throws IOException
-     * @throws InterruptedException 
+     * @throws InterruptedException
      */
     public String getMessage(final BufferedReader in, final boolean skipHeader, final String batchScriptId) throws IOException, InterruptedException {
         char recDelim = props.getRecordDelimiter().charAt(0);
@@ -243,17 +244,18 @@ public class DelimitedReader extends SAXParser {
                     @Override
                     public String call() throws Exception {
                         Script compiledScript = CompiledScriptCache.getInstance().getCompiledScript(batchScriptId);
-                        
+
                         if (compiledScript == null) {
                             logger.error("Batch script could not be found in cache");
                             return null;
                         } else {
-                            Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(logger, batchScriptId, in, props, skipHeader);
+                            Logger scriptLogger = Logger.getLogger(ScriptController.BATCH_SCRIPT_KEY.toLowerCase());
+                            Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(scriptLogger, batchScriptId, in, props, skipHeader);
                             return Context.toString(executeScript(compiledScript, scope));
                         }
                     }
                 });
-                
+
                 if (result != null) {
                     message.append(result);
                 }

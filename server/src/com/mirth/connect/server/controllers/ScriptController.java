@@ -19,6 +19,7 @@ public abstract class ScriptController extends Controller {
 
     // Static script keys
     public static final String ATTACHMENT_SCRIPT_KEY = "Attachment";
+    public static final String BATCH_SCRIPT_KEY = "Batch";
     public static final String POSTPROCESSOR_SCRIPT_KEY = "Postprocessor";
     public static final String PREPROCESSOR_SCRIPT_KEY = "Preprocessor";
     public static final String SHUTDOWN_SCRIPT_KEY = "Shutdown";
