@@ -100,13 +100,16 @@ public class JavaScriptScopeUtil {
 
     // Message Builder
     private static void addMessage(Scriptable scope, Message message) {
-        // TODO: Change this to Message read-only API
-        scope.put("message", scope, new ImmutableMessage(message));
+        ImmutableMessage immutableMessage = new ImmutableMessage(message);
+        scope.put("message", scope, immutableMessage);
+        
+        ImmutableConnectorMessage immutableConnectorMessage = immutableMessage.getMergedConnectorMessage();
+        scope.put("channelMap", scope, immutableConnectorMessage.getChannelMap());
+        scope.put("responseMap", scope, immutableConnectorMessage.getResponseMap());
     }
 
     // ConnectorMessage Builder
     private static void addConnectorMessage(Scriptable scope, ConnectorMessage message) {
-        // TODO: Change this to ConnectorMessage read-only API
         scope.put("messageObject", scope, new ImmutableConnectorMessage(message));
         if (message.getTransformed() != null) {
             scope.put("message", scope, message.getTransformed().getContent());
