@@ -16,7 +16,7 @@ package com.mirth.connect.model.converters;
  */
 public interface BatchMessageProcessor {
 
-    public void processBatchMessage(String message) throws BatchMessageProcessorException;
+    public boolean processBatchMessage(String message) throws BatchMessageProcessorException;
 
     public String getBatchScriptId();
 }

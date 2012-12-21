@@ -492,7 +492,11 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     }
 
     @Override
-    public void processBatchMessage(String message) throws BatchMessageProcessorException {
+    public boolean processBatchMessage(String message) throws BatchMessageProcessorException {
+        if (isTerminated()) {
+            return false;
+        }
+        
         Map<String, Object> channelMap = new HashMap<String, Object>();
         channelMap.put("originalFilename", originalFilename);
 
@@ -507,6 +511,8 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         } finally {
             finishDispatch(dispatchResult);
         }
+        
+        return true;
     }
 
     @Override

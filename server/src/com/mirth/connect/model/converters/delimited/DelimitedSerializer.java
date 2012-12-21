@@ -141,7 +141,10 @@ public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
         
         while ((message = getMessage(in, skipHeader, dest.getBatchScriptId())) != null) {
             try {
-                dest.processBatchMessage(message);
+                if (!dest.processBatchMessage(message)) {
+                    logger.warn("Batch processing stopped.");
+                    return;
+                }
             } catch (BatchMessageProcessorException e) {
                 errored = true;
                 logger.error("Error processing message in batch.", e);
