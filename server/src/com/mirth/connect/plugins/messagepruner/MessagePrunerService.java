@@ -11,22 +11,14 @@ package com.mirth.connect.plugins.messagepruner;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.swing.text.DateFormatter;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
-import org.quartz.Job;
 import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
@@ -35,29 +27,16 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.client.core.TaskConstants;
-import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.ChannelProperties;
-import com.mirth.connect.model.Event;
-import com.mirth.connect.model.Event.Level;
-import com.mirth.connect.model.Event.Outcome;
 import com.mirth.connect.model.ExtensionPermission;
 import com.mirth.connect.plugins.ServicePlugin;
-import com.mirth.connect.server.controllers.ChannelController;
-import com.mirth.connect.server.controllers.ControllerException;
-import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.controllers.MessagePrunerException;
 import com.mirth.connect.util.PropertyLoader;
 
-public class MessagePrunerService implements ServicePlugin, Job {
+public class MessagePrunerService implements ServicePlugin {
     public static final String PLUGINPOINT = "Message Pruner";
 
     private Scheduler sched;
     private SchedulerFactory schedFact;
     private JobDetail jobDetail;
-    private MessagePruner messagePruner;
-    private ChannelController channelController = ChannelController.getInstance();
-    private EventController eventController = EventController.getInstance();
     private Logger logger = Logger.getLogger(this.getClass());
 
     @Override
@@ -85,20 +64,7 @@ public class MessagePrunerService implements ServicePlugin, Job {
 
     @Override
     public void init(Properties properties) {
-        List<Status> skipStatuses = new ArrayList<Status>();
-        skipStatuses.add(Status.ERROR);
-        skipStatuses.add(Status.QUEUED);
-
-        DefaultMessagePruner messagePruner = new DefaultMessagePruner();
-        messagePruner.setRetryCount(3);
-        messagePruner.setSkipIncomplete(true);
-        messagePruner.setSkipStatuses(skipStatuses);
-        // TODO initialize archiver
-//        messagePruner.setMessageArchiver(archiver);
-
-        this.messagePruner = messagePruner;
-
-        jobDetail = new JobDetail("prunerJob", Scheduler.DEFAULT_GROUP, MessagePrunerService.class);
+        jobDetail = new JobDetail("prunerJob", Scheduler.DEFAULT_GROUP, MessagePrunerJob.class);
 
         try {
             schedFact = new StdSchedulerFactory();
@@ -142,82 +108,6 @@ public class MessagePrunerService implements ServicePlugin, Job {
         ExtensionPermission savePermission = new ExtensionPermission(PLUGINPOINT, "Save Settings", "Allows changing the Message Pruner settings.", new String[] { Operations.PLUGIN_PROPERTIES_SET.getName() }, new String[] { TaskConstants.SETTINGS_SAVE });
 
         return new ExtensionPermission[] { viewPermission, savePermission };
-    }
-
-    @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
-        logger.debug("pruning messages");
-        List<Channel> channels = null;
-
-        try {
-            channels = channelController.getChannel(null);
-        } catch (ControllerException e) {
-            logger.error("Failed to retrieve a list of all channels for pruning");
-            return;
-        }
-
-        for (Channel channel : channels) {
-            try {
-                ChannelProperties properties = channel.getProperties();
-                Integer pruneMetaDataDays = properties.getPruneMetaDataDays();
-                Integer pruneContentDays = properties.getPruneContentDays();
-                Calendar contentDateThreshold = null;
-                Calendar messageDateThreshold = null;
-                int numPruned = 0;
-
-                switch (properties.getMessageStorageMode()) {
-                    case DEVELOPMENT:
-                    case PRODUCTION:
-                    case RAW:
-                        if (pruneContentDays != null) {
-                            contentDateThreshold = Calendar.getInstance();
-                            contentDateThreshold.set(Calendar.DAY_OF_MONTH, contentDateThreshold.get(Calendar.DAY_OF_MONTH) - pruneContentDays);
-                        }
-
-                    case METADATA:
-                        if (pruneMetaDataDays != null) {
-                            messageDateThreshold = Calendar.getInstance();
-                            messageDateThreshold.set(Calendar.DAY_OF_MONTH, messageDateThreshold.get(Calendar.DAY_OF_MONTH) - pruneMetaDataDays);
-                        }
-
-                        if (messageDateThreshold != null || contentDateThreshold != null) {
-                            numPruned = messagePruner.executePruner(channel.getId(), messageDateThreshold, contentDateThreshold);
-                        }
-                        break;
-
-                    case DISABLED:
-                        break;
-
-                    default:
-                        throw new MessagePrunerException("Unrecognized message storage mode: " + properties.getMessageStorageMode().toString());
-                }
-
-                Map<String, String> attributes = new HashMap<String, String>();
-                attributes.put("channel", channel.getName());
-                attributes.put("messages pruned", Integer.toString(numPruned));
-
-                Event event = new Event();
-                event.setLevel(Level.INFORMATION);
-                event.setOutcome(Outcome.SUCCESS);
-                event.setName(PLUGINPOINT);
-                event.setAttributes(attributes);
-                eventController.addEvent(event);
-            } catch (Exception e) {
-                Map<String, String> attributes = new HashMap<String, String>();
-                attributes.put("channel", channel.getName());
-                attributes.put("error", e.getMessage());
-                attributes.put("trace", ExceptionUtils.getStackTrace(e));
-
-                Event event = new Event();
-                event.setLevel(Level.INFORMATION);
-                event.setOutcome(Outcome.FAILURE);
-                event.setName(PLUGINPOINT);
-                event.setAttributes(attributes);
-                eventController.addEvent(event);
-
-                logger.warn("could not prune messages for channel: " + channel.getName(), e);
-            }
-        }
     }
 
     private Trigger createTrigger(Properties properties) throws ParseException {

@@ -63,9 +63,9 @@ public class DefaultMessagePruner implements MessagePruner {
     }
 
     @Override
-    public int executePruner(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold) throws MessagePrunerException {
+    public int[] executePruner(String channelId, Calendar messageDateThreshold, Calendar contentDateThreshold) throws MessagePrunerException {
         if (messageDateThreshold == null && contentDateThreshold == null) {
-            return 0;
+            return new int[] { 0, 0 };
         }
 
         if (messageDateThreshold != null && contentDateThreshold != null && contentDateThreshold.getTimeInMillis() <= messageDateThreshold.getTimeInMillis()) {
@@ -73,7 +73,8 @@ public class DefaultMessagePruner implements MessagePruner {
         }
 
         int tryNum = 1;
-        int numPruned = 0;
+        int numContentPruned = 0;
+        int numMessagesPruned = 0;
         boolean retry;
 
         Map<String, Object> params = new HashMap<String, Object>();
@@ -99,28 +100,28 @@ public class DefaultMessagePruner implements MessagePruner {
                 if (contentDateThreshold != null) {
                     logger.debug("Pruning content");
                     params.put("dateThreshold", contentDateThreshold);
-                    session.delete("Message.prunerDeleteMessageContent", params);
+                    numContentPruned += session.delete("Message.prunerDeleteMessageContent", params);
                 }
 
                 if (messageDateThreshold != null) {
                     logger.debug("Pruning messages");
                     params.put("dateThreshold", messageDateThreshold);
-                    
-                    session.delete("Message.prunerDeleteMessageContent", params);
-                    
+
+                    numContentPruned += session.delete("Message.prunerDeleteMessageContent", params);
+
                     if (DatabaseUtil.statementExists("Message.prunerDeleteCustomMetadata")) {
                         session.delete("Message.prunerDeleteCustomMetadata", params);
                     }
-                    
+
                     if (DatabaseUtil.statementExists("Message.prunerDeleteAttachments")) {
                         session.delete("Message.prunerDeleteAttachments", params);
                     }
-                    
+
                     if (DatabaseUtil.statementExists("Message.prunerDeleteConnectorMessages")) {
                         session.delete("Message.prunerDeleteConnectorMessages", params);
                     }
-                    
-                    numPruned += session.delete("Message.prunerDeleteMessages", params);
+
+                    numMessagesPruned += session.delete("Message.prunerDeleteMessages", params);
                 }
 
                 logger.debug("Committing");
@@ -138,7 +139,7 @@ public class DefaultMessagePruner implements MessagePruner {
             }
         } while (retry);
 
-        return numPruned;
+        return new int[] { numMessagesPruned, numContentPruned };
     }
 
     private class ArchiverResultHandler implements ResultHandler {
@@ -163,14 +164,14 @@ public class DefaultMessagePruner implements MessagePruner {
 
                 Map<Integer, ConnectorMessage> connectorMessages = null;
                 DonkeyDao dao = null;
-                
+
                 try {
                     dao = daoFactory.getDao();
                     connectorMessages = dao.getConnectorMessages(channelId, messageId);
                 } finally {
                     dao.close();
                 }
-                
+
                 Message message = new Message();
                 message.setMessageId(messageId);
                 message.setChannelId(channelId);
