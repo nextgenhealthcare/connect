@@ -42,6 +42,7 @@ import com.mirth.connect.connectors.tcp.stream.DefaultBatchStreamReader;
 import com.mirth.connect.connectors.tcp.stream.ER7BatchStreamReader;
 import com.mirth.connect.connectors.tcp.stream.FrameStreamHandler;
 import com.mirth.connect.connectors.tcp.stream.StreamHandler;
+import com.mirth.connect.connectors.tcp.stream.StreamHandlerException;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
@@ -395,7 +396,7 @@ public class TcpReceiver extends SourceConnector {
                         done = true;
                     }
                 } catch (IOException e) {
-                    boolean timeout = e instanceof SocketTimeoutException || e.getCause() != null && e.getCause() instanceof SocketTimeoutException;
+                    boolean timeout = e instanceof SocketTimeoutException || !(e instanceof StreamHandlerException) && e.getCause() != null && e.getCause() instanceof SocketTimeoutException;
 
                     // If we're keeping the connection open and a timeout occurred, then continue processing. Otherwise, abort.
                     if (!connectorProperties.isKeepConnectionOpen() || !timeout) {
