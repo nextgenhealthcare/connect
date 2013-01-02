@@ -18,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.RhinoException;
@@ -475,6 +474,8 @@ public class JavaScriptUtil {
                 logger.debug("adding script " + scriptId);
                 compiledScriptCache.putCompiledScript(scriptId, compiledScript, generatedScript);
                 scriptInserted = true;
+            } else {
+                compiledScriptCache.removeCompiledScript(scriptId);
             }
         } catch (EvaluatorException e) {
             if (e instanceof RhinoException) {
