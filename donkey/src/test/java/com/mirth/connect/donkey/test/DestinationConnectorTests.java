@@ -109,7 +109,7 @@ public class DestinationConnectorTests {
         chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
         chain.setMetaDataColumns(channel.getMetaDataColumns());
         chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
-        channel.getDestinationChains().add(chain);
+        channel.addDestinationChain(chain);
 
         // Assert that the destination connector has not been deployed
         assertFalse(destinationConnector.isDeployed());
@@ -179,7 +179,7 @@ public class DestinationConnectorTests {
         chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
         chain.setMetaDataColumns(channel.getMetaDataColumns());
         chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
-        channel.getDestinationChains().add(chain);
+        channel.addDestinationChain(chain);
 
         channel.deploy();
         channel.start();
@@ -311,7 +311,7 @@ public class DestinationConnectorTests {
         chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
         chain.setMetaDataColumns(channel.getMetaDataColumns());
         chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
-        channel.getDestinationChains().add(chain);
+        channel.addDestinationChain(chain);
 
         channel.deploy();
         channel.start();
@@ -428,7 +428,7 @@ public class DestinationConnectorTests {
         chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
         chain.setMetaDataColumns(channel.getMetaDataColumns());
         chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
-        channel.getDestinationChains().add(chain);
+        channel.addDestinationChain(chain);
 
         if (ChannelController.getInstance().channelExists(channelId)) {
             ChannelController.getInstance().deleteAllMessages(channelId);

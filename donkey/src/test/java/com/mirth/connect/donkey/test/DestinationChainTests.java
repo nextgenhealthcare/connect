@@ -126,7 +126,7 @@ public class DestinationChainTests {
                 chain.addDestination(metaDataId, filterTransformerExecutor, destinationConnector);
             }
 
-            channel.getDestinationChains().add(chain);
+            channel.addDestinationChain(chain);
         }
 
         channel.deploy();

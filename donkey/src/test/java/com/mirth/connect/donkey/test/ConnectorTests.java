@@ -95,7 +95,7 @@ public class ConnectorTests {
         chain.setChannelId(channelId);
         chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
         chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
-        channel.getDestinationChains().add(chain);
+        channel.addDestinationChain(chain);
 
         channel.deploy();
         channel.start();

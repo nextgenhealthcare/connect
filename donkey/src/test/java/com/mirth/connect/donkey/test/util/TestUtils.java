@@ -150,7 +150,7 @@ public class TestUtils {
         chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
         chain.setMetaDataColumns(channel.getMetaDataColumns());
         chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
-        channel.getDestinationChains().add(chain);
+        channel.addDestinationChain(chain);
 
         return channel;
     }
@@ -203,7 +203,7 @@ public class TestUtils {
                 chain.addDestination(metaDataId, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
             }
 
-            channel.getDestinationChains().add(chain);
+            channel.addDestinationChain(chain);
         }
 
         return channel;

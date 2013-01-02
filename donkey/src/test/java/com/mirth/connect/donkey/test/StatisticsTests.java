@@ -241,7 +241,7 @@ public class StatisticsTests {
             chain.addDestination(i, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
         }
 
-        channel.getDestinationChains().add(chain);
+        channel.addDestinationChain(chain);
 
         ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
         TestUtils.deleteChannelStatistics(channel.getChannelId());
@@ -396,7 +396,7 @@ public class StatisticsTests {
 
         chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
 
-        channel.getDestinationChains().add(chain);
+        channel.addDestinationChain(chain);
 
         ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
         TestUtils.deleteChannelStatistics(channel.getChannelId());

@@ -469,7 +469,7 @@ public class QueueTests {
         chain.setMetaDataReplacer(sourceConnector.getMetaDataReplacer());
         chain.setMetaDataColumns(channel.getMetaDataColumns());
         chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
-        channel.getDestinationChains().add(chain);
+        channel.addDestinationChain(chain);
 
         // Start up the channel
         channel.deploy();
