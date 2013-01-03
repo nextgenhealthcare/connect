@@ -36,6 +36,7 @@
 		<property name="plugins.mapper" value="${extensions}/mapper" />
 		<property name="plugins.messagebuilder" value="${extensions}/messagebuilder" />
 		<property name="plugins.messagepruner" value="${extensions}/messagepruner" />
+		<property name="plugins.mllpmode" value="${extensions}/mllpmode" />
 		<property name="plugins.pdfviewer" value="${extensions}/pdfviewer" />
 		<property name="plugins.rtfviewer" value="${extensions}/rtfviewer" />
 		<property name="plugins.rulebuilder" value="${extensions}/rulebuilder" />
@@ -448,6 +449,24 @@
 		</copy>
 		<jar destfile="${plugins.messagepruner}/messagepruner-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/messagepruner/**" />
+		</jar>
+
+		<!-- plugins.mllpmode -->
+		<mkdir dir="${plugins.mllpmode}" />
+		<copy todir="${plugins.mllpmode}">
+			<fileset dir="${src}/com/mirth/connect/plugins/mllpmode">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.mllpmode}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/mllpmode" />
+		</copy>
+		<jar destfile="${plugins.mllpmode}/mllpmode-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/mllpmode/MLLPModeProperties.class" />
+		</jar>
+		<jar destfile="${plugins.mllpmode}/mllpmode-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/mllpmode/**" />
+			<exclude name="com/mirth/connect/plugins/mllpmode/MLLPModeProperties.class" />
 		</jar>
 
 		<!-- plugins.pdfviewer -->

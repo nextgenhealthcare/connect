@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.tcp.stream;
+package com.mirth.connect.model.transmission.batch;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,7 +19,7 @@ public class DelimiterBatchStreamReader extends BatchStreamReader {
 
     private byte[] delimiterBytes;
     private boolean includeDelimiter;
-    
+
     public DelimiterBatchStreamReader(InputStream inputStream) {
         this(inputStream, new byte[0], false);
     }

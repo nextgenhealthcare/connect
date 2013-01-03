@@ -38,8 +38,8 @@
           <Group type="102" attributes="0">
               <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="jLabel19" min="-2" max="-2" attributes="0"/>
-                  <Component id="frameEncodingLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="sampleLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="transmissionModeLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel18" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel17" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="keepConnectionOpenLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -56,22 +56,9 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="sampleMessageLabel" alignment="0" max="32767" attributes="0"/>
+                  <Component id="sampleValue" alignment="0" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Component id="frameEncodingComboBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="startOfMessageBytes0XLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                              <Component id="startOfMessageBytesField" min="-2" pref="46" max="-2" attributes="1"/>
-                              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-                              <Component id="messageDataLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="endOfMessageBytes0XLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                              <Component id="endOfMessageBytesField" min="-2" pref="46" max="-2" attributes="1"/>
-                          </Group>
                           <Group type="102" attributes="0">
                               <Component id="remoteAddressField" min="-2" pref="212" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -112,6 +99,11 @@
                       <EmptySpace min="0" pref="9" max="32767" attributes="0"/>
                   </Group>
                   <Component id="templateTextArea" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="transmissionModeComboBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="settingsPlaceHolderLabel" max="32767" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -121,18 +113,14 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="frameEncodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="frameEncodingComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="startOfMessageBytes0XLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="startOfMessageBytesField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="messageDataLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="endOfMessageBytes0XLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="endOfMessageBytesField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="transmissionModeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="transmissionModeComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="settingsPlaceHolderLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel19" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="sampleMessageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sampleLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sampleValue" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -206,7 +194,7 @@
                       <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="templateTextArea" pref="116" max="32767" attributes="0"/>
+                  <Component id="templateTextArea" pref="117" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -433,22 +421,6 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="testConnectionActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="startOfMessageBytesField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="startOfMessageBytesFieldActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="endOfMessageBytesField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="endOfMessageBytesFieldActionPerformed"/>
-      </Events>
-    </Component>
     <Component class="javax.swing.JLabel" name="processHL7ACKLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Process HL7 ACK:"/>
@@ -494,53 +466,32 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="startOfMessageBytes0XLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="0x"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
-      </Properties>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="frameEncodingComboBox">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="transmissionModeComboBox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="2">
-            <StringItem index="0" value="MLLP"/>
-            <StringItem index="1" value="Custom"/>
+            <StringItem index="0" value="MLLP Frame Encoded"/>
+            <StringItem index="1" value="Custom Frame Encoded"/>
           </StringArray>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select MLLP to use the default frame encoding characters as per the MLLPv1 specifications.&lt;br/&gt;Select Custom to enter user-defined frame encoding characters.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the transmission mode to use for sending and receiving data.&lt;br/&gt;&lt;/html&gt;"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="frameEncodingComboBoxActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="transmissionModeComboBoxActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="frameEncodingLabel">
+    <Component class="javax.swing.JLabel" name="transmissionModeLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Frame Encoding:"/>
+        <Property name="text" type="java.lang.String" value="Transmission Mode:"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the transmission mode to use for sending and receiving data.&lt;br/&gt;&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="messageDataLabel">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Dialog" size="12" style="2"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="&lt;Message Data&gt;"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
-        <Property name="enabled" type="boolean" value="false"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="endOfMessageBytes0XLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="0x"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the bytes to send before the beginning and after the end of the actual message.&lt;br/&gt;Only valid hexidecimal characters (0-9, A-F) are allowed.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Sample Frame: SOM &lt;i&gt;&amp;lt;Message Data&amp;gt;&lt;/i&gt; EOM&lt;/b&gt;&lt;/html&gt;"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel19">
+    <Component class="javax.swing.JLabel" name="sampleLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Sample Frame:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="sampleMessageLabel">
+    <Component class="javax.swing.JLabel" name="sampleValue">
       <Properties>
         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="99" green="99" red="99" type="rgb"/>
@@ -619,6 +570,11 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="overrideLocalBindingNoRadioActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="settingsPlaceHolderLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="     "/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

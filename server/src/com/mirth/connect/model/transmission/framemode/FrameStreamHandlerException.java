@@ -7,8 +7,9 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.tcp.stream;
+package com.mirth.connect.model.transmission.framemode;
 
+import com.mirth.connect.model.transmission.StreamHandlerException;
 import com.mirth.connect.util.TcpUtil;
 
 public class FrameStreamHandlerException extends StreamHandlerException {

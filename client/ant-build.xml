@@ -40,6 +40,7 @@
 		<property name="plugins.mapper" value="${extensions}/mapper" />
 		<property name="plugins.messagebuilder" value="${extensions}/messagebuilder" />
 		<property name="plugins.messagepruner" value="${extensions}/messagepruner" />
+		<property name="plugins.mllpmode" value="${extensions}/mllpmode" />
 		<property name="plugins.pdfviewer" value="${extensions}/pdfviewer" />
 		<property name="plugins.rtfviewer" value="${extensions}/rtfviewer" />
 		<property name="plugins.rulebuilder" value="${extensions}/rulebuilder" />
@@ -138,14 +139,29 @@
 		</jar>
 
 		<!-- plugins -->
-		<mkdir dir="${plugins.messagepruner}" />
-		<jar destfile="${plugins.messagepruner}/messagepruner-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/messagepruner/**" />
+		<mkdir dir="${plugins.dashboardstatus}" />
+		<jar destfile="${plugins.dashboardstatus}/dashboardstatus-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/dashboardstatus/**" />
+		</jar>
+
+		<mkdir dir="${plugins.dicomviewer}" />
+		<jar destfile="${plugins.dicomviewer}/dicomviewer-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/dicomviewer/**" />
 		</jar>
 
 		<mkdir dir="${plugins.extensionmanager}" />
 		<jar destfile="${plugins.extensionmanager}/extensionmanager-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/extensionmanager/**" />
+		</jar>
+
+		<mkdir dir="${plugins.imageviewer}" />
+		<jar destfile="${plugins.imageviewer}/imageviewer-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/imageviewer/**" />
+		</jar>
+
+		<mkdir dir="${plugins.javascriptrule}" />
+		<jar destfile="${plugins.javascriptrule}/javascriptrule-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/javascriptrule/**" />
 		</jar>
 
 		<mkdir dir="${plugins.javascriptstep}" />
@@ -163,24 +179,14 @@
 			<include name="com/mirth/connect/plugins/messagebuilder/**" />
 		</jar>
 
-		<mkdir dir="${plugins.javascriptrule}" />
-		<jar destfile="${plugins.javascriptrule}/javascriptrule-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/javascriptrule/**" />
+		<mkdir dir="${plugins.messagepruner}" />
+		<jar destfile="${plugins.messagepruner}/messagepruner-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/messagepruner/**" />
 		</jar>
 
-		<mkdir dir="${plugins.rulebuilder}" />
-		<jar destfile="${plugins.rulebuilder}/rulebuilder-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/rulebuilder/**" />
-		</jar>
-
-		<mkdir dir="${plugins.dashboardstatus}" />
-		<jar destfile="${plugins.dashboardstatus}/dashboardstatus-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/dashboardstatus/**" />
-		</jar>
-
-		<mkdir dir="${plugins.dicomviewer}" />
-		<jar destfile="${plugins.dicomviewer}/dicomviewer-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/dicomviewer/**" />
+		<mkdir dir="${plugins.mllpmode}" />
+		<jar destfile="${plugins.mllpmode}/mllpmode-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/mllpmode/**" />
 		</jar>
 
 		<mkdir dir="${plugins.pdfviewer}" />
@@ -193,9 +199,9 @@
 			<include name="com/mirth/connect/plugins/rtfviewer/**" />
 		</jar>
 
-		<mkdir dir="${plugins.imageviewer}" />
-		<jar destfile="${plugins.imageviewer}/imageviewer-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/imageviewer/**" />
+		<mkdir dir="${plugins.rulebuilder}" />
+		<jar destfile="${plugins.rulebuilder}/rulebuilder-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/rulebuilder/**" />
 		</jar>
 
 		<mkdir dir="${plugins.serverlog}" />

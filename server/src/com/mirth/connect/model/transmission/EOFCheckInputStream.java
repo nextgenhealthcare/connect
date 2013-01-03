@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.tcp;
+package com.mirth.connect.model.transmission;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -15,16 +15,13 @@ import java.io.InputStream;
 
 /**
  * An EOFCheckInputStream adds functionality to another InputStream that detects
- * when a -1 is first
- * read from the underlying stream, and doesn't allow any subsequent reads after
- * that (all calls to
- * read() will result in -1). This is useful for sockets that are persisted
- * across multiple reads
- * because it prevents an unnecessary SocketTimeoutException from occurring. To
- * continue reading
- * from a socket using this stream, you can either call reset() to a previously
- * marked position, or
- * you can wrap the socket stream in a new instance of EOFCheckInputStream.
+ * when a -1 is first read from the underlying stream, and doesn't allow any
+ * subsequent reads after that (all calls to read() will result in -1). This is
+ * useful for sockets that are persisted across multiple reads because it
+ * prevents an unnecessary SocketTimeoutException from occurring. To continue
+ * reading from a socket using this stream, you can either call reset() to a
+ * previously marked position, or you can wrap the socket stream in a new
+ * instance of EOFCheckInputStream.
  */
 public class EOFCheckInputStream extends BufferedInputStream {
 

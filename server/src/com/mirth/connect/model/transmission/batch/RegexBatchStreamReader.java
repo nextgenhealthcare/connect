@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.tcp.stream;
+package com.mirth.connect.model.transmission.batch;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -1,0 +1,17 @@
+<pluginMetaData path="mllpmode">
+	<name>Transmission Mode - MLLP</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.0.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides an MLLP transmission mode for socket/serial connectors.</description>
+	<serverClasses>
+		<string>com.mirth.connect.plugins.mllpmode.MLLPModeProvider</string>
+	</serverClasses>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.mllpmode.MLLPModePlugin</string>
+	</clientClasses>
+	<library type="CLIENT" path="mllpmode-client.jar" />
+	<library type="SERVER" path="mllpmode-server.jar" />
+	<library type="SHARED" path="mllpmode-shared.jar" />
+</pluginMetaData>

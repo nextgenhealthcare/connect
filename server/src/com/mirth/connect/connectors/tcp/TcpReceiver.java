@@ -37,12 +37,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.connectors.tcp.stream.BatchStreamReader;
-import com.mirth.connect.connectors.tcp.stream.DefaultBatchStreamReader;
-import com.mirth.connect.connectors.tcp.stream.ER7BatchStreamReader;
-import com.mirth.connect.connectors.tcp.stream.FrameStreamHandler;
-import com.mirth.connect.connectors.tcp.stream.StreamHandler;
-import com.mirth.connect.connectors.tcp.stream.StreamHandlerException;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
@@ -53,6 +47,14 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.model.converters.DataTypeFactory;
+import com.mirth.connect.model.transmission.StreamHandler;
+import com.mirth.connect.model.transmission.StreamHandlerException;
+import com.mirth.connect.model.transmission.batch.BatchStreamReader;
+import com.mirth.connect.model.transmission.batch.DefaultBatchStreamReader;
+import com.mirth.connect.model.transmission.batch.ER7BatchStreamReader;
+import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
+import com.mirth.connect.plugins.BasicModeProvider;
+import com.mirth.connect.plugins.TransmissionModeProvider;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
@@ -80,18 +82,18 @@ public class TcpReceiver extends SourceConnector {
     private Set<Future<Throwable>> results = new HashSet<Future<Throwable>>();
 
     private int maxConnections;
-    private byte[] startOfMessageBytes;
-    private byte[] endOfMessageBytes;
-    private boolean returnDataOnException;
+    TransmissionModeProvider transmissionModeProvider;
 
     @Override
     public void onDeploy() throws DeployException {
         connectorProperties = (TcpReceiverProperties) getConnectorProperties();
         maxConnections = parseInt(connectorProperties.getMaxConnections());
-        startOfMessageBytes = TcpUtil.stringToByteArray(connectorProperties.getStartOfMessageBytes());
-        endOfMessageBytes = TcpUtil.stringToByteArray(connectorProperties.getEndOfMessageBytes());
-        // Only return data on exceptions if there are no end bytes defined
-        returnDataOnException = endOfMessageBytes.length == 0;
+
+        String pluginPointName = (String) connectorProperties.getTransmissionModeProperties().getPluginPointName();
+        transmissionModeProvider = (TransmissionModeProvider) ControllerFactory.getFactory().createExtensionController().getServicePlugins().get(pluginPointName);
+        if (transmissionModeProvider == null) {
+            transmissionModeProvider = new BasicModeProvider();
+        }
 
         if (connectorProperties.isServerMode()) {
             // If we're in server mode, use the max connections property to initialize the thread pool
@@ -240,7 +242,7 @@ public class TcpReceiver extends SourceConnector {
                 // Only if we're responding on a new connection can we handle recovered responses
                 if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION_ON_RECOVERY) {
                     BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(null);
-                    StreamHandler streamHandler = new FrameStreamHandler(null, null, batchStreamReader, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
+                    StreamHandler streamHandler = transmissionModeProvider.getStreamHandler(null, null, batchStreamReader, connectorProperties.getTransmissionModeProperties());
                     StateAwareSocket responseSocket = null;
 
                     try {
@@ -288,20 +290,26 @@ public class TcpReceiver extends SourceConnector {
                     // TODO: Put this on the DataType object; let it decide based on the properties which stream handler to use
                     BatchStreamReader batchStreamReader = null;
                     if (connectorProperties.isProcessBatch() && getInboundDataType().getType().equals(DataTypeFactory.HL7V2)) {
-                        batchStreamReader = new ER7BatchStreamReader(socket.getInputStream(), endOfMessageBytes);
+                        if (connectorProperties.getTransmissionModeProperties() instanceof FrameModeProperties) {
+                            batchStreamReader = new ER7BatchStreamReader(socket.getInputStream(), TcpUtil.stringToByteArray(((FrameModeProperties) connectorProperties.getTransmissionModeProperties()).getEndOfMessageBytes()));
+                        } else {
+                            batchStreamReader = new ER7BatchStreamReader(socket.getInputStream());
+                        }
                     } else {
                         batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
                     }
-                    streamHandler = new FrameStreamHandler(socket.getInputStream(), socket.getOutputStream(), batchStreamReader, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
+                    streamHandler = transmissionModeProvider.getStreamHandler(socket.getInputStream(), socket.getOutputStream(), batchStreamReader, connectorProperties.getTransmissionModeProperties());
 
                     while (!streamDone && !done) {
                         /*
-                         * Read from the socket's input stream. If we're keeping the connection
-                         * open, then bytes will be read until the socket timeout is reached, or
-                         * until an EOF marker or the ending bytes are encountered. If we're not
-                         * keeping the connection open, then a socket timeout will not be silently
-                         * caught, and instead will be thrown from here and cause the worker thread
-                         * to abort.
+                         * Read from the socket's input stream. If we're keeping
+                         * the connection open, then bytes will be read until
+                         * the socket timeout is reached, or until an EOF marker
+                         * or the ending bytes are encountered. If we're not
+                         * keeping the connection open, then a socket timeout
+                         * will not be silently caught, and instead will be
+                         * thrown from here and cause the worker thread to
+                         * abort.
                          */
                         logger.debug("Reading from socket input stream (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")...");
                         byte[] bytes = streamHandler.read();
@@ -337,6 +345,7 @@ public class TcpReceiver extends SourceConnector {
                                 // Send the message to the source connector
                                 try {
                                     dispatchResult = dispatchRawMessage(rawMessage);
+                                    streamHandler.commit(true);
 
                                     // Check to see if we have a response to send
                                     if (dispatchResult.getSelectedResponse() != null) {
@@ -366,6 +375,7 @@ public class TcpReceiver extends SourceConnector {
                                         }
                                     }
                                 } catch (ChannelException e) {
+                                    streamHandler.commit(false);
                                 } finally {
                                     finishDispatch(dispatchResult, attemptedResponse, response, errorMessage);
                                 }

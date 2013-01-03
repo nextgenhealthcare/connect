@@ -11,33 +11,41 @@ package com.mirth.connect.connectors.tcp;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.GroupLayout;
+import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
 
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.transmission.TransmissionModeProperties;
+import com.mirth.connect.plugins.BasicModePlugin;
+import com.mirth.connect.plugins.ClientPlugin;
+import com.mirth.connect.plugins.TransmissionModePlugin;
 import com.mirth.connect.util.ConnectionTestResponse;
-import com.mirth.connect.util.TcpUtil;
 
-public class TcpSender extends ConnectorSettingsPanel implements DocumentListener, ActionListener {
+public class TcpSender extends ConnectorSettingsPanel implements ActionListener {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private Frame parent;
-
-    private String frameEncodingToolTipText;
-    private String messageBytesToolTipText;
-    private String startOfMessageAbbreviation;
-    private String endOfMessageAbbreviation;
+    private Map<String, PluginMetaData> metaDataMap;
+    private TransmissionModePlugin transmissionModePlugin;
+    private JComponent settingsPlaceHolder;
+    private String selectedMode;
+    private boolean modeLock = false;
 
     public TcpSender() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -45,15 +53,23 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         sendTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
         responseTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
-        startOfMessageBytesField.setDocument(new MirthFieldConstraints(0, true, true, true));
-        endOfMessageBytesField.setDocument(new MirthFieldConstraints(0, true, true, true));
-        startOfMessageBytesField.getDocument().addDocumentListener(this);
-        endOfMessageBytesField.getDocument().addDocumentListener(this);
-
-        frameEncodingToolTipText = frameEncodingComboBox.getToolTipText();
-        messageBytesToolTipText = messageDataLabel.getToolTipText();
-        startOfMessageAbbreviation = "";
-        endOfMessageAbbreviation = "";
+        
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
+        model.addElement("Basic TCP");
+        selectedMode = "Basic TCP";
+        
+        metaDataMap = new HashMap<String, PluginMetaData>();
+        for (PluginMetaData metaData : parent.getPluginMetaData().values()) {
+            if (metaData.getName().startsWith("Transmission Mode - ")) {
+                String name = metaData.getName().substring(20);
+                metaDataMap.put(name, metaData);
+                model.addElement(name);
+            }
+        }
+        
+        transmissionModeComboBox.setModel(model);
+        
+        settingsPlaceHolder = settingsPlaceHolderLabel;
 
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
@@ -67,6 +83,9 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
     public ConnectorProperties getProperties() {
         TcpDispatcherProperties properties = new TcpDispatcherProperties();
 
+        if (transmissionModePlugin != null) {
+            properties.setTransmissionModeProperties((TransmissionModeProperties) transmissionModePlugin.getProperties());
+        }
         properties.setRemoteAddress(remoteAddressField.getText());
         properties.setRemotePort(remotePortField.getText());
         properties.setOverrideLocalBinding(overrideLocalBindingYesRadio.isSelected());
@@ -75,8 +94,6 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         properties.setSendTimeout(sendTimeoutField.getText());
         properties.setBufferSize(bufferSizeField.getText());
         properties.setKeepConnectionOpen(keepConnectionOpenYesRadio.isSelected());
-        properties.setStartOfMessageBytes(startOfMessageBytesField.getText());
-        properties.setEndOfMessageBytes(endOfMessageBytesField.getText());
         properties.setResponseTimeout(responseTimeoutField.getText());
         properties.setIgnoreResponse(ignoreResponseCheckBox.isSelected());
         properties.setProcessHL7ACK(processHL7ACKYesRadio.isSelected());
@@ -93,6 +110,25 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
     public void setProperties(ConnectorProperties properties) {
         logger.debug("setProperties: properties=" + properties);
         TcpDispatcherProperties props = (TcpDispatcherProperties) properties;
+        
+        TransmissionModeProperties modeProps = props.getTransmissionModeProperties();
+        if (modeProps != null) {
+            String name = modeProps.getPluginPointName();
+            if (name.equals("Basic")) {
+                name += " TCP";
+            }
+            
+            if (metaDataMap.containsKey(modeProps.getPluginPointName()) || modeProps.getPluginPointName().equals("Basic")) {
+                modeLock = true;
+                transmissionModeComboBox.setSelectedItem(name);
+                transmissionModeComboBoxActionPerformed(null);
+                modeLock = false;
+                selectedMode = name;
+                if (transmissionModePlugin != null) {
+                    transmissionModePlugin.setProperties(modeProps);
+                }
+            }
+        }
 
         remoteAddressField.setText(props.getRemoteAddress());
         remotePortField.setText(props.getRemotePort());
@@ -117,17 +153,6 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
             keepConnectionOpenNoRadio.setSelected(true);
             keepConnectionOpenNoRadioActionPerformed(null);
         }
-
-        startOfMessageBytesField.setText(props.getStartOfMessageBytes());
-        endOfMessageBytesField.setText(props.getEndOfMessageBytes());
-
-        frameEncodingComboBox.removeActionListener(this);
-        if (props.getStartOfMessageBytes().equals(TcpUtil.DEFAULT_LLP_START_BYTES) && props.getEndOfMessageBytes().equals(TcpUtil.DEFAULT_LLP_END_BYTES)) {
-            frameEncodingComboBox.setSelectedItem("MLLP");
-        } else {
-            frameEncodingComboBox.setSelectedItem("Custom");
-        }
-        frameEncodingComboBox.addActionListener(this);
 
         responseTimeoutField.setText(String.valueOf(props.getResponseTimeout()));
 
@@ -165,6 +190,11 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
 
         boolean valid = true;
 
+        if (transmissionModePlugin != null) {
+            if (!transmissionModePlugin.checkProperties(transmissionModePlugin.getProperties(), highlight)) {
+                valid = false;
+            }
+        }
         if (props.getRemoteAddress().length() <= 3) {
             valid = false;
             if (highlight) {
@@ -205,18 +235,6 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
                 bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (!TcpUtil.isValidHexString(props.getStartOfMessageBytes())) {
-            valid = false;
-            if (highlight) {
-                startOfMessageBytesField.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
-        if (!TcpUtil.isValidHexString(props.getEndOfMessageBytes())) {
-            valid = false;
-            if (highlight) {
-                endOfMessageBytesField.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
         if (!props.isIgnoreResponse()) {
             if (props.getResponseTimeout().length() == 0) {
                 valid = false;
@@ -237,98 +255,27 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
 
     @Override
     public void resetInvalidProperties() {
+        if (transmissionModePlugin != null) {
+            transmissionModePlugin.resetInvalidProperties();
+        }
         remoteAddressField.setBackground(null);
         remotePortField.setBackground(null);
         localAddressField.setBackground(null);
         localPortField.setBackground(null);
         sendTimeoutField.setBackground(null);
         bufferSizeField.setBackground(null);
-        startOfMessageBytesField.setBackground(null);
-        endOfMessageBytesField.setBackground(null);
         responseTimeoutField.setBackground(null);
         templateTextArea.setBackground(null);
     }
-
-    @Override
-    public void changedUpdate(DocumentEvent evt) {
-        changeAbbreviation(evt);
-    }
-
-    @Override
-    public void insertUpdate(DocumentEvent evt) {
-        changeAbbreviation(evt);
-    }
-
-    @Override
-    public void removeUpdate(DocumentEvent evt) {
-        changeAbbreviation(evt);
-    }
-
-    private void changeAbbreviation(DocumentEvent evt) {
-        String text = "";
-        String switchTo = "Custom";
-
-        try {
-            text = evt.getDocument().getText(0, evt.getDocument().getLength()).trim();
-        } catch (BadLocationException e) {
-        }
-
-        if (evt.getDocument().equals(startOfMessageBytesField.getDocument())) {
-            startOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(text);
-
-            if (frameEncodingComboBox.getSelectedItem().equals("MLLP") && text.equals(TcpUtil.DEFAULT_LLP_START_BYTES) && endOfMessageBytesField.getText().equals(TcpUtil.DEFAULT_LLP_END_BYTES)) {
-                switchTo = "MLLP";
-            }
-        } else {
-            endOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(text);
-
-            if (frameEncodingComboBox.getSelectedItem().equals("MLLP") && startOfMessageBytesField.getText().equals(TcpUtil.DEFAULT_LLP_START_BYTES) && text.equals(TcpUtil.DEFAULT_LLP_END_BYTES)) {
-                switchTo = "MLLP";
-            }
-        }
-
-        frameEncodingComboBox.removeActionListener(this);
-        frameEncodingComboBox.setSelectedItem(switchTo);
-        frameEncodingComboBox.addActionListener(this);
-
-        changeAbbreviation();
-    }
-
-    private void changeAbbreviation() {
-        String startReplaced = startOfMessageAbbreviation.replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;");
-        String endReplaced = endOfMessageAbbreviation.replaceAll("\\<", "&lt;").replaceAll("\\>", "&gt;");
-        String newFrameEncodingToolTipText = frameEncodingToolTipText.replace("SOM", startReplaced).replace("EOM", endReplaced);
-        String newMessageBytesToolTipText = messageBytesToolTipText.replace("SOM", startReplaced).replace("EOM", endReplaced);
-
-        frameEncodingComboBox.setToolTipText(newFrameEncodingToolTipText);
-        startOfMessageBytes0XLabel.setToolTipText(newMessageBytesToolTipText);
-        startOfMessageBytesField.setToolTipText(newMessageBytesToolTipText);
-        messageDataLabel.setToolTipText(newMessageBytesToolTipText);
-        endOfMessageBytes0XLabel.setToolTipText(newMessageBytesToolTipText);
-        endOfMessageBytesField.setToolTipText(newMessageBytesToolTipText);
-        sampleMessageLabel.setText(("<html><b>" + startReplaced + "</b> <i>&lt;Message Data&gt;</i> <b>" + endReplaced + "</b></html>").trim());
-    }
-
+    
     @Override
     public void actionPerformed(ActionEvent evt) {
-        if (evt.getSource().equals(frameEncodingComboBox)) {
-            startOfMessageBytesField.getDocument().removeDocumentListener(this);
-            endOfMessageBytesField.getDocument().removeDocumentListener(this);
-
-            if (frameEncodingComboBox.getSelectedItem().equals("MLLP")) {
-                startOfMessageBytesField.setText(TcpUtil.DEFAULT_LLP_START_BYTES);
-                endOfMessageBytesField.setText(TcpUtil.DEFAULT_LLP_END_BYTES);
-            } else {
-                startOfMessageBytesField.setText("");
-                endOfMessageBytesField.setText("");
+        if (evt.getSource().equals(transmissionModePlugin)) {
+            if (evt.getActionCommand().equals(TransmissionModePlugin.CHANGE_SAMPLE_LABEL_COMMAND)) {
+                sampleLabel.setText(transmissionModePlugin.getSampleLabel());
+            } else if (evt.getActionCommand().equals(TransmissionModePlugin.CHANGE_SAMPLE_VALUE_COMMAND)) {
+                sampleValue.setText(transmissionModePlugin.getSampleValue());
             }
-
-            startOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(startOfMessageBytesField.getText());
-            endOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(endOfMessageBytesField.getText());
-            changeAbbreviation();
-
-            startOfMessageBytesField.getDocument().addDocumentListener(this);
-            endOfMessageBytesField.getDocument().addDocumentListener(this);
         }
     }
 
@@ -367,18 +314,13 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         dataTypeBinaryRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         dataTypeLabel = new javax.swing.JLabel();
         testConnection = new javax.swing.JButton();
-        startOfMessageBytesField = new com.mirth.connect.client.ui.components.MirthTextField();
-        endOfMessageBytesField = new com.mirth.connect.client.ui.components.MirthTextField();
         processHL7ACKLabel = new javax.swing.JLabel();
         processHL7ACKYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         processHL7ACKNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        startOfMessageBytes0XLabel = new javax.swing.JLabel();
-        frameEncodingComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
-        frameEncodingLabel = new javax.swing.JLabel();
-        messageDataLabel = new javax.swing.JLabel();
-        endOfMessageBytes0XLabel = new javax.swing.JLabel();
-        jLabel19 = new javax.swing.JLabel();
-        sampleMessageLabel = new javax.swing.JLabel();
+        transmissionModeComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
+        transmissionModeLabel = new javax.swing.JLabel();
+        sampleLabel = new javax.swing.JLabel();
+        sampleValue = new javax.swing.JLabel();
         localAddressLabel = new javax.swing.JLabel();
         localAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
         localPortLabel = new javax.swing.JLabel();
@@ -386,6 +328,7 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         keepConnectionOpenLabel1 = new javax.swing.JLabel();
         overrideLocalBindingYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         overrideLocalBindingNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        settingsPlaceHolderLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -497,20 +440,6 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
             }
         });
 
-        startOfMessageBytesField.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
-        startOfMessageBytesField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                startOfMessageBytesFieldActionPerformed(evt);
-            }
-        });
-
-        endOfMessageBytesField.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
-        endOfMessageBytesField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                endOfMessageBytesFieldActionPerformed(evt);
-            }
-        });
-
         processHL7ACKLabel.setText("Process HL7 ACK:");
 
         processHL7ACKYesRadio.setBackground(new java.awt.Color(255, 255, 255));
@@ -527,33 +456,22 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         processHL7ACKNoRadio.setToolTipText("<html>If enabled, only successful HL7 v2.x ACK codes will allow a message to be marked as successful.<br/>If disabled, the response will not be parsed and the message will always be marked as successful.</html>");
         processHL7ACKNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        startOfMessageBytes0XLabel.setText("0x");
-        startOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
-
-        frameEncodingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP",
-                "Custom" }));
-        frameEncodingComboBox.setToolTipText("<html>Select MLLP to use the default frame encoding characters as per the MLLPv1 specifications.<br/>Select Custom to enter user-defined frame encoding characters.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
-        frameEncodingComboBox.addActionListener(new java.awt.event.ActionListener() {
+        transmissionModeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "MLLP Frame Encoded", "Custom Frame Encoded" }));
+        transmissionModeComboBox.setToolTipText("<html>Select the transmission mode to use for sending and receiving data.<br/></html>");
+        transmissionModeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                frameEncodingComboBoxActionPerformed(evt);
+                transmissionModeComboBoxActionPerformed(evt);
             }
         });
 
-        frameEncodingLabel.setText("Frame Encoding:");
+        transmissionModeLabel.setText("Transmission Mode:");
+        transmissionModeLabel.setToolTipText("<html>Select the transmission mode to use for sending and receiving data.<br/></html>");
 
-        messageDataLabel.setFont(new java.awt.Font("Dialog", 2, 12)); // NOI18N
-        messageDataLabel.setText("<Message Data>");
-        messageDataLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
-        messageDataLabel.setEnabled(false);
+        sampleLabel.setText("Sample Frame:");
 
-        endOfMessageBytes0XLabel.setText("0x");
-        endOfMessageBytes0XLabel.setToolTipText("<html>Enter the bytes to send before the beginning and after the end of the actual message.<br/>Only valid hexidecimal characters (0-9, A-F) are allowed.<br/><br/><b>Sample Frame: SOM <i>&lt;Message Data&gt;</i> EOM</b></html>");
-
-        jLabel19.setText("Sample Frame:");
-
-        sampleMessageLabel.setForeground(new java.awt.Color(153, 153, 153));
-        sampleMessageLabel.setText("<html><b>&lt;VT&gt;</b> <i>&lt;Message Data&gt;</i> <b>&lt;FS&gt;&lt;CR&gt;</b></html>");
-        sampleMessageLabel.setEnabled(false);
+        sampleValue.setForeground(new java.awt.Color(153, 153, 153));
+        sampleValue.setText("<html><b>&lt;VT&gt;</b> <i>&lt;Message Data&gt;</i> <b>&lt;FS&gt;&lt;CR&gt;</b></html>");
+        sampleValue.setEnabled(false);
 
         localAddressLabel.setText("Local Address:");
 
@@ -589,10 +507,146 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
             }
         });
 
+        settingsPlaceHolderLabel.setText("     ");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGap(13, 13, 13).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(jLabel19).addComponent(frameEncodingLabel).addComponent(jLabel18).addComponent(jLabel17).addComponent(keepConnectionOpenLabel1).addComponent(localAddressLabel).addComponent(localPortLabel).addComponent(keepConnectionOpenLabel).addComponent(sendTimeoutLabel).addComponent(jLabel15).addComponent(responseTimeoutLabel).addComponent(processHL7ACKLabel).addComponent(dataTypeLabel).addComponent(encodingLabel).addComponent(jLabel7)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(sampleMessageLabel).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addComponent(frameEncodingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(startOfMessageBytes0XLabel).addGap(3, 3, 3).addComponent(startOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(4, 4, 4).addComponent(messageDataLabel).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(endOfMessageBytes0XLabel).addGap(3, 3, 3).addComponent(endOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(remoteAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(testConnection)).addComponent(remotePortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addComponent(overrideLocalBindingYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(overrideLocalBindingNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(localAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(localPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(layout.createSequentialGroup().addComponent(responseTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(ignoreResponseCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(processHL7ACKYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(processHL7ACKNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(layout.createSequentialGroup().addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addGap(0, 9, Short.MAX_VALUE)).addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)).addContainerGap()));
-        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(frameEncodingLabel).addComponent(frameEncodingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(startOfMessageBytes0XLabel).addComponent(startOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(messageDataLabel).addComponent(endOfMessageBytes0XLabel).addComponent(endOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel19).addComponent(sampleMessageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel18).addComponent(remoteAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(testConnection)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel17).addComponent(remotePortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(keepConnectionOpenLabel1).addComponent(overrideLocalBindingYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(overrideLocalBindingNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(localAddressLabel).addComponent(localAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(localPortLabel).addComponent(localPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(keepConnectionOpenLabel).addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(sendTimeoutLabel).addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jLabel15).addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(responseTimeoutLabel).addComponent(responseTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(ignoreResponseCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(processHL7ACKLabel).addComponent(processHL7ACKYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(processHL7ACKNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(dataTypeLabel).addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(encodingLabel).addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addComponent(jLabel7).addGap(0, 0, Short.MAX_VALUE)).addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)).addContainerGap()));
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(13, 13, 13)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(sampleLabel)
+                    .addComponent(transmissionModeLabel)
+                    .addComponent(jLabel18)
+                    .addComponent(jLabel17)
+                    .addComponent(keepConnectionOpenLabel1)
+                    .addComponent(localAddressLabel)
+                    .addComponent(localPortLabel)
+                    .addComponent(keepConnectionOpenLabel)
+                    .addComponent(sendTimeoutLabel)
+                    .addComponent(jLabel15)
+                    .addComponent(responseTimeoutLabel)
+                    .addComponent(processHL7ACKLabel)
+                    .addComponent(dataTypeLabel)
+                    .addComponent(encodingLabel)
+                    .addComponent(jLabel7))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(sampleValue)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(remoteAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(testConnection))
+                            .addComponent(remotePortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(overrideLocalBindingYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(overrideLocalBindingNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(localAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(localPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(responseTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(ignoreResponseCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(processHL7ACKYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(processHL7ACKNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 9, Short.MAX_VALUE))
+                    .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(transmissionModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(settingsPlaceHolderLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(transmissionModeLabel)
+                    .addComponent(transmissionModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(settingsPlaceHolderLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sampleLabel)
+                    .addComponent(sampleValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel18)
+                    .addComponent(remoteAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(testConnection))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel17)
+                    .addComponent(remotePortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(keepConnectionOpenLabel1)
+                    .addComponent(overrideLocalBindingYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(overrideLocalBindingNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(localAddressLabel)
+                    .addComponent(localAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(localPortLabel)
+                    .addComponent(localPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(keepConnectionOpenLabel)
+                    .addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sendTimeoutLabel)
+                    .addComponent(sendTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel15)
+                    .addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(responseTimeoutLabel)
+                    .addComponent(responseTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ignoreResponseCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(processHL7ACKLabel)
+                    .addComponent(processHL7ACKYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(processHL7ACKNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(dataTypeLabel)
+                    .addComponent(dataTypeBinaryRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(dataTypeASCIIRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(encodingLabel)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
+                .addContainerGap())
+        );
     }// </editor-fold>//GEN-END:initComponents
 
     private void dataTypeBinaryRadioActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeBinaryRadioActionPerformed
@@ -654,12 +708,6 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         worker.execute();
     }//GEN-LAST:event_testConnectionActionPerformed
 
-    private void startOfMessageBytesFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startOfMessageBytesFieldActionPerformed
-    }//GEN-LAST:event_startOfMessageBytesFieldActionPerformed
-
-    private void endOfMessageBytesFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_endOfMessageBytesFieldActionPerformed
-    }//GEN-LAST:event_endOfMessageBytesFieldActionPerformed
-
     private void keepConnectionOpenYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_keepConnectionOpenYesRadioActionPerformed
         sendTimeoutLabel.setEnabled(true);
         sendTimeoutField.setEnabled(true);
@@ -670,8 +718,37 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
         sendTimeoutField.setEnabled(false);
     }//GEN-LAST:event_keepConnectionOpenNoRadioActionPerformed
 
-    private void frameEncodingComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_frameEncodingComboBoxActionPerformed
-    }//GEN-LAST:event_frameEncodingComboBoxActionPerformed
+    private void transmissionModeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transmissionModeComboBoxActionPerformed
+        String name = (String) transmissionModeComboBox.getSelectedItem();
+        
+        if (!modeLock && transmissionModePlugin != null) {
+            if (!transmissionModePlugin.getDefaultProperties().equals(transmissionModePlugin.getProperties())) {
+                if (JOptionPane.showConfirmDialog(parent, "Are you sure you would like to change the transmission mode and lose all of the current transmission properties?", "Select an Option", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+                    modeLock = true;
+                    transmissionModeComboBox.setSelectedItem(selectedMode);
+                    modeLock = false;
+                    return;
+                }
+            }
+        }
+        
+        selectedMode = name;
+        if (name.equals("Basic TCP")) {
+            transmissionModePlugin = new BasicModePlugin();
+        } else {
+            for (ClientPlugin plugin : LoadedExtensions.getInstance().getClientPlugins()) {
+                if (plugin.getPluginPointName().equals(name)) {
+                    transmissionModePlugin = (TransmissionModePlugin) plugin;
+                }
+            }
+        }
+        
+        if (transmissionModePlugin != null) {
+            transmissionModePlugin.initialize(this);
+            ((GroupLayout) getLayout()).replace(settingsPlaceHolder, transmissionModePlugin.getSettingsComponent());
+            settingsPlaceHolder = transmissionModePlugin.getSettingsComponent();
+        }
+    }//GEN-LAST:event_transmissionModeComboBoxActionPerformed
 
     private void overrideLocalBindingYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overrideLocalBindingYesRadioActionPerformed
         localAddressField.setEnabled(true);
@@ -689,8 +766,7 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
 
     private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_charsetEncodingComboboxActionPerformed
     }// GEN-LAST:event_charsetEncodingComboboxActionPerformed
-     // Variables declaration - do not modify//GEN-BEGIN:variables
-
+    // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthTextField bufferSizeField;
     private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeASCIIRadio;
@@ -698,15 +774,10 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
     private javax.swing.ButtonGroup dataTypeButtonGroup;
     private javax.swing.JLabel dataTypeLabel;
     private javax.swing.JLabel encodingLabel;
-    private javax.swing.JLabel endOfMessageBytes0XLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField endOfMessageBytesField;
-    private com.mirth.connect.client.ui.components.MirthComboBox frameEncodingComboBox;
-    private javax.swing.JLabel frameEncodingLabel;
     private com.mirth.connect.client.ui.components.MirthCheckBox ignoreResponseCheckBox;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
-    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel7;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
     private javax.swing.JLabel keepConnectionOpenLabel;
@@ -717,7 +788,6 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
     private javax.swing.JLabel localAddressLabel;
     private com.mirth.connect.client.ui.components.MirthTextField localPortField;
     private javax.swing.JLabel localPortLabel;
-    private javax.swing.JLabel messageDataLabel;
     private javax.swing.ButtonGroup overrideLocalBindingButtonGroup;
     private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton overrideLocalBindingYesRadio;
@@ -729,12 +799,14 @@ public class TcpSender extends ConnectorSettingsPanel implements DocumentListene
     private com.mirth.connect.client.ui.components.MirthTextField remotePortField;
     private com.mirth.connect.client.ui.components.MirthTextField responseTimeoutField;
     private javax.swing.JLabel responseTimeoutLabel;
-    private javax.swing.JLabel sampleMessageLabel;
+    private javax.swing.JLabel sampleLabel;
+    private javax.swing.JLabel sampleValue;
     private com.mirth.connect.client.ui.components.MirthTextField sendTimeoutField;
     private javax.swing.JLabel sendTimeoutLabel;
-    private javax.swing.JLabel startOfMessageBytes0XLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField startOfMessageBytesField;
+    private javax.swing.JLabel settingsPlaceHolderLabel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea templateTextArea;
     private javax.swing.JButton testConnection;
+    private com.mirth.connect.client.ui.components.MirthComboBox transmissionModeComboBox;
+    private javax.swing.JLabel transmissionModeLabel;
     // End of variables declaration//GEN-END:variables
 }

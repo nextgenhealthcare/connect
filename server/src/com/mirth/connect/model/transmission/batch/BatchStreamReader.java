@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.tcp.stream;
+package com.mirth.connect.model.transmission.batch;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import java.io.InputStream;
 import java.util.List;
 
 public abstract class BatchStreamReader {
-    
+
     protected InputStream inputStream;
 
     public BatchStreamReader(InputStream inputStream) {
@@ -33,11 +33,11 @@ public abstract class BatchStreamReader {
     /**
      * This allows subclasses of StreamHandler to initialize anything it needs
      * to (e.g. mark the input stream, skip over data at the beginning, etc.).
-     * This runs every time getNextMessage is called, and after the beginning
-     * byte sequence check has occurred. Since the same StreamHandler object may
-     * be used multiple times to return several messages in a potential batch,
-     * this allows the subclass to reset anything it needs to before reading
-     * actually begins.
+     * This runs every time read() is called, and after the beginning byte
+     * sequence check has occurred. Since the same StreamHandler object may be
+     * used multiple times to return several messages in a potential batch, this
+     * allows the subclass to reset anything it needs to before reading actually
+     * begins.
      * 
      * @throws IOException
      */

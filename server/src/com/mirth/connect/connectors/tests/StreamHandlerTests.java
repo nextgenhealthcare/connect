@@ -24,13 +24,16 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.mirth.connect.connectors.tcp.stream.BatchStreamReader;
-import com.mirth.connect.connectors.tcp.stream.DefaultBatchStreamReader;
-import com.mirth.connect.connectors.tcp.stream.DelimiterBatchStreamReader;
-import com.mirth.connect.connectors.tcp.stream.ER7BatchStreamReader;
-import com.mirth.connect.connectors.tcp.stream.FrameStreamHandler;
-import com.mirth.connect.connectors.tcp.stream.RegexBatchStreamReader;
-import com.mirth.connect.connectors.tcp.stream.StreamHandler;
+import com.mirth.connect.model.transmission.StreamHandler;
+import com.mirth.connect.model.transmission.TransmissionModeProperties;
+import com.mirth.connect.model.transmission.batch.BatchStreamReader;
+import com.mirth.connect.model.transmission.batch.DefaultBatchStreamReader;
+import com.mirth.connect.model.transmission.batch.DelimiterBatchStreamReader;
+import com.mirth.connect.model.transmission.batch.ER7BatchStreamReader;
+import com.mirth.connect.model.transmission.batch.RegexBatchStreamReader;
+import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
+import com.mirth.connect.model.transmission.framemode.FrameStreamHandler;
+import com.mirth.connect.util.TcpUtil;
 
 public class StreamHandlerTests {
 
@@ -40,10 +43,16 @@ public class StreamHandlerTests {
     public static String testMessageCharset = "US-ASCII";
     public static byte[] testMessageBytes;
     public static int testBufferSize = 65536;
+    public static TransmissionModeProperties defaultMLLPProps;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
         testMessageBytes = testMessage.getBytes(testMessageCharset);
+
+        FrameModeProperties frameModeProperties = new FrameModeProperties("MLLP Frame Encoded");
+        frameModeProperties.setStartOfMessageBytes(TcpUtil.DEFAULT_LLP_START_BYTES);
+        frameModeProperties.setEndOfMessageBytes(TcpUtil.DEFAULT_LLP_END_BYTES);
+        defaultMLLPProps = frameModeProperties;
     }
 
     @Test
@@ -63,7 +72,7 @@ public class StreamHandlerTests {
         // Create an input stream from the bytes
         is = new ByteArrayInputStream(bos.toByteArray());
         batchStreamHandler = new DefaultBatchStreamReader(is);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, llpStartBytes, llpEndBytes, false);
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, defaultMLLPProps);
         // Assert that the bytes returned from the stream handler are correct
         assertTrue(Arrays.equals(testBytes, streamHandler.read()));
 
@@ -76,7 +85,7 @@ public class StreamHandlerTests {
         // Create an input stream from the bytes
         is = new ByteArrayInputStream(bos.toByteArray());
         batchStreamHandler = new DefaultBatchStreamReader(is);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, llpStartBytes, llpEndBytes, false);
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, defaultMLLPProps);
         // Assert that the bytes returned from the stream handler are correct
         assertTrue(Arrays.equals(testBytes, streamHandler.read()));
 
@@ -89,7 +98,7 @@ public class StreamHandlerTests {
         // Create an input stream from the bytes
         is = new ByteArrayInputStream(bos.toByteArray());
         batchStreamHandler = new DefaultBatchStreamReader(is);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, llpStartBytes, llpEndBytes, false);
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, defaultMLLPProps);
         // Assert that the bytes returned from the stream handler are correct
         assertTrue(Arrays.equals(testBytes, streamHandler.read()));
 
@@ -103,7 +112,7 @@ public class StreamHandlerTests {
         // Create an input stream from the bytes
         is = new ByteArrayInputStream(bos.toByteArray());
         batchStreamHandler = new DefaultBatchStreamReader(is);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, llpStartBytes, llpEndBytes, false);
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, defaultMLLPProps);
         // Assert that the bytes returned from the stream handler are correct
         assertTrue(Arrays.equals(testBytes, streamHandler.read()));
 
@@ -136,7 +145,8 @@ public class StreamHandlerTests {
         is = new FailingByteArrayInputStream(bos.toByteArray(), maxRead);
         // Allow the stream handler to return data when an exception occurs
         batchStreamHandler = new DefaultBatchStreamReader(is);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, llpStartBytes, llpEndBytes, true);
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, defaultMLLPProps);
+        ((FrameStreamHandler) streamHandler).setReturnDataOnException(true);
         // Assert that the bytes returned from the stream handler are correct
         assertTrue(Arrays.equals(Arrays.copyOf(testBytes, maxRead - llpStartBytes.length), streamHandler.read()));
 
@@ -176,7 +186,8 @@ public class StreamHandlerTests {
         is = new FailingFilterInputStream(new ByteArrayInputStream(bos.toByteArray()), maxRead);
         // Allow the stream handler to return data when an exception occurs
         batchStreamHandler = new DefaultBatchStreamReader(is);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, llpStartBytes, llpEndBytes, true);
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, defaultMLLPProps);
+        ((FrameStreamHandler) streamHandler).setReturnDataOnException(true);
         // Assert that the bytes returned from the stream handler are correct
         assertTrue(Arrays.equals(Arrays.copyOf(testBytes, maxRead - llpStartBytes.length), streamHandler.read()));
 
@@ -190,7 +201,8 @@ public class StreamHandlerTests {
         is = new FailingFilterInputStream(new ByteArrayInputStream(bos.toByteArray()), maxRead);
         // Allow the stream handler to return data when an exception occurs
         batchStreamHandler = new DefaultBatchStreamReader(is);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, llpStartBytes, llpEndBytes, true);
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, defaultMLLPProps);
+        ((FrameStreamHandler) streamHandler).setReturnDataOnException(true);
         // Get the first set of bytes
         byte[] firstBytes = streamHandler.read();
         // Turn failing off and get the rest of the bytes
@@ -207,6 +219,7 @@ public class StreamHandlerTests {
         ByteArrayOutputStream bos;
         InputStream is;
         BatchStreamReader batchStreamHandler;
+        FrameModeProperties frameModeProperties = new FrameModeProperties("");
         StreamHandler streamHandler;
         byte[] returnBytes;
         int numMessages;
@@ -220,7 +233,8 @@ public class StreamHandlerTests {
         // Create an input stream from the bytes
         is = new ByteArrayInputStream(bos.toByteArray());
         batchStreamHandler = new DelimiterBatchStreamReader(is, delimiterBytes, false);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler);
+        frameModeProperties = new FrameModeProperties("");
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, frameModeProperties);
         // Assert that the bytes returned from the stream handler (twice) are correct
         numMessages = 0;
         while ((returnBytes = streamHandler.read()) != null) {
@@ -241,7 +255,8 @@ public class StreamHandlerTests {
         // Create an input stream from the bytes
         is = new ByteArrayInputStream(bos.toByteArray());
         batchStreamHandler = new DelimiterBatchStreamReader(is, delimiterBytes, false);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, llpStartBytes, new byte[0]);
+        frameModeProperties.setStartOfMessageBytes("0B");
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, frameModeProperties);
         // Assert that the bytes returned from the stream handler (twice) are correct
         numMessages = 0;
         while ((returnBytes = streamHandler.read()) != null) {
@@ -262,7 +277,9 @@ public class StreamHandlerTests {
         // Create an input stream from the bytes
         is = new ByteArrayInputStream(bos.toByteArray());
         batchStreamHandler = new DelimiterBatchStreamReader(is, delimiterBytes, false);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, new byte[0], llpEndBytes);
+        frameModeProperties.setStartOfMessageBytes("");
+        frameModeProperties.setEndOfMessageBytes("1C0D");
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, frameModeProperties);
         // Assert that the bytes returned from the stream handler (twice) are correct
         numMessages = 0;
         while ((returnBytes = streamHandler.read()) != null) {
@@ -281,6 +298,7 @@ public class StreamHandlerTests {
         ByteArrayOutputStream bos;
         InputStream is;
         BatchStreamReader batchStreamHandler;
+        FrameModeProperties frameModeProperties = new FrameModeProperties("");
         StreamHandler streamHandler;
         byte[] returnBytes;
         int numMessages;
@@ -294,7 +312,9 @@ public class StreamHandlerTests {
         // Create an input stream from the bytes
         is = new ByteArrayInputStream(bos.toByteArray());
         batchStreamHandler = new RegexBatchStreamReader(is, delimiterRegex, charsetEncoding, false);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler);
+        frameModeProperties.setStartOfMessageBytes("");
+        frameModeProperties.setEndOfMessageBytes("");
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, frameModeProperties);
         // Assert that the bytes returned from the stream handler (twice) are correct
         numMessages = 0;
         while ((returnBytes = streamHandler.read()) != null) {
@@ -312,6 +332,7 @@ public class StreamHandlerTests {
         ByteArrayOutputStream bos;
         InputStream is;
         BatchStreamReader batchStreamHandler;
+        FrameModeProperties frameModeProperties = new FrameModeProperties("");
         StreamHandler streamHandler;
         byte[] returnBytes;
         int numMessages;
@@ -326,7 +347,9 @@ public class StreamHandlerTests {
         // Create an input stream from the bytes
         is = new ByteArrayInputStream(bos.toByteArray());
         batchStreamHandler = new ER7BatchStreamReader(is, null);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler);
+        frameModeProperties.setStartOfMessageBytes("");
+        frameModeProperties.setEndOfMessageBytes("");
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, frameModeProperties);
         // Assert that the bytes returned from the stream handler are correct
         numMessages = 0;
         while ((returnBytes = streamHandler.read()) != null) {
@@ -349,7 +372,9 @@ public class StreamHandlerTests {
         // Create an input stream from the bytes
         is = new ByteArrayInputStream(bos.toByteArray());
         batchStreamHandler = new ER7BatchStreamReader(is);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler);
+        frameModeProperties.setStartOfMessageBytes("");
+        frameModeProperties.setEndOfMessageBytes("");
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, frameModeProperties);
         // Assert that the bytes returned from the stream handler are correct
         numMessages = 0;
         while ((returnBytes = streamHandler.read()) != null) {
@@ -374,7 +399,9 @@ public class StreamHandlerTests {
         // Create an input stream from the bytes
         is = new ByteArrayInputStream(bos.toByteArray());
         batchStreamHandler = new ER7BatchStreamReader(is, llpEndBytes);
-        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, llpStartBytes, llpEndBytes);
+        frameModeProperties.setStartOfMessageBytes("0B");
+        frameModeProperties.setEndOfMessageBytes("1C0D");
+        streamHandler = new FrameStreamHandler(is, null, batchStreamHandler, frameModeProperties);
         // Assert that the bytes returned from the stream handler are correct
         numMessages = 0;
         while ((returnBytes = streamHandler.read()) != null) {

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.tcp.stream;
+package com.mirth.connect.model.transmission.framemode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -18,15 +18,21 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
+
+import com.mirth.connect.model.transmission.StreamHandler;
+import com.mirth.connect.model.transmission.TransmissionModeProperties;
+import com.mirth.connect.model.transmission.batch.BatchStreamReader;
+import com.mirth.connect.util.TcpUtil;
 
 public class FrameStreamHandler extends StreamHandler {
 
     private Logger logger = Logger.getLogger(this.getClass());
-    private byte[] startOfMessageBytes;
-    private byte[] endOfMessageBytes;
-    private boolean returnDataOnException;
+
+    protected byte[] startOfMessageBytes;
+    protected byte[] endOfMessageBytes;
+    protected boolean returnDataOnException; // Determines whether data should be returned if an exception occurs.
 
     private ByteArrayOutputStream capturedBytes; // The bytes captured so far by the reader, not including any in the end bytes buffer.
     private List<Byte> endBytesBuffer; // An interim buffer of bytes used to capture the ending byte sequence.
@@ -36,23 +42,13 @@ public class FrameStreamHandler extends StreamHandler {
     private boolean checkStartOfMessageBytes;
     private int currentByte;
 
-    public FrameStreamHandler(InputStream inputStream, OutputStream outputStream) {
-        this(inputStream, outputStream, new DefaultBatchStreamReader(inputStream));
-    }
-
-    public FrameStreamHandler(InputStream inputStream, OutputStream outputStream, BatchStreamReader batchStreamHandler) {
-        this(inputStream, outputStream, batchStreamHandler, new byte[0], new byte[0]);
-    }
-
-    public FrameStreamHandler(InputStream inputStream, OutputStream outputStream, BatchStreamReader batchStreamHandler, byte[] startOfMessageBytes, byte[] endOfMessageBytes) {
-        this(inputStream, outputStream, batchStreamHandler, startOfMessageBytes, endOfMessageBytes, false);
-    }
-
-    public FrameStreamHandler(InputStream inputStream, OutputStream outputStream, BatchStreamReader batchStreamHandler, byte[] startOfMessageBytes, byte[] endOfMessageBytes, boolean returnDataOnException) {
-        super(inputStream, outputStream, batchStreamHandler);
-        this.startOfMessageBytes = startOfMessageBytes;
-        this.endOfMessageBytes = endOfMessageBytes;
-        this.returnDataOnException = returnDataOnException;
+    public FrameStreamHandler(InputStream inputStream, OutputStream outputStream, BatchStreamReader batchStreamReader, TransmissionModeProperties transmissionModeProperties) {
+        super(inputStream, outputStream, batchStreamReader, transmissionModeProperties);
+        FrameModeProperties frameModeProperties = (FrameModeProperties) transmissionModeProperties;
+        this.startOfMessageBytes = TcpUtil.stringToByteArray(frameModeProperties.getStartOfMessageBytes());
+        this.endOfMessageBytes = TcpUtil.stringToByteArray(frameModeProperties.getEndOfMessageBytes());
+        // Only return data on exceptions if there are no end bytes defined
+        this.returnDataOnException = endOfMessageBytes.length == 0;
         this.checkStartOfMessageBytes = true;
         this.streamDone = false;
     }
@@ -87,6 +83,11 @@ public class FrameStreamHandler extends StreamHandler {
         batchStreamReader.setInputStream(inputStream);
     }
 
+    public void reset() {
+        checkStartOfMessageBytes = true;
+        streamDone = false;
+    }
+
     /**
      * Returns the next message from the stream (could be the entire stream
      * contents or part of a batch).
@@ -101,7 +102,7 @@ public class FrameStreamHandler extends StreamHandler {
      *             timeout) and returnDataOnException is false.
      */
     @Override
-    public final byte[] read() throws IOException {
+    public byte[] read() throws IOException {
         if (streamDone || inputStream == null) {
             return null;
         }
@@ -131,11 +132,11 @@ public class FrameStreamHandler extends StreamHandler {
                             i = 0;
                         }
                     } else {
-                        // The input stream ended before the begin bytes were detected, so return null
                         streamDone = true;
                         if (firstBytes.size() > 0) {
                             throw new FrameStreamHandlerException(true, startOfMessageBytes, ArrayUtils.toPrimitive(firstBytes.toArray(new Byte[0])));
                         } else {
+                            // The input stream ended before the begin bytes were detected, so return null
                             return null;
                         }
                     }
@@ -195,19 +196,19 @@ public class FrameStreamHandler extends StreamHandler {
                     }
                 }
             }
-        } catch (Exception e) {
-            if (checkStartOfMessageBytes && firstBytes.size() > 0) {
-                // At least some bytes have been read, but the start of message bytes were not detected
-                throw new FrameStreamHandlerException(true, startOfMessageBytes, ArrayUtils.toPrimitive(firstBytes.toArray(new Byte[0])), e);
-            }
-            if (capturedBytes.size() + endBytesBuffer.size() > 0 && endOfMessageBytes.length > 0) {
-                // At least some bytes have been captured, but the end of message bytes were not detected
-                throw new FrameStreamHandlerException(false, endOfMessageBytes, getLastBytes(), e);
-            }
-
+        } catch (Throwable e) {
             if (!returnDataOnException) {
                 if (e instanceof IOException) {
                     // If an IOException occurred and we're not allowing data to return, throw the exception
+
+                    if (checkStartOfMessageBytes && firstBytes.size() > 0) {
+                        // At least some bytes have been read, but the start of message bytes were not detected
+                        throw new FrameStreamHandlerException(true, startOfMessageBytes, ArrayUtils.toPrimitive(firstBytes.toArray(new Byte[0])), e);
+                    }
+                    if (capturedBytes.size() + endBytesBuffer.size() > 0 && endOfMessageBytes.length > 0) {
+                        // At least some bytes have been captured, but the end of message bytes were not detected
+                        throw new FrameStreamHandlerException(false, endOfMessageBytes, getLastBytes(), e);
+                    }
                     throw (IOException) e;
                 } else {
                     // If any other Throwable was caught, return null to indicate that we're done
@@ -221,28 +222,19 @@ public class FrameStreamHandler extends StreamHandler {
             capturedBytes.write(bufByte);
         }
 
-        // Return the captured bytes if there are any
-        if (capturedBytes.size() > 0) {
-            if (endOfMessageBytes.length > 0) {
-                // The end of message bytes were not detected
-                throw new FrameStreamHandlerException(false, endOfMessageBytes, getLastBytes());
-            }
-            return capturedBytes.toByteArray();
-        } else {
-            return null;
-        }
+        return capturedBytes.size() > 0 ? capturedBytes.toByteArray() : null;
     }
 
     @Override
-    public final void write(byte[] data) throws IOException {
+    public void write(byte[] data) throws IOException {
         writeFrame(data);
     }
 
-    private final void writeFrame(byte[] data) throws IOException {
+    protected void writeFrame(byte[] data) throws IOException {
         write(startOfMessageBytes, data, endOfMessageBytes);
     }
 
-    private void write(byte[]... dataArrays) throws IOException {
+    protected void write(byte[]... dataArrays) throws IOException {
         if (dataArrays == null || outputStream == null) {
             return;
         }
@@ -274,7 +266,7 @@ public class FrameStreamHandler extends StreamHandler {
         if (capturedBytes != null) {
             byte[] capturedByteArray = capturedBytes.toByteArray();
             for (int i = capturedByteArray.length - 1; i >= 0 && lastBytes.size() < endOfMessageBytes.length; i--) {
-                lastBytes.add(0, capturedByteArray[i]);
+                lastBytes.add(capturedByteArray[i]);
             }
         }
 

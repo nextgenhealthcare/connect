@@ -14,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
+import com.mirth.connect.model.transmission.TransmissionModeProperties;
+import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.TcpUtil;
 
@@ -25,6 +27,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
     public static final String PROTOCOL = "TCP";
     public static final String NAME = "TCP Sender";
 
+    private TransmissionModeProperties transmissionModeProperties;
     private String remoteAddress;
     private String remotePort;
     private boolean overrideLocalBinding;
@@ -33,8 +36,6 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
     private String sendTimeout;
     private String bufferSize;
     private boolean keepConnectionOpen;
-    private String startOfMessageBytes;
-    private String endOfMessageBytes;
     private String responseTimeout;
     private boolean ignoreResponse;
     private boolean processHL7ACK;
@@ -45,6 +46,11 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
     public TcpDispatcherProperties() {
         queueConnectorProperties = new QueueConnectorProperties();
 
+        FrameModeProperties frameModeProperties = new FrameModeProperties("MLLP");
+        frameModeProperties.setStartOfMessageBytes(TcpUtil.DEFAULT_LLP_START_BYTES);
+        frameModeProperties.setEndOfMessageBytes(TcpUtil.DEFAULT_LLP_END_BYTES);
+        this.transmissionModeProperties = frameModeProperties;
+
         this.remoteAddress = "127.0.0.1";
         this.remotePort = "6660";
         this.overrideLocalBinding = false;
@@ -53,14 +59,20 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
         this.sendTimeout = "5000";
         this.bufferSize = "65536";
         this.keepConnectionOpen = false;
-        this.startOfMessageBytes = TcpUtil.DEFAULT_LLP_START_BYTES;
-        this.endOfMessageBytes = TcpUtil.DEFAULT_LLP_END_BYTES;
         this.responseTimeout = "5000";
         this.ignoreResponse = false;
         this.processHL7ACK = true;
         this.dataTypeBinary = false;
         this.charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
         this.template = "${message.encodedData}";
+    }
+
+    public TransmissionModeProperties getTransmissionModeProperties() {
+        return transmissionModeProperties;
+    }
+
+    public void setTransmissionModeProperties(TransmissionModeProperties transmissionModeProperties) {
+        this.transmissionModeProperties = transmissionModeProperties;
     }
 
     public String getRemoteAddress() {
@@ -125,22 +137,6 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
 
     public void setKeepConnectionOpen(boolean keepConnectionOpen) {
         this.keepConnectionOpen = keepConnectionOpen;
-    }
-
-    public String getStartOfMessageBytes() {
-        return startOfMessageBytes;
-    }
-
-    public void setStartOfMessageBytes(String startOfMessageBytes) {
-        this.startOfMessageBytes = startOfMessageBytes;
-    }
-
-    public String getEndOfMessageBytes() {
-        return endOfMessageBytes;
-    }
-
-    public void setEndOfMessageBytes(String endOfMessageBytes) {
-        this.endOfMessageBytes = endOfMessageBytes;
     }
 
     public String getResponseTimeout() {
@@ -209,17 +205,17 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Queu
     public String toFormattedString() {
         StringBuilder builder = new StringBuilder();
         String newLine = "\n";
-        
+
         builder.append("REMOTE ADDRESS: ");
         builder.append(remoteAddress + ":" + remotePort);
         builder.append(newLine);
-        
+
         if (overrideLocalBinding) {
             builder.append("LOCAL ADDRESS: ");
             builder.append(localAddress + ":" + localPort);
             builder.append(newLine);
         }
-        
+
         builder.append(newLine);
         builder.append("[CONTENT]");
         builder.append(newLine);

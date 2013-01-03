@@ -7,14 +7,14 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.connectors.tcp.stream;
+package com.mirth.connect.model.transmission.batch;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import com.mirth.connect.connectors.tcp.EOFCheckInputStream;
+import com.mirth.connect.model.transmission.EOFCheckInputStream;
 
 public class ER7BatchStreamReader extends BatchStreamReader {
 
@@ -24,12 +24,12 @@ public class ER7BatchStreamReader extends BatchStreamReader {
     public ER7BatchStreamReader(InputStream inputStream) {
         this(inputStream, new byte[0]);
     }
-    
+
     public ER7BatchStreamReader(InputStream inputStream, byte[] endOfMessageBytes) {
         super(new EOFCheckInputStream(inputStream, 3));
         this.endOfMessageBytes = endOfMessageBytes;
     }
-    
+
     @Override
     public void setInputStream(InputStream inputStream) {
         super.setInputStream(new EOFCheckInputStream(inputStream, 3));

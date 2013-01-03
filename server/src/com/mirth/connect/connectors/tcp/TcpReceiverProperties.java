@@ -14,6 +14,8 @@ import com.mirth.connect.donkey.model.channel.ListenerConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
+import com.mirth.connect.model.transmission.TransmissionModeProperties;
+import com.mirth.connect.model.transmission.framemode.FrameModeProperties;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.TcpUtil;
 
@@ -28,14 +30,13 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
     public static final int NEW_CONNECTION = 1;
     public static final int NEW_CONNECTION_ON_RECOVERY = 2;
 
+    private TransmissionModeProperties transmissionModeProperties;
     private boolean serverMode;
     private String reconnectInterval;
     private String receiveTimeout;
     private String bufferSize;
     private String maxConnections;
     private boolean keepConnectionOpen;
-    private String startOfMessageBytes;
-    private String endOfMessageBytes;
     private boolean processBatch;
     private boolean dataTypeBinary;
     private String charsetEncoding;
@@ -48,14 +49,17 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
         responseConnectorProperties = new ResponseConnectorProperties();
         responseConnectorProperties.setResponseVariable(ResponseConnectorProperties.RESPONSE_AUTO_BEFORE);
 
+        FrameModeProperties frameModeProperties = new FrameModeProperties("MLLP");
+        frameModeProperties.setStartOfMessageBytes(TcpUtil.DEFAULT_LLP_START_BYTES);
+        frameModeProperties.setEndOfMessageBytes(TcpUtil.DEFAULT_LLP_END_BYTES);
+        this.transmissionModeProperties = frameModeProperties;
+
         this.serverMode = true;
         this.reconnectInterval = "5000";
         this.receiveTimeout = "5000";
         this.bufferSize = "65536";
         this.maxConnections = "10";
         this.keepConnectionOpen = false;
-        this.startOfMessageBytes = TcpUtil.DEFAULT_LLP_START_BYTES;
-        this.endOfMessageBytes = TcpUtil.DEFAULT_LLP_END_BYTES;
         this.processBatch = false;
         this.dataTypeBinary = false;
         this.charsetEncoding = CharsetUtils.DEFAULT_ENCODING;
@@ -72,6 +76,14 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
     @Override
     public ListenerConnectorProperties getListenerConnectorProperties() {
         return listenerConnectorProperties;
+    }
+
+    public TransmissionModeProperties getTransmissionModeProperties() {
+        return transmissionModeProperties;
+    }
+
+    public void setTransmissionModeProperties(TransmissionModeProperties transmissionModeProperties) {
+        this.transmissionModeProperties = transmissionModeProperties;
     }
 
     public boolean isServerMode() {
@@ -120,22 +132,6 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
 
     public void setKeepConnectionOpen(boolean keepConnectionOpen) {
         this.keepConnectionOpen = keepConnectionOpen;
-    }
-
-    public String getStartOfMessageBytes() {
-        return startOfMessageBytes;
-    }
-
-    public void setStartOfMessageBytes(String startOfMessageBytes) {
-        this.startOfMessageBytes = startOfMessageBytes;
-    }
-
-    public String getEndOfMessageBytes() {
-        return endOfMessageBytes;
-    }
-
-    public void setEndOfMessageBytes(String endOfMessageBytes) {
-        this.endOfMessageBytes = endOfMessageBytes;
     }
 
     public boolean isProcessBatch() {

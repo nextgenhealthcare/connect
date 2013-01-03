@@ -31,51 +31,51 @@ public class TcpUtil {
     }
 
     public static String getByteAbbreviation(byte[] bytes) {
-        String abbreviation = "";
+        StringBuilder builder = new StringBuilder();
 
         for (byte b : bytes) {
             //@formatter:off
             switch (b) {
-                case 0x00: abbreviation += "<NUL>"; break;
-                case 0x01: abbreviation += "<SOH>"; break;
-                case 0x02: abbreviation += "<STX>"; break;
-                case 0x03: abbreviation += "<ETX>"; break;
-                case 0x04: abbreviation += "<EOT>"; break;
-                case 0x05: abbreviation += "<ENQ>"; break;
-                case 0x06: abbreviation += "<ACK>"; break;
-                case 0x07: abbreviation += "<BEL>"; break;
-                case 0x08: abbreviation += "<BS>"; break;
-                case 0x09: abbreviation += "<TAB>"; break;
-                case 0x0A: abbreviation += "<LF>"; break;
-                case 0x0B: abbreviation += "<VT>"; break;
-                case 0x0C: abbreviation += "<FF>"; break;
-                case 0x0D: abbreviation += "<CR>"; break;
-                case 0x0E: abbreviation += "<SO>"; break;
-                case 0x0F: abbreviation += "<SI>"; break;
-                case 0x10: abbreviation += "<DLE>"; break;
-                case 0x11: abbreviation += "<DC1>"; break;
-                case 0x12: abbreviation += "<DC2>"; break;
-                case 0x13: abbreviation += "<DC3>"; break;
-                case 0x14: abbreviation += "<DC4>"; break;
-                case 0x15: abbreviation += "<NAK>"; break;
-                case 0x16: abbreviation += "<SYN>"; break;
-                case 0x17: abbreviation += "<ETB>"; break;
-                case 0x18: abbreviation += "<CAN>"; break;
-                case 0x19: abbreviation += "<EM>"; break;
-                case 0x1A: abbreviation += "<SUB>"; break;
-                case 0x1B: abbreviation += "<ESC>"; break;
-                case 0x1C: abbreviation += "<FS>"; break;
-                case 0x1D: abbreviation += "<GS>"; break;
-                case 0x1E: abbreviation += "<RS>"; break;
-                case 0x1F: abbreviation += "<US>"; break;
-                case 0x20: abbreviation += "<Space>"; break;
-                case 0x7F: abbreviation += "<DEL>"; break;
-                default: abbreviation += new String(new byte[] { b }); break;
+                case 0x00: builder.append("<NUL>"); break;
+                case 0x01: builder.append("<SOH>"); break;
+                case 0x02: builder.append("<STX>"); break;
+                case 0x03: builder.append("<ETX>"); break;
+                case 0x04: builder.append("<EOT>"); break;
+                case 0x05: builder.append("<ENQ>"); break;
+                case 0x06: builder.append("<ACK>"); break;
+                case 0x07: builder.append("<BEL>"); break;
+                case 0x08: builder.append("<BS>"); break;
+                case 0x09: builder.append("<TAB>"); break;
+                case 0x0A: builder.append("<LF>"); break;
+                case 0x0B: builder.append("<VT>"); break;
+                case 0x0C: builder.append("<FF>"); break;
+                case 0x0D: builder.append("<CR>"); break;
+                case 0x0E: builder.append("<SO>"); break;
+                case 0x0F: builder.append("<SI>"); break;
+                case 0x10: builder.append("<DLE>"); break;
+                case 0x11: builder.append("<DC1>"); break;
+                case 0x12: builder.append("<DC2>"); break;
+                case 0x13: builder.append("<DC3>"); break;
+                case 0x14: builder.append("<DC4>"); break;
+                case 0x15: builder.append("<NAK>"); break;
+                case 0x16: builder.append("<SYN>"); break;
+                case 0x17: builder.append("<ETB>"); break;
+                case 0x18: builder.append("<CAN>"); break;
+                case 0x19: builder.append("<EM>"); break;
+                case 0x1A: builder.append("<SUB>"); break;
+                case 0x1B: builder.append("<ESC>"); break;
+                case 0x1C: builder.append("<FS>"); break;
+                case 0x1D: builder.append("<GS>"); break;
+                case 0x1E: builder.append("<RS>"); break;
+                case 0x1F: builder.append("<US>"); break;
+                case 0x20: builder.append("<Space>"); break;
+                case 0x7F: builder.append("<DEL>"); break;
+                default: builder.append(new String(new byte[] { b })); break;
             }
             //@formatter:on
         }
 
-        return abbreviation;
+        return builder.toString();
     }
 
     /*

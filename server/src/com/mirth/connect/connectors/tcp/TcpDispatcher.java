@@ -26,10 +26,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.mirth.connect.connectors.tcp.stream.BatchStreamReader;
-import com.mirth.connect.connectors.tcp.stream.DefaultBatchStreamReader;
-import com.mirth.connect.connectors.tcp.stream.FrameStreamHandler;
-import com.mirth.connect.connectors.tcp.stream.StreamHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -39,6 +35,11 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.model.transmission.StreamHandler;
+import com.mirth.connect.model.transmission.batch.BatchStreamReader;
+import com.mirth.connect.model.transmission.batch.DefaultBatchStreamReader;
+import com.mirth.connect.plugins.BasicModeProvider;
+import com.mirth.connect.plugins.TransmissionModeProvider;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
@@ -49,7 +50,6 @@ import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
-import com.mirth.connect.util.TcpUtil;
 
 public class TcpDispatcher extends DestinationConnector {
 
@@ -63,9 +63,7 @@ public class TcpDispatcher extends DestinationConnector {
     private StateAwareSocket socket;
     private Thread thread;
 
-    private byte[] startOfMessageBytes;
-    private byte[] endOfMessageBytes;
-    private boolean returnDataOnException;
+    TransmissionModeProvider transmissionModeProvider;
 
     @Override
     public ConnectorProperties getReplacedConnectorProperties(ConnectorMessage connectorMessage) {
@@ -83,10 +81,13 @@ public class TcpDispatcher extends DestinationConnector {
     @Override
     public void onDeploy() throws DeployException {
         connectorProperties = (TcpDispatcherProperties) getConnectorProperties();
-        startOfMessageBytes = TcpUtil.stringToByteArray(connectorProperties.getStartOfMessageBytes());
-        endOfMessageBytes = TcpUtil.stringToByteArray(connectorProperties.getEndOfMessageBytes());
-        // Only return data on exceptions if there are no end bytes defined
-        returnDataOnException = endOfMessageBytes.length == 0;
+
+        String pluginPointName = (String) connectorProperties.getTransmissionModeProperties().getPluginPointName();
+        transmissionModeProvider = (TransmissionModeProvider) ControllerFactory.getFactory().createExtensionController().getServicePlugins().get(pluginPointName);
+        if (transmissionModeProvider == null) {
+            transmissionModeProvider = new BasicModeProvider();
+        }
+
         monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
     }
 
@@ -160,7 +161,7 @@ public class TcpDispatcher extends DestinationConnector {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, socket, "Sending data... ");
             BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream(), parseInt(tcpSenderProperties.getBufferSize()));
             BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(socket.getInputStream());
-            StreamHandler streamHandler = new FrameStreamHandler(socket.getInputStream(), bos, batchStreamReader, startOfMessageBytes, endOfMessageBytes, returnDataOnException);
+            StreamHandler streamHandler = transmissionModeProvider.getStreamHandler(socket.getInputStream(), bos, batchStreamReader, tcpSenderProperties.getTransmissionModeProperties());
             streamHandler.write(getTemplateBytes(tcpSenderProperties, message));
             bos.flush();
 
@@ -170,6 +171,7 @@ public class TcpDispatcher extends DestinationConnector {
                     monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, socket, "Waiting for response (Timeout: " + tcpSenderProperties.getResponseTimeout() + " ms)... ");
                     byte[] responseBytes = streamHandler.read();
                     if (responseBytes != null) {
+                        streamHandler.commit(true);
                         responseData = new String(responseBytes, CharsetUtils.getEncoding(tcpSenderProperties.getCharsetEncoding()));
 
                         // TODO: Handle this differently; maybe add a default validator to the data type itself
