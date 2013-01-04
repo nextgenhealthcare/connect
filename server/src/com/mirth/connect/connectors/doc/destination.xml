@@ -12,8 +12,10 @@
 	<library type="CLIENT" path="doc-client.jar" />
 	<library type="SHARED" path="doc-shared.jar" />
 	<library type="SERVER" path="doc-server.jar" />
-	<library type="SERVER" path="lib/iText-2.0.8.jar" />
-	<library type="SERVER" path="lib/core-renderer.jar" />
+	<library type="SERVER" path="lib/itext-2.1.7.jar" />
+	<library type="SERVER" path="lib/itext-rtf-2.1.7.jar" />
+	<library type="SERVER" path="lib/flying-saucer-core-9.0.1.jar" />
+	<library type="SERVER" path="lib/flying-saucer-pdf-9.0.1.jar" />
 	<transformers></transformers>
 	<protocol>doc</protocol>
 	<type>DESTINATION</type>
