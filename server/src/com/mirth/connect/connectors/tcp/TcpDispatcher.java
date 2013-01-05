@@ -83,9 +83,14 @@ public class TcpDispatcher extends DestinationConnector {
         connectorProperties = (TcpDispatcherProperties) getConnectorProperties();
 
         String pluginPointName = (String) connectorProperties.getTransmissionModeProperties().getPluginPointName();
-        transmissionModeProvider = (TransmissionModeProvider) ControllerFactory.getFactory().createExtensionController().getServicePlugins().get(pluginPointName);
-        if (transmissionModeProvider == null) {
+        if (pluginPointName.equals("Basic")) {
             transmissionModeProvider = new BasicModeProvider();
+        } else {
+            transmissionModeProvider = (TransmissionModeProvider) ControllerFactory.getFactory().createExtensionController().getServicePlugins().get(pluginPointName);
+        }
+
+        if (transmissionModeProvider == null) {
+            throw new DeployException("Unable to find transmission mode plugin: " + pluginPointName);
         }
 
         monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);

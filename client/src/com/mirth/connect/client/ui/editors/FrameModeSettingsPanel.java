@@ -9,11 +9,15 @@
 
 package com.mirth.connect.client.ui.editors;
 
+import javax.swing.GroupLayout;
+import javax.swing.JComponent;
 import javax.swing.event.DocumentListener;
 
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 
 public class FrameModeSettingsPanel extends javax.swing.JPanel {
+    
+    private JComponent fillerComponent;
     
     /**
      * Creates new form FrameEncodingSettingsPanel
@@ -24,6 +28,12 @@ public class FrameModeSettingsPanel extends javax.swing.JPanel {
         endOfMessageBytesField.setDocument(new MirthFieldConstraints(0, true, true, true));
         startOfMessageBytesField.getDocument().addDocumentListener(documentListener);
         endOfMessageBytesField.getDocument().addDocumentListener(documentListener);
+        fillerComponent = fillerLabel;
+    }
+    
+    public void switchComponent(JComponent component) {
+        ((GroupLayout) getLayout()).replace(fillerComponent, component);
+        fillerComponent = component;
     }
 
     /**
@@ -40,6 +50,7 @@ public class FrameModeSettingsPanel extends javax.swing.JPanel {
         endOfMessageBytesField = new com.mirth.connect.client.ui.components.MirthTextField();
         startOfMessageBytesField = new com.mirth.connect.client.ui.components.MirthTextField();
         messageDataLabel = new javax.swing.JLabel();
+        fillerLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -82,7 +93,9 @@ public class FrameModeSettingsPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(endOfMessageBytes0XLabel)
                 .addGap(3, 3, 3)
-                .addComponent(endOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(endOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(fillerLabel))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -91,7 +104,8 @@ public class FrameModeSettingsPanel extends javax.swing.JPanel {
                 .addComponent(startOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(messageDataLabel)
                 .addComponent(endOfMessageBytes0XLabel)
-                .addComponent(endOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(endOfMessageBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(fillerLabel))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -106,6 +120,7 @@ public class FrameModeSettingsPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JLabel endOfMessageBytes0XLabel;
     public com.mirth.connect.client.ui.components.MirthTextField endOfMessageBytesField;
+    private javax.swing.JLabel fillerLabel;
     public javax.swing.JLabel messageDataLabel;
     public javax.swing.JLabel startOfMessageBytes0XLabel;
     public com.mirth.connect.client.ui.components.MirthTextField startOfMessageBytesField;

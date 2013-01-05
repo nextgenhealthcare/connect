@@ -112,22 +112,18 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         TcpDispatcherProperties props = (TcpDispatcherProperties) properties;
         
         TransmissionModeProperties modeProps = props.getTransmissionModeProperties();
-        if (modeProps != null) {
-            String name = modeProps.getPluginPointName();
-            if (name.equals("Basic")) {
-                name += " TCP";
-            }
+        String name = "Basic TCP";
+        if (modeProps != null && metaDataMap.containsKey(modeProps.getPluginPointName())) {
+            name = modeProps.getPluginPointName();
+        }
             
-            if (metaDataMap.containsKey(modeProps.getPluginPointName()) || modeProps.getPluginPointName().equals("Basic")) {
-                modeLock = true;
-                transmissionModeComboBox.setSelectedItem(name);
-                transmissionModeComboBoxActionPerformed(null);
-                modeLock = false;
-                selectedMode = name;
-                if (transmissionModePlugin != null) {
-                    transmissionModePlugin.setProperties(modeProps);
-                }
-            }
+        modeLock = true;
+        transmissionModeComboBox.setSelectedItem(name);
+        transmissionModeComboBoxActionPerformed(null);
+        modeLock = false;
+        selectedMode = name;
+        if (transmissionModePlugin != null) {
+            transmissionModePlugin.setProperties(modeProps);
         }
 
         remoteAddressField.setText(props.getRemoteAddress());
@@ -379,9 +375,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
 
         responseTimeoutLabel.setText("Response Timeout (ms):");
 
-        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] {
-                "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)",
-                "US-ASCII" }));
+        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
         charsetEncodingCombobox.setToolTipText("<html>The character set encoding to use when converting the outbound message to a byte stream if Data Type ASCII is selected.<br>Select Default to use the default character set encoding for the JVM running the Mirth server.</html>");
         charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -647,6 +641,9 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
                     .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
                 .addContainerGap())
         );
+
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {settingsPlaceHolderLabel, transmissionModeComboBox});
+
     }// </editor-fold>//GEN-END:initComponents
 
     private void dataTypeBinaryRadioActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeBinaryRadioActionPerformed

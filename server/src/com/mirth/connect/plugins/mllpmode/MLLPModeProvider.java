@@ -27,6 +27,10 @@ public class MLLPModeProvider extends TransmissionModeProvider {
 
     @Override
     public StreamHandler getStreamHandler(InputStream inputStream, OutputStream outputStream, BatchStreamReader batchStreamReader, TransmissionModeProperties transmissionModeProperties) {
-        return new FrameStreamHandler(inputStream, outputStream, batchStreamReader, transmissionModeProperties);
+        if (((MLLPModeProperties) transmissionModeProperties).isUseMLLPv2()) {
+            return new MLLPv2StreamHandler(inputStream, outputStream, batchStreamReader, transmissionModeProperties);
+        } else {
+            return new FrameStreamHandler(inputStream, outputStream, batchStreamReader, transmissionModeProperties);
+        }
     }
 }

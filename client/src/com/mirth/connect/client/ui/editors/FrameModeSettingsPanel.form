@@ -36,6 +36,8 @@
               <Component id="endOfMessageBytes0XLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
               <Component id="endOfMessageBytesField" min="-2" pref="46" max="-2" attributes="1"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="fillerLabel" min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -47,6 +49,7 @@
               <Component id="messageDataLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               <Component id="endOfMessageBytes0XLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               <Component id="endOfMessageBytesField" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Component id="fillerLabel" alignment="3" min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -104,6 +107,8 @@
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
       </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="fillerLabel">
     </Component>
   </SubComponents>
 </Form>

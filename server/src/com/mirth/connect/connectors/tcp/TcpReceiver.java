@@ -90,9 +90,14 @@ public class TcpReceiver extends SourceConnector {
         maxConnections = parseInt(connectorProperties.getMaxConnections());
 
         String pluginPointName = (String) connectorProperties.getTransmissionModeProperties().getPluginPointName();
-        transmissionModeProvider = (TransmissionModeProvider) ControllerFactory.getFactory().createExtensionController().getServicePlugins().get(pluginPointName);
-        if (transmissionModeProvider == null) {
+        if (pluginPointName.equals("Basic")) {
             transmissionModeProvider = new BasicModeProvider();
+        } else {
+            transmissionModeProvider = (TransmissionModeProvider) ControllerFactory.getFactory().createExtensionController().getServicePlugins().get(pluginPointName);
+        }
+
+        if (transmissionModeProvider == null) {
+            throw new DeployException("Unable to find transmission mode plugin: " + pluginPointName);
         }
 
         if (connectorProperties.isServerMode()) {
