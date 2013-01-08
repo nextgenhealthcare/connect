@@ -8,12 +8,11 @@ import com.mirth.connect.model.converters.DefaultAutoResponder;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 
 public class EDIDataTypeServerPlugin extends DataTypeServerPlugin {
-    public static final String PLUGINPOINT = "EDI";
     private DataTypeDelegate dataTypeDelegate = new EDIDataTypeDelegate();
 
     @Override
     public String getPluginPointName() {
-        return PLUGINPOINT;
+        return dataTypeDelegate.getName();
     }
 
     @Override

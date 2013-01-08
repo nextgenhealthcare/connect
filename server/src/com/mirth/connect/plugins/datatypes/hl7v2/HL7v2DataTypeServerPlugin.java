@@ -7,12 +7,11 @@ import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 
 public class HL7v2DataTypeServerPlugin extends DataTypeServerPlugin {
-    public static final String PLUGINPOINT = "HL7V2";
     private DataTypeDelegate dataTypeDelegate = new HL7v2DataTypeDelegate();
 
     @Override
     public String getPluginPointName() {
-        return PLUGINPOINT;
+        return dataTypeDelegate.getName();
     }
 
     @Override

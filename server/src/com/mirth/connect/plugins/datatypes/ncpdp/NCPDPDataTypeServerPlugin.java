@@ -8,12 +8,11 @@ import com.mirth.connect.model.converters.DefaultAutoResponder;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 
 public class NCPDPDataTypeServerPlugin extends DataTypeServerPlugin {
-    public static final String PLUGINPOINT = "NCPDP";
     private DataTypeDelegate dataTypeDelegate = new NCPDPDataTypeDelegate();
 
     @Override
     public String getPluginPointName() {
-        return PLUGINPOINT;
+        return dataTypeDelegate.getName();
     }
 
     @Override

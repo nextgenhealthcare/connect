@@ -6,6 +6,12 @@ import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.converters.IXMLSerializer;
 
 public class EDIDataTypeDelegate implements DataTypeDelegate {
+    
+    @Override
+    public String getName() {
+        return "EDI";
+    }
+    
     @Override
     public IXMLSerializer getSerializer(Map<?, ?> properties) {
         return new EDISerializer(properties);

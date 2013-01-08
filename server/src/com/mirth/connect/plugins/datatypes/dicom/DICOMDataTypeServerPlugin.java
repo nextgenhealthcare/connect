@@ -8,12 +8,11 @@ import com.mirth.connect.model.converters.DefaultAutoResponder;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 
 public class DICOMDataTypeServerPlugin extends DataTypeServerPlugin {
-    public static final String PLUGINPOINT = "DICOM";
     private DataTypeDelegate dataTypeDelegate = new DICOMDataTypeDelegate();
 
     @Override
     public String getPluginPointName() {
-        return PLUGINPOINT;
+        return dataTypeDelegate.getName();
     }
 
     @Override

@@ -52,7 +52,7 @@ public class EDIDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public String getPluginPointName() {
-        return "EDI";
+        return dataTypeDelegate.getName();
     }
 
     @Override

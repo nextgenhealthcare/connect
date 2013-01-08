@@ -151,6 +151,6 @@ public class X12Vocabulary extends MessageVocabulary {
 
     @Override
     public String getDataType() {
-        return X12DataTypeServerPlugin.PLUGINPOINT;
+        return new X12DataTypeDelegate().getName();
     }
 }

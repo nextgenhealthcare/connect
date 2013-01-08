@@ -8,6 +8,11 @@ import com.mirth.connect.model.converters.IXMLSerializer;
 public class XMLDataTypeDelegate implements DataTypeDelegate {
     
     @Override
+    public String getName() {
+        return "XML";
+    }
+    
+    @Override
     public IXMLSerializer getSerializer(Map<?, ?> properties) {
         return new DefaultXMLSerializer(properties);
     }

@@ -8,6 +8,11 @@ import com.mirth.connect.model.converters.IXMLSerializer;
 public class HL7V3DataTypeDelegate implements DataTypeDelegate {
 
     @Override
+    public String getName() {
+        return "HL7V3";
+    }
+    
+    @Override
     public IXMLSerializer getSerializer(Map<?, ?> properties) {
         return new HL7V3Serializer(properties);
     }

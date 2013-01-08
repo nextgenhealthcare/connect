@@ -52,7 +52,7 @@ public class X12DataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public String getPluginPointName() {
-        return "X12";
+        return dataTypeDelegate.getName();
     }
 
     @Override

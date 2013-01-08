@@ -52,7 +52,7 @@ public class NCPDPDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public String getPluginPointName() {
-        return "NCPDP";
+        return dataTypeDelegate.getName();
     }
 
     @Override

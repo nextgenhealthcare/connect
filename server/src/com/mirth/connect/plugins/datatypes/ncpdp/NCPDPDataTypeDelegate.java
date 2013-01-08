@@ -8,6 +8,11 @@ import com.mirth.connect.model.converters.IXMLSerializer;
 public class NCPDPDataTypeDelegate implements DataTypeDelegate {
 
     @Override
+    public String getName() {
+        return "NCPDP";
+    }
+    
+    @Override
     public IXMLSerializer getSerializer(Map<?, ?> properties) {
         return new NCPDPSerializer(properties);
     }

@@ -8,6 +8,11 @@ import com.mirth.connect.model.converters.IXMLSerializer;
 public class DelimitedDataTypeDelegate implements DataTypeDelegate {
     
     @Override
+    public String getName() {
+        return "DELIMITED";
+    }
+    
+    @Override
     public IXMLSerializer getSerializer(Map<?, ?> properties) {
         return new DelimitedSerializer(properties);
     }

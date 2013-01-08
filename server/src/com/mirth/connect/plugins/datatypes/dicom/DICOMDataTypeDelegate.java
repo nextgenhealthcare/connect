@@ -6,6 +6,11 @@ import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.converters.IXMLSerializer;
 
 public class DICOMDataTypeDelegate implements DataTypeDelegate {
+    
+    @Override
+    public String getName() {
+        return "DICOM";
+    }
 
     @Override
     public IXMLSerializer getSerializer(Map<?, ?> properties) {

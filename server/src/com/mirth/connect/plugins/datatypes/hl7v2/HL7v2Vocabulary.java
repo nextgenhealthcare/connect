@@ -62,6 +62,6 @@ public class HL7v2Vocabulary extends MessageVocabulary {
     }
 
     public String getDataType() {
-        return HL7v2DataTypeServerPlugin.PLUGINPOINT;
+        return new HL7v2DataTypeDelegate().getName();
     }
 }

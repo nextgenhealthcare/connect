@@ -7,6 +7,11 @@ import com.mirth.connect.model.converters.IXMLSerializer;
 public interface DataTypeDelegate {
     
     /**
+     * Get the name of the data type
+     */
+    public String getName();
+    
+    /**
      * Get an instance of the data type's serializer with the given properties
      */
     public IXMLSerializer getSerializer(Map<?, ?> properties);

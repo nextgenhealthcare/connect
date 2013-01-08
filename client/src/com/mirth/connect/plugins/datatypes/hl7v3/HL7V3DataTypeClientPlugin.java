@@ -52,7 +52,7 @@ public class HL7V3DataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public String getPluginPointName() {
-        return "HL7V3";
+        return dataTypeDelegate.getName();
     }
 
     @Override

@@ -38,7 +38,7 @@ public class DICOMDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public String getPluginPointName() {
-        return "DICOM";
+        return dataTypeDelegate.getName();
     }
 
     @Override

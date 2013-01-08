@@ -8,12 +8,11 @@ import com.mirth.connect.model.converters.DefaultAutoResponder;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 
 public class X12DataTypeServerPlugin extends DataTypeServerPlugin {
-    public static final String PLUGINPOINT = "X12";
     private DataTypeDelegate dataTypeDelegate = new X12DataTypeDelegate();
 
     @Override
     public String getPluginPointName() {
-        return PLUGINPOINT;
+        return dataTypeDelegate.getName();
     }
 
     @Override

@@ -8,12 +8,11 @@ import com.mirth.connect.model.converters.DefaultAutoResponder;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 
 public class XMLDataTypeServerPlugin extends DataTypeServerPlugin {
-    public static final String PLUGINPOINT = "XML";
     private DataTypeDelegate dataTypeDelegate = new XMLDataTypeDelegate();
 
     @Override
     public String getPluginPointName() {
-        return PLUGINPOINT;
+        return dataTypeDelegate.getName();
     }
 
     @Override

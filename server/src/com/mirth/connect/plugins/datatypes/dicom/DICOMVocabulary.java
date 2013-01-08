@@ -27,6 +27,6 @@ public class DICOMVocabulary extends MessageVocabulary {
     }
 
     public String getDataType() {
-        return DICOMDataTypeServerPlugin.PLUGINPOINT;
+        return new DICOMDataTypeDelegate().getName();
     }
 }

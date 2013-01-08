@@ -26,6 +26,6 @@ public class NCPDPVocabulary extends MessageVocabulary {
     }
 
     public String getDataType() {
-        return NCPDPDataTypeServerPlugin.PLUGINPOINT;
+        return new NCPDPDataTypeDelegate().getName();
     }
 }

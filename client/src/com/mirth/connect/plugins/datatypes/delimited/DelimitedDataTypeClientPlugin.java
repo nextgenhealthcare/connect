@@ -43,7 +43,7 @@ public class DelimitedDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public String getPluginPointName() {
-        return "DELIMITED";
+        return dataTypeDelegate.getName();
     }
 
     @Override

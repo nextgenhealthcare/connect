@@ -52,7 +52,7 @@ public class XMLDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public String getPluginPointName() {
-        return "XML";
+        return dataTypeDelegate.getName();
     }
 
     @Override

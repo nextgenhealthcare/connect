@@ -8,12 +8,11 @@ import com.mirth.connect.model.converters.DefaultAutoResponder;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 
 public class HL7V3DataTypeServerPlugin extends DataTypeServerPlugin {
-    public static final String PLUGINPOINT = "HL7V3";
     private DataTypeDelegate dataTypeDelegate = new HL7V3DataTypeDelegate();
 
     @Override
     public String getPluginPointName() {
-        return PLUGINPOINT;
+        return dataTypeDelegate.getName();
     }
 
     @Override
