@@ -13,4 +13,5 @@
 	</clientClasses>
 	<library type="CLIENT" path="datatype-delimited-client.jar" />
 	<library type="SHARED" path="datatype-delimited-shared.jar" />
+	<library type="SERVER" path="datatype-delimited-server.jar" />
 </pluginMetaData>

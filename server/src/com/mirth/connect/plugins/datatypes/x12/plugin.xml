@@ -13,4 +13,5 @@
 	</clientClasses>
 	<library type="CLIENT" path="datatype-x12-client.jar" />
 	<library type="SHARED" path="datatype-x12-shared.jar" />
+	<library type="SERVER" path="datatype-x12-server.jar" />
 </pluginMetaData>

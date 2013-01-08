@@ -13,4 +13,5 @@
 	</clientClasses>
 	<library type="CLIENT" path="datatype-dicom-client.jar" />
 	<library type="SHARED" path="datatype-dicom-shared.jar" />
+	<library type="SERVER" path="datatype-dicom-server.jar" />
 </pluginMetaData>

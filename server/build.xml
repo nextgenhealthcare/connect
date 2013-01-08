@@ -374,6 +374,10 @@
 		</copy>
 		<jar destfile="${plugins.datatype-delimited}/datatype-delimited-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/delimited/**" />
+			<exclude name="com/mirth/connect/plugins/datatypes/delimited/DelimitedDataTypeServerPlugin.class" />
+		</jar>
+		<jar destfile="${plugins.datatype-delimited}/datatype-delimited-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/delimited/DelimitedDataTypeServerPlugin.class" />
 		</jar>
 		
 		<!-- plugins.datatype-dicom -->
@@ -388,6 +392,10 @@
 		</copy>
 		<jar destfile="${plugins.datatype-dicom}/datatype-dicom-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/dicom/**" />
+			<exclude name="com/mirth/connect/plugins/datatypes/dicom/DICOMDataTypeServerPlugin.class" />
+		</jar>
+		<jar destfile="${plugins.datatype-dicom}/datatype-dicom-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/dicom/DICOMDataTypeServerPlugin.class" />
 		</jar>
 		
 		
@@ -403,6 +411,10 @@
 		</copy>
 		<jar destfile="${plugins.datatype-edi}/datatype-edi-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/edi/**" />
+			<exclude name="com/mirth/connect/plugins/datatypes/edi/EDIDataTypeServerPlugin.class" />
+		</jar>
+		<jar destfile="${plugins.datatype-edi}/datatype-edi-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/edi/EDIDataTypeServerPlugin.class" />
 		</jar>
 		
 		<!-- plugins.datatype-hl7v2 -->
@@ -417,6 +429,10 @@
 		</copy>
 		<jar destfile="${plugins.datatype-hl7v2}/datatype-hl7v2-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/hl7v2/**" />
+			<exclude name="com/mirth/connect/plugins/datatypes/hl7v2/HL7v2DataTypeServerPlugin.class" />
+		</jar>
+		<jar destfile="${plugins.datatype-hl7v2}/datatype-hl7v2-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/hl7v2/HL7v2DataTypeServerPlugin.class" />
 		</jar>
 		
 		<!-- plugins.datatype-hl7v3 -->
@@ -431,6 +447,10 @@
 		</copy>
 		<jar destfile="${plugins.datatype-hl7v3}/datatype-hl7v3-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/hl7v3/**" />
+			<exclude name="com/mirth/connect/plugins/datatypes/hl7v3/HL7V3DataTypeServerPlugin.class" />
+		</jar>
+		<jar destfile="${plugins.datatype-hl7v3}/datatype-hl7v3-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/hl7v3/HL7V3DataTypeServerPlugin.class" />
 		</jar>
 		
 		<!-- plugins.datatype-ncpdp -->
@@ -445,6 +465,10 @@
 		</copy>
 		<jar destfile="${plugins.datatype-ncpdp}/datatype-ncpdp-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/ncpdp/**" />
+			<exclude name="com/mirth/connect/plugins/datatypes/ncpdp/NCPDPDataTypeServerPlugin.class" />
+		</jar>
+		<jar destfile="${plugins.datatype-ncpdp}/datatype-ncpdp-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/ncpdp/NCPDPDataTypeServerPlugin.class" />
 		</jar>
 		
 		<!-- plugins.datatype-x12 -->
@@ -463,6 +487,10 @@
 		</copy>
 		<jar destfile="${plugins.datatype-x12}/datatype-x12-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/x12/**" />
+			<exclude name="com/mirth/connect/plugins/datatypes/x12/X12DataTypeServerPlugin.class" />
+		</jar>
+		<jar destfile="${plugins.datatype-x12}/datatype-x12-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/x12/X12DataTypeServerPlugin.class" />
 		</jar>
 		
 		<!-- plugins.datatype-xml -->
@@ -477,6 +505,10 @@
 		</copy>
 		<jar destfile="${plugins.datatype-xml}/datatype-xml-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/xml/**" />
+			<exclude name="com/mirth/connect/plugins/datatypes/xml/XMLDataTypeServerPlugin.class" />
+		</jar>
+		<jar destfile="${plugins.datatype-xml}/datatype-xml-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/xml/XMLDataTypeServerPlugin.class" />
 		</jar>
 		
 		<!-- plugins.dashboardstatus -->

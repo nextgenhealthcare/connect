@@ -13,4 +13,5 @@
 	</clientClasses>
 	<library type="CLIENT" path="datatype-edi-client.jar" />
 	<library type="SHARED" path="datatype-edi-shared.jar" />
+	<library type="SERVER" path="datatype-edi-server.jar" />
 </pluginMetaData>
