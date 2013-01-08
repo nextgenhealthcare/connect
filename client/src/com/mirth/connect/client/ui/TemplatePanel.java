@@ -284,6 +284,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
 
         jLabel5.setText("Data Type:");
 
+        dataTypeComboBox.setMaximumRowCount(20);
         dataTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         dataTypeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

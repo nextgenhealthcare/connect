@@ -31,6 +31,8 @@ public class DataTypesComboBoxCellEditor extends MirthComboBoxCellEditor {
     public DataTypesComboBoxCellEditor(JTable table, String[] items, int clickCount, boolean focusable, boolean source) {
         super(table, items, clickCount, focusable);
         this.source = source;
+        // Increase the number of rows to display at once in the data type combo box 
+        ((JComboBox)editorComponent).setMaximumRowCount(20);
     }
     
     @Override
