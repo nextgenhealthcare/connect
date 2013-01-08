@@ -1,0 +1,16 @@
+<pluginMetaData path="datatype-delimited">
+	<name>Delimited Data Type</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.0.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides support for the delimited data type</description>
+	<serverClasses>
+		<string>com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeServerPlugin</string>
+	</serverClasses>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeClientPlugin</string>
+	</clientClasses>
+	<library type="CLIENT" path="datatype-delimited-client.jar" />
+	<library type="SHARED" path="datatype-delimited-shared.jar" />
+</pluginMetaData>

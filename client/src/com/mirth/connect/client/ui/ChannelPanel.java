@@ -374,7 +374,7 @@ public class ChannelPanel extends javax.swing.JPanel {
                 } else {
                     tableData[i][j++] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
                 }
-                tableData[i][j++] = parent.dataTypes.get(channel.getSourceConnector().getTransformer().getInboundDataType());
+                tableData[i][j++] = parent.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getInboundDataType());
                 tableData[i][j++] = channel.getName();
                 tableData[i][j++] = channel.getId();
                 tableData[i][j++] = channel.getDescription();

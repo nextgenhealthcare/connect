@@ -51,12 +51,13 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
-import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.CharsetUtils;
 
 public class ImportConverter {
+    private static final String HL7V2 = "HL7V2";
+    private static final String XML = "XML";
     private static ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
     private static Pattern matchVersion = Pattern.compile("<version>([\\.0-9]+?)<\\/version>");
@@ -325,9 +326,9 @@ public class ImportConverter {
 
                 updateFilterFor1_4((Element) sourceConnectorRoot.getElementsByTagName("filter").item(0));
                 if (direction == Direction.OUTBOUND)
-                    updateTransformerFor1_4(document, (Element) sourceConnectorRoot.getElementsByTagName("transformer").item(0), DataTypeFactory.XML, DataTypeFactory.XML);
+                    updateTransformerFor1_4(document, (Element) sourceConnectorRoot.getElementsByTagName("transformer").item(0), XML, XML);
                 else
-                    updateTransformerFor1_4(document, (Element) sourceConnectorRoot.getElementsByTagName("transformer").item(0), DataTypeFactory.HL7V2, DataTypeFactory.HL7V2);
+                    updateTransformerFor1_4(document, (Element) sourceConnectorRoot.getElementsByTagName("transformer").item(0), HL7V2, HL7V2);
 
                 for (int i = 0; i < destinationsConnectors.getLength(); i++) {
                     modeElement = document.createElement("mode");
@@ -339,9 +340,9 @@ public class ImportConverter {
                     updateFilterFor1_4((Element) destinationsConnector.getElementsByTagName("filter").item(0));
 
                     if (direction == Direction.OUTBOUND)
-                        updateTransformerFor1_4(document, (Element) destinationsConnector.getElementsByTagName("transformer").item(0), DataTypeFactory.XML, DataTypeFactory.HL7V2);
+                        updateTransformerFor1_4(document, (Element) destinationsConnector.getElementsByTagName("transformer").item(0), XML, HL7V2);
                     else
-                        updateTransformerFor1_4(document, (Element) destinationsConnector.getElementsByTagName("transformer").item(0), DataTypeFactory.HL7V2, DataTypeFactory.HL7V2);
+                        updateTransformerFor1_4(document, (Element) destinationsConnector.getElementsByTagName("transformer").item(0), HL7V2, HL7V2);
 
                 }
             }
@@ -1191,9 +1192,9 @@ public class ImportConverter {
         }
 
         if (transformerTemplate != null) {
-            if (incoming.equals(DataTypeFactory.HL7V2) && outgoing.equals(DataTypeFactory.HL7V2)) {
+            if (incoming.equals(HL7V2) && outgoing.equals(HL7V2)) {
                 inboundTemplateElement.setTextContent(template);
-            } else if (outgoing.equals(DataTypeFactory.HL7V2)) {
+            } else if (outgoing.equals(HL7V2)) {
                 outboundTemplateElement.setTextContent(template);
             }
         }

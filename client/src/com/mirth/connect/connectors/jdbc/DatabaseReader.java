@@ -36,7 +36,6 @@ import com.mirth.connect.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.DriverInfo;
-import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.DocumentSerializer;
 
 public class DatabaseReader extends ConnectorSettingsPanel {
@@ -348,7 +347,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 //            parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));  // Not required with current text area
             parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml);
 
-            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundDataType().equals(DataTypeFactory.XML) && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0) {
+            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundDataType().equals(UIConstants.DATATYPE_XML) && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0) {
                 List<Connector> list = parent.channelEditPanel.currentChannel.getDestinationConnectors();
                 for (Connector c : list) {
 //                    c.getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));  // Not required with current text area

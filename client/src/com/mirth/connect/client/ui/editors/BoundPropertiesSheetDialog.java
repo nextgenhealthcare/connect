@@ -9,6 +9,7 @@
 
 package com.mirth.connect.client.ui.editors;
 
+import java.awt.Dimension;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -24,12 +25,13 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog {
     Object bean;
     Properties properties;
 
-    public BoundPropertiesSheetDialog(Properties p, Object bean) {
-        this(p, bean, -1, -1);
-    }
-
-    public BoundPropertiesSheetDialog(Properties p, Object bean, int width, int height) {
+    public BoundPropertiesSheetDialog(Properties p, Object bean, Dimension dimension) {
         super(PlatformUI.MIRTH_FRAME);
+        
+        if (dimension == null) {
+            dimension = new Dimension(-1, -1);
+        }
+        
         this.bean = bean;
         this.properties = p;
         setBeanInfo();
@@ -37,8 +39,8 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog {
         BeanBinder beanBinder = new BeanBinder(bean, propertySheetPanel, null);
         beanBinder.setWriteEnabled(true);
 
-        if (width > 0 && height > 0) {
-            this.setSize(width, height);
+        if (dimension.getWidth() > 0 && dimension.getHeight() > 0) {
+            this.setSize(dimension);
         }
 
         this.setLocationRelativeTo(PlatformUI.MIRTH_FRAME);

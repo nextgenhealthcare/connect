@@ -14,31 +14,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mirth.connect.client.core.Client;
-import com.mirth.connect.model.converters.DataTypeFactory;
-import com.mirth.connect.model.dicom.DICOMVocabulary;
-import com.mirth.connect.model.hl7v2.HL7v2Vocabulary;
-import com.mirth.connect.model.ncpdp.NCPDPVocabulary;
-import com.mirth.connect.model.x12.X12Vocabulary;
 
 public class MessageVocabularyFactory {
     private static MessageVocabularyFactory instance = null;
     private Map<String, Class<? extends MessageVocabulary>> vocabs = new HashMap<String, Class<? extends MessageVocabulary>>();
 
-    public static MessageVocabularyFactory getInstance(Client mirthClient) {
+    public static MessageVocabularyFactory getInstance(Client mirthClient, Map<String, Class<? extends MessageVocabulary>> vocabs) {
         synchronized (MessageVocabularyFactory.class) {
             if (instance == null) {
-                instance = new MessageVocabularyFactory(mirthClient);
+                instance = new MessageVocabularyFactory(mirthClient, vocabs);
             }
 
             return instance;
         }
     }
 
-    private MessageVocabularyFactory(Client mirthClient) {
-        vocabs.put(DataTypeFactory.HL7V2, HL7v2Vocabulary.class);
-        vocabs.put(DataTypeFactory.X12, X12Vocabulary.class);
-        vocabs.put(DataTypeFactory.NCPDP, NCPDPVocabulary.class);
-        vocabs.put(DataTypeFactory.DICOM, DICOMVocabulary.class);
+    private MessageVocabularyFactory(Client mirthClient, Map<String, Class<? extends MessageVocabulary>> vocabs) {
+        this.vocabs = vocabs;
     }
 
     public MessageVocabulary getVocabulary(String dataType, String version, String type) {

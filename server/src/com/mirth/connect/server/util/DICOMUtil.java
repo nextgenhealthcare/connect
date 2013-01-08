@@ -40,7 +40,7 @@ import com.mirth.connect.donkey.model.message.ImmutableMessageContent;
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.Base64Util;
-import com.mirth.connect.model.converters.dicom.DICOMSerializer;
+import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.server.controllers.MessageController;
 
 public class DICOMUtil {
@@ -133,7 +133,7 @@ public class DICOMUtil {
 
     public static byte[] mergeHeaderPixelData(byte[] header, List<Attachment> attachments) throws IOException {
         // 1. read in header
-        DicomObject dcmObj = DICOMSerializer.byteArrayToDicomObject(header, false);
+        DicomObject dcmObj = DICOMConverter.byteArrayToDicomObject(header, false);
 
         // 2. Add pixel data to DicomObject
         if (attachments != null && !attachments.isEmpty()) {
@@ -153,7 +153,7 @@ public class DICOMUtil {
         // Memory Optimization. Free the references to the data in the attachments list.
         attachments.clear();
 
-        return DICOMSerializer.dicomObjectToByteArray(dcmObj);
+        return DICOMConverter.dicomObjectToByteArray(dcmObj);
     }
 
     // commented out until we determine how to handle attachments in 3.0

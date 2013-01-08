@@ -9,59 +9,15 @@
 
 package com.mirth.connect.model.converters;
 
-import java.util.Map;
 import java.util.Properties;
 
-import com.mirth.connect.model.converters.delimited.DelimitedSerializer;
-import com.mirth.connect.model.converters.dicom.DICOMSerializer;
-import com.mirth.connect.model.converters.edi.EDISerializer;
-import com.mirth.connect.model.converters.hl7v2.ER7Serializer;
-import com.mirth.connect.model.converters.hl7v3.HL7V3Serializer;
-import com.mirth.connect.model.converters.ncpdp.NCPDPSerializer;
-import com.mirth.connect.model.converters.x12.X12Serializer;
-import com.mirth.connect.model.converters.xml.DefaultXMLSerializer;
+import com.mirth.connect.plugins.datatypes.edi.EDISerializer;
+import com.mirth.connect.plugins.datatypes.hl7v2.ER7Serializer;
+import com.mirth.connect.plugins.datatypes.ncpdp.NCPDPSerializer;
+import com.mirth.connect.plugins.datatypes.x12.X12Serializer;
 
 
 public class SerializerFactory {
-    public static IXMLSerializer getSerializer(String dataType, Map<?, ?> properties) {
-        if (dataType.equals(DataTypeFactory.HL7V2)) {
-            return new ER7Serializer(properties);
-        } else if (dataType.equals(DataTypeFactory.HL7V3)) {
-            return new HL7V3Serializer(properties);
-        } else if (dataType.equals(DataTypeFactory.X12)) {
-            return new X12Serializer(properties);
-        } else if (dataType.equals(DataTypeFactory.EDI)) {
-            return new EDISerializer(properties);
-        } else if (dataType.equals(DataTypeFactory.NCPDP)) {
-            return new NCPDPSerializer(properties);
-        } else if (dataType.equals(DataTypeFactory.DICOM)) {
-            return new DICOMSerializer(properties);
-        } else if (dataType.equals(DataTypeFactory.DELIMITED)) {
-            return new DelimitedSerializer(properties);
-        } else {
-            return new DefaultXMLSerializer(properties);
-        }
-    }
-    
-    public static Map<String, String> getDefaultSerializerProperties(String dataType) {
-		if (dataType.equals(DataTypeFactory.HL7V2)) {
-			return ER7Serializer.getDefaultProperties();
-		} else if (dataType.equals(DataTypeFactory.HL7V3)) {
-			return HL7V3Serializer.getDefaultProperties();
-		} else if (dataType.equals(DataTypeFactory.X12)) {
-			return X12Serializer.getDefaultProperties();
-		} else if (dataType.equals(DataTypeFactory.EDI)) {
-			return EDISerializer.getDefaultProperties();
-		} else if (dataType.equals(DataTypeFactory.NCPDP)) {
-			return NCPDPSerializer.getDefaultProperties();
-		} else if (dataType.equals(DataTypeFactory.DICOM)) {
-			return DICOMSerializer.getDefaultProperties();
-		} else if (dataType.equals(DataTypeFactory.DELIMITED)) {
-			return DelimitedSerializer.getDefaultProperties();
-		} else {
-			return DefaultXMLSerializer.getDefaultProperties();
-		}
-	}
 
     // TODO: Remove in 3.0
     @Deprecated

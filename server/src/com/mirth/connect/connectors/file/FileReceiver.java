@@ -40,10 +40,9 @@ import com.mirth.connect.donkey.server.channel.PollConnector;
 import com.mirth.connect.model.converters.BatchAdaptor;
 import com.mirth.connect.model.converters.BatchMessageProcessor;
 import com.mirth.connect.model.converters.BatchMessageProcessorException;
-import com.mirth.connect.model.converters.DataTypeFactory;
-import com.mirth.connect.model.converters.delimited.DelimitedSerializer;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
@@ -101,12 +100,8 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
 
         this.filenamePattern = replacer.replaceValues(connectorProperties.getFileFilter(), getChannelId());
 
-        String batchScript = null;
-
-        if (getInboundDataType().getType().equals(DataTypeFactory.DELIMITED)) {
-            DelimitedSerializer serializer = (DelimitedSerializer) getInboundDataType().getSerializer();
-            batchScript = serializer.getDelimitedProperties().getBatchScript();
-        }
+        DataType dataType = getInboundDataType();
+        String batchScript = ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).getBatchScript(dataType.getSerializer());
 
         if (StringUtils.isNotEmpty(batchScript)) {
 

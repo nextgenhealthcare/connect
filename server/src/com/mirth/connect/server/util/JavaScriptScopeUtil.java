@@ -9,8 +9,9 @@
 
 package com.mirth.connect.server.util;
 
-import java.io.Reader;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.collections.MapUtils;
@@ -29,7 +30,6 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.model.converters.delimited.DelimitedProperties;
 import com.mirth.connect.server.util.javascript.StoppableContextFactory;
 import com.mirth.connect.util.PropertyLoader;
 
@@ -259,25 +259,11 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
-    public static Scriptable getBatchProcessorScope(Object logger, String channelId, Reader in, DelimitedProperties props, Boolean skipHeader) {
+    public static Scriptable getBatchProcessorScope(Object logger, String channelId, Map<String, Object> scopeObjects) {
         Scriptable scope = getBasicScope(getContext(), logger);
 
-        // Provide the reader in the scope
-        scope.put("reader", scope, in);
-
-        // Provide the data type properties in the scope (the ones that
-        // affect parsing from delimited to XML)
-        scope.put("columnDelimiter", scope, props.getColumnDelimiter());
-        scope.put("recordDelimiter", scope, props.getRecordDelimiter());
-        scope.put("columnWidths", scope, props.getColumnWidths());
-        scope.put("quoteChar", scope, props.getQuoteChar());
-        scope.put("escapeWithDoubleQuote", scope, props.isEscapeWithDoubleQuote());
-        scope.put("quoteEscapeChar", scope, props.getQuoteEscapeChar());
-        scope.put("ignoreCR", scope, props.isIgnoreCR());
-        if (skipHeader) {
-            scope.put("skipRecords", scope, props.getBatchSkipRecords());
-        } else {
-            scope.put("skipRecords", scope, 0);
+        for (Entry<String, Object> entry : scopeObjects.entrySet()) {
+            scope.put(entry.getKey(), scope, entry.getValue());
         }
 
         if (channelId != null)

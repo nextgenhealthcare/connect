@@ -37,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.prefs.Preferences;
@@ -106,11 +107,11 @@ import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateInfo;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.User;
-import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
+import com.mirth.connect.plugins.DataTypeClientPlugin;
 
 /**
  * The main content frame for the Mirth Client Application. Extends JXFrame and
@@ -183,7 +184,8 @@ public class Frame extends JXFrame {
     private List<String> charsetEncodings = null;
     private boolean isEditingChannel = false;
     private LinkedHashMap<String, String> workingStatuses = new LinkedHashMap<String, String>();
-    public LinkedHashMap<String, String> dataTypes;
+    public LinkedHashMap<String, String> dataTypeToDisplayName;
+    public LinkedHashMap<String, String> displayNameToDataType;
     private Map<String, PluginMetaData> loadedPlugins;
     private Map<String, ConnectorMetaData> loadedConnectors;
     private UpdateClient updateClient = null;
@@ -199,16 +201,6 @@ public class Frame extends JXFrame {
         channels = new HashMap<String, Channel>();
 
         taskPaneContainer = new JXTaskPaneContainer();
-
-        dataTypes = new LinkedHashMap<String, String>();
-        dataTypes.put(DataTypeFactory.HL7V2, "HL7 v2.x");
-        dataTypes.put(DataTypeFactory.HL7V3, "HL7 v3.0");
-        dataTypes.put(DataTypeFactory.X12, "X12");
-        dataTypes.put(DataTypeFactory.EDI, "EDI");
-        dataTypes.put(DataTypeFactory.XML, "XML");
-        dataTypes.put(DataTypeFactory.NCPDP, "NCPDP");
-        dataTypes.put(DataTypeFactory.DICOM, "DICOM");
-        dataTypes.put(DataTypeFactory.DELIMITED, "Delimited Text");
 
         setTitle(UIConstants.TITLE_TEXT + " - " + PlatformUI.SERVER_NAME);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -355,6 +347,15 @@ public class Frame extends JXFrame {
         AuthorizationControllerFactory.getAuthorizationController().initialize();
         refreshCodeTemplates();
         initializeExtensions();
+        
+        // Load the data type/display name maps now that the extensions have been loaded.
+        dataTypeToDisplayName = new LinkedHashMap<String, String>();
+        displayNameToDataType = new LinkedHashMap<String, String>();
+        for (Entry<String, DataTypeClientPlugin> entry : LoadedExtensions.getInstance().getDataTypePlugins().entrySet()) {
+            dataTypeToDisplayName.put(entry.getKey(), entry.getValue().getDisplayName());
+            displayNameToDataType.put(entry.getValue().getDisplayName(), entry.getKey());
+        }
+        
         setInitialVisibleTasks();
         login.setStatus("Loading preferences...");
         userPreferences = Preferences.userNodeForPackage(Mirth.class);

@@ -27,6 +27,7 @@ import com.mirth.connect.plugins.ClientPlugin;
 import com.mirth.connect.plugins.CodeTemplatePlugin;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 import com.mirth.connect.plugins.DashboardPanelPlugin;
+import com.mirth.connect.plugins.DataTypeClientPlugin;
 import com.mirth.connect.plugins.FilterRulePlugin;
 import com.mirth.connect.plugins.SettingsPanelPlugin;
 import com.mirth.connect.plugins.TransformerStepPlugin;
@@ -44,6 +45,7 @@ public class LoadedExtensions {
     private Map<String, FilterRulePlugin> filterRulePlugins = new HashMap<String, FilterRulePlugin>();
     private Map<String, TransformerStepPlugin> transformerStepPlugins = new HashMap<String, TransformerStepPlugin>();
     private Map<String, CodeTemplatePlugin> codeTemplatePlugins = new HashMap<String, CodeTemplatePlugin>();
+    private Map<String, DataTypeClientPlugin> dataTypePlugins = new TreeMap<String, DataTypeClientPlugin>();
     private Map<String, ConnectorSettingsPanel> connectors = new TreeMap<String, ConnectorSettingsPanel>();
     private Map<String, ConnectorSettingsPanel> sourceConnectors = new TreeMap<String, ConnectorSettingsPanel>();
     private Map<String, ConnectorSettingsPanel> destinationConnectors = new TreeMap<String, ConnectorSettingsPanel>();
@@ -81,7 +83,7 @@ public class LoadedExtensions {
                             // load plugin if the number of parameters
                             // in the constructor is 1.
                             if (parameters.length == 1) {
-                                ClientPlugin clientPlugin = (ClientPlugin) constructors[i].newInstance(new Object[]{metaData.getName()});
+                                ClientPlugin clientPlugin = (ClientPlugin) constructors[i].newInstance(new Object[] { metaData.getName() });
                                 addPluginPoints(clientPlugin);
                                 i = constructors.length;
                             }
@@ -138,7 +140,7 @@ public class LoadedExtensions {
     /**
      * Add all plugin points in the given ClientPlugin class. A single class
      * could implement multiple plugin points.
-     *
+     * 
      * @param plugin
      */
     private void addPluginPoints(ClientPlugin plugin) {
@@ -183,6 +185,10 @@ public class LoadedExtensions {
         if (plugin instanceof CodeTemplatePlugin) {
             codeTemplatePlugins.put(plugin.getPluginPointName(), (CodeTemplatePlugin) plugin);
         }
+
+        if (plugin instanceof DataTypeClientPlugin) {
+            dataTypePlugins.put(plugin.getPluginPointName(), (DataTypeClientPlugin) plugin);
+        }
     }
 
     private void clearExtensionMaps() {
@@ -198,6 +204,7 @@ public class LoadedExtensions {
         filterRulePlugins.clear();
         transformerStepPlugins.clear();
         codeTemplatePlugins.clear();
+        dataTypePlugins.clear();
 
         connectors.clear();
         sourceConnectors.clear();
@@ -246,6 +253,10 @@ public class LoadedExtensions {
 
     public Map<String, CodeTemplatePlugin> getCodeTemplatePlugins() {
         return codeTemplatePlugins;
+    }
+
+    public Map<String, DataTypeClientPlugin> getDataTypePlugins() {
+        return dataTypePlugins;
     }
 
     public Map<String, ConnectorSettingsPanel> getConnectors() {

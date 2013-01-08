@@ -62,6 +62,7 @@ import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.ConnectorStatusPlugin;
+import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.util.DatabaseUtil;
@@ -83,6 +84,7 @@ public class DefaultExtensionController extends ExtensionController {
     private Map<String, ServicePlugin> servicePlugins = new HashMap<String, ServicePlugin>();
     private Map<String, ConnectorStatusPlugin> connectorStatusPlugins = new HashMap<String, ConnectorStatusPlugin>();
     private Map<String, ChannelPlugin> channelPlugins = new HashMap<String, ChannelPlugin>();
+    private Map<String, DataTypeServerPlugin> dataTypePlugins = new HashMap<String, DataTypeServerPlugin>();
     
     private static PropertiesConfiguration extensionProperties = null;
 
@@ -293,6 +295,13 @@ public class DefaultExtensionController extends ExtensionController {
                                 serverPlugins.add(channelPlugin);
                                 logger.debug("sucessfully loaded server channel plugin: " + serverPlugin.getPluginPointName());
                             }
+                            
+                            if (serverPlugin instanceof DataTypeServerPlugin) {
+                                DataTypeServerPlugin dataTypePlugin = (DataTypeServerPlugin) serverPlugin;
+                                dataTypePlugins.put(dataTypePlugin.getPluginPointName(), dataTypePlugin);
+                                serverPlugins.add(dataTypePlugin);
+                                logger.debug("sucessfully loaded server data type plugin: " + serverPlugin.getPluginPointName());
+                            }
                         } catch (Exception e) {
                             logger.error("Error instantiating plugin: " + pmd.getName(), e);
                         }
@@ -320,6 +329,11 @@ public class DefaultExtensionController extends ExtensionController {
     @Override
     public Map<String, ChannelPlugin> getChannelPlugins() {
         return channelPlugins;
+    }
+    
+    @Override
+    public Map<String, DataTypeServerPlugin> getDataTypePlugins() {
+        return dataTypePlugins;
     }
 
     /* ********************************************************************** */

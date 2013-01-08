@@ -24,10 +24,10 @@ import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
-import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.ScriptController;
 
 public class JavaScriptBuilder {
@@ -122,26 +122,7 @@ public class JavaScriptBuilder {
         // Check to see if the property to strip namespaces off of incoming
         // messages has been set.
         // For XML, HL7v2, and HL7v3 stripNamespaces can be turned on/off.
-        boolean stripIncomingNamespaces = false;
-
-        if (transformer.getInboundDataType().equals(DataTypeFactory.HL7V2)) {
-            // If HL7v2, only strip namespaces if using the strict parser
-            if ((transformer.getInboundProperties() != null) && Boolean.parseBoolean((String) transformer.getInboundProperties().get("useStrictParser"))) {
-                // If the property has been set, use it, otherwise use the default true
-                if (transformer.getInboundProperties().get("stripNamespaces") != null) {
-                    stripIncomingNamespaces = Boolean.parseBoolean((String) transformer.getInboundProperties().get("stripNamespaces"));
-                } else {
-                    stripIncomingNamespaces = true;
-                }
-            }
-        } else if (transformer.getInboundDataType().equals(DataTypeFactory.XML) || transformer.getInboundDataType().equals(DataTypeFactory.HL7V3)) {
-            // If the property has been set, use it, otherwise use the default true
-            if ((transformer.getInboundProperties() != null) && (transformer.getInboundProperties().get("stripNamespaces") != null)) {
-                stripIncomingNamespaces = Boolean.parseBoolean((String) transformer.getInboundProperties().get("stripNamespaces"));
-            } else {
-                stripIncomingNamespaces = true;
-            }
-        }
+        boolean stripIncomingNamespaces = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getInboundDataType()).isStripNamespaces(transformer.getInboundProperties());
 
         if (stripIncomingNamespaces) {
             builder.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
@@ -157,26 +138,7 @@ public class JavaScriptBuilder {
             // Check to see if the property to strip namespaces off of outbound
             // templates has been set.
             // For XML, HL7v2, and HL7v3 stripNamespaces can be turned on/off.
-            boolean stripOutboundNamespaces = false;
-
-            if (transformer.getOutboundDataType().equals(DataTypeFactory.HL7V2)) {
-                // If HL7v2, only strip namespaces if using the strict parser
-                if ((transformer.getOutboundProperties() != null) && Boolean.parseBoolean((String) transformer.getOutboundProperties().get("useStrictParser"))) {
-                    // If the property has been set, use it, otherwise use the default true
-                    if (transformer.getOutboundProperties().get("stripNamespaces") != null) {
-                        stripOutboundNamespaces = Boolean.parseBoolean((String) transformer.getOutboundProperties().get("stripNamespaces"));
-                    } else {
-                        stripOutboundNamespaces = true;
-                    }
-                }
-            } else if (transformer.getOutboundDataType().equals(DataTypeFactory.XML) || transformer.getOutboundDataType().equals(DataTypeFactory.HL7V3)) {
-                // If the property has been set, use it, otherwise use the default true
-                if ((transformer.getOutboundProperties() != null) && (transformer.getOutboundProperties().get("stripNamespaces") != null)) {
-                    stripOutboundNamespaces = Boolean.parseBoolean((String) transformer.getOutboundProperties().get("stripNamespaces"));
-                } else {
-                    stripOutboundNamespaces = true;
-                }
-            }
+            boolean stripOutboundNamespaces = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).isStripNamespaces(transformer.getOutboundProperties());;
 
             if (stripOutboundNamespaces) {
                 builder.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");

@@ -78,7 +78,6 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
-import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.plugins.TransformerStepPlugin;
@@ -176,18 +175,18 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         if (connector.getMode() == Connector.Mode.SOURCE) {
             tabTemplatePanel.setSourceView();
-            tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypes.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
+            tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
         } else if (connector.getMode() == Connector.Mode.DESTINATION) {
             tabTemplatePanel.setDestinationView();
             if (channel.getSourceConnector().getTransformer().getOutboundDataType() != null) {
-                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypes.get(channel.getSourceConnector().getTransformer().getOutboundDataType()));
+                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getOutboundDataType()));
             } else {
-                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypes.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
+                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
             }
         }
 
         if (transformer.getOutboundDataType() != null) {
-            tabTemplatePanel.setOutgoingDataType(((String) PlatformUI.MIRTH_FRAME.dataTypes.get(transformer.getOutboundDataType())));
+            tabTemplatePanel.setOutgoingDataType(((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(transformer.getOutboundDataType())));
         } else {
             tabTemplatePanel.setOutgoingDataType(tabTemplatePanel.getIncomingDataType());
         }
@@ -872,11 +871,11 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         String incomingDataType = null;
         String outgoingDataType = null;
 
-        for (String dataType : DataTypeFactory.getDataTypeNames()) {
-            if (PlatformUI.MIRTH_FRAME.dataTypes.get(dataType).equals(tabTemplatePanel.getIncomingDataType())) {
+        for (String dataType : LoadedExtensions.getInstance().getDataTypePlugins().keySet()) {
+            if (PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(dataType).equals(tabTemplatePanel.getIncomingDataType())) {
                 incomingDataType = dataType;
             }
-            if (PlatformUI.MIRTH_FRAME.dataTypes.get(dataType).equals(tabTemplatePanel.getOutgoingDataType())) {
+            if (PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(dataType).equals(tabTemplatePanel.getOutgoingDataType())) {
                 outgoingDataType = dataType;
             }
         }
@@ -1074,11 +1073,11 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
             transformer.setSteps(list);
 
-            for (String dataType : DataTypeFactory.getDataTypeNames()) {
-                if (PlatformUI.MIRTH_FRAME.dataTypes.get(dataType).equals(tabTemplatePanel.getIncomingDataType())) {
+            for (String dataType : LoadedExtensions.getInstance().getDataTypePlugins().keySet()) {
+                if (PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(dataType).equals(tabTemplatePanel.getIncomingDataType())) {
                     transformer.setInboundDataType(dataType);
                 }
-                if (PlatformUI.MIRTH_FRAME.dataTypes.get(dataType).equals(tabTemplatePanel.getOutgoingDataType())) {
+                if (PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(dataType).equals(tabTemplatePanel.getOutgoingDataType())) {
                     transformer.setOutboundDataType(dataType);
 
                     if (connector.getMode() == Connector.Mode.SOURCE) {

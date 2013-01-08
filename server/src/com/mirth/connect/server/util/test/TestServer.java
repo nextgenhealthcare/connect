@@ -53,7 +53,7 @@ public class TestServer {
         receiverProperties.setScript("");
 
         Transformer sourceTransformer = new Transformer();
-        sourceTransformer.setInboundDataType(DataTypeFactory.HL7V2);
+        sourceTransformer.setInboundDataType("HL7V2");
 
         Connector sourceConnector = new Connector();
         sourceConnector.setProperties(receiverProperties);
@@ -77,7 +77,7 @@ public class TestServer {
         dispatcherProperties.getQueueConnectorProperties().setSendFirst(true);
 
         Transformer destinationTransformer = new Transformer();
-        destinationTransformer.setOutboundDataType(DataTypeFactory.HL7V2);
+        destinationTransformer.setOutboundDataType("HL7V2");
 
         Connector destinationConnector = new Connector();
         destinationConnector.setProperties(dispatcherProperties);

@@ -26,7 +26,7 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
-import com.mirth.connect.model.converters.xml.DefaultXMLSerializer;
+import com.mirth.connect.plugins.datatypes.xml.DefaultXMLSerializer;
 import com.mirth.connect.server.Mirth;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.transformers.JavaScriptFilterTransformer;

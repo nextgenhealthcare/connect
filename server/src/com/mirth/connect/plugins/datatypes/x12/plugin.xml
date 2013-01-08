@@ -1,0 +1,16 @@
+<pluginMetaData path="datatype-x12">
+	<name>X12 Data Type</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.0.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides support for the X12 data type</description>
+	<serverClasses>
+		<string>com.mirth.connect.plugins.datatypes.x12.X12DataTypeServerPlugin</string>
+	</serverClasses>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.datatypes.x12.X12DataTypeClientPlugin</string>
+	</clientClasses>
+	<library type="CLIENT" path="datatype-x12-client.jar" />
+	<library type="SHARED" path="datatype-x12-shared.jar" />
+</pluginMetaData>

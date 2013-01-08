@@ -46,7 +46,6 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
-import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.transmission.StreamHandler;
 import com.mirth.connect.model.transmission.StreamHandlerException;
 import com.mirth.connect.model.transmission.batch.BatchStreamReader;
@@ -294,7 +293,7 @@ public class TcpReceiver extends SourceConnector {
                     boolean streamDone = false;
                     // TODO: Put this on the DataType object; let it decide based on the properties which stream handler to use
                     BatchStreamReader batchStreamReader = null;
-                    if (connectorProperties.isProcessBatch() && getInboundDataType().getType().equals(DataTypeFactory.HL7V2)) {
+                    if (connectorProperties.isProcessBatch() && getInboundDataType().getType().equals("HL7V2")) {
                         if (connectorProperties.getTransmissionModeProperties() instanceof FrameModeProperties) {
                             batchStreamReader = new ER7BatchStreamReader(socket.getInputStream(), TcpUtil.stringToByteArray(((FrameModeProperties) connectorProperties.getTransmissionModeProperties()).getEndOfMessageBytes()));
                         } else {

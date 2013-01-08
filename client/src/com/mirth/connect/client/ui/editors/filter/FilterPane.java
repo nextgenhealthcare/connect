@@ -182,13 +182,13 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         if (connector.getMode() == Connector.Mode.SOURCE) {
             tabTemplatePanel.setSourceView();
-            tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypes.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
+            tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
         } else if (connector.getMode() == Connector.Mode.DESTINATION) {
             tabTemplatePanel.setDestinationView();
             if (channel.getSourceConnector().getTransformer().getOutboundDataType() != null) {
-                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypes.get(channel.getSourceConnector().getTransformer().getOutboundDataType()));
+                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getOutboundDataType()));
             } else {
-                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypes.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
+                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
             }
         }
 

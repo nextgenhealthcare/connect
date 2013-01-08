@@ -1,0 +1,16 @@
+<pluginMetaData path="datatype-edi">
+	<name>EDI Data Type</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.0.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides support for the EDI data type</description>
+	<serverClasses>
+		<string>com.mirth.connect.plugins.datatypes.edi.EDIDataTypeServerPlugin</string>
+	</serverClasses>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.datatypes.edi.EDIDataTypeClientPlugin</string>
+	</clientClasses>
+	<library type="CLIENT" path="datatype-edi-client.jar" />
+	<library type="SHARED" path="datatype-edi-shared.jar" />
+</pluginMetaData>

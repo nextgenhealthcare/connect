@@ -26,8 +26,8 @@ import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
-import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
@@ -88,12 +88,12 @@ public class VmDispatcher extends DestinationConnector {
             if (channelId.equals("sink")) {
                 responseData = "Message Successfully Sinked";
             } else {
-                boolean isDICOM = this.getOutboundDataType().getType().equals(DataTypeFactory.DICOM);
-                byte[] data = AttachmentUtil.reAttachMessage(vmDispatcherProperties.getChannelTemplate(), message, Constants.ATTACHMENT_CHARSET, isDICOM);
+                boolean isBinary = ExtensionController.getInstance().getDataTypePlugins().get(this.getOutboundDataType().getType()).isBinary();
+                byte[] data = AttachmentUtil.reAttachMessage(vmDispatcherProperties.getChannelTemplate(), message, Constants.ATTACHMENT_CHARSET, isBinary);
         
                 RawMessage rawMessage;
         
-                if (isDICOM) {
+                if (isBinary) {
                     rawMessage = new RawMessage(data, null, null);
                 } else {
                     rawMessage = new RawMessage(StringUtils.newString(data, Constants.ATTACHMENT_CHARSET), null, null);

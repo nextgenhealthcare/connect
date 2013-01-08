@@ -76,8 +76,6 @@ import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.attachments.AttachmentHandlerFactory;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
-import com.mirth.connect.model.converters.DataTypeFactory;
-import com.mirth.connect.model.converters.SerializerFactory;
 import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.util.PropertyVerifier;
 
@@ -295,8 +293,8 @@ public class ChannelSetup extends javax.swing.JPanel {
                 // Set the default inbound and outbound dataType and properties
                 String dataType = currentChannel.getSourceConnector().getTransformer().getOutboundDataType();
                 // Use a different properties object for the inbound and outbound
-                Properties defaultInboundProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(dataType));
-                Properties defaultOutboundProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(dataType));
+                Properties defaultInboundProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties());
+                Properties defaultOutboundProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties());
 
                 connector.getTransformer().setInboundDataType(dataType);
                 connector.getTransformer().setInboundProperties(defaultInboundProperties);
@@ -550,10 +548,15 @@ public class ChannelSetup extends javax.swing.JPanel {
         Transformer sourceTransformer = new Transformer();
 
         // Set the default inbound and outbound dataType and properties
-        String defaultDataType = DataTypeFactory.HL7V2;
+        String defaultDataType = UIConstants.DATATYPE_DEFAULT;
+        // If the default data type is not loaded, use the first data type that is.
+        if (!LoadedExtensions.getInstance().getDataTypePlugins().containsKey(defaultDataType) && LoadedExtensions.getInstance().getDataTypePlugins().size() > 0) {
+            defaultDataType = LoadedExtensions.getInstance().getDataTypePlugins().keySet().iterator().next();
+        }
+        
         // Use a different properties object for the inbound and outbound
-        Properties defaultInboundProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(defaultDataType));
-        Properties defaultOutboundProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(defaultDataType));
+        Properties defaultInboundProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(defaultDataType).getDefaultProperties());
+        Properties defaultOutboundProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(defaultDataType).getDefaultProperties());
 
         sourceTransformer.setInboundDataType(defaultDataType);
         sourceTransformer.setInboundProperties(defaultInboundProperties);
@@ -1055,14 +1058,18 @@ public class ChannelSetup extends javax.swing.JPanel {
     public void fixNullDataTypesAndProperties() {
         Transformer sourceTransformer = currentChannel.getSourceConnector().getTransformer();
 
-        String defaultDataType = DataTypeFactory.HL7V2;
+        String defaultDataType = UIConstants.DATATYPE_DEFAULT;
+        // If the default data type is not loaded, use the first data type that is.
+        if (!LoadedExtensions.getInstance().getDataTypePlugins().containsKey(defaultDataType) && LoadedExtensions.getInstance().getDataTypePlugins().size() > 0) {
+            defaultDataType = LoadedExtensions.getInstance().getDataTypePlugins().keySet().iterator().next();
+        }
 
         if (sourceTransformer.getInboundDataType() == null) {
             sourceTransformer.setInboundDataType(defaultDataType);
         }
 
         if (sourceTransformer.getInboundProperties() == null) {
-            Properties defaultProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(sourceTransformer.getInboundDataType()));
+            Properties defaultProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(sourceTransformer.getInboundDataType()).getDefaultProperties());
             sourceTransformer.setInboundProperties(defaultProperties);
         }
 
@@ -1071,7 +1078,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
 
         if (sourceTransformer.getOutboundProperties() == null) {
-            Properties defaultProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(sourceTransformer.getOutboundDataType()));
+            Properties defaultProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(sourceTransformer.getOutboundDataType()).getDefaultProperties());
             sourceTransformer.setOutboundProperties(defaultProperties);
         }
 
@@ -1091,7 +1098,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
 
             if (destinationTransformer.getOutboundProperties() == null) {
-                Properties defaultProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(destinationTransformer.getOutboundDataType()));
+                Properties defaultProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(destinationTransformer.getOutboundDataType()).getDefaultProperties());
                 destinationTransformer.setOutboundProperties(defaultProperties);
             }
         }
@@ -2392,7 +2399,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         if (currentChannel.getSourceConnector().getTransportName().equalsIgnoreCase(DATABASE_READER)) {
             currentChannel.getSourceConnector().getTransformer().setInboundTemplate("");
 
-            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundDataType() == DataTypeFactory.XML && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0) {
+            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundDataType() == UIConstants.DATATYPE_XML && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0) {
                 List<Connector> list = parent.channelEditPanel.currentChannel.getDestinationConnectors();
                 for (Connector c : list) {
                     c.getTransformer().setInboundTemplate("");
@@ -2541,11 +2548,19 @@ public class ChannelSetup extends javax.swing.JPanel {
     }//GEN-LAST:event_attachmentPropertiesButtonActionPerformed
 
     private void changeDataTypesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changeDataTypesButtonActionPerformed
+        String previousDataType = currentChannel.getSourceConnector().getTransformer().getInboundDataType();
+        AttachmentHandlerType previousDefaultAttachmentHandlerType = LoadedExtensions.getInstance().getDataTypePlugins().get(previousDataType).getDefaultAttachmentHandlerType();
+        AttachmentHandlerType previousAttachmentHandlerType = (AttachmentHandlerType) attachmentComboBox.getSelectedItem();
+        
         new DataTypesDialog();
-        if (currentChannel.getSourceConnector().getTransformer().getInboundDataType().equals(DataTypeFactory.DICOM)) {
-            attachmentComboBox.setSelectedItem(AttachmentHandlerType.DICOM);
+        
+        String dataType = currentChannel.getSourceConnector().getTransformer().getInboundDataType();
+        AttachmentHandlerType defaultAttachmentHandlerType = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultAttachmentHandlerType();
+        
+        if (defaultAttachmentHandlerType != null) {
+            attachmentComboBox.setSelectedItem(defaultAttachmentHandlerType);
         } else {
-            if (attachmentComboBox.getSelectedItem() == AttachmentHandlerType.DICOM) {
+            if (previousAttachmentHandlerType == previousDefaultAttachmentHandlerType) {
                 attachmentComboBox.setSelectedItem(AttachmentHandlerType.NONE);
             }
         }
@@ -2840,10 +2855,10 @@ public class ChannelSetup extends javax.swing.JPanel {
      * if necessary.
      */
     public void checkAndSetXmlDataType() {
-        if (requiresXmlDataType() && !currentChannel.getSourceConnector().getTransformer().getInboundDataType().equals(DataTypeFactory.XML)) {
-            Properties defaultProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(DataTypeFactory.XML));
+        if (requiresXmlDataType() && !currentChannel.getSourceConnector().getTransformer().getInboundDataType().equals(UIConstants.DATATYPE_XML)) {
+            Properties defaultProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(UIConstants.DATATYPE_XML).getDefaultProperties());
 
-            currentChannel.getSourceConnector().getTransformer().setInboundDataType(DataTypeFactory.XML);
+            currentChannel.getSourceConnector().getTransformer().setInboundDataType(UIConstants.DATATYPE_XML);
             currentChannel.getSourceConnector().getTransformer().setInboundProperties(defaultProperties);
         }
     }

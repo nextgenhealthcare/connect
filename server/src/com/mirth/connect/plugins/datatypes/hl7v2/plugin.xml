@@ -1,0 +1,16 @@
+<pluginMetaData path="datatype-hl7v2">
+	<name>HL7v2 Data Type</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.0.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides support for the HL7v2 data type</description>
+	<serverClasses>
+		<string>com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DataTypeServerPlugin</string>
+	</serverClasses>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DataTypeClientPlugin</string>
+	</clientClasses>
+	<library type="CLIENT" path="datatype-hl7v2-client.jar" />
+	<library type="SHARED" path="datatype-hl7v2-shared.jar" />
+</pluginMetaData>

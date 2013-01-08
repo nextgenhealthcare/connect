@@ -11,6 +11,7 @@ package com.mirth.connect.plugins;
 
 import java.util.Calendar;
 
+import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.connectors.vm.VmReceiverProperties;
 import com.mirth.connect.connectors.vm.VmDispatcherProperties;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -19,7 +20,6 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.Transformer;
-import com.mirth.connect.model.converters.DataTypeFactory;
 
 public abstract class ChannelWizardPlugin extends ClientPlugin {
 
@@ -39,7 +39,7 @@ public abstract class ChannelWizardPlugin extends ClientPlugin {
         sourceConnector.setEnabled(true);
         sourceConnector.setFilter(new Filter());
         Transformer sourceTransformer = new Transformer();
-        sourceTransformer.setInboundDataType(DataTypeFactory.HL7V2);
+        sourceTransformer.setInboundDataType(UIConstants.DATATYPE_DEFAULT);
         sourceConnector.setTransformer(sourceTransformer);
         sourceConnector.setMode(Mode.SOURCE);
         sourceConnector.setName("sourceConnector");

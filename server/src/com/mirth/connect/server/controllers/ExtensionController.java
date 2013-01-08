@@ -20,6 +20,7 @@ import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.ConnectorStatusPlugin;
+import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.server.tools.ClassPathResource;
 
@@ -217,4 +218,6 @@ public abstract class ExtensionController extends Controller {
     public abstract Map<String, ConnectorStatusPlugin> getConnectorStatusPlugins();
     
     public abstract Map<String, ChannelPlugin> getChannelPlugins();
+    
+    public abstract Map<String, DataTypeServerPlugin> getDataTypePlugins();
 }

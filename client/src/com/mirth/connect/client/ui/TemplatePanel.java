@@ -32,24 +32,11 @@ import javax.swing.event.DocumentListener;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
-import org.syntax.jedit.tokenmarker.X12TokenMarker;
-import org.syntax.jedit.tokenmarker.XMLTokenMarker;
-
-import com.mirth.connect.client.ui.beans.DelimitedProperties;
-import com.mirth.connect.client.ui.beans.EDIProperties;
-import com.mirth.connect.client.ui.beans.HL7Properties;
-import com.mirth.connect.client.ui.beans.HL7V3Properties;
-import com.mirth.connect.client.ui.beans.NCPDPProperties;
-import com.mirth.connect.client.ui.beans.X12Properties;
-import com.mirth.connect.client.ui.beans.XMLProperties;
+import org.syntax.jedit.tokenmarker.TokenMarker;
 import com.mirth.connect.client.ui.editors.BoundPropertiesSheetDialog;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
-import com.mirth.connect.donkey.util.Base64Util;
-import com.mirth.connect.model.converters.DataTypeFactory;
-import com.mirth.connect.model.converters.SerializerFactory;
-import com.mirth.connect.model.converters.dicom.DICOMSerializer;
+import com.mirth.connect.plugins.DataTypeClientPlugin;
 
 public class TemplatePanel extends javax.swing.JPanel implements DropTargetListener {
     public final String DEFAULT_TEXT = "Paste a sample message here.";
@@ -73,7 +60,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         openFileButton.setIcon(UIConstants.ICON_FILE_PICKER);
 
         if (PlatformUI.MIRTH_FRAME != null) {
-            dataTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.dataTypes.values().toArray()));
+            dataTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.values().toArray()));
         }
 
         hl7Document = new SyntaxDocument();
@@ -161,12 +148,13 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
                 File file = ((List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor)).get(0);
 
-                if (getDataType().equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.DICOM))) {
+                String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(getDataType());
+                DataTypeClientPlugin dataTypePlugin = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType);
+                if (dataTypePlugin.isBinary()) {
                     byte[] content = FileUtils.readFileToByteArray(file);
                     
-                    // The pixel data must be stripped because that step is no longer part of the serializer.
-                    content = DICOMSerializer.removePixelData(content);
-                    pasteBox.setText(new DICOMSerializer().toXML(new String(Base64Util.encodeBase64(content))));
+                    // The plugin should decide how to convert the byte array to string
+                    pasteBox.setText(dataTypePlugin.getTemplateString(content));
                 } else {
                     pasteBox.setText(FileUtils.readFileToString(file, UIConstants.CHARSET));
                 }
@@ -252,14 +240,10 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     }
 
     private void setDocType(String dataType) {
-        if (dataType.equals("HL7 v2.x")) {
-            hl7Document.setTokenMarker(new HL7TokenMarker());
-        } else if (dataType.equals("EDI")) {
-            hl7Document.setTokenMarker(new EDITokenMarker());
-        } else if (dataType.equals("X12")) {
-            hl7Document.setTokenMarker(new X12TokenMarker());
-        } else if (dataType.equals("HL7 v3.0") || dataType.equals("XML")) {
-            hl7Document.setTokenMarker(new XMLTokenMarker());
+        TokenMarker tokenMarker = LoadedExtensions.getInstance().getDataTypePlugins().get(PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataType)).getTokenMarker();
+        
+        if (tokenMarker != null) {
+            hl7Document.setTokenMarker(tokenMarker);
         }
         
         pasteBox.setDocument(hl7Document);
@@ -373,13 +357,14 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_openFileButtonActionPerformed
     {//GEN-HEADEREND:event_openFileButtonActionPerformed
         try {
-            if (getDataType().equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.DICOM))) {
+            String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(getDataType());
+            DataTypeClientPlugin dataTypePropertiesPlugin = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType);
+            if (dataTypePropertiesPlugin.isBinary()) {
                 byte[] content = PlatformUI.MIRTH_FRAME.browseForFileBytes(null);
                 
                 if (content != null) {
-                    // The pixel data must be stripped because that step is no longer part of the serializer.
-                    content = DICOMSerializer.removePixelData(content);
-                    pasteBox.setText(new DICOMSerializer().toXML(new String(Base64Util.encodeBase64(content))));
+                    // The plugin should decide how to convert the byte array to string
+                    pasteBox.setText(dataTypePropertiesPlugin.getTemplateString(content));
                 }
             } else {
                 String content = PlatformUI.MIRTH_FRAME.browseForFileString(null);
@@ -410,21 +395,16 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     {//GEN-HEADEREND:event_propertiesActionPerformed
         PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
         currentMessage = "";
-        if (((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.EDI))) {
-            new BoundPropertiesSheetDialog(dataProperties, new EDIProperties());
-        } else if (((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.X12))) {
-            new BoundPropertiesSheetDialog(dataProperties, new X12Properties());
-        } else if (((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V2))) {
-            new BoundPropertiesSheetDialog(dataProperties, new HL7Properties(), 420, 370);
-        } else if (((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V3))) {
-            new BoundPropertiesSheetDialog(dataProperties, new HL7V3Properties());
-        } else if (((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.NCPDP))) {
-            new BoundPropertiesSheetDialog(dataProperties, new NCPDPProperties());
-        } else if (((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.DELIMITED))) {
-            new BoundPropertiesSheetDialog(dataProperties, new DelimitedProperties(), 550, 370);
-        } else if (((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.XML))) {
-            new BoundPropertiesSheetDialog(dataProperties, new XMLProperties());
+        
+        String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get((String) dataTypeComboBox.getSelectedItem());
+        
+        DataTypeClientPlugin dataTypeClientPlugin = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType);
+        Object beanProperties = dataTypeClientPlugin.getBeanProperties();
+        
+        if (beanProperties != null) {
+            new BoundPropertiesSheetDialog(dataProperties, beanProperties, dataTypeClientPlugin.getBeanDimensions());
         }
+        
         updateText();
     }//GEN-LAST:event_propertiesActionPerformed
 
@@ -435,25 +415,16 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         
         // Only conditionally enable the properties if the data type is enabled.
         if (dataTypeComboBox.isEnabled()) {
-            if (((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.X12))
-                    || ((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.EDI))
-                    || ((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V2))
-                    || ((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V3))
-                    || ((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.NCPDP))
-                    || ((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.DELIMITED))
-                    || ((String) dataTypeComboBox.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.XML))) {
-                properties.setEnabled(true);
-            } else {
-                properties.setEnabled(false);
-            }
+            String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get((String) dataTypeComboBox.getSelectedItem());
+            properties.setEnabled(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getBeanProperties() != null);
         }
         
         // Only set the default properties if the data type is changing
         if (!currentDataType.equals(dataTypeComboBox.getSelectedItem())) {
             // Set the default properties for the data type selected
-            for (String dataType : DataTypeFactory.getDataTypeNames()) {
-                if (PlatformUI.MIRTH_FRAME.dataTypes.get(dataType).equals(dataTypeComboBox.getSelectedItem())) {
-                    dataProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(dataType));
+            for (String dataType : LoadedExtensions.getInstance().getDataTypePlugins().keySet()) {
+                if (PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(dataType).equals(dataTypeComboBox.getSelectedItem())) {
+                    dataProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties());
                 }
             }
         }

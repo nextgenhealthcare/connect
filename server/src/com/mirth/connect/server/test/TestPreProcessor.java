@@ -32,7 +32,7 @@ import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.ServerEventContext;
-import com.mirth.connect.model.converters.xml.DefaultXMLSerializer;
+import com.mirth.connect.plugins.datatypes.xml.DefaultXMLSerializer;
 import com.mirth.connect.server.Mirth;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;

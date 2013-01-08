@@ -68,8 +68,8 @@ public class DataTypesDialog extends javax.swing.JDialog {
     public void makeTable(MirthTable table, JScrollPane scrollPane, boolean source) {
         table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
-        String[] dataTypes = new String[parent.dataTypes.values().size()];
-        parent.dataTypes.values().toArray(dataTypes);
+        String[] dataTypes = new String[parent.dataTypeToDisplayName.values().size()];
+        parent.dataTypeToDisplayName.values().toArray(dataTypes);
 
         table.getColumnModel().getColumn(table.getColumnModelIndex(DATA_TYPE_COLUMN_NAME)).setCellEditor(new DataTypesComboBoxCellEditor(table, dataTypes, 1, false, source));
         table.getColumnModel().getColumn(table.getColumnModelIndex(DATA_TYPE_COLUMN_NAME)).setCellRenderer(new DataTypesComboBoxCellRenderer(dataTypes, source));
@@ -114,11 +114,11 @@ public class DataTypesDialog extends javax.swing.JDialog {
         Connector sourceConnector = currentChannel.getSourceConnector();
 
         tableData[0][0] = "Source Connector Inbound";
-        tableData[0][1] = parent.dataTypes.get(sourceConnector.getTransformer().getInboundDataType());
+        tableData[0][1] = parent.dataTypeToDisplayName.get(sourceConnector.getTransformer().getInboundDataType());
         tableData[0][2] = "Properties";
 
         tableData[1][0] = "Source Connector Outbound";
-        tableData[1][1] = parent.dataTypes.get(sourceConnector.getTransformer().getOutboundDataType());
+        tableData[1][1] = parent.dataTypeToDisplayName.get(sourceConnector.getTransformer().getOutboundDataType());
         tableData[1][2] = "Properties";
 
         sourceConnectorTable.setModel(new RefreshTableModel(tableData, new String[]{CONNECTOR_COLUMN_NAME, DATA_TYPE_COLUMN_NAME, PROPERTIES_COLUMN_NAME}) {
@@ -142,7 +142,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
 
         for (Connector destinationConnector : currentChannel.getDestinationConnectors()) {
             tableData[tableRow][0] = destinationConnector.getName() + " Outbound";
-            tableData[tableRow][1] = parent.dataTypes.get(destinationConnector.getTransformer().getOutboundDataType());
+            tableData[tableRow][1] = parent.dataTypeToDisplayName.get(destinationConnector.getTransformer().getOutboundDataType());
             tableData[tableRow][2] = "Properties";
             tableRow++;
         }

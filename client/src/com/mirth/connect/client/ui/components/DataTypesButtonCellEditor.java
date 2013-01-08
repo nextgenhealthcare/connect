@@ -15,18 +15,12 @@ import java.util.Properties;
 import javax.swing.JTable;
 
 import com.mirth.connect.client.ui.DataTypesDialog;
+import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.client.ui.beans.DelimitedProperties;
-import com.mirth.connect.client.ui.beans.EDIProperties;
-import com.mirth.connect.client.ui.beans.HL7Properties;
-import com.mirth.connect.client.ui.beans.HL7V3Properties;
-import com.mirth.connect.client.ui.beans.NCPDPProperties;
-import com.mirth.connect.client.ui.beans.X12Properties;
-import com.mirth.connect.client.ui.beans.XMLProperties;
 import com.mirth.connect.client.ui.editors.BoundPropertiesSheetDialog;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.converters.DataTypeFactory;
+import com.mirth.connect.plugins.DataTypeClientPlugin;
 
 public class DataTypesButtonCellEditor extends MirthButtonCellEditor {
 
@@ -63,20 +57,11 @@ public class DataTypesButtonCellEditor extends MirthButtonCellEditor {
     }
     
     private void loadPropertiesEditor(String dataType, Properties dataProperties) {
-        if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.EDI))) {
-            new BoundPropertiesSheetDialog(dataProperties, new EDIProperties());
-        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.X12))) {
-            new BoundPropertiesSheetDialog(dataProperties, new X12Properties());
-        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V2))) {
-            new BoundPropertiesSheetDialog(dataProperties, new HL7Properties(), 420, 370);
-        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V3))) {
-            new BoundPropertiesSheetDialog(dataProperties, new HL7V3Properties());
-        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.NCPDP))) {
-            new BoundPropertiesSheetDialog(dataProperties, new NCPDPProperties());
-        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.DELIMITED))) {
-            new BoundPropertiesSheetDialog(dataProperties, new DelimitedProperties(), 550, 370);
-        } else if (dataType.equals(PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.XML))) {
-            new BoundPropertiesSheetDialog(dataProperties, new XMLProperties());
+        DataTypeClientPlugin dataTypeClientPlugin = LoadedExtensions.getInstance().getDataTypePlugins().get(PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataType));
+        Object beanProperties = dataTypeClientPlugin.getBeanProperties();
+        
+        if (beanProperties != null) {
+            new BoundPropertiesSheetDialog(dataProperties, beanProperties, dataTypeClientPlugin.getBeanDimensions());
         }
     }
 

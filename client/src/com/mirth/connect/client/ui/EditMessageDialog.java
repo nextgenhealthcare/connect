@@ -27,15 +27,10 @@ import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.EDITokenMarker;
-import org.syntax.jedit.tokenmarker.HL7TokenMarker;
-import org.syntax.jedit.tokenmarker.X12TokenMarker;
-import org.syntax.jedit.tokenmarker.XMLTokenMarker;
-
+import org.syntax.jedit.tokenmarker.TokenMarker;
 import com.mirth.connect.client.ui.components.ItemSelectionTable;
 import com.mirth.connect.client.ui.components.ItemSelectionTableModel;
 import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
-import com.mirth.connect.model.converters.DataTypeFactory;
 
 public class EditMessageDialog extends javax.swing.JDialog implements DropTargetListener {
 
@@ -133,19 +128,10 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
 
         if (message != null) {
             if (dataType != null) {
-                if (dataType.equals(DataTypeFactory.HL7V2) || dataType.equals(DataTypeFactory.NCPDP) || dataType.equals(DataTypeFactory.DICOM)) {
-                    newDoc.setTokenMarker(new HL7TokenMarker());
-//                    message = message.replace('\r', '\n');  // Not required with current text area
-                    // HL7 (ER7) encoded messages have \r as end of line
-                    // segments
-                    // The syntax editor box only recognizes \n
-                    // Add \n to make things look normal
-                } else if (dataType.equals(DataTypeFactory.XML) || dataType.equals(DataTypeFactory.HL7V3)) {
-                    newDoc.setTokenMarker(new XMLTokenMarker());
-                } else if (dataType.equals(DataTypeFactory.X12)) {
-                    newDoc.setTokenMarker(new X12TokenMarker());
-                } else if (dataType.equals(DataTypeFactory.EDI)) {
-                    newDoc.setTokenMarker(new EDITokenMarker());
+                TokenMarker tokenMarker = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getTokenMarker();
+                
+                if (tokenMarker != null) {
+                    newDoc.setTokenMarker(tokenMarker);
                 }
             }
 

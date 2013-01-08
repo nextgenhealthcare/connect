@@ -65,11 +65,6 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.EDITokenMarker;
-import org.syntax.jedit.tokenmarker.HL7TokenMarker;
-import org.syntax.jedit.tokenmarker.X12TokenMarker;
-import org.syntax.jedit.tokenmarker.XMLTokenMarker;
-
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.MessageImportResult;
 import com.mirth.connect.client.core.Operation;
@@ -101,7 +96,6 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.DefaultSerializer;
-import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchOperator;
@@ -862,23 +856,14 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         if (message != null) {
             if (dataType != null) {
-
-                if (dataType.equals(DataTypeFactory.HL7V2) || dataType.equals(DataTypeFactory.NCPDP) || dataType.equals(DataTypeFactory.DICOM)) {
-                    newDoc.setTokenMarker(new HL7TokenMarker());
-                } else if (dataType.equals(DataTypeFactory.XML) || dataType.equals(DataTypeFactory.HL7V3)) {
-                    newDoc.setTokenMarker(new XMLTokenMarker());
-
-                    if (formatXmlMessageCheckBox.isSelected()) {
-                        try {
-                            message = XmlUtil.prettyPrint(message);
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                        }
+                
+                newDoc.setTokenMarker(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getTokenMarker());
+                if (LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).isXml() && formatXmlMessageCheckBox.isSelected()) {
+                    try {
+                        message = XmlUtil.prettyPrint(message);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
                     }
-                } else if (dataType.equals(DataTypeFactory.X12)) {
-                    newDoc.setTokenMarker(new X12TokenMarker());
-                } else if (dataType.equals(DataTypeFactory.EDI)) {
-                    newDoc.setTokenMarker(new EDITokenMarker());
                 }
             }
 
@@ -1873,7 +1858,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     dataType = content.getDataType();
                 }
 
-                if (dataType != null && (dataType.equals(DataTypeFactory.XML) || dataType.equals(DataTypeFactory.HL7V3))) {
+                if (dataType != null && LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).isXml()) {
                     formatXmlMessageCheckBox.setEnabled(true);
                 } else {
                     formatXmlMessageCheckBox.setEnabled(false);

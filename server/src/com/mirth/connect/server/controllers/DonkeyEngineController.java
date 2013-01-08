@@ -68,8 +68,8 @@ import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.attachments.AttachmentHandlerFactory;
 import com.mirth.connect.model.converters.DataTypeFactory;
-import com.mirth.connect.model.converters.SerializerFactory;
 import com.mirth.connect.plugins.ChannelPlugin;
+import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.attachments.JavaScriptAttachmentHandler;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.channel.MirthMetaDataReplacer;
@@ -613,8 +613,10 @@ public class DonkeyEngineController implements EngineController {
         Transformer transformer = connector.getTransformer();
         Filter filter = connector.getFilter();
         
-        DataType inboundDataType = DataTypeFactory.getDataType(transformer.getInboundDataType(), transformer.getInboundProperties());
-        DataType outboundDataType = DataTypeFactory.getDataType(transformer.getOutboundDataType(), transformer.getOutboundProperties());
+        DataTypeServerPlugin inboundDataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getInboundDataType());
+        DataTypeServerPlugin outboundDataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
+        DataType inboundDataType = DataTypeFactory.getDataType(transformer.getInboundDataType(), inboundDataTypePlugin.getSerializer(transformer.getInboundProperties()), inboundDataTypePlugin.getAutoResponder(transformer.getInboundProperties()));
+        DataType outboundDataType = DataTypeFactory.getDataType(transformer.getOutboundDataType(), outboundDataTypePlugin.getSerializer(transformer.getOutboundProperties()), outboundDataTypePlugin.getAutoResponder(transformer.getOutboundProperties()));
 
         // Check the conditions for skipping transformation
         // 1. Script is not empty
@@ -639,11 +641,11 @@ public class DonkeyEngineController implements EngineController {
         // put the outbound template in the templates table
         if (transformer.getOutboundTemplate() != null) {
             TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
-            XmlSerializer serializer = SerializerFactory.getSerializer(transformer.getOutboundDataType(), transformer.getOutboundProperties());
+            XmlSerializer serializer = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).getSerializer(transformer.getOutboundProperties());
             templateId = UUIDGenerator.getUUID();
 
             if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-                if (transformer.getOutboundDataType().equals(DataTypeFactory.DICOM)) {
+                if (ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).isBinary()) {
                     templateController.putTemplate(channelId, templateId, transformer.getOutboundTemplate());
                 } else {
                     templateController.putTemplate(channelId, templateId, serializer.toXML(transformer.getOutboundTemplate()));
@@ -723,8 +725,11 @@ public class DonkeyEngineController implements EngineController {
         connector.setConnectorProperties(model.getProperties());
 
         Transformer transformerModel = model.getTransformer();
-        connector.setInboundDataType(DataTypeFactory.getDataType(transformerModel.getInboundDataType(), transformerModel.getInboundProperties()));
-        connector.setOutboundDataType(DataTypeFactory.getDataType(transformerModel.getOutboundDataType(), transformerModel.getOutboundProperties()));
+        
+        DataTypeServerPlugin inboundDataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformerModel.getInboundDataType());
+        DataTypeServerPlugin outboundDataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformerModel.getOutboundDataType());
+        connector.setInboundDataType(DataTypeFactory.getDataType(transformerModel.getInboundDataType(), inboundDataTypePlugin.getSerializer(transformerModel.getInboundProperties()), inboundDataTypePlugin.getAutoResponder(transformerModel.getInboundProperties())));
+        connector.setOutboundDataType(DataTypeFactory.getDataType(transformerModel.getOutboundDataType(), outboundDataTypePlugin.getSerializer(transformerModel.getOutboundProperties()), outboundDataTypePlugin.getAutoResponder(transformerModel.getOutboundProperties())));
     }
 
     private MetaDataReplacer createMetaDataReplacer(Connector connector) {

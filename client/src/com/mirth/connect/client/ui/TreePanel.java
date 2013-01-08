@@ -22,6 +22,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.io.StringReader;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Timer;
@@ -50,13 +51,10 @@ import com.mirth.connect.client.ui.components.MirthTree.FilterTreeModel;
 import com.mirth.connect.client.ui.components.MirthTreeNode;
 import com.mirth.connect.client.ui.editors.MessageTreePanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
-import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.IXMLSerializer;
-import com.mirth.connect.model.converters.SerializerFactory;
-import com.mirth.connect.model.dicom.DICOMVocabulary;
 import com.mirth.connect.model.util.MessageVocabulary;
 import com.mirth.connect.model.util.MessageVocabularyFactory;
-import com.mirth.connect.util.StringUtil;
+import com.mirth.connect.plugins.DataTypeClientPlugin;
 
 public class TreePanel extends javax.swing.JPanel {
 
@@ -349,34 +347,21 @@ public class TreePanel extends javax.swing.JPanel {
         String dataType = null;
         if (source.length() > 0 && !source.equals(ignoreText)) {
             IXMLSerializer serializer;
-            if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V2).equals(messageType)) {
-                dataType = DataTypeFactory.HL7V2;
-            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.NCPDP).equals(messageType)) {
-                dataType = DataTypeFactory.NCPDP;
-            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.DICOM).equals(messageType)) {
-                dataType = DataTypeFactory.DICOM;
-            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.HL7V3).equals(messageType)) {
-                dataType = DataTypeFactory.HL7V3;
-            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.X12).equals(messageType)) {
-                dataType = DataTypeFactory.X12;
-            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.XML).equals(messageType)) {
-                dataType = DataTypeFactory.XML;
-            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.EDI).equals(messageType)) {
-                dataType = DataTypeFactory.EDI;
-            } else if (PlatformUI.MIRTH_FRAME.dataTypes.get(DataTypeFactory.DELIMITED).equals(messageType)) {
-                dataType = DataTypeFactory.DELIMITED;
+            
+            if (PlatformUI.MIRTH_FRAME.displayNameToDataType.containsKey(messageType)) {
+                dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(messageType);
             } else {
                 logger.error("Invalid data type");
                 return;
             }
 
             try {
-                serializer = SerializerFactory.getSerializer(dataType, dataTypeProperties);
+                serializer = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getSerializer(dataTypeProperties);
                 docBuilder = docFactory.newDocumentBuilder();
 
                 String message;
                 
-                if (dataType.equals(DataTypeFactory.DICOM)) {
+                if (LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).isBinary()) {
                     message = source;
                 } else {
                     message = serializer.toXML(source);
@@ -400,7 +385,15 @@ public class TreePanel extends javax.swing.JPanel {
                     }
                     
                     messageName = type + " (" + version + ")";
-                    vocabulary = MessageVocabularyFactory.getInstance(PlatformUI.MIRTH_FRAME.mirthClient).getVocabulary(dataType, version, type);
+                    Map<String, Class<? extends MessageVocabulary>> vocabs = new HashMap<String, Class<? extends MessageVocabulary>>();
+                    for (DataTypeClientPlugin dataTypePlugin : LoadedExtensions.getInstance().getDataTypePlugins().values()) {
+                        Class<? extends MessageVocabulary> vocabulary = dataTypePlugin.getVocabulary();
+                        
+                        if (vocabulary != null) {
+                            vocabs.put(dataTypePlugin.getPluginPointName(), vocabulary);
+                        }
+                    }
+                    vocabulary = MessageVocabularyFactory.getInstance(PlatformUI.MIRTH_FRAME.mirthClient, vocabs).getVocabulary(dataType, version, type);
                     messageDescription = vocabulary.getDescription(type.replaceAll("-", ""));
 
                 }
@@ -515,25 +508,8 @@ public class TreePanel extends javax.swing.JPanel {
         if (elo instanceof Element) {
             Element element = (Element) elo;
             String description;
-            if (vocabulary instanceof DICOMVocabulary) {
-                description = vocabulary.getDescription(element.getAttribute("tag"));
-                if (description.equals("?")) {
-                    description = "";
-                }
-            } else {
-                description = vocabulary.getDescription(element.getNodeName());
-            }
-            MirthTreeNode currentNode;
-            if (description != null && description.length() > 0) {
-                if (vocabulary instanceof DICOMVocabulary) {
-                    currentNode = new MirthTreeNode("tag" + element.getAttribute("tag") + " (" + description + ")");
-                } else {
-                    currentNode = new MirthTreeNode(element.getNodeName() + " (" + description + ")");
-                }
-            } else {
-                currentNode = new MirthTreeNode(element.getNodeName());
-            }
-
+            MirthTreeNode currentNode = new MirthTreeNode(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getNodeText(vocabulary, element));
+            
             String text = "";
             if (element.hasChildNodes()) {
                 text = element.getFirstChild().getNodeValue();
@@ -543,31 +519,37 @@ public class TreePanel extends javax.swing.JPanel {
                     currentNode.add(new MirthTreeNode(text));
                 }
             } else {
-                // Check if we are in the format SEG.N.N
-                if (dataType.equals(DataTypeFactory.HL7V3) || dataType.equals(DataTypeFactory.XML) || element.getNodeName().matches(".*\\..*\\..*") || dataType.equals(DataTypeFactory.DICOM)) {
-                    // We already at the last possible child segment, so just
-                    // add empty node
-                    currentNode.add(new MirthTreeNode(EMPTY));
-                } else if (dataType.equals(DataTypeFactory.DELIMITED)) {
-                    // We have empty column node
-                    currentNode.add(new MirthTreeNode(EMPTY));
-                } else {
-                    // We have empty node and possibly empty children
-                    // Add the sub-node handler (SEG.1)
-                    currentNode.add(new MirthTreeNode(element.getNodeName()));
-                    // Add a sub node (SEG.1.1)
-                    String newNodeName = element.getNodeName() + ".1";
-                    description = vocabulary.getDescription(newNodeName);
-                    MirthTreeNode parentNode;
-                    if (description != null && description.length() > 0) {
-                        parentNode = new MirthTreeNode(newNodeName + " (" + description + ")");
-                    } else {
-                        parentNode = new MirthTreeNode(newNodeName);
+                int minLevel = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getMinTreeLevel();
+                if (minLevel > 0) {
+                    String regex = ".*";
+                    for (int i = 0; i < minLevel; i++) {
+                        regex += "\\..*";
                     }
-                    parentNode.add(new MirthTreeNode(EMPTY));
-                    currentNode.add(parentNode);
+                    
+                    // build regex
+                    if (!element.getNodeName().matches(regex)) {
+                        // We have empty node and possibly empty children
+                        // Add the sub-node handler (SEG.1)
+                        currentNode.add(new MirthTreeNode(element.getNodeName()));
+                        // Add a sub node (SEG.1.1)
+                        String newNodeName = element.getNodeName() + ".1";
+                        description = vocabulary.getDescription(newNodeName);
+                        MirthTreeNode parentNode;
+                        if (description != null && description.length() > 0) {
+                            parentNode = new MirthTreeNode(newNodeName + " (" + description + ")");
+                        } else {
+                            parentNode = new MirthTreeNode(newNodeName);
+                        }
+                        parentNode.add(new MirthTreeNode(EMPTY));
+                        currentNode.add(parentNode);
+                        
+                    } else {
+                        currentNode.add(new MirthTreeNode(EMPTY));
+                    }
+                } else {
+                    currentNode.add(new MirthTreeNode(EMPTY));
                 }
-
+                
             }
 
             processAttributes(element, currentNode);

@@ -38,7 +38,6 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
-import com.mirth.connect.model.converters.DataTypeFactory;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.util.AttachmentUtil;
@@ -385,7 +384,7 @@ public class DonkeyMessageController extends MessageController {
             connectorMessage.setMetaDataId(0);
             connectorMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, rawContent, dataType.getType(), encryptedRawContent));
             
-            if (dataType.getType().equals(DataTypeFactory.DICOM)) {
+            if (ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).isBinary()) {
                 rawMessage = new RawMessage(DICOMUtil.getDICOMRawBytes(connectorMessage));
             } else {
                 rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(AttachmentUtil.reAttachMessage(rawContent, connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));

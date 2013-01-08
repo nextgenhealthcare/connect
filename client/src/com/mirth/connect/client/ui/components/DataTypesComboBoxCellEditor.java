@@ -19,11 +19,10 @@ import javax.swing.JTable;
 
 import org.apache.commons.collections.MapUtils;
 
+import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.converters.DataTypeFactory;
-import com.mirth.connect.model.converters.SerializerFactory;
 
 public class DataTypesComboBoxCellEditor extends MirthComboBoxCellEditor {
 
@@ -41,7 +40,7 @@ public class DataTypesComboBoxCellEditor extends MirthComboBoxCellEditor {
             String dataTypeDisplayName = (String)((JComboBox)super.getComponent()).getSelectedItem();
             Channel currentChannel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
             String dataType = getDataTypeFromDisplayName(dataTypeDisplayName);
-            Properties defaultProperties = MapUtils.toProperties(SerializerFactory.getDefaultSerializerProperties(dataType));
+            Properties defaultProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties());
             
             // Set the new data type and default properties for that data type
             if (source) {
@@ -74,8 +73,8 @@ public class DataTypesComboBoxCellEditor extends MirthComboBoxCellEditor {
     }
     
     private String getDataTypeFromDisplayName(String dataTypeDisplayName) {
-        for (String dataType : DataTypeFactory.getDataTypeNames()) {
-            if (PlatformUI.MIRTH_FRAME.dataTypes.get(dataType).equals(dataTypeDisplayName)) {
+        for (String dataType : LoadedExtensions.getInstance().getDataTypePlugins().keySet()) {
+            if (PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(dataType).equals(dataTypeDisplayName)) {
                 return dataType;
             }
         }

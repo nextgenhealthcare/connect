@@ -27,6 +27,16 @@
 		<property name="connectors.ws" value="${extensions}/ws" />
 		<property name="connectors.vm" value="${extensions}/vm" />
 
+		<!-- datatypes -->
+		<property name="plugins.datatype-delimited" value="${extensions}/datatype-delimited" />
+		<property name="plugins.datatype-dicom" value="${extensions}/datatype-dicom" />
+		<property name="plugins.datatype-edi" value="${extensions}/datatype-edi" />
+		<property name="plugins.datatype-hl7v2" value="${extensions}/datatype-hl7v2" />
+		<property name="plugins.datatype-hl7v3" value="${extensions}/datatype-hl7v3" />
+		<property name="plugins.datatype-ncpdp" value="${extensions}/datatype-ncpdp" />
+		<property name="plugins.datatype-x12" value="${extensions}/datatype-x12" />
+		<property name="plugins.datatype-xml" value="${extensions}/datatype-xml" />
+		
 		<!-- plugins -->
 		<property name="plugins.dashboardstatus" value="${extensions}/dashboardstatus" />
 		<property name="plugins.dicomviewer" value="${extensions}/dicomviewer" />
@@ -76,11 +86,6 @@
 		<copy todir="${classes}">
 			<fileset file="version.properties" />
 			<fileset file="mirth-client.jnlp" />
-		</copy>
-
-		<!-- copy the xml files so they will be included in jar -->
-		<copy todir="${classes}/com/mirth/connect/model/x12/xml">
-			<fileset dir="${src}/com/mirth/connect/model/x12/xml" />
 		</copy>
 	</target>
 
@@ -357,6 +362,123 @@
 	</target>
 
 	<target name="create-plugins" depends="create-connectors">
+		<!-- plugins.datatype-delimited -->
+		<mkdir dir="${plugins.datatype-delimited}" />
+		<copy todir="${plugins.datatype-delimited}">
+			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/delimited">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.datatype-delimited}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/datatypes/delimited" />
+		</copy>
+		<jar destfile="${plugins.datatype-delimited}/datatype-delimited-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/delimited/**" />
+		</jar>
+		
+		<!-- plugins.datatype-dicom -->
+		<mkdir dir="${plugins.datatype-dicom}" />
+		<copy todir="${plugins.datatype-dicom}">
+			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/dicom">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.datatype-dicom}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/datatypes/dicom" />
+		</copy>
+		<jar destfile="${plugins.datatype-dicom}/datatype-dicom-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/dicom/**" />
+		</jar>
+		
+		
+		<!-- plugins.datatype-edi -->
+		<mkdir dir="${plugins.datatype-edi}" />
+		<copy todir="${plugins.datatype-edi}">
+			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/edi">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.datatype-edi}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/datatypes/edi" />
+		</copy>
+		<jar destfile="${plugins.datatype-edi}/datatype-edi-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/edi/**" />
+		</jar>
+		
+		<!-- plugins.datatype-hl7v2 -->
+		<mkdir dir="${plugins.datatype-hl7v2}" />
+		<copy todir="${plugins.datatype-hl7v2}">
+			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/hl7v2">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.datatype-hl7v2}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/datatypes/hl7v2" />
+		</copy>
+		<jar destfile="${plugins.datatype-hl7v2}/datatype-hl7v2-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/hl7v2/**" />
+		</jar>
+		
+		<!-- plugins.datatype-hl7v3 -->
+		<mkdir dir="${plugins.datatype-hl7v3}" />
+		<copy todir="${plugins.datatype-hl7v3}">
+			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/hl7v3">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.datatype-hl7v3}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/datatypes/hl7v3" />
+		</copy>
+		<jar destfile="${plugins.datatype-hl7v3}/datatype-hl7v3-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/hl7v3/**" />
+		</jar>
+		
+		<!-- plugins.datatype-ncpdp -->
+		<mkdir dir="${plugins.datatype-ncpdp}" />
+		<copy todir="${plugins.datatype-ncpdp}">
+			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/ncpdp">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.datatype-ncpdp}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/datatypes/ncpdp" />
+		</copy>
+		<jar destfile="${plugins.datatype-ncpdp}/datatype-ncpdp-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/ncpdp/**" />
+		</jar>
+		
+		<!-- plugins.datatype-x12 -->
+		<mkdir dir="${plugins.datatype-x12}" />
+		<copy todir="${plugins.datatype-x12}">
+			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/x12">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.datatype-x12}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/datatypes/x12" />
+		</copy>
+		<!-- copy the xml files so they will be included in jar -->
+		<copy todir="${classes}/com/mirth/connect/plugins/datatypes/x12/xml">
+			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/x12/xml" />
+		</copy>
+		<jar destfile="${plugins.datatype-x12}/datatype-x12-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/x12/**" />
+		</jar>
+		
+		<!-- plugins.datatype-xml -->
+		<mkdir dir="${plugins.datatype-xml}" />
+		<copy todir="${plugins.datatype-xml}">
+			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/xml">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.datatype-xml}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/datatypes/xml" />
+		</copy>
+		<jar destfile="${plugins.datatype-xml}/datatype-xml-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/xml/**" />
+		</jar>
+		
 		<!-- plugins.dashboardstatus -->
 		<mkdir dir="${plugins.dashboardstatus}" />
 		<copy todir="${plugins.dashboardstatus}">
@@ -700,6 +822,15 @@
 		<zip destfile="${dist.extensions}/js-${version}.zip" basedir="${extensions}" includes="js/**/*" />
 		<zip destfile="${dist.extensions}/ws-${version}.zip" basedir="${extensions}" includes="ws/**/*" />
 		<zip destfile="${dist.extensions}/vm-${version}.zip" basedir="${extensions}" includes="vm/**/*" />
+		
+		<zip destfile="${dist.extensions}/datatype-delimited-${version}.zip" basedir="${extensions}" includes="datatypes-delimited/**/*" />
+		<zip destfile="${dist.extensions}/datatype-dicom-${version}.zip" basedir="${extensions}" includes="datatypes-dicom/**/*" />
+		<zip destfile="${dist.extensions}/datatype-edi-${version}.zip" basedir="${extensions}" includes="datatypes-edi/**/*" />
+		<zip destfile="${dist.extensions}/datatype-hl7v2-${version}.zip" basedir="${extensions}" includes="datatypes-hl7v2/**/*" />
+		<zip destfile="${dist.extensions}/datatype-hl7v3-${version}.zip" basedir="${extensions}" includes="datatypes-hl7v3/**/*" />
+		<zip destfile="${dist.extensions}/datatype-ncpdp-${version}.zip" basedir="${extensions}" includes="datatypes-ncpdp/**/*" />
+		<zip destfile="${dist.extensions}/datatype-x12-${version}.zip" basedir="${extensions}" includes="datatypes-x12/**/*" />
+		<zip destfile="${dist.extensions}/datatype-xml-${version}.zip" basedir="${extensions}" includes="datatypes-xml/**/*" />
 
 		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip" basedir="${extensions}" includes="dashboardstatus/**/*" />
 		<zip destfile="${dist.extensions}/serverlog-${version}.zip" basedir="${extensions}" includes="serverlog/**/*" />

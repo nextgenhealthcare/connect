@@ -135,4 +135,8 @@ public class UIConstants {
     
     // FileUtils reading/writing
     public static final String CHARSET = "UTF-8";
+    
+    // for data types
+    public static final String DATATYPE_DEFAULT = "HL7V2";
+    public static final String DATATYPE_XML = "XML";
 }

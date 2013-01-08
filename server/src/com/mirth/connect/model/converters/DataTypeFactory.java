@@ -9,25 +9,16 @@
 
 package com.mirth.connect.model.converters;
 
-import java.util.Properties;
-
+import com.mirth.connect.donkey.model.message.AutoResponder;
 import com.mirth.connect.donkey.model.message.DataType;
+import com.mirth.connect.donkey.model.message.XmlSerializer;
 
 public class DataTypeFactory {
-    public static final String HL7V2 = "HL7V2";
-    public static final String X12 = "X12";
-    public static final String XML = "XML";
-    public static final String HL7V3 = "HL7V3";
-    public static final String EDI = "EDI";
-    public static final String NCPDP = "NCPDP";
-    public static final String DICOM = "DICOM";
-    public static final String DELIMITED = "DELIMITED";
 
-    public static DataType getDataType(String dataType, Properties properties) {
-        return new DataType(dataType, SerializerFactory.getSerializer(dataType, properties), AutoResponderFactory.getAutoResponder(dataType, properties));
-    }
-
-    public static String[] getDataTypeNames() {
-        return new String[] { HL7V2, X12, XML, HL7V3, EDI, NCPDP, DICOM, DELIMITED };
+    public static DataType getDataType(String dataType, XmlSerializer serializer, AutoResponder autoResponder) {
+        if (autoResponder == null) {
+            autoResponder = new DefaultAutoResponder();
+        }
+        return new DataType(dataType, serializer, autoResponder);
     }
 }

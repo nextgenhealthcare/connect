@@ -33,6 +33,7 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/mllpmode/MLLPModeProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/datatypes/**"/>
 			<accessrule kind="nonaccessible" pattern="*/**"/>
 		</accessrules>
 	</classpathentry>

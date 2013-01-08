@@ -20,7 +20,7 @@ import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProper
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.attachments.AttachmentException;
-import com.mirth.connect.model.converters.dicom.DICOMSerializer;
+import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.server.util.UUIDGenerator;
 
 public class DICOMAttachmentHandler extends AttachmentHandler {
@@ -40,7 +40,7 @@ public class DICOMAttachmentHandler extends AttachmentHandler {
         // However, DICOM messages that use this initializer should be relatively small in size.
         index = 0;
         try {
-            dicomObject = DICOMSerializer.byteArrayToDicomObject(StringUtils.getBytesUsAscii(message), true);
+            dicomObject = DICOMConverter.byteArrayToDicomObject(StringUtils.getBytesUsAscii(message), true);
             dicomElement = dicomObject.remove(Tag.PixelData);
         } catch (Throwable t) {
             throw new AttachmentException(t);
@@ -51,7 +51,7 @@ public class DICOMAttachmentHandler extends AttachmentHandler {
     public void initialize(byte[] bytes, Channel channel) throws AttachmentException {
         index = 0;
         try {
-            dicomObject = DICOMSerializer.byteArrayToDicomObject(bytes, false);
+            dicomObject = DICOMConverter.byteArrayToDicomObject(bytes, false);
             dicomElement = dicomObject.remove(Tag.PixelData);
         } catch (Throwable t) {
             throw new AttachmentException(t);
@@ -82,7 +82,7 @@ public class DICOMAttachmentHandler extends AttachmentHandler {
     @Override
     public String shutdown() throws AttachmentException {
         try {
-            byte[] encodedMessage = Base64Util.encodeBase64(DICOMSerializer.dicomObjectToByteArray(dicomObject));
+            byte[] encodedMessage = Base64Util.encodeBase64(DICOMConverter.dicomObjectToByteArray(dicomObject));
             dicomElement = null;
             dicomObject = null;
             return StringUtils.newStringUsAscii(encodedMessage);

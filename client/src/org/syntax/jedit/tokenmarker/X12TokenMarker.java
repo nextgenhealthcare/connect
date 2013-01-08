@@ -2,11 +2,6 @@ package org.syntax.jedit.tokenmarker;
 
 import org.syntax.jedit.KeywordMap;
 
-/**
- * HL7 token marker.
- * 
- * @author Chris Lang
- */
 public class X12TokenMarker extends EDITokenMarker {
 	public X12TokenMarker() {
 		super();

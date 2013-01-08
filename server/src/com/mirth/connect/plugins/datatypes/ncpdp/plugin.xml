@@ -1,0 +1,16 @@
+<pluginMetaData path="datatype-ncpdp">
+	<name>NCPDP Data Type</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>3.0.0</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides support for the NCPDP data type</description>
+	<serverClasses>
+		<string>com.mirth.connect.plugins.datatypes.ncpdp.NCPDPDataTypeServerPlugin</string>
+	</serverClasses>
+	<clientClasses>
+		<string>com.mirth.connect.plugins.datatypes.ncpdp.NCPDPDataTypeClientPlugin</string>
+	</clientClasses>
+	<library type="CLIENT" path="datatype-ncpdp-client.jar" />
+	<library type="SHARED" path="datatype-ncpdp-shared.jar" />
+</pluginMetaData>
