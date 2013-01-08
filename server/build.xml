@@ -823,14 +823,14 @@
 		<zip destfile="${dist.extensions}/ws-${version}.zip" basedir="${extensions}" includes="ws/**/*" />
 		<zip destfile="${dist.extensions}/vm-${version}.zip" basedir="${extensions}" includes="vm/**/*" />
 		
-		<zip destfile="${dist.extensions}/datatype-delimited-${version}.zip" basedir="${extensions}" includes="datatypes-delimited/**/*" />
-		<zip destfile="${dist.extensions}/datatype-dicom-${version}.zip" basedir="${extensions}" includes="datatypes-dicom/**/*" />
-		<zip destfile="${dist.extensions}/datatype-edi-${version}.zip" basedir="${extensions}" includes="datatypes-edi/**/*" />
-		<zip destfile="${dist.extensions}/datatype-hl7v2-${version}.zip" basedir="${extensions}" includes="datatypes-hl7v2/**/*" />
-		<zip destfile="${dist.extensions}/datatype-hl7v3-${version}.zip" basedir="${extensions}" includes="datatypes-hl7v3/**/*" />
-		<zip destfile="${dist.extensions}/datatype-ncpdp-${version}.zip" basedir="${extensions}" includes="datatypes-ncpdp/**/*" />
-		<zip destfile="${dist.extensions}/datatype-x12-${version}.zip" basedir="${extensions}" includes="datatypes-x12/**/*" />
-		<zip destfile="${dist.extensions}/datatype-xml-${version}.zip" basedir="${extensions}" includes="datatypes-xml/**/*" />
+		<zip destfile="${dist.extensions}/datatype-delimited-${version}.zip" basedir="${extensions}" includes="datatype-delimited/**/*" />
+		<zip destfile="${dist.extensions}/datatype-dicom-${version}.zip" basedir="${extensions}" includes="datatype-dicom/**/*" />
+		<zip destfile="${dist.extensions}/datatype-edi-${version}.zip" basedir="${extensions}" includes="datatype-edi/**/*" />
+		<zip destfile="${dist.extensions}/datatype-hl7v2-${version}.zip" basedir="${extensions}" includes="datatype-hl7v2/**/*" />
+		<zip destfile="${dist.extensions}/datatype-hl7v3-${version}.zip" basedir="${extensions}" includes="datatype-hl7v3/**/*" />
+		<zip destfile="${dist.extensions}/datatype-ncpdp-${version}.zip" basedir="${extensions}" includes="datatype-ncpdp/**/*" />
+		<zip destfile="${dist.extensions}/datatype-x12-${version}.zip" basedir="${extensions}" includes="datatype-x12/**/*" />
+		<zip destfile="${dist.extensions}/datatype-xml-${version}.zip" basedir="${extensions}" includes="datatype-xml/**/*" />
 
 		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip" basedir="${extensions}" includes="dashboardstatus/**/*" />
 		<zip destfile="${dist.extensions}/serverlog-${version}.zip" basedir="${extensions}" includes="serverlog/**/*" />
