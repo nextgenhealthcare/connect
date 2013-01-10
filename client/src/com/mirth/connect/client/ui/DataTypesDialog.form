@@ -54,7 +54,7 @@
                       <Component id="jPanel3" alignment="0" max="32767" attributes="0"/>
                       <Component id="jPanel2" alignment="0" max="32767" attributes="0"/>
                       <Component id="closeButton" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="jSeparator1" alignment="1" pref="351" max="32767" attributes="0"/>
+                      <Component id="jSeparator1" alignment="1" pref="455" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -102,7 +102,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="sourceConnectorTablePane" alignment="0" pref="339" max="32767" attributes="0"/>
+                  <Component id="sourceConnectorTablePane" alignment="0" pref="445" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
@@ -119,9 +119,11 @@
                 <Component class="com.mirth.connect.client.ui.components.MirthTable" name="sourceConnectorTable">
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="3" rowCount="2">
+                      <Table columnCount="5" rowCount="2">
                         <Column editable="true" title="Connector" type="java.lang.Object"/>
-                        <Column editable="true" title="Data Type" type="java.lang.Object"/>
+                        <Column editable="true" title="Inbound" type="java.lang.Object"/>
+                        <Column editable="true" title="Properties" type="java.lang.Object"/>
+                        <Column editable="true" title="Outbound" type="java.lang.Object"/>
                         <Column editable="true" title="Properties" type="java.lang.Object"/>
                       </Table>
                     </Property>
@@ -146,12 +148,12 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="destinationConnectorTablePane" alignment="0" pref="339" max="32767" attributes="0"/>
+                  <Component id="destinationConnectorTablePane" alignment="0" pref="445" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="destinationConnectorTablePane" alignment="0" pref="198" max="32767" attributes="0"/>
+                  <Component id="destinationConnectorTablePane" alignment="0" pref="201" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
@@ -163,9 +165,11 @@
                 <Component class="com.mirth.connect.client.ui.components.MirthTable" name="destinationConnectorTable">
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="3" rowCount="4">
+                      <Table columnCount="5" rowCount="4">
                         <Column editable="true" title="Connector" type="java.lang.Object"/>
-                        <Column editable="true" title="Data Type" type="java.lang.Object"/>
+                        <Column editable="true" title="Inbound" type="java.lang.Object"/>
+                        <Column editable="true" title="Properties" type="java.lang.Object"/>
+                        <Column editable="true" title="Outbound" type="java.lang.Object"/>
                         <Column editable="true" title="Properties" type="java.lang.Object"/>
                       </Table>
                     </Property>

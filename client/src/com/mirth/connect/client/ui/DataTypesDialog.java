@@ -11,17 +11,10 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.util.prefs.Preferences;
-
 import javax.swing.JScrollPane;
 
-import org.jdesktop.swingx.decorator.Highlighter;
-import org.jdesktop.swingx.decorator.HighlighterFactory;
-
-import com.mirth.connect.client.ui.components.DataTypesButtonCellEditor;
-import com.mirth.connect.client.ui.components.DataTypesComboBoxCellEditor;
-import com.mirth.connect.client.ui.components.DataTypesComboBoxCellRenderer;
-import com.mirth.connect.client.ui.components.MirthButtonCellRenderer;
+import com.mirth.connect.client.ui.components.DataTypesCellEditor;
+import com.mirth.connect.client.ui.components.DataTypesCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
@@ -29,11 +22,7 @@ import com.mirth.connect.model.Connector;
 public class DataTypesDialog extends javax.swing.JDialog {
 
     private Frame parent;
-    private final String CONNECTOR_COLUMN_NAME = "Connector";
-    private final String DATA_TYPE_COLUMN_NAME = "Data Type";
-    private final String PROPERTIES_COLUMN_NAME = "Properties";
-    
-    public static final int DATA_TYPE_COLUMN_NUMBER = 1;
+    private final String[] columnNames = {"Connector", "Inbound", "Outbound"};
 
     public DataTypesDialog() {
         super(PlatformUI.MIRTH_FRAME);
@@ -66,17 +55,19 @@ public class DataTypesDialog extends javax.swing.JDialog {
     }
 
     public void makeTable(MirthTable table, JScrollPane scrollPane, boolean source) {
+        int dataTypeColumnWidth = 125;
+        
         table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         String[] dataTypes = new String[parent.dataTypeToDisplayName.values().size()];
         parent.dataTypeToDisplayName.values().toArray(dataTypes);
 
-        table.getColumnModel().getColumn(table.getColumnModelIndex(DATA_TYPE_COLUMN_NAME)).setCellEditor(new DataTypesComboBoxCellEditor(table, dataTypes, 1, false, source));
-        table.getColumnModel().getColumn(table.getColumnModelIndex(DATA_TYPE_COLUMN_NAME)).setCellRenderer(new DataTypesComboBoxCellRenderer(dataTypes, source));
+        table.getColumnModel().getColumn(1).setCellEditor(new DataTypesCellEditor(table, dataTypes, 1, false, source, true, this));
+        table.getColumnModel().getColumn(1).setCellRenderer(new DataTypesCellRenderer(dataTypes, source, true));
         
-        table.getColumnModel().getColumn(table.getColumnModelIndex(PROPERTIES_COLUMN_NAME)).setCellEditor(new DataTypesButtonCellEditor(table, source));
-        table.getColumnModel().getColumn(table.getColumnModelIndex(PROPERTIES_COLUMN_NAME)).setCellRenderer(new MirthButtonCellRenderer());
-
+        table.getColumnModel().getColumn(2).setCellEditor(new DataTypesCellEditor(table, dataTypes, 1, false, source, false, this));
+        table.getColumnModel().getColumn(2).setCellRenderer(new DataTypesCellRenderer(dataTypes, source, false));
+        
         table.setRowSelectionAllowed(false);
         table.setRowHeight(UIConstants.ROW_HEIGHT);
         table.setSortable(false);
@@ -85,21 +76,16 @@ public class DataTypesDialog extends javax.swing.JDialog {
         table.getTableHeader().setReorderingAllowed(false);
         table.setFocusable(false);
 
-        table.getColumnExt(CONNECTOR_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
-        table.getColumnExt(CONNECTOR_COLUMN_NAME).setResizable(false);
+        table.getColumnExt(0).setMinWidth(UIConstants.MIN_WIDTH);
+        table.getColumnExt(0).setResizable(false);
 
-        table.getColumnExt(DATA_TYPE_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
-        table.getColumnExt(DATA_TYPE_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
-        table.getColumnExt(DATA_TYPE_COLUMN_NAME).setResizable(false);
-
-        table.getColumnExt(PROPERTIES_COLUMN_NAME).setMaxWidth(UIConstants.MIN_WIDTH);
-        table.getColumnExt(PROPERTIES_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
-        table.getColumnExt(PROPERTIES_COLUMN_NAME).setResizable(false);
-
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-            table.setHighlighters(highlighter);
-        }
+        table.getColumnExt(1).setMaxWidth(dataTypeColumnWidth);
+        table.getColumnExt(1).setMinWidth(dataTypeColumnWidth);
+        table.getColumnExt(1).setResizable(false);
+        
+        table.getColumnExt(2).setMaxWidth(dataTypeColumnWidth);
+        table.getColumnExt(2).setMinWidth(dataTypeColumnWidth);
+        table.getColumnExt(2).setResizable(false);
 
         scrollPane.setViewportView(table);
     }
@@ -109,19 +95,15 @@ public class DataTypesDialog extends javax.swing.JDialog {
 
         Channel currentChannel = parent.channelEditPanel.currentChannel;
 
-        tableData = new Object[2][3];
+        tableData = new Object[1][3];
 
         Connector sourceConnector = currentChannel.getSourceConnector();
 
-        tableData[0][0] = "Source Connector Inbound";
+        tableData[0][0] = "Source Connector";
         tableData[0][1] = parent.dataTypeToDisplayName.get(sourceConnector.getTransformer().getInboundDataType());
-        tableData[0][2] = "Properties";
+        tableData[0][2] = parent.dataTypeToDisplayName.get(sourceConnector.getTransformer().getOutboundDataType());
 
-        tableData[1][0] = "Source Connector Outbound";
-        tableData[1][1] = parent.dataTypeToDisplayName.get(sourceConnector.getTransformer().getOutboundDataType());
-        tableData[1][2] = "Properties";
-
-        sourceConnectorTable.setModel(new RefreshTableModel(tableData, new String[]{CONNECTOR_COLUMN_NAME, DATA_TYPE_COLUMN_NAME, PROPERTIES_COLUMN_NAME}) {
+        sourceConnectorTable.setModel(new RefreshTableModel(tableData, columnNames) {
 
             boolean[] canEdit = new boolean[]{false, true, true};
 
@@ -141,13 +123,13 @@ public class DataTypesDialog extends javax.swing.JDialog {
         int tableRow = 0;
 
         for (Connector destinationConnector : currentChannel.getDestinationConnectors()) {
-            tableData[tableRow][0] = destinationConnector.getName() + " Outbound";
-            tableData[tableRow][1] = parent.dataTypeToDisplayName.get(destinationConnector.getTransformer().getOutboundDataType());
-            tableData[tableRow][2] = "Properties";
+            tableData[tableRow][0] = destinationConnector.getName();
+            tableData[tableRow][1] = parent.dataTypeToDisplayName.get(currentChannel.getSourceConnector().getTransformer().getOutboundDataType());
+            tableData[tableRow][2] = parent.dataTypeToDisplayName.get(destinationConnector.getTransformer().getOutboundDataType());
             tableRow++;
         }
         
-        destinationConnectorTable.setModel(new RefreshTableModel(tableData, new String[]{CONNECTOR_COLUMN_NAME, DATA_TYPE_COLUMN_NAME, PROPERTIES_COLUMN_NAME}) {
+        destinationConnectorTable.setModel(new RefreshTableModel(tableData, columnNames) {
 
             boolean[] canEdit = new boolean[]{false, true, true};
 
@@ -155,6 +137,12 @@ public class DataTypesDialog extends javax.swing.JDialog {
                 return canEdit[columnIndex];
             }
         });
+    }
+    
+    public void updateDestinationInboundDataType(String dataType) {
+        for (int row = 0; row < destinationConnectorTable.getRowCount(); row++) {
+            destinationConnectorTable.setValueAt(dataType, row, 1);
+        }
     }
 
     /**
@@ -195,11 +183,11 @@ public class DataTypesDialog extends javax.swing.JDialog {
 
         sourceConnectorTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Connector", "Data Type", "Properties"
+                "Connector", "Inbound", "Properties", "Outbound", "Properties"
             }
         ));
         sourceConnectorTablePane.setViewportView(sourceConnectorTable);
@@ -208,7 +196,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(sourceConnectorTablePane, javax.swing.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
+            .addComponent(sourceConnectorTablePane, javax.swing.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -220,13 +208,13 @@ public class DataTypesDialog extends javax.swing.JDialog {
 
         destinationConnectorTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Connector", "Data Type", "Properties"
+                "Connector", "Inbound", "Properties", "Outbound", "Properties"
             }
         ));
         destinationConnectorTablePane.setViewportView(destinationConnectorTable);
@@ -235,11 +223,11 @@ public class DataTypesDialog extends javax.swing.JDialog {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(destinationConnectorTablePane, javax.swing.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
+            .addComponent(destinationConnectorTablePane, javax.swing.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(destinationConnectorTablePane, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+            .addComponent(destinationConnectorTablePane, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -252,7 +240,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
                     .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(closeButton)
-                    .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE))
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(

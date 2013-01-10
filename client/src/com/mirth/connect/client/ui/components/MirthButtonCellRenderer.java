@@ -20,7 +20,12 @@ public class MirthButtonCellRenderer implements TableCellRenderer {
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        button.setText(value.toString());
+        // MIRTH-2186 Java sometimes calls this method with a hard-coded null value so tablecellrenderers must explicitly check for null.
+        // Only observed so far on Mac OSX.
+        // http://stackoverflow.com/questions/3054775/java-swing-jtable-strange-behavior-from-getaccessiblechild-method-resulting
+        if (value != null) {
+            button.setText(value.toString());
+        }
         return button;
     }
 }
