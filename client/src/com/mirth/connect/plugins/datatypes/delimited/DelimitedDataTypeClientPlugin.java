@@ -18,7 +18,7 @@ public class DelimitedDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public String getDisplayName() {
-        return "Delimited";
+        return "Delimited Text";
     }
 
     @Override
