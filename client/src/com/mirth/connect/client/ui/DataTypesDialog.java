@@ -200,7 +200,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(sourceConnectorTablePane, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(sourceConnectorTablePane, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
@@ -227,7 +227,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(destinationConnectorTablePane, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
+            .addComponent(destinationConnectorTablePane, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
