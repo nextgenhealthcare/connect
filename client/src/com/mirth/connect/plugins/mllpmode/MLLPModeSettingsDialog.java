@@ -44,24 +44,24 @@ public class MLLPModeSettingsDialog extends JDialog implements DocumentListener 
         super(PlatformUI.MIRTH_FRAME);
         initComponents();
         this.actionListener = actionListener;
-        
+
         startOfMessageBytesField.setDocument(new MirthFieldConstraints(0, true, false, false));
         endOfMessageBytesField.setDocument(new MirthFieldConstraints(0, true, false, false));
         ackBytesField.setDocument(new MirthFieldConstraints(0, true, false, false));
         nackBytesField.setDocument(new MirthFieldConstraints(0, true, false, false));
         maxRetryCountField.setDocument(new MirthFieldConstraints(0, false, false, true));
-        
+
         startOfMessageBytesField.getDocument().addDocumentListener(this);
         endOfMessageBytesField.getDocument().addDocumentListener(this);
         ackBytesField.getDocument().addDocumentListener(this);
         nackBytesField.getDocument().addDocumentListener(this);
-        
+
         startOfMessageAbbreviation = "";
         endOfMessageAbbreviation = "";
         ackAbbreviation = "";
         nackAbbreviation = "";
     }
-    
+
     @Override
     public void setVisible(boolean b) {
         if (b) {
@@ -74,11 +74,11 @@ public class MLLPModeSettingsDialog extends JDialog implements DocumentListener 
             } else {
                 setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
             }
-            
+
             saved = false;
             resetInvalidProperties();
         }
-        
+
         super.setVisible(b);
     }
 
@@ -97,10 +97,10 @@ public class MLLPModeSettingsDialog extends JDialog implements DocumentListener 
 
     public void setProperties(TransmissionModeProperties properties) {
         MLLPModeProperties props = (MLLPModeProperties) properties;
-        
+
         startOfMessageBytesField.setText(props.getStartOfMessageBytes());
         endOfMessageBytesField.setText(props.getEndOfMessageBytes());
-        
+
         if (props.isUseMLLPv2()) {
             useMLLPv2YesRadio.setSelected(true);
             useMLLPv2YesRadioActionPerformed(null);
@@ -108,11 +108,11 @@ public class MLLPModeSettingsDialog extends JDialog implements DocumentListener 
             useMLLPv2NoRadio.setSelected(true);
             useMLLPv2NoRadioActionPerformed(null);
         }
-        
+
         ackBytesField.setText(props.getAckBytes());
         nackBytesField.setText(props.getNackBytes());
         maxRetryCountField.setText(props.getMaxRetries());
-        
+
         startOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(startOfMessageBytesField.getText());
         endOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(endOfMessageBytesField.getText());
         ackAbbreviation = TcpUtil.convertHexToAbbreviation(ackBytesField.getText());
@@ -160,7 +160,7 @@ public class MLLPModeSettingsDialog extends JDialog implements DocumentListener 
     public boolean isSaved() {
         return saved;
     }
-    
+
     @Override
     public void changedUpdate(DocumentEvent evt) {
         changeAbbreviation(evt);
@@ -435,12 +435,11 @@ public class MLLPModeSettingsDialog extends JDialog implements DocumentListener 
                     .addComponent(ackBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ackBytesAbbrevLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(nackBytes0XLabel)
-                        .addComponent(nackBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(nackBytesAbbrevLabel))
-                    .addComponent(nackBytesLabel))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(nackBytesLabel)
+                    .addComponent(nackBytes0XLabel)
+                    .addComponent(nackBytesField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(nackBytesAbbrevLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(maxRetryCountLabel)

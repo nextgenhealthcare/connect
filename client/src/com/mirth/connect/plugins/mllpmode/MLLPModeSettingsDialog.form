@@ -197,13 +197,11 @@
                           <Component id="ackBytesAbbrevLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                              <Component id="nackBytes0XLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="nackBytesField" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="nackBytesAbbrevLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="nackBytesLabel" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="nackBytesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="nackBytes0XLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="nackBytesField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="nackBytesAbbrevLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
