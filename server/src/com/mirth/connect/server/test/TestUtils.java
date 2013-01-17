@@ -9,12 +9,28 @@
 
 package com.mirth.connect.server.test;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import com.mirth.connect.client.core.Client;
-import com.mirth.connect.connectors.vm.VmReceiverProperties;
 import com.mirth.connect.connectors.vm.VmDispatcherProperties;
+import com.mirth.connect.connectors.vm.VmReceiverProperties;
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ContentType;
+import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.donkey.model.message.MessageContent;
+import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.channel.ChannelException;
+import com.mirth.connect.donkey.server.channel.ChannelLock;
+import com.mirth.connect.donkey.server.channel.DispatchResult;
+import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Connector.Mode;
@@ -73,5 +89,80 @@ public class TestUtils {
         }
         
         return channelStatus;
+    }
+    
+    public static Message createTestProcessedMessage(String channelId, String serverId, long messageId, String content) {
+        Calendar dateCreated = Calendar.getInstance();
+
+        Message message = new Message();
+        message.setMessageId(messageId);
+        message.setChannelId(channelId);
+        message.setServerId(serverId);
+        message.setDateCreated(dateCreated);
+        message.setProcessed(true);
+
+        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getDateCreated(), Status.TRANSFORMED);
+        message.getConnectorMessages().put(0, sourceMessage);
+
+        ConnectorMessage destinationMessage = new ConnectorMessage(channelId, message.getMessageId(), 1, serverId, message.getDateCreated(), Status.SENT);
+        message.getConnectorMessages().put(1, destinationMessage);
+
+        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, content, null, null));
+        destinationMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 1, ContentType.RAW, content, null, null));
+        
+        return message;
+    }
+    
+    public static boolean tableExists(Connection connection, String tableName) throws SQLException {
+        ResultSet resultSet = null;
+
+        try {
+            DatabaseMetaData metaData = connection.getMetaData();
+            resultSet = metaData.getTables(null, null, tableName, null);
+
+            if (resultSet.next()) {
+                return true;
+            }
+
+            resultSet = metaData.getTables(null, null, tableName.toUpperCase(), null);
+            return resultSet.next();
+        } finally {
+            resultSet.close();
+        }
+    }
+    
+    public static class DummyChannel extends com.mirth.connect.donkey.server.channel.Channel {
+        private List<RawMessage> rawMessages = new ArrayList<RawMessage>();
+        private long messageIdSequence = 1;
+
+        public DummyChannel(String channelId, String serverId) {
+            setChannelId(channelId);
+            setServerId(serverId);
+            lock(ChannelLock.DEBUG);
+            setDaoFactory(new PassthruDaoFactory());
+        }
+
+        @Override
+        protected DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
+            rawMessages.add(rawMessage);
+            long messageId = messageIdSequence++;
+
+            if (getSourceConnector().isRespondAfterProcessing()) {
+                return new DummyDispatchResult(messageId, TestUtils.createTestProcessedMessage(getChannelId(), getServerId(), messageId, rawMessage.getRawData()), null, true, false, false, true);
+            }
+
+            return new DummyDispatchResult(messageId, null, null, false, false, false, false);
+        }
+
+        public List<RawMessage> getRawMessages() {
+            return rawMessages;
+        }
+    }
+
+    // extend DispatchResult so that we can access it's protected constructor
+    public static class DummyDispatchResult extends DispatchResult {
+        public DummyDispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean removeContent, boolean removeAttachments, boolean lockAcquired) {
+            super(messageId, processedMessage, selectedResponse, markAsProcessed, removeContent, removeAttachments, lockAcquired);
+        }
     }
 }

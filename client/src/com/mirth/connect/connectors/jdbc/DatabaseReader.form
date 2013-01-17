@@ -6,6 +6,8 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="buttonGroup2">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="buttonGroup3">
+    </Component>
     <Component class="javax.swing.ButtonGroup" name="buttonGroup4">
     </Component>
   </NonVisualComponents>
@@ -34,66 +36,75 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
-              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel8" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel10" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="sqlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="onUpdateLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="updateLabel" min="-2" pref="71" max="-2" attributes="0"/>
+                  <Component id="runUpdateLabel" min="-2" pref="145" max="-2" attributes="0"/>
+                  <Component id="selectLabel" alignment="1" min="-2" pref="73" max="-2" attributes="0"/>
+                  <Component id="retryCountLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fetchSizeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="cacheResultsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="useScriptLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="urlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="driverLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="keepConnOpenLabel" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
+                      <Component id="updateNever" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="updateEach" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="updateOnce" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
+                      <Component id="generateUpdateLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="generateUpdateConnection" linkSize="2" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="generateUpdateUpdate" linkSize="2" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="updateTextPane" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="dbVarScrollPane" min="-2" pref="171" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="selectTextPane" alignment="0" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="databasePasswordField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
-                          <Component id="databaseUsernameField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
-                          <Component id="databaseURLField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                          <Component id="fetchSizeField" alignment="0" min="-2" pref="121" max="-2" attributes="0"/>
+                          <Component id="databasePasswordField" alignment="0" min="-2" pref="121" max="-2" attributes="1"/>
+                          <Component id="databaseUsernameField" alignment="0" min="-2" pref="121" max="-2" attributes="1"/>
+                          <Group type="102" attributes="0">
+                              <Component id="cacheResultsYesButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="cacheResultsNoButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="keepConnOpenYes" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="keepConnOpenNo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="useScriptYes" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="useScriptNo" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="databaseDriverCombobox" min="-2" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="insertURLTemplateButton" min="-2" max="-2" attributes="0"/>
                           </Group>
+                          <Component id="databaseURLField" min="-2" pref="331" max="-2" attributes="1"/>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="1" attributes="0">
-                      <Component id="readOnUpdateYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="readOnUpdateNo" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="81" max="32767" attributes="0"/>
-                      <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="generateUpdateConnection" linkSize="2" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="generateUpdateSelect" linkSize="2" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="databaseSQLTextPane" alignment="0" pref="386" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="databaseUpdateSQLTextPane" pref="223" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" min="-2" pref="157" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="cacheResultsYesButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="cacheResultsNoButton" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="useJavaScriptYes" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="useJavaScriptNo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
+                      <Component id="retryCountField" min="-2" pref="121" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
-                      <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
+                      <Component id="generateLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="generateConnection" linkSize="1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -106,67 +117,85 @@
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="databaseDriverCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="insertURLTemplateButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="driverLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="databaseURLField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="databaseUsernameField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="urlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="databasePasswordField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Group type="102" alignment="1" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="cacheResultsYesButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="cacheResultsNoButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="useJavaScriptYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="useJavaScriptNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                  <Group type="103" alignment="1" groupAlignment="3" attributes="0">
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="useScriptYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="useScriptNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="useScriptLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="keepConnOpenYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="keepConnOpenNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="keepConnOpenLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="cacheResultsYesButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="cacheResultsNoButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="cacheResultsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="fetchSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fetchSizeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" alignment="0" groupAlignment="3" attributes="0">
                       <Component id="generateSelect" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="generateConnection" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="generateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="retryCountLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="retryCountField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="sqlLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="databaseSQLTextPane" pref="89" max="32767" attributes="0"/>
+                  <Component id="selectTextPane" pref="91" max="32767" attributes="0"/>
+                  <Component id="selectLabel" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="readOnUpdateYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="readOnUpdateNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="updateEach" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="updateOnce" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="updateNever" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="generateUpdateConnection" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="generateUpdateSelect" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="generateUpdateUpdate" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="generateUpdateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="runUpdateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane1" pref="88" max="32767" attributes="0"/>
-                  <Component id="databaseUpdateSQLTextPane" pref="88" max="32767" attributes="0"/>
-                  <Component id="onUpdateLabel" min="-2" pref="14" max="-2" attributes="0"/>
+                  <Component id="dbVarScrollPane" alignment="1" pref="90" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Component id="updateLabel" min="-2" pref="14" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="76" max="32767" attributes="0"/>
+                  </Group>
+                  <Component id="updateTextPane" alignment="0" pref="90" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -174,29 +203,30 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="jLabel1">
+    <Component class="javax.swing.JLabel" name="driverLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Driver:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel2">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="URL:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel3">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Username:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel4">
+    <Component class="javax.swing.JLabel" name="urlLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Password:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="sqlLabel">
+    <Component class="javax.swing.JLabel" name="usernameLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="SQL:"/>
+        <Property name="text" type="java.lang.String" value="URL:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="passwordLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Username:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="selectLabel">
+      <Properties>
+        <Property name="horizontalAlignment" type="int" value="4"/>
+        <Property name="text" type="java.lang.String" value="JavaScript:"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="databaseDriverCombobox">
@@ -228,35 +258,13 @@
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The password to connect to the database. This is not used when &quot;Use JavaScript&quot; is checked.&lt;br&gt;However, it is used when the Insert Connection feature is used to generate code.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="onUpdateLabel">
+    <Component class="javax.swing.JLabel" name="updateLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="On-Update SQL:"/>
+        <Property name="horizontalAlignment" type="int" value="4"/>
+        <Property name="text" type="java.lang.String" value="JavaScript:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="readOnUpdateYes">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup1"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When using a database reader, it is usually necessary to execute a separate SQL statement&lt;br&gt;to mark the message that was just fetched as processed, so it will not be fetched again the next time a poll occurs.&lt;br&gt;Selecting &quot;Yes&quot; for Run On-Update Statement turns this behavior on.&lt;br&gt;Selecting &quot;No&quot; turns this behavior off.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="readOnUpdateYesActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="readOnUpdateNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="updateEach">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -269,23 +277,47 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="buttonGroup1"/>
         </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When using a database reader, it is usually necessary to execute a separate SQL statement&lt;br&gt;to mark the message that was just fetched as processed, so it will not be fetched again the next time a poll occurs.&lt;br&gt;Selecting &quot;Yes&quot; for Run On-Update Statement turns this behavior on.&lt;br&gt;Selecting &quot;No&quot; turns this behavior off.&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="After each message"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the post-process statement/script after each message finishes processing.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="readOnUpdateNoActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="updateEachActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel8">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="updateOnce">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Run On-Update Statment:"/>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="buttonGroup1"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Once after all messages"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Run the post-process statement/script only after all messages have finished processing.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="updateOnceActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="runUpdateLabel">
+      <Properties>
+        <Property name="horizontalAlignment" type="int" value="4"/>
+        <Property name="text" type="java.lang.String" value="Run Post-Process Script:"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When using a database reader, it is usually necessary to execute a separate SQL statement&lt;br&gt;to mark the message that was just fetched as processed, so it will not be fetched again the next time a poll occurs.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+    <Container class="javax.swing.JScrollPane" name="dbVarScrollPane">
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
       </AuxValues>
@@ -297,12 +329,12 @@
             <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
               <StringArray count="0"/>
             </Property>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;This list is populated with mappings based on the select statement in the JavaScript or SQL editor.&lt;br&gt;These mappings can dragged into the On-Update JavaScript or SQL editors.&lt;/html&gt;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;This list is populated with mappings based on the select statement in the JavaScript or SQL editor.&lt;br&gt;These mappings can dragged into the post-process JavaScript or SQL editors.&lt;/html&gt;"/>
           </Properties>
         </Component>
       </SubComponents>
     </Container>
-    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="databaseSQLTextPane">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="selectTextPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -314,7 +346,7 @@
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);"/>
       </AuxValues>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="databaseUpdateSQLTextPane">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="updateTextPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -326,12 +358,12 @@
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);"/>
       </AuxValues>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel6">
+    <Component class="javax.swing.JLabel" name="useScriptLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Use JavaScript"/>
+        <Property name="text" type="java.lang.String" value="Use JavaScript:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useJavaScriptYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useScriptYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -345,16 +377,16 @@
           <ComponentRef name="buttonGroup2"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Implement JavaScript code using JDBC to get the messages to be processed and mark messages in the database as processed."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Implement JavaScript code using JDBC to get the messages to be processed and mark messages in the database as processed.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useJavaScriptYesActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useScriptYesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useJavaScriptNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useScriptNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -368,13 +400,13 @@
           <ComponentRef name="buttonGroup2"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Specify the SQL statements to get messages to be processed and mark messages in the database as processed."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Specify the SQL statements to get messages to be processed and mark messages in the database as processed.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useJavaScriptNoActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useScriptNoActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="generateConnection">
@@ -389,7 +421,7 @@
     <Component class="javax.swing.JButton" name="generateUpdateConnection">
       <Properties>
         <Property name="text" type="java.lang.String" value="Connection"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &quot;Yes&quot; is selected for Use JavaScript and &quot;Yes&quot; is selected for Run On-Update Statement, this button is enabled.&lt;br&gt;When clicked, it inserts boilerplate Connection construction code into the On-Update JavaScript control at the current caret location.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;This button is enabled when using JavaScript and a post-process script.&lt;br&gt;When clicked, it inserts boilerplate Connection construction code into the post-process JavaScript control at the current caret location.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateUpdateConnectionActionPerformed"/>
@@ -398,25 +430,27 @@
     <Component class="javax.swing.JButton" name="generateSelect">
       <Properties>
         <Property name="text" type="java.lang.String" value="Select"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Opens a window to assist in building a select query to select records from the database specified in the URL above.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateSelectActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel7">
+    <Component class="javax.swing.JLabel" name="generateLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Generate:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="generateUpdateSelect">
+    <Component class="javax.swing.JButton" name="generateUpdateUpdate">
       <Properties>
         <Property name="text" type="java.lang.String" value="Update"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Opens a window to assist in building an update query to update records in the database specified in the URL above.&lt;br/&gt;(Only enabled if a post-process statement/script is enabled)&lt;/html&gt;"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateUpdateSelectActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateUpdateUpdateActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel9">
+    <Component class="javax.swing.JLabel" name="generateUpdateLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Generate:"/>
       </Properties>
@@ -435,12 +469,14 @@
           <ComponentRef name="buttonGroup4"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Not yet implemented."/>
-        <Property name="enabled" type="boolean" value="false"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Do not cache the entire result set in memory prior to processing messages.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cacheResultsNoButtonActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="cacheResultsYesButton">
       <Properties>
@@ -456,17 +492,18 @@
           <ComponentRef name="buttonGroup4"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Not yet implemented."/>
-        <Property name="enabled" type="boolean" value="false"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Cache the entire result set in memory prior to processing messages.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cacheResultsYesButtonActionPerformed"/>
+      </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel10">
+    <Component class="javax.swing.JLabel" name="cacheResultsLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Cache Results:"/>
-        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="insertURLTemplateButton">
@@ -476,6 +513,96 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="insertURLTemplateButtonActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="fetchSizeLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Fetch Size:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="fetchSizeField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The JDBC ResultSet fetch size to be used when fetching results from the current cursor position.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="updateNever">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="buttonGroup1"/>
+        </Property>
+        <Property name="selected" type="boolean" value="true"/>
+        <Property name="text" type="java.lang.String" value="Never"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Do not run the post-process statement/script.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="updateNeverActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="retryCountLabel">
+      <Properties>
+        <Property name="horizontalAlignment" type="int" value="4"/>
+        <Property name="text" type="java.lang.String" value="# of Retries on Error:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="keepConnOpenLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Keep Connection Open:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="keepConnOpenYes">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="buttonGroup3"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Re-use the same database connection each time the select query is executed.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="keepConnOpenNo">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="buttonGroup3"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Close the database connection after selected messages have finished processing.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="retryCountField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of times to retry executing the statement or script if an error occurs.&lt;/html&gt;"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

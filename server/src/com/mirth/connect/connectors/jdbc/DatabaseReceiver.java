@@ -9,375 +9,264 @@
 
 package com.mirth.connect.connectors.jdbc;
 
-import java.sql.Connection;
+import java.io.BufferedReader;
+import java.io.Reader;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Map.Entry;
 
-import javax.sql.DataSource;
-import javax.sql.RowSet;
-import javax.sql.rowset.CachedRowSet;
+import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.handlers.MapListHandler;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
-import org.mozilla.javascript.NativeJavaObject;
-import org.mozilla.javascript.Scriptable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.StartException;
-import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
+import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
-import com.mirth.connect.server.util.JavaScriptScopeUtil;
-import com.mirth.connect.server.util.JavaScriptUtil;
-import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
-import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
-import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.util.ErrorConstants;
 
 public class DatabaseReceiver extends PollConnector {
-    private Logger scriptLogger = Logger.getLogger("db-connector");
-    private String readStmt;
-    private String ackStmt;
-    private List<String> readParams = new ArrayList<String>();
-    private List<String> ackParams = new ArrayList<String>();
-//    private Map jdbcMap;
-    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
-    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-    private ConnectorType connectorType = ConnectorType.READER;
-    private Connection connection = null;
+    final private static ConnectorType CONNECTOR_TYPE = ConnectorType.READER;
 
-    private DataSource dataSource = null;
-    private String queryScriptId = null;
-    private String ackScriptId = null;
-    private Logger logger = Logger.getLogger(getClass());
     private DatabaseReceiverProperties connectorProperties;
-    private JavaScriptExecutor<Object> jsExecutor = new JavaScriptExecutor<Object>();
+    private DatabaseReceiverDelegate delegate;
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private Logger logger = Logger.getLogger(getClass());
 
     @Override
     public void onDeploy() throws DeployException {
-        this.connectorProperties = (DatabaseReceiverProperties) getConnectorProperties();
+        connectorProperties = (DatabaseReceiverProperties) getConnectorProperties();
 
+        /*
+         * A delegate object is used to handle the polling operations, since the polling logic is
+         * very different depending on whether JavaScript is enabled or not
+         */
         if (connectorProperties.isUseScript()) {
-            String queryScriptId = UUID.randomUUID().toString();
-
-            try {
-                JavaScriptUtil.compileAndAddScript(queryScriptId, connectorProperties.getQuery(), null, null);
-            } catch (Exception e) {
-                throw new DeployException("Error compiling " + connectorProperties.getName() + " query script " + queryScriptId + ".", e);
-            }
-
-            this.queryScriptId = queryScriptId;
-
-            if (connectorProperties.isUseAck()) {
-                String ackScriptId = UUID.randomUUID().toString();
-
-                try {
-                    JavaScriptUtil.compileAndAddScript(ackScriptId, connectorProperties.getAck(), null, null);
-                } catch (Exception e) {
-                    throw new DeployException("Error compiling " + connectorProperties.getName() + " update script " + ackScriptId + ".", e);
-                }
-
-                this.ackScriptId = ackScriptId;
-            }
+            delegate = new DatabaseReceiverScript(this);
         } else {
-            readStmt = connectorProperties.getQuery();
-
-            if (readStmt == null) {
-                throw new DeployException("Read statement should not be NULL");
-            }
-
-            if (!readStmt.toLowerCase().startsWith("select")) {
-                throw new DeployException("Read statement should be a SELECT sql statement");
-            }
-
-            this.readStmt = JdbcUtils.parseStatement(readStmt, this.readParams);
-
-            if (connectorProperties.isUseAck()) {
-                ackStmt = connectorProperties.getAck();
-
-                if (ackStmt != null) {
-                    if (!ackStmt.toLowerCase().startsWith("insert") && !ackStmt.toLowerCase().startsWith("update") && !ackStmt.toLowerCase().startsWith("delete")) {
-                        throw new DeployException("Ack statement should be an INSERT, UPDATE, or DELETE SQL statement");
-                    }
-                }
-
-                this.ackStmt = JdbcUtils.parseStatement(ackStmt, this.ackParams);
-            }
-
+            delegate = new DatabaseReceiverQuery(this);
         }
 
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INITIALIZED);
+        delegate.deploy();
+
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.INITIALIZED);
     }
 
     @Override
     public void onUndeploy() throws UndeployException {
-        if (queryScriptId != null) {
-            JavaScriptUtil.removeScriptFromCache(queryScriptId);
-        }
-
-        if (ackScriptId != null) {
-            JavaScriptUtil.removeScriptFromCache(queryScriptId);
-        }
+        delegate.undeploy();
     }
 
     @Override
-    public void onStart() throws StartException {
-        initializeDataSource(connectorProperties);
-        if (!connectorProperties.isUseScript()) {
-            try {
-                connection = dataSource.getConnection();
-            } catch (Exception e) {
-                logger.error(e);
-                throw new StartException("Error creating connection to database", e);
-            }
-        }
-    }
+    public void onStart() {}
 
     @Override
-    public void onStop() throws StopException {
-        if (!connectorProperties.isUseScript()) {
-            try {
-                JdbcUtils.close(connection);
-                shutdownDataSource();
-            } catch (SQLException e) {
-                throw new StopException("Error shutting down connection to database", e);
-            }
-        }
+    public void onStop() {}
+
+    @Override
+    public void handleRecoveredResponse(DispatchResult dispatchResult) {
+        finishDispatch(dispatchResult);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void poll() throws InterruptedException {
-        monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.CONNECTED);
+        monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.CONNECTED);
+        Object result = null;
 
         try {
-            List<Map<String, Object>> result = null;
+            result = delegate.poll();
 
-            if (connectorProperties.isUseScript()) {
-                Object scriptResult = null;
-                
-                try {
-                    scriptResult = jsExecutor.execute(new DatabaseReceiverTask(queryScriptId, null));
-                } catch (JavaScriptExecutorException e) {
-                    logger.error("Error executing " + connectorProperties.getName() + " script " + queryScriptId + ".", e.getCause());
-                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, null, e.getCause());
-                }
-
-                if (scriptResult instanceof NativeJavaObject) {
-                    Object javaRetVal = ((NativeJavaObject) scriptResult).unwrap();
-
-                    if (javaRetVal instanceof CachedRowSet) {
-                        MapListHandler handler = new MapListHandler();
-                        Object rows = handler.handle((CachedRowSet) javaRetVal);
-                        result = (List<Map<String, Object>>) rows;
-                    } else if (javaRetVal instanceof RowSet) {
-                        MapListHandler handler = new MapListHandler();
-                        Object rows = handler.handle((RowSet) javaRetVal);
-                        result = (List<Map<String, Object>>) rows;
-                    } else if (javaRetVal instanceof List) {
-                        result = (List<Map<String, Object>>) javaRetVal;
-                    } else {
-                        logger.error("Got a result of: " + javaRetVal.toString());
-                    }
-                } else {
-                    logger.error("Got a result of: " + scriptResult.toString());
-                }
-            } else {
-                if (connection.isClosed()) {
-                    try {
-                        connection = dataSource.getConnection();
-                    } catch (Exception e) {
-                        logger.error("Error trying to establish a connection to the datatabase receiver in channel: " + getChannelId(), e);
-                        return;
-                    }
-                }
-
-                try {
-                    result = new QueryRunner().query(connection, readStmt, new MapListHandler(), JdbcUtils.getParams(readParams, null));
-                } catch (SQLException e) {
-                    /*
-                     * Check if the connection is still valid. Apache pools
-                     * throws an unexpected error when calling isValid for some
-                     * drivers (i.e. informix), so assume the connection is not
-                     * valid if an exception occurs
-                     */
-                    boolean validConnection = true;
-                    try {
-                        validConnection = connection.isValid(10000);
-                    } catch (Throwable t) {
-                        validConnection = false;
-                    }
-
-                    /*
-                     * If the connection is not valid, then get a new connection
-                     * and retry the query now.
-                     */
-                    if (!validConnection) {
-                        try {
-                            DbUtils.closeQuietly(connection);
-                            connection = dataSource.getConnection();
-                            result = new QueryRunner().query(connection, readStmt, new MapListHandler(), JdbcUtils.getParams(readParams, null));
-                        } catch (SQLException e2) {
-                            e = e2;
-                        }
-                    }
-
-                    if (result == null) {
-                        throw e;
-                    }
-                }
+            if (isTerminated()) {
+                return;
             }
 
-            if (CollectionUtils.isNotEmpty(result)) {
-                for (Map<String, Object> message : result) {
-                    try {
-                        if (isTerminated()) {
-                            return;
-                        }
-                        
-                        processMessage(message);
-                    } catch (Exception e) {
-                        logger.error(e.getMessage(), e);
-                    }
-                }
+            monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.BUSY);
+
+            // the result object will be a ResultSet or if JavaScript is used, we also allow the user to return a List<Map<String, Object>>
+            if (result instanceof ResultSet) {
+                processResultSet((ResultSet) result);
+            } else if (result instanceof List) {
+                // if the result object is a List, then assume it is a list of maps representing a row to process
+                processResultList((List<Map<String, Object>>) result);
+            } else {
+                throw new DatabaseReceiverException("Unrecognized result: " + result.toString());
             }
         } catch (InterruptedException e) {
             throw e;
         } catch (Exception e) {
-            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, null, e);
-//            throw e;
+            logger.error("Failed to poll for messages from the database in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\"", e);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, null, e.getCause());
+            return;
         } finally {
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
-        }
-    }
-
-    private void processMessage(Map<String, Object> row) throws InterruptedException {
-        try {
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY);
-            
-            String messageString = ResultMapToXML.doTransform(row);
-            
-            // TODO: When should this be run?  Before or after the ack script?
-            DispatchResult dispatchResult = null;
+            if (result instanceof ResultSet) {
+                DbUtils.closeQuietly((ResultSet) result);
+            }
 
             try {
-                dispatchResult = dispatchRawMessage(new RawMessage(messageString));
-            } finally {
-                finishDispatch(dispatchResult);
+                delegate.afterPoll();
+            } catch (DatabaseReceiverException e) {
+                logger.error("Error in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage(), ExceptionUtils.getRootCause(e));
+                alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, null, e.getCause());
             }
 
-            if (connectorProperties.isUseScript() && connectorProperties.isUseAck()) {
-                try {
-                    jsExecutor.execute(new DatabaseReceiverTask(ackScriptId, row));
-                } catch (JavaScriptExecutorException e) {
-                    logger.error("Error executing " + connectorProperties.getName() + " script " + ackScriptId + ".", e);
-                }
+            monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
+        }
+    }
+
+    /**
+     * For each record in the given ResultSet, convert it to XML and dispatch it as a raw message to
+     * the channel. Then run the post-process if applicable.
+     */
+    private void processResultSet(ResultSet resultSet) throws SQLException, InterruptedException, DatabaseReceiverException {
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
+
+        // loop through the ResultSet rows and convert them into hash maps for processing
+        while (resultSet.next()) {
+            if (isTerminated()) {
+                return;
+            }
+
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+
+            for (int i = 1; i <= columnCount; i++) {
+                resultMap.put(metaData.getColumnLabel(i), resultSet.getObject(i));
+            }
+
+            processRecord(resultMap);
+        }
+    }
+
+    /**
+     * For each record in the given list, convert it to XML and dispatch it as a raw message to the
+     * channel. Then run the post-process if applicable.
+     */
+    private void processResultList(List<Map<String, Object>> resultList) throws InterruptedException, DatabaseReceiverException {
+        for (Object object : resultList) {
+            if (isTerminated()) {
+                return;
+            }
+
+            if (object instanceof Map) {
+                processRecord((Map<String, Object>) object);
             } else {
-                Exception ackException = null;
-
-                try {
-                    if (connectorProperties.isUseAck() && ackStmt != null) {
-                        int numRows = new QueryRunner().update(connection, ackStmt, JdbcUtils.getParams(ackParams, row));
-
-                        if (numRows != 1) {
-                            logger.warn("Row count for ack should be 1 and not " + numRows);
-                        }
-                    }
-                } catch (Exception ue) {
-                    logger.error("Error in the ACK sentence of the JDBC connection, but the message is being sent anyway, " + ue);
-                    ackException = ue;
-                }
-
-                if (ackException != null) {
-                    throw ackException;
-                }
+                String errorMessage = "Received invalid list entry in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\", expected Map<String, Object>: " + object.toString();
+                logger.error(errorMessage);
+                alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, errorMessage, null);
             }
+        }
+    }
+
+    /**
+     * Convert the given resultMap into XML and dispatch it as a raw message to the channel. Then
+     * run the post-process if applicable.
+     */
+    private void processRecord(Map<String, Object> resultMap) throws InterruptedException, DatabaseReceiverException {
+        DispatchResult dispatchResult = null;
+
+        try {
+            dispatchResult = dispatchRawMessage(new RawMessage(resultMapToXml(resultMap)));
         } catch (InterruptedException e) {
             throw e;
         } catch (Exception e) {
-            logger.error("Error in channel: " + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName(), ExceptionUtils.getRootCause(e));
-            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, null, e);
+            String errorMessage = "Failed to process row retrieved from the database in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\"";
+            logger.error(errorMessage, e);
+            alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, errorMessage, e);
         } finally {
-            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
+            finishDispatch(dispatchResult);
+        }
+
+        // if the message was persisted (dispatchResult != null), then run the on-update SQL
+        if (dispatchResult != null) {
+            if (dispatchResult.getProcessedMessage() != null) {
+                delegate.runPostProcess(resultMap, dispatchResult.getProcessedMessage().getMergedConnectorMessage());
+            } else {
+                delegate.runPostProcess(resultMap, null);
+            }
         }
     }
 
-    private void initializeDataSource(DatabaseReceiverProperties databaseReceiverProperties) {
-        // If a data source already exists for the current properties, do nothing
-        if (dataSource != null) {
-            BasicDataSource bds = (BasicDataSource) dataSource;
-            if (!bds.isClosed()) {
-                if (databaseReceiverProperties.getDriver().equals(bds.getDriverClassName()) && databaseReceiverProperties.getUsername().equals(bds.getUsername()) && databaseReceiverProperties.getPassword().equals(bds.getPassword()) && databaseReceiverProperties.getUrl().equals(bds.getUrl())) {
-                    // Do Nothing
-                    return;
-                } else {
-                    try {
-                        // If we are going to create a new data source, we need to make sure the current one is closed.
-                        bds.close();
-                    } catch (SQLException e) {
-                        // Do Nothing
-                    }
-                }
+    /**
+     * Convert a resultMap representing a message into XML.
+     */
+    private String resultMapToXml(Map<String, Object> resultMap) throws Exception {
+        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element root = document.createElement("result");
+        document.appendChild(root);
+
+        for (Entry<String, Object> entry : resultMap.entrySet()) {
+            String value = objectToString(entry.getValue());
+
+            if (value != null) {
+                Element child = document.createElement(entry.getKey());
+                child.appendChild(document.createTextNode(value));
+                root.appendChild(child);
             }
         }
 
-        BasicDataSource basicDataSource = new BasicDataSource();
-        basicDataSource.setDriverClassName(databaseReceiverProperties.getDriver());
-        basicDataSource.setUsername(databaseReceiverProperties.getUsername());
-        basicDataSource.setPassword(databaseReceiverProperties.getPassword());
-        basicDataSource.setUrl(databaseReceiverProperties.getUrl());
-
-        dataSource = basicDataSource;
+        return new DocumentSerializer().toXML(document);
     }
 
-    private void shutdownDataSource() throws SQLException {
-        BasicDataSource bds = (BasicDataSource) dataSource;
-        bds.close();
-    }
-
-    private class DatabaseReceiverTask extends JavaScriptTask<Object> {
-        private String scriptId;
-        private Map<String, Object> row;
-        
-        public DatabaseReceiverTask(String scriptId, Map<String, Object> row) {
-            this.scriptId = scriptId;
-            this.row = row;
+    /**
+     * Convert an object into a string for insertion in the XML
+     */
+    private String objectToString(Object object) throws Exception {
+        if (object == null) {
+            return null;
         }
-        
-        @Override
-        public Object call() throws Exception {
-            Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(scriptLogger, getChannelId());
-            
-            if (row != null) {
-                scope.put("resultMap", scope, row);
+
+        if (object instanceof byte[]) {
+            return new String((byte[]) object);
+        }
+
+        if (object instanceof Clob) {
+            return clobToString((Clob) object);
+        }
+
+        if (object instanceof Blob) {
+            Blob blob = (Blob) object;
+            return new String(blob.getBytes(1, (int) blob.length()));
+        }
+
+        return object.toString();
+    }
+
+    private String clobToString(Clob clob) throws Exception {
+        StringBuilder stringBuilder = new StringBuilder();
+        Reader reader = clob.getCharacterStream();
+        BufferedReader bufferedReader = new BufferedReader(reader);
+        String line;
+
+        try {
+            while (null != (line = bufferedReader.readLine())) {
+                stringBuilder.append(line);
             }
-            
-            // TODO: Needed?
-//            scope.put("dbMap", scope, jdbcMap);
-//          scope.put("responseMap", scope, messageObject.getResponseMap());
 
-            return JavaScriptUtil.executeScript(this, scriptId, scope, getChannelId(), "Source");
+            return stringBuilder.toString();
+        } finally {
+            IOUtils.closeQuietly(bufferedReader);
+            IOUtils.closeQuietly(reader);
         }
     }
-
-	@Override
-	public void handleRecoveredResponse(DispatchResult dispatchResult) {
-		//TODO add cleanup code?
-		finishDispatch(dispatchResult);
-	}
 }

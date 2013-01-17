@@ -17,35 +17,41 @@ import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterfa
 
 public class DatabaseReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
     public static final String NAME = "Database Reader";
+    public static final String DRIVER_DEFAULT = "Please Select One";
+    public static final int UPDATE_NEVER = 1;
+    public static final int UPDATE_ONCE = 2;
+    public static final int UPDATE_EACH = 3;
 
     private PollConnectorProperties pollConnectorProperties;
     private ResponseConnectorProperties responseConnectorProperties;
-
     private String driver;
     private String url;
     private String username;
     private String password;
-    private String query;
+    private String select;
+    private String update;
     private boolean useScript;
-    private boolean cacheResults; // TODO: Not yet implemented on the server side
-    private boolean useAck;
-    private String ack;
-
-    public static final String DRIVER_DEFAULT = "Please Select One";
+    private boolean cacheResults;
+    private boolean keepConnectionOpen;
+    private int updateMode;
+    private String retryCount;
+    private String fetchSize;
 
     public DatabaseReceiverProperties() {
         pollConnectorProperties = new PollConnectorProperties();
         responseConnectorProperties = new ResponseConnectorProperties(false);
-
-        this.driver = DRIVER_DEFAULT;
-        this.url = "";
-        this.username = "";
-        this.password = "";
-        this.query = "";
-        this.useScript = false;
-        this.cacheResults = true;
-        this.useAck = false;
-        this.ack = "";
+        driver = DRIVER_DEFAULT;
+        url = "";
+        username = "";
+        password = "";
+        select = "";
+        update = "";
+        useScript = false;
+        cacheResults = true;
+        keepConnectionOpen = true;
+        updateMode = UPDATE_NEVER;
+        retryCount = "3";
+        fetchSize = "1000";
     }
 
     @Override
@@ -101,12 +107,20 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
         this.password = password;
     }
 
-    public String getQuery() {
-        return query;
+    public String getSelect() {
+        return select;
     }
 
-    public void setQuery(String query) {
-        this.query = query;
+    public void setSelect(String select) {
+        this.select = select;
+    }
+
+    public String getUpdate() {
+        return update;
+    }
+
+    public void setUpdate(String update) {
+        this.update = update;
     }
 
     public boolean isUseScript() {
@@ -125,20 +139,36 @@ public class DatabaseReceiverProperties extends ConnectorProperties implements P
         this.cacheResults = cacheResults;
     }
 
-    public boolean isUseAck() {
-        return useAck;
+    public boolean isKeepConnectionOpen() {
+        return keepConnectionOpen;
     }
 
-    public void setUseAck(boolean useAck) {
-        this.useAck = useAck;
+    public void setKeepConnectionOpen(boolean keepConnectionOpen) {
+        this.keepConnectionOpen = keepConnectionOpen;
     }
 
-    public String getAck() {
-        return ack;
+    public int getUpdateMode() {
+        return updateMode;
     }
 
-    public void setAck(String ack) {
-        this.ack = ack;
+    public void setUpdateMode(int updateMode) {
+        this.updateMode = updateMode;
+    }
+
+    public String getRetryCount() {
+        return retryCount;
+    }
+
+    public void setRetryCount(String retryCount) {
+        this.retryCount = retryCount;
+    }
+
+    public String getFetchSize() {
+        return fetchSize;
+    }
+
+    public void setFetchSize(String fetchSize) {
+        this.fetchSize = fetchSize;
     }
 
     @Override

@@ -251,6 +251,12 @@ public class JavaScriptScopeUtil {
     public static Scriptable getMessageReceiverScope(Object logger, String channelId) {
         return getBasicScope(getContext(), logger, channelId);
     }
+    
+    public static Scriptable getMessageReceiverScope(Object logger, String channelId, ConnectorMessage message) {
+        Scriptable scope = getBasicScope(getContext(), logger, channelId);
+        addConnectorMessage(scope, message);
+        return scope;
+    }
 
     public static Scriptable getMessageDispatcherScope(Object logger, String channelId, ConnectorMessage message) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);

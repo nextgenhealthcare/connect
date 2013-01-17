@@ -23,6 +23,7 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
     private String username;
     private String password;
     private String query;
+    private Object[] parameters;
     private boolean useScript;
 
     public static final String DRIVER_DEFAULT = "Please Select One";
@@ -55,15 +56,23 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
         builder.append("URL: ");
         builder.append(url);
         builder.append(newLine);
-        
+
         builder.append("USERNAME: ");
         builder.append(username);
         builder.append(newLine);
-        
+
         builder.append(newLine);
-        builder.append("[QUERY]");
+        builder.append(useScript ? "[SCRIPT]" : "[QUERY]");
         builder.append(newLine);
         builder.append(query);
+
+        if (parameters.length > 0) {
+            builder.append(newLine);
+            builder.append("[PARAMETERS]");
+            builder.append(newLine);
+            builder.append(parameters);
+        }
+
         return builder.toString();
     }
 
@@ -110,6 +119,14 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
 
     public void setQuery(String query) {
         this.query = query;
+    }
+
+    public Object[] getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Object[] parameters) {
+        this.parameters = parameters;
     }
 
     public boolean isUseScript() {
