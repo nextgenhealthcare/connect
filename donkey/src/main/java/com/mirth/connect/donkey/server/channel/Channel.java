@@ -1157,19 +1157,17 @@ public class Channel implements Startable, Stoppable, Runnable {
                 dao.updateResponseMap(finalMessage.getConnectorMessages().get(0));
             }
 
-            if (markAsProcessed) {
-                dao.markAsProcessed(channelId, finalMessage.getMessageId());
-                finalMessage.setProcessed(true);
+            dao.markAsProcessed(channelId, finalMessage.getMessageId());
+            finalMessage.setProcessed(true);
 
-                boolean messageCompleted = MessageController.getInstance().isMessageCompleted(finalMessage);
-                if (messageCompleted) {
-                    if (storageSettings.isRemoveContentOnCompletion()) {
-                        dao.deleteMessageContent(channelId, finalMessage.getMessageId());
-                    }
+            boolean messageCompleted = MessageController.getInstance().isMessageCompleted(finalMessage);
+            if (messageCompleted) {
+                if (storageSettings.isRemoveContentOnCompletion()) {
+                    dao.deleteMessageContent(channelId, finalMessage.getMessageId());
+                }
 
-                    if (storageSettings.isRemoveAttachmentsOnCompletion()) {
-                        dao.deleteMessageAttachments(channelId, finalMessage.getMessageId());
-                    }
+                if (storageSettings.isRemoveAttachmentsOnCompletion()) {
+                    dao.deleteMessageAttachments(channelId, finalMessage.getMessageId());
                 }
             }
         }
