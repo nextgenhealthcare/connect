@@ -130,7 +130,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         
         boolean valid = true;
 
-        if (props.getUrl().length() == 0) {
+        if (!props.isUseScript() && props.getUrl().length() == 0) {
             valid = false;
             if (highlight) {
                 databaseURLField.setBackground(UIConstants.INVALID_COLOR);

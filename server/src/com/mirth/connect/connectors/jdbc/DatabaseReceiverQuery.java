@@ -17,7 +17,6 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.sun.rowset.CachedRowSetImpl;
 
@@ -60,13 +59,16 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
                     initUpdateConnection();
                 }
             } catch (SQLException e) {
+                // close all of the connections/statements in case some of them did initialize successfully
+                closeSelectConnection();
+                closeUpdateConnection();
                 throw new DeployException("Failed to initialize database connection", e);
             }
         }
     }
 
     @Override
-    public void undeploy() throws UndeployException {
+    public void undeploy() {
         if (connectorProperties.isKeepConnectionOpen()) {
             closeSelectConnection();
 

@@ -19,14 +19,13 @@ import org.apache.commons.dbutils.DbUtils;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.UndeployException;
 
 public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
     private BasicDataSource dataSource;
 
     @Override
-    public void deploy() throws DeployException {}
+    public void deploy() {}
 
     @Override
     public void undeploy() throws UndeployException {
