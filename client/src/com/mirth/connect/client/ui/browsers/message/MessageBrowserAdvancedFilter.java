@@ -23,6 +23,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -37,7 +38,8 @@ import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.ItemSelectionTable;
 import com.mirth.connect.client.ui.components.ItemSelectionTableModel;
-import com.mirth.connect.client.ui.components.MirthComboBoxCellRenderer;
+import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
+import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
@@ -89,6 +91,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             }
         });
         
+        contentSearchTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        contentSearchTable.setDragEnabled(false);
         contentSearchTable.setSortable(false);
         contentSearchTable.getTableHeader().setReorderingAllowed(false);
         
@@ -103,8 +107,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         }
         
         TableColumn column = contentSearchTable.getColumnModel().getColumn(0);
-        column.setCellEditor(new DefaultCellEditor(new JComboBox(ContentType.values())));
-        column.setCellRenderer(new MirthComboBoxCellRenderer(ContentType.values()));
+        column.setCellRenderer(new MirthComboBoxTableCellRenderer(ContentType.values()));
+        column.setCellEditor(new MirthComboBoxTableCellEditor(contentSearchTable, ContentType.values(), 1, false, null));
         column.setMinWidth(CONTENT_TYPE_COLUMN_WIDTH);
         column.setMaxWidth(CONTENT_TYPE_COLUMN_WIDTH);
         
@@ -151,6 +155,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             }
         });
         
+        metaDataSearchTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        metaDataSearchTable.setDragEnabled(false);
         metaDataSearchTable.setSortable(false);
         metaDataSearchTable.getTableHeader().setReorderingAllowed(false);
         
@@ -177,8 +183,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         }
         
         TableColumn metaDataColumn = metaDataSearchTable.getColumnModel().getColumn(0);
-        metaDataColumn.setCellEditor(new DefaultCellEditor(new JComboBox(metaDataNames)));
-        metaDataColumn.setCellRenderer(new MirthComboBoxCellRenderer(metaDataNames));
+        metaDataColumn.setCellRenderer(new MirthComboBoxTableCellRenderer(metaDataNames));
+        metaDataColumn.setCellEditor(new MirthComboBoxTableCellEditor(metaDataSearchTable, metaDataNames, 1, false, null));
         metaDataColumn.setMinWidth(METADATA_NAME_COLUMN_WIDTH);
         metaDataColumn.setMaxWidth(METADATA_NAME_COLUMN_WIDTH * 2);
         metaDataColumn.setPreferredWidth(METADATA_NAME_COLUMN_WIDTH);
@@ -212,8 +218,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         };
         
         TableColumn operatorColumn = metaDataSearchTable.getColumnModel().getColumn(1);
-        operatorColumn.setCellEditor(operatorEditor);
-        operatorColumn.setCellRenderer(new MirthComboBoxCellRenderer(MetaDataSearchOperator.values()));
+        operatorColumn.setCellRenderer(new MirthComboBoxTableCellRenderer(MetaDataSearchOperator.values()));
+        operatorColumn.setCellEditor(new MirthComboBoxTableCellEditor(metaDataSearchTable, MetaDataSearchOperator.values(), 1, false, null));
         operatorColumn.setMinWidth(METADATA_OPERATOR_COLUMN_WIDTH);
         operatorColumn.setMaxWidth(METADATA_OPERATOR_COLUMN_WIDTH);
         

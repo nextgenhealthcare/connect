@@ -22,8 +22,6 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -67,7 +65,8 @@ import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TreeTransferable;
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.components.MirthComboBoxCellEditor;
+import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
+import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.editors.BasePanel;
@@ -465,13 +464,13 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         for (int i = 0; i < pluginArray.length; i++) {
             defaultComboBoxValues[i] = pluginArray[i].getPluginPointName();
         }
-        MirthComboBoxCellEditor comboBox = new MirthComboBoxCellEditor(transformerTable, defaultComboBoxValues, 2, true);
+        
+        MirthComboBoxTableCellEditor comboBox = new MirthComboBoxTableCellEditor(transformerTable, defaultComboBoxValues, 2, true, new ActionListener() {
 
-        ((JComboBox) comboBox.getComponent()).addItemListener(new ItemListener() {
-
-            public void itemStateChanged(ItemEvent evt) {
-                if (evt.getStateChange() == evt.SELECTED) {
-                    String type = evt.getItem().toString();
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                if (transformerTable.getEditingRow() != -1) {
+                    String type = ((JComboBox) evt.getSource()).getSelectedItem().toString();
                     int row = getSelectedRow();
 
                     if (type.equalsIgnoreCase((String) transformerTable.getValueAt(row, STEP_TYPE_COL))) {
@@ -505,8 +504,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         transformerTable.getColumnExt(STEP_NUMBER_COL).setCellRenderer(new CenterCellRenderer());
         transformerTable.getColumnExt(STEP_TYPE_COL).setCellEditor(comboBox);
-        // transformerTable.getColumnExt(STEP_TYPE_COL).setCellRenderer(new
-        // MyComboBoxRenderer(comboBoxValues));
+        transformerTable.getColumnExt(STEP_TYPE_COL).setCellRenderer(new MirthComboBoxTableCellRenderer(defaultComboBoxValues));
 
         transformerTable.getColumnExt(STEP_DATA_COL).setVisible(false);
 
@@ -515,6 +513,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         transformerTable.setSortable(false);
         transformerTable.setOpaque(true);
         transformerTable.setRowSelectionAllowed(true);
+        transformerTable.setDragEnabled(false);
         transformerTable.getTableHeader().setReorderingAllowed(false);
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {

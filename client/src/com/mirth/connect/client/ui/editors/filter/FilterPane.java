@@ -10,6 +10,7 @@
 package com.mirth.connect.client.ui.editors.filter;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -21,8 +22,6 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -47,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -65,7 +65,8 @@ import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RuleDropData;
 import com.mirth.connect.client.ui.TreeTransferable;
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.components.MirthComboBoxCellEditor;
+import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
+import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.editors.BasePanel;
@@ -441,10 +442,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         // Set the combobox editor on the operator column, and add action
         // listener
-        MirthComboBoxCellEditor comboBoxOp = new MirthComboBoxCellEditor(filterTable, comboBoxValues, 2, true);
-        ((JComboBox) comboBoxOp.getComponent()).addItemListener(new ItemListener() {
+        MirthComboBoxTableCellEditor comboBoxOp = new MirthComboBoxTableCellEditor(filterTable, comboBoxValues, 2, true, new ActionListener() {
 
-            public void itemStateChanged(ItemEvent evt) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 modified = true;
                 updateOperations();
             }
@@ -457,13 +458,12 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             defaultComboBoxValues[i] = pluginArray[i].getPluginPointName();
         }
 
-        MirthComboBoxCellEditor comboBoxType = new MirthComboBoxCellEditor(filterTable, defaultComboBoxValues, 2, true);
+        MirthComboBoxTableCellEditor comboBoxType = new MirthComboBoxTableCellEditor(filterTable, defaultComboBoxValues, 2, true, new ActionListener() {
 
-        ((JComboBox) comboBoxType.getComponent()).addItemListener(new ItemListener() {
-
-            public void itemStateChanged(ItemEvent evt) {
-                if (evt.getStateChange() == evt.SELECTED) {
-                    String type = evt.getItem().toString();
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                if (filterTable.getEditingRow() != -1) {
+                    String type = ((JComboBox) evt.getSource()).getSelectedItem().toString();
                     int row = getSelectedRow();
 
                     if (type.equalsIgnoreCase((String) filterTable.getValueAt(row, RULE_TYPE_COL))) {
@@ -496,11 +496,24 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         filterTable.getColumnExt(RULE_NUMBER_COL).setCellRenderer(new CenterCellRenderer());
         filterTable.getColumnExt(RULE_OP_COL).setCellEditor(comboBoxOp);
+        filterTable.getColumnExt(RULE_OP_COL).setCellRenderer(new MirthComboBoxTableCellRenderer(comboBoxValues) {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                if (value instanceof String && value.equals("")) {
+                    value = null;
+                } else if (value != null) {
+                    value = value.toString();
+                }
+                
+                return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            }
+        });
 
         filterTable.getColumnExt(RULE_TYPE_COL).setMaxWidth(UIConstants.MAX_WIDTH);
         filterTable.getColumnExt(RULE_TYPE_COL).setMinWidth(120);
         filterTable.getColumnExt(RULE_TYPE_COL).setPreferredWidth(120);
         filterTable.getColumnExt(RULE_TYPE_COL).setCellEditor(comboBoxType);
+        filterTable.getColumnExt(RULE_TYPE_COL).setCellRenderer(new MirthComboBoxTableCellRenderer(defaultComboBoxValues));
 
         filterTable.getColumnExt(RULE_DATA_COL).setVisible(false);
 
@@ -509,6 +522,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         filterTable.setSortable(false);
         filterTable.setOpaque(true);
         filterTable.setRowSelectionAllowed(true);
+        filterTable.setDragEnabled(false);
         filterTable.getTableHeader().setReorderingAllowed(false);
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
