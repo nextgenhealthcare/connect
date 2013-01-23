@@ -1,9 +1,8 @@
 package com.mirth.connect.plugins.datatypes.dicom;
 
-import java.util.Map;
-
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.SerializerProperties;
 
 public class DICOMDataTypeDelegate implements DataTypeDelegate {
     
@@ -13,13 +12,8 @@ public class DICOMDataTypeDelegate implements DataTypeDelegate {
     }
 
     @Override
-    public IXMLSerializer getSerializer(Map<?, ?> properties) {
+    public IXMLSerializer getSerializer(SerializerProperties properties) {
         return new DICOMSerializer(properties);
-    }
-
-    @Override
-    public Map<String, String> getDefaultProperties() {
-        return DICOMSerializer.getDefaultProperties();
     }
     
     @Override

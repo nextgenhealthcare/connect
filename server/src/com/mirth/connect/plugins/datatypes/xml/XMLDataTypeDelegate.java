@@ -1,9 +1,8 @@
 package com.mirth.connect.plugins.datatypes.xml;
 
-import java.util.Map;
-
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.SerializerProperties;
 
 public class XMLDataTypeDelegate implements DataTypeDelegate {
     
@@ -13,13 +12,8 @@ public class XMLDataTypeDelegate implements DataTypeDelegate {
     }
     
     @Override
-    public IXMLSerializer getSerializer(Map<?, ?> properties) {
+    public IXMLSerializer getSerializer(SerializerProperties properties) {
         return new DefaultXMLSerializer(properties);
-    }
-
-    @Override
-    public Map<String, String> getDefaultProperties() {
-        return DefaultXMLSerializer.getDefaultProperties();
     }
 
     @Override

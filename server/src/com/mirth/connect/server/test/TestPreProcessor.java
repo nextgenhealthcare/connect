@@ -230,7 +230,7 @@ public class TestPreProcessor {
         connectorMessage.setMetaDataId(metaDataId);
         connectorMessage.setContent(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, TEST_HL7_MESSAGE, "HL7V2", null));
         
-        XmlSerializer xmlSerializer = new DefaultXMLSerializer(DefaultXMLSerializer.getDefaultProperties());
+        XmlSerializer xmlSerializer = new DefaultXMLSerializer(null);
         String serializedMessage = xmlSerializer.toXML(connectorMessage.getRaw().getContent());
         
         connectorMessage.setTransformed(new MessageContent(channelId, messageId, metaDataId, ContentType.TRANSFORMED, serializedMessage, "XML", null));

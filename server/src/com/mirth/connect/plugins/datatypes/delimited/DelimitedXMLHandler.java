@@ -9,15 +9,18 @@
 
 package com.mirth.connect.plugins.datatypes.delimited;
 
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
+
+import com.mirth.connect.util.StringUtil;
 
 
 public class DelimitedXMLHandler extends DefaultHandler {
 
 	private StringBuilder output = new StringBuilder();
 	
-	private DelimitedSerializerProperties props;
+	private DelimitedDeserializationProperties properties;
 	private boolean inRow;
 	private boolean inColumn;
 	private int columnIndex;
@@ -29,9 +32,16 @@ public class DelimitedXMLHandler extends DefaultHandler {
 	private String escapedQuoteEscape = null;
 	private StringBuilder columnValue = null;
 
-	public DelimitedXMLHandler(DelimitedSerializerProperties props) {
+	public DelimitedXMLHandler(DelimitedDeserializationProperties properties) {
 		super();
-		this.props = props;
+		this.properties = properties;
+		
+		updateColumnDelimiter();
+        updateRecordDelimiter();
+        updateQuoteChar();
+        updateQuoteEscapeChar();
+        updateEscapedQuote();
+        updateEscapedQuoteEscape();
 	}
 
 	// //////////////////////////////////////////////////////////////////
@@ -60,11 +70,11 @@ public class DelimitedXMLHandler extends DefaultHandler {
 			inColumn = true;
 
 			// If not fixed width columns
-			if (props.getColumnWidths() == null) {
+			if (properties.getColumnWidths() == null) {
 
 				// If this isn't the first column
 				if (columnIndex > 0) {
-					output.append(props.getColumnDelimiter().charAt(0));
+					output.append(columnDelimiter);
 				}
 			}
 			
@@ -79,14 +89,14 @@ public class DelimitedXMLHandler extends DefaultHandler {
 		if (inColumn) {
 			
 			// If fixed width columns
-			if (props.getColumnWidths() != null) {
+			if (properties.getColumnWidths() != null) {
 			
-				if (columnIndex < props.getColumnWidths().length) {
+				if (columnIndex < properties.getColumnWidths().length) {
 
 					output.append(columnValue);
 					
 					// Pad with trailing spaces to fixed column width
-					int len = props.getColumnWidths()[columnIndex] - columnValue.length();
+					int len = properties.getColumnWidths()[columnIndex] - columnValue.length();
 					while (len > 0) {
 						output.append(' ');
 						len--;
@@ -97,15 +107,15 @@ public class DelimitedXMLHandler extends DefaultHandler {
 
 				// If the column value contains the column delimiter, or record delimiter
 				String temp = columnValue.toString();
-				if (temp.contains(getColumnDelimiter()) || temp.contains(getRecordDelimiter())) {
+				if (temp.contains(columnDelimiter) || temp.contains(recordDelimiter)) {
 					
 					// Escape the escape characters and the quote characters
-					temp = temp.replace(getQuoteEscapeChar(), getEscapedQuoteEscape());
-					temp = temp.replace(getQuoteChar(), getEscapedQuote());
+					temp = temp.replace(quoteEscapeChar, escapedQuoteEscape);
+					temp = temp.replace(quoteChar, escapedQuote);
 	
-					output.append(getQuoteChar());
+					output.append(quoteChar);
 					output.append(temp);
-					output.append(getQuoteChar());
+					output.append(quoteChar);
 				}
 				else {
 					output.append(columnValue);
@@ -118,7 +128,7 @@ public class DelimitedXMLHandler extends DefaultHandler {
 			inRow = false;
 			
 			// Append the record delimiter
-			output.append(props.getRecordDelimiter().charAt(0));
+			output.append(recordDelimiter);
 		}
 	}
 
@@ -126,12 +136,12 @@ public class DelimitedXMLHandler extends DefaultHandler {
 
 		if (inColumn) {
 			
-			if (props.getColumnWidths() != null) {
+			if (properties.getColumnWidths() != null) {
 
-				if (columnIndex < props.getColumnWidths().length) {
+				if (columnIndex < properties.getColumnWidths().length) {
 
 					// Get the fixed width of this column
-					int columnWidth = props.getColumnWidths()[columnIndex];
+					int columnWidth = properties.getColumnWidths()[columnIndex];
 		
 					// Truncate if the size of the column value exceeds the fixed column width
 					if (columnValue.length() + length > columnWidth) {
@@ -155,87 +165,59 @@ public class DelimitedXMLHandler extends DefaultHandler {
 		this.output = output;
 	}
 
-	private String getColumnDelimiter() {
-		
+	private void updateColumnDelimiter() {
 		if (columnDelimiter == null) {
 			
-			if (DelimitedSerializerProperties.isSet(props.getColumnDelimiter())) {
-				columnDelimiter = props.getColumnDelimiter().substring(0,1);
-			}
-			else {
-				columnDelimiter = ",";			// default
+			if (StringUtils.isNotEmpty(properties.getColumnDelimiter())) {
+				columnDelimiter = StringUtil.unescape(properties.getColumnDelimiter()).substring(0,1);
 			}
 		}
-		
-		return columnDelimiter; 
 	}
 
-	private String getRecordDelimiter() {
-		
+	private void updateRecordDelimiter() {
 		if (recordDelimiter == null) {
 			
-			if (DelimitedSerializerProperties.isSet(props.getRecordDelimiter())) {
-				recordDelimiter = props.getRecordDelimiter().substring(0,1);
-			}
-			else {
-				recordDelimiter = "\n";			// default
+			if (StringUtils.isNotEmpty(properties.getRecordDelimiter())) {
+				recordDelimiter = StringUtil.unescape(properties.getRecordDelimiter()).substring(0,1);
 			}
 		}
-		
-		return recordDelimiter; 
 	}
 
-	private String getQuoteChar() {
-		
+	private void updateQuoteChar() {
 		if (quoteChar == null) {
 			
-			if (DelimitedSerializerProperties.isSet(props.getQuoteChar())) {
-				quoteChar = props.getQuoteChar().substring(0,1);
-			}
-			else {
-				quoteChar = "\"";			// default
+			if (StringUtils.isNotEmpty(properties.getQuoteChar())) {
+				quoteChar = StringUtil.unescape(properties.getQuoteChar()).substring(0,1);
 			}
 		}
-		
-		return quoteChar; 
 	}
 
-	private String getQuoteEscapeChar() {
-		
+	private void updateQuoteEscapeChar() {
 		if (quoteEscapeChar == null) {
 			
-			if (DelimitedSerializerProperties.isSet(props.getQuoteEscapeChar())) {
-				quoteEscapeChar = props.getQuoteEscapeChar().substring(0,1);
-			}
-			else {
-				quoteEscapeChar = "\\";		// default
+			if (StringUtils.isNotEmpty(properties.getQuoteEscapeChar())) {
+				quoteEscapeChar = StringUtil.unescape(properties.getQuoteEscapeChar()).substring(0,1);
 			}
 		}
-		
-		return quoteEscapeChar; 
 	}
 
-	private String getEscapedQuote() {
+	private void updateEscapedQuote() {
 		
 		if (escapedQuote == null) {
 			
-			if (props.isEscapeWithDoubleQuote()) {
-				escapedQuote = getQuoteChar() + getQuoteChar();
+			if (properties.isEscapeWithDoubleQuote()) {
+				escapedQuote = quoteChar + quoteChar;
 			}
 			else {
-				escapedQuote = getQuoteEscapeChar() + getQuoteChar();
+				escapedQuote = quoteEscapeChar + quoteChar;
 			}
 		}
-		
-		return escapedQuote; 
 	}
 
-	private String getEscapedQuoteEscape() {
+	private void updateEscapedQuoteEscape() {
 		
 		if (escapedQuoteEscape == null) {
-			escapedQuoteEscape = getQuoteEscapeChar() + getQuoteEscapeChar();
+			escapedQuoteEscape = quoteEscapeChar + quoteEscapeChar;
 		}
-		
-		return escapedQuoteEscape; 
 	}
 }

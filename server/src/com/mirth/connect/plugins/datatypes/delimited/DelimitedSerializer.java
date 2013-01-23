@@ -30,26 +30,39 @@ import com.mirth.connect.model.converters.BatchMessageProcessor;
 import com.mirth.connect.model.converters.BatchMessageProcessorException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
+import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private DelimitedSerializerProperties props;
+    private DelimitedSerializationProperties serializationProperties;
+    private DelimitedDeserializationProperties deserializationProperties;
+    private DelimitedBatchProperties batchProperties;
     private DelimitedReader delimitedBatchReader = null;
 
-    public static Map<String, String> getDefaultProperties() {
-        return DelimitedSerializerProperties.getDefaultProperties();
-    }
-
-    public DelimitedSerializer(Map delimitedProperties) {
-        props = new DelimitedSerializerProperties(delimitedProperties);
+    public DelimitedSerializer(SerializerProperties properties) {
+        serializationProperties = (DelimitedSerializationProperties) properties.getSerializationProperties();
+        deserializationProperties = (DelimitedDeserializationProperties) properties.getDeserializationProperties();
+        batchProperties = (DelimitedBatchProperties) properties.getBatchProperties();
     }
     
     @Override
-    public boolean isTransformerRequired() {
-        return props.isTransformerRequired();
+    public boolean isSerializationRequired(boolean toXml) {
+        boolean serializationRequired = false;
+        
+        if (toXml) {
+            if (!serializationProperties.getColumnDelimiter().equals(",") || !serializationProperties.getRecordDelimiter().equals("\\n") || serializationProperties.getColumnWidths() != null || !serializationProperties.getQuoteChar().equals("\"") || !serializationProperties.isEscapeWithDoubleQuote() || !serializationProperties.getQuoteEscapeChar().equals("\\") || serializationProperties.getColumnNames() != null || serializationProperties.isNumberedRows() || !serializationProperties.isIgnoreCR() || batchProperties.getBatchSkipRecords() != 0 || !batchProperties.isBatchSplitByRecord() || !batchProperties.getBatchMessageDelimiter().equals("") || batchProperties.isBatchMessageDelimiterIncluded() || !batchProperties.getBatchGroupingColumn().equals("") || !batchProperties.getBatchScript().equals("")) {
+                serializationRequired = true;
+            }
+        } else {
+            if (!deserializationProperties.getColumnDelimiter().equals(",") || !deserializationProperties.getRecordDelimiter().equals("\\n") || deserializationProperties.getColumnWidths() != null || !deserializationProperties.getQuoteChar().equals("\"") || !deserializationProperties.isEscapeWithDoubleQuote() || !deserializationProperties.getQuoteEscapeChar().equals("\\")) {
+                serializationRequired = true;
+            }
+        }
+
+        return serializationRequired;
     }
     
     @Override
@@ -64,7 +77,7 @@ public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
 
         try {
 
-            DelimitedXMLHandler handler = new DelimitedXMLHandler(props);
+            DelimitedXMLHandler handler = new DelimitedXMLHandler(deserializationProperties);
             XMLReader xr = XMLReaderFactory.createXMLReader();
             xr.setContentHandler(handler);
             xr.setErrorHandler(handler);
@@ -99,7 +112,7 @@ public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
             StringWriter stringWriter = new StringWriter();
             XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
             serializer.setEncodeEntities(true);
-            DelimitedReader delimitedReader = new DelimitedReader(props);
+            DelimitedReader delimitedReader = new DelimitedReader(serializationProperties);
             delimitedReader.setContentHandler(serializer);
             delimitedReader.parse(new InputSource(new StringReader(source)));
             return stringWriter.toString();
@@ -127,9 +140,9 @@ public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
 
         // Allocate a batch reader if not already allocated
         if (delimitedBatchReader == null) {
-            delimitedBatchReader = new DelimitedReader(props);
+            delimitedBatchReader = new DelimitedReader(serializationProperties);
         }
-        return delimitedBatchReader.getMessage(in, skipHeader, batchScriptId);
+        return delimitedBatchReader.getMessage((DelimitedBatchProperties) batchProperties, in, skipHeader, batchScriptId);
     }
 
     @Override
@@ -158,7 +171,7 @@ public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
         }
     }
     
-    public DelimitedSerializerProperties getDelimitedProperties() {
-        return props;
+    public String getBatchScript() {
+        return batchProperties.getBatchScript();
     }
 }

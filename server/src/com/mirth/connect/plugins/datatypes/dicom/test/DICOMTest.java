@@ -14,7 +14,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Properties;
 
 import org.xml.sax.SAXException;
 
@@ -105,11 +104,11 @@ public class DICOMTest {
 
 	private static long runTest(String testMessage) throws SerializerException, SAXException, IOException {
 		Stopwatch stopwatch = new Stopwatch();
-		Properties properties = new Properties();
-        properties.put("includePixelData","no");
-        properties.put("isEncoded","no");       
+//		Properties properties = new Properties();
+//        properties.put("includePixelData","no");
+//        properties.put("isEncoded","no");       
         stopwatch.start();
-		DICOMSerializer serializer = new DICOMSerializer(properties);
+		DICOMSerializer serializer = new DICOMSerializer(null);
 //        String xmloutput = serializer.toXML(testMessage);
         //Dcm2Xml dcm2xml = new Dcm2Xml();
         File xmlOut = File.createTempFile("test","xml");

@@ -1,11 +1,12 @@
 package com.mirth.connect.plugins.datatypes.delimited;
 
-import java.util.Map;
-
 import com.mirth.connect.donkey.model.message.AutoResponder;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.converters.DefaultAutoResponder;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.ResponseGenerationProperties;
+import com.mirth.connect.model.datatype.SerializationProperties;
+import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 
 public class DelimitedDataTypeServerPlugin extends DataTypeServerPlugin {
@@ -25,12 +26,12 @@ public class DelimitedDataTypeServerPlugin extends DataTypeServerPlugin {
     }
 
     @Override
-    public AutoResponder getAutoResponder(Map<?, ?> properties) {
+    public AutoResponder getAutoResponder(SerializationProperties serializationProperties, ResponseGenerationProperties generationProperties) {
         return new DefaultAutoResponder();
     }
 
     @Override
-    public boolean isStripNamespaces(Map<?, ?> properties) {
+    public boolean isStripNamespaces(SerializerProperties properties) {
         return false;
     }
 
@@ -41,6 +42,6 @@ public class DelimitedDataTypeServerPlugin extends DataTypeServerPlugin {
 
     public String getBatchScript(XmlSerializer serializer) {
         DelimitedSerializer delimitedSerializer = (DelimitedSerializer) serializer;
-        return delimitedSerializer.getDelimitedProperties().getBatchScript();
+        return delimitedSerializer.getBatchScript();
     }
 }

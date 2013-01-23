@@ -45,7 +45,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/databinding-0.8.0.jar"/>
-	<classpathentry kind="lib" path="lib/l2fprod-common-sheet.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="lib/wizard.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>

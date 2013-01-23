@@ -1,10 +1,11 @@
 package com.mirth.connect.plugins.datatypes.xml;
 
-import java.util.Map;
-
 import com.mirth.connect.donkey.model.message.AutoResponder;
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.converters.DefaultAutoResponder;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.ResponseGenerationProperties;
+import com.mirth.connect.model.datatype.SerializationProperties;
+import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 
 public class XMLDataTypeServerPlugin extends DataTypeServerPlugin {
@@ -24,22 +25,13 @@ public class XMLDataTypeServerPlugin extends DataTypeServerPlugin {
     }
 
     @Override
-    public AutoResponder getAutoResponder(Map<?, ?> properties) {
+    public AutoResponder getAutoResponder(SerializationProperties serializationProperties, ResponseGenerationProperties generationProperties) {
         return new DefaultAutoResponder();
     }
 
     @Override
-    public boolean isStripNamespaces(Map<?, ?> properties) {
-        boolean stripNamespaces = false;
-        
-        // If the property has been set, use it, otherwise use the default true
-        if ((properties != null) && (properties.get("stripNamespaces") != null)) {
-            stripNamespaces = Boolean.parseBoolean((String) properties.get("stripNamespaces"));
-        } else {
-            stripNamespaces = true;
-        }
-        
-        return stripNamespaces;
+    public boolean isStripNamespaces(SerializerProperties properties) {
+        return ((XMLSerializationProperties) properties.getSerializationProperties()).isStripNamespaces();
     }
 
     @Override

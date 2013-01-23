@@ -1,10 +1,11 @@
 package com.mirth.connect.plugins.datatypes.edi;
 
-import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.TokenMarker;
+import org.syntax.jedit.tokenmarker.X12TokenMarker;
 
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.MessageVocabulary;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 
@@ -17,12 +18,7 @@ public class EDIDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public String getDisplayName() {
-        return "EDI";
-    }
-
-    @Override
-    public Object getBeanProperties() {
-        return new EDIProperties();
+        return "EDI / X12";
     }
 
     @Override
@@ -32,12 +28,12 @@ public class EDIDataTypeClientPlugin extends DataTypeClientPlugin {
 
     @Override
     public TokenMarker getTokenMarker() {
-        return new EDITokenMarker();
+        return new X12TokenMarker();
     }
 
     @Override
     public Class<? extends MessageVocabulary> getVocabulary() {
-        return null;
+        return X12Vocabulary.class;
     }
 
     @Override
@@ -70,5 +66,10 @@ public class EDIDataTypeClientPlugin extends DataTypeClientPlugin {
     @Override
     protected DataTypeDelegate getDataTypeDelegate() {
         return dataTypeDelegate;
+    }
+
+    @Override
+    public DataTypeProperties getDefaultProperties() {
+        return new EDIDataTypeProperties();
     }
 }

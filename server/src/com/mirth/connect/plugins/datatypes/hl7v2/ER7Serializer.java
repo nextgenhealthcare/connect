@@ -40,112 +40,68 @@ import com.mirth.connect.model.converters.BatchMessageProcessorException;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
+import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.StringUtil;
 
 public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
-    private PipeParser pipeParser = null;
-    private XMLParser xmlParser = null;
-    private boolean useStrictParser = false;
-    private boolean useStrictValidation = false;
-    private boolean stripNamespaces = true; // Used in JST for strict parser
-    private boolean handleRepetitions = false;
-    private boolean handleSubcomponents = false;
-    private String inputSegmentDelimiter = "\r\n|\r|\n";
-    private String outputSegmentDelimiter = "\r";
+    private PipeParser serializationPipeParser = null;
+    private XMLParser serializationXmlParser = null;
+    private PipeParser deserializationPipeParser = null;
+    private XMLParser deserializationXmlParser = null;
+    private String serializationSegmentDelimiter = null;
+    private String deserializationSegmentDelimiter = null;
+    private HL7v2SerializationProperties serializationProperties;
+    private HL7v2DeserializationProperties deserializationProperties;
     
-    public ER7Serializer() {
-        initializeParser();
-    }
-
-    public ER7Serializer(Map properties) {
-        if (properties != null) {
-            if (properties.get("useStrictParser") != null) {
-                this.useStrictParser = Boolean.parseBoolean((String) properties.get("useStrictParser"));
-            }
-
-            if (properties.get("useStrictValidation") != null) {
-                this.useStrictValidation = Boolean.parseBoolean((String) properties.get("useStrictValidation"));
-            }
-
-            if (properties.get("stripNamespaces") != null) {
-                this.stripNamespaces = Boolean.parseBoolean((String) properties.get("stripNamespaces"));
-            }
-
-            if (properties.get("handleRepetitions") != null) {
-                this.handleRepetitions = Boolean.parseBoolean((String) properties.get("handleRepetitions"));
-            }
-
-            if (properties.get("handleSubcomponents") != null) {
-                this.handleSubcomponents = Boolean.parseBoolean((String) properties.get("handleSubcomponents"));
-            }
-
-            if (properties.get("inputSegmentDelimiter") != null) {
-            	this.inputSegmentDelimiter = StringUtil.unescape((String) properties.get("inputSegmentDelimiter"));
-            }
-            
-            if (properties.get("outputSegmentDelimiter") != null) {
-                this.outputSegmentDelimiter = StringUtil.unescape((String) properties.get("outputSegmentDelimiter"));
-            }
+    public ER7Serializer(SerializerProperties properties) {
+        serializationProperties = (HL7v2SerializationProperties) properties.getSerializationProperties();
+        deserializationProperties = (HL7v2DeserializationProperties) properties.getDeserializationProperties();
+        
+        if (serializationProperties != null) {
+            serializationSegmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
         }
-
-        if (useStrictParser) {
-            initializeParser();
+        if (deserializationProperties != null) {
+            deserializationSegmentDelimiter = StringUtil.unescape(deserializationProperties.getSegmentDelimiter());
         }
     }
-
-    public static Map<String, String> getDefaultProperties() {
-        Map<String, String> properties = new HashMap<String, String>();
-        properties.put("useStrictParser", "false");
-        properties.put("useStrictValidation", "false");
-        properties.put("stripNamespaces", "true");
-        properties.put("handleRepetitions", "false");
-        properties.put("handleSubcomponents", "false");
-        properties.put("inputSegmentDelimiter", "\\r\\n|\\r|\\n");
-        properties.put("outputSegmentDelimiter", "\\r");
-        return properties;
-    }
-
-    private void initializeParser() {
-        pipeParser = new PipeParser();
-        xmlParser = new DefaultXMLParser();
-
-        // turn off strict validation if needed
-        if (!useStrictValidation) {
-            pipeParser.setValidationContext(new NoValidation());
-            xmlParser.setValidationContext(new NoValidation());
-        }
-
-        xmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
-    }
     
-    public String getInputSegmentDelimiter() {
-        return inputSegmentDelimiter;
+    public String getDeserializationSegmentDelimiter() {
+        return deserializationSegmentDelimiter;
     }
-    
-    public String getOutputSegmentDelimiter() {
-        return outputSegmentDelimiter;
-    }
-    
+
+    /**
+     * Do the serializer properties require serialization
+     * @return
+     */
     @Override
-    public boolean isTransformerRequired() {
-    	boolean transformerRequired = false;
-    	//TODO determine which properties are required for transformer
-    	if (useStrictParser || useStrictValidation || !stripNamespaces || handleRepetitions || handleSubcomponents || !inputSegmentDelimiter.equals("\r\n|\r|\n") || !outputSegmentDelimiter.equals("\r")) {
-    		transformerRequired = true;
+    public boolean isSerializationRequired(boolean toXml) {
+    	boolean serializationRequired = false;
+    	
+    	if (toXml) {
+    	    if (serializationProperties.isUseStrictParser() || serializationProperties.isUseStrictValidation() || !serializationProperties.isStripNamespaces() || serializationProperties.isHandleRepetitions() || serializationProperties.isHandleSubcomponents() || !serializationProperties.getSegmentDelimiter().equals("\\r\\n|\\r|\\n")) {
+                serializationRequired = true;
+            }
+    	} else {
+    	    if (deserializationProperties.isUseStrictParser() || deserializationProperties.isUseStrictValidation() || !deserializationProperties.getSegmentDelimiter().equals("\\r")) {
+                serializationRequired = true;
+            }
     	}
     	
-    	return transformerRequired;
+    	return serializationRequired;
     }
     
     @Override
     public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
         ER7Serializer serializer = (ER7Serializer) outboundSerializer;
         
-        if (!inputSegmentDelimiter.equals(serializer.getOutputSegmentDelimiter())) {
-            return message.replaceAll(inputSegmentDelimiter, serializer.getOutputSegmentDelimiter());
+        String inputSegmentDelimiter = serializationSegmentDelimiter;
+        String outputSegmentDelimiter = serializer.getDeserializationSegmentDelimiter();
+        
+        if (!inputSegmentDelimiter.equals(outputSegmentDelimiter)) {
+            return message.replaceAll(inputSegmentDelimiter, outputSegmentDelimiter);
         }
         
         return message;
@@ -161,15 +117,27 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
     @Override
     public String toXML(String source) throws SerializerException {
         try {
-            if (useStrictParser) {
+            if (serializationProperties.isUseStrictParser()) {
+                if (serializationPipeParser == null || serializationXmlParser == null) {
+                    serializationPipeParser = new PipeParser();
+                    serializationXmlParser = new DefaultXMLParser();
+            
+                    // turn off strict validation if needed
+                    if (!serializationProperties.isUseStrictValidation()) {
+                        serializationPipeParser.setValidationContext(new NoValidation());
+                        serializationXmlParser.setValidationContext(new NoValidation());
+                    }
+            
+                    serializationXmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
+                }
                 //TODO need to update how data type properties work after the beta. This may or may not be wrong.
                 // Right now, if strict parser is used on the source, it will need to be used for the destinations as well.
-                if (!inputSegmentDelimiter.equals(outputSegmentDelimiter)) {
-                    source = source.replaceAll(inputSegmentDelimiter, outputSegmentDelimiter);
+                if (!serializationSegmentDelimiter.equals("\r")) {
+                    source = source.replaceAll(serializationSegmentDelimiter, "\r");
                 }
-                return xmlParser.encode(pipeParser.parse(source.trim()));
+                return serializationXmlParser.encode(serializationPipeParser.parse(source.trim()));
             } else {
-                ER7Reader er7Reader = new ER7Reader(handleRepetitions, handleSubcomponents, inputSegmentDelimiter);
+                ER7Reader er7Reader = new ER7Reader(serializationProperties.isHandleRepetitions(), serializationProperties.isHandleSubcomponents(), serializationSegmentDelimiter);
                 StringWriter stringWriter = new StringWriter();
                 XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
                 serializer.setEncodeEntities(true);
@@ -192,8 +160,21 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
     @Override
     public String fromXML(String source) throws SerializerException {
         try {
-            if (useStrictParser) {
-                return pipeParser.encode(xmlParser.parse(source));
+            if (deserializationProperties.isUseStrictParser()) {
+                if (deserializationPipeParser == null || deserializationXmlParser == null) {
+                    deserializationPipeParser = new PipeParser();
+                    deserializationXmlParser = new DefaultXMLParser();
+            
+                    // turn off strict validation if needed
+                    if (!deserializationProperties.isUseStrictValidation()) {
+                        deserializationPipeParser.setValidationContext(new NoValidation());
+                        deserializationXmlParser.setValidationContext(new NoValidation());
+                    }
+            
+                    deserializationXmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
+                }
+                
+                return deserializationPipeParser.encode(deserializationXmlParser.parse(source));
             } else {
                 /*
                  * The delimiters below need to come from the XML somehow. The
@@ -229,7 +210,7 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
                     subcomponentSeparator = separators.substring(3, 4);
                 }
 
-                XMLEncodedHL7Handler handler = new XMLEncodedHL7Handler(outputSegmentDelimiter, fieldSeparator, componentSeparator, repetitionSeparator, escapeCharacter, subcomponentSeparator, true);
+                XMLEncodedHL7Handler handler = new XMLEncodedHL7Handler(deserializationSegmentDelimiter, fieldSeparator, componentSeparator, repetitionSeparator, escapeCharacter, subcomponentSeparator, true);
                 XMLReader reader = XMLReaderFactory.createXMLReader();
                 reader.setContentHandler(handler);
                 reader.setErrorHandler(handler);
@@ -250,7 +231,14 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
     public Map<String, String> getMetadataFromDocument(Document document) {
         Map<String, String> metadata = new HashMap<String, String>();
 
-        if (useStrictParser) {
+        if (serializationProperties.isUseStrictParser()) {
+            XMLParser xmlParser = new DefaultXMLParser();
+            if (!serializationProperties.isUseStrictValidation()) {
+                xmlParser.setValidationContext(new NoValidation());
+            }
+            
+            xmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
+            
             try {
                 DocumentSerializer serializer = new DocumentSerializer();
                 String source = serializer.toXML(document);
@@ -332,7 +320,7 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
         Scanner scanner = null;
         try {
             scanner = new Scanner(src);
-            scanner.useDelimiter(Pattern.compile(inputSegmentDelimiter));
+            scanner.useDelimiter(Pattern.compile(serializationSegmentDelimiter));
             StringBuilder message = new StringBuilder();
             char data[] = { (char) startOfMessage, (char) endOfMessage };
             boolean errored = false;

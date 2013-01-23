@@ -12,10 +12,10 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.converters.basic.Base64StringConverter;
@@ -38,8 +38,8 @@ public class Transformer implements Serializable {
 
     private String inboundDataType;
     private String outboundDataType;
-    private Properties inboundProperties;
-    private Properties outboundProperties;
+    private DataTypeProperties inboundProperties;
+    private DataTypeProperties outboundProperties;
 
     public Transformer() {
         this.steps = new ArrayList<Step>();
@@ -99,19 +99,19 @@ public class Transformer implements Serializable {
         return ObjectUtils.equals(this.getSteps(), transformer.getSteps()) && ObjectUtils.equals(this.getInboundTemplate(), transformer.getInboundTemplate()) && ObjectUtils.equals(this.getOutboundTemplate(), transformer.getOutboundTemplate()) && ObjectUtils.equals(this.getInboundDataType(), transformer.getInboundDataType()) && ObjectUtils.equals(this.getOutboundDataType(), transformer.getOutboundDataType()) && ObjectUtils.equals(this.getInboundProperties(), transformer.getInboundProperties()) && ObjectUtils.equals(this.getOutboundProperties(), transformer.getOutboundProperties());
     }
 
-    public Properties getInboundProperties() {
+    public DataTypeProperties getInboundProperties() {
         return inboundProperties;
     }
 
-    public void setInboundProperties(Properties inboundProperties) {
+    public void setInboundProperties(DataTypeProperties inboundProperties) {
         this.inboundProperties = inboundProperties;
     }
 
-    public Properties getOutboundProperties() {
+    public DataTypeProperties getOutboundProperties() {
         return outboundProperties;
     }
 
-    public void setOutboundProperties(Properties outboundProperties) {
+    public void setOutboundProperties(DataTypeProperties outboundProperties) {
         this.outboundProperties = outboundProperties;
     }
 }

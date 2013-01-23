@@ -122,7 +122,7 @@ public class JavaScriptBuilder {
         // Check to see if the property to strip namespaces off of incoming
         // messages has been set.
         // For XML, HL7v2, and HL7v3 stripNamespaces can be turned on/off.
-        boolean stripIncomingNamespaces = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getInboundDataType()).isStripNamespaces(transformer.getInboundProperties());
+        boolean stripIncomingNamespaces = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getInboundDataType()).isStripNamespaces(transformer.getInboundProperties().getSerializerProperties());
 
         if (stripIncomingNamespaces) {
             builder.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
@@ -138,7 +138,7 @@ public class JavaScriptBuilder {
             // Check to see if the property to strip namespaces off of outbound
             // templates has been set.
             // For XML, HL7v2, and HL7v3 stripNamespaces can be turned on/off.
-            boolean stripOutboundNamespaces = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).isStripNamespaces(transformer.getOutboundProperties());;
+            boolean stripOutboundNamespaces = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).isStripNamespaces(transformer.getOutboundProperties().getSerializerProperties());
 
             if (stripOutboundNamespaces) {
                 builder.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");

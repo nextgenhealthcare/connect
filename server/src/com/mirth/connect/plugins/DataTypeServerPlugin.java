@@ -1,26 +1,20 @@
 package com.mirth.connect.plugins;
 
-import java.util.Map;
-
 import com.mirth.connect.donkey.model.message.AutoResponder;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.ResponseGenerationProperties;
+import com.mirth.connect.model.datatype.SerializationProperties;
+import com.mirth.connect.model.datatype.SerializerProperties;
 
 public abstract class DataTypeServerPlugin implements ServerPlugin {
     
     /**
      * Get an instance of the data type's serializer with the given properties
      */
-    final public IXMLSerializer getSerializer(Map<?, ?> properties) {
+    final public IXMLSerializer getSerializer(SerializerProperties properties) {
         return getDataTypeDelegate().getSerializer(properties);
-    }
-    
-    /**
-     * Get the default properties of the data type
-     */
-    final public Map<String, String> getDefaultProperties() {
-        return getDataTypeDelegate().getDefaultProperties();
     }
     
     /** 
@@ -34,7 +28,7 @@ public abstract class DataTypeServerPlugin implements ServerPlugin {
      * Indicates if the data type is in binary format
      */
     final public boolean isBinary() {
-        return getDataTypeDelegate().isXml();
+        return getDataTypeDelegate().isBinary();
     }
     
     /**
@@ -45,12 +39,12 @@ public abstract class DataTypeServerPlugin implements ServerPlugin {
     /**
      * Get the auto responder for the data type
      */
-    public abstract AutoResponder getAutoResponder(Map<?, ?> properties);
+    public abstract AutoResponder getAutoResponder(SerializationProperties serializationProperties, ResponseGenerationProperties generationProperties);
     
     /**
      * Returns whether namespaces should be stripped for the given properties
      */
-    public abstract boolean isStripNamespaces(Map<?, ?> properties);
+    public abstract boolean isStripNamespaces(SerializerProperties properties);
     
     /**
      * Get the batch script from a serializer.

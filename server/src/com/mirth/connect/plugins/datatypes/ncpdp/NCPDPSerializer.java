@@ -25,71 +25,54 @@ import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
+import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
+import com.mirth.connect.util.StringUtil;
 
 public class NCPDPSerializer implements IXMLSerializer {
-    private String segmentDelimiter = "\u001E";
-    private String groupDelimiter = "\u001D";
-    private String fieldDelimiter = "\u001C";
-    private boolean useStrictValidation = false;
-
-    public NCPDPSerializer(Map<?, ?> properties) {
-        if (properties != null) {
-            if (properties.get("segmentDelimiter") != null) {
-                String segDel = convertNonPrintableCharacters((String) properties.get("segmentDelimiter"));
-
-                if (segDel.equals("0x1E")) {
-                    this.segmentDelimiter = "\u001E";
-                } else {
-                    this.segmentDelimiter = segDel;
-                }
-            }
-
-            if (properties.get("groupDelimiter") != null) {
-                String grpDel = convertNonPrintableCharacters((String) properties.get("groupDelimiter"));
-
-                if (grpDel.equals("0x1D")) {
-                    this.groupDelimiter = "\u001D";
-                } else {
-                    this.groupDelimiter = grpDel;
-                }
-            }
-
-            if (properties.get("fieldDelimiter") != null) {
-                String fieldDel = convertNonPrintableCharacters((String) properties.get("fieldDelimiter"));
-
-                if (fieldDel.equals("0x1C")) {
-                    this.fieldDelimiter = "\u001C";
-                } else {
-                    this.fieldDelimiter = fieldDel;
-                }
-            }
-
-            if (properties.get("useStrictValidation") != null) {
-                this.useStrictValidation = Boolean.parseBoolean((String) properties.get("useStrictValidation"));
-            }
-        }
-    }
-
-    public static Map<String, String> getDefaultProperties() {
-        Map<String, String> properties = new HashMap<String, String>();
-        properties.put("segmentDelimiter", "0x1E");
-        properties.put("groupDelimiter", "0x1D");
-        properties.put("fieldDelimiter", "0x1C");
-        properties.put("useStrictValidation", "false");
-        return properties;
-    }
+    private NCPDPSerializationProperties serializationProperties;
+    private NCPDPDeserializationProperties deserializationProperties;
     
+    private String serializationSegmentDelimiter = null;
+    private String serializationGroupDelimiter = null;
+    private String serializationFieldDelimiter = null;
+    private String deserializationSegmentDelimiter = null;
+    private String deserializationGroupDelimiter = null;
+    private String deserializationFieldDelimiter = null;
+    
+    public NCPDPSerializer(SerializerProperties properties) {
+        serializationProperties = (NCPDPSerializationProperties) properties.getSerializationProperties();
+        deserializationProperties = (NCPDPDeserializationProperties) properties.getDeserializationProperties();
+        
+        if (serializationProperties != null) {
+            serializationSegmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
+            serializationGroupDelimiter = StringUtil.unescape(serializationProperties.getGroupDelimiter());
+            serializationFieldDelimiter = StringUtil.unescape(serializationProperties.getFieldDelimiter());
+        }
+        
+        if (deserializationProperties != null) {
+            deserializationSegmentDelimiter = StringUtil.unescape(deserializationProperties.getSegmentDelimiter());
+            deserializationGroupDelimiter = StringUtil.unescape(deserializationProperties.getGroupDelimiter());
+            deserializationFieldDelimiter = StringUtil.unescape(deserializationProperties.getFieldDelimiter());
+        }
+    }
+
     @Override
-    public boolean isTransformerRequired() {
-        boolean transformerRequired = false;
-        //TODO determine which properties are required for transformer
-        if (!segmentDelimiter.equals("\u001E") || !groupDelimiter.equals("\u001D") || !fieldDelimiter.equals("\u001C") || useStrictValidation) {
-            transformerRequired = true;
+    public boolean isSerializationRequired(boolean toXml) {
+        boolean serializationRequired = false;
+        
+        if (toXml) {
+            if (!serializationProperties.getSegmentDelimiter().equals("0x1E") || !serializationProperties.getGroupDelimiter().equals("0x1D") || !serializationProperties.getFieldDelimiter().equals("0x1C")) {
+                serializationRequired = true;
+            }
+        } else {
+            if (!deserializationProperties.getSegmentDelimiter().equals("0x1E") || !deserializationProperties.getGroupDelimiter().equals("0x1D") || !deserializationProperties.getFieldDelimiter().equals("0x1C") || deserializationProperties.isUseStrictValidation()) {
+                serializationRequired = true;
+            }
         }
 
-        return transformerRequired;
+        return serializationRequired;
     }
     
     @Override
@@ -116,10 +99,10 @@ public class NCPDPSerializer implements IXMLSerializer {
 
         try {
             XMLReader reader = XMLReaderFactory.createXMLReader();
-            NCPDPXMLHandler handler = new NCPDPXMLHandler(segmentDelimiter, groupDelimiter, fieldDelimiter, version);
+            NCPDPXMLHandler handler = new NCPDPXMLHandler(deserializationSegmentDelimiter, deserializationGroupDelimiter, deserializationFieldDelimiter, version);
             reader.setContentHandler(handler);
 
-            if (useStrictValidation) {
+            if (deserializationProperties.isUseStrictValidation()) {
                 reader.setFeature("http://xml.org/sax/features/validation", true);
                 reader.setFeature("http://apache.org/xml/features/validation/schema", true);
                 reader.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true);
@@ -142,7 +125,7 @@ public class NCPDPSerializer implements IXMLSerializer {
     @Override
     public String toXML(String source) throws SerializerException {
         try {
-            NCPDPReader ncpdpReader = new NCPDPReader(segmentDelimiter, groupDelimiter, fieldDelimiter);
+            NCPDPReader ncpdpReader = new NCPDPReader(serializationSegmentDelimiter, serializationGroupDelimiter, serializationFieldDelimiter);
             StringWriter stringWriter = new StringWriter();
             XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
             ncpdpReader.setContentHandler(serializer);
@@ -193,7 +176,4 @@ public class NCPDPSerializer implements IXMLSerializer {
         return metadata;
     }
 
-    private String convertNonPrintableCharacters(String delimiter) {
-        return delimiter.replaceAll("\\\\r", "\r").replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
-    }
 }

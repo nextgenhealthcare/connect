@@ -3,8 +3,9 @@ package com.mirth.connect.plugins.datatypes.hl7v3;
 import org.syntax.jedit.tokenmarker.TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.MessageVocabulary;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 
@@ -18,11 +19,6 @@ public class HL7V3DataTypeClientPlugin extends DataTypeClientPlugin {
     @Override
     public String getDisplayName() {
         return "HL7 v3.x";
-    }
-
-    @Override
-    public Object getBeanProperties() {
-        return new HL7V3Properties();
     }
 
     @Override
@@ -70,5 +66,10 @@ public class HL7V3DataTypeClientPlugin extends DataTypeClientPlugin {
     @Override
     protected DataTypeDelegate getDataTypeDelegate() {
         return dataTypeDelegate;
+    }
+
+    @Override
+    public DataTypeProperties getDefaultProperties() {
+        return new HL7V3DataTypeProperties();
     }
 }

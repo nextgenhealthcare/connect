@@ -11,7 +11,6 @@ package com.mirth.connect.plugins.datatypes.hl7v2;
 
 import java.io.CharArrayReader;
 import java.io.Reader;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -28,30 +27,46 @@ import com.mirth.connect.donkey.model.message.AutoResponder;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.model.datatype.ResponseGenerationProperties;
+import com.mirth.connect.model.datatype.SerializationProperties;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.util.StringUtil;
 
 public class HL7v2AutoResponder implements AutoResponder {
 
     private Logger logger = Logger.getLogger(getClass());
-    private Map<?, ?> properties;
+    private HL7v2SerializationProperties serializationProperties;
+    private HL7v2ResponseGenerationProperties generationProperties;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    
+    private String serializationSegmentDelimiter = null;
+    private String deserializationSegmentDelimiter = null;
 
     public HL7v2AutoResponder() {
-        this(null);
+        this(null, null);
     }
 
-    public HL7v2AutoResponder(Map<?, ?> properties) {
-        this.properties = properties;
+    public HL7v2AutoResponder(SerializationProperties serializationProperties, ResponseGenerationProperties generationProperties) {
+        this.serializationProperties = (HL7v2SerializationProperties) serializationProperties;
+        this.generationProperties = (HL7v2ResponseGenerationProperties) generationProperties;
+        
+        if (this.serializationProperties != null) {
+            serializationSegmentDelimiter = StringUtil.unescape(this.serializationProperties.getSegmentDelimiter());
+        }
+        if (this.generationProperties != null) {
+            deserializationSegmentDelimiter = StringUtil.unescape(this.generationProperties.getSegmentDelimiter());
+        }
     }
     
     @Override
     public Response getResponse(Status status, String message, ConnectorMessage connectorMessage) {
-        HL7v2DataTypeProperties hl7Properties = getReplacedHL7Properties(connectorMessage);
+        HL7v2ResponseGenerationProperties hl7Properties = getReplacedHL7Properties(connectorMessage);
         return generateACK(status, message, hl7Properties);
     }
 
-    private HL7v2DataTypeProperties getReplacedHL7Properties(ConnectorMessage connectorMessage) {
-        HL7v2DataTypeProperties hl7v2Properties = new HL7v2DataTypeProperties(properties);
+    private HL7v2ResponseGenerationProperties getReplacedHL7Properties(ConnectorMessage connectorMessage) {
+        // Create a new properties object
+        HL7v2ResponseGenerationProperties hl7v2Properties = new HL7v2ResponseGenerationProperties(generationProperties);
 
         // Replace ACK properties
         hl7v2Properties.setSuccessfulACKCode(replacer.replaceValues(hl7v2Properties.getSuccessfulACKCode(), connectorMessage));
@@ -64,7 +79,7 @@ public class HL7v2AutoResponder implements AutoResponder {
         return hl7v2Properties;
     }
 
-    private Response generateACK(Status status, String hl7Message, HL7v2DataTypeProperties hl7v2Properties) {
+    private Response generateACK(Status status, String hl7Message, HL7v2ResponseGenerationProperties hl7v2Properties) {
         boolean errorOnly = false;
         boolean always = false;
         boolean successOnly = false;
@@ -95,14 +110,13 @@ public class HL7v2AutoResponder implements AutoResponder {
                     Document doc = builder.parse(new InputSource(reader));
                     msh15 = msh15Query.evaluate(doc);
                 } else { // ER7
-                    String segmentDelimiter = hl7v2Properties.getInputSegmentDelimiter();
                     char fieldDelim = hl7Message.charAt(3); // Usually |
                     char componentDelim = hl7Message.charAt(4); // Usually ^
 
                     Pattern fieldPattern = Pattern.compile(Pattern.quote(String.valueOf(fieldDelim)));
                     Pattern componentPattern = Pattern.compile(Pattern.quote(String.valueOf(componentDelim)));
 
-                    String mshString = hl7Message.split(segmentDelimiter)[0];
+                    String mshString = hl7Message.split(serializationSegmentDelimiter)[0];
                     String[] mshFields = fieldPattern.split(mshString);
 
                     if (mshFields.length > 14) {
@@ -148,7 +162,7 @@ public class HL7v2AutoResponder implements AutoResponder {
                 ackMessage = hl7v2Properties.getSuccessfulACKMessage();
             }
 
-            ACK = new ACKGenerator().generateAckResponse(hl7Message, isXML, ackCode, ackMessage);
+            ACK = new ACKGenerator().generateAckResponse(hl7Message, isXML, ackCode, ackMessage, "yyyyMMddHHmmss", new String(), deserializationSegmentDelimiter);
             logger.debug("ACK Generated: " + ACK);
         } catch (Exception e) {
             logger.warn("Error generating ACK.", e);

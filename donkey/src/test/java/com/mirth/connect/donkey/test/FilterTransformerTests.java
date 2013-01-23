@@ -96,7 +96,7 @@ public class FilterTransformerTests {
 
         class FailingTestSerializer implements XmlSerializer {
             @Override
-            public boolean isTransformerRequired() {
+            public boolean isSerializationRequired(boolean isXml) {
                 return false;
             }
             

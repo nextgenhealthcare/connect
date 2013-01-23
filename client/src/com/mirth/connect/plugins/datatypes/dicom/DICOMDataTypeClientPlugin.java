@@ -4,8 +4,9 @@ import org.syntax.jedit.tokenmarker.TokenMarker;
 import org.w3c.dom.Element;
 
 import com.mirth.connect.donkey.util.Base64Util;
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.MessageVocabulary;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 
@@ -19,11 +20,6 @@ public class DICOMDataTypeClientPlugin extends DataTypeClientPlugin {
     @Override
     public String getDisplayName() {
         return "DICOM";
-    }
-
-    @Override
-    public Object getBeanProperties() {
-        return null;
     }
 
     @Override
@@ -89,6 +85,11 @@ public class DICOMDataTypeClientPlugin extends DataTypeClientPlugin {
     @Override
     protected DataTypeDelegate getDataTypeDelegate() {
         return dataTypeDelegate;
+    }
+
+    @Override
+    public DataTypeProperties getDefaultProperties() {
+        return new DICOMDataTypeProperties();
     }
 
 }

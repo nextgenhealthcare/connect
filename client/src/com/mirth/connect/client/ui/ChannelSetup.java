@@ -26,15 +26,13 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
-import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -44,7 +42,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,6 +49,8 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
+import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.editors.filter.FilterPane;
@@ -76,6 +75,7 @@ import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.attachments.AttachmentHandlerFactory;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.util.PropertyVerifier;
 
@@ -293,8 +293,8 @@ public class ChannelSetup extends javax.swing.JPanel {
                 // Set the default inbound and outbound dataType and properties
                 String dataType = currentChannel.getSourceConnector().getTransformer().getOutboundDataType();
                 // Use a different properties object for the inbound and outbound
-                Properties defaultInboundProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties());
-                Properties defaultOutboundProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties());
+                DataTypeProperties defaultInboundProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
+                DataTypeProperties defaultOutboundProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
 
                 connector.getTransformer().setInboundDataType(dataType);
                 connector.getTransformer().setInboundProperties(defaultInboundProperties);
@@ -555,8 +555,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
         
         // Use a different properties object for the inbound and outbound
-        Properties defaultInboundProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(defaultDataType).getDefaultProperties());
-        Properties defaultOutboundProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(defaultDataType).getDefaultProperties());
+        DataTypeProperties defaultInboundProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(defaultDataType).getDefaultProperties();
+        DataTypeProperties defaultOutboundProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(defaultDataType).getDefaultProperties();
 
         sourceTransformer.setInboundDataType(defaultDataType);
         sourceTransformer.setInboundProperties(defaultInboundProperties);
@@ -1069,7 +1069,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
 
         if (sourceTransformer.getInboundProperties() == null) {
-            Properties defaultProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(sourceTransformer.getInboundDataType()).getDefaultProperties());
+            DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(sourceTransformer.getInboundDataType()).getDefaultProperties();
             sourceTransformer.setInboundProperties(defaultProperties);
         }
 
@@ -1078,7 +1078,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
 
         if (sourceTransformer.getOutboundProperties() == null) {
-            Properties defaultProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(sourceTransformer.getOutboundDataType()).getDefaultProperties());
+            DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(sourceTransformer.getOutboundDataType()).getDefaultProperties();
             sourceTransformer.setOutboundProperties(defaultProperties);
         }
 
@@ -1090,7 +1090,8 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
 
             if (destinationTransformer.getInboundProperties() == null) {
-                destinationTransformer.setInboundProperties(sourceTransformer.getOutboundProperties());
+                DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(destinationTransformer.getInboundDataType()).getDefaultProperties();
+                destinationTransformer.setInboundProperties(defaultProperties);
             }
 
             if (destinationTransformer.getOutboundDataType() == null) {
@@ -1098,7 +1099,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
 
             if (destinationTransformer.getOutboundProperties() == null) {
-                Properties defaultProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(destinationTransformer.getOutboundDataType()).getDefaultProperties());
+                DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(destinationTransformer.getOutboundDataType()).getDefaultProperties();
                 destinationTransformer.setOutboundProperties(defaultProperties);
             }
         }
@@ -2305,6 +2306,8 @@ public class ChannelSetup extends javax.swing.JPanel {
             
         }
         
+        metaDataTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        metaDataTable.setDragEnabled(false);
         metaDataTable.setSortable(false);
         metaDataTable.getTableHeader().setReorderingAllowed(false);
         metaDataTable.setModel(model);
@@ -2323,9 +2326,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         metaDataTable.getColumnModel().getColumn(metaDataTable.getColumnModel().getColumnIndex(METADATA_MAPPING_COLUMN_NAME)).setCellEditor(new AlphaNumericCellEditor());
         
         TableColumn column = metaDataTable.getColumnModel().getColumn(metaDataTable.getColumnModel().getColumnIndex(METADATA_TYPE_COLUMN_NAME));
-        DefaultCellEditor cellEditor = new DefaultCellEditor(new JComboBox(MetaDataColumnType.values()));
-        cellEditor.setClickCountToStart(2);
-        column.setCellEditor(cellEditor);
+        column.setCellRenderer(new MirthComboBoxTableCellRenderer(MetaDataColumnType.values()));
+        column.setCellEditor(new MirthComboBoxTableCellEditor(metaDataTable, MetaDataColumnType.values(), 1, false, null));
         column.setMinWidth(100);
         column.setMaxWidth(100);
         
@@ -2856,7 +2858,7 @@ public class ChannelSetup extends javax.swing.JPanel {
      */
     public void checkAndSetXmlDataType() {
         if (requiresXmlDataType() && !currentChannel.getSourceConnector().getTransformer().getInboundDataType().equals(UIConstants.DATATYPE_XML)) {
-            Properties defaultProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(UIConstants.DATATYPE_XML).getDefaultProperties());
+            DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(UIConstants.DATATYPE_XML).getDefaultProperties();
 
             currentChannel.getSourceConnector().getTransformer().setInboundDataType(UIConstants.DATATYPE_XML);
             currentChannel.getSourceConnector().getTransformer().setInboundProperties(defaultProperties);

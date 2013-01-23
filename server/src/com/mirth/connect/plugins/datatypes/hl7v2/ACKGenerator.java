@@ -15,26 +15,24 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.model.converters.SerializerFactory;
+import com.mirth.connect.model.datatype.SerializerProperties;
 
 // Supports ACKS from 2.1-2.4
 // 2.5 is supported but the advanced fields in ERR and SFT are not supported
 public class ACKGenerator {
-    private final String DEFAULTDATEFORMAT = "yyyyMMddHHmmss";
     private Logger logger = Logger.getLogger(this.getClass());
 
-    public String generateAckResponse(String message, boolean isXML, String acknowledgementCode, String textMessage) throws Exception {
-        return generateAckResponse(message, isXML, acknowledgementCode, textMessage, DEFAULTDATEFORMAT, new String());
+    public String generateAckResponse(String message, boolean isXML, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
+        return generateAckResponse(message, isXML, acknowledgementCode, textMessage, dateFormat, errorMessage, "\r");
     }
 
-    public String generateAckResponse(String message, boolean isXML, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
+    public String generateAckResponse(String message, boolean isXML, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage, String segmentDelim) throws Exception {
         if (message == null || message.length() < 9) {
             logger.error("Unable to parse, message is null or too short: " + message);
             throw new Exception("Unable to parse, message is null or too short: " + message);
         }
 
         boolean ackIsXML = false;
-        char segmentDelim = '\r';
 
         char fieldDelim = '|'; // Usually |
         char componentDelim = '^'; // Usually ^
@@ -234,7 +232,9 @@ public class ACKGenerator {
         if (ackIsXML) {
             // return an HL7v2 ack in xml using hapi
             try {
-                return SerializerFactory.getHL7Serializer(true, false, false).toXML(ackBuilder.toString());
+                HL7v2SerializationProperties hl7Properties = new HL7v2SerializationProperties();
+                hl7Properties.setUseStrictParser(true);
+                return new ER7Serializer(new SerializerProperties(hl7Properties, null, null)).toXML(ackBuilder.toString());
             } catch (Throwable t) {
                 logger.warn("Cannot create the accept ACK for the message (" + message + ") from [" + ackBuilder.toString() + "] as an HL7 message");
                 return ackBuilder.toString();

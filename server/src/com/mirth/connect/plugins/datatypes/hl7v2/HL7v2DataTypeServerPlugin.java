@@ -1,9 +1,10 @@
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
-import java.util.Map;
-
 import com.mirth.connect.donkey.model.message.AutoResponder;
-import com.mirth.connect.model.DataTypeDelegate;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.ResponseGenerationProperties;
+import com.mirth.connect.model.datatype.SerializationProperties;
+import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 
 public class HL7v2DataTypeServerPlugin extends DataTypeServerPlugin {
@@ -23,21 +24,18 @@ public class HL7v2DataTypeServerPlugin extends DataTypeServerPlugin {
     }
 
     @Override
-    public AutoResponder getAutoResponder(Map<?, ?> properties) {
-        return new HL7v2AutoResponder(properties);
+    public AutoResponder getAutoResponder(SerializationProperties serializationProperties, ResponseGenerationProperties generationProperties) {
+        return new HL7v2AutoResponder(serializationProperties, generationProperties);
     }
 
     @Override
-    public boolean isStripNamespaces(Map<?, ?> properties) {
+    public boolean isStripNamespaces(SerializerProperties properties) {
         boolean stripNamespaces = false;
         
-        if ((properties != null) && Boolean.parseBoolean((String) properties.get("useStrictParser"))) {
-            // If the property has been set, use it, otherwise use the default true
-            if (properties.get("stripNamespaces") != null) {
-                stripNamespaces = Boolean.parseBoolean((String) properties.get("stripNamespaces"));
-            } else {
-                stripNamespaces = true;
-            }
+        HL7v2SerializationProperties hl7Properties = (HL7v2SerializationProperties) properties.getSerializationProperties();
+        
+        if (hl7Properties.isUseStrictParser() && hl7Properties.isStripNamespaces()) {
+            stripNamespaces = true;
         }
         
         return stripNamespaces;

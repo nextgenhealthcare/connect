@@ -1,12 +1,11 @@
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
-import java.awt.Dimension;
-
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.TokenMarker;
 
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.MessageVocabulary;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 
@@ -20,16 +19,6 @@ public class HL7v2DataTypeClientPlugin extends DataTypeClientPlugin {
     @Override
     public String getDisplayName() {
         return "HL7 v2.x";
-    }
-
-    @Override
-    public Object getBeanProperties() {
-        return new HL7v2Properties();
-    }
-    
-    @Override
-    public Dimension getBeanDimensions() {
-        return new Dimension(420, 370);
     }
 
     @Override
@@ -77,6 +66,11 @@ public class HL7v2DataTypeClientPlugin extends DataTypeClientPlugin {
     @Override
     protected DataTypeDelegate getDataTypeDelegate() {
         return dataTypeDelegate;
+    }
+
+    @Override
+    public DataTypeProperties getDefaultProperties() {
+        return new HL7v2DataTypeProperties();
     }
 
 }

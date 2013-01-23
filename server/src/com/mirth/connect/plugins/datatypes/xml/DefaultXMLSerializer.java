@@ -17,33 +17,27 @@ import org.w3c.dom.Document;
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
-
+import com.mirth.connect.model.datatype.SerializerProperties;
 
 public class DefaultXMLSerializer implements IXMLSerializer {
 
-	private boolean stripNamespaces = true;
+	private XMLSerializationProperties serializationProperties;
 	
-	public static Map<String, String> getDefaultProperties() {
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("stripNamespaces", "true");
-		return map;
-	}
-	
-	public DefaultXMLSerializer(Map xmlProperties) {
-		if (xmlProperties != null && xmlProperties.get("stripNamespaces") != null) {
-			this.stripNamespaces = Boolean.parseBoolean((String) xmlProperties.get("stripNamespaces"));
-		}
+	public DefaultXMLSerializer(SerializerProperties properties) {
+	    serializationProperties = (XMLSerializationProperties) properties.getSerializationProperties();
 	}
 	
 	@Override
-    public boolean isTransformerRequired() {
-    	boolean transformerRequired = false;
-    	//TODO determine which properties are required for transformer
-    	if (!stripNamespaces) {
-    		transformerRequired = true;
-    	}
+    public boolean isSerializationRequired(boolean toXml) {
+    	boolean serializationRequired = false;
+
+    	if (toXml) {
+            if (!serializationProperties.isStripNamespaces()) {
+                serializationRequired = true;
+            }
+        }
     	
-    	return transformerRequired;
+    	return serializationRequired;
     }
 	
 	@Override

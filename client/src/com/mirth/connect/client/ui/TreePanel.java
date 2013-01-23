@@ -24,7 +24,6 @@ import java.io.StringReader;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -52,6 +51,7 @@ import com.mirth.connect.client.ui.components.MirthTreeNode;
 import com.mirth.connect.client.ui.editors.MessageTreePanel;
 import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.MessageVocabulary;
 import com.mirth.connect.model.util.MessageVocabularyFactory;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
@@ -335,7 +335,7 @@ public class TreePanel extends javax.swing.JPanel {
         PlatformUI.MIRTH_FRAME.stopWorking(workingId);
     }
 
-    public void setMessage(Properties dataTypeProperties, String messageType, String source, String ignoreText, Properties dataProperties) {
+    public void setMessage(DataTypeProperties dataTypeProperties, String messageType, String source, String ignoreText) {
         Document xmlDoc = null;
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder;
@@ -356,7 +356,7 @@ public class TreePanel extends javax.swing.JPanel {
             }
 
             try {
-                serializer = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getSerializer(dataTypeProperties);
+                serializer = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getSerializer(dataTypeProperties.getSerializerProperties());
                 docBuilder = docFactory.newDocumentBuilder();
 
                 String message;

@@ -17,33 +17,27 @@ import org.w3c.dom.Document;
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
-
+import com.mirth.connect.model.datatype.SerializerProperties;
 
 public class HL7V3Serializer implements IXMLSerializer {
+    
+    private HL7V3SerializationProperties serializationProperties;
 	
-	private boolean stripNamespaces = true;
-
-	public static Map<String, String> getDefaultProperties() {
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("stripNamespaces", "true");
-		return map;
-	}
-	
-	public HL7V3Serializer(Map hl7v3Properties) {
-		if (hl7v3Properties != null && hl7v3Properties.get("stripNamespaces") != null) {
-			this.stripNamespaces = Boolean.parseBoolean((String) hl7v3Properties.get("stripNamespaces"));
-		}
+	public HL7V3Serializer(SerializerProperties properties) {
+	    serializationProperties = (HL7V3SerializationProperties) properties.getSerializationProperties();
 	}
 	
 	@Override
-    public boolean isTransformerRequired() {
-        boolean transformerRequired = false;
-        //TODO determine which properties are required for transformer
-        if (!stripNamespaces) {
-            transformerRequired = true;
+    public boolean isSerializationRequired(boolean toXml) {
+        boolean serializationRequired = false;
+        
+        if (toXml) {
+            if (!serializationProperties.isStripNamespaces()) {
+                serializationRequired = true;
+            }
         }
 
-        return transformerRequired;
+        return serializationRequired;
     }
 	
 	@Override

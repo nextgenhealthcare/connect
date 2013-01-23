@@ -22,20 +22,19 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.TokenMarker;
-import com.mirth.connect.client.ui.editors.BoundPropertiesSheetDialog;
+import com.mirth.connect.client.ui.editors.DataTypePropertiesDialog;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 
 public class TemplatePanel extends javax.swing.JPanel implements DropTargetListener {
@@ -45,9 +44,10 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     private TreePanel treePanel;
     private String currentMessage = "";
     private String currentDataType;
-    private Properties dataProperties;
+    private DataTypeProperties dataProperties;
     private Timer timer;
     private String lastWorkingId = null;
+    private boolean inbound = false;
 
     public TemplatePanel() {
         initComponents();
@@ -170,6 +170,10 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         dataTypeComboBox.setEnabled(dataTypeEnabled);
         properties.setEnabled(propertiesEnabled);
     }
+    
+    public void setInbound(boolean inbound) {
+        this.inbound = inbound;
+    }
 
     public void setTreePanel(TreePanel tree) {
         this.treePanel = tree;
@@ -193,7 +197,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                     // Catch it so that we can still stop the "Parsing..." working status.
                     // TODO: Fix the possible null pointers inside of the setMessage method.
                     try {
-                        treePanel.setMessage(dataProperties, (String) dataTypeComboBox.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
+                        treePanel.setMessage(dataProperties, (String) dataTypeComboBox.getSelectedItem(), message, DEFAULT_TEXT);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -253,15 +257,15 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         return (String) dataTypeComboBox.getSelectedItem();
     }
 
-    public Properties getDataProperties() {
+    public DataTypeProperties getDataProperties() {
         return dataProperties;
     }
 
-    public void setDataProperties(Properties p) {
+    public void setDataProperties(DataTypeProperties p) {
         if (p != null) {
             dataProperties = p;
         } else {
-            dataProperties = new Properties();
+            dataProperties = null;
         }
     }
 
@@ -397,13 +401,10 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
         currentMessage = "";
         
-        String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get((String) dataTypeComboBox.getSelectedItem());
+        String displayName = (String) dataTypeComboBox.getSelectedItem();
         
-        DataTypeClientPlugin dataTypeClientPlugin = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType);
-        Object beanProperties = dataTypeClientPlugin.getBeanProperties();
-        
-        if (beanProperties != null) {
-            new BoundPropertiesSheetDialog(dataProperties, beanProperties, dataTypeClientPlugin.getBeanDimensions());
+        if (dataProperties != null) {
+            new DataTypePropertiesDialog(inbound, null, displayName, dataProperties);
         }
         
         updateText();
@@ -414,18 +415,12 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
         currentMessage = "";
         
-        // Only conditionally enable the properties if the data type is enabled.
-        if (dataTypeComboBox.isEnabled()) {
-            String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get((String) dataTypeComboBox.getSelectedItem());
-            properties.setEnabled(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getBeanProperties() != null);
-        }
-        
         // Only set the default properties if the data type is changing
         if (!currentDataType.equals(dataTypeComboBox.getSelectedItem())) {
             // Set the default properties for the data type selected
             for (String dataType : LoadedExtensions.getInstance().getDataTypePlugins().keySet()) {
                 if (PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(dataType).equals(dataTypeComboBox.getSelectedItem())) {
-                    dataProperties = MapUtils.toProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties());
+                    dataProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
                 }
             }
         }

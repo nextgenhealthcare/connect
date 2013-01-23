@@ -11,23 +11,44 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import javax.swing.JScrollPane;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.prefs.Preferences;
 
-import com.mirth.connect.client.ui.components.DataTypesCellEditor;
-import com.mirth.connect.client.ui.components.DataTypesCellRenderer;
+import javax.swing.JComboBox;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
+
+import com.mirth.connect.client.ui.components.MirthComboBoxTableCellEditor;
+import com.mirth.connect.client.ui.components.MirthComboBoxTableCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.Transformer;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class DataTypesDialog extends javax.swing.JDialog {
 
     private Frame parent;
     private final String[] columnNames = {"Connector", "Inbound", "Outbound"};
+    private Map<Integer, Transformer> transformers;
 
     public DataTypesDialog() {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        
+        inboundPropertiesPanel.setInbound(true);
+        outboundPropertiesPanel.setInbound(false);
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
@@ -40,41 +61,73 @@ public class DataTypesDialog extends javax.swing.JDialog {
         } else {
             setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
-
+        
+        transformers = new HashMap<Integer, Transformer>();
+        
         makeTables();
+        connectorTable.getSelectionModel().setSelectionInterval(0, 0);
+        
+        addWindowListener(new WindowAdapter() {
 
+            @Override
+            public void windowClosing(WindowEvent e) {
+                inboundPropertiesPanel.save();
+                outboundPropertiesPanel.save();
+            }
+            
+        });
+        
         setVisible(true);
     }
 
     public void makeTables() {
-        updateSourceTable();
-        updateDestinationsTable();
+        updateConnectorTable();
 
-        makeTable(sourceConnectorTable, sourceConnectorTablePane, true);
-        makeTable(destinationConnectorTable, destinationConnectorTablePane, false);
+        makeTable(connectorTable, connectorTablePane);
     }
 
-    public void makeTable(MirthTable table, JScrollPane scrollPane, boolean source) {
-        int dataTypeColumnWidth = 125;
+    public void makeTable(MirthTable table, JScrollPane scrollPane) {
+        int dataTypeColumnWidth = 100;
         
         table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         String[] dataTypes = new String[parent.dataTypeToDisplayName.values().size()];
         parent.dataTypeToDisplayName.values().toArray(dataTypes);
+        
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
-        table.getColumnModel().getColumn(1).setCellEditor(new DataTypesCellEditor(table, dataTypes, 1, false, source, true, this));
-        table.getColumnModel().getColumn(1).setCellRenderer(new DataTypesCellRenderer(dataTypes, source, true));
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    Transformer transformer = transformers.get(connectorTable.getSelectedRow());
+                    // Model row should always be the same as table row for this table.
+                    int modelRow = connectorTable.convertRowIndexToModel(connectorTable.getSelectedRow());
+                    String transformerName = (String) connectorTable.getModel().getValueAt(modelRow, 0);
+                    String inboundDataType = (String) connectorTable.getModel().getValueAt(modelRow, 1);
+                    String outboundDataType = (String) connectorTable.getModel().getValueAt(modelRow, 2);
+                    
+                    inboundPropertiesPanel.setTitle(transformerName);
+                    inboundPropertiesPanel.setDataTypeProperties(inboundDataType, transformer.getInboundProperties());
+                    
+                    outboundPropertiesPanel.setTitle(transformerName);
+                    outboundPropertiesPanel.setDataTypeProperties(outboundDataType, transformer.getOutboundProperties());
+                }
+            }
+            
+        });
+
+        table.getColumnModel().getColumn(1).setCellEditor(new MirthComboBoxTableCellEditor(table, dataTypes, 1, false, new DataTypeComboBoxActionListener(true)));
+        table.getColumnModel().getColumn(1).setCellRenderer(new MirthComboBoxTableCellRenderer(dataTypes));
         
-        table.getColumnModel().getColumn(2).setCellEditor(new DataTypesCellEditor(table, dataTypes, 1, false, source, false, this));
-        table.getColumnModel().getColumn(2).setCellRenderer(new DataTypesCellRenderer(dataTypes, source, false));
+        table.getColumnModel().getColumn(2).setCellEditor(new MirthComboBoxTableCellEditor(table, dataTypes, 1, false, new DataTypeComboBoxActionListener(false)));
+        table.getColumnModel().getColumn(2).setCellRenderer(new MirthComboBoxTableCellRenderer(dataTypes));
         
-        table.setRowSelectionAllowed(false);
         table.setRowHeight(UIConstants.ROW_HEIGHT);
         table.setSortable(false);
         table.setOpaque(true);
         table.setDragEnabled(false);
         table.getTableHeader().setReorderingAllowed(false);
-        table.setFocusable(false);
 
         table.getColumnExt(0).setMinWidth(UIConstants.MIN_WIDTH);
         table.getColumnExt(0).setResizable(false);
@@ -86,63 +139,112 @@ public class DataTypesDialog extends javax.swing.JDialog {
         table.getColumnExt(2).setMaxWidth(dataTypeColumnWidth);
         table.getColumnExt(2).setMinWidth(dataTypeColumnWidth);
         table.getColumnExt(2).setResizable(false);
+        
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            table.setHighlighters(highlighter);
+        }
 
         scrollPane.setViewportView(table);
     }
+    
+    private class DataTypeComboBoxActionListener implements ActionListener {
+        
+        private boolean inbound;
+        
+        public DataTypeComboBoxActionListener(boolean inbound) {
+            this.inbound = inbound;
+        }
 
-    public void updateSourceTable() {
-        Object[][] tableData = null;
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (connectorTable.getEditingRow() != -1) {
+                int selectedRow = connectorTable.convertRowIndexToModel(connectorTable.getEditingRow());
+                String dataTypeDisplayName = (String)((JComboBox)e.getSource()).getSelectedItem();
+                String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataTypeDisplayName);
+                DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
+                Transformer transformer = transformers.get(selectedRow);
 
-        Channel currentChannel = parent.channelEditPanel.currentChannel;
-
-        tableData = new Object[1][3];
-
-        Connector sourceConnector = currentChannel.getSourceConnector();
-
-        tableData[0][0] = "Source Connector";
-        tableData[0][1] = parent.dataTypeToDisplayName.get(sourceConnector.getTransformer().getInboundDataType());
-        tableData[0][2] = parent.dataTypeToDisplayName.get(sourceConnector.getTransformer().getOutboundDataType());
-
-        sourceConnectorTable.setModel(new RefreshTableModel(tableData, columnNames) {
-
-            boolean[] canEdit = new boolean[]{false, true, true};
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit[columnIndex];
+                if (inbound) {
+                    if (!transformer.getInboundDataType().equals(dataType)) {
+                        transformer.setInboundDataType(dataType);
+                        transformer.setInboundProperties(defaultProperties);
+                        inboundPropertiesPanel.setDataTypeProperties(dataTypeDisplayName, transformer.getInboundProperties());
+                    }
+                } else {
+                    if (!transformer.getOutboundDataType().equals(dataType)) {
+                        transformer.setOutboundDataType(dataType);
+                        transformer.setOutboundProperties(defaultProperties);
+                        outboundPropertiesPanel.setDataTypeProperties(dataTypeDisplayName, transformer.getOutboundProperties());
+                    }
+                    
+                    if (selectedRow == 0) {
+                        // Also set the inbound data type and properties for all destinations
+                        for (int row = 1; row < connectorTable.getRowCount(); row++) {
+                            // Get a new properties object so they aren't all using the same one
+                            defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
+                            
+                            connectorTable.getModel().setValueAt(dataTypeDisplayName, row, 1);
+                            transformer = transformers.get(row);
+                            transformer.setInboundDataType(dataType);
+                            transformer.setInboundProperties(defaultProperties);
+                        }
+                    }
+                }
             }
-        });
+            
+            PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
+        }
+        
     }
 
-    public void updateDestinationsTable() {
+    public void updateConnectorTable() {
         Object[][] tableData = null;
 
         Channel currentChannel = parent.channelEditPanel.currentChannel;
 
-        tableData = new Object[currentChannel.getDestinationConnectors().size()][3];
+        tableData = new Object[currentChannel.getDestinationConnectors().size() + 1][3];
 
         int tableRow = 0;
+        
+        Connector sourceConnector = currentChannel.getSourceConnector();
+        transformers.put(tableRow, sourceConnector.getTransformer());
+        
+        tableData[tableRow][0] = "Source Connector";
+        tableData[tableRow][1] = parent.dataTypeToDisplayName.get(sourceConnector.getTransformer().getInboundDataType());
+        tableData[tableRow][2] = parent.dataTypeToDisplayName.get(sourceConnector.getTransformer().getOutboundDataType());
+        
+        tableRow++;
 
         for (Connector destinationConnector : currentChannel.getDestinationConnectors()) {
+            transformers.put(tableRow, destinationConnector.getTransformer());
+            
             tableData[tableRow][0] = destinationConnector.getName();
             tableData[tableRow][1] = parent.dataTypeToDisplayName.get(currentChannel.getSourceConnector().getTransformer().getOutboundDataType());
             tableData[tableRow][2] = parent.dataTypeToDisplayName.get(destinationConnector.getTransformer().getOutboundDataType());
             tableRow++;
         }
         
-        destinationConnectorTable.setModel(new RefreshTableModel(tableData, columnNames) {
+        connectorTable.setModel(new RefreshTableModel(tableData, columnNames) {
 
             boolean[] canEdit = new boolean[]{false, true, true};
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit[columnIndex];
+                boolean editable;
+                
+                if (rowIndex == 0) {
+                    if (columnIndex == 1 && PlatformUI.MIRTH_FRAME.channelEditPanel.requiresXmlDataType()) {
+                        editable = false;
+                    } else {
+                        editable = canEdit[columnIndex];
+                    }
+                } else {
+                    editable = (columnIndex == 2);
+                }
+                
+                return editable;
             }
         });
-    }
-    
-    public void updateDestinationInboundDataType(String dataType) {
-        for (int row = 0; row < destinationConnectorTable.getRowCount(); row++) {
-            destinationConnectorTable.setValueAt(dataType, row, 1);
-        }
     }
 
     /**
@@ -158,12 +260,12 @@ public class DataTypesDialog extends javax.swing.JDialog {
         jPanel1 = new javax.swing.JPanel();
         closeButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
-        jPanel2 = new javax.swing.JPanel();
-        sourceConnectorTablePane = new javax.swing.JScrollPane();
-        sourceConnectorTable = new com.mirth.connect.client.ui.components.MirthTable();
-        jPanel3 = new javax.swing.JPanel();
-        destinationConnectorTablePane = new javax.swing.JScrollPane();
-        destinationConnectorTable = new com.mirth.connect.client.ui.components.MirthTable();
+        configurationPane = new javax.swing.JPanel();
+        connectorTablePane = new javax.swing.JScrollPane();
+        connectorTable = new com.mirth.connect.client.ui.components.MirthTable();
+        jPanel5 = new javax.swing.JPanel();
+        inboundPropertiesPanel = new com.mirth.connect.client.ui.DataTypePropertiesPanel();
+        outboundPropertiesPanel = new com.mirth.connect.client.ui.DataTypePropertiesPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Set Data Types");
@@ -178,78 +280,62 @@ public class DataTypesDialog extends javax.swing.JDialog {
             }
         });
 
-        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Source Connector"));
+        configurationPane.setBackground(new java.awt.Color(255, 255, 255));
+        configurationPane.setBorder(javax.swing.BorderFactory.createTitledBorder("Configuration"));
 
-        sourceConnectorTable.setModel(new javax.swing.table.DefaultTableModel(
+        connectorTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             },
             new String [] {
-                "Connector", "Inbound", "Properties", "Outbound", "Properties"
+                "Connector", "Inbound", "Outbound"
             }
         ));
-        sourceConnectorTablePane.setViewportView(sourceConnectorTable);
+        connectorTablePane.setViewportView(connectorTable);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(sourceConnectorTablePane, javax.swing.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE)
+        javax.swing.GroupLayout configurationPaneLayout = new javax.swing.GroupLayout(configurationPane);
+        configurationPane.setLayout(configurationPaneLayout);
+        configurationPaneLayout.setHorizontalGroup(
+            configurationPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(connectorTablePane)
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(sourceConnectorTablePane, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+        configurationPaneLayout.setVerticalGroup(
+            configurationPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(configurationPaneLayout.createSequentialGroup()
+                .addComponent(connectorTablePane, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 114, Short.MAX_VALUE))
         );
 
-        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Destination Connectors"));
-
-        destinationConnectorTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "Connector", "Inbound", "Properties", "Outbound", "Properties"
-            }
-        ));
-        destinationConnectorTablePane.setViewportView(destinationConnectorTable);
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(destinationConnectorTablePane, javax.swing.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE)
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(destinationConnectorTablePane, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
-        );
+        jPanel5.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel5.setLayout(new java.awt.GridLayout(0, 2));
+        jPanel5.add(inboundPropertiesPanel);
+        jPanel5.add(outboundPropertiesPanel);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(closeButton)
-                    .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 814, Short.MAX_VALUE)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(closeButton))
+                    .addComponent(configurationPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(configurationPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 498, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -277,13 +363,13 @@ private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeButton;
-    private com.mirth.connect.client.ui.components.MirthTable destinationConnectorTable;
-    private javax.swing.JScrollPane destinationConnectorTablePane;
+    private javax.swing.JPanel configurationPane;
+    private com.mirth.connect.client.ui.components.MirthTable connectorTable;
+    private javax.swing.JScrollPane connectorTablePane;
+    private com.mirth.connect.client.ui.DataTypePropertiesPanel inboundPropertiesPanel;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JSeparator jSeparator1;
-    private com.mirth.connect.client.ui.components.MirthTable sourceConnectorTable;
-    private javax.swing.JScrollPane sourceConnectorTablePane;
+    private com.mirth.connect.client.ui.DataTypePropertiesPanel outboundPropertiesPanel;
     // End of variables declaration//GEN-END:variables
 }

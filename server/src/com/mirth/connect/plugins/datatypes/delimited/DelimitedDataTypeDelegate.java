@@ -1,9 +1,8 @@
 package com.mirth.connect.plugins.datatypes.delimited;
 
-import java.util.Map;
-
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.SerializerProperties;
 
 public class DelimitedDataTypeDelegate implements DataTypeDelegate {
     
@@ -13,13 +12,8 @@ public class DelimitedDataTypeDelegate implements DataTypeDelegate {
     }
     
     @Override
-    public IXMLSerializer getSerializer(Map<?, ?> properties) {
+    public IXMLSerializer getSerializer(SerializerProperties properties) {
         return new DelimitedSerializer(properties);
-    }
-
-    @Override
-    public Map<String, String> getDefaultProperties() {
-        return DelimitedSerializer.getDefaultProperties();
     }
 
     @Override

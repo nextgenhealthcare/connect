@@ -11,12 +11,12 @@ package com.mirth.connect.client.ui.editors;
 
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
-import java.util.Properties;
 
 import javax.swing.border.TitledBorder;
 
 import com.mirth.connect.client.ui.TemplatePanel;
 import com.mirth.connect.client.ui.TreePanel;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class MessageTemplatePanel extends javax.swing.JPanel {
 
@@ -30,6 +30,9 @@ public class MessageTemplatePanel extends javax.swing.JPanel {
     public MessageTemplatePanel(MirthEditorPane m) {
         this.parent = m;
         initComponents();
+        
+        templatePanelInbound.setInbound(true);
+        templatePanelOutbound.setInbound(false);
 
         try {
             split.addHierarchyListener(new HierarchyListener() {
@@ -124,19 +127,19 @@ public class MessageTemplatePanel extends javax.swing.JPanel {
         return templatePanelOutbound.getDataType();
     }
 
-    public Properties getInboundDataProperties() {
+    public DataTypeProperties getInboundDataProperties() {
         return templatePanelInbound.getDataProperties();
     }
 
-    public Properties getOutboundDataProperties() {
+    public DataTypeProperties getOutboundDataProperties() {
         return templatePanelOutbound.getDataProperties();
     }
 
-    public void setInboundDataProperties(Properties p) {
+    public void setInboundDataProperties(DataTypeProperties p) {
         templatePanelInbound.setDataProperties(p);
     }
 
-    public void setOutboundDataProperties(Properties p) {
+    public void setOutboundDataProperties(DataTypeProperties p) {
         templatePanelOutbound.setDataProperties(p);
     }
 

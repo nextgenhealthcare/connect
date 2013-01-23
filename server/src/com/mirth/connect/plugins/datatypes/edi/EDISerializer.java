@@ -26,58 +26,55 @@ import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
+import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
+import com.mirth.connect.util.StringUtil;
 
 public class EDISerializer implements IXMLSerializer {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private String segmentDelim = "~";
-	private String elementDelim = "*";
-	private String subelementDelim = ":";
+	private EDISerializationProperties serializationProperties;
+	private EDIDeserializationProperties deserializationProperties;
 	
-	public static Map<String, String> getDefaultProperties() {
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("segmentDelimiter", "~");
-		map.put("elementDelimiter", "*");
-		map.put("subelementDelimiter", ":");
-		return map;
+	private String serializationSegmentDelimiter = null;
+	private String serializationElementDelimiter = null;
+	private String serializationSubelementDelimiter = null;
+	private String deserializationSegmentDelimiter = null;
+    private String deserializationElementDelimiter = null;
+    private String deserializationSubelementDelimiter = null;
+	
+	public EDISerializer(SerializerProperties properties) {
+	    serializationProperties = (EDISerializationProperties) properties.getSerializationProperties();
+	    deserializationProperties = (EDIDeserializationProperties) properties.getDeserializationProperties();
+	    
+	    if (serializationProperties != null) {
+	        serializationElementDelimiter = StringUtil.unescape(serializationProperties.getElementDelimiter());
+	        serializationSubelementDelimiter = StringUtil.unescape(serializationProperties.getSubelementDelimiter());
+            serializationSegmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
+	    }
+	    
+	    if (deserializationProperties != null) {
+	        deserializationElementDelimiter = StringUtil.unescape(deserializationProperties.getElementDelimiter());
+            deserializationSubelementDelimiter = StringUtil.unescape(deserializationProperties.getSubelementDelimiter());
+            deserializationSegmentDelimiter = StringUtil.unescape(deserializationProperties.getSegmentDelimiter());
+        }
 	}
 	
-	public EDISerializer(Map ediProperties) {
-		if (ediProperties == null) {
-			return;
-		}
-		if (ediProperties.get("segmentDelimiter") != null) {
-			this.segmentDelim = convertNonPrintableCharacters((String) ediProperties.get("segmentDelimiter"));
-
-		}
-		if (ediProperties.get("elementDelimiter") != null) {
-			this.elementDelim = convertNonPrintableCharacters((String) ediProperties.get("elementDelimiter"));
-		}
-		if (ediProperties.get("subelementDelimiter") != null) {
-			this.subelementDelim = convertNonPrintableCharacters((String) ediProperties.get("subelementDelimiter"));
-		}
-		return;
-	}
-
-	private String convertNonPrintableCharacters(String delimiter) {
-		return delimiter.replaceAll("\\\\r", "\r").replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
-
-	}
-
-    public EDISerializer() {
-
-    }
-
     @Override
-    public boolean isTransformerRequired() {
-        boolean transformerRequired = false;
-        //TODO determine which properties are required for transformer
-        if (!segmentDelim.equals("~") || !elementDelim.equals("*") || !subelementDelim.equals(":")) {
-            transformerRequired = true;
+    public boolean isSerializationRequired(boolean toXml) {
+        boolean serializationRequired = false;
+        
+        if (toXml) {
+            if (!serializationProperties.getSegmentDelimiter().equals("~") || !serializationProperties.getElementDelimiter().equals("*") || !serializationProperties.getSubelementDelimiter().equals(":") || !serializationProperties.isInferX12Delimiters()) {
+                serializationRequired = true;
+            }
+        } else {
+            if (!deserializationProperties.getSegmentDelimiter().equals("~") || !deserializationProperties.getElementDelimiter().equals("*") || !deserializationProperties.getSubelementDelimiter().equals(":")) {
+                serializationRequired = true;
+            }
         }
 
-        return transformerRequired;
+        return serializationRequired;
     }
 	
     @Override
@@ -93,7 +90,7 @@ public class EDISerializer implements IXMLSerializer {
 		} catch (SAXException e) {
 			throw new SerializerException(e.getMessage(), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
 		}
-		EDIXMLHandler handler = new EDIXMLHandler(segmentDelim, elementDelim, subelementDelim);
+		EDIXMLHandler handler = new EDIXMLHandler(deserializationSegmentDelimiter, deserializationElementDelimiter, deserializationSubelementDelimiter);
 		xr.setContentHandler(handler);
 		xr.setErrorHandler(handler);
 		try {
@@ -108,7 +105,24 @@ public class EDISerializer implements IXMLSerializer {
 	@Override
     public String toXML(String source) throws SerializerException {
         try {
-            EDIReader ediReader = new EDIReader(segmentDelim, elementDelim, subelementDelim);
+            String elementDelimiter = serializationElementDelimiter;
+            String subelementDelimiter = serializationSubelementDelimiter;
+            String segmentDelimiter = serializationSegmentDelimiter;
+            
+            if (serializationProperties.isInferX12Delimiters()) {
+                String x12message = source;
+                if (x12message.startsWith("ISA")) {
+                    elementDelimiter = x12message.charAt(3) + "";
+                    subelementDelimiter = x12message.charAt(104) + "";
+                    segmentDelimiter = x12message.charAt(105) + "";
+                    // hack to handle newlines
+                    if (x12message.charAt(106) == '\n') {
+                        segmentDelimiter = serializationProperties.getSegmentDelimiter() + x12message.charAt(106);
+                    }
+                }
+            }
+            
+            EDIReader ediReader = new EDIReader(segmentDelimiter, elementDelimiter, subelementDelimiter);
             StringWriter stringWriter = new StringWriter();
             XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
             serializer.setEncodeEntities(true);
@@ -122,30 +136,6 @@ public class EDISerializer implements IXMLSerializer {
         
         return new String();
     }
-
-	public String getSegmentDelim() {
-		return segmentDelim;
-	}
-
-	public void setSegmentDelim(String segmentDelim) {
-		this.segmentDelim = segmentDelim;
-	}
-
-	public String getElementDelim() {
-		return elementDelim;
-	}
-
-	public void setElementDelim(String elementDelim) {
-		this.elementDelim = elementDelim;
-	}
-
-	public String getSubelementDelim() {
-		return subelementDelim;
-	}
-
-	public void setSubelementDelim(String subelementDelim) {
-		this.subelementDelim = subelementDelim;
-	}
 
 	@Override
 	public Map<String, String> getMetadataFromDocument(Document document) {

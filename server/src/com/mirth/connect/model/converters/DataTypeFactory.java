@@ -12,13 +12,28 @@ package com.mirth.connect.model.converters;
 import com.mirth.connect.donkey.model.message.AutoResponder;
 import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.model.datatype.DataTypeProperties;
+import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.plugins.DataTypeServerPlugin;
+import com.mirth.connect.server.controllers.ExtensionController;
 
 public class DataTypeFactory {
-
-    public static DataType getDataType(String dataType, XmlSerializer serializer, AutoResponder autoResponder) {
+    
+    public static DataType getDataType(String dataType, DataTypeProperties dataTypeProperties) {
+        // Get the data type plugin
+        DataTypeServerPlugin dataTypePlugin = ExtensionController.getInstance().getDataTypePlugins().get(dataType);
+        
+        // Create the serializer
+        SerializerProperties serializerProperties = dataTypeProperties.getSerializerProperties();
+        XmlSerializer serializer = dataTypePlugin.getSerializer(serializerProperties);
+        
+        // Create the autoresponder
+        AutoResponder autoResponder = dataTypePlugin.getAutoResponder(serializerProperties.getSerializationProperties(), dataTypeProperties.getResponseGenerationProperties());
         if (autoResponder == null) {
             autoResponder = new DefaultAutoResponder();
         }
+        
+        // Return the data type
         return new DataType(dataType, serializer, autoResponder);
     }
 }

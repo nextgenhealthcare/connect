@@ -1,9 +1,8 @@
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
-import java.util.Map;
-
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.SerializerProperties;
 
 public class HL7v2DataTypeDelegate implements DataTypeDelegate {
 
@@ -13,13 +12,8 @@ public class HL7v2DataTypeDelegate implements DataTypeDelegate {
     }
     
     @Override
-    public IXMLSerializer getSerializer(Map<?, ?> properties) {
+    public IXMLSerializer getSerializer(SerializerProperties properties) {
         return new ER7Serializer(properties);
-    }
-
-    @Override
-    public Map<String, String> getDefaultProperties() {
-        return ER7Serializer.getDefaultProperties();
     }
     
     @Override

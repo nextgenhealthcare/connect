@@ -1,14 +1,13 @@
 package com.mirth.connect.plugins;
 
-import java.awt.Dimension;
-import java.util.Map;
-
 import org.syntax.jedit.tokenmarker.TokenMarker;
 import org.w3c.dom.Element;
 
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.DataTypeProperties;
+import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.model.util.MessageVocabulary;
 
 public abstract class DataTypeClientPlugin extends ClientPlugin {
@@ -20,15 +19,8 @@ public abstract class DataTypeClientPlugin extends ClientPlugin {
     /**
      * Get an instance of the data type's serializer with the given properties
      */
-    final public IXMLSerializer getSerializer(Map<?, ?> properties) {
+    final public IXMLSerializer getSerializer(SerializerProperties properties) {
         return getDataTypeDelegate().getSerializer(properties);
-    }
-    
-    /**
-     * Get the default properties of the data type
-     */
-    final public Map<String, String> getDefaultProperties() {
-        return getDataTypeDelegate().getDefaultProperties();
     }
     
     /** 
@@ -46,6 +38,11 @@ public abstract class DataTypeClientPlugin extends ClientPlugin {
     }
     
     /**
+     * Get the default properties of the data type. Must not return null.
+     */
+    public abstract DataTypeProperties getDefaultProperties();
+    
+    /**
      * Get the data type delegate that is used for client/server shared methods
      */
     protected abstract DataTypeDelegate getDataTypeDelegate();
@@ -54,18 +51,6 @@ public abstract class DataTypeClientPlugin extends ClientPlugin {
      * Get the display name that is shown in the client UI
      */
     public abstract String getDisplayName();
-    
-    /**
-     * Get the bean properties object
-     */
-    public abstract Object getBeanProperties();
-    
-    /**
-     * Get the dimensions of the bean dialog. Use null for default
-     */
-    public Dimension getBeanDimensions() {
-        return null;
-    }
     
     /**
      * Get the default attachment handler type

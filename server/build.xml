@@ -34,7 +34,6 @@
 		<property name="plugins.datatype-hl7v2" value="${extensions}/datatype-hl7v2" />
 		<property name="plugins.datatype-hl7v3" value="${extensions}/datatype-hl7v3" />
 		<property name="plugins.datatype-ncpdp" value="${extensions}/datatype-ncpdp" />
-		<property name="plugins.datatype-x12" value="${extensions}/datatype-x12" />
 		<property name="plugins.datatype-xml" value="${extensions}/datatype-xml" />
 		
 		<!-- plugins -->
@@ -409,6 +408,10 @@
 		<copy todir="${plugins.datatype-edi}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/datatypes/edi" />
 		</copy>
+		<!-- copy the xml files so they will be included in jar -->
+		<copy todir="${classes}/com/mirth/connect/plugins/datatypes/edi/xml">
+			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/edi/xml" />
+		</copy>
 		<jar destfile="${plugins.datatype-edi}/datatype-edi-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/edi/**" />
 			<exclude name="com/mirth/connect/plugins/datatypes/edi/EDIDataTypeServerPlugin.class" />
@@ -469,28 +472,6 @@
 		</jar>
 		<jar destfile="${plugins.datatype-ncpdp}/datatype-ncpdp-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/ncpdp/NCPDPDataTypeServerPlugin.class" />
-		</jar>
-		
-		<!-- plugins.datatype-x12 -->
-		<mkdir dir="${plugins.datatype-x12}" />
-		<copy todir="${plugins.datatype-x12}">
-			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/x12">
-				<include name="*.xml" />
-			</fileset>
-		</copy>
-		<copy todir="${plugins.datatype-x12}/lib" failonerror="false">
-			<fileset dir="${lib.extensions}/datatypes/x12" />
-		</copy>
-		<!-- copy the xml files so they will be included in jar -->
-		<copy todir="${classes}/com/mirth/connect/plugins/datatypes/x12/xml">
-			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/x12/xml" />
-		</copy>
-		<jar destfile="${plugins.datatype-x12}/datatype-x12-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/datatypes/x12/**" />
-			<exclude name="com/mirth/connect/plugins/datatypes/x12/X12DataTypeServerPlugin.class" />
-		</jar>
-		<jar destfile="${plugins.datatype-x12}/datatype-x12-server.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/datatypes/x12/X12DataTypeServerPlugin.class" />
 		</jar>
 		
 		<!-- plugins.datatype-xml -->
@@ -861,7 +842,6 @@
 		<zip destfile="${dist.extensions}/datatype-hl7v2-${version}.zip" basedir="${extensions}" includes="datatype-hl7v2/**/*" />
 		<zip destfile="${dist.extensions}/datatype-hl7v3-${version}.zip" basedir="${extensions}" includes="datatype-hl7v3/**/*" />
 		<zip destfile="${dist.extensions}/datatype-ncpdp-${version}.zip" basedir="${extensions}" includes="datatype-ncpdp/**/*" />
-		<zip destfile="${dist.extensions}/datatype-x12-${version}.zip" basedir="${extensions}" includes="datatype-x12/**/*" />
 		<zip destfile="${dist.extensions}/datatype-xml-${version}.zip" basedir="${extensions}" includes="datatype-xml/**/*" />
 
 		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip" basedir="${extensions}" includes="dashboardstatus/**/*" />

@@ -9,13 +9,13 @@
 
 package com.mirth.connect.client.ui.editors;
 
-import java.util.Properties;
 import java.util.Set;
 
 import com.mirth.connect.client.ui.FunctionList;
 import com.mirth.connect.client.ui.VariableListHandler;
 import com.mirth.connect.client.ui.panels.reference.VariableReferenceTable;
 import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class TabbedTemplatePanel extends javax.swing.JPanel {
 
@@ -118,19 +118,19 @@ public class TabbedTemplatePanel extends javax.swing.JPanel {
         return messageTemplatePanel.getOutboundDataType();
     }
 
-    public void setIncomingDataProperties(Properties properties) {
+    public void setIncomingDataProperties(DataTypeProperties properties) {
         messageTemplatePanel.setInboundDataProperties(properties);
     }
 
-    public void setOutgoingDataProperties(Properties properties) {
+    public void setOutgoingDataProperties(DataTypeProperties properties) {
         messageTemplatePanel.setOutboundDataProperties(properties);
     }
 
-    public Properties getIncomingDataProperties() {
+    public DataTypeProperties getIncomingDataProperties() {
         return messageTemplatePanel.getInboundDataProperties();
     }
 
-    public Properties getOutgoingDataProperties() {
+    public DataTypeProperties getOutgoingDataProperties() {
         return messageTemplatePanel.getOutboundDataProperties();
     }
 

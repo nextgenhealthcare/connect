@@ -1,25 +1,19 @@
 package com.mirth.connect.plugins.datatypes.edi;
 
-import java.util.Map;
-
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.SerializerProperties;
 
 public class EDIDataTypeDelegate implements DataTypeDelegate {
     
     @Override
     public String getName() {
-        return "EDI";
+        return "EDI/X12";
     }
     
     @Override
-    public IXMLSerializer getSerializer(Map<?, ?> properties) {
+    public IXMLSerializer getSerializer(SerializerProperties properties) {
         return new EDISerializer(properties);
-    }
-
-    @Override
-    public Map<String, String> getDefaultProperties() {
-        return EDISerializer.getDefaultProperties();
     }
 
     @Override

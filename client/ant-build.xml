@@ -37,7 +37,6 @@
 		<property name="plugins.datatype-hl7v2" value="${extensions}/datatype-hl7v2" />
 		<property name="plugins.datatype-hl7v3" value="${extensions}/datatype-hl7v3" />
 		<property name="plugins.datatype-ncpdp" value="${extensions}/datatype-ncpdp" />
-		<property name="plugins.datatype-x12" value="${extensions}/datatype-x12" />
 		<property name="plugins.datatype-xml" value="${extensions}/datatype-xml" />
 
 		<!-- plugins -->
@@ -179,11 +178,6 @@
 			<include name="com/mirth/connect/plugins/datatypes/ncpdp/**" />
 		</jar>
 			
-		<mkdir dir="${plugins.datatype-x12}" />
-		<jar destfile="${plugins.datatype-x12}/datatype-x12-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/plugins/datatypes/x12/**" />
-		</jar>
-		
 		<mkdir dir="${plugins.datatype-xml}" />
 		<jar destfile="${plugins.datatype-xml}/datatype-xml-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/xml/**" />

@@ -3,8 +3,9 @@ package com.mirth.connect.plugins.datatypes.ncpdp;
 import org.syntax.jedit.tokenmarker.NCPDPTokenMarker;
 import org.syntax.jedit.tokenmarker.TokenMarker;
 
-import com.mirth.connect.model.DataTypeDelegate;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
+import com.mirth.connect.model.datatype.DataTypeDelegate;
+import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.util.MessageVocabulary;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 
@@ -18,11 +19,6 @@ public class NCPDPDataTypeClientPlugin extends DataTypeClientPlugin {
     @Override
     public String getDisplayName() {
         return "NCPDP";
-    }
-
-    @Override
-    public Object getBeanProperties() {
-        return new NCPDPProperties();
     }
 
     @Override
@@ -70,5 +66,10 @@ public class NCPDPDataTypeClientPlugin extends DataTypeClientPlugin {
     @Override
     protected DataTypeDelegate getDataTypeDelegate() {
         return dataTypeDelegate;
+    }
+
+    @Override
+    public DataTypeProperties getDefaultProperties() {
+        return new NCPDPDataTypeProperties();
     }
 }

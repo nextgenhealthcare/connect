@@ -62,13 +62,13 @@ public class HL7Test {
 
 	private static long runTest(String testMessage, String xml) throws SerializerException, SAXException, IOException {
 		Stopwatch stopwatch = new Stopwatch();
-		Properties properties = new Properties();
-		properties.put("useStrictParser", "false");
-		properties.put("handleRepetitions", "true");
-		properties.put("inputSegmentDelimiter", "\r\n|\r|\n");
-		properties.put("outputSegmentDelimiter", "\r");
+//		Properties properties = new Properties();
+//		properties.put("useStrictParser", "false");
+//		properties.put("handleRepetitions", "true");
+//		properties.put("inputSegmentDelimiter", "\r\n|\r|\n");
+//		properties.put("outputSegmentDelimiter", "\r");
 		stopwatch.start();
-		ER7Serializer serializer = new ER7Serializer(properties);
+		ER7Serializer serializer = new ER7Serializer(null);
 		String xmloutput = xml;
 		String er7 = "";
 		if (xml == null){

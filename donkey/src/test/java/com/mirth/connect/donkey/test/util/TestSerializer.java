@@ -15,7 +15,7 @@ import com.mirth.connect.donkey.model.message.XmlSerializer;
 public class TestSerializer implements XmlSerializer {
 	
     @Override
-    public boolean isTransformerRequired() {
+    public boolean isSerializationRequired(boolean isXml) {
         return false;
     }
     

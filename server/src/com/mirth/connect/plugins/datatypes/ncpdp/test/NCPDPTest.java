@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
@@ -115,12 +114,12 @@ public class NCPDPTest {
 
 	private static long runTest(String testMessage) throws SerializerException, SAXException, IOException {
 		Stopwatch stopwatch = new Stopwatch();
-		Properties properties = new Properties();
+//		Properties properties = new Properties();
         String SchemaUrl = "/ncpdp51.xsd";
-        properties.put("useStrictParser", "true");
-        properties.put("http://java.sun.com/xml/jaxp/properties/schemaSource",SchemaUrl);
+//        properties.put("useStrictParser", "true");
+//        properties.put("http://java.sun.com/xml/jaxp/properties/schemaSource",SchemaUrl);
         stopwatch.start();
-		NCPDPSerializer serializer = new NCPDPSerializer(properties);
+		NCPDPSerializer serializer = new NCPDPSerializer(null);
 		String xmloutput = serializer.toXML(testMessage);
 		//System.out.println(xmloutput);
 		DocumentSerializer docser = new DocumentSerializer();

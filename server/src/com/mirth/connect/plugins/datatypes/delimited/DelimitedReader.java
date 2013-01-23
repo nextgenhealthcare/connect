@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xerces.parsers.SAXParser;
 import org.mozilla.javascript.Context;
@@ -31,19 +32,31 @@ import com.mirth.connect.server.util.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
+import com.mirth.connect.util.StringUtil;
 
 public class DelimitedReader extends SAXParser {
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private DelimitedSerializerProperties props;
+    private DelimitedSerializationProperties serializationProperties;
 
     // The most recent ungotten record, and it's raw text, if any
     private ArrayList<String> ungottenRecord;
     private String ungottenRawText;
+    private Integer groupingColumnIndex;
+    private String columnDelimiter = null;
+    private String recordDelimiter = null;
+    private String quoteChar = null;
+    private String quoteEscapeChar = null;
+    private String batchMessageDelimiter = null;
     private JavaScriptExecutor<String> jsExecutor = new JavaScriptExecutor<String>();
 
-    public DelimitedReader(DelimitedSerializerProperties delimitedProperties) {
-        props = delimitedProperties;
+    public DelimitedReader(DelimitedSerializationProperties serializationProperties) {
+        this.serializationProperties = serializationProperties;
+        
+        updateColumnDelimiter();
+        updateRecordDelimiter();
+        updateQuoteChar();
+        updateQuoteEscapeChar();
 
         // Initially, there is no ungotten (pushed back) record
         ungottenRecord = null;
@@ -104,7 +117,7 @@ public class DelimitedReader extends SAXParser {
         while ((record = getRecord(in, null)) != null) {
 
             // Output <rowN>
-            if (props.isNumberedRows()) {
+            if (serializationProperties.isNumberedRows()) {
                 contentHandler.startElement("", "row" + recordNo, "", null);
             } else {
                 contentHandler.startElement("", "row", "", null);
@@ -114,9 +127,9 @@ public class DelimitedReader extends SAXParser {
             for (int i = 0; i < record.size(); i++) {
 
                 String columnName;
-                if (props.getColumnNames() != null && i < props.getColumnNames().length) {
+                if (serializationProperties.getColumnNames() != null && i < serializationProperties.getColumnNames().length) {
                     // User specified column name
-                    columnName = props.getColumnNames()[i];
+                    columnName = serializationProperties.getColumnNames()[i];
                 } else {
                     // Default column name
                     columnName = "column" + (i + 1);
@@ -132,7 +145,7 @@ public class DelimitedReader extends SAXParser {
             }
 
             // Output </rowN>
-            if (props.isNumberedRows()) {
+            if (serializationProperties.isNumberedRows()) {
                 contentHandler.endElement("", "row" + recordNo, "");
             } else {
                 contentHandler.endElement("", "row", "");
@@ -161,14 +174,14 @@ public class DelimitedReader extends SAXParser {
      * @throws IOException
      * @throws InterruptedException
      */
-    public String getMessage(final BufferedReader in, final boolean skipHeader, final String batchScriptId) throws IOException, InterruptedException {
-        char recDelim = props.getRecordDelimiter().charAt(0);
+    public String getMessage(DelimitedBatchProperties batchProperties, final BufferedReader in, final boolean skipHeader, final String batchScriptId) throws IOException, InterruptedException {
+        char recDelim = recordDelimiter.charAt(0);
         int ch;
 
         // If skipping the header, and the option is configured
-        if (skipHeader && props.getBatchSkipRecords() > 0) {
+        if (skipHeader && batchProperties.getBatchSkipRecords() > 0) {
 
-            for (int i = 0; i < props.getBatchSkipRecords(); i++) {
+            for (int i = 0; i < batchProperties.getBatchSkipRecords(); i++) {
                 while ((ch = in.read()) != -1 && ((char) ch) != recDelim) {
                 }
             }
@@ -176,10 +189,13 @@ public class DelimitedReader extends SAXParser {
 
         StringBuilder message = new StringBuilder();
 
-        if (props.isBatchSplitByRecord()) {
+        if (batchProperties.isBatchSplitByRecord()) {
             // Each record is treated as a message
             getRecord(in, message);
-        } else if (DelimitedSerializerProperties.isSet(props.getBatchMessageDelimiter())) {
+        } else if (StringUtils.isNotEmpty(batchProperties.getBatchMessageDelimiter())) {
+            if (batchMessageDelimiter == null) {
+                batchMessageDelimiter = StringUtil.unescape(batchProperties.getBatchMessageDelimiter());
+            }
             // All records until the message delimiter (or end of input) is a
             // message.
             for (;;) {
@@ -191,23 +207,23 @@ public class DelimitedReader extends SAXParser {
                 }
 
                 // If the next sequence of characters is the message delimiter
-                String lookAhead = peekChars(in, props.getBatchMessageDelimiter().length());
-                if (lookAhead.equals(props.getBatchMessageDelimiter())) {
+                String lookAhead = peekChars(in, batchMessageDelimiter.length());
+                if (lookAhead.equals(batchMessageDelimiter)) {
 
                     // Consume it.
-                    for (int i = 0; i < props.getBatchMessageDelimiter().length(); i++) {
+                    for (int i = 0; i < batchMessageDelimiter.length(); i++) {
                         ch = getChar(in, null);
                     }
 
                     // Append it if it is being included
-                    if (props.isBatchMessageDelimiterIncluded()) {
-                        message.append(props.getBatchMessageDelimiter());
+                    if (batchProperties.isBatchMessageDelimiterIncluded()) {
+                        message.append(batchMessageDelimiter);
                     }
 
                     break;
                 }
             }
-        } else if (DelimitedSerializerProperties.isSet(props.getBatchGroupingColumn())) {
+        } else if (StringUtils.isNotEmpty(batchProperties.getBatchGroupingColumn())) {
             // Each message is a collection of records with the same value in
             // the specified column.
             // The end of the current message occurs when a transition in the
@@ -219,8 +235,12 @@ public class DelimitedReader extends SAXParser {
             ArrayList<String> record = getRecord(in, message);
 
             if (record != null) {
+                
+                if (groupingColumnIndex == null) {
+                    updateGroupingColumnIndex(batchProperties.getBatchGroupingColumn(), serializationProperties.getColumnNames());
+                }
 
-                String lastColumnValue = record.get(props.getGroupingColumnIndex());
+                String lastColumnValue = record.get(groupingColumnIndex);
 
                 // Read records until the value in the grouping column changes
                 // or there are no more records
@@ -233,7 +253,7 @@ public class DelimitedReader extends SAXParser {
                         break;
                     }
 
-                    if (!record.get(props.getGroupingColumnIndex()).equals(lastColumnValue)) {
+                    if (!record.get(groupingColumnIndex).equals(lastColumnValue)) {
                         ungetRecord(record, recordText.toString());
                         break;
                     }
@@ -241,8 +261,9 @@ public class DelimitedReader extends SAXParser {
                     message.append(recordText.toString());
                 }
             }
-        } else if (DelimitedSerializerProperties.isSet(props.getBatchScript())) {
+        } else if (StringUtils.isNotEmpty(batchProperties.getBatchScript())) {
             try {
+                final int batchSkipRecords = batchProperties.getBatchSkipRecords();
                 String result = jsExecutor.execute(new JavaScriptTask<String>() {
                     @Override
                     public String call() throws Exception {
@@ -254,7 +275,7 @@ public class DelimitedReader extends SAXParser {
                         } else {
                             Logger scriptLogger = Logger.getLogger(ScriptController.BATCH_SCRIPT_KEY.toLowerCase());
                             
-                            Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(scriptLogger, batchScriptId, getScopeObjects(in, props, skipHeader));
+                            Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(scriptLogger, batchScriptId, getScopeObjects(in, serializationProperties, skipHeader, batchSkipRecords));
                             return Context.toString(executeScript(compiledScript, scope));
                         }
                     }
@@ -287,7 +308,66 @@ public class DelimitedReader extends SAXParser {
         }
     }
     
-    public Map<String, Object> getScopeObjects(Reader in, DelimitedSerializerProperties props, Boolean skipHeader) {
+    private void updateGroupingColumnIndex(String batchGroupingColumn, String[] columnNames) {
+        if (groupingColumnIndex == null) {
+            // Default
+            groupingColumnIndex = -1;
+            
+            // If there is a batch grouping column name
+            if (StringUtils.isNotEmpty(batchGroupingColumn)) {
+                
+                // If we can't resolve the grouping column name, it'll default to the first column (index=0)
+                groupingColumnIndex = 0;
+    
+                // If there are no user specified column names
+                if (columnNames == null) {
+    
+                    // Try to parse the index from the end of a default column name
+                    // e.g. "column24" => index = 23
+                    int index = batchGroupingColumn.length()-1;
+                    int len=0;
+                    while (index >= 0 && Character.isDigit(batchGroupingColumn.charAt(index))) {
+                        index--;
+                        len++;
+                    }
+                    if (len > 0) {
+                        try {
+                            groupingColumnIndex = Integer.valueOf(
+                                    batchGroupingColumn.substring(
+                                            batchGroupingColumn.length()-len, 
+                                            batchGroupingColumn.length())) - 1;
+                        }
+                        catch (NumberFormatException e) {
+                            logger.warn("Invalid number format in Split Batch by Grouping Column (defaulting to first column): " + 
+                                    batchGroupingColumn.substring(
+                                            batchGroupingColumn.length()-len, 
+                                            batchGroupingColumn.length()));
+                        }
+                    }
+                    else {
+                        logger.warn("Unknown batch grouping column (defaulting to first column): " + batchGroupingColumn);
+                    }
+                }
+                else {
+    
+                    // Try to find the grouping column name in the user specified column names
+                    int i;
+                    for (i=0; i < columnNames.length; i++) {
+                        if (columnNames[i].equals(batchGroupingColumn)) {
+                            groupingColumnIndex = i;
+                            break;
+                        }
+                    }
+                    
+                    if (i == columnNames.length) {
+                        logger.warn("Unknown batch grouping column (defaulting to first column): " + batchGroupingColumn);
+                    }
+                }
+            }
+        }
+    }
+    
+    public Map<String, Object> getScopeObjects(Reader in, DelimitedSerializationProperties props, Boolean skipHeader, Integer batchSkipRecords) {
         Map<String, Object> scopeObjects = new HashMap<String, Object>();
 
         // Provide the reader in the scope
@@ -295,15 +375,15 @@ public class DelimitedReader extends SAXParser {
 
         // Provide the data type properties in the scope (the ones that
         // affect parsing from delimited to XML)
-        scopeObjects.put("columnDelimiter", props.getColumnDelimiter());
-        scopeObjects.put("recordDelimiter", props.getRecordDelimiter());
+        scopeObjects.put("columnDelimiter", columnDelimiter);
+        scopeObjects.put("recordDelimiter", recordDelimiter);
         scopeObjects.put("columnWidths", props.getColumnWidths());
-        scopeObjects.put("quoteChar", props.getQuoteChar());
+        scopeObjects.put("quoteChar", quoteChar);
         scopeObjects.put("escapeWithDoubleQuote", props.isEscapeWithDoubleQuote());
-        scopeObjects.put("quoteEscapeChar", props.getQuoteEscapeChar());
+        scopeObjects.put("quoteEscapeChar", quoteEscapeChar);
         scopeObjects.put("ignoreCR", props.isIgnoreCR());
         if (skipHeader) {
-            scopeObjects.put("skipRecords", props.getBatchSkipRecords());
+            scopeObjects.put("skipRecords", batchSkipRecords);
         } else {
             scopeObjects.put("skipRecords", 0);
         }
@@ -343,14 +423,14 @@ public class DelimitedReader extends SAXParser {
         if (ch == -1)
             return null;
 
-        char recDelim = props.getRecordDelimiter().charAt(0);
+        char recDelim = recordDelimiter.charAt(0);
         ArrayList<String> record = new ArrayList<String>();
-        if (props.getColumnWidths() != null) {
+        if (serializationProperties.getColumnWidths() != null) {
 
-            for (int i = 0; i < props.getColumnWidths().length; i++) {
+            for (int i = 0; i < serializationProperties.getColumnWidths().length; i++) {
 
                 StringBuilder columnValue = new StringBuilder();
-                for (int j = 0; j < props.getColumnWidths()[i]; j++) {
+                for (int j = 0; j < serializationProperties.getColumnWidths()[i]; j++) {
 
                     ch = getChar(in, rawText);
 
@@ -428,23 +508,23 @@ public class DelimitedReader extends SAXParser {
         StringBuilder columnValue = new StringBuilder();
 
         char colDelim = ','; // default
-        if (DelimitedSerializerProperties.isSet(props.getColumnDelimiter())) {
-            colDelim = props.getColumnDelimiter().charAt(0);
+        if (StringUtils.isNotEmpty(columnDelimiter)) {
+            colDelim = columnDelimiter.charAt(0);
         }
 
         char recDelim = '\n'; // default
-        if (DelimitedSerializerProperties.isSet(props.getRecordDelimiter())) {
-            recDelim = props.getRecordDelimiter().charAt(0);
+        if (StringUtils.isNotEmpty(recordDelimiter)) {
+            recDelim = recordDelimiter.charAt(0);
         }
 
         char theQuoteChar = '"'; // default
-        if (DelimitedSerializerProperties.isSet(props.getQuoteChar())) {
-            theQuoteChar = props.getQuoteChar().charAt(0);
+        if (StringUtils.isNotEmpty(quoteChar)) {
+            theQuoteChar = quoteChar.charAt(0);
         }
 
         char theQuoteEscapeChar = '\\'; // default
-        if (DelimitedSerializerProperties.isSet(props.getQuoteEscapeChar())) {
-            theQuoteEscapeChar = props.getQuoteEscapeChar().charAt(0);
+        if (StringUtils.isNotEmpty(quoteEscapeChar)) {
+            theQuoteEscapeChar = quoteEscapeChar.charAt(0);
         }
 
         // If the column value isn't quoted
@@ -481,7 +561,7 @@ public class DelimitedReader extends SAXParser {
                 if (inQuote) {
 
                     // If the quote escape method is double quoting
-                    if (props.isEscapeWithDoubleQuote()) {
+                    if (serializationProperties.isEscapeWithDoubleQuote()) {
 
                         // If the character is a quote
                         if (((char) ch) == theQuoteChar) {
@@ -545,7 +625,43 @@ public class DelimitedReader extends SAXParser {
 
         return columnValue.toString();
     }
+    
+    private void updateColumnDelimiter() {
+        if (columnDelimiter == null) {
+            
+            if (StringUtils.isNotEmpty(serializationProperties.getColumnDelimiter())) {
+                columnDelimiter = StringUtil.unescape(serializationProperties.getColumnDelimiter());
+            }
+        }
+    }
 
+    private void updateRecordDelimiter() {
+        if (recordDelimiter == null) {
+            
+            if (StringUtils.isNotEmpty(serializationProperties.getRecordDelimiter())) {
+                recordDelimiter = StringUtil.unescape(serializationProperties.getRecordDelimiter());
+            }
+        }
+    }
+
+    private void updateQuoteChar() {
+        if (quoteChar == null) {
+            
+            if (StringUtils.isNotEmpty(serializationProperties.getQuoteChar())) {
+                quoteChar = StringUtil.unescape(serializationProperties.getQuoteChar());
+            }
+        }
+    }
+
+    private void updateQuoteEscapeChar() {
+        if (quoteEscapeChar == null) {
+            
+            if (StringUtils.isNotEmpty(serializationProperties.getQuoteEscapeChar())) {
+                quoteEscapeChar = StringUtil.unescape(serializationProperties.getQuoteEscapeChar());
+            }
+        }
+    }
+    
     /**
      * This low level reader gets the next non-ignored character from the input,
      * and returns it.
@@ -564,7 +680,7 @@ public class DelimitedReader extends SAXParser {
         int ch;
 
         // If configured, gobble \r
-        if (props.isIgnoreCR()) {
+        if (serializationProperties.isIgnoreCR()) {
             while (((char) (ch = in.read())) == '\r') {
                 if (remark) {
                     in.mark(1);

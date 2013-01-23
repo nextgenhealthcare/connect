@@ -18,6 +18,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.mirth.connect.plugins.datatypes.edi.EDIDataTypeProperties;
 import com.mirth.connect.plugins.datatypes.edi.EDISerializer;
 
 public class EDISerializerTest {
@@ -35,7 +36,7 @@ public class EDISerializerTest {
     public void testToXml() throws Exception {
         String input = FileUtils.readFileToString(new File("tests/test-edi-input.txt"));
         String output = FileUtils.readFileToString(new File("tests/test-edi-output.xml"));
-        EDISerializer serializer = new EDISerializer();
+        EDISerializer serializer = new EDISerializer(new EDIDataTypeProperties().getSerializerProperties());
         Assert.assertEquals(output, serializer.toXML(input));
     }
 
@@ -43,7 +44,7 @@ public class EDISerializerTest {
     public void testFromXml() throws Exception {
         String input = FileUtils.readFileToString(new File("tests/test-edi-output.xml"));
         String output = FileUtils.readFileToString(new File("tests/test-edi-input.txt"));
-        EDISerializer serializer = new EDISerializer();
+        EDISerializer serializer = new EDISerializer(new EDIDataTypeProperties().getSerializerProperties());
         Assert.assertEquals(output, serializer.fromXML(input));
     }
 
@@ -56,7 +57,7 @@ public class EDISerializerTest {
     public void testIssue1597fromXML() throws Exception {
         String input = FileUtils.readFileToString(new File("tests/test-1597-input-missing-elements.xml"));
         String output = FileUtils.readFileToString(new File("tests/test-1597-output.txt"));
-        EDISerializer serializer = new EDISerializer();
+        EDISerializer serializer = new EDISerializer(new EDIDataTypeProperties().getSerializerProperties());
         Assert.assertEquals(output, serializer.fromXML(input));
     }
 
@@ -64,7 +65,7 @@ public class EDISerializerTest {
     public void testIssue1597toXML() throws Exception {
         String input = FileUtils.readFileToString(new File("tests/test-1597-output.txt"));
         String output = FileUtils.readFileToString(new File("tests/test-1597-input.xml"));
-        EDISerializer serializer = new EDISerializer();
+        EDISerializer serializer = new EDISerializer(new EDIDataTypeProperties().getSerializerProperties());
         Assert.assertEquals(output, serializer.toXML(input));
     }
 }

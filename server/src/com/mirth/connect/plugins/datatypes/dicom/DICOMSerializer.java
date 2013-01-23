@@ -47,6 +47,7 @@ import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
@@ -57,7 +58,7 @@ public class DICOMSerializer implements IXMLSerializer {
 
     }
 
-    public DICOMSerializer(Map<?, ?> DICOMProperties) {
+    public DICOMSerializer(SerializerProperties DICOMProperties) {
 
     }
 
@@ -73,11 +74,11 @@ public class DICOMSerializer implements IXMLSerializer {
     }
     
     @Override
-    public boolean isTransformerRequired() {
-    	boolean transformerRequired = false;
+    public boolean isSerializationRequired(boolean toXml) {
+    	boolean serializationRequired = false;
     	//TODO determine which properties are required for transformer
     	
-    	return transformerRequired;
+    	return serializationRequired;
     }
     
     @Override
