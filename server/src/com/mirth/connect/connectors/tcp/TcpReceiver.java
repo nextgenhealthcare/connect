@@ -285,8 +285,6 @@ public class TcpReceiver extends SourceConnector {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.CONNECTED, socket);
 
             while (!done) {
-                RawMessage rawMessage = null;
-                DispatchResult dispatchResult = null;
                 StreamHandler streamHandler = null;
 
                 try {
@@ -322,6 +320,8 @@ public class TcpReceiver extends SourceConnector {
                             logger.debug("Bytes returned from socket, length: " + bytes.length + " (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ")");
                             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY, socket, "Message received, processing... ");
 
+                            RawMessage rawMessage = null;
+
                             if (connectorProperties.isDataTypeBinary()) {
                                 // Store the raw bytes in the RawMessage object
                                 rawMessage = new RawMessage(bytes);
@@ -339,6 +339,8 @@ public class TcpReceiver extends SourceConnector {
                                 channelMap.put("localPort", ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort());
                             }
                             rawMessage.setChannelMap(channelMap);
+
+                            DispatchResult dispatchResult = null;
 
                             // Keep attempting while the channel is still started
                             while (dispatchResult == null && getCurrentState() == ChannelState.STARTED) {

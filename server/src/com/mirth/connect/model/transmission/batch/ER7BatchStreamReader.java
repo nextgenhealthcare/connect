@@ -19,15 +19,13 @@ import com.mirth.connect.model.transmission.EOFCheckInputStream;
 public class ER7BatchStreamReader extends BatchStreamReader {
 
     private int previousByte;
-    private byte[] endOfMessageBytes;
 
     public ER7BatchStreamReader(InputStream inputStream) {
         this(inputStream, new byte[0]);
     }
 
     public ER7BatchStreamReader(InputStream inputStream, byte[] endOfMessageBytes) {
-        super(new EOFCheckInputStream(inputStream, 3));
-        this.endOfMessageBytes = endOfMessageBytes;
+        super(new EOFCheckInputStream(inputStream, 3), endOfMessageBytes);
     }
 
     @Override

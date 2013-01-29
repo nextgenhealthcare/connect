@@ -17,9 +17,15 @@ import java.util.List;
 public abstract class BatchStreamReader {
 
     protected InputStream inputStream;
+    protected byte[] endOfMessageBytes;
 
     public BatchStreamReader(InputStream inputStream) {
+        this(inputStream, new byte[0]);
+    }
+
+    public BatchStreamReader(InputStream inputStream, byte[] endOfMessageBytes) {
         this.inputStream = inputStream;
+        this.endOfMessageBytes = endOfMessageBytes;
     }
 
     public InputStream getInputStream() {
@@ -28,6 +34,14 @@ public abstract class BatchStreamReader {
 
     public void setInputStream(InputStream inputStream) {
         this.inputStream = inputStream;
+    }
+
+    public byte[] getEndOfMessageBytes() {
+        return endOfMessageBytes;
+    }
+
+    public void setEndOfMessageBytes(byte[] endOfMessageBytes) {
+        this.endOfMessageBytes = endOfMessageBytes;
     }
 
     /**
