@@ -36,7 +36,7 @@ import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
-public abstract class DestinationConnector extends Connector implements ConnectorInterface, Runnable {
+public abstract class DestinationConnector extends Connector implements Runnable {
     private final static String QUEUED_RESPONSE = "Message queued successfully";
 
     private Integer orderId;
@@ -49,7 +49,6 @@ public abstract class DestinationConnector extends Connector implements Connecto
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
     private Encryptor encryptor;
-    private ChannelState currentState = ChannelState.STOPPED;
     private Logger logger = Logger.getLogger(getClass());
 
     public abstract ConnectorProperties getReplacedConnectorProperties(ConnectorMessage message);
@@ -90,7 +89,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
 
     @Deprecated
     public boolean isRunning() {
-        return currentState != ChannelState.STOPPED && currentState != ChannelState.STOPPING;
+        return getCurrentState() != ChannelState.STOPPED && getCurrentState() != ChannelState.STOPPING;
     }
 
     @Override
@@ -120,14 +119,6 @@ public abstract class DestinationConnector extends Connector implements Connecto
 
     protected void setEncryptor(Encryptor encryptor) {
         this.encryptor = encryptor;
-    }
-
-    public ChannelState getCurrentState() {
-        return currentState;
-    }
-
-    public void setCurrentState(ChannelState currentState) {
-        this.currentState = currentState;
     }
 
     /**
@@ -399,7 +390,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
                     Thread.sleep(retryIntervalMillis);
                     pauseBeforeNextMessage = false;
                 }
-            } while (currentState == ChannelState.STARTED || currentState == ChannelState.STARTING);
+            } while (getCurrentState() == ChannelState.STARTED || getCurrentState() == ChannelState.STARTING);
         } catch (InterruptedException e) {
         } catch (Exception e) {
             logger.error(e);
@@ -407,7 +398,7 @@ public abstract class DestinationConnector extends Connector implements Connecto
             // Invalidate the queue's buffer when the queue is stopped to prevent the buffer becoming 
             // unsynchronized with the data store.
             queue.invalidate();
-            currentState = ChannelState.STOPPED;
+            setCurrentState(ChannelState.STOPPED);
 
             if (dao != null) {
                 dao.close();

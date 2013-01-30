@@ -9,16 +9,32 @@
 
 package com.mirth.connect.donkey.server.channel;
 
+import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.message.DataType;
+import com.mirth.connect.donkey.server.DeployException;
+import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.Startable;
+import com.mirth.connect.donkey.server.StopException;
+import com.mirth.connect.donkey.server.Stoppable;
+import com.mirth.connect.donkey.server.UndeployException;
 
-public class Connector {
+public abstract class Connector implements Startable, Stoppable {
     private String channelId;
     private int metaDataId;
     private DataType inboundDataType;
     private DataType outboundDataType;
+    private ChannelState currentState = ChannelState.STOPPED;
     private ConnectorProperties connectorProperties;
 
+    public abstract void onDeploy() throws DeployException;
+
+    public abstract void onUndeploy() throws UndeployException;
+
+    public abstract void onStart() throws StartException;
+
+    public abstract void onStop() throws StopException;
+    
     public String getChannelId() {
         return channelId;
     }
@@ -49,6 +65,14 @@ public class Connector {
 
     public void setOutboundDataType(DataType outboundDataType) {
         this.outboundDataType = outboundDataType;
+    }
+    
+    public ChannelState getCurrentState() {
+        return currentState;
+    }
+
+    public void setCurrentState(ChannelState currentState) {
+        this.currentState = currentState;
     }
 
     public ConnectorProperties getConnectorProperties() {

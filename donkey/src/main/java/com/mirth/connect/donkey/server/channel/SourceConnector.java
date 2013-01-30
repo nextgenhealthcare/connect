@@ -23,11 +23,10 @@ import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 /**
  * The base class for all source connectors.
  */
-public abstract class SourceConnector extends Connector implements ConnectorInterface {
+public abstract class SourceConnector extends Connector {
     private Channel channel;
     private boolean respondAfterProcessing = true;
     private MetaDataReplacer metaDataReplacer;
-    private ChannelState currentState = ChannelState.STOPPED;
     private String sourceName = "Source";
 
     public void setChannel(Channel channel) {
@@ -51,14 +50,6 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
         this.metaDataReplacer = metaDataReplacer;
     }
 
-    public ChannelState getCurrentState() {
-        return currentState;
-    }
-
-    public void setCurrentState(ChannelState currentState) {
-        this.currentState = currentState;
-    }
-
     public String getSourceName() {
         return sourceName;
     }
@@ -69,7 +60,7 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
 
     @Deprecated
     public boolean isRunning() {
-        return currentState != ChannelState.STOPPED;
+        return getCurrentState() != ChannelState.STOPPED;
     }
 
     /**
@@ -122,7 +113,7 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
      * @throws StoppingException
      */
     public DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
-        if (currentState == ChannelState.STOPPED) {
+        if (getCurrentState() == ChannelState.STOPPED) {
             throw new ChannelException(true);
         }
 
@@ -137,6 +128,11 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
      */
     public abstract void handleRecoveredResponse(DispatchResult dispatchResult);
 
+    /**
+     * Finish a message dispatch
+     * 
+     * @param dispatchResult The DispatchResult returned by dispatchRawMessage()
+     */
     public void finishDispatch(DispatchResult dispatchResult) {
         String response = null;
 
@@ -151,7 +147,15 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
         finishDispatch(dispatchResult, false, response, null);
     }
 
-    public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String response, String errorMessage) {
+    /**
+     * Finish a message dispatch
+     * 
+     * @param dispatchResult The DispatchResult returned by dispatchRawMessage()
+     * @param attemptedResponse True if an attempt to send a response was made, false if not
+     * @param response The response string (if a response attempt was made)
+     * @param responseError An error message if an error occurred when attempting to send a response
+     */
+    public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String response, String responseError) {
         try {
             if (dispatchResult == null) {
                 return;
@@ -170,12 +174,12 @@ public abstract class SourceConnector extends Connector implements ConnectorInte
                     dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.RESPONSE, response, null, encryptor.encrypt(response)));
                 }
 
-                if (attemptedResponse || errorMessage != null) {
+                if (attemptedResponse || responseError != null) {
                     if (dao == null) {
                         dao = daoFactory.getDao();
                     }
 
-                    dao.updateSourceResponse(getChannelId(), messageId, attemptedResponse, errorMessage);
+                    dao.updateSourceResponse(getChannelId(), messageId, attemptedResponse, responseError);
                 }
 
                 if (dispatchResult.isMarkAsProcessed()) {

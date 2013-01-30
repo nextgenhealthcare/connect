@@ -40,6 +40,15 @@ public class PassthruDao implements DonkeyDao {
         ChannelController channelController = ChannelController.getInstance();
         currentStats = channelController.getStatistics();
         totalStats = channelController.getTotalStatistics();
+        
+        // make sure these aren't null, otherwise commit() will break
+        if (currentStats == null) {
+            currentStats = new Statistics();
+        }
+        
+        if (totalStats == null) {
+            totalStats = new Statistics();
+        }
     }
 
     public StatisticsUpdater getStatisticsUpdater() {
