@@ -18,7 +18,7 @@
 		<property name="extensions" value="${dist}/extensions" />
 
 		<!-- connectors -->
-		<!-- <property name="connectors.jms" value="${extensions}/jms" />-->
+		<property name="connectors.jms" value="${extensions}/jms" />
 		<property name="connectors.jdbc" value="${extensions}/jdbc" />
 		<property name="connectors.dicom" value="${extensions}/dicom" />
 		<property name="connectors.http" value="${extensions}/http" />
@@ -68,7 +68,6 @@
 		<mkdir dir="${classes}" />
 		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="classpath" />
-			<exclude name="com/mirth/connect/connectors/jms/**" />
 		</javac>
 
 		<copy todir="${classes}" file="${src}/log4j.properties" />
@@ -102,10 +101,10 @@
 			<include name="com/mirth/connect/connectors/jdbc/**" />
 		</jar>
 
-		<!-- <mkdir dir="${connectors.jms}" />
+		<mkdir dir="${connectors.jms}" />
 		<jar destfile="${connectors.jms}/jms-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/connectors/jms/**" />
-		</jar>-->
+		</jar>
 
 		<mkdir dir="${connectors.http}" />
 		<jar destfile="${connectors.http}/http-client.jar" basedir="${classes}">

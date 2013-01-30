@@ -15,7 +15,7 @@
 		</path>
 
 		<!-- connectors -->
-		<!--<property name="connectors.jms" value="${extensions}/jms" />-->
+		<property name="connectors.jms" value="${extensions}/jms" />
 		<property name="connectors.jdbc" value="${extensions}/jdbc" />
 		<property name="connectors.dicom" value="${extensions}/dicom" />
 		<property name="connectors.http" value="${extensions}/http" />
@@ -71,7 +71,6 @@
 
 		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="classpath" />
-			<exclude name="com/mirth/connect/connectors/jms/**" />
 		</javac>
 
 		<!-- create version.properties file -->
@@ -223,7 +222,7 @@
 		</jar>
 
 		<!-- connectors.jms -->
-		<!--<mkdir dir="${connectors.jms}" />
+		<mkdir dir="${connectors.jms}" />
 		<copy todir="${connectors.jms}">
 			<fileset dir="${src}/com/mirth/connect/connectors/jms">
 				<include name="*.xml" />
@@ -233,16 +232,18 @@
 			<fileset dir="${lib.extensions}/jms" />
 		</copy>
 		<jar destfile="${connectors.jms}/jms-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/jms/JMSReaderProperties.class" />
-			<include name="com/mirth/connect/connectors/jms/JMSWriterProperties.class" />
+			<include name="com/mirth/connect/connectors/jms/JmsConnectorProperties.class" />
+			<include name="com/mirth/connect/connectors/jms/JmsReceiverProperties.class" />
+			<include name="com/mirth/connect/connectors/jms/JmsDispatcherProperties.class" />
 		</jar>
 		<jar destfile="${connectors.jms}/jms-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/jms/**" />
-				<exclude name="com/mirth/connect/connectors/jms/JMSReaderProperties.class" />
-				<exclude name="com/mirth/connect/connectors/jms/JMSWriterProperties.class" />
+				<exclude name="com/mirth/connect/connectors/jms/JmsConnectorProperties.class" />
+				<exclude name="com/mirth/connect/connectors/jms/JmsReceiverProperties.class" />
+				<exclude name="com/mirth/connect/connectors/jms/JmsDispatcherProperties.class" />
 			</fileset>
-		</jar>-->
+		</jar>
 
 		<!-- connectors.js -->
 		<mkdir dir="${connectors.js}" />
@@ -824,7 +825,7 @@
 		<delete dir="${dist.extensions}" />
 		<mkdir dir="${dist.extensions}" />
 
-		<!--<zip destfile="${dist.extensions}/jms-${version}.zip" basedir="${extensions}" includes="jms/**/*" />-->
+		<zip destfile="${dist.extensions}/jms-${version}.zip" basedir="${extensions}" includes="jms/**/*" />
 		<zip destfile="${dist.extensions}/jdbc-${version}.zip" basedir="${extensions}" includes="jdbc/**/*" />
 		<zip destfile="${dist.extensions}/dicom-${version}.zip" basedir="${extensions}" includes="dicom/**/*" />
 		<zip destfile="${dist.extensions}/http-${version}.zip" basedir="${extensions}" includes="http/**/*" />

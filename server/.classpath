@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="com/mirth/connect/connectors/jms/" kind="src" path="src"/>
+	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="dbconf"/>
 	<classpathentry kind="src" path="build"/>
@@ -75,6 +75,8 @@
 	<classpathentry kind="lib" path="lib/rhino-1.7r4.jar"/>
 	<classpathentry kind="lib" path="lib/database/derby-1414718.jar"/>
 	<classpathentry kind="lib" path="lib/database/derbytools-1414718.jar"/>
+	<classpathentry kind="lib" path="lib/jms/activemq-all-5.7.0.jar"/>
+	<classpathentry kind="lib" path="lib/jms/geronimo-jms_1.1_spec-1.1.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>

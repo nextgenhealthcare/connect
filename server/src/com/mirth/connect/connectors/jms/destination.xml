@@ -1,29 +1,17 @@
 <connectorMetaData path="jms">
-	<name>JMS Writer</name>
+	<name>JMS Sender</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>3.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to write messages to a JMS queue.</description>
-	<clientClassName>com.mirth.connect.connectors.jms.JMSWriter</clientClassName>
-	<serverClassName>com.mirth.connect.connectors.jms.JmsConnector</serverClassName>
-	<sharedClassName>com.mirth.connect.connectors.jms.JMSWriterProperties</sharedClassName>
+	<clientClassName>com.mirth.connect.connectors.jms.JmsSender</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.jms.JmsDispatcher</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.jms.JmsDispatcherProperties</sharedClassName>
 	<library type="CLIENT" path="jms-client.jar" />
 	<library type="SHARED" path="jms-shared.jar" />
 	<library type="SERVER" path="jms-server.jar" />
 	<transformers></transformers>
 	<protocol>jms</protocol>
 	<type>DESTINATION</type>
-	<mule-properties>
-		<property name="connector">com.mirth.connect.connectors.jms.JmsConnector</property>
-		<property name="dispatcher.factory">com.mirth.connect.connectors.jms.JmsMessageDispatcherFactory</property>
-		<property name="message.receiver">com.mirth.connect.connectors.jms.JmsMessageReceiver</property>
-		<property name="transacted.message.receiver">com.mirth.connect.connectors.jms.TransactedJmsMessageReceiver</property>
-		<property name="message.adapter">com.mirth.connect.connectors.jms.JmsMessageAdapter</property>
-		<property name="inbound.transformer">com.mirth.connect.connectors.jms.transformers.JMSMessageToObject</property>
-		<property name="response.transformer">com.mirth.connect.connectors.jms.transformers.JMSMessageToObject</property>
-		<property name="outbound.transformer">com.mirth.connect.connectors.jms.transformers.ObjectToJMSMessage</property>
-		<property name="service.error">Cannot create Jms connector using current service descriptor</property>
-		<property name="endpoint.builder">org.mule.impl.endpoint.ResourceNameEndpointBuilder</property>
-	</mule-properties>
 </connectorMetaData>

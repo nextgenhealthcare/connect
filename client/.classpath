@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="com/mirth/connect/connectors/jms/" kind="src" path="src"/>
+	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Server">
 		<accessrules>
@@ -32,6 +32,9 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/vm/VmDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceReceiverProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jms/JmsConnectorProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jms/JmsReceiverProperties"/>
+			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jms/JmsDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/mllpmode/MLLPModeProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/datatypes/**"/>
 			<accessrule kind="nonaccessible" pattern="*/**"/>

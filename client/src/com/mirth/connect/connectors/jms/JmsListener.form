@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.5" maxVersion="1.8" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <NonVisualComponents>
+    <Component class="javax.swing.ButtonGroup" name="useJndiButtonGroup">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="durableButtonGroup">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="destinationTypeButtonGroup">
+    </Component>
+  </NonVisualComponents>
+  <Properties>
+    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+      <Color blue="ff" green="ff" red="ff" type="rgb"/>
+    </Property>
+  </Properties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="connectionPropertiesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="selectorLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="clientIdLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="destinationTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="destinationNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="connectionFactoryClassLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="connectionFactoryNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="initialContextFactoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="providerUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="useJndiLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
+                      <Component id="jScrollPane2" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="deleteButton" max="32767" attributes="0"/>
+                          <Component id="newButton" min="-2" pref="49" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="reconnectIntervalField" min="-2" pref="87" max="-2" attributes="0"/>
+                          <Component id="selectorField" min="-2" pref="322" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="destinationTypeQueue" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="destinationTypeTopic" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="durableTopicCheckbox" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="destinationNameField" min="-2" pref="322" max="-2" attributes="0"/>
+                          <Component id="passwordField" min="-2" pref="217" max="-2" attributes="0"/>
+                          <Component id="usernameField" min="-2" pref="217" max="-2" attributes="0"/>
+                          <Component id="connectionFactoryClassField" min="-2" pref="322" max="-2" attributes="0"/>
+                          <Component id="connectionFactoryNameField" min="-2" pref="322" max="-2" attributes="0"/>
+                          <Component id="initialContextFactoryField" min="-2" pref="322" max="-2" attributes="0"/>
+                          <Component id="providerUrlField" min="-2" pref="322" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="useJndiYes" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="useJndiNo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="clientIdField" alignment="0" min="-2" pref="322" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="useJndiLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="useJndiYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="useJndiNo" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="providerUrlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="providerUrlField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="initialContextFactoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="initialContextFactoryField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="connectionFactoryNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="connectionFactoryNameField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="connectionFactoryClassLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="connectionFactoryClassField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="destinationNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="destinationNameField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="destinationTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="destinationTypeQueue" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="destinationTypeTopic" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="durableTopicCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="clientIdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="clientIdField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="selectorLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="selectorField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="reconnectIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="reconnectIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jScrollPane2" pref="0" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="connectionPropertiesLabel" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="newButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace min="0" pref="56" max="32767" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="useJndiLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Use JNDI:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="providerUrlLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Provider URL:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="initialContextFactoryLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Initial Context Factory:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="connectionFactoryNameLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Connection Factory Name:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="connectionFactoryClassLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Connection Factory Class:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="usernameLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Username:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="passwordLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Password:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="clientIdLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Client ID:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="destinationNameLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Destination Name:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="selectorLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Selector Expression:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="providerUrlField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="If using JNDI, enter the URL of the JNDI provider here."/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="initialContextFactoryField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="If using JNDI, enter the full Java classname of the JNDI Initial Context Factory class here."/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="connectionFactoryNameField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="If using JNDI, enter the JNDI name of the connection factory here."/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="usernameField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The username for accessing the queue or topic."/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="passwordField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The password for accessing the queue or topic."/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="clientIdField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="A unique identifier for the source connector when connecting to the JMS broker (typically used when accessing a durable queue/topic)."/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="destinationNameField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The name of the queue or topic."/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="selectorField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the selector expression to select which topic or queue messages the source connector is interested in,&lt;br&gt; or leave blank to read all messages.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="destinationTypeLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Destination Type:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="connectionPropertiesLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Connection Properties:"/>
+      </Properties>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="com.mirth.connect.client.ui.components.MirthPropertiesTable" name="connectionPropertiesTable">
+        </Component>
+      </SubComponents>
+    </Container>
+    <Component class="com.mirth.connect.client.ui.components.MirthButton" name="newButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="New"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Adds a new row to end of the list.&lt;br&gt;Double click the Property and Value cells to enter their values.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthButton" name="deleteButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Delete"/>
+        <Property name="toolTipText" type="java.lang.String" value="Deletes the currently selected row from the list."/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="connectionFactoryClassField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="If not using JNDI, enter the full Java classname of the JMS connection factory here."/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="reconnectIntervalLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Reconnect Interval (milliseconds):"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectIntervalField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The number of milliseconds between reconnect attempts when a connection error occurs."/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useJndiYes">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="useJndiButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to use JNDI to look up a connection factory to connect to the queue or topic.&lt;br/&gt;Select No to specify a connection factory class without using JNDI.&lt;/html&gt;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useJndiYesActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useJndiNo">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="useJndiButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to use JNDI to look up a connection factory to connect to the queue or topic.&lt;br/&gt;Select No to specify a connection factory class without using JNDI.&lt;/html&gt;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useJndiNoActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="destinationTypeQueue">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="destinationTypeButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Queue"/>
+        <Property name="toolTipText" type="java.lang.String" value="If not using JNDI, specify whether the destination is a queue or a topic."/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="destinationTypeQueueActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="destinationTypeTopic">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="destinationTypeButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Topic"/>
+        <Property name="toolTipText" type="java.lang.String" value="If not using JNDI, specify whether the destination is a queue or a topic."/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="destinationTypeTopicActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="durableTopicCheckbox">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Durable"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When connecting to a topic, if this box is checked, all messages published to the topic will be read,&lt;br/&gt;regardless of whether or not a connection to the broker is active.&lt;br/&gt;If not checked, only messages published while a connection is active will be read.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+  </SubComponents>
+</Form>
