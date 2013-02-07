@@ -1,20 +1,45 @@
 package com.mirth.connect.model.datatype;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.commons.lang3.SerializationUtils;
 
 public abstract class DataTypeProperties implements Serializable {
+	
+	protected SerializationProperties serializationProperties;
+	protected DeserializationProperties deserializationProperties;
+	protected BatchProperties batchProperties;
+	protected ResponseGenerationProperties responseGenerationProperties;
+	protected ResponseValidationProperties responseValidationProperties;
     
     public SerializerProperties getSerializerProperties() {
         return new SerializerProperties(getSerializationProperties(), getDeserializationProperties(), getBatchProperties());
     }
     
-    public abstract SerializationProperties getSerializationProperties();
+    public SerializationProperties getSerializationProperties() {
+    	return serializationProperties;
+    }
     
-    public abstract DeserializationProperties getDeserializationProperties();
+    public DeserializationProperties getDeserializationProperties() {
+    	return deserializationProperties;
+    }
     
-    public abstract BatchProperties getBatchProperties();
+    public BatchProperties getBatchProperties() {
+    	return batchProperties;
+    }
     
-    public abstract ResponseGenerationProperties getResponseGenerationProperties();
+    public ResponseGenerationProperties getResponseGenerationProperties() {
+    	return responseGenerationProperties;
+    }
     
-    public abstract ResponseValidationProperties getResponseValidationProperties();
+    public ResponseValidationProperties getResponseValidationProperties() {
+    	return responseValidationProperties;
+    }
+    
+    public DataTypeProperties clone() {
+    	return SerializationUtils.clone(this);
+    }
 }

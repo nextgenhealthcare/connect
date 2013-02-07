@@ -626,7 +626,6 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         connectorTable.setToolTipText("<html>\nInclude messages from the selected connectors. Connectors that were<br/>\nremoved from this channel are not available to select. Messages for removed<br/>\nconnectors will only be included if all connectors are selected. If a connector's<br/>\nname has changed, messages before the name change will still be included.\n</html>");
         jScrollPane6.setViewportView(connectorTable);
 
-        connectorSelectAll.setFont(new java.awt.Font("Lucida Grande", 0, 12)); // NOI18N
         connectorSelectAll.setForeground(java.awt.Color.blue);
         connectorSelectAll.setText("<html><u>Select All</u></html>");
         connectorSelectAll.setToolTipText("Select all connectors below.");
@@ -637,7 +636,6 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             }
         });
 
-        connectorDeselectAll.setFont(new java.awt.Font("Lucida Grande", 0, 12)); // NOI18N
         connectorDeselectAll.setForeground(java.awt.Color.blue);
         connectorDeselectAll.setText("<html><u>Deselect All</u></html>");
         connectorDeselectAll.setToolTipText("Deselect all connectors below.");
@@ -649,7 +647,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         });
 
         jLabel7.setFont(new java.awt.Font("Lucida Grande", 0, 12)); // NOI18N
-        jLabel7.setText("/");
+        jLabel7.setText("|");
 
         addMetaDataSearchButton.setText("New");
         addMetaDataSearchButton.addActionListener(new java.awt.event.ActionListener() {

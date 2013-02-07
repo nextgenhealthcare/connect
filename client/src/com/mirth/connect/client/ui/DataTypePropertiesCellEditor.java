@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -18,14 +17,15 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellEditor;
 
+import com.mirth.connect.client.ui.components.MirthTriStateCheckBox;
 import com.mirth.connect.client.ui.editors.JavaScriptEditorDialog;
-import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 
 public class DataTypePropertiesCellEditor extends AbstractCellEditor implements TableCellEditor {
 
-    private JTextField textField;
-    private JCheckBox checkBox;
+    private static final String DIFFERENT_VALUES = "<Different Values>";
+	private JTextField textField;
+    private MirthTriStateCheckBox checkBox;
     private JLabel label;
     private JButton button;
     private JPanel panel;
@@ -34,7 +34,7 @@ public class DataTypePropertiesCellEditor extends AbstractCellEditor implements 
     public DataTypePropertiesCellEditor() {
         textField = new JTextField();
         
-        checkBox = new JCheckBox();
+        checkBox = new MirthTriStateCheckBox();
         checkBox.addActionListener(new ActionListener() {
 
             @Override
@@ -70,7 +70,11 @@ public class DataTypePropertiesCellEditor extends AbstractCellEditor implements 
     @Override
     public Object getCellEditorValue() {
         if (valueType == PropertyEditorType.BOOLEAN) {
-            return checkBox.isSelected();
+        	if (checkBox.getState() == MirthTriStateCheckBox.CHECKED) {
+        		return true;
+        	} else if (checkBox.getState() == MirthTriStateCheckBox.UNCHECKED) {
+        		return false;
+        	}
         } else if (valueType == PropertyEditorType.STRING) {
             return textField.getText();
         } else if (valueType == PropertyEditorType.JAVASCRIPT) {
@@ -84,16 +88,27 @@ public class DataTypePropertiesCellEditor extends AbstractCellEditor implements 
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         // Enable the save option regardless if any values were changed just to be safe
         PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
-        if (value instanceof DataTypePropertyDescriptor) {
-            DataTypePropertyDescriptor propertyDescriptor = (DataTypePropertyDescriptor) value;
-            valueType = propertyDescriptor.getEditorType();
+        if (value instanceof DataTypeNodeDescriptor) {
+            DataTypeNodeDescriptor nodeDescriptor = (DataTypeNodeDescriptor) value;
+            valueType = nodeDescriptor.getEditorType();
             
-            if (propertyDescriptor.getEditorType() == PropertyEditorType.BOOLEAN) {
+            if (nodeDescriptor.getEditorType() == PropertyEditorType.BOOLEAN) {
                 checkBox.setBackground(table.getSelectionBackground());
-                checkBox.setSelected((Boolean) propertyDescriptor.getValue());
+                
+                Boolean booleanValue = (Boolean) nodeDescriptor.getValue();
+                if (nodeDescriptor.isMultipleValues()) {
+            		checkBox.setText(DIFFERENT_VALUES);
+            		checkBox.setState(MirthTriStateCheckBox.PARTIAL);
+            	} else if (booleanValue) {
+            		checkBox.setText("");
+            		checkBox.setState(MirthTriStateCheckBox.CHECKED);
+            	} else {
+            		checkBox.setText("");
+            		checkBox.setState(MirthTriStateCheckBox.UNCHECKED);
+            	}
                 return checkBox;
-            } else if (propertyDescriptor.getEditorType() == PropertyEditorType.STRING) {
-                textField.setText((String) propertyDescriptor.getValue());
+            } else if (nodeDescriptor.getEditorType() == PropertyEditorType.STRING) {
+                textField.setText((String) nodeDescriptor.getValue());
                 
                 // This forces the textField to request focus if a keypress started the edit.
                 SwingUtilities.invokeLater(new Runnable() {  
@@ -101,8 +116,8 @@ public class DataTypePropertiesCellEditor extends AbstractCellEditor implements 
                         textField.requestFocus();  
                     }  
                 }); 
-            } else if (propertyDescriptor.getEditorType() == PropertyEditorType.JAVASCRIPT) {
-                label.setText((String) propertyDescriptor.getValue());
+            } else if (nodeDescriptor.getEditorType() == PropertyEditorType.JAVASCRIPT) {
+                label.setText((String) nodeDescriptor.getValue());
                 panel.setBackground(table.getSelectionBackground());
                 return panel;
             }

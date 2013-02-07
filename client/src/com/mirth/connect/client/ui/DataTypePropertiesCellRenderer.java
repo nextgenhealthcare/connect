@@ -8,20 +8,20 @@ import java.awt.Insets;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
+import com.mirth.connect.client.ui.components.MirthTriStateCheckBox;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 
 public class DataTypePropertiesCellRenderer extends DefaultTableCellRenderer {
     
-    private JLabel label;
+    private static final String DIFFERENT_VALUES = "<Different Values>";
+	private JLabel label;
     private JLabel javascriptLabel;
-    private JCheckBox checkBox;
+    private MirthTriStateCheckBox checkBox;
     private JButton button;
     private JPanel panel;
     
@@ -33,7 +33,7 @@ public class DataTypePropertiesCellRenderer extends DefaultTableCellRenderer {
         javascriptLabel = new JLabel();
         javascriptLabel.setBorder(BorderFactory.createEmptyBorder());
         
-        checkBox = new JCheckBox();
+        checkBox = new MirthTriStateCheckBox();
 
         button = new JButton("Edit");
         button.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -62,20 +62,40 @@ public class DataTypePropertiesCellRenderer extends DefaultTableCellRenderer {
         panel.setBackground(backgroundColor);
         
         if (value != null) {
-            if (value instanceof DataTypePropertyDescriptor) {
-                DataTypePropertyDescriptor propertyDescriptor = (DataTypePropertyDescriptor) value;
-                if (propertyDescriptor.getEditorType() == PropertyEditorType.BOOLEAN) {
-                    // Display a checkbox if the type is boolean
-                    checkBox.setSelected((Boolean) propertyDescriptor.getValue());
+            if (value instanceof DataTypeNodeDescriptor) {
+                DataTypeNodeDescriptor nodeDescriptor = (DataTypeNodeDescriptor) value;
+                if (nodeDescriptor.getEditorType() == PropertyEditorType.BOOLEAN) {
+                	Boolean booleanValue = (Boolean) nodeDescriptor.getValue();
+                    // Display a tri-state checkbox if the type is boolean
+                	if (nodeDescriptor.isMultipleValues()) {
+                		checkBox.setText(DIFFERENT_VALUES);
+                		checkBox.setState(MirthTriStateCheckBox.PARTIAL);
+                	} else if (booleanValue) {
+                		checkBox.setText("");
+                		checkBox.setState(MirthTriStateCheckBox.CHECKED);
+                	} else {
+                		checkBox.setText("");
+                		checkBox.setState(MirthTriStateCheckBox.UNCHECKED);
+                	}
                 
                     return checkBox;
-                } else if (propertyDescriptor.getEditorType() == PropertyEditorType.STRING) {
+                } else if (nodeDescriptor.getEditorType() == PropertyEditorType.STRING) {
+                	String stringValue = (String) nodeDescriptor.getValue();
+                	if (nodeDescriptor.isMultipleValues()) {
+                		stringValue = DIFFERENT_VALUES;
+                	}
+
                     // Display a label if the type is a string.
-                    label.setText((String) propertyDescriptor.getValue());
+                    label.setText(stringValue);
                     return label;
-                } else if (propertyDescriptor.getEditorType() == PropertyEditorType.JAVASCRIPT) {
+                } else if (nodeDescriptor.getEditorType() == PropertyEditorType.JAVASCRIPT) {
+                	String stringValue = (String) nodeDescriptor.getValue();
+                	if (nodeDescriptor.isMultipleValues()) {
+                		stringValue = DIFFERENT_VALUES;
+                	}
+                	
                     // Display a label with a button if the type is Javascript
-                    javascriptLabel.setText((String) propertyDescriptor.getValue());
+                    javascriptLabel.setText(stringValue);
                     return panel;
                 }
             }

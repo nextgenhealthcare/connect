@@ -32,11 +32,11 @@ public class NCPDPSerializationProperties implements SerializationProperties {
             }
 
             if (properties.get("groupDelimiter") != null) {
-                this.segmentDelimiter = (String) properties.get("groupDelimiter");
+                this.groupDelimiter = (String) properties.get("groupDelimiter");
             }
 
             if (properties.get("fieldDelimiter") != null) {
-                this.segmentDelimiter = (String) properties.get("fieldDelimiter");
+                this.fieldDelimiter = (String) properties.get("fieldDelimiter");
             }
         }
     }

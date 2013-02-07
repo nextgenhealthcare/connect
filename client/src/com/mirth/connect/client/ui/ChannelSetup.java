@@ -295,11 +295,20 @@ public class ChannelSetup extends javax.swing.JPanel {
                 // Use a different properties object for the inbound and outbound
                 DataTypeProperties defaultInboundProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
                 DataTypeProperties defaultOutboundProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
+                DataTypeProperties defaultResponseInboundProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
+                DataTypeProperties defaultResponseOutboundProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
+
 
                 connector.getTransformer().setInboundDataType(dataType);
                 connector.getTransformer().setInboundProperties(defaultInboundProperties);
                 connector.getTransformer().setOutboundDataType(dataType);
                 connector.getTransformer().setOutboundProperties(defaultOutboundProperties);
+                connector.getResponseTransformer().setInboundDataType(dataType);
+                connector.getResponseTransformer().setInboundProperties(defaultResponseInboundProperties);
+                connector.getResponseTransformer().setOutboundDataType(dataType);
+                connector.getResponseTransformer().setOutboundProperties(defaultResponseOutboundProperties);
+                
+                
 
                 connector.setName(getNewDestinationName(tableSize));
                 connector.setTransportName(DESTINATION_DEFAULT);
@@ -2816,15 +2825,18 @@ public class ChannelSetup extends javax.swing.JPanel {
         c.setEnabled(true);
 
         Transformer dt = new Transformer();
+        Transformer drt = null;
         Filter df = new Filter();
 
         if (isDestination) {
             c.setMode(Connector.Mode.DESTINATION);
+            drt = new Transformer();
         } else {
             c.setMode(Connector.Mode.SOURCE);
         }
 
         c.setTransformer(dt);
+        c.setResponseTransformer(drt);
         c.setFilter(df);
         return c;
     }

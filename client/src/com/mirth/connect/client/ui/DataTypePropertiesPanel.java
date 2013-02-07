@@ -2,13 +2,24 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -18,18 +29,16 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.model.datatype.DataTypeProperties;
-import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 
 public class DataTypePropertiesPanel extends javax.swing.JPanel {
-    private DataTypeTreeTableModel tableModel;
+    private DataTypePropertiesTableModel tableModel;
     private boolean inbound;
-    private String dataType;
-    private String transformerName;
     private Style style;
     
     /**
@@ -42,7 +51,15 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
         style = descriptionPane.addStyle("BOLD", null);
         StyleConstants.setBold(style, true);
         
-        tableModel = new DataTypeTreeTableModel();
+        tableModel = new DataTypePropertiesTableModel() {
+        	
+        	@Override
+        	public void setValueAt(Object value, Object node, int column) {
+        		super.setValueAt(value, node, column);
+        		
+        		updateDefaultButton();
+        	}
+        };
         tableModel.setColumnIdentifiers(Arrays.asList(new String[] { "Name", "Value" }));
         propertiesTreeTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         propertiesTreeTable.setColumnFactory(new DataTypeColumnFactory());
@@ -67,14 +84,14 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
             
             @Override
             public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-                if (value instanceof DataTypeTreeTableNode) {
+                if (value instanceof DataTypePropertiesTableNode) {
                     
                     if (!leaf) {
                         label.setFont(label.getFont().deriveFont(Font.BOLD));
-                        label.setText(" " + ((DataTypeTreeTableNode)value).getValueAt(0));
+                        label.setText(" " + ((DataTypePropertiesTableNode)value).getValueAt(0));
                     } else {
                         label.setFont(label.getFont().deriveFont(Font.PLAIN));
-                        label.setText((String) ((DataTypeTreeTableNode)value).getValueAt(0));
+                        label.setText((String) ((DataTypePropertiesTableNode)value).getValueAt(0));
                     }
                 }
                 return label;
@@ -91,19 +108,10 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
                 
                 if (e.getNewLeadSelectionPath() != null) {
                     StyledDocument document = descriptionPane.getStyledDocument();
-                    DataTypeTreeTableNode tableNode = (DataTypeTreeTableNode)e.getNewLeadSelectionPath().getLastPathComponent();
-                    DataTypePropertyDescriptor descriptor = tableNode.getPropertyDescriptor();
+                    DataTypePropertiesTableNode tableNode = (DataTypePropertiesTableNode)e.getNewLeadSelectionPath().getLastPathComponent();
                     
-                    String descriptionTitle;
-                    String descriptionBody;
-                    
-                    if (descriptor == null) {
-                        descriptionTitle = tableNode.getGroupName() + " Properties";
-                        descriptionBody = tableNode.getGroupDescription();
-                    } else {
-                        descriptionTitle = descriptor.getDisplayName();
-                        descriptionBody = descriptor.getDescription();
-                    } 
+                    String descriptionTitle = tableNode.getName();
+                    String descriptionBody = tableNode.getDescription();
                     
                     try {
                         if (descriptionTitle != null && descriptionBody != null) {
@@ -132,6 +140,40 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
             
         });
         
+        // This listener shows the popup menu to restore a single value or group to its default value when the mouse is right clicked.
+        propertiesTreeTable.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (SwingUtilities.isRightMouseButton(e)) {
+					final int x = e.getX();
+					final int y = e.getY();
+					
+					final TreePath path = propertiesTreeTable.getPathForLocation(x, y);
+					propertiesTreeTable.getTreeSelectionModel().setSelectionPath(path);
+					
+					JPopupMenu popupMenu = new JPopupMenu();
+					 
+					JMenuItem menuItem = new JMenuItem("Restore Defaults");
+					menuItem.addActionListener(new ActionListener() {
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							DataTypePropertiesTableNode tableNode = (DataTypePropertiesTableNode) path.getLastPathComponent();
+							
+							tableModel.resetToDefault(tableNode);
+						}
+					 
+					});
+					 
+					popupMenu.add(menuItem);
+					popupMenu.show(e.getComponent(), x, y);
+
+				}
+			}
+        	
+        });
+        
         // Sets the alternating highlighter for the table
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
@@ -139,37 +181,76 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
         }
     }
     
-    // Sets whether this pane should show inbound or outbound properties
+    public JComboBox getDataTypeComboBox() {
+    	return dataTypeComboBox;
+    }
+    
+    public JButton getDefaultButton() {
+    	return defaultButton;
+    }
+    
+    /**
+     * Enable or disable the reset defaults button based on whether the properties are already the defaults
+     */
+    public void updateDefaultButton() {
+    	defaultButton.setEnabled(!tableModel.isDefaultProperties(null));
+    }
+    
+    /**
+     *  Sets whether this pane should show inbound or outbound properties
+     */
     public void setInbound(boolean inbound) {
         this.inbound = inbound;
     }
     
-    // Sets the title for this pane
-    public void setTitle(String transformerName) {
-        this.transformerName = transformerName;
+    /**
+     * Shows or hides the title border
+     */
+    public void setUseTitleBorder(boolean useTitleBorder) {
+    	if (useTitleBorder) {
+			// If no data type was provided, just show inbound or outbound
+			setBorder(BorderFactory.createTitledBorder((inbound ? "Inbound" : "Outbound") + " Properties"));
+    	} else {
+    		setBorder(BorderFactory.createEmptyBorder());
+    	}
     }
     
-    public void updateTitle() {
-        setBorder(BorderFactory.createTitledBorder(dataType + " - " + (transformerName == null ? "" : transformerName + " ") + (inbound ? "Inbound" : "Outbound") + " Properties"));
-    }
-    
-    // Load a new property set
+    /**
+     * Wraps a single DataTypeProperties in a list and forwards the method call
+     */
     public void setDataTypeProperties(String dataType, DataTypeProperties properties) {
-        this.dataType = dataType;
-        updateTitle();
+    	// If a single DataTypeProperties object is provided, wrap it in an list
+    	List<DataTypeProperties> propertiesList = null;
+    	if (properties != null) {
+    		propertiesList = new ArrayList<DataTypeProperties>();
+			propertiesList.add(properties);
+    	}
+    	setDataTypeProperties(dataType, propertiesList);
+    }
+    
+    /**
+     *  Load a new property set. Multiple DataTypeProperties objects can be loaded and they will all be updated when the user makes a change
+     */
+    public void setDataTypeProperties(String displayName, List<DataTypeProperties> properties) {
+        // Gets the default properties for a data type 
+        DataTypeProperties defaultProperties = null;
+        if (displayName != null) {
+        	defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(PlatformUI.MIRTH_FRAME.displayNameToDataType.get(displayName)).getDefaultProperties();
+        }
         
+        // Remove all nodes from the tree table
         tableModel.clear();
         
-        tableModel.addProperties(inbound, properties);
+        // Adds the properties to the tree table
+        tableModel.addProperties(inbound, properties, defaultProperties);
+        
+        // Enable or disable the default button depending on whether the properties already equal the defaults
+        updateDefaultButton();
+        
+        // Show all nodes
         propertiesTreeTable.expandAll();
     }
     
-    public void save() {
-        if (propertiesTreeTable.isEditing()) {
-            propertiesTreeTable.getCellEditor().stopCellEditing();
-        }
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -182,9 +263,11 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
         propertiesTreeTable = new com.mirth.connect.client.ui.components.MirthTreeTable();
         jScrollPane1 = new javax.swing.JScrollPane();
         descriptionPane = new javax.swing.JTextPane();
+        jPanel1 = new javax.swing.JPanel();
+        defaultButton = new com.mirth.connect.client.ui.components.MirthButton();
+        dataTypeComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder("Properties"));
 
         propertiesTreeTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         jScrollPane3.setViewportView(propertiesTreeTable);
@@ -192,23 +275,54 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
         descriptionPane.setEditable(false);
         jScrollPane1.setViewportView(descriptionPane);
 
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+
+        defaultButton.setText("Restore Defaults");
+        defaultButton.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+
+        dataTypeComboBox.setMaximumRowCount(20);
+        dataTypeComboBox.setAlignmentX(0.0F);
+        dataTypeComboBox.setAlignmentY(0.0F);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(dataTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 199, Short.MAX_VALUE)
+                .addComponent(defaultButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(defaultButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(dataTypeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
             .addComponent(jScrollPane1)
+            .addComponent(jScrollPane3)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.mirth.connect.client.ui.components.MirthComboBox dataTypeComboBox;
+    private com.mirth.connect.client.ui.components.MirthButton defaultButton;
     private javax.swing.JTextPane descriptionPane;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
     private com.mirth.connect.client.ui.components.MirthTreeTable propertiesTreeTable;

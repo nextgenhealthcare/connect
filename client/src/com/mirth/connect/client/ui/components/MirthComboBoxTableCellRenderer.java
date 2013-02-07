@@ -9,18 +9,16 @@
 
 package com.mirth.connect.client.ui.components;
 
-import java.awt.Color;
 import java.awt.Component;
+
 import javax.swing.AbstractButton;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-import org.apache.commons.lang.StringUtils;
-
 public class MirthComboBoxTableCellRenderer implements TableCellRenderer {
 
-    private JComboBox comboBox;
+    protected JComboBox comboBox;
     
     public MirthComboBoxTableCellRenderer(Object[] items) {
         comboBox = new JComboBox(items);
@@ -42,11 +40,6 @@ public class MirthComboBoxTableCellRenderer implements TableCellRenderer {
         } else {
             comboBox.setForeground(table.getForeground());
             comboBox.setBackground(table.getBackground());
-        }
-        
-        // Change the text color if the cell is not editable.
-        if (!table.getModel().isCellEditable(row, column)) {
-            comboBox.setForeground(Color.gray);
         }
         
         for (int i = 0; i < comboBox.getComponentCount(); i++) {

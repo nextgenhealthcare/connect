@@ -32,6 +32,7 @@ import org.apache.commons.io.FileUtils;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.TokenMarker;
+
 import com.mirth.connect.client.ui.editors.DataTypePropertiesDialog;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
 import com.mirth.connect.model.datatype.DataTypeProperties;
@@ -404,7 +405,13 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         String displayName = (String) dataTypeComboBox.getSelectedItem();
         
         if (dataProperties != null) {
-            new DataTypePropertiesDialog(inbound, null, displayName, dataProperties);
+        	DataTypeProperties lastDataTypeProperties = dataProperties.clone();
+            DataTypePropertiesDialog dialog = new DataTypePropertiesDialog(inbound, displayName, dataProperties);
+            if (dialog.isRevert()) {
+            	dataProperties = lastDataTypeProperties;
+            } else {
+            	dataProperties = dialog.getDataTypeProperties();
+            }
         }
         
         updateText();
@@ -417,12 +424,10 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         
         // Only set the default properties if the data type is changing
         if (!currentDataType.equals(dataTypeComboBox.getSelectedItem())) {
-            // Set the default properties for the data type selected
-            for (String dataType : LoadedExtensions.getInstance().getDataTypePlugins().keySet()) {
-                if (PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(dataType).equals(dataTypeComboBox.getSelectedItem())) {
-                    dataProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
-                }
-            }
+        	// Set the default properties for the data type selected
+        	String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataTypeComboBox.getSelectedItem());
+        	
+        	dataProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
         }
         
         setDocType((String) dataTypeComboBox.getSelectedItem());
