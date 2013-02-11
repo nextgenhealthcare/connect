@@ -399,7 +399,6 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
 
     private void propertiesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_propertiesActionPerformed
     {//GEN-HEADEREND:event_propertiesActionPerformed
-        PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
         currentMessage = "";
         
         String displayName = (String) dataTypeComboBox.getSelectedItem();
@@ -411,6 +410,9 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             	dataProperties = lastDataTypeProperties;
             } else {
             	dataProperties = dialog.getDataTypeProperties();
+            	if (!dataProperties.equals(lastDataTypeProperties)) {
+            		PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
+            	}
             }
         }
         

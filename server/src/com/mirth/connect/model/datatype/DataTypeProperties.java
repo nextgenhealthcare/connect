@@ -42,4 +42,25 @@ public abstract class DataTypeProperties implements Serializable {
     public DataTypeProperties clone() {
     	return SerializationUtils.clone(this);
     }
+    
+    public boolean equals(Object object) {
+    	if (object instanceof DataTypeProperties) {
+    		DataTypeProperties properties = (DataTypeProperties) object;
+    		if (equals(serializationProperties, properties.getSerializationProperties()) && equals(deserializationProperties, properties.getDeserializationProperties()) && equals(batchProperties, properties.getBatchProperties()) && equals(responseGenerationProperties, properties.getResponseGenerationProperties()) && equals(responseValidationProperties, properties.getResponseValidationProperties())) {
+    			return true;
+    		}
+    	}
+    	
+    	return false;
+    }
+    
+    private boolean equals(DataTypePropertiesGroup group1, DataTypePropertiesGroup group2) {
+    	if (group1 == null && group2 == null) {
+    		return true;
+    	} else if (group1 != null && group2 != null) {
+    		return group1.equals(group2);
+    	} else {
+    		return false;
+    	}
+    }
 }

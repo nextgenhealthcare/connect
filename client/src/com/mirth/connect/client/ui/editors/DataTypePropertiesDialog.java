@@ -29,6 +29,7 @@ public class DataTypePropertiesDialog extends javax.swing.JDialog {
 		
         dataTypePropertiesPanel.setInbound(inbound);
         dataTypePropertiesPanel.setUseTitleBorder(false);
+        dataTypePropertiesPanel.getDataTypeComboBox().setVisible(false);
         dataTypePropertiesPanel.setDataTypeProperties(displayName, dataTypeProperties);
         dataTypePropertiesPanel.getDefaultButton().addActionListener(new ActionListener() {
 

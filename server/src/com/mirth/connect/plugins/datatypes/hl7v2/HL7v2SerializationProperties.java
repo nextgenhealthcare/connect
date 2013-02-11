@@ -7,7 +7,7 @@ import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.SerializationProperties;
 
-public class HL7v2SerializationProperties implements SerializationProperties {
+public class HL7v2SerializationProperties extends SerializationProperties {
     private boolean handleRepetitions = false;
     private boolean handleSubcomponents = false;
     private boolean useStrictParser = false;

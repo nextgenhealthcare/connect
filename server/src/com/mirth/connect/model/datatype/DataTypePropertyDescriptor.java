@@ -45,5 +45,17 @@ public class DataTypePropertyDescriptor {
         this.editorType = editorType;
     }
     
+    @Override
+    public boolean equals(Object object) {
+    	if (object instanceof DataTypePropertyDescriptor) {
+    		DataTypePropertyDescriptor descriptor = (DataTypePropertyDescriptor) object;
+    		
+    		if (value.equals(descriptor.getValue()) && displayName.equals(descriptor.getDisplayName()) && description.equals(descriptor.getDescription()) && editorType.equals(descriptor.getEditorType())) {
+    			return true;
+    		}
+    	}
+    	
+    	return false;
+    }
     
 }

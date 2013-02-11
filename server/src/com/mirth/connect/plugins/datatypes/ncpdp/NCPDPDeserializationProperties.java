@@ -7,7 +7,7 @@ import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.DeserializationProperties;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 
-public class NCPDPDeserializationProperties implements DeserializationProperties {
+public class NCPDPDeserializationProperties extends DeserializationProperties {
     
     private String segmentDelimiter = "0x1E";
     private String groupDelimiter = "0x1D";

@@ -1,5 +1,5 @@
 package com.mirth.connect.model.datatype;
 
-public interface BatchProperties extends DataTypePropertiesGroup {
+public abstract class BatchProperties extends DataTypePropertiesGroup {
 
 }

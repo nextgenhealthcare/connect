@@ -7,7 +7,7 @@ import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.DeserializationProperties;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 
-public class HL7v2DeserializationProperties implements DeserializationProperties {
+public class HL7v2DeserializationProperties extends DeserializationProperties {
     private boolean useStrictParser = false;
     private boolean useStrictValidation = false;
     private String segmentDelimiter = "\\r";

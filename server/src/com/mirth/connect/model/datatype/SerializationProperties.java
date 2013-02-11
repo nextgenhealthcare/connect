@@ -1,5 +1,5 @@
 package com.mirth.connect.model.datatype;
 
-public interface SerializationProperties extends DataTypePropertiesGroup {
+public abstract class SerializationProperties extends DataTypePropertiesGroup {
 
 }

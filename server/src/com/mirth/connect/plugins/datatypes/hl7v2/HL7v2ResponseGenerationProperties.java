@@ -7,7 +7,7 @@ import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.ResponseGenerationProperties;
 
-public class HL7v2ResponseGenerationProperties implements ResponseGenerationProperties {
+public class HL7v2ResponseGenerationProperties extends ResponseGenerationProperties {
     private String segmentDelimiter = "\\r";
     private String successfulACKCode = "AA";
     private String successfulACKMessage = "";

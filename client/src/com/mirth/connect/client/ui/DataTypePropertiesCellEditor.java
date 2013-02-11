@@ -86,8 +86,6 @@ public class DataTypePropertiesCellEditor extends AbstractCellEditor implements 
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-        // Enable the save option regardless if any values were changed just to be safe
-        PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
         if (value instanceof DataTypeNodeDescriptor) {
             DataTypeNodeDescriptor nodeDescriptor = (DataTypeNodeDescriptor) value;
             valueType = nodeDescriptor.getEditorType();

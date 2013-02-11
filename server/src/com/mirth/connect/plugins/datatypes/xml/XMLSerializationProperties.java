@@ -7,7 +7,7 @@ import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.SerializationProperties;
 
-public class XMLSerializationProperties implements SerializationProperties {
+public class XMLSerializationProperties extends SerializationProperties {
     
     private boolean stripNamespaces = true;
 

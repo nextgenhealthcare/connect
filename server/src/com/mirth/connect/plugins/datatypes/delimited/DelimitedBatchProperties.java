@@ -10,7 +10,7 @@ import com.mirth.connect.model.datatype.BatchProperties;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 
-public class DelimitedBatchProperties implements BatchProperties {
+public class DelimitedBatchProperties extends BatchProperties {
     
     private transient Logger logger = Logger.getLogger(this.getClass());
     

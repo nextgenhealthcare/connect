@@ -10,7 +10,7 @@ import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.DeserializationProperties;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 
-public class DelimitedDeserializationProperties implements DeserializationProperties {
+public class DelimitedDeserializationProperties extends DeserializationProperties {
     
     private transient Logger logger = Logger.getLogger(this.getClass());
     

@@ -109,7 +109,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
 
             @Override
             public void windowClosing(WindowEvent e) {
-                revertProperties(null);
+                revertProperties();
             }
             
         });
@@ -613,8 +613,6 @@ public class DataTypesDialog extends javax.swing.JDialog {
                 
                 updateSingleDataType(tableNode, dataTypeDisplayName, inbound);
             }
-            
-            PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
         }
         
     }
@@ -747,6 +745,17 @@ public class DataTypesDialog extends javax.swing.JDialog {
     /**
      * Discard all changes made by this dialog instance
      */
+    private void revertProperties() {
+    	for (TransformerContainer container : transformerContainer.values()) {
+        	Transformer transformer = container.getTransformer();
+        	
+        	transformer.setInboundDataType(container.getLastInboundDataType());
+        	transformer.setInboundProperties(container.getLastInboundDataTypeProperties());
+        	transformer.setOutboundDataType(container.getLastOutboundDataType());
+        	transformer.setOutboundProperties(container.getLastOutboundDataTypeProperties());
+    	}
+    }
+    
     private void revertProperties(TreeTableNode node) {
     	if (node == null) {
     		node = (TreeTableNode) connectorTreeTable.getTreeTableModel().getRoot();
@@ -1181,11 +1190,20 @@ public class DataTypesDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
 private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
-	revertProperties(null);
+	revertProperties();
     this.dispose();
 }//GEN-LAST:event_closeButtonActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+    	for (TransformerContainer container : transformerContainer.values()) {
+    		Transformer transformer = container.getTransformer();
+    		
+    		// Enable the save task if a anything was changed
+    		if (!transformer.getInboundDataType().equals(container.getLastInboundDataType()) || !transformer.getInboundProperties().equals(container.getLastInboundDataTypeProperties()) || !transformer.getOutboundDataType().equals(container.getLastOutboundDataType()) || !transformer.getOutboundProperties().equals(container.getLastOutboundDataTypeProperties())) {
+    			parent.setSaveEnabled(true);
+    		}
+    	}
+    	
         this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
 

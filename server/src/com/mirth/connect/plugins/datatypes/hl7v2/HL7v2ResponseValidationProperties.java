@@ -7,7 +7,7 @@ import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.ResponseValidationProperties;
 
-public class HL7v2ResponseValidationProperties implements ResponseValidationProperties {
+public class HL7v2ResponseValidationProperties extends ResponseValidationProperties {
     private String successfulACKCode = "AA";
     private String errorACKCode = "AE";
     private String rejectedACKCode = "AR";

@@ -10,7 +10,7 @@ import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.SerializationProperties;
 
-public class DelimitedSerializationProperties implements SerializationProperties {
+public class DelimitedSerializationProperties extends SerializationProperties {
     
     private transient Logger logger = Logger.getLogger(this.getClass());
     

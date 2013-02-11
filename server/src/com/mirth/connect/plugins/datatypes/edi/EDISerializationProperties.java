@@ -7,7 +7,7 @@ import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
 import com.mirth.connect.model.datatype.PropertyEditorType;
 import com.mirth.connect.model.datatype.SerializationProperties;
 
-public class EDISerializationProperties implements SerializationProperties {
+public class EDISerializationProperties extends SerializationProperties {
     private String segmentDelimiter = "~";
     private String elementDelimiter = "*";
     private String subelementDelimiter = ":";

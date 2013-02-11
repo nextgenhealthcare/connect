@@ -139,8 +139,6 @@ public class MirthTriStateCheckBox extends JCheckBox {
 		        state = UNCHECKED;
 		        break;
 	        } 
-			
-			PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
 		}
 	}
 }
