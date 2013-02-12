@@ -285,5 +285,10 @@ public class TemplateValueReplacer {
         loadContextFromMap(context, connectorMessage.getChannelMap());
         loadContextFromMap(context, connectorMessage.getConnectorMap());
         loadContextFromMap(context, connectorMessage.getResponseMap());
+        
+        // Use the current time as the original file name if there is no original file name.
+        if (!context.containsKey("originalFilename")) {
+        	context.put("originalFilename", System.currentTimeMillis() + ".dat");
+        }
     }
 }
