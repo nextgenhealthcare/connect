@@ -56,7 +56,7 @@ public class DelimitedBatchProperties extends BatchProperties {
                 }
             }
             
-            if (StringUtils.isNotEmpty((String) properties.get("batchMessageDelimiter"))) {
+            if (properties.get("batchMessageDelimiter") != null) {
                 batchMessageDelimiter = (String) properties.get("batchMessageDelimiter");
                 countSetBatchOptions++;
             }
@@ -65,12 +65,12 @@ public class DelimitedBatchProperties extends BatchProperties {
                 batchMessageDelimiterIncluded = (Boolean) properties.get("batchMessageDelimiterIncluded");
             }
     
-            if (StringUtils.isNotEmpty((String) properties.get("batchGroupingColumn"))) {
+            if (properties.get("batchGroupingColumn") != null) {
                 batchGroupingColumn = (String) properties.get("batchGroupingColumn");
                 countSetBatchOptions++;
             }
     
-            if (StringUtils.isNotEmpty((String) properties.get("batchScript"))) {
+            if (properties.get("batchScript") != null) {
                 batchScript = (String) properties.get("batchScript");
                 countSetBatchOptions++;
             }
