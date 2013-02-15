@@ -3,6 +3,8 @@ package com.mirth.connect.connectors.jms;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Hashtable;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -10,6 +12,8 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -32,19 +36,18 @@ public class JmsDispatcherTests {
     private final static String TEST_SERVER_ID = "testserver";
     private final static String TEST_HL7_MESSAGE = "MSH|^~\\&|LABNET|Acme Labs|||20090601105700||ORU^R01|HMCDOOGAL-0088|D|2.2\rPID|1|8890088|8890088^^^72777||McDoogal^Hattie^||19350118|F||2106-3|100 Beach Drive^Apt. 5^Mission Viejo^CA^92691^US^H||(949) 555-0025|||||8890088^^^72|604422825\rPV1|1|R|C3E^C315^B||||2^HIBBARD^JULIUS^|5^ZIMMERMAN^JOE^|9^ZOIDBERG^JOHN^|CAR||||4|||2301^OBRIEN, KEVIN C|I|1783332658^1^1||||||||||||||||||||DISNEY CLINIC||N|||20090514205600\rORC|RE|928272608|056696716^LA||CM||||20090601105600||||  C3E|||^RESULT PERFORMED\rOBR|1|928272608|056696716^LA|1001520^K|||20090601101300|||MLH25|||HEMOLYZED/VP REDRAW|20090601102400||2301^OBRIEN, KEVIN C||||01123085310001100100152023509915823509915800000000101|0000915200932|20090601105600||LAB|F||^^^20090601084100^^ST~^^^^^ST\rOBX|1|NM|1001520^K||5.3|MMOL/L|3.5-5.5||||F|||20090601105600|IIM|IIM\r";
 
+    private static String queueName;
+    private static String topicName;
     private static ConnectionFactory connectionFactory;
     private static Session session;
+    private static InitialContext initialContext;
 
-    private static JmsDispatcherProperties getInitialProperties() {
-        return getInitialProperties(false);
-    }
-
-    private static JmsDispatcherProperties getInitialProperties(boolean setInvalidConnection) {
+    private static JmsDispatcherProperties initActiveMQ(boolean setInvalidConnection) {
         // before running tests, make these properties point to a running JMS broker (or not if setInvalidConnection is true)
         JmsDispatcherProperties connectorProperties = new JmsDispatcherProperties();
 
         String host = "localhost";
-        int port = 61617;
+        int port = 61616;
 
         if (setInvalidConnection) {
             port++;
@@ -54,7 +57,55 @@ public class JmsDispatcherTests {
         connectorProperties.setConnectionFactoryClass("org.apache.activemq.ActiveMQConnectionFactory");
         connectorProperties.getConnectionProperties().put("brokerURL", "tcp://" + host + ":" + port);
 
+        queueName = "testQueue";
+        topicName = "testTopic";
+
         return connectorProperties;
+    }
+
+    private static JmsDispatcherProperties initJBoss(boolean setInvalidConnection) {
+        JmsDispatcherProperties connectorProperties = new JmsDispatcherProperties();
+
+        String host = "localhost";
+        int port = 1099;
+
+        if (setInvalidConnection) {
+            port++;
+        }
+
+        connectorProperties.setUseJndi(true);
+        connectorProperties.setJndiProviderUrl("jnp://" + host + ":" + port);
+        connectorProperties.setJndiInitialContextFactory("org.jnp.interfaces.NamingContextFactory");
+        connectorProperties.setJndiConnectionFactoryName("java:/ConnectionFactory");
+        connectorProperties.setClientId("mirth");
+        connectorProperties.setUsername("guest");
+        connectorProperties.setPassword("guest");
+
+        queueName = "queue/mirthQueue";
+        topicName = "topic/mirthTopic";
+
+        return connectorProperties;
+    }
+
+    private static JmsDispatcherProperties getInitialProperties() {
+        return getInitialProperties(false);
+    }
+
+    private static JmsDispatcherProperties getInitialProperties(boolean setInvalidConnection) {
+        return initActiveMQ(setInvalidConnection);
+//        return initJBoss(setInvalidConnection);
+    }
+
+    private static ConnectionFactory lookupConnectionFactoryWithJndi(JmsConnectorProperties connectorProperties) throws Exception {
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put(Context.PROVIDER_URL, connectorProperties.getJndiProviderUrl());
+        env.put(Context.INITIAL_CONTEXT_FACTORY, connectorProperties.getJndiInitialContextFactory());
+        env.put(Context.SECURITY_PRINCIPAL, connectorProperties.getUsername());
+        env.put(Context.SECURITY_CREDENTIALS, connectorProperties.getPassword());
+
+        initialContext = new InitialContext(env);
+        String connectionFactoryName = connectorProperties.getJndiConnectionFactoryName();
+        return (ConnectionFactory) initialContext.lookup(connectionFactoryName);
     }
 
     @BeforeClass
@@ -62,8 +113,7 @@ public class JmsDispatcherTests {
         JmsDispatcherProperties properties = getInitialProperties();
 
         if (properties.isUseJndi()) {
-            // TODO
-            connectionFactory = null;
+            connectionFactory = lookupConnectionFactoryWithJndi(properties);
         } else {
             String className = properties.getConnectionFactoryClass();
             connectionFactory = (ConnectionFactory) Class.forName(className).newInstance();
@@ -79,7 +129,7 @@ public class JmsDispatcherTests {
     @Test
     public void testSendToQueue() throws Exception {
         JmsDispatcherProperties connectorProperties = getInitialProperties();
-        connectorProperties.setDestinationName("testQueue");
+        connectorProperties.setDestinationName(queueName);
         connectorProperties.setTopic(false);
         runTest(connectorProperties);
     }
@@ -87,7 +137,7 @@ public class JmsDispatcherTests {
     @Test
     public void testSendToTopic() throws Exception {
         JmsDispatcherProperties connectorProperties = getInitialProperties();
-        connectorProperties.setDestinationName("testTopic");
+        connectorProperties.setDestinationName(topicName);
         connectorProperties.setTopic(true);
         runTest(connectorProperties);
     }
@@ -110,10 +160,14 @@ public class JmsDispatcherTests {
         long messageIdSequence = 1;
         Destination destination;
 
-        if (connectorProperties.isTopic()) {
-            destination = session.createTopic(connectorProperties.getDestinationName());
+        if (connectorProperties.isUseJndi()) {
+            destination = (Destination) initialContext.lookup(connectorProperties.getDestinationName());
         } else {
-            destination = session.createQueue(connectorProperties.getDestinationName());
+            if (connectorProperties.isTopic()) {
+                destination = session.createTopic(connectorProperties.getDestinationName());
+            } else {
+                destination = session.createQueue(connectorProperties.getDestinationName());
+            }
         }
 
         MessageConsumer consumer = session.createConsumer(destination);

@@ -6,11 +6,12 @@ import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 public class JmsDispatcherProperties extends JmsConnectorProperties implements QueueConnectorPropertiesInterface {
     private static final String NAME = "JMS Sender";
     private static final String PROTOCOL = "JMS";
-    
+
     private String template;
     private QueueConnectorProperties queueConnectorProperties;
-    
+
     public JmsDispatcherProperties() {
+        super();
         template = "${message.encodedData}";
         queueConnectorProperties = new QueueConnectorProperties();
     }
@@ -27,7 +28,7 @@ public class JmsDispatcherProperties extends JmsConnectorProperties implements Q
 
     @Override
     public String toFormattedString() {
-        return super.toFormattedString() + "[CONTENT]\n" + template;
+        return super.toFormattedString() + "\n[CONTENT]\n" + template;
     }
 
     public String getTemplate() {

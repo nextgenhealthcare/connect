@@ -155,6 +155,19 @@ public class TemplateValueReplacer {
             return template;
         }
     }
+    
+    /**
+     * Replaces variables in a map
+     */
+    public Map<String, String> replaceValues(Map<String, String> template, String channelId) {
+        Map<String, String> replacedTemplate = new HashMap<String, String>();
+
+        for (Entry<String, String> entry : template.entrySet()) {
+            replacedTemplate.put(entry.getKey(), replaceValues(entry.getValue(), channelId));
+        }
+
+        return replacedTemplate;
+    }
 
     /**
      * Replaces variables in the template.

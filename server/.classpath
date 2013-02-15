@@ -75,8 +75,25 @@
 	<classpathentry kind="lib" path="lib/rhino-1.7r4.jar"/>
 	<classpathentry kind="lib" path="lib/database/derby-1414718.jar"/>
 	<classpathentry kind="lib" path="lib/database/derbytools-1414718.jar"/>
-	<classpathentry kind="lib" path="lib/jms/activemq-all-5.7.0.jar"/>
 	<classpathentry kind="lib" path="lib/jms/geronimo-jms_1.1_spec-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jms/geronimo-j2ee-management_1.1_spec-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss5/concurrent.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss5/javassist.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss5/jboss-aop-client.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss5/jboss-common-core.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss5/jboss-j2se.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss5/jboss-javaee.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss5/jboss-mdr.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss5/jboss-messaging-client.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss5/jboss-remoting.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss5/jboss-serialization.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss5/jnp-client.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss5/trove.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss4/jbossmq-client.jar"/>
+	<classpathentry kind="lib" path="lib/jms/jboss5/jboss-logging-spi.jar"/>
+	<classpathentry kind="lib" path="lib/jms/activemq/activemq-client-5.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/jms/activemq/activemq-openwire-legacy-5.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/jms/activemq/hawtbuf-1.9.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>

@@ -3,7 +3,7 @@ package com.mirth.connect.client.ui.components;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EventObject;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
@@ -121,7 +121,7 @@ public class MirthPropertiesTable extends MirthTable {
     }
 
     public Map<String, String> getProperties() {
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new LinkedHashMap<String, String>();
         int rowCount = model.getRowCount();
 
         for (int i = 0; i < rowCount; i++) {

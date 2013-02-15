@@ -2,7 +2,7 @@ package com.mirth.connect.connectors.jms;
 
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -13,8 +13,6 @@ import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
@@ -27,13 +25,14 @@ import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.TemplateValueReplacer;
+import com.mirth.connect.util.BeanUtil;
 import com.mirth.connect.util.ErrorConstants;
 
 /**
  * Represents the client connection to a JMS broker, used by both the JMS receiver and dispatcher
  * connectors
  */
-public class JmsClient {
+public class JmsClient implements ExceptionListener {
     private Connector connector;
     private ConnectorType connectorType;
     private JmsConnectorProperties connectorProperties;
@@ -45,6 +44,7 @@ public class JmsClient {
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    private AtomicBoolean attemptingReconnect = new AtomicBoolean(false);
     private Logger logger = Logger.getLogger(getClass());
 
     public JmsClient(final Connector connector, final ConnectorType connectorType, JmsConnectorProperties connectorProperties) {
@@ -53,21 +53,32 @@ public class JmsClient {
         this.connectorProperties = connectorProperties;
     }
 
-    private ConnectionFactory getConnectionFactory() throws Exception {
-        ConnectionFactory connectionFactory;
+    private ConnectionFactory lookupConnectionFactoryWithJndi() throws Exception {
         String channelId = connector.getChannelId();
 
-        if (connectorProperties.isUseJndi()) {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-            env.put(Context.PROVIDER_URL, replacer.replaceValues(connectorProperties.getJndiProviderUrl(), channelId));
-            env.put(Context.INITIAL_CONTEXT_FACTORY, replacer.replaceValues(connectorProperties.getJndiInitialContextFactory(), channelId));
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        env.put(Context.PROVIDER_URL, replacer.replaceValues(connectorProperties.getJndiProviderUrl(), channelId));
+        env.put(Context.INITIAL_CONTEXT_FACTORY, replacer.replaceValues(connectorProperties.getJndiInitialContextFactory(), channelId));
+        env.put(Context.SECURITY_PRINCIPAL, replacer.replaceValues(connectorProperties.getUsername(), channelId));
+        env.put(Context.SECURITY_CREDENTIALS, replacer.replaceValues(connectorProperties.getPassword(), channelId));
 
-            initialContext = new InitialContext(env);
-            String connectionFactoryName = replacer.replaceValues(connectorProperties.getJndiConnectionFactoryName(), channelId);
-            connectionFactory = (ConnectionFactory) initialContext.lookup(connectionFactoryName);
+        initialContext = new InitialContext(env);
+        String connectionFactoryName = replacer.replaceValues(connectorProperties.getJndiConnectionFactoryName(), channelId);
+        return (ConnectionFactory) initialContext.lookup(connectionFactoryName);
+    }
+
+    /**
+     * Starts a JMS connection and session.
+     */
+    public void start() throws Exception {
+        final String channelId = connector.getChannelId();
+        Map<String, String> connectionProperties = replacer.replaceValues(connectorProperties.getConnectionProperties(), channelId);
+        ConnectionFactory connectionFactory = null;
+
+        if (connectorProperties.isUseJndi()) {
+            connectionFactory = lookupConnectionFactoryWithJndi();
         } else {
             String className = replacer.replaceValues(connectorProperties.getConnectionFactoryClass(), channelId);
-            logger.debug("Instantiating connection factory: " + className);
 
             try {
                 connectionFactory = (ConnectionFactory) Class.forName(className).newInstance();
@@ -76,99 +87,18 @@ public class JmsClient {
             }
         }
 
-        /*
-         * Take the Property/Value entries that the user provided in the connector UI and use
-         * BeanUtils to set them on the ConnectionFactory.
-         */
-        Map<String, String> properties = connectorProperties.getConnectionProperties();
-
-        for (Entry<String, String> entry : properties.entrySet()) {
-            entry.setValue(replacer.replaceValues(entry.getValue(), channelId));
-
-            try {
-                BeanUtils.setProperty(connectionFactory, entry.getKey(), entry.getValue());
-            } catch (Exception e) {
-                logger.error("Failed to set ConnectionFactory property '" + entry.getKey() + "'", e);
-            }
-        }
-
-        /*
-         * Use a ConnectionFactory wrapper for recognized JMS implementations, in order to set
-         * implementation-specific features (like connection timeout).
-         */
-        if (connectionFactory instanceof ActiveMQConnectionFactory) {
-            connectionFactory = new MirthActiveMQConnectionFactory((ActiveMQConnectionFactory) connectionFactory, properties);
-        }
-
-        return connectionFactory;
-    }
-
-    /**
-     * Starts a JMS connection and session.
-     */
-    public void start() throws Exception {
-        ConnectionFactory connectionFactory = getConnectionFactory();
-        final String channelId = connector.getChannelId();
-        final int metaDataId = connector.getMetaDataId();
+        BeanUtil.setProperties(connectionFactory, connectionProperties);
 
         try {
             logger.debug("Creating JMS connection and session");
             connection = connectionFactory.createConnection(replacer.replaceValues(connectorProperties.getUsername(), channelId), replacer.replaceValues(connectorProperties.getPassword(), channelId));
-
             String clientId = replacer.replaceValues(connectorProperties.getClientId(), channelId);
 
             if (!clientId.isEmpty()) {
                 connection.setClientID(clientId);
             }
 
-            /*
-             * Set an exception listener that will detect if the JMS connection encounters a
-             * problem. When that happens, attempt to reconnect every X milliseconds or until the
-             * connector is stopped/undeployed.
-             */
-            connection.setExceptionListener(new ExceptionListener() {
-                @Override
-                public void onException(JMSException e) {
-                    monitoringController.updateStatus(channelId, metaDataId, connectorType, Event.DISCONNECTED);
-                    int reconnectIntervalMillis = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getReconnectIntervalMillis(), channelId));
-
-                    if (reconnectIntervalMillis > 0 && connector.getCurrentState() == ChannelState.STARTED) {
-                        Exception exception;
-                        reportError("A connection error occurred, attempting to reconnect", e);
-
-                        do {
-                            exception = null;
-
-                            try {
-                                connector.onStop();
-                            } catch (Exception e1) {
-                                logger.error("Failed to close connection", e1);
-                            }
-
-                            try {
-                                connector.onStart();
-                            } catch (Exception e1) {
-                                reportError("Failed to reconnect, retyring in " + reconnectIntervalMillis + " milliseconds", e1);
-                                exception = e1;
-
-                                try {
-                                    Thread.sleep(reconnectIntervalMillis);
-                                } catch (InterruptedException e2) {
-                                    Thread.currentThread().interrupt();
-                                }
-                            }
-                        } while (exception != null && connector.getCurrentState() == ChannelState.STARTED);
-
-                        if (exception == null) {
-                            logger.debug("Reconnected successfully");
-                        } else {
-                            logger.debug("Halted reconnect attempt, channel is no longer running");
-                        }
-                    } else {
-                        reportError("A connection error occurred.", e);
-                    }
-                }
-            });
+            connection.setExceptionListener(this);
 
             logger.debug("Starting JMS connection");
             connection.start();
@@ -235,6 +165,60 @@ public class JmsClient {
         }
 
         return destination;
+    }
+
+    /*
+     * The exception listener detects if the JMS connection encounters a problem. When that happens,
+     * attempt to reconnect every X milliseconds or until the connector is stopped/undeployed.
+     */
+    @Override
+    public void onException(JMSException e) {
+        if (!attemptingReconnect.get()) {
+            attemptingReconnect.set(true);
+
+            try {
+                int reconnectIntervalMillis = NumberUtils.toInt(replacer.replaceValues(connectorProperties.getReconnectIntervalMillis(), connector.getChannelId()));
+
+                if (reconnectIntervalMillis > 0 && connector.getCurrentState() == ChannelState.STARTED) {
+                    Exception exception;
+                    reportError("A connection error occurred, attempting to reconnect", e);
+
+                    try {
+                        connector.onStop();
+                    } catch (Exception e1) {
+                        logger.error("Failed to close connection", e1);
+                        monitoringController.updateStatus(connector.getChannelId(), connector.getMetaDataId(), connectorType, Event.DISCONNECTED);
+                    }
+
+                    do {
+                        exception = null;
+
+                        try {
+                            connector.onStart();
+                        } catch (Exception e1) {
+                            reportError("Failed to reconnect, retyring in " + reconnectIntervalMillis + " milliseconds", e1);
+                            exception = e1;
+
+                            try {
+                                Thread.sleep(reconnectIntervalMillis);
+                            } catch (InterruptedException e2) {
+                                Thread.currentThread().interrupt();
+                            }
+                        }
+                    } while (exception != null && connector.getCurrentState() == ChannelState.STARTED);
+
+                    if (exception == null) {
+                        logger.debug("Reconnected successfully");
+                    } else {
+                        logger.debug("Halted reconnect attempt, channel is no longer running");
+                    }
+                } else {
+                    reportError("A connection error occurred.", e);
+                }
+            } finally {
+                attemptingReconnect.set(false);
+            }
+        }
     }
 
     private void reportError(String errorMessage, Exception e) {

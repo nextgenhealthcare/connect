@@ -1,12 +1,11 @@
 package com.mirth.connect.connectors.jms;
 
 public class JmsReceiverProperties extends JmsConnectorProperties {
-    private String clientId;
     private String selector;
     private boolean durableTopic;
 
     public JmsReceiverProperties() {
-        clientId = "";
+        super();
         selector = "";
         durableTopic = false;
     }
@@ -18,15 +17,18 @@ public class JmsReceiverProperties extends JmsConnectorProperties {
 
     @Override
     public String toFormattedString() {
-        return null;
-    }
+        String newLine = "\n";
+        StringBuilder builder = new StringBuilder(super.toFormattedString());
 
-    public String getClientId() {
-        return clientId;
-    }
+        if (!selector.isEmpty()) {
+            builder.append("SELECTOR: " + selector + newLine);
+        }
 
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
+        if (!isUseJndi()) {
+            builder.append("DURABLE TOPIC: " + (durableTopic ? "yes" : "no") + newLine);
+        }
+
+        return builder.toString();
     }
 
     public String getSelector() {

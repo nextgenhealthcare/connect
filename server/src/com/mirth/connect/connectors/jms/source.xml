@@ -8,6 +8,7 @@
 	<clientClassName>com.mirth.connect.connectors.jms.JmsListener</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.jms.JmsReceiver</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.jms.JmsReceiverProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.jms.JmsConnectorService</serviceClassName>
 	<transformers></transformers>
 	<protocol>jms</protocol>
 	<type>SOURCE</type>

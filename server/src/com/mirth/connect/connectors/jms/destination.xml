@@ -8,6 +8,7 @@
 	<clientClassName>com.mirth.connect.connectors.jms.JmsSender</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.jms.JmsDispatcher</serverClassName>
 	<sharedClassName>com.mirth.connect.connectors.jms.JmsDispatcherProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.jms.JmsConnectorService</serviceClassName>
 	<library type="CLIENT" path="jms-client.jar" />
 	<library type="SHARED" path="jms-shared.jar" />
 	<library type="SERVER" path="jms-server.jar" />
