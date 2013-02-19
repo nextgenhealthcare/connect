@@ -66,7 +66,13 @@ public class ChannelController {
     public Statistics getTotalStatistics() {
         return totalStats;
     }
-
+    
+    /**
+     * Reset the statistics for the given channels/connectors and statuses
+     * 
+     * @param channelConnectorMap A Map of channel ids and lists of connector meta data ids
+     * @param statuses A list of statuses
+     */
     public void resetStatistics(Map<String, List<Integer>> channelConnectorMap, Set<Status> statuses) {
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
