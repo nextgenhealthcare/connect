@@ -20,10 +20,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -436,7 +438,7 @@ public class CommandLineInterface {
         out.println("channel undeploy|deploy|start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
         out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
         out.println("channel list\n\tLists all Channels\n");
-        out.println("clearallmessages\n\tRemoves all messages from all Channels\n");
+        out.println("clearallmessages\n\tRemoves all messages from all Channels (running channels will be restarted)\n");
         out.println("resetstats\n\tRemoves all stats from all Channels\n");
         out.println("dump stats|events \"path\"\n\tDumps stats or events to specified file\n");
         out.println("user list\n\tReturns a list of the current users\n");
@@ -1153,11 +1155,13 @@ public class CommandLineInterface {
     }
 
     private void commandClearAllMessages(Token[] arguments) throws ClientException {
-        List<Channel> channels = client.getChannel(null);
+        Set<String> channelIds = new HashSet<String>();
 
-        for (Channel channel : channels) {
-            client.clearMessages(channel.getId());
+        for (Channel channel : client.getChannel(null)) {
+            channelIds.add(channel.getId());
         }
+
+        client.clearMessages(channelIds, true, false);
     }
 
     private void commandResetstats(Token[] arguments) throws ClientException {
