@@ -11,9 +11,11 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -142,13 +144,19 @@ public class MessageObjectServlet extends MirthServlet {
                         messageController.removeMessages(channelId, filter);
                     }
                 } else if (operation.equals(Operations.MESSAGE_CLEAR)) {
-                    String channelId = request.getParameter("data");
-                    parameterMap.put("channelId", channelId);
-
-                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
+                    @SuppressWarnings("unchecked")
+                    Set<String> channelIds = (Set<String>) serializer.fromXML(request.getParameter("channelIds"));
+                    Boolean restartRunningChannels = (Boolean) serializer.fromXML(request.getParameter("restartRunningChannels"));
+                    Boolean clearStatistics = (Boolean) serializer.fromXML(request.getParameter("clearStatistics"));
+                    
+                    parameterMap.put("channelIds", channelIds);
+                    parameterMap.put("restartRunningChannels", restartRunningChannels);
+                    parameterMap.put("clearStatistics", clearStatistics);
+                    
+                    if (!isUserAuthorized(request, parameterMap) || hasUnauthorizedChannels(request, channelIds, authorizedChannelIds)) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                    	out.print(messageController.clearMessages(channelId));
+                    	messageController.clearMessages(channelIds, restartRunningChannels, clearStatistics);
                     }
                 } else if (operation.equals(Operations.MESSAGE_REPROCESS)) {
                     final String channelId = request.getParameter("channelId");
@@ -274,5 +282,17 @@ public class MessageObjectServlet extends MirthServlet {
                 throw new ServletException(t);
             }
         }
+    }
+    
+    private boolean hasUnauthorizedChannels(HttpServletRequest request, Collection<String> channelIds, List<String> authorizedChannelIds) throws ServletException {
+        if (doesUserHaveChannelRestrictions(request)) {
+            for (String channelId : channelIds) {
+                if (!authorizedChannelIds.contains(channelId)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 }

@@ -195,6 +195,7 @@ public class Frame extends JXFrame {
     private Map<Component, String> componentTaskMap = new HashMap<Component, String>();
     private boolean acceleratorKeyPressed = false;
     private Set<String> allChannelTags;
+    private RemoveMessagesDialog removeMessagesDialog;
     
     public Frame() {
         rightContainer = new JXTitledPanel();
@@ -3452,53 +3453,13 @@ public class Frame extends JXFrame {
     }
 
     public void doRemoveAllMessages() {
-        if (alertOption(this, "<html>Are you sure you would like to remove all messages in the selected channel(s)?<br>Channel(s) must be stopped for messages to be removed.<br><font size='1'><br></font>WARNING: Queued messages will also be removed.</html>")) {
-            final boolean clearStats = alertOption(PlatformUI.MIRTH_FRAME, "Would you also like to clear all statistics?");
-
-            Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
-
-            for (final DashboardStatus channelStatus : selectedChannelStatuses) {
-
-                final String workingId = startWorking("Removing messages...");
-
-                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                	private boolean cleared = false;
-
-                    public Void doInBackground() {
-                        try {
-                            cleared = mirthClient.clearMessages(channelStatus.getChannelId());
-                        } catch (ClientException e) {
-                            alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                        }
-                        return null;
-                    }
-
-                    public void done() {
-                    	// If the channel was running, the messages will not be cleared. Only clear the stats for channels
-                    	// where the messages were cleared.
-                        if (clearStats && cleared) {
-                            List<DashboardStatus> channelStatuses = new ArrayList<DashboardStatus>();
-                            channelStatuses.add(channelStatus);
-                            channelStatuses.addAll(dashboardPanel.getAllChildStatuses(channelStatus));
-                            clearStats(channelStatuses, true, true, true, true, true);
-                        } else if (currentContentPage == dashboardPanel) {
-                            doRefreshStatuses(true);
-                        }
-                        
-                        if (currentContentPage == messageBrowser) {
-                            messageBrowser.refresh(1);
-                            // Warn the user that the messages were not cleared if the channel was running.
-                            if (!cleared) {
-                            	alertWarning(Frame.this, "Cannot remove all messages for channel " + channelStatus.getName() + " (" + channelStatus.getChannelId() + ") because the channel is not stopped.");
-                            }
-                        }
-                        stopWorking(workingId);
-                    }
-                };
-
-                worker.execute();
-            }
+        if (removeMessagesDialog == null) {
+            removeMessagesDialog = new RemoveMessagesDialog(this, true);
         }
+        
+        removeMessagesDialog.init(dashboardPanel.getSelectedChannelStatuses());
+        removeMessagesDialog.setLocationRelativeTo(this);
+        removeMessagesDialog.setVisible(true);
     }
 
     public void doClearStats() {

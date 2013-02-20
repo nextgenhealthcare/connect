@@ -32,9 +32,12 @@ import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.StartException;
+import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
@@ -322,33 +325,75 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public boolean clearMessages(String channelId) throws ControllerException {
-        logger.debug("clearing messages: channelId=" + channelId);
-        Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
-        boolean cleared = false;
-        if (channel != null) {
-        	// Prevent the delete from occurring at the same time as the channel being started. 
-        	synchronized (channel) {
-        		// Only allow the messages to be cleared if the channel is stopped.
-        		if (channel.getCurrentState() == ChannelState.STOPPED) {
-		        	DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-			        try {
-			            dao.deleteAllMessages(channelId);
-			            dao.commit();
-			            cleared = true;
-			            
-		            	// Invalidate the queue buffer to ensure stats are updated.
-		                channel.invalidateQueues();
-			        } finally {
-			            dao.close();
-			        }
-        		} else {
-        			logger.warn("Cannot remove all messages for channel " + channel.getName() + " (" + channel.getChannelId() + ") because the channel is not stopped.");
+    public void clearMessages(Set<String> channelIds, Boolean restartRunningChannels, Boolean clearStatistics) throws ControllerException {
+        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
+
+        try {
+            EngineController engineController = ControllerFactory.getFactory().createEngineController();
+            Set<Status> statuses = null;
+
+            if (clearStatistics) {
+                statuses = new HashSet<Status>();
+
+                for (Status status : Status.values()) {
+                    if (!status.equals(Status.QUEUED)) {
+                        statuses.add(status);
+                    }
                 }
-        	}
+            }
+
+            for (String channelId : channelIds) {
+                Channel channel = engineController.getDeployedChannel(channelId);
+
+                if (channel != null) {
+                    boolean stoppedChannel = false;
+                    
+                    if (channel.getCurrentState() != ChannelState.STOPPED && restartRunningChannels) {
+                        try {
+                            logger.debug("Stopping channel \"" + channel.getName() + "\" prior to removing messages");
+                            channel.stop();
+                            stoppedChannel = true;
+                        } catch (StopException e) {
+                            logger.error("Failed to stop channel id " + channelId, e);
+                        }
+                    }
+                    
+                    // Prevent the delete from occurring at the same time as the channel being started. 
+                    synchronized (channel) {
+                        // Only allow the messages to be cleared if the channel is stopped.
+                        if (channel.getCurrentState() == ChannelState.STOPPED) {
+                            logger.debug("Removing messages for channel \"" + channel.getName() + "\"");
+                            dao.deleteAllMessages(channelId);
+                            
+                            if (clearStatistics) {
+                                logger.debug("Clearing statistics for channel \"" + channel.getName() + "\"");
+                                dao.resetStatistics(channelId, null, statuses);
+                                
+                                for (Integer metaDataId : channel.getMetaDataIds()) {
+                                    dao.resetStatistics(channelId, metaDataId, statuses);
+                                }
+                            }
+                            
+                            dao.commit();
+                            
+                            // Invalidate the queue buffer to ensure stats are updated.
+                            channel.invalidateQueues();
+                        }
+                    }
+                    
+                    if (stoppedChannel) {
+                        try {
+                            logger.debug("Restarting channel \"" + channel.getName() + "\"");
+                            channel.start();
+                        } catch (StartException e) {
+                            logger.error("Failed to start channel id " + channelId, e);
+                        }
+                    }
+                }
+            }
+        } finally {
+            dao.close();
         }
-        
-        return cleared;
     }
 
     @Override

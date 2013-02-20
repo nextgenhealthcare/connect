@@ -936,16 +936,10 @@ public class Client {
         return (List<MetaDataColumn>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_SERVLET, params));
     }
 
-    /**
-     * Clears the message list for the channel with the specified id.
-     * 
-     * @param channelId
-     * @throws ClientException
-     */
-    public boolean clearMessages(String channelId) throws ClientException {
-        logger.debug("clearing messages: " + channelId);
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_CLEAR.getName()), new NameValuePair("data", channelId) };
-        return Boolean.valueOf(serverConnection.executePostMethod(MESSAGE_SERVLET, params));
+    public void clearMessages(Set<String> channelIds, Boolean restartRunningChannels, Boolean clearStatistics) throws ClientException {
+        logger.debug("clearing messages");
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_CLEAR.getName()), new NameValuePair("channelIds", serializer.toXML(channelIds)), new NameValuePair("restartRunningChannels", serializer.toXML(restartRunningChannels)), new NameValuePair("clearStatistics", serializer.toXML(clearStatistics)) };
+        serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
 
     // TODO: replace with calls to getMessages()

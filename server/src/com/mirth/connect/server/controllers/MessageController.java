@@ -10,8 +10,8 @@
 package com.mirth.connect.server.controllers;
 
 import java.util.List;
+import java.util.Set;
 
-import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Channel;
@@ -40,7 +40,7 @@ public abstract class MessageController {
 
     public abstract int removeMessages(String channelId, MessageFilter filter);
     
-    public abstract boolean clearMessages(String channelId) throws ControllerException;
+    public abstract void clearMessages(Set<String> channelIds, Boolean restartRunningChannels, Boolean clearStatistics) throws ControllerException;
 
     public abstract void reprocessMessages(String channelId, MessageFilter filter, boolean replace, List<Integer> reprocessMetaDataIds);
 
