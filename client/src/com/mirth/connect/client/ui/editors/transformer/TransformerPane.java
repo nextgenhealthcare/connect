@@ -1071,19 +1071,24 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             List<Step> list = buildStepList(new ArrayList<Step>(), transformerTable.getRowCount());
 
             transformer.setSteps(list);
+            
+            String inboundDataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(tabTemplatePanel.getIncomingDataType());
+            String outboundDataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(tabTemplatePanel.getOutgoingDataType());
+            
+            if (LoadedExtensions.getInstance().getDataTypePlugins().containsKey(inboundDataType)) {
+            	transformer.setInboundDataType(inboundDataType);
+            }
+            
+            if (LoadedExtensions.getInstance().getDataTypePlugins().containsKey(outboundDataType)) {
+            	transformer.setOutboundDataType(outboundDataType);
 
-            for (String dataType : LoadedExtensions.getInstance().getDataTypePlugins().keySet()) {
-                if (PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(dataType).equals(tabTemplatePanel.getIncomingDataType())) {
-                    transformer.setInboundDataType(dataType);
-                }
-                if (PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(dataType).equals(tabTemplatePanel.getOutgoingDataType())) {
-                    transformer.setOutboundDataType(dataType);
-
-                    if (connector.getMode() == Connector.Mode.SOURCE) {
-                        for (Connector c : channel.getDestinationConnectors()) {
-                            c.getTransformer().setInboundDataType(dataType);
-                            c.getTransformer().setInboundProperties(tabTemplatePanel.getOutgoingDataProperties());
-                        }
+                if (connector.getMode() == Connector.Mode.SOURCE) {
+                    for (Connector c : channel.getDestinationConnectors()) {
+                    	if (!c.getTransformer().getInboundDataType().equals(outboundDataType)) {
+	                        c.getTransformer().setInboundDataType(outboundDataType);
+	                        
+	                        c.getTransformer().setInboundProperties(LoadedExtensions.getInstance().getDataTypePlugins().get(outboundDataType).getDefaultProperties());
+                    	}
                     }
                 }
             }
