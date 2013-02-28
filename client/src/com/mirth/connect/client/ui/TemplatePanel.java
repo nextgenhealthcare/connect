@@ -426,13 +426,16 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         
         // Only set the default properties if the data type is changing
         if (!currentDataType.equals(dataTypeComboBox.getSelectedItem())) {
+        	// Update the current data type display name
+        	currentDataType = (String) dataTypeComboBox.getSelectedItem();
+        	
         	// Set the default properties for the data type selected
-        	String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataTypeComboBox.getSelectedItem());
+        	String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(currentDataType);
         	
         	dataProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
         }
         
-        setDocType((String) dataTypeComboBox.getSelectedItem());
+        setDocType(currentDataType);
         updateText();
     }//GEN-LAST:event_dataTypeComboBoxActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
