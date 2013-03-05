@@ -181,10 +181,12 @@ public class SmtpDispatcher extends DestinationConnector {
 
             String body = AttachmentUtil.reAttachMessage(smtpDispatcherProperties.getBody(), connectorMessage);
 
-            if (smtpDispatcherProperties.isHtml()) {
-                ((HtmlEmail) email).setHtmlMsg(body);
-            } else {
-                email.setMsg(body);
+            if (StringUtils.isNotEmpty(body)) {
+                if (smtpDispatcherProperties.isHtml()) {
+                    ((HtmlEmail) email).setHtmlMsg(body);
+                } else {
+                    email.setMsg(body);
+                }
             }
 
             /*
