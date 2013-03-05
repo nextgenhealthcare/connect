@@ -9,8 +9,6 @@
 
 package com.mirth.connect.connectors.tcp;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorProperties;
 import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;

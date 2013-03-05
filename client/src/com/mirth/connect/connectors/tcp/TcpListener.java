@@ -39,6 +39,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
     private Logger logger = Logger.getLogger(this.getClass());
     private Frame parent;
     private Map<String, PluginMetaData> metaDataMap;
+    private TransmissionModePlugin defaultPlugin;
     private TransmissionModePlugin transmissionModePlugin;
     private JComponent settingsPlaceHolder;
     private String selectedMode;
@@ -52,11 +53,11 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         receiveTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
         maxConnectionsField.setDocument(new MirthFieldConstraints(0, false, false, true));
-        
+
         DefaultComboBoxModel model = new DefaultComboBoxModel();
         model.addElement("Basic TCP");
         selectedMode = "Basic TCP";
-        
+
         metaDataMap = new HashMap<String, PluginMetaData>();
         for (PluginMetaData metaData : parent.getPluginMetaData().values()) {
             if (metaData.getName().startsWith("Transmission Mode - ")) {
@@ -65,9 +66,15 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
                 model.addElement(name);
             }
         }
-        
+
+        for (ClientPlugin plugin : LoadedExtensions.getInstance().getClientPlugins()) {
+            if (plugin.getPluginPointName().equals("MLLP")) {
+                defaultPlugin = (TransmissionModePlugin) plugin;
+            }
+        }
+
         transmissionModeComboBox.setModel(model);
-        
+
         settingsPlaceHolder = settingsPlaceHolderLabel;
 
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
@@ -117,7 +124,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         if (modeProps != null && metaDataMap.containsKey(modeProps.getPluginPointName())) {
             name = modeProps.getPluginPointName();
         }
-            
+
         modeLock = true;
         transmissionModeComboBox.setSelectedItem(name);
         transmissionModeComboBoxActionPerformed(null);
@@ -126,7 +133,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         if (transmissionModePlugin != null) {
             transmissionModePlugin.setProperties(modeProps);
         }
-        
+
         if (props.isServerMode()) {
             modeServerRadio.setSelected(true);
             modeServerRadioActionPerformed(null);
@@ -183,7 +190,11 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
 
     @Override
     public ConnectorProperties getDefaults() {
-        return new TcpReceiverProperties();
+        TcpReceiverProperties props = new TcpReceiverProperties();
+        if (defaultPlugin != null) {
+            props.setTransmissionModeProperties(defaultPlugin.getDefaultProperties());
+        }
+        return props;
     }
 
     @Override
