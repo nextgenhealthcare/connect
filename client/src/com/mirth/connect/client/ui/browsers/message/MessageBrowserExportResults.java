@@ -53,6 +53,7 @@ public class MessageBrowserExportResults extends javax.swing.JDialog {
         model.addElement(new ExportFormat(true, ContentType.TRANSFORMED));
         model.addElement(new ExportFormat(true, ContentType.ENCODED));
         model.addElement(new ExportFormat(true, ContentType.RESPONSE));
+        model.addElement(new ExportFormat(true, ContentType.RESPONSE_TRANSFORMED));
         model.addElement(new ExportFormat(true, ContentType.PROCESSED_RESPONSE));
         
         formatComboBox.setModel(model);

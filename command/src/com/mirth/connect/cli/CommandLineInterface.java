@@ -836,6 +836,8 @@ public class CommandLineInterface {
                 contentType = ContentType.SENT;
             } else if (StringUtils.equals(modeArg, "response")) {
                 contentType = ContentType.RESPONSE;
+            } else if (StringUtils.equals(modeArg, "responsetransformed")) {
+                contentType = ContentType.RESPONSE_TRANSFORMED;
             } else if (StringUtils.equals(modeArg, "processedresponse")) {
                 contentType = ContentType.PROCESSED_RESPONSE;
             }

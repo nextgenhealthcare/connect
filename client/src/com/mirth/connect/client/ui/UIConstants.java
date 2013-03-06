@@ -36,8 +36,10 @@ public class UIConstants {
     public static final String MIRTHCONNECT_URL = "http://www.mirthcorp.com/products/mirth-connect";
     public static final String EDIT_FILTER = "Edit Filter";
     public static final String EDIT_TRANSFORMER = "Edit Transformer";
+    public static final String EDIT_RESPONSE_TRANSFORMER = "Edit Response";
     public static final int EDIT_FILTER_TASK_NUMBER = 9;
     public static final int EDIT_TRANSFORMER_TASK_NUMBER = 10;
+    public static final int EDIT_RESPONSE_TRANSFORMER_TASK_NUMBER = 11;
     // for error checking
     public static final int ERROR_CONSTANT = -1;
     // for JXTables

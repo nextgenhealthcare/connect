@@ -42,7 +42,7 @@ public class HL7V3Serializer implements IXMLSerializer {
 	
 	@Override
     public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
-        return message;
+        return null;
     }
 	
 	@Override

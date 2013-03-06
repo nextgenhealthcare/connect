@@ -82,6 +82,7 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
 
             variables.add(connector.getName());
             stepsToCheck.addAll(connector.getTransformer().getSteps());
+            stepsToCheck.addAll(connector.getResponseTransformer().getSteps());
         }
 
         Pattern pattern = Pattern.compile(RESULT_PATTERN);

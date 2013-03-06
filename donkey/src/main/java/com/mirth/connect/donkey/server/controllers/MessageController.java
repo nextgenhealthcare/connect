@@ -165,6 +165,7 @@ public class MessageController {
             decryptMessageContent(connectorMessage.getEncoded(), encryptor);
             decryptMessageContent(connectorMessage.getSent(), encryptor);
             decryptMessageContent(connectorMessage.getResponse(), encryptor);
+            decryptMessageContent(connectorMessage.getResponseTransformed(), encryptor);
             decryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
         }
     }

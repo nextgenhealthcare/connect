@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
+import com.mirth.connect.model.Transformer;
 
 public class VariableListUtil {
     // Finds comments, but also incorrectly finds // or /* inside of block elements like strings.
@@ -29,17 +30,17 @@ public class VariableListUtil {
     final static String LOCAL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:(?:(?:channel|global|globalChannel|response|connector)(?:M|m)ap.put)|\\$(?:g|gc|c|r|co))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
     final static int MATCHER_INDEX = 1;
 
-    public static void getStepVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars) {
-        getStepVariables(targetSet, connector, includeLocalVars, -1);
+    public static void getStepVariables(Set<String> targetSet, Transformer transformer, boolean includeLocalVars) {
+        getStepVariables(targetSet, transformer, includeLocalVars, -1);
     }
     /* 
      * Gets all steps that have variables that should show up in the global variable list
      */
 
-    public static void getStepVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars, int row) {
+    public static void getStepVariables(Set<String> targetSet, Transformer transformer, boolean includeLocalVars, int row) {
 
         // add only the global variables
-        List<Step> connectorSteps = connector.getTransformer().getSteps();
+        List<Step> connectorSteps = transformer.getSteps();
         Iterator<Step> stepIterator = connectorSteps.iterator();
         String varPattern = GLOBAL_AND_CHANNEL_VARIABLE_PATTERN;
         if (includeLocalVars) {
@@ -79,7 +80,7 @@ public class VariableListUtil {
         }
         int currentRow = 0;
         while (ruleIterator.hasNext()) {
-            if (row > -1 && row >= currentRow) {
+            if (row > -1 && row <= currentRow) {
                 break;
             }
             Pattern pattern = Pattern.compile(varPattern);

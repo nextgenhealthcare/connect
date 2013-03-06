@@ -92,6 +92,7 @@ public class DonkeyMessageController extends MessageController {
         params.put("encodedSearch", filter.getContentSearch().get(ContentType.ENCODED));
         params.put("sentSearch", filter.getContentSearch().get(ContentType.SENT));
         params.put("responseSearch", filter.getContentSearch().get(ContentType.RESPONSE));
+        params.put("responseTransformedSearch", filter.getContentSearch().get(ContentType.RESPONSE_TRANSFORMED));
         params.put("processedResponseSearch", filter.getContentSearch().get(ContentType.PROCESSED_RESPONSE));
         params.put("metaDataIds", filter.getMetaDataIds());
         params.put("serverId", filter.getServerId());

@@ -106,6 +106,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     protected BasePanel blankPanel;
     public static final int NUMBER_OF_COLUMNS = 4;
     private DropTarget dropTarget;
+    private boolean isResponse = false;
 
     /**
      * CONSTRUCTOR
@@ -118,20 +119,21 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         setBorder(BorderFactory.createEmptyBorder());
     }
 
-    public void reload(Connector c, Transformer t) {
+    public void reload(Connector c) {
         connector = c;
-        transformer = t;
+        transformer = isResponse ? c.getResponseTransformer() : c.getTransformer();
         channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
     }
 
     /**
      * load( Transformer t ) now that the components have been initialized...
      */
-    public boolean load(Connector c, Transformer t, boolean channelHasBeenChanged) {
+    public boolean load(Connector c, Transformer t, boolean channelHasBeenChanged, boolean isResponse) {
         if (LoadedExtensions.getInstance().getTransformerStepPlugins().values().size() == 0) {
             parent.alertError(this, "No transformer step plugins loaded.\r\nPlease install plugins and try again.");
             return false;
         }
+        this.isResponse = isResponse;
         prevSelRow = -1;
         connector = c;
         transformer = t;
@@ -174,21 +176,12 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         if (connector.getMode() == Connector.Mode.SOURCE) {
             tabTemplatePanel.setSourceView();
-            tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
         } else if (connector.getMode() == Connector.Mode.DESTINATION) {
-            tabTemplatePanel.setDestinationView();
-            if (channel.getSourceConnector().getTransformer().getOutboundDataType() != null) {
-                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getOutboundDataType()));
-            } else {
-                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
-            }
+            tabTemplatePanel.setDestinationView(isResponse);
         }
-
-        if (transformer.getOutboundDataType() != null) {
-            tabTemplatePanel.setOutgoingDataType(((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(transformer.getOutboundDataType())));
-        } else {
-            tabTemplatePanel.setOutgoingDataType(tabTemplatePanel.getIncomingDataType());
-        }
+        
+        tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(transformer.getInboundDataType()));
+        tabTemplatePanel.setOutgoingDataType(((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(transformer.getOutboundDataType())));
 
         tabTemplatePanel.setIncomingDataProperties(transformer.getInboundProperties());
         tabTemplatePanel.setOutgoingDataProperties(transformer.getOutboundProperties());
@@ -687,7 +680,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             Set<String> concatenatedRules = new LinkedHashSet<String>();
             Set<String> concatenatedSteps = new LinkedHashSet<String>();
             VariableListUtil.getRuleVariables(concatenatedRules, connector, true);
-            VariableListUtil.getStepVariables(concatenatedSteps, connector, true, row);
+            VariableListUtil.getStepVariables(concatenatedSteps, connector.getTransformer(), true, row);
             tabTemplatePanel.updateVariables(concatenatedRules, concatenatedSteps);
         } else {
             tabTemplatePanel.updateVariables(getRuleVariables(row), getStepVariables(row));
@@ -878,7 +871,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 outgoingDataType = dataType;
             }
         }
-        Transformer previousTransformer = connector.getTransformer();
+        
+        Transformer previousTransformer = isResponse ? connector.getResponseTransformer() : connector.getTransformer();
 
         boolean append = false;
 
@@ -890,6 +884,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         try {
+        	// TODO MIRTH-2371 Test import again after importConvert updates
             Transformer importTransformer = (Transformer) serializer.fromXML(ImportConverter.convertTransformer(content, incomingDataType, outgoingDataType));
             prevSelRow = -1;
             modified = true;
@@ -900,11 +895,19 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 importTransformer = previousTransformer;
             }
 
-            connector.setTransformer(importTransformer);
+            if (isResponse){
+                connector.setResponseTransformer(importTransformer);
+            } else{
+                connector.setTransformer(importTransformer);
+            }
 
-            if (!load(connector, importTransformer, modified)) {
-                connector.setTransformer(previousTransformer);
-                load(connector, previousTransformer, modified);
+            if (!load(connector, importTransformer, modified, isResponse)) {
+                if (isResponse){
+                    connector.setResponseTransformer(previousTransformer);
+                } else{
+                    connector.setTransformer(previousTransformer);
+                }            	
+                load(connector, previousTransformer, modified, isResponse);
             }
         } catch (Exception e) {
             parent.alertError(this, "Invalid transformer file.");
@@ -1026,7 +1029,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         while (it.hasNext()) {
             Connector destination = it.next();
             if (connector == destination) {
-                VariableListUtil.getRuleVariables(concatenatedRules, destination, true, row);
+                VariableListUtil.getRuleVariables(concatenatedRules, destination, true);
                 seenCurrent = true;
             } else if (!seenCurrent) {
                 VariableListUtil.getRuleVariables(concatenatedRules, destination, false);
@@ -1038,7 +1041,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
     private Set<String> getStepVariables(int row) {
         Set<String> concatenatedSteps = new LinkedHashSet<String>();
-        VariableListUtil.getStepVariables(concatenatedSteps, channel.getSourceConnector(), false);
+        VariableListUtil.getStepVariables(concatenatedSteps, channel.getSourceConnector().getTransformer(), false);
 
         List<Connector> destinationConnectors = channel.getDestinationConnectors();
         Iterator<Connector> it = destinationConnectors.iterator();
@@ -1046,10 +1049,16 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         while (it.hasNext()) {
             Connector destination = it.next();
             if (connector == destination) {
-                VariableListUtil.getStepVariables(concatenatedSteps, destination, true, row);
+                if (isResponse){
+                    VariableListUtil.getStepVariables(concatenatedSteps, destination.getTransformer(), true);
+                    VariableListUtil.getStepVariables(concatenatedSteps, destination.getResponseTransformer(), true, row);
+                } else{
+                    VariableListUtil.getStepVariables(concatenatedSteps, destination.getTransformer(), true, row);
+                }
                 seenCurrent = true;
             } else if (!seenCurrent) {
-                VariableListUtil.getStepVariables(concatenatedSteps, destination, false);
+                VariableListUtil.getStepVariables(concatenatedSteps, destination.getTransformer(), false);
+                VariableListUtil.getStepVariables(concatenatedSteps, destination.getResponseTransformer(), false);
                 concatenatedSteps.add(destination.getName());
             }
         }

@@ -30,6 +30,7 @@ public class MessageEncryptionUtil {
             decryptMessageContent(connectorMessage.getEncoded(), encryptor);
             decryptMessageContent(connectorMessage.getSent(), encryptor);
             decryptMessageContent(connectorMessage.getResponse(), encryptor);
+            decryptMessageContent(connectorMessage.getResponseTransformed(), encryptor);
             decryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
         }
     }
@@ -62,6 +63,7 @@ public class MessageEncryptionUtil {
             encryptMessageContent(connectorMessage.getEncoded(), encryptor);
             encryptMessageContent(connectorMessage.getSent(), encryptor);
             encryptMessageContent(connectorMessage.getResponse(), encryptor);
+            encryptMessageContent(connectorMessage.getResponseTransformed(), encryptor);
             encryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
         }
     }

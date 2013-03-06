@@ -10,11 +10,13 @@
 package com.mirth.connect.donkey.server.channel.components;
 
 import com.mirth.connect.donkey.model.DonkeyException;
-import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.Response;
 
-public interface ResponseTransformer {
-    public void doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException, InterruptedException;
+public class ResponseTransformerException extends DonkeyException {
+    public ResponseTransformerException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    public void dispose();
+    public ResponseTransformerException(String message, Throwable cause, String formattedError) {
+        super(message, cause, formattedError);
+    }
 }

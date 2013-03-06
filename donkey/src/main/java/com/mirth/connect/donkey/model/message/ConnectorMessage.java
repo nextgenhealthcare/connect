@@ -31,6 +31,7 @@ public class ConnectorMessage implements Serializable {
     private MessageContent encoded;
     private MessageContent sent;
     private MessageContent response;
+    private MessageContent responseTransformed;
     private MessageContent processedResponse;
     private Map<String, Object> connectorMap = new HashMap<String, Object>();
     private Map<String, Object> channelMap = new HashMap<String, Object>();
@@ -114,6 +115,8 @@ public class ConnectorMessage implements Serializable {
                 return sent;
             case RESPONSE:
                 return response;
+            case RESPONSE_TRANSFORMED:
+                return responseTransformed;
             case PROCESSED_RESPONSE:
                 return processedResponse;
         }
@@ -140,6 +143,9 @@ public class ConnectorMessage implements Serializable {
                 break;
             case RESPONSE:
                 setResponse(messageContent);
+                break;
+            case RESPONSE_TRANSFORMED:
+                setResponseTransformed(messageContent);
                 break;
             case PROCESSED_RESPONSE:
                 setProcessedResponse(messageContent);
@@ -202,6 +208,14 @@ public class ConnectorMessage implements Serializable {
     public void setResponse(MessageContent messageContentResponse) {
         this.response = messageContentResponse;
     }
+    
+	public MessageContent getResponseTransformed() {
+		return responseTransformed;
+	}
+
+	public void setResponseTransformed(MessageContent responseTransformed) {
+		this.responseTransformed = responseTransformed;
+	}
 
     public MessageContent getProcessedResponse() {
         return processedResponse;

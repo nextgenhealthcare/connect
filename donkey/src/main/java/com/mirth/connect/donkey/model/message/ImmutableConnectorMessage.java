@@ -147,7 +147,23 @@ public class ImmutableConnectorMessage {
             return null;
         }
     }
+    
+    public ImmutableMessageContent getResponseTransformed() {
+        if (connectorMessage.getResponseTransformed() != null) {
+            return new ImmutableMessageContent(connectorMessage.getResponseTransformed());
+        }
 
+        return null;
+    }
+    
+    public String getResponseTransformedData() {
+        if (connectorMessage.getResponseTransformed() != null) {
+            return connectorMessage.getResponseTransformed().getContent();
+        } else {
+            return null;
+        }
+    } 
+    
     public ImmutableMessageContent getProcessedResponse() {
         if (connectorMessage.getProcessedResponse() != null) {
             return new ImmutableMessageContent(connectorMessage.getProcessedResponse());
@@ -162,8 +178,8 @@ public class ImmutableConnectorMessage {
         } else {
             return null;
         }
-    }
-
+    } 
+    
     public long getMessageId() {
         return connectorMessage.getMessageId();
     }

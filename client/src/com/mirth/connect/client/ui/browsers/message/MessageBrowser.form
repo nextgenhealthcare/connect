@@ -277,7 +277,7 @@
                                   <Component id="formatXmlMessageCheckBox" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
-                              <Component id="MessagesRadioPane" alignment="0" pref="646" max="32767" attributes="0"/>
+                              <Component id="MessagesRadioPane" alignment="0" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -406,6 +406,22 @@
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ResponseRadioButtonActionPerformed"/>
                       </Events>
                     </Component>
+                    <Component class="javax.swing.JRadioButton" name="ResponseTransformedRadioButton">
+                      <Properties>
+                        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                        </Property>
+                        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+                          <ComponentRef name="messagesGroup"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="Response Transformed"/>
+                        <Property name="focusable" type="boolean" value="false"/>
+                        <Property name="requestFocusEnabled" type="boolean" value="false"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ResponseTransformedRadioButtonActionPerformed"/>
+                      </Events>
+                    </Component>
                     <Component class="javax.swing.JRadioButton" name="ProcessedResponseRadioButton">
                       <Properties>
                         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -520,6 +536,21 @@
                       <Constraints>
                         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
                           <CardConstraints cardName="Response"/>
+                        </Constraint>
+                      </Constraints>
+                    </Component>
+                    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="ResponseTransformedTextPane">
+                      <Properties>
+                        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+                            <EtchetBorder/>
+                          </Border>
+                        </Property>
+                        <Property name="editable" type="boolean" value="false"/>
+                      </Properties>
+                      <Constraints>
+                        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
+                          <CardConstraints cardName="Response Transformed"/>
                         </Constraint>
                       </Constraints>
                     </Component>
@@ -642,7 +673,6 @@
                         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                           <ComponentRef name="errorsGroup"/>
                         </Property>
-                        <Property name="selected" type="boolean" value="true"/>
                         <Property name="text" type="java.lang.String" value="Processing Error"/>
                         <Property name="focusable" type="boolean" value="false"/>
                         <Property name="requestFocusEnabled" type="boolean" value="false"/>

@@ -28,8 +28,8 @@ public class ReferenceListFactory {
         ALL("All"), CONVERSION("Conversion Functions"), LOGGING_AND_ALERTS(
                 "Logging and Alerts"), DATABASE("Database Functions"), UTILITY(
                 "Utility Functions"), DATE("Date Functions"), MESSAGE(
-                "Message Functions"), MAP("Map Functions"), CHANNEL(
-                "Channel Functions");
+                "Message Functions"), RESPONSE("Response Transformer"), MAP(
+                "Map Functions"), CHANNEL("Channel Functions");
         private String value;
 
         ListType(String value) {
@@ -73,6 +73,7 @@ public class ReferenceListFactory {
         references.put(ListType.DATABASE.getValue(), setupDatabaseItems());
         references.put(ListType.LOGGING_AND_ALERTS.getValue(), setupLoggingAndAlertsItems());
         references.put(ListType.MESSAGE.getValue(), setupMessageItems());
+        references.put(ListType.RESPONSE.getValue(), setupResponseItems());
         references.put(ListType.CHANNEL.getValue(), setupChannelItems());
         references.put(ListType.MAP.getValue(), setupMapItems());
         references.put(ListType.UTILITY.getValue(), setupUtilityItems());
@@ -226,6 +227,17 @@ public class ReferenceListFactory {
         variablelistItems.add(new CodeTemplate("Create Segment (in message, index)", "Create a new segment in specified message (msg or tmp) at segment index i", "createSegment('segmentName', msg, i)", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Create Segment After Segment", "Create a new segment and insert it after the target segment", "createSegmentAfter('insertSegmentName', afterThisSegment)", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Delete Segment", "Delete a segment from the message", "delete msg['segment']", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
+        
+        return variablelistItems;
+    }
+    
+    private ArrayList<CodeTemplate> setupResponseItems() {
+        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+
+        variablelistItems.add(new CodeTemplate("Set Response Status to SENT", "Indicates message was successfully SENT.", "responseStatus = SENT;", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Set Response Status to QUEUED", "Indicates message should be QUEUED. If queuing is disabled, the message status will be set to ERROR.", "responseStatus = QUEUED;", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Set Response Status to ERROR", "Indicates message should have its status set to ERROR.", "responseStatus = ERROR;", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));        
+        variablelistItems.add(new CodeTemplate("Set Response Error Message", "Sets the error message of the response.", "responseErrorMessage = '';", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));        
 
         return variablelistItems;
     }

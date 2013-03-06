@@ -42,7 +42,7 @@ public class DefaultXMLSerializer implements IXMLSerializer {
 	
 	@Override
 	public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
-        return message;
+        return null;
     }
 	
 	@Override

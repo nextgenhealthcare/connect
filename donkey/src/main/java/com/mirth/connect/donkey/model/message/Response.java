@@ -111,4 +111,18 @@ public class Response implements Serializable {
 
         return false;
     }
+    
+    public void fixStatus(boolean queueEnabled) {
+        Status status = getNewMessageStatus();
+
+        if (status != Status.ERROR && status != Status.SENT && status != Status.QUEUED) {
+            // If the response is invalid for a final destination status, change the status to ERROR
+            setNewMessageStatus(Status.ERROR);
+            setError("Invalid response status: " + status + ". Status updated to ERROR.");
+        } else if (!queueEnabled && status == Status.QUEUED) {
+            // If the status is QUEUED and queuing is disabled, change the status to ERROR
+            setNewMessageStatus(Status.ERROR);
+            setError("Invalid response status. Cannot set status to QUEUED while queuing is disabled. Status updated to ERROR.");
+        }
+    }
 }

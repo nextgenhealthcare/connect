@@ -68,8 +68,8 @@ public class TabbedTemplatePanel extends javax.swing.JPanel {
      * Sets the inbound data type and properties to be disabled and
      * the outbound data type and proeprties to be enabled.
      */
-    public void setDestinationView() {
-        messageTemplatePanel.setDataTypeEnabled(false, true, true, true);
+    public void setDestinationView(boolean isResponse) {
+        messageTemplatePanel.setDataTypeEnabled(isResponse, true, true, true);
     }
 
     public void resizePanes() {

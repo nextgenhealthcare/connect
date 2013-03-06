@@ -281,6 +281,7 @@ public class UpdateClient {
                 Connector connector = iterator.next();
                 outboundTransports.append(connector.getTransportName());
                 outboundDataTypes.append(connector.getTransformer().getOutboundDataType());
+                // TODO add response transformer data types
 
                 if (iterator.hasNext()) {
                     outboundTransports.append(",");

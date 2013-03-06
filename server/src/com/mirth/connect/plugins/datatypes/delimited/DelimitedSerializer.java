@@ -67,7 +67,7 @@ public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
     
     @Override
     public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
-        return message;
+        return null;
     }
 
     @Override

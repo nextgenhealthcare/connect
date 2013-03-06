@@ -185,7 +185,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             tabTemplatePanel.setSourceView();
             tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getInboundDataType()));
         } else if (connector.getMode() == Connector.Mode.DESTINATION) {
-            tabTemplatePanel.setDestinationView();
+            tabTemplatePanel.setDestinationView(false);
             if (channel.getSourceConnector().getTransformer().getOutboundDataType() != null) {
                 tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getOutboundDataType()));
             } else {
@@ -1019,7 +1019,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
     private Set<String> getGlobalStepVariables(int row) {
         Set<String> concatenatedSteps = new LinkedHashSet<String>();
-        VariableListUtil.getStepVariables(concatenatedSteps, channel.getSourceConnector(), false);
+        VariableListUtil.getStepVariables(concatenatedSteps, channel.getSourceConnector().getTransformer(), false);
 
         List<Connector> destinationConnectors = channel.getDestinationConnectors();
         Iterator<Connector> it = destinationConnectors.iterator();
@@ -1031,7 +1031,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                 // VariableListUtil.getStepVariables(concatenatedSteps,
                 // destination, true, row);
             } else if (!seenCurrent) {
-                VariableListUtil.getStepVariables(concatenatedSteps, destination, false);
+                VariableListUtil.getStepVariables(concatenatedSteps, destination.getTransformer(), false);
+                VariableListUtil.getStepVariables(concatenatedSteps, destination.getResponseTransformer(), false);
                 concatenatedSteps.add(destination.getName());
             }
         }

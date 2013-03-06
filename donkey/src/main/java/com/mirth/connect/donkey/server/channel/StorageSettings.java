@@ -28,6 +28,7 @@ public class StorageSettings {
     private boolean storeDestinationEncoded = true;
     private boolean storeResponse = true;
     private boolean storeSent = true;
+    private boolean storeResponseTransformed = true;
     private boolean storeProcessedResponse = true;
     private boolean storeSentResponse = true;
 
@@ -171,6 +172,14 @@ public class StorageSettings {
         this.storeSent = storeSent;
     }
 
+	public boolean isStoreResponseTransformed() {
+		return storeResponseTransformed;
+	}
+
+	public void setStoreResponseTransformed(boolean storeResponseTransformed) {
+		this.storeResponseTransformed = storeResponseTransformed;
+	}
+	
     public boolean isStoreProcessedResponse() {
         return storeProcessedResponse;
     }

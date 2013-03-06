@@ -52,6 +52,7 @@ public abstract class ChannelWizardPlugin extends ClientPlugin {
         destinationConnector.setEnabled(true);
         destinationConnector.setFilter(new Filter());
         destinationConnector.setTransformer(new Transformer());
+        destinationConnector.setResponseTransformer(new Transformer());
         destinationConnector.setMode(Mode.DESTINATION);
         destinationConnector.setName("Destination 1");
         ConnectorProperties destinationConnectorProperties = new VmDispatcherProperties();

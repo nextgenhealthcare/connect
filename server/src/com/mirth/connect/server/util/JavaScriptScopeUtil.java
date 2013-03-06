@@ -28,6 +28,7 @@ import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.ImmutableMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.model.message.ImmutableResponse;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.server.util.javascript.StoppableContextFactory;
@@ -221,10 +222,23 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
-    public static Scriptable getResponseTransformerScope(Object logger, Response response) {
+    public static Scriptable getResponseTransformerScope(Object logger, Response response, ConnectorMessage message, String template) {
         Scriptable scope = getBasicScope(getContext(), logger);
+        scope.put("messageObject", scope, new ImmutableConnectorMessage(message));
+        scope.put("response", scope, new ImmutableResponse(response));
+        if (message.getResponseTransformed() != null) {
+            scope.put("message", scope, message.getResponseTransformed().getContent());
+        }
+
+        scope.put("connectorMap", scope, message.getConnectorMap());
+        scope.put("channelMap", scope, message.getChannelMap());
+        scope.put("responseMap", scope, message.getResponseMap());
+        scope.put("connector", scope, message.getConnectorName());        
         addStatusValues(scope);
-        scope.put("response", scope, response);
+        scope.put("template", scope, template);
+        scope.put("responseStatus", scope, response.getNewMessageStatus());
+        scope.put("responseErrorMessage", scope, response.getError());
+
         return scope;
     }
 
@@ -297,5 +311,16 @@ public class JavaScriptScopeUtil {
         }
 
         return result;
+    }
+    
+    public static void getResponseDataFromScope(Scriptable scope, Response response){
+    	Object status = scope.get("responseStatus", scope);
+    	Object errorMsg = scope.get("responseErrorMessage", scope);
+    	 
+		response.setNewMessageStatus((Status) Context.jsToJava(status, Status.class));
+		
+		if (errorMsg != null){
+			response.setError(Context.toString(errorMsg));
+		}
     }
 }

@@ -409,7 +409,7 @@ public class DestinationConnectorTests {
             public volatile boolean waiting = true;
 
             @Override
-            public void doTransform(Response response) throws DonkeyException {
+            public void doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException, InterruptedException {
                 while (waiting) {
                     try {
                         Thread.sleep(100);
@@ -417,11 +417,13 @@ public class DestinationConnectorTests {
                         e.printStackTrace();
                     }
                 }
-                super.doTransform(response);
+                super.doTransform(response, connectorMessage);
             }
         }
         final BlockingTestResponseTransformer responseTransformer = new BlockingTestResponseTransformer();
-        destinationConnector.setResponseTransformer(responseTransformer);
+        
+        destinationConnector.setResponseTransformerExecutor(TestUtils.createDefaultResponseTransformerExecutor());
+        destinationConnector.getResponseTransformerExecutor().setResponseTransformer(responseTransformer);
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channelId);
@@ -541,7 +543,7 @@ public class DestinationConnectorTests {
         Channel channel = TestUtils.createDefaultChannel(channelId, serverId);
 
         Response finalResponse = new Response(testResponse.getNewMessageStatus(), testResponse.getMessage());
-        if (finalResponse.getNewMessageStatus() != Status.FILTERED && finalResponse.getNewMessageStatus() != Status.ERROR && finalResponse.getNewMessageStatus() != Status.SENT && finalResponse.getNewMessageStatus() != Status.QUEUED) {
+        if (finalResponse.getNewMessageStatus() != Status.ERROR && finalResponse.getNewMessageStatus() != Status.SENT && finalResponse.getNewMessageStatus() != Status.QUEUED) {
             // If the response is invalid for a final destination finalResponse.getStatus(), change the status to ERROR
             finalResponse.setNewMessageStatus(Status.ERROR);
         } else if (channel.getDestinationConnector(1).getConnectorProperties() instanceof QueueConnectorPropertiesInterface) {
@@ -557,13 +559,14 @@ public class DestinationConnectorTests {
 
         class TestResponseTransformer2 extends TestResponseTransformer {
             @Override
-            public void doTransform(Response response) throws DonkeyException {
+            public void doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException, InterruptedException {
                 response.setMessage(testResponse.getMessage());
                 response.setNewMessageStatus(testResponse.getNewMessageStatus());
-                super.doTransform(response);
+                connectorMessage.getResponseTransformed().setContent(testResponse.getMessage());
+                super.doTransform(response, connectorMessage);
             }
         }
-        channel.getDestinationConnector(1).setResponseTransformer(new TestResponseTransformer2());
+        channel.getDestinationConnector(1).getResponseTransformerExecutor().setResponseTransformer(new TestResponseTransformer2());
 
         //ChannelController.getInstance().deleteAllMessages(channel.getChannelId());
         channel.deploy();

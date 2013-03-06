@@ -101,9 +101,12 @@ public class FilterTransformerExecutor {
             // Since this condition can only occur if the inbound and outbound datatypes are the same, it is safe to pass the outbound serializer to the inbound serializer 
             // so that it can compare/use the properties from both. The purpose of this method is to allow the optimization of not serializing, but still modifying the message in certain circumstances.
             // It should NOT be used anywhere other than here.
-            content = inbound.getSerializer().transformWithoutSerializing(content, outbound.getSerializer());
-
-            encodedContent = content;
+            String transformedContent = inbound.getSerializer().transformWithoutSerializing(content, outbound.getSerializer());
+            if (transformedContent != null){
+                encodedContent = transformedContent;
+            } else{
+            	encodedContent = content;
+            }
         }
 
         connectorMessage.setEncoded(new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.ENCODED, encodedContent, outbound.getType(), encryptor.encrypt(encodedContent)));

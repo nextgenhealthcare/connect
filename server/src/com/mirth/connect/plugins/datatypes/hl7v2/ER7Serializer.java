@@ -104,7 +104,7 @@ public class ER7Serializer implements IXMLSerializer, BatchAdaptor {
             return message.replaceAll(inputSegmentDelimiter, outputSegmentDelimiter);
         }
         
-        return message;
+        return null;
     }
 
     /**

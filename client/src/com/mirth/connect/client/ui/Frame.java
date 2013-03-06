@@ -619,8 +619,8 @@ public class Frame extends JXFrame {
         setVisibleTasks(channelTasks, channelPopupMenu, 7, -1, false);
         
         // Channel Edit Pane
-        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 14, false);
-        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 13, 13, true);
+        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 15, false);
+        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 14, 14, true);
         
         // Dashboard Pane
         setVisibleTasks(dashboardTasks, dashboardPopupMenu, 0, 0, true);
@@ -736,7 +736,7 @@ public class Frame extends JXFrame {
     /**
      * Creates the channel edit task pane.
      */
-    private void createChannelEditPane() {
+	private void createChannelEditPane() {
         // Create Channel Edit Tasks Pane
         channelEditTasks = new JXTaskPane();
         channelEditPopupMenu = new JPopupMenu();
@@ -755,6 +755,7 @@ public class Frame extends JXFrame {
         addTask(TaskConstants.CHANNEL_EDIT_MOVE_DESTINATION_DOWN, "Move Dest. Down", "Move the currently selected destination down.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_down.png")), channelEditTasks, channelEditPopupMenu);
         addTask(TaskConstants.CHANNEL_EDIT_FILTER, UIConstants.EDIT_FILTER, "Edit the filter for the currently selected destination.", "F", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/table_edit.png")), channelEditTasks, channelEditPopupMenu);
         addTask(TaskConstants.CHANNEL_EDIT_TRANSFORMER, UIConstants.EDIT_TRANSFORMER, "Edit the transformer for the currently selected destination.", "T", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/table_edit.png")), channelEditTasks, channelEditPopupMenu);
+        addTask(TaskConstants.CHANNEL_EDIT_RESPONSE_TRANSFORMER, UIConstants.EDIT_RESPONSE_TRANSFORMER, "Edit the response transformer for the currently selected destination.", "R", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/table_edit.png")), channelEditTasks, channelEditPopupMenu);        
         addTask(TaskConstants.CHANNEL_EDIT_IMPORT_CONNECTOR, "Import Connector", "Import the currently displayed connector from an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_go.png")), channelEditTasks, channelEditPopupMenu);
         addTask(TaskConstants.CHANNEL_EDIT_EXPORT_CONNECTOR, "Export Connector", "Export the currently displayed connector to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelEditTasks, channelEditPopupMenu);
         addTask(TaskConstants.CHANNEL_EDIT_EXPORT, "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelEditTasks, channelEditPopupMenu);
@@ -2873,6 +2874,12 @@ public class Frame extends JXFrame {
         String name = channelEditPanel.editTransformer();
         setPanelName("Edit Channel - " + channelEditPanel.currentChannel.getName() + " - " + name + " Transformer");
     }
+    
+    public void doEditResponseTransformer() {
+        channelEditPanel.transformerPane.resizePanes();
+        String name = channelEditPanel.editResponseTransformer();
+        setPanelName("Edit Channel - " + channelEditPanel.currentChannel.getName() + " - " + name + " Response Transformer");
+    }
 
     public void doEditFilter() {
         channelEditPanel.filterPane.resizePanes();
@@ -2886,6 +2893,10 @@ public class Frame extends JXFrame {
 
     public void updateTransformerTaskName(int steps) {
         updateFilterOrTransformerTaskName(UIConstants.EDIT_TRANSFORMER, UIConstants.EDIT_TRANSFORMER_TASK_NUMBER, steps);
+    }
+    
+    public void updateResponseTransformerTaskName(int steps) {
+        updateFilterOrTransformerTaskName(UIConstants.EDIT_RESPONSE_TRANSFORMER, UIConstants.EDIT_RESPONSE_TRANSFORMER_TASK_NUMBER, steps);
     }
 
     private void updateFilterOrTransformerTaskName(String taskName, int componentIndex, int rulesOrSteps) {

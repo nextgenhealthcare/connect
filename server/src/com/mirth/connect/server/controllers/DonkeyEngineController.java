@@ -47,6 +47,7 @@ import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
 import com.mirth.connect.donkey.server.channel.ResponseSelector;
+import com.mirth.connect.donkey.server.channel.ResponseTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.channel.StorageSettings;
@@ -214,8 +215,8 @@ public class DonkeyEngineController implements EngineController {
                 if (chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer() != null) {
                     chain.getFilterTransformerExecutors().get(metaDataId).getFilterTransformer().dispose();
                 }
-                if (chain.getDestinationConnectors().get(metaDataId).getResponseTransformer() != null) {
-                    chain.getDestinationConnectors().get(metaDataId).getResponseTransformer().dispose();
+                if (chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer() != null) {
+                    chain.getDestinationConnectors().get(metaDataId).getResponseTransformerExecutor().getResponseTransformer().dispose();
                 }
             }
         }
@@ -476,6 +477,7 @@ public class DonkeyEngineController implements EngineController {
             case PRODUCTION:
                 storageSettings.setStoreProcessedRaw(false);
                 storageSettings.setStoreTransformed(false);
+                storageSettings.setStoreResponseTransformed(false);
                 storageSettings.setStoreProcessedResponse(false);
                 break;
 
@@ -484,11 +486,13 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setDurable(false);
                 storageSettings.setStoreCustomMetaData(false);
                 storageSettings.setStoreMaps(false);
+                storageSettings.setStoreResponseMap(false);
                 storageSettings.setStoreProcessedRaw(false);
                 storageSettings.setStoreTransformed(false);
                 storageSettings.setStoreSourceEncoded(false);
                 storageSettings.setStoreDestinationEncoded(false);
                 storageSettings.setStoreSent(false);
+                storageSettings.setStoreResponseTransformed(false);
                 storageSettings.setStoreProcessedResponse(false);
                 storageSettings.setStoreResponse(false);
                 storageSettings.setStoreSentResponse(false);
@@ -499,12 +503,14 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setDurable(false);
                 storageSettings.setRawDurable(false);
                 storageSettings.setStoreMaps(false);
+                storageSettings.setStoreResponseMap(false);
                 storageSettings.setStoreRaw(false);
                 storageSettings.setStoreProcessedRaw(false);
                 storageSettings.setStoreTransformed(false);
                 storageSettings.setStoreSourceEncoded(false);
                 storageSettings.setStoreDestinationEncoded(false);
                 storageSettings.setStoreSent(false);
+                storageSettings.setStoreResponseTransformed(false);
                 storageSettings.setStoreProcessedResponse(false);
                 storageSettings.setStoreResponse(false);
                 storageSettings.setStoreSentResponse(false);
@@ -517,12 +523,14 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setRawDurable(false);
                 storageSettings.setStoreCustomMetaData(false);
                 storageSettings.setStoreMaps(false);
+                storageSettings.setStoreResponseMap(false);
                 storageSettings.setStoreRaw(false);
                 storageSettings.setStoreProcessedRaw(false);
                 storageSettings.setStoreTransformed(false);
                 storageSettings.setStoreSourceEncoded(false);
                 storageSettings.setStoreDestinationEncoded(false);
                 storageSettings.setStoreSent(false);
+                storageSettings.setStoreResponseTransformed(false);
                 storageSettings.setStoreProcessedResponse(false);
                 storageSettings.setStoreResponse(false);
                 storageSettings.setStoreSentResponse(false);
@@ -636,7 +644,7 @@ public class DonkeyEngineController implements EngineController {
         }
 
         // put the outbound template in the templates table
-        if (transformer.getOutboundTemplate() != null) {
+        if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
             TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
             XmlSerializer serializer = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).getSerializer(transformer.getOutboundProperties().getSerializerProperties());
             templateId = UUIDGenerator.getUUID();
@@ -665,6 +673,65 @@ public class DonkeyEngineController implements EngineController {
 
         return filterTransformerExecutor;
     }
+    
+    private ResponseTransformerExecutor createResponseTransformerExecutor(String channelId, Connector connector) throws Exception {
+        boolean runResponseTransformer = false;
+        String templateId = null;
+        Transformer transformer = connector.getResponseTransformer();
+        
+        DataType inboundDataType = DataTypeFactory.getDataType(transformer.getInboundDataType(), transformer.getInboundProperties());
+        DataType outboundDataType = DataTypeFactory.getDataType(transformer.getOutboundDataType(), transformer.getOutboundProperties());
+        
+        // Check the conditions for skipping transformation
+        // 1. Script is not empty
+        // 2. Data Types are different
+        // 3. The data type has properties settings that require a transformation
+        // 4. The outbound template is not empty        
+        
+        if (!transformer.getSteps().isEmpty() || !transformer.getInboundDataType().equals(transformer.getOutboundDataType())) {
+        	runResponseTransformer = true;
+        }
+        
+        // Ask the inbound serializer if it needs to be transformed with serialization
+        if (!runResponseTransformer) {
+        	runResponseTransformer = inboundDataType.getSerializer().isSerializationRequired(true);
+        }
+        
+        // Ask the outbound serializier if it needs to be transformed with serialization
+        if (!runResponseTransformer) {
+        	runResponseTransformer = outboundDataType.getSerializer().isSerializationRequired(false);
+        }
+
+        // put the outbound template in the templates table
+        if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
+            TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
+            XmlSerializer serializer = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).getSerializer(transformer.getOutboundProperties().getSerializerProperties());
+            templateId = UUIDGenerator.getUUID();
+
+            if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
+                if (ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).isBinary()) {
+                    templateController.putTemplate(channelId, templateId, transformer.getOutboundTemplate());
+                } else {
+                    templateController.putTemplate(channelId, templateId, serializer.toXML(transformer.getOutboundTemplate()));
+                }
+
+                runResponseTransformer = true;
+            }
+        }
+
+        // put the script in the scripts table
+        String scriptId = UUIDGenerator.getUUID();
+        String script = JavaScriptBuilder.generateResponseTransformerScript(transformer);
+        scriptController.putScript(channelId, scriptId, script);
+
+        ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(inboundDataType, outboundDataType);	
+
+        if (runResponseTransformer) {
+            responseTransformerExecutor.setResponseTransformer(new JavaScriptResponseTransformer(channelId, connector.getName(), scriptId, templateId));
+        }
+
+        return responseTransformerExecutor;
+    }
 
     private DestinationChain createDestinationChain(com.mirth.connect.donkey.server.channel.Channel donkeyChannel) {
         DestinationChain chain = new DestinationChain();
@@ -685,7 +752,7 @@ public class DonkeyEngineController implements EngineController {
         setCommonConnectorProperties(channelId, destinationConnector, model);
 
         destinationConnector.setDestinationName(model.getName());
-        destinationConnector.setResponseTransformer(createResponseTransformer(model, channelId));
+        destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(channelId, model));
 
         if (connectorProperties instanceof QueueConnectorPropertiesInterface) {
             QueueConnectorProperties queueConnectorProperties = ((QueueConnectorPropertiesInterface) connectorProperties).getQueueConnectorProperties();
@@ -698,22 +765,6 @@ public class DonkeyEngineController implements EngineController {
         }
 
         return destinationConnector;
-    }
-
-    private ResponseTransformer createResponseTransformer(Connector connector, String channelId) throws Exception {
-        ResponseTransformer responseTransformer = null;
-
-        if (connector.getResponseTransformer() != null) {
-            // Put the script in the scripts table
-            String scriptId = UUIDGenerator.getUUID();
-            String script = JavaScriptBuilder.generateResponseTransformerScript(connector.getResponseTransformer());
-            scriptController.putScript(channelId, scriptId, script);
-
-            // Initialize the response transformer
-            responseTransformer = new JavaScriptResponseTransformer(channelId, connector.getName(), scriptId);
-        }
-
-        return responseTransformer;
     }
 
     private void setCommonConnectorProperties(String channelId, com.mirth.connect.donkey.server.channel.Connector connector, Connector model) {

@@ -1244,6 +1244,10 @@ public class Channel implements Startable, Stoppable, Runnable {
                 if (storageSettings.isStoreResponse() && connectorMessage.getResponse() != null) {
                     dao.insertMessageContent(connectorMessage.getResponse());
                 }
+                
+                if (storageSettings.isStoreResponseTransformed() && connectorMessage.getResponseTransformed() != null) {
+                    dao.insertMessageContent(connectorMessage.getResponseTransformed());
+                }
 
                 if (storageSettings.isStoreProcessedResponse() && connectorMessage.getProcessedResponse() != null) {
                     dao.insertMessageContent(connectorMessage.getProcessedResponse());
@@ -1300,6 +1304,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                         destinationConnector.setDaoFactory(daoFactory);
                         destinationConnector.setStorageSettings(storageSettings);
                         destinationConnector.setEncryptor(encryptor);
+                        destinationConnector.getResponseTransformerExecutor().setEncryptor(encryptor);
 
                         // set the queue data source
                         destinationConnector.getQueue().setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), destinationConnector.getMetaDataId(), Status.QUEUED, destinationConnector.isQueueRotate(), daoFactory, encryptor));

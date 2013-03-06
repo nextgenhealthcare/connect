@@ -81,6 +81,7 @@ public class TaskConstants {
     public static final String CHANNEL_EDIT_MOVE_DESTINATION_DOWN = "doMoveDestinationDown";
     public static final String CHANNEL_EDIT_FILTER = "doEditFilter";
     public static final String CHANNEL_EDIT_TRANSFORMER = "doEditTransformer";
+    public static final String CHANNEL_EDIT_RESPONSE_TRANSFORMER = "doEditResponseTransformer";
     public static final String CHANNEL_EDIT_IMPORT_CONNECTOR = "doImportConnector";
     public static final String CHANNEL_EDIT_EXPORT_CONNECTOR = "doExportConnector";
     public static final String CHANNEL_EDIT_EXPORT = "doExport";

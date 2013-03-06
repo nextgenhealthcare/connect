@@ -10,15 +10,15 @@
 package com.mirth.connect.connectors.tests;
 
 import com.mirth.connect.donkey.model.DonkeyException;
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 
 public class TestResponseTransformer implements ResponseTransformer {
 
     @Override
-    public void doTransform(Response response) throws DonkeyException {}
+    public void doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException {}
 
     @Override
     public void dispose() {}
-
 }

@@ -251,6 +251,7 @@ public class MessageControllerTests {
                     connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.ENCODED, testMessage, null, null));
                     connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.SENT, testMessage, null, null));
                     connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE, testMessage, null, null));
+                    connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_TRANSFORMED, testMessage, null, null));
                     connectorMessage.setContent(new MessageContent(channel.getChannelId(), message.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSED_RESPONSE, testMessage, null, null));
                 }
 

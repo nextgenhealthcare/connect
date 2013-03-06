@@ -222,14 +222,39 @@ public class ChannelSetup extends javax.swing.JPanel {
         
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
             name = "Source";
-            transformerPaneLoaded = transformerPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer(), changed);
+            transformerPaneLoaded = transformerPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer(), changed, false);
         } else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) {
             Connector destination = currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex());
-            transformerPaneLoaded = transformerPane.load(destination, destination.getTransformer(), changed);
+            transformerPaneLoaded = transformerPane.load(destination, destination.getTransformer(), changed, false);
             name = destination.getName();
         }
         
         if (!transformerPaneLoaded) {
+            parent.taskPaneContainer.add(parent.getOtherPane());
+            parent.setCurrentContentPage(parent.channelEditPanel);
+            parent.setFocus(parent.channelEditTasks);
+            name = "Edit Channel - " + parent.channelEditPanel.currentChannel.getName();
+            parent.channelEditPanel.updateComponentShown();
+        }
+        
+        return name;
+    }
+    
+    /**
+     * Is called to load the response transformer pane on the destination
+     */
+    public String editResponseTransformer() {
+        String name = "";
+        boolean changed = parent.changesHaveBeenMade();
+        boolean responseTransformerPaneLoaded = false;
+        
+        if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) {
+            Connector destination = currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex());
+            responseTransformerPaneLoaded = transformerPane.load(destination, destination.getResponseTransformer(), changed, true);
+            name = destination.getName();
+        }
+        
+        if (!responseTransformerPaneLoaded) {
             parent.taskPaneContainer.add(parent.getOtherPane());
             parent.setCurrentContentPage(parent.channelEditPanel);
             parent.setFocus(parent.channelEditTasks);
@@ -298,7 +323,6 @@ public class ChannelSetup extends javax.swing.JPanel {
                 DataTypeProperties defaultResponseInboundProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
                 DataTypeProperties defaultResponseOutboundProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
 
-
                 connector.getTransformer().setInboundDataType(dataType);
                 connector.getTransformer().setInboundProperties(defaultInboundProperties);
                 connector.getTransformer().setOutboundDataType(dataType);
@@ -307,8 +331,6 @@ public class ChannelSetup extends javax.swing.JPanel {
                 connector.getResponseTransformer().setInboundProperties(defaultResponseInboundProperties);
                 connector.getResponseTransformer().setOutboundDataType(dataType);
                 connector.getResponseTransformer().setOutboundProperties(defaultResponseOutboundProperties);
-                
-                
 
                 connector.setName(getNewDestinationName(tableSize));
                 connector.setTransportName(DESTINATION_DEFAULT);
@@ -938,6 +960,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             transformerPane.accept(false);
             transformerPane.modified = false; // TODO: Check this. Fix to prevent double save on confirmLeave
         }
+        
         if (parent.currentContentPage == filterPane) {
             filterPane.accept(false);
             filterPane.modified = false; // TODO: Check this. Fix to prevent double save on confirmLeave
@@ -1008,10 +1031,10 @@ public class ChannelSetup extends javax.swing.JPanel {
 
                 if (parent.currentContentPage == transformerPane) {
                     if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
-                        transformerPane.reload(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer());
+                        transformerPane.reload(currentChannel.getSourceConnector());
                     } else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) {
                         int destination = destinationTable.getSelectedModelIndex();
-                        transformerPane.reload(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getTransformer());
+                        transformerPane.reload(currentChannel.getDestinationConnectors().get(destination));
                     }
                 }
                 if (parent.currentContentPage == filterPane) {
@@ -1110,6 +1133,26 @@ public class ChannelSetup extends javax.swing.JPanel {
             if (destinationTransformer.getOutboundProperties() == null) {
                 DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(destinationTransformer.getOutboundDataType()).getDefaultProperties();
                 destinationTransformer.setOutboundProperties(defaultProperties);
+            }
+            
+            Transformer destinationResponseTransformer = c.getResponseTransformer();
+
+            if (destinationResponseTransformer.getInboundDataType() == null) {
+            	destinationResponseTransformer.setInboundDataType(destinationTransformer.getOutboundDataType());
+            }
+
+            if (destinationResponseTransformer.getInboundProperties() == null) {
+                DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(destinationResponseTransformer.getInboundDataType()).getDefaultProperties();
+                destinationResponseTransformer.setInboundProperties(defaultProperties);
+            }
+
+            if (destinationResponseTransformer.getOutboundDataType() == null) {
+            	destinationResponseTransformer.setOutboundDataType(destinationResponseTransformer.getInboundDataType());
+            }
+
+            if (destinationResponseTransformer.getOutboundProperties() == null) {
+                DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(destinationResponseTransformer.getOutboundDataType()).getDefaultProperties();
+                destinationResponseTransformer.setOutboundProperties(defaultProperties);
             }
         }
     }
@@ -1250,6 +1293,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             // Update number of rules and steps on the filter and transformer
             parent.updateFilterTaskName(destination.getFilter().getRules().size());
             parent.updateTransformerTaskName(destination.getTransformer().getSteps().size());
+            parent.updateResponseTransformerTaskName(destination.getResponseTransformer().getSteps().size());
         }
     }
 
@@ -1347,12 +1391,21 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     private String validateTransformerSteps(Connector connector) {
         String errors = "";
-
+        
         for (Step step : connector.getTransformer().getSteps()) {
             String validationMessage = this.transformerPane.validateStep(step);
             if (validationMessage != null) {
-                errors += "Error in connector \"" + connector.getName() + "\" at step " + step.getSequenceNumber() + " (\"" + step.getName() + "\"):\n" + validationMessage + "\n\n";
+                errors += "Error in connector \"" + connector.getName() + "\" at transformer step " + step.getSequenceNumber() + " (\"" + step.getName() + "\"):\n" + validationMessage + "\n\n";
             }
+        }
+        
+        if (connector.getMode() == Connector.Mode.DESTINATION){
+	    	  for (Step step : connector.getResponseTransformer().getSteps()) {
+	              String validationMessage = this.transformerPane.validateStep(step);
+	              if (validationMessage != null) {
+	                  errors += "Error in connector \"" + connector.getName() + "\" at response transformer step " + step.getSequenceNumber() + " (\"" + step.getName() + "\"):\n" + validationMessage + "\n\n";
+	              }
+	          }
         }
 
         return errors;
@@ -2345,16 +2398,18 @@ public class ChannelSetup extends javax.swing.JPanel {
     
     private void scriptsComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_scriptsComponentShown
     {//GEN-HEADEREND:event_scriptsComponentShown
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 12, false);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 14, 14, true);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 13, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 15, 15, true);
     }//GEN-LAST:event_scriptsComponentShown
 
     /** Action when the source tab is shown. */
     private void sourceComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_sourceComponentShown
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 8, false);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 9, 13, true);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 14, 14, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 9, 10, true);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 11, 11, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 14, true);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 15, 15, false);
 
         // Update number of rules and steps on the filter and transformer
         parent.updateFilterTaskName(currentChannel.getSourceConnector().getFilter().getRules().size());
@@ -2376,8 +2431,8 @@ public class ChannelSetup extends javax.swing.JPanel {
     /** Action when the destinations tab is shown. */
     private void destinationComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_destinationComponentShown
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 12, true);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 14, 14, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 13, true);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 15, 15, false);
 
         checkVisibleDestinationTasks();
 
@@ -2505,8 +2560,8 @@ public class ChannelSetup extends javax.swing.JPanel {
     }//GEN-LAST:event_waitForPreviousCheckboxActionPerformed
     
     private void summaryComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_summaryComponentShown
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 12, false);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 14, 14, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 13, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 15, 15, false);
     }//GEN-LAST:event_summaryComponentShown
 
     private void metadataPruningOffRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_metadataPruningOffRadioActionPerformed
@@ -2787,7 +2842,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     private Set<String> getMultipleDestinationStepVariables(Connector currentDestination) {
         Set<String> concatenatedSteps = new LinkedHashSet<String>();
-        VariableListUtil.getStepVariables(concatenatedSteps, currentChannel.getSourceConnector(), false);
+        VariableListUtil.getStepVariables(concatenatedSteps, currentChannel.getSourceConnector().getTransformer(), false);
 
         // add only the global variables
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
@@ -2798,10 +2853,11 @@ public class ChannelSetup extends javax.swing.JPanel {
             if (currentDestination == destination) {
                 seenCurrent = true;
                 // add all the variables
-                VariableListUtil.getStepVariables(concatenatedSteps, destination, true);
+                VariableListUtil.getStepVariables(concatenatedSteps, destination.getTransformer(), true);
             } else if (!seenCurrent) {
                 // add only the global variables
-                VariableListUtil.getStepVariables(concatenatedSteps, destination, false);
+                VariableListUtil.getStepVariables(concatenatedSteps, destination.getTransformer(), false);
+                VariableListUtil.getStepVariables(concatenatedSteps, destination.getResponseTransformer(), false);
                 concatenatedSteps.add(destination.getName());
             }
         }
@@ -2845,7 +2901,8 @@ public class ChannelSetup extends javax.swing.JPanel {
     public void changeConnectorType(Connector c, boolean isDestination) {
         Transformer oldTransformer = c.getTransformer();
         Filter oldFilter = c.getFilter();
-
+        Transformer oldResponseTransformer = c.getResponseTransformer();
+        
         if (isDestination) {
             c = makeNewConnector(true);
         } else {
@@ -2854,6 +2911,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         c.setTransformer(oldTransformer);
         c.setFilter(oldFilter);
+        c.setResponseTransformer(oldResponseTransformer);
     }
 
     /**

@@ -216,7 +216,7 @@ public class StatisticsTests {
             destinationConnector.setDestinationName(TestUtils.DEFAULT_DESTINATION_NAME);
             destinationConnector.setInboundDataType(new TestDataType());
             destinationConnector.setOutboundDataType(new TestDataType());
-            destinationConnector.setResponseTransformer(new TestResponseTransformer());
+            destinationConnector.setResponseTransformerExecutor(TestUtils.createDefaultResponseTransformerExecutor());
 
             ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
             destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), i, Status.QUEUED, false, daoFactory, new PassthruEncryptor()));
@@ -360,7 +360,7 @@ public class StatisticsTests {
         destinationConnector.setDestinationName(TestUtils.DEFAULT_DESTINATION_NAME);
         destinationConnector.setInboundDataType(new TestDataType());
         destinationConnector.setOutboundDataType(new TestDataType());
-        destinationConnector.setResponseTransformer(new TestResponseTransformer());
+        destinationConnector.setResponseTransformerExecutor(TestUtils.createDefaultResponseTransformerExecutor());
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channel.getChannelId()));
@@ -378,7 +378,7 @@ public class StatisticsTests {
             public volatile boolean waiting = true;
 
             @Override
-            public void doTransform(Response response) throws DonkeyException {
+            public void doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException, InterruptedException {
                 while (waiting) {
                     try {
                         Thread.sleep(waitTime);
@@ -386,13 +386,13 @@ public class StatisticsTests {
                         e.printStackTrace();
                     }
                 }
-                super.doTransform(response);
+                super.doTransform(response, connectorMessage);
             }
         }
 
         // Create a response transformer that stalls the processing thread a specified amount of time
         BlockingTestResponseTransformer responseTransformer = new BlockingTestResponseTransformer();
-        destinationConnector.setResponseTransformer(responseTransformer);
+        destinationConnector.getResponseTransformerExecutor().setResponseTransformer(responseTransformer);
 
         chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
 

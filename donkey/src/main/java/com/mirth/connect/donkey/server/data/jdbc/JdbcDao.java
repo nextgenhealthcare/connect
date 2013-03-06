@@ -1659,6 +1659,7 @@ public class JdbcDao implements DonkeyDao {
                 connectorMessage.setEncoded(getMessageContent(channelId, messageId, metaDataId, ContentType.ENCODED));
                 connectorMessage.setSent(getMessageContent(channelId, messageId, metaDataId, ContentType.SENT));
                 connectorMessage.setResponse(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE));
+                connectorMessage.setResponseTransformed(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_TRANSFORMED));
                 connectorMessage.setProcessedResponse(getMessageContent(channelId, messageId, metaDataId, ContentType.PROCESSED_RESPONSE));
             }
 

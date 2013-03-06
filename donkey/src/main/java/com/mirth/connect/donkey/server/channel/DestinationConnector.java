@@ -28,7 +28,6 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.Encryptor;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
-import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
@@ -45,7 +44,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private ConnectorMessageQueue queue = new ConnectorMessageQueue();
     private String destinationName;
     private boolean enabled;
-    private ResponseTransformer responseTransformer;
+    private ResponseTransformerExecutor responseTransformerExecutor;
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
     private Encryptor encryptor;
@@ -101,12 +100,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
         }
     }
 
-    public ResponseTransformer getResponseTransformer() {
-        return responseTransformer;
+    public ResponseTransformerExecutor getResponseTransformerExecutor() {
+        return responseTransformerExecutor;
     }
 
-    public void setResponseTransformer(ResponseTransformer responseTransformer) {
-        this.responseTransformer = responseTransformer;
+    public void setResponseTransformerExecutor(ResponseTransformerExecutor responseTransformerExecutor) {
+        this.responseTransformerExecutor = responseTransformerExecutor;
     }
 
     protected void setStorageSettings(StorageSettings storageSettings) {
@@ -247,7 +246,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 // NOTE: Send attempts here will not be persisted until all attempts have completed since there is only one transaction.
                 // Each attempt from the queue will be persisted though.
                 message.setSendAttempts(++sendAttempts);
-                fixResponseStatus(response);
+                response.fixStatus(isQueueEnabled());
                 responseStatus = response.getNewMessageStatus();
             } while ((responseStatus == Status.ERROR || responseStatus == Status.QUEUED) && (sendAttempts - 1) < retryCount);
 
@@ -271,7 +270,20 @@ public abstract class DestinationConnector extends Connector implements Runnable
      */
     public void processPendingConnectorMessage(DonkeyDao dao, ConnectorMessage message) throws InterruptedException {
         Response response = Response.fromString(message.getResponse().getContent());
-        runResponseTransformer(dao, message, response);
+        
+        if (responseTransformerExecutor != null){
+	        try{	
+	        	responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings);		
+	        } catch (DonkeyException e) { 
+	            logger.error("Error executing response transformer for channel " + message.getChannelId() + " (" + destinationName + ").", e);
+	            response.setNewMessageStatus(Status.ERROR);
+	            response.setError(e.getFormattedError());
+	            message.setErrors(message.getErrors() != null ? message.getErrors() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
+	            dao.updateErrors(message);
+	            return;
+	        }
+        }
+        
         afterResponse(dao, message, response, message.getStatus());
     }
 
@@ -312,11 +324,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         ThreadUtils.checkInterruptedStatus();
                         Response response = handleSend(connectorProperties, connectorMessage);
                         connectorMessage.setSendAttempts(connectorMessage.getSendAttempts() + 1);
-                        fixResponseStatus(response);
 
                         if (response == null) {
                             throw new RuntimeException("Received null response from destination " + destinationName + ".");
                         }
+                        response.fixStatus(isQueueEnabled());
 
                         afterSend(dao, connectorMessage, response, previousStatus);
 
@@ -411,15 +423,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     private void afterSend(DonkeyDao dao, ConnectorMessage message, Response response, Status previousStatus) throws InterruptedException {
-        // Insert errors if necessary
-        if (StringUtils.isNotBlank(response.getError())) {
-            message.setErrors(response.getError());
-            dao.updateErrors(message);
-        }
-
         String responseString = response.toString();
-        //TODO add data type
-        MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, responseString, null, encryptor.encrypt(responseString));
+        MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, responseString, responseTransformerExecutor.getInbound().getType(), encryptor.encrypt(responseString));
 
         if (storageSettings.isStoreResponse()) {
             ThreadUtils.checkInterruptedStatus();
@@ -433,69 +438,41 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
         message.setResponse(responseContent);
 
-        if (responseTransformer != null) {
-            ThreadUtils.checkInterruptedStatus();
-            message.setStatus(Status.PENDING);
-
-            dao.updateStatus(message, previousStatus);
-            dao.commit(storageSettings.isDurable());
-
-            previousStatus = message.getStatus();
-
-            runResponseTransformer(dao, message, response);
-        } else {
-            fixResponseStatus(response);
-        }
-
-        message.getResponseMap().put(destinationName, response);
-
-        if (storageSettings.isStoreResponseMap()) {
-            dao.updateResponseMap(message);
-        }
-
         ThreadUtils.checkInterruptedStatus();
-        afterResponse(dao, message, response, previousStatus);
-    }
+        message.setStatus(Status.PENDING);
 
-    private void runResponseTransformer(DonkeyDao dao, ConnectorMessage message, Response response) throws InterruptedException {
-        ThreadUtils.checkInterruptedStatus();
+        dao.updateStatus(message, previousStatus);
+        dao.commit(storageSettings.isDurable());
 
+        previousStatus = message.getStatus();
         try {
-            responseTransformer.doTransform(response);
+        	// Perform transformation
+            responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings);  
+            
+            // Insert errors if necessary
+            if (StringUtils.isNotBlank(response.getError())) {
+                message.setErrors(response.getError());
+                dao.updateErrors(message);
+            }
         } catch (DonkeyException e) {
             logger.error("Error executing response transformer for channel " + message.getChannelId() + " (" + destinationName + ").", e);
             response.setNewMessageStatus(Status.ERROR);
             response.setError(e.getFormattedError());
+            message.setStatus(response.getNewMessageStatus());
             message.setErrors(message.getErrors() != null ? message.getErrors() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
+            dao.updateStatus(message, previousStatus);
             dao.updateErrors(message);
             return;
         }
 
-        fixResponseStatus(response);
+        message.getResponseMap().put(destinationName, response);
 
-        /*
-         * TRANSACTION: Process Response
-         * - (if there is a response transformer) store the processed response
-         * and the response map
-         * - update message status based on the response status
-         * - if there is a next destination in the chain, create it's message
-         */
-
-        // store the processed response in the message
-        String responseString = response.toString();
-        //TODO add data type
-        MessageContent processedResponse = new MessageContent(getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.PROCESSED_RESPONSE, responseString, null, encryptor.encrypt(responseString));
-        message.setProcessedResponse(processedResponse);
-
-        if (storageSettings.isStoreProcessedResponse()) {
-            ThreadUtils.checkInterruptedStatus();
-
-            if (message.getProcessedResponse() != null) {
-                dao.storeMessageContent(processedResponse);
-            } else {
-                dao.insertMessageContent(processedResponse);
-            }
+        if (storageSettings.isStoreMaps()) {
+            dao.updateMaps(message);
         }
+
+        ThreadUtils.checkInterruptedStatus();
+        afterResponse(dao, message, response, previousStatus);
     }
 
     private void afterResponse(DonkeyDao dao, ConnectorMessage connectorMessage, Response response, Status previousStatus) {
@@ -503,19 +480,5 @@ public abstract class DestinationConnector extends Connector implements Runnable
         connectorMessage.setStatus(response.getNewMessageStatus());
         dao.updateStatus(connectorMessage, previousStatus);
         previousStatus = connectorMessage.getStatus();
-    }
-
-    private void fixResponseStatus(Response response) {
-        if (response != null) {
-            Status status = response.getNewMessageStatus();
-
-            if (status != Status.FILTERED && status != Status.ERROR && status != Status.SENT && status != Status.QUEUED) {
-                // If the response is invalid for a final destination status, change the status to ERROR
-                response.setNewMessageStatus(Status.ERROR);
-            } else if (!isQueueEnabled() && status == Status.QUEUED) {
-                // If the status is QUEUED and queuing is disabled, change the status to ERROR
-                response.setNewMessageStatus(Status.ERROR);
-            }
-        }
     }
 }

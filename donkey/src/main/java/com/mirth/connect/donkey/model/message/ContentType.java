@@ -12,8 +12,7 @@ package com.mirth.connect.donkey.model.message;
 import org.apache.commons.lang3.text.WordUtils;
 
 public enum ContentType {
-    RAW('R'), PROCESSED_RAW('P'), TRANSFORMED('T'), ENCODED('E'), SENT('S'), RESPONSE('O'), PROCESSED_RESPONSE(
-            'N');
+    RAW('R'), PROCESSED_RAW('P'), TRANSFORMED('T'), ENCODED('E'), SENT('S'), RESPONSE('O'), RESPONSE_TRANSFORMED('Q'), PROCESSED_RESPONSE('N');
 
     private char contentType;
 
@@ -42,6 +41,8 @@ public enum ContentType {
             return SENT;
         if (contentType == 'O')
             return RESPONSE;
+        if (contentType == 'Q')
+            return RESPONSE_TRANSFORMED;
         if (contentType == 'N')
             return PROCESSED_RESPONSE;
 

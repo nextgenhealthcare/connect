@@ -54,7 +54,6 @@ import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Donkey;
@@ -67,6 +66,7 @@ import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
 import com.mirth.connect.donkey.server.channel.ResponseSelector;
+import com.mirth.connect.donkey.server.channel.ResponseTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.channel.StorageSettings;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
@@ -81,15 +81,6 @@ import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
 import com.mirth.connect.donkey.server.event.Event;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
-import com.mirth.connect.donkey.test.util.TestChannel;
-import com.mirth.connect.donkey.test.util.TestConnectorProperties;
-import com.mirth.connect.donkey.test.util.TestDataType;
-import com.mirth.connect.donkey.test.util.TestDestinationConnector;
-import com.mirth.connect.donkey.test.util.TestFilterTransformer;
-import com.mirth.connect.donkey.test.util.TestPostProcessor;
-import com.mirth.connect.donkey.test.util.TestPreProcessor;
-import com.mirth.connect.donkey.test.util.TestResponseTransformer;
-import com.mirth.connect.donkey.test.util.TestSourceConnector;
 import com.mirth.connect.donkey.util.ResourceUtil;
 import com.mirth.connect.donkey.util.Serializer;
 
@@ -144,6 +135,7 @@ public class TestUtils {
         TestDestinationConnector destinationConnector = (TestDestinationConnector) TestUtils.createDefaultDestinationConnector();
         destinationConnector.setChannelId(channelId);
         destinationConnector.setMetaDataId(1);
+        destinationConnector.setResponseTransformerExecutor(TestUtils.createDefaultResponseTransformerExecutor());
 
         DestinationChain chain = new DestinationChain();
         chain.setChannelId(channelId);
@@ -244,7 +236,7 @@ public class TestUtils {
         destinationConnector.setDestinationName(name);
         destinationConnector.setInboundDataType(inboundDataType);
         destinationConnector.setOutboundDataType(outboundDataType);
-        destinationConnector.setResponseTransformer(responseTransformer);
+        destinationConnector.setResponseTransformerExecutor(createDefaultResponseTransformerExecutor());
         destinationConnector.setMetaDataId(metaDataId);
 
         ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
@@ -256,6 +248,12 @@ public class TestUtils {
         FilterTransformerExecutor filterTransformerExecutor = new FilterTransformerExecutor(new TestDataType(), new TestDataType());
         filterTransformerExecutor.setFilterTransformer(new TestFilterTransformer());
         return filterTransformerExecutor;
+    }
+    
+    public static ResponseTransformerExecutor createDefaultResponseTransformerExecutor() {
+    	ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new TestDataType(), new TestDataType());
+    	responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
+        return responseTransformerExecutor;
     }
 
     public static Connection getConnection() {
@@ -580,6 +578,7 @@ public class TestUtils {
         assertMessageContentsEqual(connectorMessage1.getEncoded(), connectorMessage2.getEncoded());
         assertMessageContentsEqual(connectorMessage1.getSent(), connectorMessage2.getSent());
         assertMessageContentsEqual(connectorMessage1.getResponse(), connectorMessage2.getResponse());
+        assertMessageContentsEqual(connectorMessage1.getResponseTransformed(), connectorMessage2.getResponseTransformed());
         assertMessageContentsEqual(connectorMessage1.getProcessedResponse(), connectorMessage2.getProcessedResponse());
         assertEquals(connectorMessage1.getConnectorMap(), connectorMessage2.getConnectorMap());
         assertEquals(connectorMessage1.getChannelMap(), connectorMessage2.getChannelMap());

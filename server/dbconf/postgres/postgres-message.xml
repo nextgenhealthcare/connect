@@ -100,6 +100,10 @@
 			LEFT JOIN d_mc${localChannelId} mc_response ON mc_response.message_id = m.id AND mc_response.metadata_id = mm.id AND mc_response.content_type = 'O' AND mc_response.is_encrypted = FALSE
 		</if>
 		
+		<if test="quickSearch != null || responseTransformedSearch != null">
+			LEFT JOIN d_mc${localChannelId} mc_response_transformed ON mc_response_transformed.message_id = m.id AND mc_response_transformed.metadata_id = mm.id AND mc_response_transformed.content_type = 'Q' AND mc_response_transformed.is_encrypted = FALSE
+		</if>
+		
 		<if test="quickSearch != null || processedResponseSearch != null">
 			LEFT JOIN d_mc${localChannelId} mc_processed_response ON mc_processed_response.message_id = m.id AND mc_processed_response.metadata_id = mm.id AND mc_processed_response.content_type = 'N' AND mc_processed_response.is_encrypted = FALSE
 		</if>
@@ -136,6 +140,7 @@
 				OR mc_encoded.content ILIKE '%' || #{quickSearch} || '%'
 				OR mc_sent.content ILIKE '%' || #{quickSearch} || '%'
 				OR mc_response.content ILIKE '%' || #{quickSearch} || '%'
+				OR mc_response_transformed.content ILIKE '%' || #{quickSearch} || '%'
 				OR mc_processed_response.content ILIKE '%' || #{quickSearch} || '%')
 			</if>
 			<if test="statuses != null">
@@ -167,6 +172,9 @@
 			</if>
 			<if test="responseSearch != null">
 				AND mc_response.content ILIKE '%' || #{responseSearch} || '%'
+			</if>
+			<if test="responseTransformedSearch != null">
+				AND mc_response_transformed.content ILIKE '%' || #{responseTransformedSearch} || '%'
 			</if>
 			<if test="processedResponseSearch != null">
 				AND mc_processed_response.content ILIKE '%' || #{processedResponseSearch} || '%'

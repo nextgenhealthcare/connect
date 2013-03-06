@@ -756,6 +756,12 @@ public class ChannelTests {
         } else {
             TestUtils.assertMessageContentDoesNotExist(destinationMessage.getResponse());
         }
+        
+        if (storageSettings.isStoreResponseTransformed()) {
+            TestUtils.assertMessageContentExists(destinationMessage.getResponseTransformed());
+        } else {
+            TestUtils.assertMessageContentDoesNotExist(destinationMessage.getResponseTransformed());
+        }
 
         if (storageSettings.isStoreProcessedResponse()) {
             TestUtils.assertMessageContentExists(destinationMessage.getProcessedResponse());
