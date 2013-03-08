@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.tree.TreePath;
+
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
@@ -129,6 +132,7 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
                 statuses.remove(status);
                 // Update the channel status
                 node.setStatus(status);
+                modelSupport.firePathChanged(new TreePath(getPathToRoot(node)));
             }
         }
         
@@ -173,6 +177,7 @@ public class DashboardTreeTableModel extends SortableTreeTableModel {
             // If the new connector key is equal to the old one, then update the node's status
             if (oldConnectorNode != null && newConnectorStatus.getKey().equals(oldConnectorNode.getStatus().getKey())) {
                 oldConnectorNode.setStatus(newConnectorStatus);
+                modelSupport.firePathChanged(new TreePath(getPathToRoot(oldConnectorNode)));
             } else {
                 DashboardTableNode node;
                 
