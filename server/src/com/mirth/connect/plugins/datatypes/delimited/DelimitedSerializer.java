@@ -9,9 +9,6 @@
 
 package com.mirth.connect.plugins.datatypes.delimited;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -25,22 +22,18 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.model.converters.BatchAdaptor;
-import com.mirth.connect.model.converters.BatchMessageProcessor;
-import com.mirth.connect.model.converters.BatchMessageProcessorException;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.XMLPrettyPrinter;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.util.ErrorConstants;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
-public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
+public class DelimitedSerializer implements IXMLSerializer {
     private Logger logger = Logger.getLogger(this.getClass());
 
     private DelimitedSerializationProperties serializationProperties;
     private DelimitedDeserializationProperties deserializationProperties;
     private DelimitedBatchProperties batchProperties;
-    private DelimitedReader delimitedBatchReader = null;
 
     public DelimitedSerializer(SerializerProperties properties) {
         serializationProperties = (DelimitedSerializationProperties) properties.getSerializationProperties();
@@ -121,57 +114,5 @@ public class DelimitedSerializer implements IXMLSerializer, BatchAdaptor {
         }
 
         return new String();
-    }
-
-    /**
-     * Finds the next message in the input stream and returns it.
-     * 
-     * @param in
-     *            The input stream (it's a BufferedReader, because operations on
-     *            it require in.mark()).
-     * @param skipHeader
-     *            Pass true to skip the configured number of header rows,
-     *            otherwise false.
-     * @return The next message, or null if there are no more messages.
-     * @throws IOException
-     * @throws InterruptedException 
-     */
-    public String getMessage(BufferedReader in, boolean skipHeader, String batchScriptId) throws IOException, InterruptedException {
-
-        // Allocate a batch reader if not already allocated
-        if (delimitedBatchReader == null) {
-            delimitedBatchReader = new DelimitedReader(serializationProperties);
-        }
-        return delimitedBatchReader.getMessage((DelimitedBatchProperties) batchProperties, in, skipHeader, batchScriptId);
-    }
-
-    @Override
-    public void processBatch(Reader src, BatchMessageProcessor dest) throws Exception {
-        BufferedReader in = new BufferedReader(src);
-        String message;
-        boolean skipHeader = true;
-        boolean errored = false;
-        
-        while ((message = getMessage(in, skipHeader, dest.getBatchScriptId())) != null) {
-            try {
-                if (!dest.processBatchMessage(message)) {
-                    logger.warn("Batch processing stopped.");
-                    return;
-                }
-            } catch (BatchMessageProcessorException e) {
-                errored = true;
-                logger.error("Error processing message in batch.", e);
-            }
-            
-            skipHeader = false;
-        }
-        
-        if (errored) {
-            throw new BatchMessageProcessorException("Error processing message in batch.");
-        }
-    }
-    
-    public String getBatchScript() {
-        return batchProperties.getBatchScript();
     }
 }

@@ -7,11 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.model.converters;
+package com.mirth.connect.server.message;
 
-import com.mirth.connect.donkey.model.message.AutoResponder;
-import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.donkey.server.message.AutoResponder;
+import com.mirth.connect.donkey.server.message.BatchAdaptor;
+import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
@@ -27,6 +28,8 @@ public class DataTypeFactory {
         SerializerProperties serializerProperties = dataTypeProperties.getSerializerProperties();
         XmlSerializer serializer = dataTypePlugin.getSerializer(serializerProperties);
         
+        BatchAdaptor batchAdaptor = dataTypePlugin.getBatchAdaptor(serializerProperties);
+        
         // Create the autoresponder
         AutoResponder autoResponder = dataTypePlugin.getAutoResponder(serializerProperties.getSerializationProperties(), dataTypeProperties.getResponseGenerationProperties());
         if (autoResponder == null) {
@@ -34,6 +37,6 @@ public class DataTypeFactory {
         }
         
         // Return the data type
-        return new DataType(dataType, serializer, autoResponder);
+        return new DataType(dataType, serializer, batchAdaptor, autoResponder);
     }
 }

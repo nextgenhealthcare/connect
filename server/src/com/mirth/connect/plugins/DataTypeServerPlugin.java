@@ -1,7 +1,7 @@
 package com.mirth.connect.plugins;
 
-import com.mirth.connect.donkey.model.message.AutoResponder;
-import com.mirth.connect.donkey.model.message.XmlSerializer;
+import com.mirth.connect.donkey.server.message.AutoResponder;
+import com.mirth.connect.donkey.server.message.BatchAdaptor;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
 import com.mirth.connect.model.datatype.ResponseGenerationProperties;
@@ -37,6 +37,13 @@ public abstract class DataTypeServerPlugin implements ServerPlugin {
     protected abstract DataTypeDelegate getDataTypeDelegate();
     
     /**
+     * Get the batch adaptor for the data type
+     */
+    public BatchAdaptor getBatchAdaptor(SerializerProperties properties) {
+    	return null;
+    }
+    
+    /**
      * Get the auto responder for the data type
      */
     public abstract AutoResponder getAutoResponder(SerializationProperties serializationProperties, ResponseGenerationProperties generationProperties);
@@ -50,7 +57,7 @@ public abstract class DataTypeServerPlugin implements ServerPlugin {
      * Get the batch script from a serializer.
      * Returns null if no script exists.
      */
-    public String getBatchScript(XmlSerializer serializer) {
+    public String getBatchScript(BatchAdaptor batchAdaptor) {
         return null;
     }
 }

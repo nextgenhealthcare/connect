@@ -23,10 +23,10 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.mirth.connect.donkey.model.message.AutoResponder;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.message.AutoResponder;
 import com.mirth.connect.model.datatype.ResponseGenerationProperties;
 import com.mirth.connect.model.datatype.SerializationProperties;
 import com.mirth.connect.server.util.TemplateValueReplacer;

@@ -1,13 +1,13 @@
 package com.mirth.connect.plugins.datatypes.delimited;
 
-import com.mirth.connect.donkey.model.message.AutoResponder;
-import com.mirth.connect.donkey.model.message.XmlSerializer;
-import com.mirth.connect.model.converters.DefaultAutoResponder;
+import com.mirth.connect.donkey.server.message.AutoResponder;
+import com.mirth.connect.donkey.server.message.BatchAdaptor;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
 import com.mirth.connect.model.datatype.ResponseGenerationProperties;
 import com.mirth.connect.model.datatype.SerializationProperties;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
+import com.mirth.connect.server.message.DefaultAutoResponder;
 
 public class DelimitedDataTypeServerPlugin extends DataTypeServerPlugin {
     private DataTypeDelegate dataTypeDelegate = new DelimitedDataTypeDelegate();
@@ -29,6 +29,11 @@ public class DelimitedDataTypeServerPlugin extends DataTypeServerPlugin {
     public AutoResponder getAutoResponder(SerializationProperties serializationProperties, ResponseGenerationProperties generationProperties) {
         return new DefaultAutoResponder();
     }
+    
+    @Override
+    public BatchAdaptor getBatchAdaptor(SerializerProperties properties) {
+    	return new DelimitedBatchAdaptor(properties);
+    }
 
     @Override
     public boolean isStripNamespaces(SerializerProperties properties) {
@@ -40,8 +45,9 @@ public class DelimitedDataTypeServerPlugin extends DataTypeServerPlugin {
         return dataTypeDelegate;
     }
 
-    public String getBatchScript(XmlSerializer serializer) {
-        DelimitedSerializer delimitedSerializer = (DelimitedSerializer) serializer;
-        return delimitedSerializer.getBatchScript();
+    @Override
+    public String getBatchScript(BatchAdaptor batchAdaptor) {
+    	DelimitedBatchAdaptor delimitedBatchAdaptor = (DelimitedBatchAdaptor) batchAdaptor;
+        return delimitedBatchAdaptor.getBatchScript();
     }
 }

@@ -375,9 +375,13 @@
 		<jar destfile="${plugins.datatype-delimited}/datatype-delimited-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/delimited/**" />
 			<exclude name="com/mirth/connect/plugins/datatypes/delimited/DelimitedDataTypeServerPlugin.class" />
+			<exclude name="com/mirth/connect/plugins/datatypes/delimited/DelimitedBatchAdaptor.class" />
+			<exclude name="com/mirth/connect/plugins/datatypes/delimited/DelimitedBatchReader.class" />
 		</jar>
 		<jar destfile="${plugins.datatype-delimited}/datatype-delimited-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/delimited/DelimitedDataTypeServerPlugin.class" />
+			<include name="com/mirth/connect/plugins/datatypes/delimited/DelimitedBatchAdaptor.class" />
+			<include name="com/mirth/connect/plugins/datatypes/delimited/DelimitedBatchReader.class" />
 		</jar>
 		
 		<!-- plugins.datatype-dicom -->
@@ -434,9 +438,11 @@
 		<jar destfile="${plugins.datatype-hl7v2}/datatype-hl7v2-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/hl7v2/**" />
 			<exclude name="com/mirth/connect/plugins/datatypes/hl7v2/HL7v2DataTypeServerPlugin.class" />
+			<exclude name="com/mirth/connect/plugins/datatypes/hl7v2/HL7v2BatchAdaptor.class" />
 		</jar>
 		<jar destfile="${plugins.datatype-hl7v2}/datatype-hl7v2-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/hl7v2/HL7v2DataTypeServerPlugin.class" />
+			<include name="com/mirth/connect/plugins/datatypes/hl7v2/HL7v2BatchAdaptor.class" />
 		</jar>
 		
 		<!-- plugins.datatype-hl7v3 -->

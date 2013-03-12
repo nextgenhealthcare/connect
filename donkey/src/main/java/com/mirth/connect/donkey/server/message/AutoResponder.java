@@ -7,7 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.model.message;
+package com.mirth.connect.donkey.server.message;
+
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.model.message.Status;
 
 public interface AutoResponder {
 

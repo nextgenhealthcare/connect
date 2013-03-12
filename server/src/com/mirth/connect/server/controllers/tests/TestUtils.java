@@ -33,7 +33,6 @@ import com.mirth.connect.connectors.tests.TestSerializer;
 import com.mirth.connect.connectors.tests.TestSourceConnector;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
-import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
@@ -54,6 +53,7 @@ import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
+import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueue;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
 import com.mirth.connect.server.util.ResourceUtil;
@@ -100,20 +100,20 @@ public class TestUtils {
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
 
-        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder()));
+        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder()));
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
         channel.setSourceFilterTransformer(filterTransformer);
 
         sourceConnector.setChannel(channel);
 
         DestinationChain chain = new DestinationChain();
-        filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder()));
+        filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder()));
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
         chain.addDestination(1, filterTransformer, destinationConnector);
         channel.getDestinationChains().add(chain);
         destinationConnector.setChannelId(channelId);
         
-        ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder()));
+        ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder()));
         responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
         destinationConnector.setResponseTransformerExecutor(responseTransformerExecutor);
 
@@ -135,7 +135,7 @@ public class TestUtils {
         channel.setPreProcessor(new TestPreProcessor());
         channel.setPostProcessor(new TestPostProcessor());
 
-        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder()));
+        FilterTransformerExecutor filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder()));
         filterTransformer.setFilterTransformer(new TestFilterTransformer());
         channel.setSourceFilterTransformer(filterTransformer);
 
@@ -169,11 +169,11 @@ public class TestUtils {
                 testDestinationConnector.setEnabled(true);
                 testDestinationConnector.setQueue(queue);
                 
-                ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder()));
+                ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder()));
                 responseTransformerExecutor.setResponseTransformer(new TestResponseTransformer());
                 testDestinationConnector.setResponseTransformerExecutor(responseTransformerExecutor);
 
-                filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), new TestAutoResponder()), new DataType("XML", new TestSerializer(), new TestAutoResponder()));
+                filterTransformer = new FilterTransformerExecutor(new DataType("XML", new TestSerializer(), null, new TestAutoResponder()), new DataType("XML", new TestSerializer(), null, new TestAutoResponder()));
                 filterTransformer.setFilterTransformer(new TestFilterTransformer());
                 chain.addDestination(metaDataId++, filterTransformer, testDestinationConnector);
             }

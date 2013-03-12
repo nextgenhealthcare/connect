@@ -14,10 +14,10 @@ import java.util.Map;
 
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.message.DataType;
 
 public class ResponseSelector {
     private static Map<Status, Integer> statusPrecedenceMap = new HashMap<Status, Integer>();

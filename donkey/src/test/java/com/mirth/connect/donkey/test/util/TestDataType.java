@@ -9,10 +9,10 @@
 
 package com.mirth.connect.donkey.test.util;
 
-import com.mirth.connect.donkey.model.message.DataType;
+import com.mirth.connect.donkey.server.message.DataType;
 
 public class TestDataType extends DataType {
     public TestDataType() {
-        super("HL7V2", new TestSerializer(), new TestAutoResponder());
+        super("HL7V2", new TestSerializer(), null, new TestAutoResponder());
     }
 }

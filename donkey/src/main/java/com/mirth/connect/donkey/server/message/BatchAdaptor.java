@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.model.converters;
+package com.mirth.connect.donkey.server.message;
 
 import java.io.Reader;
 

@@ -28,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.mirth.connect.connectors.file.filesystems.FileInfo;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
-import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
@@ -37,9 +36,10 @@ import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.PollConnector;
-import com.mirth.connect.model.converters.BatchAdaptor;
-import com.mirth.connect.model.converters.BatchMessageProcessor;
-import com.mirth.connect.model.converters.BatchMessageProcessorException;
+import com.mirth.connect.donkey.server.message.BatchAdaptor;
+import com.mirth.connect.donkey.server.message.BatchMessageProcessor;
+import com.mirth.connect.donkey.server.message.BatchMessageProcessorException;
+import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
@@ -101,7 +101,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         this.filenamePattern = replacer.replaceValues(connectorProperties.getFileFilter(), getChannelId());
 
         DataType dataType = getInboundDataType();
-        String batchScript = ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).getBatchScript(dataType.getSerializer());
+        String batchScript = ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).getBatchScript(dataType.getBatchAdaptor());
 
         if (StringUtils.isNotEmpty(batchScript)) {
 
@@ -337,8 +337,8 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         URI uri = getEndpointURI();
         DataType dataType = getInboundDataType();
 
-        if (dataType.getSerializer() instanceof BatchAdaptor) {
-            BatchAdaptor batchAdaptor = (BatchAdaptor) dataType.getSerializer();
+        if (dataType.getBatchAdaptor() != null) {
+            BatchAdaptor batchAdaptor = dataType.getBatchAdaptor();
             FileSystemConnection con = fileConnector.getConnection(uri, null);
             Reader in = null;
             try {

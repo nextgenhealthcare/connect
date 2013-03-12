@@ -23,7 +23,6 @@ import org.junit.Test;
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
-import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.Status;
@@ -32,6 +31,7 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
+import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.test.util.TestAutoResponder;
 import com.mirth.connect.donkey.test.util.TestDataType;
 import com.mirth.connect.donkey.test.util.TestFilterTransformer;
@@ -118,7 +118,7 @@ public class FilterTransformerTests {
 
         class FailingTestDataType extends DataType {
             public FailingTestDataType() {
-                super("HL7V2", new FailingTestSerializer(), new TestAutoResponder());
+                super("HL7V2", new FailingTestSerializer(), null, new TestAutoResponder());
             }
         }
 

@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.model.converters;
+package com.mirth.connect.server.message;
 
-import com.mirth.connect.donkey.model.message.AutoResponder;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.message.AutoResponder;
 
 public class DefaultAutoResponder implements AutoResponder {
 

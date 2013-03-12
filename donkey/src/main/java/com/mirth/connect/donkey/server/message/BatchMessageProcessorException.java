@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.model.converters;
+package com.mirth.connect.donkey.server.message;
 
 public class BatchMessageProcessorException extends Exception {
     public BatchMessageProcessorException(String message) {

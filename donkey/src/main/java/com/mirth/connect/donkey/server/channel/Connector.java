@@ -11,13 +11,13 @@ package com.mirth.connect.donkey.server.channel;
 
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.Startable;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.Stoppable;
 import com.mirth.connect.donkey.server.UndeployException;
+import com.mirth.connect.donkey.server.message.DataType;
 
 public abstract class Connector implements Startable, Stoppable {
     private String channelId;

@@ -7,17 +7,21 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.model.message;
+package com.mirth.connect.donkey.server.message;
+
+import com.mirth.connect.donkey.model.message.XmlSerializer;
 
 public class DataType {
 
     private String type;
     private XmlSerializer serializer;
+    private BatchAdaptor batchAdaptor;
     private AutoResponder autoResponder;
 
-    public DataType(String type, XmlSerializer serializer, AutoResponder autoResponder) {
+    public DataType(String type, XmlSerializer serializer, BatchAdaptor batchAdaptor, AutoResponder autoResponder) {
         this.type = type;
         this.serializer = serializer;
+        this.batchAdaptor = batchAdaptor;
         this.autoResponder = autoResponder;
     }
 
@@ -27,6 +31,10 @@ public class DataType {
 
     public XmlSerializer getSerializer() {
         return serializer;
+    }
+    
+    public BatchAdaptor getBatchAdaptor() {
+    	return batchAdaptor;
     }
 
     public AutoResponder getAutoResponder() {
