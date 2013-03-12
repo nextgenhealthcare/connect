@@ -71,42 +71,44 @@ public class JmsSender extends ConnectorSettingsPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        templateLabel = new javax.swing.JLabel();
         templateTextArea = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         jmsConnectorPanel = new com.mirth.connect.connectors.jms.JmsConnectorPanel();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
-        jLabel1.setText("Template:");
+        templateLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        templateLabel.setText("Template:");
 
         templateTextArea.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        templateTextArea.setToolTipText("The JMS message content.");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(129, 129, 129)
-                .addComponent(jLabel1)
+            .addComponent(jmsConnectorPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(templateLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-            .addComponent(jmsConnectorPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(50, 50, 50))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jmsConnectorPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jmsConnectorPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
-                    .addComponent(jLabel1))
-                .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(templateLabel)
+                        .addContainerGap())
+                    .addComponent(templateTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
     private com.mirth.connect.connectors.jms.JmsConnectorPanel jmsConnectorPanel;
+    private javax.swing.JLabel templateLabel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea templateTextArea;
     // End of variables declaration//GEN-END:variables
     // @formatter:on

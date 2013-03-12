@@ -1,6 +1,6 @@
 package com.mirth.connect.connectors.jms;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -12,13 +12,13 @@ public class JmsConnectorProperties extends ConnectorProperties {
     private String jndiInitialContextFactory;
     private String jndiConnectionFactoryName;
     private String connectionFactoryClass;
+    private Map<String, String> connectionProperties;
     private String username;
     private String password;
     private String destinationName;
     private boolean topic;
     private String reconnectIntervalMillis;
     private String clientId;
-    private Map<String, String> connectionProperties;
 
     protected JmsConnectorProperties() {
         useJndi = false;
@@ -26,28 +26,13 @@ public class JmsConnectorProperties extends ConnectorProperties {
         jndiInitialContextFactory = "";
         jndiConnectionFactoryName = "";
         connectionFactoryClass = "";
+        connectionProperties = new LinkedHashMap<String, String>();
         username = "";
         password = "";
         destinationName = "";
         topic = false;
         reconnectIntervalMillis = "10000";
         clientId = "";
-        connectionProperties = new HashMap<String, String>();
-    }
-
-    public void setProperties(JmsConnectorProperties connectorProperties) {
-        useJndi = connectorProperties.isUseJndi();
-        jndiProviderUrl = connectorProperties.getJndiProviderUrl();
-        jndiInitialContextFactory = connectorProperties.getJndiInitialContextFactory();
-        jndiConnectionFactoryName = connectorProperties.getJndiConnectionFactoryName();
-        connectionFactoryClass = connectorProperties.getConnectionFactoryClass();
-        username = connectorProperties.getUsername();
-        password = connectorProperties.getPassword();
-        destinationName = connectorProperties.getDestinationName();
-        topic = connectorProperties.isTopic();
-        reconnectIntervalMillis = connectorProperties.getReconnectIntervalMillis();
-        clientId = connectorProperties.getClientId();
-        connectionProperties = connectorProperties.getConnectionProperties();
     }
 
     @Override
@@ -141,6 +126,14 @@ public class JmsConnectorProperties extends ConnectorProperties {
         this.connectionFactoryClass = connectionFactoryClass;
     }
 
+    public Map<String, String> getConnectionProperties() {
+        return connectionProperties;
+    }
+
+    public void setConnectionProperties(Map<String, String> connectionProperties) {
+        this.connectionProperties = connectionProperties;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -187,37 +180,5 @@ public class JmsConnectorProperties extends ConnectorProperties {
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
-    }
-
-    public Map<String, String> getConnectionProperties() {
-        return connectionProperties;
-    }
-
-    public void setConnectionProperties(Map<String, String> connectionProperties) {
-        this.connectionProperties = connectionProperties;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (!(object instanceof JmsConnectorProperties)) {
-            return false;
-        }
-
-        JmsConnectorProperties connectorProperties = (JmsConnectorProperties) object;
-
-        // @formatter:off
-        return (useJndi == connectorProperties.isUseJndi()
-                && jndiProviderUrl.equals(connectorProperties.getJndiProviderUrl())
-                && jndiInitialContextFactory.equals(connectorProperties.getJndiInitialContextFactory())
-                && jndiConnectionFactoryName.equals(connectorProperties.getJndiConnectionFactoryName())
-                && connectionFactoryClass.equals(connectorProperties.getConnectionFactoryClass())
-                && username.equals(connectorProperties.getUsername())
-                && password.equals(connectorProperties.getPassword())
-                && destinationName.equals(connectorProperties.getDestinationName())
-                && topic == connectorProperties.isTopic()
-                && reconnectIntervalMillis.equals(connectorProperties.getReconnectIntervalMillis())
-                && clientId.equals(connectorProperties.getClientId())
-                && connectionProperties.equals(connectorProperties.getConnectionProperties()));
-        // @formatter:on
     }
 }

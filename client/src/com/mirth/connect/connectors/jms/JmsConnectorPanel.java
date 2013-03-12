@@ -4,20 +4,23 @@
  */
 package com.mirth.connect.connectors.jms;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Set;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.font.TextAttribute;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
+import javax.swing.ListCellRenderer;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
 
-import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
@@ -27,138 +30,66 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 public class JmsConnectorPanel extends ConnectorSettingsPanel {
     protected final static int TYPE_LISTENER = 1;
     protected final static int TYPE_SENDER = 2;
+    private final static int PROPERTY_COLUMN_WIDTH = 135;
 
-    private final static String DEFAULT_PRESET = "<html><font color=\"#333333\">(custom)</font></html>";
+    private static boolean loadedTemplates = false;
 
-    private int connectorType;
     private String connectorName;
+    private int connectorType;
     private Frame parent;
-    private Object lastPreset = DEFAULT_PRESET;
-    private JmsPresetsDialog jmsPresetsDialog;
-    private boolean selectingPreset;
-    private boolean settingProperties;
-    private Logger logger = Logger.getLogger(getClass());
+    private JmsTemplateListModel listModel;
 
     public JmsConnectorPanel() {
         parent = PlatformUI.MIRTH_FRAME;
         initComponents();
-        invalidProviderLabel.setVisible(false);
         connectionPropertiesTable.setNewButton(newButton);
         connectionPropertiesTable.setDeleteButton(deleteButton);
-        initModifiedListeners();
-        jmsPresetsDialog = new JmsPresetsDialog(parent, true, parent, this);
-        jmsPresetsDialog.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
-    }
+        connectionPropertiesTable.getPropertyColumn().setMinWidth(PROPERTY_COLUMN_WIDTH);
+        connectionPropertiesTable.getPropertyColumn().setMaxWidth(PROPERTY_COLUMN_WIDTH);
 
-    public void init(int connectorType, String connectorName) {
-        this.connectorType = connectorType;
-        this.connectorName = connectorName;
-        refreshPresetList();
+        templateList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                Object templateName = templateList.getSelectedValue();
+
+                if (templateName == null) {
+                    loadTemplateButton.setEnabled(false);
+                    deleteTemplateButton.setEnabled(false);
+                } else {
+                    loadTemplateButton.setEnabled(true);
+                    deleteTemplateButton.setEnabled(!listModel.isReadOnlyTemplate(templateName.toString()));
+                }
+            }
+        });
+
+        templateList.setCellRenderer(new TemplateListCellRenderer());
     }
 
     @SuppressWarnings("unchecked")
-    private void refreshPresetList() {
-        Object selectedPreset = null;
+    public synchronized void init(int connectorType, String connectorName) {
+        this.connectorType = connectorType;
+        this.connectorName = connectorName;
+        this.listModel = JmsTemplateListModel.getInstance();
 
-        if (presetComboBox.getModel().getSize() > 0) {
-            selectedPreset = presetComboBox.getModel().getSelectedItem();
-        } else {
-            selectedPreset = DEFAULT_PRESET;
+        if (!loadedTemplates) {
+            Object result = null;
+
+            try {
+                result = invokeRemoteMethod("getTemplates", null);
+            } catch (Exception e) {
+                parent.alertException(parent, e.getStackTrace(), e.getMessage());
+            }
+
+            if (result != null && result instanceof Map) {
+                for (Entry<String, JmsConnectorProperties> templateEntry : ((Map<String, JmsConnectorProperties>) result).entrySet()) {
+                    listModel.putTemplate(templateEntry.getKey(), templateEntry.getValue());
+                }
+
+                loadedTemplates = true;
+            }
         }
 
-        Set<String> presets;
-
-        try {
-            presets = (Set<String>) parent.mirthClient.invokeConnectorService(connectorName, "getPresets", null);
-        } catch (ClientException e) {
-            logger.error("An error occurred when attempting to retrieve the list of presets", e);
-            return;
-        }
-
-        DefaultComboBoxModel model = new DefaultComboBoxModel();
-
-        for (String preset : presets) {
-            model.addElement(preset);
-        }
-
-        if (model.getIndexOf(selectedPreset) == -1) {
-            selectedPreset = DEFAULT_PRESET;
-        }
-
-        presetComboBox.setModel(model);
-
-        // manually re-select the selected menu item, do not call selectPreset() since we don't want it to update the lastPreset variable
-        try {
-            selectingPreset = true;
-            presetComboBox.getModel().setSelectedItem(selectedPreset.toString());
-        } finally {
-            selectingPreset = false;
-        }
-
-        jmsPresetsDialog.init(connectorName, presets);
-    }
-
-    private void initModifiedListeners() {
-        DocumentListener documentListener = new DocumentListener() {// @formatter:off
-            @Override public void removeUpdate(DocumentEvent e) { setModified(); }
-            @Override public void insertUpdate(DocumentEvent e) { setModified(); }
-            @Override public void changedUpdate(DocumentEvent e) { setModified(); }
-        }; 
-
-        ActionListener actionListener = new ActionListener() {
-            @Override public void actionPerformed(ActionEvent e) { setModified(); }
-        };
-        
-        TableModelListener tableModelListener = new TableModelListener() {
-            @Override public void tableChanged(TableModelEvent e) { setModified(); }
-        }; // @formatter:on
-
-        useJndiYes.addActionListener(actionListener);
-        useJndiNo.addActionListener(actionListener);
-        providerUrlField.getDocument().addDocumentListener(documentListener);
-        initialContextFactoryField.getDocument().addDocumentListener(documentListener);
-        connectionFactoryNameField.getDocument().addDocumentListener(documentListener);
-        connectionFactoryClassField.getDocument().addDocumentListener(documentListener);
-        usernameField.getDocument().addDocumentListener(documentListener);
-        passwordField.getDocument().addDocumentListener(documentListener);
-        destinationNameField.getDocument().addDocumentListener(documentListener);
-        destinationTypeQueue.addActionListener(actionListener);
-        destinationTypeTopic.addActionListener(actionListener);
-        durableTopicCheckbox.addActionListener(actionListener);
-        clientIdField.getDocument().addDocumentListener(documentListener);
-        reconnectIntervalField.getDocument().addDocumentListener(documentListener);
-        connectionPropertiesTable.getModel().addTableModelListener(tableModelListener);
-        newButton.addActionListener(actionListener);
-        deleteButton.addActionListener(actionListener);
-    }
-
-    private void setModified() {
-        if (!savePresetButton.isEnabled() && !settingProperties) {
-            savePresetButton.setEnabled(true);
-            selectPreset(DEFAULT_PRESET);
-        }
-    }
-
-    private void selectPreset(String presetName) {
-        selectingPreset = true;
-
-        try {
-            presetComboBox.getModel().setSelectedItem(presetName);
-        } finally {
-            selectingPreset = false;
-            lastPreset = presetComboBox.getModel().getSelectedItem();
-        }
-    }
-
-    protected void removePreset(String presetName) {
-        DefaultComboBoxModel model = (DefaultComboBoxModel) presetComboBox.getModel();
-
-        if (model.getSelectedItem().equals(presetName)) {
-            savePresetButton.setEnabled(true);
-            selectPreset(DEFAULT_PRESET);
-        }
-
-        model.removeElement(presetName);
+        templateList.setModel(listModel);
     }
 
     @Override
@@ -186,87 +117,63 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         properties.setJndiInitialContextFactory(initialContextFactoryField.getText());
         properties.setJndiConnectionFactoryName(connectionFactoryNameField.getText());
         properties.setConnectionFactoryClass(connectionFactoryClassField.getText());
-        properties.setUsername(usernameField.getText());
-        properties.setPassword(passwordField.getText());
-        properties.setDestinationName(destinationNameField.getText());
+        properties.setConnectionProperties(connectionPropertiesTable.getProperties());
         properties.setTopic(destinationTypeTopic.isSelected());
 
         if (connectorType == TYPE_LISTENER) {
             ((JmsReceiverProperties) properties).setDurableTopic(durableTopicCheckbox.isSelected());
         }
 
+        properties.setDestinationName(destinationNameField.getText());
         properties.setClientId(clientIdField.getText());
         properties.setReconnectIntervalMillis(reconnectIntervalField.getText());
-        properties.setConnectionProperties(connectionPropertiesTable.getProperties());
+        properties.setUsername(usernameField.getText());
+        properties.setPassword(passwordField.getText());
+
         return properties;
     }
 
     @Override
     public void setProperties(ConnectorProperties properties) {
         JmsConnectorProperties jmsConnectorProperties = (JmsConnectorProperties) properties;
-        setPropertiesInternal(jmsConnectorProperties);
 
-        try {
-            String presetName = (String) parent.mirthClient.invokeConnectorService(connectorName, "getPresetName", jmsConnectorProperties);
-
-            if (presetName != null) {
-                selectPreset(presetName);
-                savePresetButton.setEnabled(false);
-            } else {
-                selectPreset(DEFAULT_PRESET);
-                savePresetButton.setEnabled(true);
-            }
-        } catch (ClientException e) {
-            logger.error("Failed to lookup preset information", e);
+        if (jmsConnectorProperties.isUseJndi()) {
+            useJndiYes.setSelected(true);
+            useJndiNo.setSelected(false);
+            useJndiYesActionPerformed(null);
+        } else {
+            useJndiYes.setSelected(false);
+            useJndiNo.setSelected(true);
+            useJndiNoActionPerformed(null);
         }
-    }
 
-    private void setPropertiesInternal(JmsConnectorProperties jmsConnectorProperties) {
-        settingProperties = true;
+        providerUrlField.setText(jmsConnectorProperties.getJndiProviderUrl());
+        initialContextFactoryField.setText(jmsConnectorProperties.getJndiInitialContextFactory());
+        connectionFactoryNameField.setText(jmsConnectorProperties.getJndiConnectionFactoryName());
+        connectionFactoryClassField.setText(jmsConnectorProperties.getConnectionFactoryClass());
+        connectionPropertiesTable.setProperties(jmsConnectorProperties.getConnectionProperties());
 
-        try {
-            if (jmsConnectorProperties.isUseJndi()) {
-                useJndiYes.setSelected(true);
-                useJndiNo.setSelected(false);
-                useJndiYesActionPerformed(null);
-            } else {
-                useJndiYes.setSelected(false);
-                useJndiNo.setSelected(true);
-                useJndiNoActionPerformed(null);
-            }
-
-            providerUrlField.setText(jmsConnectorProperties.getJndiProviderUrl());
-            initialContextFactoryField.setText(jmsConnectorProperties.getJndiInitialContextFactory());
-            connectionFactoryNameField.setText(jmsConnectorProperties.getJndiConnectionFactoryName());
-            connectionFactoryClassField.setText(jmsConnectorProperties.getConnectionFactoryClass());
-            usernameField.setText(jmsConnectorProperties.getUsername());
-            passwordField.setText(jmsConnectorProperties.getPassword());
-            destinationNameField.setText(jmsConnectorProperties.getDestinationName());
-
-            if (jmsConnectorProperties.isTopic()) {
-                destinationTypeQueue.setSelected(false);
-                destinationTypeTopic.setSelected(true);
-                destinationTypeTopicActionPerformed(null);
-            } else {
-                destinationTypeQueue.setSelected(true);
-                destinationTypeTopic.setSelected(false);
-                destinationTypeQueueActionPerformed(null);
-            }
-
-            if (connectorType == TYPE_LISTENER) {
-                durableTopicCheckbox.setSelected(((JmsReceiverProperties) jmsConnectorProperties).isDurableTopic());
-            }
-
-            clientIdField.setText(jmsConnectorProperties.getClientId());
-            reconnectIntervalField.setText(jmsConnectorProperties.getReconnectIntervalMillis());
-            connectionPropertiesTable.setProperties(jmsConnectorProperties.getConnectionProperties());
-
-            if (connectorType == TYPE_SENDER) {
-                durableTopicCheckbox.setVisible(false);
-            }
-        } finally {
-            settingProperties = false;
+        if (jmsConnectorProperties.isTopic()) {
+            destinationTypeQueue.setSelected(false);
+            destinationTypeTopic.setSelected(true);
+            destinationTypeTopicActionPerformed(null);
+        } else {
+            destinationTypeQueue.setSelected(true);
+            destinationTypeTopic.setSelected(false);
+            destinationTypeQueueActionPerformed(null);
         }
+
+        if (connectorType == TYPE_LISTENER) {
+            durableTopicCheckbox.setSelected(((JmsReceiverProperties) jmsConnectorProperties).isDurableTopic());
+        } else {
+            durableTopicCheckbox.setVisible(false);
+        }
+
+        destinationNameField.setText(jmsConnectorProperties.getDestinationName());
+        clientIdField.setText(jmsConnectorProperties.getClientId());
+        reconnectIntervalField.setText(jmsConnectorProperties.getReconnectIntervalMillis());
+        usernameField.setText(jmsConnectorProperties.getUsername());
+        passwordField.setText(jmsConnectorProperties.getPassword());
     }
 
     @Override
@@ -336,6 +243,24 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         destinationNameField.setBackground(null);
     }
 
+    private class TemplateListCellRenderer extends DefaultListCellRenderer implements ListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+            // make the read-only templates appear italic and grey
+            if (value != null && listModel.isReadOnlyTemplate(value.toString())) {
+                Map<TextAttribute, Object> attributes = new HashMap<TextAttribute, Object>();
+                attributes.putAll(getFont().getAttributes());
+                attributes.put(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE);
+                attributes.put(TextAttribute.FOREGROUND, new Color(64, 64, 64));
+                setFont(new Font(attributes));
+            }
+
+            return component;
+        }
+    }
+
     // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form.
@@ -358,7 +283,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         durableTopicCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         passwordLabel = new javax.swing.JLabel();
         destinationTypeLabel = new javax.swing.JLabel();
-        presetsLabel = new javax.swing.JLabel();
         destinationTypeQueue = new com.mirth.connect.client.ui.components.MirthRadioButton();
         destinationNameLabel = new javax.swing.JLabel();
         destinationTypeTopic = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -369,20 +293,21 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         providerUrlLabel = new javax.swing.JLabel();
         initialContextFactoryLabel = new javax.swing.JLabel();
         useJndiLabel = new javax.swing.JLabel();
-        presetComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
         connectionPropertiesLabel = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        connectionPropertiesScrollPane = new javax.swing.JScrollPane();
         connectionPropertiesTable = new com.mirth.connect.client.ui.components.MirthPropertiesTable();
         newButton = new com.mirth.connect.client.ui.components.MirthButton();
         deleteButton = new com.mirth.connect.client.ui.components.MirthButton();
         reconnectIntervalLabel = new javax.swing.JLabel();
         reconnectIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
         passwordField = new javax.swing.JPasswordField();
-        invalidProviderLabel = new javax.swing.JLabel();
-        savePresetButton = new com.mirth.connect.client.ui.components.MirthButton();
-        managePresetsButton = new com.mirth.connect.client.ui.components.IconButton();
         clientIdLabel = new javax.swing.JLabel();
         clientIdField = new com.mirth.connect.client.ui.components.MirthTextField();
+        templateScrollPane = new javax.swing.JScrollPane();
+        templateList = new javax.swing.JList();
+        loadTemplateButton = new com.mirth.connect.client.ui.components.MirthButton();
+        saveTemplateButton = new com.mirth.connect.client.ui.components.MirthButton();
+        deleteTemplateButton = new com.mirth.connect.client.ui.components.MirthButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -424,8 +349,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
 
         destinationTypeLabel.setText("Destination Type:");
 
-        presetsLabel.setText("Preset:");
-
         destinationTypeQueue.setBackground(new java.awt.Color(255, 255, 255));
         destinationTypeButtonGroup.add(destinationTypeQueue);
         destinationTypeQueue.setText("Queue");
@@ -454,6 +377,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
 
         connectionFactoryClassLabel.setText("Connection Factory Class:");
 
+        connectionFactoryNameLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         connectionFactoryNameLabel.setText("Connection Factory Name:");
 
         providerUrlLabel.setText("Provider URL:");
@@ -462,16 +386,9 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
 
         useJndiLabel.setText("Use JNDI:");
 
-        presetComboBox.setToolTipText("<html>The JMS provider type. If 'Custom' is selected, then a JMS provider class must be specified.</html>");
-        presetComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                presetComboBoxActionPerformed(evt);
-            }
-        });
+        connectionPropertiesLabel.setText("Connection Properties:");
 
-        connectionPropertiesLabel.setText("Properties:");
-
-        jScrollPane2.setViewportView(connectionPropertiesTable);
+        connectionPropertiesScrollPane.setViewportView(connectionPropertiesTable);
 
         newButton.setText("New");
         newButton.setToolTipText("<html>Adds a new row to end of the list.<br>Double click the Property and Value cells to enter their values.</html>");
@@ -479,159 +396,179 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         deleteButton.setText("Delete");
         deleteButton.setToolTipText("Deletes the currently selected row from the list.");
 
-        reconnectIntervalLabel.setText("Reconnect Interval (milliseconds):");
+        reconnectIntervalLabel.setText("Reconnect Interval (ms):");
 
         reconnectIntervalField.setToolTipText("The number of milliseconds between reconnect attempts when a connection error occurs.");
 
         passwordField.setToolTipText("The password for accessing the queue or topic.");
 
-        invalidProviderLabel.setForeground(new java.awt.Color(255, 0, 0));
-
-        savePresetButton.setText("Save");
-        savePresetButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                savePresetButtonActionPerformed(evt);
-            }
-        });
-
-        managePresetsButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirth/connect/client/ui/images/wrench.png"))); // NOI18N
-        managePresetsButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                managePresetsButtonActionPerformed(evt);
-            }
-        });
-
         clientIdLabel.setText("Client ID:");
+
+        clientIdField.setToolTipText("The JMS client ID to use when connecting to the JMS broker.");
+
+        templateScrollPane.setBorder(null);
+
+        templateList.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Connection Templates", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0))); // NOI18N
+        templateList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        templateList.setToolTipText("");
+        templateScrollPane.setViewportView(templateList);
+
+        loadTemplateButton.setText("Load");
+        loadTemplateButton.setToolTipText("<html>Populates connection information using the selected connection template.</html>");
+        loadTemplateButton.setEnabled(false);
+        loadTemplateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadTemplateButtonActionPerformed(evt);
+            }
+        });
+
+        saveTemplateButton.setText("Save");
+        saveTemplateButton.setToolTipText("<html>Saves the current connection information as a new connection template.</html>");
+        saveTemplateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveTemplateButtonActionPerformed(evt);
+            }
+        });
+
+        deleteTemplateButton.setText("Delete");
+        deleteTemplateButton.setToolTipText("<html>Deletes the selected connection template.</html>");
+        deleteTemplateButton.setEnabled(false);
+        deleteTemplateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteTemplateButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(clientIdLabel)
-                    .addComponent(destinationTypeLabel)
-                    .addComponent(destinationNameLabel)
-                    .addComponent(passwordLabel)
-                    .addComponent(usernameLabel)
-                    .addComponent(connectionFactoryClassLabel)
-                    .addComponent(connectionFactoryNameLabel)
-                    .addComponent(initialContextFactoryLabel)
-                    .addComponent(providerUrlLabel)
-                    .addComponent(useJndiLabel)
-                    .addComponent(reconnectIntervalLabel)
-                    .addComponent(connectionPropertiesLabel)
-                    .addComponent(presetsLabel))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(connectionFactoryNameLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(providerUrlLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(connectionFactoryClassLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(connectionPropertiesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(initialContextFactoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(useJndiLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(reconnectIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(destinationTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(clientIdLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(destinationNameLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(connectionFactoryClassField, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(connectionFactoryNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(initialContextFactoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(destinationTypeQueue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(destinationTypeTopic, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(durableTopicCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(passwordField, javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(usernameField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(useJndiYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(useJndiNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(presetComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(connectionPropertiesScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(connectionFactoryClassField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(connectionFactoryNameField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(initialContextFactoryField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(providerUrlField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(savePresetButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(templateScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(loadTemplateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(managePresetsButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(81, 81, 81)
-                        .addComponent(invalidProviderLabel))
-                    .addComponent(providerUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(clientIdField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(destinationNameField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(deleteButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                                .addComponent(saveTemplateButton, javax.swing.GroupLayout.DEFAULT_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(deleteTemplateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(clientIdField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(usernameField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(passwordField, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(destinationNameField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(presetsLabel)
-                        .addComponent(presetComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(savePresetButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(managePresetsButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(invalidProviderLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(useJndiLabel)
+                            .addComponent(useJndiYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(useJndiNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(providerUrlLabel)
+                            .addComponent(providerUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(initialContextFactoryLabel)
+                            .addComponent(initialContextFactoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(connectionFactoryNameLabel)
+                            .addComponent(connectionFactoryNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(connectionFactoryClassLabel)
+                            .addComponent(connectionFactoryClassField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(newButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(connectionPropertiesLabel)
+                            .addComponent(connectionPropertiesScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(templateScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(loadTemplateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(saveTemplateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(deleteTemplateButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(useJndiLabel)
-                    .addComponent(useJndiYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(useJndiNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(reconnectIntervalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(providerUrlLabel)
-                    .addComponent(providerUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(usernameLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(initialContextFactoryLabel)
-                    .addComponent(initialContextFactoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(passwordLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(connectionFactoryNameLabel)
-                    .addComponent(connectionFactoryNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(connectionFactoryClassLabel)
-                    .addComponent(connectionFactoryClassField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usernameLabel)
-                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(passwordLabel)
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(destinationNameLabel)
-                    .addComponent(destinationNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(destinationTypeLabel)
                     .addComponent(destinationTypeQueue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(destinationTypeTopic, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(durableTopicCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(durableTopicCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(destinationTypeLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(clientIdLabel)
-                    .addComponent(clientIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(destinationNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(destinationNameLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(reconnectIntervalLabel)
-                    .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(connectionPropertiesLabel)
-                            .addComponent(newButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(77, Short.MAX_VALUE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                    .addComponent(clientIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(clientIdLabel)))
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void useJndiYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useJndiYesActionPerformed
         providerUrlLabel.setEnabled(true);
@@ -658,7 +595,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         destinationTypeLabel.setEnabled(true);
         destinationTypeQueue.setEnabled(true);
         destinationTypeTopic.setEnabled(true);
-        
+
         if (destinationTypeTopic.isSelected()) {
             durableTopicCheckbox.setEnabled(true);
         }
@@ -675,104 +612,112 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         durableTopicCheckbox.setEnabled(true);
     }//GEN-LAST:event_destinationTypeTopicActionPerformed
 
-    private void savePresetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savePresetButtonActionPerformed
-        Object presetName;
-        
-        do {
-            presetName = JOptionPane.showInputDialog(this, "Enter a name for the new preset:", "Save Preset", JOptionPane.QUESTION_MESSAGE, UIConstants.ICON_INFORMATION, null, null);
-            
-            if (presetName == null) {
-                return;
-            }
+    private void loadTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadTemplateButtonActionPerformed
+        String templateName = templateList.getSelectedValue().toString();
 
-            if (presetName.toString().trim().length() == 0) {
-                JOptionPane.showMessageDialog(this, "Preset name cannot be blank", "Error", JOptionPane.ERROR_MESSAGE, UIConstants.ICON_ERROR);
-                presetName = null;
-            }
-        } while (presetName == null);
+        if (confirmDialog("Are you sure you want to overwrite the current connection settings with the template: \"" + templateName + "\"?")) {
+            JmsConnectorProperties template = listModel.getTemplate(templateName);
 
-        DefaultComboBoxModel model = (DefaultComboBoxModel) presetComboBox.getModel();
-        
-        if (model.getIndexOf(presetName) != -1) {
-            int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to overwrite the preset '" + presetName + "'?", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, UIConstants.ICON_WARNING);
-            
-            if (result != JOptionPane.YES_OPTION) {
-                return;
-            }
-        }
-        
-        JmsConnectorProperties connectorProperties = (JmsConnectorProperties) getProperties();
-        connectorProperties.setPassword(""); // for security reasons, we don't include the password in the preset
-        
-        try {
-            parent.mirthClient.invokeConnectorService(connectorName, "savePreset", new Object[] { presetName, connectorProperties });
-            
-            if (model.getIndexOf(presetName) == -1) {
-                model.addElement(presetName);
-                jmsPresetsDialog.addPreset(presetName.toString());
-            }
-            
-            selectPreset(presetName.toString());
-            savePresetButton.setEnabled(false);
-        } catch (ClientException e) {
-            logger.error("Failed to save preset", e);
-            parent.alertException(this, e.getStackTrace(), "Failed to save preset");
-        }
-        
-        refreshPresetList();
-    }//GEN-LAST:event_savePresetButtonActionPerformed
-
-    private void presetComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_presetComboBoxActionPerformed
-        if (selectingPreset) {
-            return;
-        }
-
-        Object presetName = presetComboBox.getSelectedItem();
-        
-        if (presetName.equals(DEFAULT_PRESET) || presetName.equals(lastPreset)) {
-            return;
-        }
-        
-        refreshPresetList();
-        
-        if (((DefaultComboBoxModel) presetComboBox.getModel()).getIndexOf(presetName) == -1) {
-            parent.alertError(this, "The preset \"" + presetName + "\" no longer exists on the server");
-            selectPreset(lastPreset.toString());
-            return;
-        }
-        
-        int result = JOptionPane.showConfirmDialog(this, "Warning: this will replace the current settings with preset '" + presetName + "', continue?", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, UIConstants.ICON_WARNING);
-        
-        if (result == JOptionPane.YES_OPTION) {
-            try {
-                JmsConnectorProperties connectorProperties = (connectorType == TYPE_LISTENER) ? new JmsReceiverProperties() : new JmsDispatcherProperties();
-                Object object = parent.mirthClient.invokeConnectorService(this.connectorName, "getPreset", presetName);
-                
-                if (object == null) {
-                    parent.alertError(this, "Failed to load the preset \"" + presetName + "\" from the server");
+            if (template == null) {
+                parent.alertError(parent, "The template \"" + templateName + "\" no longer exists on the server.");
+            } else {
+                if (template.isUseJndi()) {
+                    useJndiYes.setSelected(true);
+                    useJndiNo.setSelected(false);
+                    useJndiYesActionPerformed(null);
                 } else {
-                    connectorProperties.setProperties((JmsConnectorProperties) object);
-                    setPropertiesInternal(connectorProperties);
-                    savePresetButton.setEnabled(false);
+                    useJndiYes.setSelected(false);
+                    useJndiNo.setSelected(true);
+                    useJndiNoActionPerformed(null);
                 }
-                
-                lastPreset = presetName;
-            } catch (ClientException e) {
-                logger.error("Failed to load preset", e);
-                parent.alertException(this, e.getStackTrace(), "Failed to load preset");
-                selectPreset(lastPreset.toString());
-            }
-        } else {
-            selectPreset(lastPreset.toString());
-        }
-    }//GEN-LAST:event_presetComboBoxActionPerformed
 
-    private void managePresetsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_managePresetsButtonActionPerformed
-        refreshPresetList();
-        jmsPresetsDialog.setLocationRelativeTo(parent);
-        jmsPresetsDialog.setVisible(true);
-    }//GEN-LAST:event_managePresetsButtonActionPerformed
-        
+                providerUrlField.setText(template.getJndiProviderUrl());
+                initialContextFactoryField.setText(template.getJndiInitialContextFactory());
+                connectionFactoryNameField.setText(template.getJndiConnectionFactoryName());
+                connectionFactoryClassField.setText(template.getConnectionFactoryClass());
+                connectionPropertiesTable.setProperties(template.getConnectionProperties());
+            }
+        }
+    }//GEN-LAST:event_loadTemplateButtonActionPerformed
+
+    private void saveTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveTemplateButtonActionPerformed
+        String templateName = null;
+        Object defaultValue = (templateList.getSelectedValue() == null || listModel.isReadOnlyTemplate(templateList.getSelectedValue().toString())) ? "" : templateList.getSelectedValue();
+
+        do {
+            Object response = JOptionPane.showInputDialog(parent, "Enter a name for the connection template:", "Save", JOptionPane.QUESTION_MESSAGE, UIConstants.ICON_INFORMATION, null, defaultValue);
+
+            if (response == null) {
+                return;
+            }
+
+            templateName = StringUtils.trim(response.toString());
+
+            if (templateName.isEmpty()) {
+                return;
+            }
+
+            if (listModel.isReadOnlyTemplate(templateName)) {
+                parent.alertWarning(parent, "\"" + templateName + "\" is a reserved template and cannot be overwritten. Please enter a different template name.");
+                defaultValue = "";
+            }
+        } while (listModel.isReadOnlyTemplate(templateName));
+
+        if (listModel.containsTemplate(templateName) && !confirmDialog("Are you sure you want to overwrite the existing template named \"" + templateName + "\"?")) {
+            return;
+        }
+
+        JmsConnectorProperties template = new JmsConnectorProperties();
+        template.setUseJndi(useJndiYes.isSelected());
+        template.setJndiProviderUrl(providerUrlField.getText());
+        template.setJndiInitialContextFactory(initialContextFactoryField.getText());
+        template.setJndiConnectionFactoryName(connectionFactoryNameField.getText());
+        template.setConnectionFactoryClass(connectionFactoryClassField.getText());
+        template.setConnectionProperties(connectionPropertiesTable.getProperties());
+
+        try {
+            invokeRemoteMethod("saveTemplate", new Object[] { templateName, template });
+        } catch (Exception e) {
+            parent.alertException(parent, e.getStackTrace(), e.getMessage());
+            return;
+        }
+
+        listModel.putTemplate(templateName, template);
+        templateList.setSelectedValue(templateName, true);
+    }//GEN-LAST:event_saveTemplateButtonActionPerformed
+
+    private void deleteTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteTemplateButtonActionPerformed
+        String templateName = templateList.getSelectedValue().toString();
+
+        if (listModel.isReadOnlyTemplate(templateName) || !confirmDialog("Are you sure you want to delete the template \"" + templateName + "\"?")) {
+            return;
+        }
+
+        try {
+            invokeRemoteMethod("deleteTemplate", templateName);
+        } catch (Exception e) {
+            parent.alertException(parent, e.getStackTrace(), e.getMessage());
+            return;
+        }
+
+        int selectedIndex = templateList.getSelectedIndex();
+        listModel.deleteTemplate(templateName);
+
+        if (selectedIndex >= listModel.getSize()) {
+            selectedIndex = listModel.getSize() - 1;
+        }
+
+        templateList.setSelectedIndex(selectedIndex);
+    }//GEN-LAST:event_deleteTemplateButtonActionPerformed
+
+    private Object invokeRemoteMethod(String method, Object arg) throws Exception {
+        return parent.mirthClient.invokeConnectorService(connectorName, method, arg);
+    }
+
+    private boolean confirmDialog(String message) {
+        return (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(parent, message, "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, UIConstants.ICON_WARNING));
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.mirth.connect.client.ui.components.MirthTextField clientIdField;
     private javax.swing.JLabel clientIdLabel;
@@ -781,8 +726,10 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthTextField connectionFactoryNameField;
     private javax.swing.JLabel connectionFactoryNameLabel;
     private javax.swing.JLabel connectionPropertiesLabel;
+    private javax.swing.JScrollPane connectionPropertiesScrollPane;
     private com.mirth.connect.client.ui.components.MirthPropertiesTable connectionPropertiesTable;
     private com.mirth.connect.client.ui.components.MirthButton deleteButton;
+    private com.mirth.connect.client.ui.components.MirthButton deleteTemplateButton;
     private com.mirth.connect.client.ui.components.MirthTextField destinationNameField;
     private javax.swing.JLabel destinationNameLabel;
     private javax.swing.ButtonGroup destinationTypeButtonGroup;
@@ -792,19 +739,17 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthCheckBox durableTopicCheckbox;
     private com.mirth.connect.client.ui.components.MirthTextField initialContextFactoryField;
     private javax.swing.JLabel initialContextFactoryLabel;
-    private javax.swing.JLabel invalidProviderLabel;
-    private javax.swing.JScrollPane jScrollPane2;
-    private com.mirth.connect.client.ui.components.IconButton managePresetsButton;
+    private com.mirth.connect.client.ui.components.MirthButton loadTemplateButton;
     private com.mirth.connect.client.ui.components.MirthButton newButton;
     private javax.swing.JPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
-    private com.mirth.connect.client.ui.components.MirthComboBox presetComboBox;
-    private javax.swing.JLabel presetsLabel;
     private com.mirth.connect.client.ui.components.MirthTextField providerUrlField;
     private javax.swing.JLabel providerUrlLabel;
     private com.mirth.connect.client.ui.components.MirthTextField reconnectIntervalField;
     private javax.swing.JLabel reconnectIntervalLabel;
-    private com.mirth.connect.client.ui.components.MirthButton savePresetButton;
+    private com.mirth.connect.client.ui.components.MirthButton saveTemplateButton;
+    private javax.swing.JList templateList;
+    private javax.swing.JScrollPane templateScrollPane;
     private javax.swing.ButtonGroup useJndiButtonGroup;
     private javax.swing.JLabel useJndiLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton useJndiNo;
@@ -812,5 +757,4 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables
-    // @formatter:on
 }

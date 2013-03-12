@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -43,8 +44,8 @@ public class MirthPropertiesTable extends MirthTable {
         };
 
         setModel(model);
-        getColumnModel().getColumn(getColumnModel().getColumnIndex(PROPERTY_TITLE)).setCellEditor(new CellEditor(true, null));
-        getColumnModel().getColumn(getColumnModel().getColumnIndex(VALUE_TITLE)).setCellEditor(new CellEditor(false, null));
+        getPropertyColumn().setCellEditor(new CellEditor(true, null));
+        getValueColumn().setCellEditor(new CellEditor(false, null));
         setCustomEditorControls(true);
         setSelectionMode(0);
         setRowSelectionAllowed(true);
@@ -59,7 +60,15 @@ public class MirthPropertiesTable extends MirthTable {
             setHighlighters(highlighter);
         }
     }
+    
+    public TableColumn getPropertyColumn() {
+        return getColumnModel().getColumn(getColumnModel().getColumnIndex(PROPERTY_TITLE));
+    }
 
+    public TableColumn getValueColumn() {
+        return getColumnModel().getColumn(getColumnModel().getColumnIndex(VALUE_TITLE));
+    }
+    
     public void setNewButton(final JButton newButton) {
         newButton.addActionListener(new ActionListener() {
             @Override
