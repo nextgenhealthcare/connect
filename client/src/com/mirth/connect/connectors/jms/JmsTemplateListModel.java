@@ -48,12 +48,12 @@ public class JmsTemplateListModel extends AbstractListModel {
         readOnlyTemplateNames.addAll(templates.keySet());
     }
 
-    public JmsConnectorProperties getTemplate(String templateName) {
+    public synchronized JmsConnectorProperties getTemplate(String templateName) {
         return templates.get(templateName);
     }
 
-    public void putTemplate(String templateName, JmsConnectorProperties template) {
-        if (isReadOnlyTemplate(templateName)) {
+    public synchronized void putTemplate(String templateName, JmsConnectorProperties template) {
+        if (isPredefinedTemplate(templateName)) {
             return;
         }
         
@@ -67,8 +67,8 @@ public class JmsTemplateListModel extends AbstractListModel {
         fireIntervalAdded(this, index, index);
     }
 
-    public void deleteTemplate(String templateName) {
-        if (isReadOnlyTemplate(templateName)) {
+    public synchronized void deleteTemplate(String templateName) {
+        if (isPredefinedTemplate(templateName)) {
             return;
         }
         
@@ -78,21 +78,21 @@ public class JmsTemplateListModel extends AbstractListModel {
         fireIntervalRemoved(this, index, index);
     }
 
-    public boolean containsTemplate(String templateName) {
+    public synchronized boolean containsTemplate(String templateName) {
         return templateNames.contains(templateName);
     }
 
-    public boolean isReadOnlyTemplate(String templateName) {
+    public synchronized boolean isPredefinedTemplate(String templateName) {
         return readOnlyTemplateNames.contains(templateName);
     }
 
     @Override
-    public int getSize() {
+    public synchronized int getSize() {
         return templateNames.size();
     }
 
     @Override
-    public Object getElementAt(int index) {
+    public synchronized Object getElementAt(int index) {
         return templateNames.get(index);
     }
 }

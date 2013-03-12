@@ -32,8 +32,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
     protected final static int TYPE_SENDER = 2;
     private final static int PROPERTY_COLUMN_WIDTH = 135;
 
-    private static boolean loadedTemplates = false;
-
     private String connectorName;
     private int connectorType;
     private Frame parent;
@@ -57,7 +55,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
                     deleteTemplateButton.setEnabled(false);
                 } else {
                     loadTemplateButton.setEnabled(true);
-                    deleteTemplateButton.setEnabled(!listModel.isReadOnlyTemplate(templateName.toString()));
+                    deleteTemplateButton.setEnabled(!listModel.isPredefinedTemplate(templateName.toString()));
                 }
             }
         });
@@ -70,26 +68,6 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         this.connectorType = connectorType;
         this.connectorName = connectorName;
         this.listModel = JmsTemplateListModel.getInstance();
-
-        if (!loadedTemplates) {
-            Object result = null;
-
-            try {
-                result = invokeRemoteMethod("getTemplates", null);
-            } catch (Exception e) {
-                parent.alertException(parent, e.getStackTrace(), e.getMessage());
-            }
-
-            if (result != null && result instanceof Map) {
-                for (Entry<String, JmsConnectorProperties> templateEntry : ((Map<String, JmsConnectorProperties>) result).entrySet()) {
-                    listModel.putTemplate(templateEntry.getKey(), templateEntry.getValue());
-                }
-
-                loadedTemplates = true;
-            }
-        }
-
-        templateList.setModel(listModel);
     }
 
     @Override
@@ -135,6 +113,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
 
     @Override
     public void setProperties(ConnectorProperties properties) {
+        refreshTemplates();
         JmsConnectorProperties jmsConnectorProperties = (JmsConnectorProperties) properties;
 
         if (jmsConnectorProperties.isUseJndi()) {
@@ -243,13 +222,43 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         destinationNameField.setBackground(null);
     }
 
+    private void refreshTemplates() {
+        Object result = null;
+
+        try {
+            result = invokeRemoteMethod("getTemplates", null);
+        } catch (Exception e) {
+            parent.alertException(parent, e.getStackTrace(), e.getMessage());
+        }
+
+        if (result != null && result instanceof Map) {
+            Map<String, JmsConnectorProperties> templates = (Map<String, JmsConnectorProperties>) result;
+
+            // load templates from the server into the listModel
+            for (Entry<String, JmsConnectorProperties> templateEntry : templates.entrySet()) {
+                listModel.putTemplate(templateEntry.getKey(), templateEntry.getValue());
+            }
+
+            // remove any entries from the listModel that are not on the server (except for pre-defined templates)
+            for (int i = 0; i < listModel.getSize(); i++) {
+                String templateName = listModel.getElementAt(i).toString();
+
+                if (!templates.containsKey(templateName) && !listModel.isPredefinedTemplate(templateName)) {
+                    listModel.deleteTemplate(templateName);
+                }
+            }
+        }
+
+        templateList.setModel(listModel);
+    }
+
     private class TemplateListCellRenderer extends DefaultListCellRenderer implements ListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
             // make the read-only templates appear italic and grey
-            if (value != null && listModel.isReadOnlyTemplate(value.toString())) {
+            if (value != null && listModel.isPredefinedTemplate(value.toString())) {
                 Map<TextAttribute, Object> attributes = new HashMap<TextAttribute, Object>();
                 attributes.putAll(getFont().getAttributes());
                 attributes.put(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE);
@@ -642,7 +651,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
 
     private void saveTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveTemplateButtonActionPerformed
         String templateName = null;
-        Object defaultValue = (templateList.getSelectedValue() == null || listModel.isReadOnlyTemplate(templateList.getSelectedValue().toString())) ? "" : templateList.getSelectedValue();
+        Object defaultValue = (templateList.getSelectedValue() == null || listModel.isPredefinedTemplate(templateList.getSelectedValue().toString())) ? "" : templateList.getSelectedValue();
 
         do {
             Object response = JOptionPane.showInputDialog(parent, "Enter a name for the connection template:", "Save", JOptionPane.QUESTION_MESSAGE, UIConstants.ICON_INFORMATION, null, defaultValue);
@@ -657,11 +666,11 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
                 return;
             }
 
-            if (listModel.isReadOnlyTemplate(templateName)) {
+            if (listModel.isPredefinedTemplate(templateName)) {
                 parent.alertWarning(parent, "\"" + templateName + "\" is a reserved template and cannot be overwritten. Please enter a different template name.");
                 defaultValue = "";
             }
-        } while (listModel.isReadOnlyTemplate(templateName));
+        } while (listModel.isPredefinedTemplate(templateName));
 
         if (listModel.containsTemplate(templateName) && !confirmDialog("Are you sure you want to overwrite the existing template named \"" + templateName + "\"?")) {
             return;
@@ -689,7 +698,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
     private void deleteTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteTemplateButtonActionPerformed
         String templateName = templateList.getSelectedValue().toString();
 
-        if (listModel.isReadOnlyTemplate(templateName) || !confirmDialog("Are you sure you want to delete the template \"" + templateName + "\"?")) {
+        if (listModel.isPredefinedTemplate(templateName) || !confirmDialog("Are you sure you want to delete the template \"" + templateName + "\"?")) {
             return;
         }
 
