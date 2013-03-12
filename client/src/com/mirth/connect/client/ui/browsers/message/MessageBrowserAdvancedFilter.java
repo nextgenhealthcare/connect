@@ -457,6 +457,19 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         
         return hasAdvancedCriteria;
     }
+    
+    private void stopEditing() {
+    	// if the user had typed in a value in the content search table, close the cell editor so that any value that was entered will be included in the search
+        TableCellEditor cellEditor = contentSearchTable.getCellEditor();
+        if (cellEditor != null) {
+            cellEditor.stopCellEditing();
+        }
+        
+        cellEditor = metaDataSearchTable.getCellEditor();
+        if (cellEditor != null) {
+        	cellEditor.stopCellEditing();
+        }
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -548,6 +561,11 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         jScrollPane5.setViewportView(mirthTable3);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         containerPanel.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -828,21 +846,16 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+    	stopEditing();
         loadSelections();
+        
         setVisible(false);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-        
+    	stopEditing();
         
         setVisible(false);
-        
-        // if the user had typed in a value in the content search table, close the cell editor so that any value that was entered will be included in the search
-        TableCellEditor cellEditor = contentSearchTable.getCellEditor();
-        
-        if (cellEditor != null) {
-            cellEditor.stopCellEditing();
-        }
     }//GEN-LAST:event_okButtonActionPerformed
 
     private void shiftValues(JList source, JList destination) {
@@ -931,6 +944,11 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             metaDataSearchTable.setRowSelectionInterval(selectedRow, selectedRow);
         }
     }//GEN-LAST:event_deleteMetaDataSearchButtonActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        stopEditing();
+        loadSelections();
+    }//GEN-LAST:event_formWindowClosing
 
     private class ListItem {
         private Object key;
