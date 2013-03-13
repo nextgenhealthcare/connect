@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -77,7 +77,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
         this.connector = connector;
         monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
-    
+
     protected StateAwareSocket initSocket(String endpoint) throws IOException, URISyntaxException {
         if (connectedSockets.get(endpoint) != null) {
             monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, connectedSockets.get(endpoint));
@@ -145,7 +145,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
                                 doDispose(socket);
                                 socket = null;
                             }
-                            
+
                             if (socket != null && !socket.isClosed()) {
                                 try {
                                     writeTemplatedData(socket, messageObject);
@@ -252,13 +252,13 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
                 result = true;
             } else {
                 socket = connectedSockets.get(host);
-                
+
                 // Dispose the socket if the remote side closed it
                 if (socket != null && socket.remoteSideHasClosed()) {
                     doDispose(socket);
                     socket = null;
                 }
-                
+
                 if (socket != null && !socket.isClosed()) {
                     writeTemplatedData(socket, thePayload.getMessageObject());
                     result = true;
@@ -334,9 +334,9 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
             // NACK
             messageObjectController.setError(messageObject, Constants.ERROR_408, "Timeout waiting for ACK", null, null);
             alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "Timeout waiting for ACK", null);
-            
+
             // return false to queue, true to error out
-            return !connector.isQueueAckTimeout(); 
+            return !connector.isQueueAckTimeout();
         }
         String initialAckString = null;
         try {
@@ -397,7 +397,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
         } catch (Exception ex) {
             logger.info("Socket error while doing a synchronous receive on endpointUri: " + endpointUri);
         }
-        
+
         // MIRTH-1442: In case the ack times out it is necessary to get a new
         // socket so that the next message does not use ack of previous message
         doDispose(socket);
@@ -487,7 +487,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
     }
 
     public void doDispose() {
-        for (Socket connectedSocket : connectedSockets.values()) {
+        for (Socket connectedSocket : connectedSockets.values().toArray(new Socket[] {})) {
             if (null != connectedSocket && !connectedSocket.isClosed()) {
                 try {
                     connectedSocket.close();
