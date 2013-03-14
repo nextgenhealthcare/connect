@@ -1,4 +1,4 @@
-<?xml version="1.1" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
@@ -100,7 +100,7 @@
                       <Component id="smtpTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                       <Component id="smtpHostField" linkSize="1" alignment="0" min="-2" pref="117" max="-2" attributes="1"/>
                       <Component id="smtpPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                      <Component id="defaultFromAddressField" linkSize="1" alignment="0" pref="117" max="32767" attributes="1"/>
+                      <Component id="defaultFromAddressField" linkSize="1" alignment="0" max="32767" attributes="1"/>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="secureConnectionNoneRadio" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -113,8 +113,8 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="requireAuthenticationNoRadio" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="usernameField" linkSize="1" alignment="0" pref="117" max="32767" attributes="1"/>
-                      <Component id="passwordField" linkSize="1" alignment="0" pref="117" max="32767" attributes="1"/>
+                      <Component id="usernameField" linkSize="1" alignment="0" max="32767" attributes="1"/>
+                      <Component id="passwordField" linkSize="1" alignment="0" max="32767" attributes="1"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -165,7 +165,7 @@
                       <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="12" max="32767" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -293,7 +293,7 @@
             </Property>
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="None"/>
-            <Property name="toolTipText" type="java.lang.String" value="Toggles TLS and SSL connections for global SMTP settings."/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles STARTTLS and SSL connections for global SMTP settings."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -312,8 +312,8 @@
             <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
               <ComponentRef name="secureConnectionButtonGroup"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="TLS"/>
-            <Property name="toolTipText" type="java.lang.String" value="Toggles TLS and SSL connections for global SMTP settings."/>
+            <Property name="text" type="java.lang.String" value="STARTTLS"/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles STARTTLS and SSL connections for global SMTP settings."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -333,7 +333,7 @@
               <ComponentRef name="secureConnectionButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" value="SSL"/>
-            <Property name="toolTipText" type="java.lang.String" value="Toggles TLS and SSL connections for global SMTP settings."/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles STARTTLS and SSL connections for global SMTP settings."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -404,7 +404,7 @@
                       </Group>
                       <Component id="maxQueueSizeField" alignment="0" min="-2" pref="60" max="-2" attributes="1"/>
                   </Group>
-                  <EmptySpace pref="31" max="32767" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
