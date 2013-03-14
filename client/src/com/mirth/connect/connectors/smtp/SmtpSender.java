@@ -615,21 +615,21 @@ public class SmtpSender extends ConnectorSettingsPanel {
         encryptionNone.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         secureButtonGroup.add(encryptionNone);
         encryptionNone.setText("None");
-        encryptionNone.setToolTipText("Selects whether TLS/STARTTLS or SSL should be used for optional connection security.");
+        encryptionNone.setToolTipText("Selects whether STARTTLS or SSL should be used for optional connection security.");
         encryptionNone.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         encryptionTls.setBackground(new java.awt.Color(255, 255, 255));
         encryptionTls.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         secureButtonGroup.add(encryptionTls);
-        encryptionTls.setText("TLS/STARTTLS");
-        encryptionTls.setToolTipText("Selects whether TLS/STARTTLS or SSL should be used for optional connection security.");
+        encryptionTls.setText("STARTTLS");
+        encryptionTls.setToolTipText("Selects whether STARTTLS or SSL should be used for optional connection security.");
         encryptionTls.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         encryptionSsl.setBackground(new java.awt.Color(255, 255, 255));
         encryptionSsl.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         secureButtonGroup.add(encryptionSsl);
         encryptionSsl.setText("SSL");
-        encryptionSsl.setToolTipText("Selects whether TLS/STARTTLS or SSL should be used for optional connection security.");
+        encryptionSsl.setToolTipText("Selects whether STARTTLS or SSL should be used for optional connection security.");
         encryptionSsl.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         useAuthenticationYes.setBackground(new java.awt.Color(255, 255, 255));

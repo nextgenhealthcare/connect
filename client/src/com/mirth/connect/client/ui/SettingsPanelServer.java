@@ -435,21 +435,21 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         secureConnectionButtonGroup.add(secureConnectionNoneRadio);
         secureConnectionNoneRadio.setSelected(true);
         secureConnectionNoneRadio.setText("None");
-        secureConnectionNoneRadio.setToolTipText("Toggles TLS and SSL connections for global SMTP settings.");
+        secureConnectionNoneRadio.setToolTipText("Toggles STARTTLS and SSL connections for global SMTP settings.");
         secureConnectionNoneRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         secureConnectionTLSRadio.setBackground(new java.awt.Color(255, 255, 255));
         secureConnectionTLSRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         secureConnectionButtonGroup.add(secureConnectionTLSRadio);
-        secureConnectionTLSRadio.setText("TLS");
-        secureConnectionTLSRadio.setToolTipText("Toggles TLS and SSL connections for global SMTP settings.");
+        secureConnectionTLSRadio.setText("STARTTLS");
+        secureConnectionTLSRadio.setToolTipText("Toggles STARTTLS and SSL connections for global SMTP settings.");
         secureConnectionTLSRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         secureConnectionSSLRadio.setBackground(new java.awt.Color(255, 255, 255));
         secureConnectionSSLRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         secureConnectionButtonGroup.add(secureConnectionSSLRadio);
         secureConnectionSSLRadio.setText("SSL");
-        secureConnectionSSLRadio.setToolTipText("Toggles TLS and SSL connections for global SMTP settings.");
+        secureConnectionSSLRadio.setToolTipText("Toggles STARTTLS and SSL connections for global SMTP settings.");
         secureConnectionSSLRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         smtpTimeoutField.setToolTipText("SMTP socket connection timeout in milliseconds used for global SMTP settings.");
@@ -476,7 +476,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     .addComponent(smtpTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(smtpHostField, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(smtpPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(defaultFromAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                    .addComponent(defaultFromAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(emailPanelLayout.createSequentialGroup()
                         .addComponent(secureConnectionNoneRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -487,8 +487,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                         .addComponent(requireAuthenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(requireAuthenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(usernameField, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                    .addComponent(passwordField, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
+                    .addComponent(usernameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(passwordField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -531,7 +531,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 .addGroup(emailPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(passwordLabel)
                     .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         configurationPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -633,7 +633,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(checkForUpdatesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(maxQueueSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         configurationPanelLayout.setVerticalGroup(
             configurationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

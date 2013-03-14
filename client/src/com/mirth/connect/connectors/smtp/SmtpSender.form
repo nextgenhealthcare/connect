@@ -406,7 +406,7 @@
           <ComponentRef name="secureButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="None"/>
-        <Property name="toolTipText" type="java.lang.String" value="Selects whether TLS/STARTTLS or SSL should be used for optional connection security."/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether STARTTLS or SSL should be used for optional connection security."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -425,8 +425,8 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="secureButtonGroup"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="TLS/STARTTLS"/>
-        <Property name="toolTipText" type="java.lang.String" value="Selects whether TLS/STARTTLS or SSL should be used for optional connection security."/>
+        <Property name="text" type="java.lang.String" value="STARTTLS"/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether STARTTLS or SSL should be used for optional connection security."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -446,7 +446,7 @@
           <ComponentRef name="secureButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="SSL"/>
-        <Property name="toolTipText" type="java.lang.String" value="Selects whether TLS/STARTTLS or SSL should be used for optional connection security."/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether STARTTLS or SSL should be used for optional connection security."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
