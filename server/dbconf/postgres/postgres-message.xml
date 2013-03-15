@@ -149,9 +149,15 @@
 					#{status}
 				</foreach>
 			</if>
-			<if test="metaDataIds != null">
+			<if test="includedMetaDataIds != null">
 				AND mm.id IN
-				<foreach item="metaDataId" collection="metaDataIds" open="(" separator="," close=")">
+				<foreach item="metaDataId" collection="includedMetaDataIds" open="(" separator="," close=")">
+					#{metaDataId}
+				</foreach>
+			</if>
+			<if test="excludedMetaDataIds != null">
+				AND mm.id NOT IN
+				<foreach item="metaDataId" collection="excludedMetaDataIds" open="(" separator="," close=")">
 					#{metaDataId}
 				</foreach>
 			</if>

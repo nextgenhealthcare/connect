@@ -3572,7 +3572,7 @@ public class Frame extends JXFrame {
                         filter.setMessageIdUpper(messageId);
                         List<Integer> metaDataIds = new ArrayList<Integer>();
                         metaDataIds.add(metaDataId);
-                        filter.setMetaDataIds(metaDataIds);
+                        filter.setIncludedMetaDataIds(metaDataIds);
                         mirthClient.removeMessages(channelId, filter);
                     } catch (ClientException e) {
                         alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());

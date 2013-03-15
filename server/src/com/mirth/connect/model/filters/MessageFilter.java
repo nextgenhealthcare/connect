@@ -44,7 +44,8 @@ public class MessageFilter implements Serializable {
     private Calendar endDate;
     private String quickSearch;
     private Set<Status> statuses;
-    private List<Integer> metaDataIds;
+    private List<Integer> includedMetaDataIds;
+    private List<Integer> excludedMetaDataIds;
     private String serverId;
     private Map<ContentType, String> contentSearch = new HashMap<ContentType, String>();
     private List<MetaDataSearchElement> metaDataSearch;
@@ -118,12 +119,20 @@ public class MessageFilter implements Serializable {
         this.statuses = statuses;
     }
 
-    public List<Integer> getMetaDataIds() {
-        return metaDataIds;
+    public List<Integer> getIncludedMetaDataIds() {
+        return includedMetaDataIds;
     }
 
-    public void setMetaDataIds(List<Integer> metaDataIds) {
-        this.metaDataIds = metaDataIds;
+    public void setIncludedMetaDataIds(List<Integer> includedMetaDataIds) {
+        this.includedMetaDataIds = includedMetaDataIds;
+    }
+    
+    public List<Integer> getExcludedMetaDataIds() {
+        return excludedMetaDataIds;
+    }
+
+    public void setExcludedMetaDataIds(List<Integer> excludedMetaDataIds) {
+        this.excludedMetaDataIds = excludedMetaDataIds;
     }
 
     public String getServerId() {

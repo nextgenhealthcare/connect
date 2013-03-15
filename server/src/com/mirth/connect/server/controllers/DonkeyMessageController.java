@@ -94,7 +94,8 @@ public class DonkeyMessageController extends MessageController {
         params.put("responseSearch", filter.getContentSearch().get(ContentType.RESPONSE));
         params.put("responseTransformedSearch", filter.getContentSearch().get(ContentType.RESPONSE_TRANSFORMED));
         params.put("processedResponseSearch", filter.getContentSearch().get(ContentType.PROCESSED_RESPONSE));
-        params.put("metaDataIds", filter.getMetaDataIds());
+        params.put("includedMetaDataIds", filter.getIncludedMetaDataIds());
+        params.put("excludedMetaDataIds", filter.getExcludedMetaDataIds());
         params.put("serverId", filter.getServerId());
         params.put("maxMessageId", filter.getMaxMessageId());
         params.put("metaDataSearch", filter.getMetaDataSearch());
@@ -116,7 +117,7 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public Long getMessageCount(MessageFilter filter, Channel channel) {
-        if (filter.getMetaDataIds() != null && filter.getMetaDataIds().isEmpty()) {
+        if (filter.getIncludedMetaDataIds() != null && filter.getIncludedMetaDataIds().isEmpty() && filter.getExcludedMetaDataIds() == null) {
             return 0L;
         }
 
@@ -144,7 +145,7 @@ public class DonkeyMessageController extends MessageController {
         SqlSession session = SqlConfig.getSqlSessionManager();
         String channelId = channel.getChannelId();
 
-        if (filter.getMetaDataIds() != null && filter.getMetaDataIds().isEmpty()) {
+        if (filter.getIncludedMetaDataIds() != null && filter.getIncludedMetaDataIds().isEmpty() && filter.getExcludedMetaDataIds() == null) {
             return messages;
         }
 

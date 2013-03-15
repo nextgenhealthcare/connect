@@ -14,18 +14,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.JCheckBox;
 import javax.swing.table.AbstractTableModel;
 
 public class ItemSelectionTableModel<K, V> extends AbstractTableModel {
-    private final static int NUM_COLUMNS = 3;
-    private final static int VALUE_COLUMN = 0;
-    private final static int CHECKBOX_COLUMN = 1;
-    private final static int KEY_COLUMN = 2;
+    public final static int NUM_COLUMNS = 3;
+    public final static int VALUE_COLUMN = 1;
+    public final static int CHECKBOX_COLUMN = 2;
+    public final static int KEY_COLUMN = 0;
 
     private Object[][] tableData = null;
     private String[] columnNames = new String[NUM_COLUMNS];
-    private boolean[] canEdit = new boolean[] { false, true, false };
+    private boolean[] canEdit = new boolean[] { false, false, true };
 
     /**
      * Table model that represents a list of key/value pairs, with values shown in the first column and checkboxes in the second
@@ -33,7 +32,7 @@ public class ItemSelectionTableModel<K, V> extends AbstractTableModel {
      * @param items A list of key/value pairs
      * @param selectedKeys A list of the keys that should be initially selected
      */
-    public ItemSelectionTableModel(Map<K, V> items, List<K> selectedKeys, String valueColumnName, String checkboxColumnName) {
+    public ItemSelectionTableModel(Map<K, V> items, List<K> selectedKeys, String valueColumnName, String checkboxColumnName, String keyColumnName) {
         tableData = new Object[items.size()][NUM_COLUMNS];
         int i = 0;
 
@@ -44,17 +43,22 @@ public class ItemSelectionTableModel<K, V> extends AbstractTableModel {
             i++;
         }
         
+        columnNames[KEY_COLUMN] = keyColumnName;
         columnNames[VALUE_COLUMN] = valueColumnName;
         columnNames[CHECKBOX_COLUMN] = checkboxColumnName;
     }
+    
+    public ItemSelectionTableModel(Map<K, V> items, List<K> selectedKeys, String valueColumnName, String checkboxColumnName) {
+    	this(items, selectedKeys, valueColumnName, checkboxColumnName, null);
+    }
 
     
-    public List<K> getSelectedKeys() {
+    public List<K> getKeys(boolean selected) {
         List<K> selectedKeys = new ArrayList<K>();
         int rowCount = getRowCount();
 
         for (int i = 0; i < rowCount; i++) {
-            if ((Boolean) getValueAt(i, CHECKBOX_COLUMN)) {
+            if ((Boolean) getValueAt(i, CHECKBOX_COLUMN) == selected) {
                 selectedKeys.add((K) getValueAt(i, KEY_COLUMN));
             }
         }

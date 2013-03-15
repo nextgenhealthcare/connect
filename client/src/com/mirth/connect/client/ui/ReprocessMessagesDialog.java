@@ -216,7 +216,7 @@ private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 }//GEN-LAST:event_cancelButtonActionPerformed
 
 private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-    parent.reprocessMessage(channelId, filter, isReprocessOriginal(), ((ItemSelectionTableModel<Integer, String>)includedDestinationsTable.getModel()).getSelectedKeys());
+    parent.reprocessMessage(channelId, filter, isReprocessOriginal(), ((ItemSelectionTableModel<Integer, String>)includedDestinationsTable.getModel()).getKeys(true));
     this.dispose();
 }//GEN-LAST:event_okButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables

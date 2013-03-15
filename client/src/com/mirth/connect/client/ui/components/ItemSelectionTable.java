@@ -11,6 +11,7 @@ package com.mirth.connect.client.ui.components;
 
 import java.util.prefs.Preferences;
 
+import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
@@ -18,9 +19,11 @@ import javax.swing.table.TableModel;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.NumberCellRenderer;
 import com.mirth.connect.client.ui.UIConstants;
 
 public class ItemSelectionTable extends MirthTable {
+	private final static int KEY_COLUMN_WIDTH = 30;
     private final static int CHECKBOX_COLUMN_WIDTH = 50;
 
     public ItemSelectionTable() {
@@ -45,9 +48,18 @@ public class ItemSelectionTable extends MirthTable {
         super.setModel(model);
         
         if (model instanceof ItemSelectionTableModel) {
-            getColumnExt(1).setMaxWidth(CHECKBOX_COLUMN_WIDTH);
-            getColumnExt(1).setMinWidth(CHECKBOX_COLUMN_WIDTH);
-            getColumnExt(2).setVisible(false);
+            getColumnExt(ItemSelectionTableModel.CHECKBOX_COLUMN).setMaxWidth(CHECKBOX_COLUMN_WIDTH);
+            getColumnExt(ItemSelectionTableModel.CHECKBOX_COLUMN).setMinWidth(CHECKBOX_COLUMN_WIDTH);
+            
+            if (getColumnExt(ItemSelectionTableModel.KEY_COLUMN).getTitle() != null) {
+                getColumnExt(ItemSelectionTableModel.KEY_COLUMN).setMaxWidth(KEY_COLUMN_WIDTH);
+                getColumnExt(ItemSelectionTableModel.KEY_COLUMN).setMinWidth(KEY_COLUMN_WIDTH);
+            	getColumnExt(ItemSelectionTableModel.KEY_COLUMN).setPreferredWidth(KEY_COLUMN_WIDTH);
+                getColumnExt(ItemSelectionTableModel.KEY_COLUMN).setCellRenderer(new NumberCellRenderer(SwingConstants.CENTER, false));
+                getColumnExt(ItemSelectionTableModel.KEY_COLUMN).setVisible(true);
+            } else {
+            	getColumnExt(ItemSelectionTableModel.KEY_COLUMN).setVisible(false);
+            }
         }
     }
     

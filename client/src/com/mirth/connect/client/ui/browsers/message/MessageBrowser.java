@@ -246,6 +246,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     	
         this.channelId = channelId;
         this.connectors = connectors;
+        this.connectors.put(null, "Deleted Connectors");
         this.metaDataColumns = metaDataColumns;
         tableModel.clear();
         advancedSearchPopup.loadChannel();
@@ -540,16 +541,29 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         text.append(padding + "Connectors: ");
 
-        if (messageFilter.getMetaDataIds() == null) {
-            text.append("(any)");
-        } else if (messageFilter.getMetaDataIds().isEmpty()) {
+        if (messageFilter.getIncludedMetaDataIds() == null) {
+        	if (messageFilter.getExcludedMetaDataIds() == null) {
+        		text.append("(any)");
+        	} else {
+        		List<Integer> excludedMetaDataIds = messageFilter.getExcludedMetaDataIds();
+                List<String> connectorNames = new ArrayList<String>();
+        		
+        		for (Entry<Integer, String> connectorEntry : connectors.entrySet()) {
+                    if (!excludedMetaDataIds.contains(connectorEntry.getKey())) {
+                        connectorNames.add(connectorEntry.getValue());
+                    }
+                }
+        		
+                text.append(StringUtils.join(connectorNames, ", "));
+        	}
+        } else if (messageFilter.getIncludedMetaDataIds().isEmpty()) {
             text.append("(none)");
         } else {
-            List<Integer> metaDataIds = messageFilter.getMetaDataIds();
+            List<Integer> includedMetaDataIds = messageFilter.getIncludedMetaDataIds();
             List<String> connectorNames = new ArrayList<String>();
 
             for (Entry<Integer, String> connectorEntry : connectors.entrySet()) {
-                if (metaDataIds.contains(connectorEntry.getKey())) {
+                if (includedMetaDataIds.contains(connectorEntry.getKey())) {
                     connectorNames.add(connectorEntry.getValue());
                 }
             }

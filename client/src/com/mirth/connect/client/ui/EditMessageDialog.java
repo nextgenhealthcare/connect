@@ -289,7 +289,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
 
     private void processMessageButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_processMessageButtonActionPerformed
     {//GEN-HEADEREND:event_processMessageButtonActionPerformed
-        parent.processMessage(channelId, messageContent.getText(), ((ItemSelectionTableModel<Integer, String>)mirthTable1.getModel()).getSelectedKeys());
+        parent.processMessage(channelId, messageContent.getText(), ((ItemSelectionTableModel<Integer, String>)mirthTable1.getModel()).getKeys(true));
         this.dispose();
     }//GEN-LAST:event_processMessageButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables

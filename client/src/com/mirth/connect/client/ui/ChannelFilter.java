@@ -237,7 +237,7 @@ public class ChannelFilter extends javax.swing.JDialog {
 
         if (tagFilterEnabled) {
             Set<String> visibleTags = new LinkedHashSet<String>();
-            visibleTags.addAll(filterTableModel.getSelectedKeys());
+            visibleTags.addAll(filterTableModel.getKeys(true));
 
             if (visibleTags.isEmpty()) {
                 parent.alertError(parent, "Please select at least one tag");
