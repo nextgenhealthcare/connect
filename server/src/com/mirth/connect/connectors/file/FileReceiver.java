@@ -227,14 +227,17 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         Map<String, Object> channelMap = new HashMap<String, Object>();
         channelMap.put("originalFilename", originalFilename);
 
-        if (StringUtils.isNotBlank(moveDir)) {
+        if (StringUtils.isNotBlank(moveDir) || StringUtils.isNotBlank(moveToPattern)) {
             destinationName = file.getName();
+            destinationDir = file.getParent();
 
             if (StringUtils.isNotBlank(moveToPattern)) {
                 destinationName = replacer.replaceValues(moveToPattern, getChannelId(), channelMap);
             }
 
-            destinationDir = replacer.replaceValues(moveDir, getChannelId(), channelMap);
+            if (StringUtils.isNotBlank(moveDir)) {
+                destinationDir = replacer.replaceValues(moveDir, getChannelId(), channelMap);
+            }
         }
 
         boolean resultOfFileMoveOperation = false;
