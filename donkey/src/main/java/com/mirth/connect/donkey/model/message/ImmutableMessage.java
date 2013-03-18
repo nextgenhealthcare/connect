@@ -42,7 +42,7 @@ public class ImmutableMessage {
 
     public Map<Integer, ImmutableConnectorMessage> getConnectorMessages() {
         Map<Integer, ImmutableConnectorMessage> map = new LinkedHashMap<Integer, ImmutableConnectorMessage>();
-        for (Integer key : (Integer[]) message.getConnectorMessages().keySet().toArray()) {
+        for (Integer key : message.getConnectorMessages().keySet()) {
             map.put(key, new ImmutableConnectorMessage(message.getConnectorMessages().get(key)));
         }
         return map;
