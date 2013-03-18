@@ -1198,6 +1198,10 @@ public class CommandLineInterface {
     }
 
     private void commandDumpEvents(Token[] arguments) throws ClientException {
+        if (hasInvalidNumberOfArguments(arguments, 2)) {
+            return;
+        }
+
         String dumpFilename = arguments[2].getText();
         dumpFilename = replaceValues(dumpFilename);
 
@@ -1230,6 +1234,10 @@ public class CommandLineInterface {
     }
 
     private void commandDumpStats(Token[] arguments) throws ClientException {
+        if (hasInvalidNumberOfArguments(arguments, 2)) {
+            return;
+        }
+        
         String dumpFilename = arguments[2].getText();
         dumpFilename = replaceValues(dumpFilename);
 
