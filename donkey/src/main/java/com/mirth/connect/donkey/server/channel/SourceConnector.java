@@ -9,6 +9,8 @@
 
 package com.mirth.connect.donkey.server.channel;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
@@ -28,6 +30,8 @@ public abstract class SourceConnector extends Connector {
     private boolean respondAfterProcessing = true;
     private MetaDataReplacer metaDataReplacer;
     private String sourceName = "Source";
+
+    private Logger logger = Logger.getLogger(getClass());
 
     public void setChannel(Channel channel) {
         this.channel = channel;
@@ -102,19 +106,23 @@ public abstract class SourceConnector extends Connector {
     }
 
     /**
-     * Takes a raw message and processes it if the connector is set to wait for the destination
+     * Takes a raw message and processes it if the connector is set to wait for
+     * the destination
      * connectors to complete, otherwise it queues the message for processing
      * 
      * @param rawMessage
      *            A raw message
-     * @return The MessageResponse, containing the message id and a response if one was received
+     * @return The MessageResponse, containing the message id and a response if
+     *         one was received
      * @throws StoppedException
      * @throws ChannelErrorException
      * @throws StoppingException
      */
     public DispatchResult dispatchRawMessage(RawMessage rawMessage) throws ChannelException {
         if (getCurrentState() == ChannelState.STOPPED) {
-            throw new ChannelException(true);
+            ChannelException e = new ChannelException(true);
+            logger.error("Source connector is currently stopped. Channel Id: " + channel.getChannelId(), e);
+            throw e;
         }
 
         return channel.dispatchRawMessage(rawMessage);
@@ -131,7 +139,8 @@ public abstract class SourceConnector extends Connector {
     /**
      * Finish a message dispatch
      * 
-     * @param dispatchResult The DispatchResult returned by dispatchRawMessage()
+     * @param dispatchResult
+     *            The DispatchResult returned by dispatchRawMessage()
      */
     public void finishDispatch(DispatchResult dispatchResult) {
         String response = null;
@@ -150,10 +159,15 @@ public abstract class SourceConnector extends Connector {
     /**
      * Finish a message dispatch
      * 
-     * @param dispatchResult The DispatchResult returned by dispatchRawMessage()
-     * @param attemptedResponse True if an attempt to send a response was made, false if not
-     * @param response The response string (if a response attempt was made)
-     * @param responseError An error message if an error occurred when attempting to send a response
+     * @param dispatchResult
+     *            The DispatchResult returned by dispatchRawMessage()
+     * @param attemptedResponse
+     *            True if an attempt to send a response was made, false if not
+     * @param response
+     *            The response string (if a response attempt was made)
+     * @param responseError
+     *            An error message if an error occurred when attempting to send
+     *            a response
      */
     public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String response, String responseError) {
         try {

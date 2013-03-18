@@ -98,11 +98,7 @@ public class JavaScriptReceiver extends PollConnector {
             try {
                 dispatchResult = dispatchRawMessage(rawMessage);
             } catch (ChannelException e) {
-                if (e.isStopped()) {
-                    logger.error("Channel ID " + getChannelId() + " failed to dispatch message from " + connectorProperties.getName() + ". The channel is stopped.");
-                } else {
-                    logger.error("Channel ID " + getChannelId() + " failed to dispatch message from " + connectorProperties.getName() + ". Cause: " + e.getMessage());
-                }
+                // Do nothing. An error should have been logged.
             } finally {
                 finishDispatch(dispatchResult);
             }

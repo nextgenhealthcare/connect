@@ -107,7 +107,7 @@ public class DonkeyMessageController extends MessageController {
     @Override
     public long getMaxMessageId(String channelId) {
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-        
+
         try {
             return dao.getMaxMessageId(channelId);
         } finally {
@@ -179,13 +179,13 @@ public class DonkeyMessageController extends MessageController {
 
             for (ConnectorMessage connectorMessage : connectorMessages) {
                 connectorMessage.setChannelId(channelId);
-                
+
                 message.getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
             }
-            
+
             if (includeContent) {
                 List<MessageContent> contentList = session.selectList("Message.selectMessageContent", params);
-                
+
                 for (MessageContent messageContent : contentList) {
                     messageContent.setChannelId(channel.getChannelId());
                     message.getConnectorMessages().get(messageContent.getMetaDataId()).setContent(messageContent);
@@ -201,42 +201,42 @@ public class DonkeyMessageController extends MessageController {
     @Override
     public Message getMessageContent(String channelId, Long messageId) {
         DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-        
+
         try {
-        	Map<String, Object> params = new HashMap<String, Object>();
-        	params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
-        	params.put("messageId", messageId);
-        	
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
+            params.put("messageId", messageId);
+
             Message message = new Message();
             message.setChannelId(channelId);
             message.setMessageId(messageId);
-            
+
             Map<String, Object> row = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageById", params);
-            
+
             if (row != null) {
-	            Calendar dateCreated = Calendar.getInstance();
-	            dateCreated.setTimeInMillis(((Timestamp) row.get("date_created")).getTime());
-	            
-	            message.setDateCreated(dateCreated);
-	            message.setServerId((String) row.get("server_id"));
-	            message.setProcessed((Boolean) row.get("processed"));
-	            message.setImportId((Long) row.get("import_id"));
-	            message.setImportChannelId((String) row.get("import_channel_id"));
-	            message.setAttemptedResponse((Boolean) row.get("attempted_response"));
-	            message.setResponseError((String) row.get("response_error"));
+                Calendar dateCreated = Calendar.getInstance();
+                dateCreated.setTimeInMillis(((Timestamp) row.get("date_created")).getTime());
+
+                message.setDateCreated(dateCreated);
+                message.setServerId((String) row.get("server_id"));
+                message.setProcessed((Boolean) row.get("processed"));
+                message.setImportId((Long) row.get("import_id"));
+                message.setImportChannelId((String) row.get("import_channel_id"));
+                message.setAttemptedResponse((Boolean) row.get("attempted_response"));
+                message.setResponseError((String) row.get("response_error"));
             }
-            
+
             Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, messageId);
             Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
-    
+
             for (Entry<Integer, ConnectorMessage> connectorMessageEntry : connectorMessages.entrySet()) {
                 Integer metaDataId = connectorMessageEntry.getKey();
                 ConnectorMessage connectorMessage = connectorMessageEntry.getValue();
-                
+
                 MessageEncryptionUtil.decryptConnectorMessage(connectorMessage, encryptor);
                 message.getConnectorMessages().put(metaDataId, connectorMessage);
             }
-    
+
             return message;
         } finally {
             dao.close();
@@ -276,50 +276,50 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public int removeMessages(String channelId, MessageFilter filter) {
-    	// Perform the deletes in batches rather than all in one transaction.
-    	//TODO Tune the limit to use for each batch in the delete.
+        // Perform the deletes in batches rather than all in one transaction.
+        //TODO Tune the limit to use for each batch in the delete.
         Map<String, Object> params = getParameters(filter, channelId, null, 100000);
-        
+
         Channel channel = ControllerFactory.getFactory().createEngineController().getDeployedChannel(channelId);
         if (channel != null) {
-	        List<Map<String, Object>> rows = null;
-	        Long maxMessageId = filter.getMaxMessageId();
-	        do {
-	        	// Prevent the delete from occurring at the same time as the channel being started. 
-		        synchronized (channel) {
-		        	params.put("maxMessageId", maxMessageId);
-		        	
-			        // Perform a search using the message filter parameters
-			        rows = SqlConfig.getSqlSessionManager().selectList("Message.searchMessages", params);
-			        Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
+            List<Map<String, Object>> rows = null;
+            Long maxMessageId = filter.getMaxMessageId();
+            do {
+                // Prevent the delete from occurring at the same time as the channel being started. 
+                synchronized (channel) {
+                    params.put("maxMessageId", maxMessageId);
 
-			        // For each message that was retrieved
-			        for (Map<String, Object> row : rows) {
-			            Long messageId = (Long) row.get("message_id");
-			            Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
-			            Boolean processed = (Boolean) row.get("processed");
-			            
-			            if (maxMessageId == null || maxMessageId >= messageId) {
-			            	maxMessageId = messageId - 1;
-			            }
-			
-			            // Allow unprocessed messages to be deleted only if the channel is stopped.
-			            if (channel.getCurrentState() == ChannelState.STOPPED || processed) {
-				            if (metaDataIds.contains(0)) {
-				                // Delete the entire message if the source connector message is to be deleted
-				                messages.put(messageId, null);
-				            } else {
-				                // Otherwise only deleted the destination connector message
-				                messages.put(messageId, metaDataIds);
-				            }
-			            }
-			        }
-			
-			        com.mirth.connect.donkey.server.controllers.MessageController.getInstance().deleteMessages(channelId, messages, false);
-		        }
-	        } while (rows != null && rows.size() > 0);
-	        
-	        // Invalidate the queue buffer to ensure stats are updated.
+                    // Perform a search using the message filter parameters
+                    rows = SqlConfig.getSqlSessionManager().selectList("Message.searchMessages", params);
+                    Map<Long, Set<Integer>> messages = new HashMap<Long, Set<Integer>>();
+
+                    // For each message that was retrieved
+                    for (Map<String, Object> row : rows) {
+                        Long messageId = (Long) row.get("message_id");
+                        Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
+                        Boolean processed = (Boolean) row.get("processed");
+
+                        if (maxMessageId == null || maxMessageId >= messageId) {
+                            maxMessageId = messageId - 1;
+                        }
+
+                        // Allow unprocessed messages to be deleted only if the channel is stopped.
+                        if (channel.getCurrentState() == ChannelState.STOPPED || processed) {
+                            if (metaDataIds.contains(0)) {
+                                // Delete the entire message if the source connector message is to be deleted
+                                messages.put(messageId, null);
+                            } else {
+                                // Otherwise only deleted the destination connector message
+                                messages.put(messageId, metaDataIds);
+                            }
+                        }
+                    }
+
+                    com.mirth.connect.donkey.server.controllers.MessageController.getInstance().deleteMessages(channelId, messages, false);
+                }
+            } while (rows != null && rows.size() > 0);
+
+            // Invalidate the queue buffer to ensure stats are updated.
             channel.invalidateQueues();
         }
         //TODO Decide what to return
@@ -349,7 +349,7 @@ public class DonkeyMessageController extends MessageController {
 
                 if (channel != null) {
                     boolean stoppedChannel = false;
-                    
+
                     if (channel.getCurrentState() != ChannelState.STOPPED && restartRunningChannels) {
                         try {
                             logger.debug("Stopping channel \"" + channel.getName() + "\" prior to removing messages");
@@ -359,30 +359,30 @@ public class DonkeyMessageController extends MessageController {
                             logger.error("Failed to stop channel id " + channelId, e);
                         }
                     }
-                    
+
                     // Prevent the delete from occurring at the same time as the channel being started. 
                     synchronized (channel) {
                         // Only allow the messages to be cleared if the channel is stopped.
                         if (channel.getCurrentState() == ChannelState.STOPPED) {
                             logger.debug("Removing messages for channel \"" + channel.getName() + "\"");
                             dao.deleteAllMessages(channelId);
-                            
+
                             if (clearStatistics) {
                                 logger.debug("Clearing statistics for channel \"" + channel.getName() + "\"");
                                 dao.resetStatistics(channelId, null, statuses);
-                                
+
                                 for (Integer metaDataId : channel.getMetaDataIds()) {
                                     dao.resetStatistics(channelId, metaDataId, statuses);
                                 }
                             }
-                            
+
                             dao.commit();
-                            
+
                             // Invalidate the queue buffer to ensure stats are updated.
                             channel.invalidateQueues();
                         }
                     }
-                    
+
                     if (stoppedChannel) {
                         try {
                             logger.debug("Restarting channel \"" + channel.getName() + "\"");
@@ -403,19 +403,19 @@ public class DonkeyMessageController extends MessageController {
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
         DataType dataType = engineController.getDeployedChannel(channelId).getSourceConnector().getInboundDataType();
         Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
-        
+
         Map<String, Object> params = getParameters(filter, channelId, null, null);
         params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
-        
+
         List<Long> messageIds = SqlConfig.getSqlSessionManager().selectList("Message.selectMessageIdsForReprocessing", params);
-        
+
         params.clear();
         params.put("localChannelId", ChannelController.getInstance().getLocalChannelId(channelId));
-        
+
         for (Long messageId : messageIds) {
             params.put("messageId", messageId);
             Map<String, Object> messageResult = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageForReprocessing", params);
-            
+
             String rawContent = (String) messageResult.get("content");
             String encryptedRawContent = null;
             RawMessage rawMessage = null;
@@ -424,13 +424,13 @@ public class DonkeyMessageController extends MessageController {
                 encryptedRawContent = rawContent;
                 rawContent = encryptor.decrypt(encryptedRawContent);
             }
-            
+
             ConnectorMessage connectorMessage = new ConnectorMessage();
             connectorMessage.setChannelId(channelId);
             connectorMessage.setMessageId(messageId);
             connectorMessage.setMetaDataId(0);
             connectorMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, rawContent, dataType.getType(), encryptedRawContent));
-            
+
             if (ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).isBinary()) {
                 rawMessage = new RawMessage(DICOMUtil.getDICOMRawBytes(connectorMessage));
             } else {
@@ -440,13 +440,13 @@ public class DonkeyMessageController extends MessageController {
             if (replace) {
                 rawMessage.setMessageIdToOverwrite(messageId);
             }
-            
+
             rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);
 
             try {
                 engineController.dispatchRawMessage(channelId, rawMessage);
             } catch (Throwable e) {
-                logger.error(e);
+                // Do nothing. An error should have been logged.
             }
         }
     }
@@ -455,7 +455,7 @@ public class DonkeyMessageController extends MessageController {
     public int exportMessages(MessageExportOptions options) throws MessageExporterException {
         final MessageController messageController = this;
         final EngineController engineController = ControllerFactory.getFactory().createEngineController();
-        
+
         MessageExporter messageExporter = new MessageExporter();
         messageExporter.setOptions(options);
         messageExporter.setSerializer(new ObjectXMLSerializer());
@@ -466,10 +466,10 @@ public class DonkeyMessageController extends MessageController {
                 return messageController.getMessages(filter, engineController.getDeployedChannel(channelId), includeContent, offset, limit);
             }
         });
-        
+
         return messageExporter.export();
     }
-    
+
     @Override
     public void importMessage(String channelId, Message message) throws MessageImportException {
         try {
