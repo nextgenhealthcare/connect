@@ -33,7 +33,7 @@ import com.mirth.connect.model.Step;
 
 public class ResponseSettingsPanel extends javax.swing.JPanel {
 
-    public final String RESULT_PATTERN = "responseMap.put\\(['|\"]([^'|^\"]*)[\"|']";
+    public final String RESULT_PATTERN = "responseMap\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!\\1).)*)\\1|\\$r\\s*\\(\\s*(['\"])(((?!\\4).)*)\\4(?=\\s*,)";
     private Frame parent;
     private List<String> queueOnRespondFromNames;
     private List<String> queueOffRespondFromNames;
@@ -95,7 +95,10 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
             if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)) {
                 Matcher matcher = pattern.matcher(step.getScript());
                 while (matcher.find()) {
-                    String key = matcher.group(1);
+                    String key = matcher.group(2);
+                    if (key == null) {
+                        key = matcher.group(5);
+                    }
                     variables.add(key);
                 }
             } else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
@@ -114,7 +117,10 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
             if (script != null && script.length() > 0) {
                 Matcher matcher = pattern.matcher(script);
                 while (matcher.find()) {
-                    String key = matcher.group(1);
+                    String key = matcher.group(2);
+                    if (key == null) {
+                        key = matcher.group(5);
+                    }
                     variables.add(key);
                 }
             }
