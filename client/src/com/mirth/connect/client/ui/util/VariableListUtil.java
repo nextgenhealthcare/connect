@@ -21,22 +21,20 @@ import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 
 public class VariableListUtil {
-    // Finds comments, but also incorrectly finds // or /* inside of block elements like strings.
-//	final static String COMMENT_PATTERN = "(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)";
-
     final static String COMMENT_SIMPLE_PATTERN = "//.*";
     final static String COMMENT_BLOCK_PATTERN = "/\\*(?:.|[\\n\\r])*?\\*/";
-    final static String GLOBAL_AND_CHANNEL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:(?:(?:channel|global|globalChannel|response)(?:M|m)ap.put)|\\$(?:g|gc|c|r))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
-    final static String LOCAL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:(?:(?:channel|global|globalChannel|response|connector)(?:M|m)ap.put)|\\$(?:g|gc|c|r|co))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
-    final static int MATCHER_INDEX = 1;
+    final static String GLOBAL_AND_CHANNEL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:channel|global|globalChannel|response)Map\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!\\1).)*)\\1|(?<![A-Za-z0-9_$])\\$(?:g|gc|c|r)\\s*\\(\\s*(['\"])(((?!\\4).)*)\\4(?=\\s*,)";
+    final static String LOCAL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:channel|global|globalChannel|response|connector)Map\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!\\1).)*)\\1|(?<![A-Za-z0-9_$])\\$(?:g|gc|c|r|co)\\s*\\(\\s*(['\"])(((?!\\4).)*)\\4(?=\\s*,)";
+    final static int[] MATCHER_INDICES = new int[] { 2, 5 };
 
     public static void getStepVariables(Set<String> targetSet, Transformer transformer, boolean includeLocalVars) {
         getStepVariables(targetSet, transformer, includeLocalVars, -1);
     }
-    /* 
-     * Gets all steps that have variables that should show up in the global variable list
-     */
 
+    /*
+     * Gets all steps that have variables that should show up in the global
+     * variable list
+     */
     public static void getStepVariables(Set<String> targetSet, Transformer transformer, boolean includeLocalVars, int row) {
 
         // add only the global variables
@@ -56,7 +54,11 @@ public class VariableListUtil {
 
             Matcher matcher = pattern.matcher(scriptWithoutComments);
             while (matcher.find()) {
-                targetSet.add(matcher.group(1));
+                for (int index : MATCHER_INDICES) {
+                    if (matcher.group(index) != null) {
+                        targetSet.add(matcher.group(index));
+                    }
+                }
             }
             currentRow++;
         }
@@ -65,10 +67,11 @@ public class VariableListUtil {
     public static void getRuleVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars) {
         getRuleVariables(targetSet, connector, includeLocalVars, -1);
     }
-    /* 
-     * Gets all rules that have variables that should show up in the global variable list
-     */
 
+    /*
+     * Gets all rules that have variables that should show up in the global
+     * variable list
+     */
     public static void getRuleVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars, int row) {
 
         // add only the global variables
@@ -88,7 +91,11 @@ public class VariableListUtil {
 
             Matcher matcher = pattern.matcher(scriptWithoutComments);
             while (matcher.find()) {
-                targetSet.add(matcher.group(MATCHER_INDEX));
+                for (int index : MATCHER_INDICES) {
+                    if (matcher.group(index) != null) {
+                        targetSet.add(matcher.group(index));
+                    }
+                }
             }
             currentRow++;
         }
