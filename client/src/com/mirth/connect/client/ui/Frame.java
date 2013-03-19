@@ -3536,7 +3536,7 @@ public class Frame extends JXFrame {
     }
 
     public void doRemoveFilteredMessages() {
-        if (alertOption(this, "<html>Are you sure you would like to remove all currently filtered messages in this channel?<br>Channel must be stopped for unfinished messages to be removed.<br><font size='1'><br></font>WARNING: Queued messages will also be removed.</html>")) {
+        if (alertOption(this, "<html>Are you sure you would like to remove all currently filtered messages (including QUEUED) in this channel?<br>Channel must be stopped for unfinished messages to be removed.<br><font size='1'><br></font>WARNING: Removing a Source message will remove all of its destinations.</html>")) {
             final String workingId = startWorking("Removing messages...");
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -3572,7 +3572,8 @@ public class Frame extends JXFrame {
     	final Integer metaDataId = messageBrowser.getSelectedMetaDataId();
     	final Long messageId = messageBrowser.getSelectedMessageId();
     	final String channelId = messageBrowser.getChannelId();
-        if (alertOption(this, "Are you sure you would like to remove the selected message?\nChannel must be stopped for an unfinished message to be removed.")) {
+        
+    	if (alertOption(this, "<html>Are you sure you would like to remove the selected message?<br>Channel must be stopped for an unfinished message to be removed.<br><font size='1'><br></font>WARNING: Removing a Source message will remove all of its destinations.</html>")) {
             final String workingId = startWorking("Removing message...");
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {

@@ -21,7 +21,7 @@ public class RemoveMessagesDialog extends javax.swing.JDialog {
     }
 
     public void init(Set<DashboardStatus> selectedChannelStatuses) {
-        yesButton.requestFocusInWindow();
+        yesButton.requestFocus();
         clearStatsCheckBox.setSelected(true);
         includeRunningChannels.setSelected(false);
         channelIds = new HashSet<String>();
@@ -50,35 +50,22 @@ public class RemoveMessagesDialog extends javax.swing.JDialog {
 
         messageLabel = new javax.swing.JLabel();
         clearStatsCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        includeRunningChannels = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        buttonPanel = new javax.swing.JPanel();
         yesButton = new com.mirth.connect.client.ui.components.MirthButton();
         noButton = new com.mirth.connect.client.ui.components.MirthButton();
-        includeRunningChannels = new com.mirth.connect.client.ui.components.MirthCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Remove All Messages");
         setResizable(false);
 
-        messageLabel.setText("Are you sure you want to remove all messages for the selected stopped channel(s)?");
+        messageLabel.setText("Are you sure you want to remove all messages (including QUEUED) for the selected stopped channel(s)?");
 
         clearStatsCheckBox.setText("Clear statistics for affected channel(s)");
         clearStatsCheckBox.setFocusable(false);
         clearStatsCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 clearStatsCheckBoxActionPerformed(evt);
-            }
-        });
-
-        yesButton.setText("Yes");
-        yesButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                yesButtonActionPerformed(evt);
-            }
-        });
-
-        noButton.setText("No");
-        noButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                noButtonActionPerformed(evt);
             }
         });
 
@@ -90,27 +77,49 @@ public class RemoveMessagesDialog extends javax.swing.JDialog {
             }
         });
 
+        yesButton.setText("Yes");
+        yesButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        yesButton.setMaximumSize(new java.awt.Dimension(75, 22));
+        yesButton.setMinimumSize(new java.awt.Dimension(75, 22));
+        yesButton.setPreferredSize(new java.awt.Dimension(75, 22));
+        yesButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        yesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                yesButtonActionPerformed(evt);
+            }
+        });
+        buttonPanel.add(yesButton);
+
+        noButton.setText("No");
+        noButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        noButton.setMaximumSize(new java.awt.Dimension(75, 22));
+        noButton.setMinimumSize(new java.awt.Dimension(75, 22));
+        noButton.setPreferredSize(new java.awt.Dimension(75, 22));
+        noButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        noButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                noButtonActionPerformed(evt);
+            }
+        });
+        buttonPanel.add(noButton);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(messageLabel)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(includeRunningChannels, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(yesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(noButton, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(5, 5, 5))
-                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(includeRunningChannels, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(messageLabel)
                             .addComponent(clearStatsCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addGap(129, 129, 129))))
+            .addComponent(buttonPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -121,11 +130,9 @@ public class RemoveMessagesDialog extends javax.swing.JDialog {
                 .addComponent(includeRunningChannels, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(clearStatsCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(9, 9, 9)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(noButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(yesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(buttonPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(8, 8, 8))
         );
 
         pack();
@@ -174,6 +181,7 @@ public class RemoveMessagesDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_clearStatsCheckBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel buttonPanel;
     private com.mirth.connect.client.ui.components.MirthCheckBox clearStatsCheckBox;
     private com.mirth.connect.client.ui.components.MirthCheckBox includeRunningChannels;
     private javax.swing.JLabel messageLabel;
