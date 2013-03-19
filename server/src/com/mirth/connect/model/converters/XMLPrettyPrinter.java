@@ -132,7 +132,13 @@ public class XMLPrettyPrinter implements ContentHandler {
 	        if (atts != null) {
 	            int i = 0;
 	            while (i < atts.getLength()) {
-	                out.write(" " + atts.getLocalName(i) + "=\"" + atts.getValue(i) + "\"");
+	                out.write(" " + atts.getLocalName(i) + "=\"");
+	                if (encodeEntities){
+	                    out.write(XmlUtil.encode(atts.getValue(i).toCharArray(), 0, atts.getValue(i).length()));
+	                } else{
+	                    out.write(atts.getValue(i));
+	                }
+	                out.write("\"");
 	                i++;
 	            }                
 	        }            

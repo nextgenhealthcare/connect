@@ -18,20 +18,21 @@ import org.apache.xerces.parsers.SAXParser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
 
 public class EDIReader extends SAXParser {
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private String segmentDelim;
+    private String segmentDelimiter;
 
-    private String elementDelim;
+    private String elementDelimiter;
 
-    private String subelementDelim;
+    private String subelementDelimiter;
 
-    public EDIReader(String segmentDelim, String elementDelim, String subelementDelim) {
-        this.segmentDelim = segmentDelim;
-        this.elementDelim = elementDelim;
-        this.subelementDelim = subelementDelim;
+    public EDIReader(String segmentDelimiter, String elementDelimiter, String subelementDelimiter) {
+        this.segmentDelimiter = segmentDelimiter;
+        this.elementDelimiter = elementDelimiter;
+        this.subelementDelimiter = subelementDelimiter;
         return;
     }
 
@@ -57,13 +58,13 @@ public class EDIReader extends SAXParser {
         }
 
         // Tokenize the segments first
-        StringTokenizer segmentTokenizer = new StringTokenizer(message, segmentDelim);
+        StringTokenizer segmentTokenizer = new StringTokenizer(message, segmentDelimiter);
         int segmentCounter = 0;
 
         while (segmentTokenizer.hasMoreTokens()) {
             String segment = segmentTokenizer.nextToken();
             // loop through each segment and pull out the elements
-            StringTokenizer elementTokenizer = new StringTokenizer(segment, elementDelim, true);
+            StringTokenizer elementTokenizer = new StringTokenizer(segment, elementDelimiter, true);
 
             if (elementTokenizer.hasMoreTokens()) {
                 // Our XML element is named after the first element
@@ -75,7 +76,12 @@ public class EDIReader extends SAXParser {
                     } else {
                         documentHead = "EDIMessage";
                     }
-                    contentHandler.startElement("", documentHead, "", null);
+                    
+                    AttributesImpl attributesImpl = new AttributesImpl();
+                    attributesImpl.addAttribute("", "segmentDelimiter", "", "", segmentDelimiter);
+                    attributesImpl.addAttribute("", "elementDelimiter", "", "", elementDelimiter);
+                    attributesImpl.addAttribute("", "subelementDelimiter", "", "", subelementDelimiter);
+                    contentHandler.startElement("", documentHead, "", attributesImpl);
                 }
                 contentHandler.startElement("", segmentID, "", null);
 
@@ -92,7 +98,7 @@ public class EDIReader extends SAXParser {
                     String element = elementTokenizer.nextToken();
                     // System.out.println("EL:" + element);
                     // The naming is SEG.<field number>
-                    if (element.equals(elementDelim)) {
+                    if (element.equals(elementDelimiter)) {
                         if (lastsegElement) {
                             contentHandler.startElement("", segmentID + "." + field, "", null);
                             contentHandler.endElement("", segmentID + "." + field, "");
@@ -102,15 +108,15 @@ public class EDIReader extends SAXParser {
                     } else {
                         lastsegElement = false;
 
-                        if (element.indexOf(subelementDelim) > -1) {
+                        if (element.indexOf(subelementDelimiter) > -1) {
                             contentHandler.startElement("", segmentID + "." + field, "", null);
                             // check if we have sub-elements, if so add them
-                            StringTokenizer subelementTokenizer = new StringTokenizer(element, subelementDelim, true);
+                            StringTokenizer subelementTokenizer = new StringTokenizer(element, subelementDelimiter, true);
                             subelementID = 1;
                             lastsegSubelement = true;
                             while (subelementTokenizer.hasMoreTokens()) {
                                 String subelement = subelementTokenizer.nextToken();
-                                if (subelement.equals(subelementDelim)) {
+                                if (subelement.equals(subelementDelimiter)) {
                                     String subelementName = segmentID + "." + field + "." + subelementID;
                                     if (lastsegSubelement) {
                                         contentHandler.startElement("", subelementName, "", null);

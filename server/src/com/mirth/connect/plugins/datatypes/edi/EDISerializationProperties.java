@@ -27,11 +27,11 @@ public class EDISerializationProperties extends SerializationProperties {
     @Override
     public Map<String, DataTypePropertyDescriptor> getProperties() {
         Map<String, DataTypePropertyDescriptor> properties = new LinkedHashMap<String, DataTypePropertyDescriptor>();
-        
-        properties.put("elementDelimiter", new DataTypePropertyDescriptor(elementDelimiter, "Element Delimiter", "Characters that delimit the segments in the message.", PropertyEditorType.STRING));
-        properties.put("segmentDelimiter", new DataTypePropertyDescriptor(segmentDelimiter, "Segment Delimiter", "Characters that delimit the elements in the message.", PropertyEditorType.STRING));
+
+        properties.put("segmentDelimiter", new DataTypePropertyDescriptor(segmentDelimiter, "Segment Delimiter", "Characters that delimit the segments in the message.", PropertyEditorType.STRING));
+        properties.put("elementDelimiter", new DataTypePropertyDescriptor(elementDelimiter, "Element Delimiter", "Characters that delimit the elements in the message.", PropertyEditorType.STRING));
         properties.put("subelementDelimiter", new DataTypePropertyDescriptor(subelementDelimiter, "Subelement Delimiter", "Characters that delimit the subelements in the message.", PropertyEditorType.STRING));
-        properties.put("inferX12Delimiters", new DataTypePropertyDescriptor(inferX12Delimiters, "Infer X12 Delimiters", "Infer the standard X12 delimiters", PropertyEditorType.BOOLEAN));
+        properties.put("inferX12Delimiters", new DataTypePropertyDescriptor(inferX12Delimiters, "Infer X12 Delimiters", "This property only applies to X12 messages. If checked, the delimiters are inferred from the incoming message and the delimiter properties will not be used. ", PropertyEditorType.BOOLEAN));
         
         return properties;
     }

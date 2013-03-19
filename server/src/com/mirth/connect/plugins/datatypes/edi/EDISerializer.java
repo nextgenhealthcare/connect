@@ -34,30 +34,19 @@ import com.mirth.connect.util.StringUtil;
 public class EDISerializer implements IXMLSerializer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private EDISerializationProperties serializationProperties;
-	private EDIDeserializationProperties deserializationProperties;
 	
 	private String serializationSegmentDelimiter = null;
 	private String serializationElementDelimiter = null;
 	private String serializationSubelementDelimiter = null;
-	private String deserializationSegmentDelimiter = null;
-    private String deserializationElementDelimiter = null;
-    private String deserializationSubelementDelimiter = null;
 	
 	public EDISerializer(SerializerProperties properties) {
 	    serializationProperties = (EDISerializationProperties) properties.getSerializationProperties();
-	    deserializationProperties = (EDIDeserializationProperties) properties.getDeserializationProperties();
 	    
 	    if (serializationProperties != null) {
 	        serializationElementDelimiter = StringUtil.unescape(serializationProperties.getElementDelimiter());
 	        serializationSubelementDelimiter = StringUtil.unescape(serializationProperties.getSubelementDelimiter());
             serializationSegmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
 	    }
-	    
-	    if (deserializationProperties != null) {
-	        deserializationElementDelimiter = StringUtil.unescape(deserializationProperties.getElementDelimiter());
-            deserializationSubelementDelimiter = StringUtil.unescape(deserializationProperties.getSubelementDelimiter());
-            deserializationSegmentDelimiter = StringUtil.unescape(deserializationProperties.getSegmentDelimiter());
-        }
 	}
 	
     @Override
@@ -66,10 +55,6 @@ public class EDISerializer implements IXMLSerializer {
         
         if (toXml) {
             if (!serializationProperties.getSegmentDelimiter().equals("~") || !serializationProperties.getElementDelimiter().equals("*") || !serializationProperties.getSubelementDelimiter().equals(":") || !serializationProperties.isInferX12Delimiters()) {
-                serializationRequired = true;
-            }
-        } else {
-            if (!deserializationProperties.getSegmentDelimiter().equals("~") || !deserializationProperties.getElementDelimiter().equals("*") || !deserializationProperties.getSubelementDelimiter().equals(":")) {
                 serializationRequired = true;
             }
         }
@@ -90,7 +75,7 @@ public class EDISerializer implements IXMLSerializer {
 		} catch (SAXException e) {
 			throw new SerializerException(e.getMessage(), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
 		}
-		EDIXMLHandler handler = new EDIXMLHandler(deserializationSegmentDelimiter, deserializationElementDelimiter, deserializationSubelementDelimiter);
+		EDIXMLHandler handler = new EDIXMLHandler();
 		xr.setContentHandler(handler);
 		xr.setErrorHandler(handler);
 		try {

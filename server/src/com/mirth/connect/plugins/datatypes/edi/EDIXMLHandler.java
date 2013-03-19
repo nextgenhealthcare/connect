@@ -15,9 +15,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class EDIXMLHandler extends DefaultHandler {
-    private String segmentDelimeter;
-    private String elementDelimeter;
-    private String subelementDelimeter;
+    private String segmentDelimiter;
+    private String elementDelimiter;
+    private String subelementDelimiter;
 
     private enum Location {
         DOCUMENT, SEGMENT, ELEMENT, SUBELEMENT
@@ -32,11 +32,8 @@ public class EDIXMLHandler extends DefaultHandler {
 
     private StringBuilder output = new StringBuilder();
 
-    public EDIXMLHandler(String segmentDelimeter, String elementDelimeter, String subelementDelimeter) {
+    public EDIXMLHandler() {
         super();
-        this.segmentDelimeter = segmentDelimeter;
-        this.elementDelimeter = elementDelimeter;
-        this.subelementDelimeter = subelementDelimeter;
     }
 
     public void startDocument() {
@@ -49,6 +46,19 @@ public class EDIXMLHandler extends DefaultHandler {
 
     public void startElement(String uri, String name, String qName, Attributes atts) {
         if (sawHeader == false) {
+            segmentDelimiter = atts.getValue("segmentDelimiter");
+            elementDelimiter = atts.getValue("elementDelimiter");
+            subelementDelimiter = atts.getValue("subelementDelimiter");
+            
+            if (segmentDelimiter == null) {
+                segmentDelimiter = "~";
+            }
+            if (elementDelimiter == null) {
+                elementDelimiter = "*";
+            }
+            if (subelementDelimiter == null) {
+                subelementDelimiter = ":";
+            }
             sawHeader = true;
         } else {
             if (currentLocation.equals(Location.DOCUMENT)) {
@@ -71,13 +81,13 @@ public class EDIXMLHandler extends DefaultHandler {
                     int currentId = NumberUtils.toInt(currentNameArray[1]);
 
                     for (int i = 1; i < (currentId - previousId); i++) {
-                        output.append(elementDelimeter);
+                        output.append(elementDelimiter);
                     }
 
                     previousSegmentNameArray = currentNameArray;
                 }
                 
-                output.append(elementDelimeter);
+                output.append(elementDelimiter);
                 currentLocation = Location.ELEMENT;
                 lastInSubelement = false;
                 
@@ -96,14 +106,14 @@ public class EDIXMLHandler extends DefaultHandler {
                     int currentId = NumberUtils.toInt(currentNameArray[2]);
 
                     for (int i = 1; i < (currentId - previousId); i++) {
-                        output.append(subelementDelimeter);
+                        output.append(subelementDelimiter);
                     }
 
                     previousElementNameArray = currentNameArray;
                 }
                 
                 if (lastInSubelement) {
-                    output.append(subelementDelimeter);
+                    output.append(subelementDelimiter);
                 }
 
                 currentLocation = Location.SUBELEMENT;
@@ -114,7 +124,7 @@ public class EDIXMLHandler extends DefaultHandler {
 
     public void endElement(String uri, String name, String qName) {
         if (currentLocation.equals(Location.SEGMENT)) {
-            output.append(segmentDelimeter);
+            output.append(segmentDelimiter);
             currentLocation = Location.DOCUMENT;
         } else if (currentLocation.equals(Location.ELEMENT)) {
             currentLocation = Location.SEGMENT;

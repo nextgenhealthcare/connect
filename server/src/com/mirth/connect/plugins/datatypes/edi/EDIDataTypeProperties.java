@@ -6,7 +6,6 @@ public class EDIDataTypeProperties extends DataTypeProperties {
 
     public EDIDataTypeProperties() {
         serializationProperties = new EDISerializationProperties();
-        deserializationProperties = new EDIDeserializationProperties();
     }
     
 }

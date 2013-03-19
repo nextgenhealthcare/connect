@@ -436,6 +436,8 @@ public class TreePanel extends javax.swing.JPanel {
         } else {
             top = new MirthTreeNode(messageName);
         }
+        
+        processAttributes(element, top);
 
         NodeList children = element.getChildNodes();
         
