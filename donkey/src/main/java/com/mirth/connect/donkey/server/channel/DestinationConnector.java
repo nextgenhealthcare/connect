@@ -439,12 +439,19 @@ public abstract class DestinationConnector extends Connector implements Runnable
         message.setResponse(responseContent);
 
         ThreadUtils.checkInterruptedStatus();
-        message.setStatus(Status.PENDING);
 
-        dao.updateStatus(message, previousStatus);
-        dao.commit(storageSettings.isDurable());
+        /*
+         * If the response transformer (and serializer) will run, change the current status to
+         * PENDING so it can be recovered. Still call runResponseTransformer so that
+         * transformWithoutSerializing can still run
+         */
+        if (responseTransformerExecutor.getResponseTransformer() != null) {
+            message.setStatus(Status.PENDING);
+            dao.updateStatus(message, previousStatus);
+            dao.commit(storageSettings.isDurable());
+            previousStatus = message.getStatus();
+        }
 
-        previousStatus = message.getStatus();
         try {
         	// Perform transformation
             responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings);  
