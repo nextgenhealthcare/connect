@@ -21,38 +21,25 @@ public class StatusUpdater implements Runnable {
     private static Preferences userPreferences;
     Frame parent;
     int refreshRate;
-    boolean interrupted;
 
     public StatusUpdater() {
         this.parent = PlatformUI.MIRTH_FRAME;
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
-        interrupted = false;
     }
 
     public void run() {
-        try {
-            while (!interrupted) {
-                while (parent.isRefreshingStatuses()) {
-                    Thread.sleep(100);
-                }
-
-                refreshRate = userPreferences.getInt("intervalTime", DEFAULT_INTERVAL_TIME) * 1000;
+        while (!Thread.currentThread().isInterrupted()) {
+            refreshRate = userPreferences.getInt("intervalTime", DEFAULT_INTERVAL_TIME) * 1000;
+            
+            try {
                 Thread.sleep(refreshRate);
-
-                if (interrupted) {
-                    return;
-                }
-
-                if (parent.currentContentPage != null && parent.currentContentPage == parent.dashboardPanel) {
-                    parent.doRefreshStatuses(false);
-                }
+            } catch (InterruptedException e) {
+                return;
             }
-        } catch (InterruptedException e) {
-            // should happen when closed.
-        }
-    }
 
-    public void interruptThread() {
-        interrupted = true;
+            if (parent.currentContentPage != null && parent.currentContentPage == parent.dashboardPanel) {
+                parent.doRefreshStatuses(false);
+            }
+        }
     }
 }

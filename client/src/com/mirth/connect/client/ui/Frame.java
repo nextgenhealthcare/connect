@@ -40,6 +40,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -176,9 +179,9 @@ public class Frame extends JXFrame {
     public JPopupMenu extensionsPopupMenu;
     
     public JXTitledPanel rightContainer;
-    private Thread statusUpdater;
+    private static ExecutorService statusUpdaterExecutor = Executors.newSingleThreadExecutor();
+    private Future<?> statusUpdaterJob = null;
     public static Preferences userPreferences;
-    private StatusUpdater su;
     private boolean connectionError;
     private ArrayList<CharsetEncodingInformation> availableCharsetEncodings = null;
     private List<String> charsetEncodings = null;
@@ -421,9 +424,6 @@ public class Frame extends JXFrame {
         channelEditPanel = new ChannelSetup();
         login.setStatus("Loading message browser...");
         messageBrowser = new MessageBrowser();
-        su = new StatusUpdater();
-        statusUpdater = new Thread(su);
-        statusUpdater.start();
 
         // DEBUGGING THE UIDefaults:
 
@@ -569,6 +569,16 @@ public class Frame extends JXFrame {
 
         contentPane.getViewport().add(contentPageObject);
         currentContentPage = contentPageObject;
+        
+        // Always cancel the current job if it is still running.
+        if (statusUpdaterJob != null && !statusUpdaterJob.isDone()) {
+            statusUpdaterJob.cancel(true);
+        }
+        
+        // Start a new status updater job if the current content page is the dashboard
+        if (currentContentPage == dashboardPanel) {
+            statusUpdaterJob = statusUpdaterExecutor.submit(new StatusUpdater());
+        }
     }
 
     /**
@@ -1063,8 +1073,8 @@ public class Frame extends JXFrame {
 
             if (message.indexOf("Forbidden") != -1 || message.indexOf("reset") != -1) {
                 connectionError = true;
-                if (currentContentPage == dashboardPanel) {
-                    su.interruptThread();
+                if (statusUpdaterJob != null) {
+                    statusUpdaterJob.cancel(true);
                 }
                 alertWarning(parentComponent, "Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
                 if (!exportChannelOnError()) {
@@ -1076,8 +1086,8 @@ public class Frame extends JXFrame {
                 return;
             } else if (message.startsWith("java.net.ConnectException: Connection refused")) {
                 connectionError = true;
-                if (currentContentPage == dashboardPanel) {
-                    su.interruptThread();
+                if (statusUpdaterJob != null) {
+                    statusUpdaterJob.cancel(true);
                 }
                 alertWarning(parentComponent, "The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
                 if (!exportChannelOnError()) {
@@ -1843,9 +1853,11 @@ public class Frame extends JXFrame {
             return false;
         }
 
-        if (currentContentPage == dashboardPanel) {
-            su.interruptThread();
-        } else if (currentContentPage == messageBrowser) {
+        if (statusUpdaterJob != null) {
+            statusUpdaterJob.cancel(true);
+        }
+        
+        if (currentContentPage == messageBrowser) {
             mirthClient.getServerConnection().abort(messageBrowser.getAbortOperations());
         }
 
