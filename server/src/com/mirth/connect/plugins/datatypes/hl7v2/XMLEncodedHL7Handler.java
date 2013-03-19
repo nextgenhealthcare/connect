@@ -17,7 +17,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-
 public class XMLEncodedHL7Handler extends DefaultHandler {
     private Logger logger = Logger.getLogger(this.getClass());
     private static final String ID_DELIMETER = ".";
@@ -32,6 +31,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
     private int rootLevel = -1;
 
     private int previousDelimeterCount = -1;
+    private int previousDelimiterLength = 1;
     private String[] previousFieldNameArray;
     private String[] previousComponentNameArray;
     private String[] previousSubcomponentNameArray;
@@ -136,6 +136,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
 
             for (int i = 1; i < (currentComponentId - previousComponentId); i++) {
                 output.append(componentSeparator);
+                previousDelimiterLength = componentSeparator.length();
             }
 
             previousComponentNameArray = localNameArray;
@@ -154,6 +155,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
 
             for (int i = 1; i < (currentSubcomponentId - previousSubcomponentId); i++) {
                 output.append(subcomponentSeparator);
+                previousDelimiterLength = subcomponentSeparator.length();
             }
 
             previousSubcomponentNameArray = localNameArray;
@@ -199,11 +201,11 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
                     fieldSeparator = String.valueOf(output.charAt(output.length() - 1));
                     return;
                 } else if ((localNameArray[1].length() == 1) && (localNameArray[1].charAt(0) == '2')) {
-                    CharSequence separators = output.subSequence(output.length() - 4, output.length());
+                    CharSequence separators = output.subSequence(4, output.length());
                     componentSeparator = String.valueOf(separators.charAt(0));
                     repetitionSeparator = String.valueOf(separators.charAt(1));
-                    escapeCharacter = String.valueOf(separators.charAt(2));
-                    subcomponentSeparator = String.valueOf(separators.charAt(3));
+                    escapeCharacter = separators.length() > 2 ? String.valueOf(separators.charAt(2)) : "";
+                    subcomponentSeparator = separators.length() > 3 ? String.valueOf(separators.charAt(3)) : "";
                 }
             }
         }
@@ -216,7 +218,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
          */
         if (currentDelimeterCount > previousDelimeterCount) {
             previousDelimeterCount = currentDelimeterCount;
-        } else if (currentDelimeterCount < previousDelimeterCount) {
+        } else if (currentDelimeterCount < previousDelimeterCount && previousDelimiterLength > 0) {
             output.deleteCharAt(output.length() - 1);
             previousDelimeterCount = currentDelimeterCount;
         }
@@ -242,9 +244,11 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
                     break;
                 case 2:
                     output.append(componentSeparator);
+                    previousDelimiterLength = componentSeparator.length();
                     break;
                 case 3:
                     output.append(subcomponentSeparator);
+                    previousDelimiterLength = subcomponentSeparator.length();
                     break;
                 default:
                     break;

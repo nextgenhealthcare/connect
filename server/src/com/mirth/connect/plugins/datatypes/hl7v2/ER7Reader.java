@@ -29,8 +29,8 @@ public class ER7Reader extends SAXParser {
     private static final String DEFAULT_FIELD_SEPARATOR = "|";
     private static final String DEFAULT_COMPONENT_SEPARATOR = "^";
     private static final String DEFAULT_REPETITION_SEPARATOR = "~";
-    private static final String DEFAULT_ESCAPE_CHARACTER = "\\";
-    private static final String DEFAULT_SUBCOMPONENT_TERMINATOR = "&";
+    private static final String DEFAULT_ESCAPE_CHARACTER = "";
+    private static final String DEFAULT_SUBCOMPONENT_TERMINATOR = "";
     public static final String MESSAGE_ROOT_ID = "HL7Message";
 
     public ER7Reader(boolean handleRepetitions, boolean handleSubcomponents, String segmentDelimiter) {
@@ -175,8 +175,16 @@ public class ER7Reader extends SAXParser {
                     contentHandler.endElement("", segmentId + "." + (fieldId), null);
                     fieldId++;
                     contentHandler.startElement("", segmentId + "." + fieldId, "", null);
-                    char[] specialCharacters = new char[] { componentSeparator.charAt(0), repetitionSeparator.charAt(0), escapeCharacter.charAt(0), subcomponentSeparator.charAt(0) };
-                    contentHandler.characters(specialCharacters, 0, specialCharacters.length);
+
+                    String specialCharacters = "" + componentSeparator.charAt(0) + repetitionSeparator.charAt(0);
+                    if (!escapeCharacter.isEmpty()) {
+                        specialCharacters += escapeCharacter.charAt(0);
+                    }
+                    if (!subcomponentSeparator.isEmpty()) {
+                        specialCharacters += subcomponentSeparator.charAt(0);
+                    }
+
+                    contentHandler.characters(specialCharacters.toCharArray(), 0, specialCharacters.length());
                     contentHandler.endElement("", segmentId + "." + (fieldId), null);
                 } else if (enteredHeader && (fieldId == 2)) {
                     // do nothing
@@ -271,7 +279,7 @@ public class ER7Reader extends SAXParser {
     }
 
     private void handleComponent(ContentHandler contentHandler, String subcomponentSeparator, String segmentId, int fieldId, int componentId, String component) throws SAXException {
-        if (handleSubcomponents && (component.indexOf(subcomponentSeparator) > -1)) {
+        if (handleSubcomponents && !subcomponentSeparator.isEmpty() && (component.indexOf(subcomponentSeparator) > -1)) {
             contentHandler.startElement("", segmentId + "." + fieldId + "." + componentId, "", null);
             // check if we have subcomponents, if so add them
             StringTokenizer subcomponentTokenizer = new StringTokenizer(component, subcomponentSeparator, true);
