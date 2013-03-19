@@ -53,18 +53,18 @@ public class Response implements Serializable {
     public Response() {}
 
     public Response(String message) {
-        this.message = message;
+        setMessage(message);
     }
 
     public Response(Status newMessageStatus, String message) {
         this.newMessageStatus = newMessageStatus;
-        this.message = message;
+        setMessage(message);
     }
 
     public Response(Status newMessageStatus, String message, String error) {
         this.newMessageStatus = newMessageStatus;
-        this.message = message;
-        this.setError(error);
+        setMessage(message);
+        setError(error);
     }
 
     public String getMessage() {
@@ -72,7 +72,12 @@ public class Response implements Serializable {
     }
 
     public void setMessage(String message) {
-        this.message = message;
+        /*
+         * message is not allowed to be null because it is stored in the database as a string and
+         * would cause a null pointer exception in the serializer. This setter must be used to set
+         * the message, even in the constructors.
+         */
+        this.message = message == null ? "" : message;
     }
 
     public Status getNewMessageStatus() {
@@ -111,7 +116,7 @@ public class Response implements Serializable {
 
         return false;
     }
-    
+
     public void fixStatus(boolean queueEnabled) {
         Status status = getNewMessageStatus();
 

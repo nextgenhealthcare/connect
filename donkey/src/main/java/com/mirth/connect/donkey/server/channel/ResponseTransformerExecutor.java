@@ -9,6 +9,8 @@
 
 package com.mirth.connect.donkey.server.channel;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
@@ -65,7 +67,6 @@ public class ResponseTransformerExecutor {
         String processedResponseContent;
         
         if (responseTransformer != null){
-        	
 	        // Convert the content to xml
 	        String serializedContent = inbound.getSerializer().toXML(response.getMessage());
 	        
@@ -99,7 +100,7 @@ public class ResponseTransformerExecutor {
         } else {
 	        response.fixStatus(queueEnabled);
 	        
-        	if (response.getMessage() != null) {
+        	if (StringUtils.isNotBlank(response.getMessage())) {
 	        	// Since this condition can only occur if the inbound and outbound datatypes are the same, it is safe to pass the outbound serializer to the inbound serializer 
 	            // so that it can compare/use the properties from both. The purpose of this method is to allow the optimization of not serializing, but still modifying the message in certain circumstances.
 	            // It should NOT be used anywhere other than here.
