@@ -202,6 +202,8 @@ public class TcpDispatcher extends DestinationConnector {
                             if (responseStatus == Status.ERROR) {
                                 responseError = "NACK sent from receiver: " + responseData;
                             }
+                        } else {
+                            responseStatus = Status.SENT;
                         }
                     } else {
                         responseData = "Response was not received.";
