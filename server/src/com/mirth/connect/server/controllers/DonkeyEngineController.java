@@ -136,6 +136,10 @@ public class DonkeyEngineController implements EngineController {
         if (channel == null) {
             throw new DeployException("Unable to deploy channel, channel ID " + channelId + " not found.");
         }
+        
+        if (!channel.isEnabled()) {
+            return;
+        }
 
         if (donkey.getDeployedChannels().containsKey(channelId)) {
             undeployChannel(channelId, context);
@@ -153,30 +157,28 @@ public class DonkeyEngineController implements EngineController {
             channelPlugin.deploy(context);
         }
 
-        if (donkeyChannel.isEnabled()) {
-            try {
-                scriptController.compileChannelScripts(channel);
-            } catch (ScriptCompileException e) {
-                throw new StartException("Failed to deploy channel " + channelId + ".", e);
-            }
-
-            clearGlobalChannelMap(channel);
-
-            try {
-                scriptController.executeChannelDeployScript(channel.getId());
-            } catch (Exception e) {
-                throw new StartException("Failed to deploy channel " + channelId + ".", e);
-            }
-            channelController.putDeployedChannelInCache(channel);
-
-            for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
-                channelPlugin.deploy(channel, context);
-            }
-
-            donkeyChannel.setRevision(channel.getRevision());
-
-            donkey.deployChannel(donkeyChannel);
+        try {
+            scriptController.compileChannelScripts(channel);
+        } catch (ScriptCompileException e) {
+            throw new StartException("Failed to deploy channel " + channelId + ".", e);
         }
+
+        clearGlobalChannelMap(channel);
+
+        try {
+            scriptController.executeChannelDeployScript(channel.getId());
+        } catch (Exception e) {
+            throw new StartException("Failed to deploy channel " + channelId + ".", e);
+        }
+        channelController.putDeployedChannelInCache(channel);
+
+        for (ChannelPlugin channelPlugin : extensionController.getChannelPlugins().values()) {
+            channelPlugin.deploy(channel, context);
+        }
+
+        donkeyChannel.setRevision(channel.getRevision());
+
+        donkey.deployChannel(donkeyChannel);
     }
 
     @Override
