@@ -162,6 +162,8 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
 							DataTypePropertiesTableNode tableNode = (DataTypePropertiesTableNode) path.getLastPathComponent();
 							
 							tableModel.resetToDefault(tableNode);
+							
+							updateDefaultButton();
 						}
 					 
 					});
