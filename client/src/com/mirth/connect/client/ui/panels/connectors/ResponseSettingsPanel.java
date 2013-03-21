@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 
 import javax.swing.DefaultComboBoxModel;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -33,7 +35,23 @@ import com.mirth.connect.model.Step;
 
 public class ResponseSettingsPanel extends javax.swing.JPanel {
 
-    public final String RESULT_PATTERN = "responseMap\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!\\1).)*)\\1|\\$r\\s*\\(\\s*(['\"])(((?!\\4).)*)\\4(?=\\s*,)";
+    /*
+     * This regular expression uses alternation to capture either the
+     * "responseMap.put" syntax, or the "$r('key'," syntax. Kleene closures for
+     * whitespace are used in between every method token since it is legal
+     * JavaScript. Instead of checking ['"] once at the beginning and end, it
+     * checks once and then uses a backreference later on. That way you can
+     * capture keys like "Foo's Bar". It also accounts for backslashes before
+     * any subsequent backreferences so that "Foo\"s Bar" would still be
+     * captured. In the "$r" case, the regular expression also performs a
+     * lookahead to ensure that there is a comma after the first argument,
+     * indicating that it is the "put" version of the method, not the "get"
+     * version.
+     */
+    private final String RESULT_PATTERN = "responseMap\\s*\\.\\s*put\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\1).)*)(?<!\\\\)\\1|\\$r\\s*\\(\\s*(['\"])(((?!(?<!\\\\)\\4).)*)(?<!\\\\)\\4(?=\\s*,)";
+    private final static int FULL_NAME_MATCHER_INDEX = 2;
+    private final static int SHORT_NAME_MATCHER_INDEX = 5;
+
     private Frame parent;
     private List<String> queueOnRespondFromNames;
     private List<String> queueOffRespondFromNames;
@@ -95,11 +113,7 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
             if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)) {
                 Matcher matcher = pattern.matcher(step.getScript());
                 while (matcher.find()) {
-                    String key = matcher.group(2);
-                    if (key == null) {
-                        key = matcher.group(5);
-                    }
-                    variables.add(key);
+                    variables.add(getMapKey(matcher));
                 }
             } else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
                 if (data.containsKey(UIConstants.IS_GLOBAL)) {
@@ -117,11 +131,7 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
             if (script != null && script.length() > 0) {
                 Matcher matcher = pattern.matcher(script);
                 while (matcher.find()) {
-                    String key = matcher.group(2);
-                    if (key == null) {
-                        key = matcher.group(5);
-                    }
-                    variables.add(key);
+                    variables.add(getMapKey(matcher));
                 }
             }
         }
@@ -149,6 +159,21 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
         boolean valid = true;
 
         return valid;
+    }
+
+    private String getMapKey(Matcher matcher) {
+        /*
+         * Since multiple capturing groups are used and the final key could
+         * reside on either side of the alternation, we use two specific group
+         * indices (2 and 5), one for the full "responseMap" case and one for
+         * the short "$r" case. We also replace JavaScript-specific escape
+         * sequences like \', \", etc.
+         */
+        String key = matcher.group(FULL_NAME_MATCHER_INDEX);
+        if (key == null) {
+            key = matcher.group(SHORT_NAME_MATCHER_INDEX);
+        }
+        return StringEscapeUtils.unescapeJavaScript(key);
     }
 
     public void resetInvalidProperties() {}
@@ -180,10 +205,7 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
         responseLabel.setMinimumSize(new java.awt.Dimension(62, 15));
         responseLabel.setPreferredSize(new java.awt.Dimension(62, 15));
 
-        responseComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] {
-                "Auto-generate (After source transformer)", "None",
-                "Auto-generate (Before processing)", "Auto-generate (After source transformer)",
-                "Auto-generate (Destinations completed)", "Post-processor", "Destination 1" }));
+        responseComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Auto-generate (After source transformer)", "None", "Auto-generate (Before processing)", "Auto-generate (After source transformer)", "Auto-generate (Destinations completed)", "Post-processor", "Destination 1" }));
         responseComboBox.setToolTipText("<html>Select a destination's response, the postprocessor return value, or a response map variable.<br/>Select <b>\"Auto-generate\"</b> to send a response generated by the inbound data type using the raw message:<br/>&nbsp;- <b>Before processing:</b> Response generated before the channel processes the message (SENT status)<br/>&nbsp;- <b>After source transformer:</b> Response generated after the channel processes the message (source status)<br/>&nbsp;- <b>Destinations completed:</b> Response generated after the channel processes the message, with a status<br/>&nbsp;&nbsp;&nbsp;&nbsp;based on the destination statuses, using a precedence of ERROR, QUEUED, SENT, FILTERED<br/></html>");
         responseComboBox.setMinimumSize(new java.awt.Dimension(150, 22));
         responseComboBox.setPreferredSize(new java.awt.Dimension(212, 22));
@@ -191,8 +213,7 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
         sourceQueueLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         sourceQueueLabel.setText("Source Queue:");
 
-        sourceQueueComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] {
-                "OFF (Respond after processing)", "ON (Respond before processing)" }));
+        sourceQueueComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "OFF (Respond after processing)", "ON (Respond before processing)" }));
         sourceQueueComboBox.setToolTipText("<html>Selecting OFF will process the message before sending the response (can use response from destinations)<br>Selecting ON will queue messages and immediately send a response (cannot use response from destinations)</html>");
         sourceQueueComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
