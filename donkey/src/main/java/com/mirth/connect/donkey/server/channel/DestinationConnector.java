@@ -207,7 +207,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
      */
     public void process(DonkeyDao dao, ConnectorMessage message, Status previousStatus) throws InterruptedException {
         ConnectorProperties connectorProperties = null;
-        boolean attemptSend = (!isQueueEnabled() || queueProperties.isSendFirst());
+        boolean attemptSend = (!isQueueEnabled() || queueProperties.isSendFirst()) && queue.size() == 0;
 
         // we need to get the connector envelope if we will be attempting to send the message     
         if (attemptSend) {
