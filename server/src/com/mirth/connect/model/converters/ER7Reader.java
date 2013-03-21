@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -190,16 +190,17 @@ public class ER7Reader extends SAXParser {
                     contentHandler.endElement("", segmentId + "." + (fieldId), null);
                     fieldId++;
                     contentHandler.startElement("", segmentId + "." + fieldId, "", null);
-                    
-                    String specialCharacters = "" + componentSeparator.charAt(0) + repetitionSeparator.charAt(0);
-                    if (!escapeCharacter.isEmpty()) {
-                        specialCharacters += escapeCharacter.charAt(0);
-                    }
+
+                    char[] specialCharacters;
                     if (!subcomponentSeparator.isEmpty()) {
-                        specialCharacters += subcomponentSeparator.charAt(0);
+                        specialCharacters = new char[] { componentSeparator.charAt(0), repetitionSeparator.charAt(0), escapeCharacter.charAt(0), subcomponentSeparator.charAt(0) };
+                    } else if (!escapeCharacter.isEmpty()) {
+                        specialCharacters = new char[] { componentSeparator.charAt(0), repetitionSeparator.charAt(0), escapeCharacter.charAt(0), };
+                    } else {
+                        specialCharacters = new char[] { componentSeparator.charAt(0), repetitionSeparator.charAt(0), };
                     }
 
-                    contentHandler.characters(specialCharacters.toCharArray(), 0, specialCharacters.length());
+                    contentHandler.characters(specialCharacters, 0, specialCharacters.length);
                     contentHandler.endElement("", segmentId + "." + (fieldId), null);
                 } else if (enteredHeader && (fieldId == 2)) {
                     // do nothing
