@@ -72,6 +72,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     private FileReceiverProperties connectorProperties;
     private String charsetEncoding;
     private String batchScriptId;
+    private URI uri;
 
     @Override
     public void onDeploy() throws DeployException {
@@ -83,16 +84,15 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         connectorProperties.setHost(replacer.replaceValues(connectorProperties.getHost(), getChannelId()));
         connectorProperties.setUsername(replacer.replaceValues(connectorProperties.getUsername(), getChannelId()));
         connectorProperties.setPassword(replacer.replaceValues(connectorProperties.getPassword(), getChannelId()));
-        
+
         this.fileConnector = new FileConnector(getChannelId(), connectorProperties);
 
-        URI uri;
         try {
-            uri = getEndpointURI();
+            uri = fileConnector.getEndpointURI(connectorProperties.getHost());
         } catch (URISyntaxException e1) {
             throw new DeployException("Error creating URI.", e1);
         }
-        
+
         this.readDir = uri.getPath();
         this.moveDir = connectorProperties.getMoveToDirectory();
         this.moveToPattern = connectorProperties.getMoveToPattern();
@@ -132,8 +132,8 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         setRoutingError(false);
 
         try {
-            FileSystemConnection con = fileConnector.getConnection(getEndpointURI(), null);
-            fileConnector.releaseConnection(getEndpointURI(), con, null);
+            FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
+            fileConnector.releaseConnection(uri, con, null, connectorProperties);
         } catch (Exception e) {
             throw new StartException(e.getMessage(), e);
         }
@@ -146,7 +146,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         } catch (FileConnectorException e) {
             throw new StopException("Failed to stop File Connector", e);
         }
-        
+
         monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DISCONNECTED);
     }
 
@@ -169,7 +169,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 if (isTerminated()) {
                     return;
                 }
-                
+
                 //
                 if (!routingError && !files[i].isDirectory()) {
                     monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY);
@@ -209,7 +209,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             });
         }
     }
-    
+
     public synchronized void processFile(FileInfo file) {
         boolean checkFileAge = connectorProperties.isCheckFileAge();
         if (checkFileAge) {
@@ -266,7 +266,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                         }
 
                         rawMessage.setChannelMap(channelMap);
-                        
+
                         DispatchResult dispatchResult = null;
                         try {
                             dispatchResult = dispatchRawMessage(rawMessage);
@@ -337,12 +337,11 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
 
     /** Process a single file as a batched message source */
     private void processBatch(FileInfo file) throws Exception {
-        URI uri = getEndpointURI();
         DataType dataType = getInboundDataType();
 
         if (dataType.getBatchAdaptor() != null) {
             BatchAdaptor batchAdaptor = dataType.getBatchAdaptor();
-            FileSystemConnection con = fileConnector.getConnection(uri, null);
+            FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
             Reader in = null;
             try {
                 in = new InputStreamReader(con.readFile(file.getName(), readDir), charsetEncoding);
@@ -352,7 +351,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                     in.close();
                 }
                 con.closeReadFile();
-                fileConnector.releaseConnection(uri, con, null);
+                fileConnector.releaseConnection(uri, con, null, connectorProperties);
             }
         } else {
             throw new Exception("Data type " + dataType.getType() + " does not support batch processing.");
@@ -361,8 +360,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
 
     /** Delete a file */
     private boolean deleteFile(String name, String dir, boolean mayNotExist) throws Exception {
-        URI uri = getEndpointURI();
-        FileSystemConnection con = fileConnector.getConnection(uri, null);
+        FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
         try {
             con.delete(name, dir, mayNotExist);
             return true;
@@ -374,13 +372,12 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 return false;
             }
         } finally {
-            fileConnector.releaseConnection(uri, con, null);
+            fileConnector.releaseConnection(uri, con, null, connectorProperties);
         }
     }
 
     private boolean renameFile(String fromName, String fromDir, String toName, String toDir) throws Exception {
-        URI uri = getEndpointURI();
-        FileSystemConnection con = fileConnector.getConnection(uri, null);
+        FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
         try {
 
             con.move(fromName, fromDir, toName, toDir);
@@ -389,14 +386,13 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
 
             return false;
         } finally {
-            fileConnector.releaseConnection(uri, con, null);
+            fileConnector.releaseConnection(uri, con, null, connectorProperties);
         }
     }
 
     // Returns the contents of the file in a byte array.
     private byte[] getBytesFromFile(FileInfo file) throws Exception {
-        URI uri = getEndpointURI();
-        FileSystemConnection con = fileConnector.getConnection(uri, null);
+        FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
 
         try {
             InputStream is = con.readFile(file.getName(), readDir);
@@ -434,7 +430,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             con.closeReadFile();
             return bytes;
         } finally {
-            fileConnector.releaseConnection(uri, con, null);
+            fileConnector.releaseConnection(uri, con, null, connectorProperties);
         }
     }
 
@@ -445,13 +441,12 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
      * @throws Exception
      */
     FileInfo[] listFiles() throws Exception {
-        URI uri = getEndpointURI();
-        FileSystemConnection con = fileConnector.getConnection(uri, null);
+        FileSystemConnection con = fileConnector.getConnection(uri, null, connectorProperties);
 
         try {
             return con.listFiles(readDir, filenamePattern, connectorProperties.isRegex(), connectorProperties.isIgnoreDot()).toArray(new FileInfo[0]);
         } finally {
-            fileConnector.releaseConnection(uri, con, null);
+            fileConnector.releaseConnection(uri, con, null, connectorProperties);
         }
     }
 
@@ -463,45 +458,19 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         this.routingError = routingError;
     }
 
-    private URI getEndpointURI() throws URISyntaxException {
-        StringBuilder sspBuilder = new StringBuilder();
-        FileScheme scheme = connectorProperties.getScheme();
-        String host = connectorProperties.getHost();
-        
-        sspBuilder.append("//");
-        if (scheme == FileScheme.FILE && StringUtils.isNotBlank(host) && host.length() >= 3 && host.substring(1, 3).equals(":/")) {
-            sspBuilder.append("/");
-        }
-        
-        sspBuilder.append(host);
-        
-        String schemeName;
-        if (scheme == FileScheme.WEBDAV) {
-            if (connectorProperties.isSecure()) {
-                schemeName = "https";
-            } else {
-                schemeName = "http";
-            }
-        } else {
-            schemeName = scheme.getDisplayName();
-        }
-        
-        return new URI(schemeName, sspBuilder.toString(), null);
-    }
-
     @Override
     public boolean processBatchMessage(String message) throws BatchMessageProcessorException {
         if (isTerminated()) {
             return false;
         }
-        
+
         Map<String, Object> channelMap = new HashMap<String, Object>();
         channelMap.put("originalFilename", originalFilename);
 
         RawMessage rawMessage = new RawMessage(message);
         rawMessage.setChannelMap(channelMap);
         DispatchResult dispatchResult = null;
-        
+
         try {
             dispatchResult = dispatchRawMessage(rawMessage);
         } catch (ChannelException e) {
@@ -509,7 +478,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         } finally {
             finishDispatch(dispatchResult);
         }
-        
+
         return true;
     }
 
@@ -518,9 +487,9 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         return batchScriptId;
     }
 
-	@Override
-	public void handleRecoveredResponse(DispatchResult dispatchResult) {
-		//TODO add cleanup code
-		finishDispatch(dispatchResult);
-	}
+    @Override
+    public void handleRecoveredResponse(DispatchResult dispatchResult) {
+        //TODO add cleanup code
+        finishDispatch(dispatchResult);
+    }
 }

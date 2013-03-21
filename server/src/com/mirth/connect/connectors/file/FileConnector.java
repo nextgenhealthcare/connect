@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
@@ -174,11 +175,11 @@ public class FileConnector {
      *            ??
      * @return The allocated connection.
      */
-    protected FileSystemConnection getConnection(URI uri, ConnectorMessage message) throws Exception {
-        ObjectPool pool = getConnectionPool(uri, message);
+    protected FileSystemConnection getConnection(URI uri, ConnectorMessage message, ConnectorProperties connectorProperties) throws Exception {
+        ObjectPool pool = getConnectionPool(uri, message, connectorProperties);
         FileSystemConnection con = (FileSystemConnection) pool.borrowObject();
         if (!con.isConnected() || !con.isValid()) {
-            destroyConnection(uri, con, message);
+            destroyConnection(uri, con, message, connectorProperties);
             con = (FileSystemConnection) pool.borrowObject();
         }
         return con;
@@ -196,12 +197,12 @@ public class FileConnector {
      *            ??
      * @throws Exception
      */
-    protected void releaseConnection(URI uri, FileSystemConnection connection, ConnectorMessage message) throws Exception {
+    protected void releaseConnection(URI uri, FileSystemConnection connection, ConnectorMessage message, ConnectorProperties connectorProperties) throws Exception {
 //        if (isCreateDispatcherPerRequest()) {
 //            destroyConnection(uri, connection, message);
 //        } else {
         if (connection != null && connection.isConnected()) {
-            ObjectPool pool = getConnectionPool(uri, message);
+            ObjectPool pool = getConnectionPool(uri, message, connectorProperties);
             pool.returnObject(connection);
         }
 //        }
@@ -219,9 +220,9 @@ public class FileConnector {
      *            ??
      * @throws Exception
      */
-    protected void destroyConnection(URI uri, FileSystemConnection connection, ConnectorMessage message) throws Exception {
+    protected void destroyConnection(URI uri, FileSystemConnection connection, ConnectorMessage message, ConnectorProperties connectorProperties) throws Exception {
         if (connection != null) {
-            ObjectPool pool = getConnectionPool(uri, message);
+            ObjectPool pool = getConnectionPool(uri, message, connectorProperties);
             pool.invalidateObject(connection);
         }
     }
@@ -237,9 +238,21 @@ public class FileConnector {
      *            ???
      * @return The pool of connections for this endpoint.
      */
-    private synchronized ObjectPool getConnectionPool(URI uri, ConnectorMessage message) {
+    private synchronized ObjectPool getConnectionPool(URI uri, ConnectorMessage message, ConnectorProperties connectorProperties) throws URISyntaxException {
+        String username;
+        String password;
 
-        String key = FileSystemConnectionFactory.getPoolKey(getScheme(), getUsername(), getPassword(), uri.getHost(), uri.getPort(), isSecure());
+        if (connectorProperties instanceof FileReceiverProperties) {
+            FileReceiverProperties fileReceiverProperties = (FileReceiverProperties) connectorProperties;
+            username = fileReceiverProperties.getUsername();
+            password = fileReceiverProperties.getPassword();
+        } else {
+            FileDispatcherProperties fileDispatcherProperties = (FileDispatcherProperties) connectorProperties;
+            username = fileDispatcherProperties.getUsername();
+            password = fileDispatcherProperties.getPassword();
+        }
+
+        String key = FileSystemConnectionFactory.getPoolKey(getScheme(), username, password, uri.getHost(), uri.getPort(), isSecure());
         ObjectPool pool = pools.get(key);
         if (pool == null) {
             GenericObjectPool.Config config = new GenericObjectPool.Config();
@@ -269,4 +282,27 @@ public class FileConnector {
         this.outputStream = outputStream;
     }
 
+    URI getEndpointURI(String host) throws URISyntaxException {
+        StringBuilder sspBuilder = new StringBuilder();
+
+        sspBuilder.append("//");
+        if (scheme == FileScheme.FILE && StringUtils.isNotBlank(host) && host.length() >= 3 && host.substring(1, 3).equals(":/")) {
+            sspBuilder.append("/");
+        }
+
+        sspBuilder.append(host);
+
+        String schemeName;
+        if (scheme == FileScheme.WEBDAV) {
+            if (secure) {
+                schemeName = "https";
+            } else {
+                schemeName = "http";
+            }
+        } else {
+            schemeName = scheme.getDisplayName();
+        }
+
+        return new URI(schemeName, sspBuilder.toString(), null);
+    }
 }

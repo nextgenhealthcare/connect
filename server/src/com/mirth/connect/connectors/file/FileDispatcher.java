@@ -134,7 +134,7 @@ public class FileDispatcher extends DestinationConnector {
         InputStream is = null;
 
         try {
-            uri = getEndpointURI();
+            uri = fileConnector.getEndpointURI(fileDispatcherProperties.getHost());
             String filename = fileDispatcherProperties.getOutputPattern();
 
             if (filename == null) {
@@ -148,7 +148,7 @@ public class FileDispatcher extends DestinationConnector {
 
             is = new ByteArrayInputStream(bytes);
 
-            fileSystemConnection = fileConnector.getConnection(uri, connectorMessage);
+            fileSystemConnection = fileConnector.getConnection(uri, connectorMessage, fileDispatcherProperties);
             if (fileDispatcherProperties.isErrorOnExists() && fileSystemConnection.exists(filename, path)) {
                 throw new IOException("Destination file already exists, will not overwrite.");
             } else if (fileDispatcherProperties.isTemporary()) {
@@ -175,7 +175,7 @@ public class FileDispatcher extends DestinationConnector {
 
             if (fileSystemConnection != null) {
                 try {
-                    fileConnector.releaseConnection(uri, fileSystemConnection, connectorMessage);
+                    fileConnector.releaseConnection(uri, fileSystemConnection, connectorMessage, fileDispatcherProperties);
                 } catch (Exception e) {
                     // TODO: Ignore?
                 }
@@ -185,31 +185,5 @@ public class FileDispatcher extends DestinationConnector {
         }
 
         return new Response(responseStatus, responseData, responseError);
-    }
-
-    private URI getEndpointURI() throws URISyntaxException {
-        StringBuilder sspBuilder = new StringBuilder();
-        FileScheme scheme = connectorProperties.getScheme();
-        String host = connectorProperties.getHost();
-
-        sspBuilder.append("//");
-        if (scheme == FileScheme.FILE && StringUtils.isNotBlank(host) && host.length() >= 3 && host.substring(1, 3).equals(":/")) {
-            sspBuilder.append("/");
-        }
-
-        sspBuilder.append(host);
-        
-        String schemeName;
-        if (scheme == FileScheme.WEBDAV) {
-            if (connectorProperties.isSecure()) {
-                schemeName = "https";
-            } else {
-                schemeName = "http";
-            }
-        } else {
-            schemeName = scheme.getDisplayName();
-        }
-        
-        return new URI(schemeName, sspBuilder.toString(), null);
     }
 }
