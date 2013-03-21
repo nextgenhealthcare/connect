@@ -207,7 +207,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
      */
     public void process(DonkeyDao dao, ConnectorMessage message, Status previousStatus) throws InterruptedException {
         ConnectorProperties connectorProperties = null;
-        boolean attemptSend = (!isQueueEnabled() || queueProperties.isSendFirst()) && queue.size() == 0;
+        boolean attemptSend = !isQueueEnabled() || (queueProperties.isSendFirst() && queue.size() == 0);
 
         // we need to get the connector envelope if we will be attempting to send the message     
         if (attemptSend) {
@@ -270,20 +270,20 @@ public abstract class DestinationConnector extends Connector implements Runnable
      */
     public void processPendingConnectorMessage(DonkeyDao dao, ConnectorMessage message) throws InterruptedException {
         Response response = Response.fromString(message.getResponse().getContent());
-        
-        if (responseTransformerExecutor != null){
-	        try{	
-	        	responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings);		
-	        } catch (DonkeyException e) { 
-	            logger.error("Error executing response transformer for channel " + message.getChannelId() + " (" + destinationName + ").", e);
-	            response.setNewMessageStatus(Status.ERROR);
-	            response.setError(e.getFormattedError());
-	            message.setErrors(message.getErrors() != null ? message.getErrors() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
-	            dao.updateErrors(message);
-	            return;
-	        }
+
+        if (responseTransformerExecutor != null) {
+            try {
+                responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings);
+            } catch (DonkeyException e) {
+                logger.error("Error executing response transformer for channel " + message.getChannelId() + " (" + destinationName + ").", e);
+                response.setNewMessageStatus(Status.ERROR);
+                response.setError(e.getFormattedError());
+                message.setErrors(message.getErrors() != null ? message.getErrors() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
+                dao.updateErrors(message);
+                return;
+            }
         }
-        
+
         afterResponse(dao, message, response, message.getStatus());
     }
 
@@ -333,8 +333,10 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         afterSend(dao, connectorMessage, response, previousStatus);
 
                         /*
-                         * if the "remove content on completion" setting is enabled, we will need to
-                         * retrieve a list of the other connector messages for this message id and
+                         * if the "remove content on completion" setting is
+                         * enabled, we will need to
+                         * retrieve a list of the other connector messages for
+                         * this message id and
                          * check if the message is "completed"
                          */
                         if (storageSettings.isRemoveContentOnCompletion() || storageSettings.isRemoveAttachmentsOnCompletion()) {
@@ -441,8 +443,10 @@ public abstract class DestinationConnector extends Connector implements Runnable
         ThreadUtils.checkInterruptedStatus();
 
         /*
-         * If the response transformer (and serializer) will run, change the current status to
-         * PENDING so it can be recovered. Still call runResponseTransformer so that
+         * If the response transformer (and serializer) will run, change the
+         * current status to
+         * PENDING so it can be recovered. Still call runResponseTransformer so
+         * that
          * transformWithoutSerializing can still run
          */
         if (responseTransformerExecutor.getResponseTransformer() != null) {
@@ -453,9 +457,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
         }
 
         try {
-        	// Perform transformation
-            responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings);  
-            
+            // Perform transformation
+            responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings);
+
             // Insert errors if necessary
             if (StringUtils.isNotBlank(response.getError())) {
                 message.setErrors(response.getError());
