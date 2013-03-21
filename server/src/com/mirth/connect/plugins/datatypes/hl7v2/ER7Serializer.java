@@ -49,11 +49,11 @@ public class ER7Serializer implements IXMLSerializer {
     private String deserializationSegmentDelimiter = null;
     private HL7v2SerializationProperties serializationProperties;
     private HL7v2DeserializationProperties deserializationProperties;
-    
+
     public ER7Serializer(SerializerProperties properties) {
         serializationProperties = (HL7v2SerializationProperties) properties.getSerializationProperties();
         deserializationProperties = (HL7v2DeserializationProperties) properties.getDeserializationProperties();
-        
+
         if (serializationProperties != null) {
             serializationSegmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
         }
@@ -61,43 +61,44 @@ public class ER7Serializer implements IXMLSerializer {
             deserializationSegmentDelimiter = StringUtil.unescape(deserializationProperties.getSegmentDelimiter());
         }
     }
-    
+
     public String getDeserializationSegmentDelimiter() {
         return deserializationSegmentDelimiter;
     }
 
     /**
      * Do the serializer properties require serialization
+     * 
      * @return
      */
     @Override
     public boolean isSerializationRequired(boolean toXml) {
-    	boolean serializationRequired = false;
-    	
-    	if (toXml) {
-    	    if (serializationProperties.isUseStrictParser() || serializationProperties.isUseStrictValidation() || !serializationProperties.isStripNamespaces() || serializationProperties.isHandleRepetitions() || serializationProperties.isHandleSubcomponents() || !serializationProperties.getSegmentDelimiter().equals("\\r\\n|\\r|\\n")) {
+        boolean serializationRequired = false;
+
+        if (toXml) {
+            if (serializationProperties.isUseStrictParser() || serializationProperties.isUseStrictValidation() || !serializationProperties.isStripNamespaces() || serializationProperties.isHandleRepetitions() || serializationProperties.isHandleSubcomponents() || !serializationProperties.getSegmentDelimiter().equals("\\r\\n|\\r|\\n")) {
                 serializationRequired = true;
             }
-    	} else {
-    	    if (deserializationProperties.isUseStrictParser() || deserializationProperties.isUseStrictValidation() || !deserializationProperties.getSegmentDelimiter().equals("\\r")) {
+        } else {
+            if (deserializationProperties.isUseStrictParser() || deserializationProperties.isUseStrictValidation() || !deserializationProperties.getSegmentDelimiter().equals("\\r")) {
                 serializationRequired = true;
             }
-    	}
-    	
-    	return serializationRequired;
+        }
+
+        return serializationRequired;
     }
-    
+
     @Override
     public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
         ER7Serializer serializer = (ER7Serializer) outboundSerializer;
-        
+
         String inputSegmentDelimiter = serializationSegmentDelimiter;
         String outputSegmentDelimiter = serializer.getDeserializationSegmentDelimiter();
-        
+
         if (!inputSegmentDelimiter.equals(outputSegmentDelimiter)) {
             return message.replaceAll(inputSegmentDelimiter, outputSegmentDelimiter);
         }
-        
+
         return null;
     }
 
@@ -115,21 +116,37 @@ public class ER7Serializer implements IXMLSerializer {
                 if (serializationPipeParser == null || serializationXmlParser == null) {
                     serializationPipeParser = new PipeParser();
                     serializationXmlParser = new DefaultXMLParser();
-            
+
                     // turn off strict validation if needed
                     if (!serializationProperties.isUseStrictValidation()) {
                         serializationPipeParser.setValidationContext(new NoValidation());
                         serializationXmlParser.setValidationContext(new NoValidation());
                     }
-            
+
                     serializationXmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
                 }
-                //TODO need to update how data type properties work after the beta. This may or may not be wrong.
-                // Right now, if strict parser is used on the source, it will need to be used for the destinations as well.
-                if (!serializationSegmentDelimiter.equals("\r")) {
-                    source = source.replaceAll(serializationSegmentDelimiter, "\r");
+
+                Message message;
+                source = source.trim();
+
+                if (source.length() > 0 && source.charAt(0) == '<') {
+                    if (serializationProperties.isUseStrictValidation()) {
+                        // If the message is XML and strict validation is needed, we'll need to create a message to be encoded.
+                        message = serializationXmlParser.parse(source);
+                    } else {
+                        // If the message is XML and strict validation is not needed, we can just return the source.
+                        return source;
+                    }
+                } else {
+                    //TODO need to update how data type properties work after the beta. This may or may not be wrong.
+                    // Right now, if strict parser is used on the source, it will need to be used for the destinations as well.
+                    if (!serializationSegmentDelimiter.equals("\r")) {
+                        source = source.replaceAll(serializationSegmentDelimiter, "\r");
+                    }
+                    message = serializationPipeParser.parse(source);
                 }
-                return serializationXmlParser.encode(serializationPipeParser.parse(source.trim()));
+
+                return serializationXmlParser.encode(message);
             } else {
                 ER7Reader er7Reader = new ER7Reader(serializationProperties.isHandleRepetitions(), serializationProperties.isHandleSubcomponents(), serializationSegmentDelimiter);
                 StringWriter stringWriter = new StringWriter();
@@ -158,16 +175,16 @@ public class ER7Serializer implements IXMLSerializer {
                 if (deserializationPipeParser == null || deserializationXmlParser == null) {
                     deserializationPipeParser = new PipeParser();
                     deserializationXmlParser = new DefaultXMLParser();
-            
+
                     // turn off strict validation if needed
                     if (!deserializationProperties.isUseStrictValidation()) {
                         deserializationPipeParser.setValidationContext(new NoValidation());
                         deserializationXmlParser.setValidationContext(new NoValidation());
                     }
-            
+
                     deserializationXmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
                 }
-                
+
                 return deserializationPipeParser.encode(deserializationXmlParser.parse(source));
             } else {
                 /*
@@ -230,9 +247,9 @@ public class ER7Serializer implements IXMLSerializer {
             if (!serializationProperties.isUseStrictValidation()) {
                 xmlParser.setValidationContext(new NoValidation());
             }
-            
+
             xmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
-            
+
             try {
                 DocumentSerializer serializer = new DocumentSerializer();
                 String source = serializer.toXML(document);

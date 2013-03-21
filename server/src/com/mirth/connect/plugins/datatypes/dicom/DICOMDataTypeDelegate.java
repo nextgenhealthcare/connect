@@ -20,9 +20,4 @@ public class DICOMDataTypeDelegate implements DataTypeDelegate {
     public boolean isBinary() {
         return true;
     }
-
-    @Override
-    public boolean isXml() {
-        return false;
-    }
 }

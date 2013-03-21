@@ -23,13 +23,6 @@ public abstract class DataTypeClientPlugin extends ClientPlugin {
         return getDataTypeDelegate().getSerializer(properties);
     }
     
-    /** 
-     * Indicates if the data type is in XML format
-     */
-    final public boolean isXml() {
-        return getDataTypeDelegate().isXml();
-    }
-    
     /**
      * Indicates if the data type is in binary format
      */

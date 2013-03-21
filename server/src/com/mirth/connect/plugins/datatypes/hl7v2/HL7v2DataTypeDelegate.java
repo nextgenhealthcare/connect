@@ -15,11 +15,6 @@ public class HL7v2DataTypeDelegate implements DataTypeDelegate {
     public IXMLSerializer getSerializer(SerializerProperties properties) {
         return new ER7Serializer(properties);
     }
-    
-    @Override
-    public boolean isXml() {
-        return false;
-    }
 
     @Override
     public boolean isBinary() {

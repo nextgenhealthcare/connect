@@ -14,11 +14,6 @@ public interface DataTypeDelegate {
      */
     public IXMLSerializer getSerializer(SerializerProperties properties);
     
-    /** 
-     * Indicates if the data type is in XML format
-     */
-    public boolean isXml();
-    
     /**
      * Indicates if the data type is in binary format
      */

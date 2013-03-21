@@ -17,11 +17,6 @@ public class EDIDataTypeDelegate implements DataTypeDelegate {
     }
 
     @Override
-    public boolean isXml() {
-        return false;
-    }
-
-    @Override
     public boolean isBinary() {
         return false;
     }

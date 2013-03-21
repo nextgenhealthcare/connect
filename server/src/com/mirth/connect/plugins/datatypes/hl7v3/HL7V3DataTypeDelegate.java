@@ -17,11 +17,6 @@ public class HL7V3DataTypeDelegate implements DataTypeDelegate {
     }
 
     @Override
-    public boolean isXml() {
-        return true;
-    }
-
-    @Override
     public boolean isBinary() {
         return false;
     }

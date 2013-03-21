@@ -20,9 +20,4 @@ public class DelimitedDataTypeDelegate implements DataTypeDelegate {
     public boolean isBinary() {
         return false;
     }
-
-    @Override
-    public boolean isXml() {
-        return false;
-    }
 }
