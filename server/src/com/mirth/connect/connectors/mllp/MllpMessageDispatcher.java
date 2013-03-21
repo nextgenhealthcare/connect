@@ -487,7 +487,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
     }
 
     public void doDispose() {
-        for (Socket connectedSocket : connectedSockets.values().toArray(new Socket[] {})) {
+        for (Socket connectedSocket : connectedSockets.values().toArray(new Socket[connectedSockets.values().size()])) {
             if (null != connectedSocket && !connectedSocket.isClosed()) {
                 try {
                     connectedSocket.close();
