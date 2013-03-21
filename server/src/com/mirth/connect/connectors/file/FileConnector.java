@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -12,8 +12,10 @@ package com.mirth.connect.connectors.file;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -43,7 +45,7 @@ import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.util.CharsetUtils;
-
+import com.mirth.connect.util.StringUtil;
 
 public class FileConnector extends AbstractServiceEnabledConnector {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -128,7 +130,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     private int timeout;
     private boolean temporary = true;
     private boolean errorOnExists = true;
-    
+
     public FileConnector() {
         filenameParser = new VariableFilenameParser();
     }
@@ -203,7 +205,8 @@ public class FileConnector extends AbstractServiceEnabledConnector {
         try {
             // TODO: file has more parameters than FTP, must apparently update
             // FTP.
-            receiver = serviceDescriptor.createMessageReceiver(this, component, endpoint, new Object[] { readDir, moveTo, moveToPattern, moveToErrorDirectory, new Long(polling) });
+            receiver = serviceDescriptor.createMessageReceiver(this, component, endpoint, new Object[] {
+                    readDir, moveTo, moveToPattern, moveToErrorDirectory, new Long(polling) });
             return receiver;
         } catch (Exception e) {
             throw new InitialisationException(new Message(Messages.FAILED_TO_CREATE_X_WITH_X, "Message Receiver", serviceDescriptor.getMessageReceiver()), e, this);
@@ -338,7 +341,17 @@ public class FileConnector extends AbstractServiceEnabledConnector {
         URI uri;
 
         try {
-            uri = new URI(replace(endpointUri.toString(), messageObject));
+            String decodedURI = endpointUri.toString();
+            try {
+                decodedURI = URLDecoder.decode(decodedURI, "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                try {
+                    decodedURI = URLDecoder.decode(decodedURI, "default");
+                } catch (UnsupportedEncodingException e1) {
+                    // should not get here
+                }
+            }
+            uri = new URI(replace(decodedURI, messageObject));
         } catch (URISyntaxException e) {
             logger.error("Could not create URI from endpoint: " + endpointUri.toString());
             uri = endpointUri.getUri();
@@ -510,10 +523,10 @@ public class FileConnector extends AbstractServiceEnabledConnector {
      */
     public void setWriteToDirectory(String dir) throws IOException {
         this.writeToDirectoryName = dir;
-        
+
         if (writeToDirectoryName != null) {
             File writeToDirectory = Utility.openDirectory((writeToDirectoryName));
-            
+
             if (!writeToDirectory.canRead() || !writeToDirectory.canWrite()) {
                 throw new IOException("Error on initialization, Write To directory does not exist or is not read/write");
             }
@@ -530,7 +543,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
             if (serviceOverrides == null) {
                 serviceOverrides = new Properties();
             }
-                
+
             serviceOverrides.setProperty(MuleProperties.CONNECTOR_INBOUND_TRANSFORMER, ByteArrayToSerializable.class.getName());
             serviceOverrides.setProperty(MuleProperties.CONNECTOR_OUTBOUND_TRANSFORMER, SerializableToByteArray.class.getName());
         }
@@ -727,5 +740,5 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     public void setErrorOnExists(boolean errorOnExists) {
         this.errorOnExists = errorOnExists;
     }
-    
+
 }
