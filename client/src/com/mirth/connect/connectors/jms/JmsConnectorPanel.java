@@ -252,7 +252,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         templateList.setModel(listModel);
     }
 
-    private class TemplateListCellRenderer extends DefaultListCellRenderer implements ListCellRenderer {
+    private class TemplateListCellRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
