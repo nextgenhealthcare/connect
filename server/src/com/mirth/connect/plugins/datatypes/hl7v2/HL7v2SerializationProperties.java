@@ -22,9 +22,9 @@ public class HL7v2SerializationProperties extends SerializationProperties {
         properties.put("handleRepetitions", new DataTypePropertyDescriptor(handleRepetitions, "Parse Field Repetitions", "Parse field repetitions (applies to Non-Strict Parser only).", PropertyEditorType.BOOLEAN));
         properties.put("handleSubcomponents", new DataTypePropertyDescriptor(handleSubcomponents, "Parse Subcomponents", "Parse subcomponents (applies to Non-Strict Parser only).", PropertyEditorType.BOOLEAN));
         properties.put("useStrictParser", new DataTypePropertyDescriptor(useStrictParser, "Use Strict Parser", "Parse messages based upon strict HL7 specifications.", PropertyEditorType.BOOLEAN));
-        properties.put("useStrictValidation", new DataTypePropertyDescriptor(useStrictValidation, "Validate in Strict Parser", "Validate messages using HL7 specifications(applies to Strict Parser only).", PropertyEditorType.BOOLEAN));
-        properties.put("stripNamespaces", new DataTypePropertyDescriptor(stripNamespaces, "Strip Namespaces", "Strips namespace definitions from the transformed XML message (applies to Strict Parser only", PropertyEditorType.BOOLEAN));
-        properties.put("segmentDelimiter", new DataTypePropertyDescriptor(segmentDelimiter, "Segment Delimiter", "This is the input delimiter character(s) expected to occur after each segment.", PropertyEditorType.STRING));
+        properties.put("useStrictValidation", new DataTypePropertyDescriptor(useStrictValidation, "Validate in Strict Parser", "Validate messages using HL7 specifications (applies to Strict Parser only).", PropertyEditorType.BOOLEAN));
+        properties.put("stripNamespaces", new DataTypePropertyDescriptor(stripNamespaces, "Strip Namespaces", "Strips namespace definitions from the transformed XML message (applies to Strict Parser only).", PropertyEditorType.BOOLEAN));
+        properties.put("segmentDelimiter", new DataTypePropertyDescriptor(segmentDelimiter, "Segment Delimiter", "This is the input delimiter character(s) expected to occur after each segment. Separate multiple possible values with the pipe (|) character.", PropertyEditorType.STRING));
         
         return properties;
     }

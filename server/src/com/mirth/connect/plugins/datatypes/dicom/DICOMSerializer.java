@@ -76,7 +76,6 @@ public class DICOMSerializer implements IXMLSerializer {
     @Override
     public boolean isSerializationRequired(boolean toXml) {
     	boolean serializationRequired = false;
-    	//TODO determine which properties are required for transformer
     	
     	return serializationRequired;
     }

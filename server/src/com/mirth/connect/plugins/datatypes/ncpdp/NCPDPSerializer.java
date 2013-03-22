@@ -13,6 +13,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
@@ -34,12 +35,17 @@ public class NCPDPSerializer implements IXMLSerializer {
     private NCPDPSerializationProperties serializationProperties;
     private NCPDPDeserializationProperties deserializationProperties;
     
+    private Pattern serializationSegmentDelimiterPattern = null;
+    private Pattern serializationGroupDelimiterPattern = null;
+    private Pattern serializationFieldDelimiterPattern = null;
     private String serializationSegmentDelimiter = null;
     private String serializationGroupDelimiter = null;
     private String serializationFieldDelimiter = null;
     private String deserializationSegmentDelimiter = null;
     private String deserializationGroupDelimiter = null;
     private String deserializationFieldDelimiter = null;
+    
+    private static Pattern prettyPattern = Pattern.compile(">\\s+<");
     
     public NCPDPSerializer(SerializerProperties properties) {
         serializationProperties = (NCPDPSerializationProperties) properties.getSerializationProperties();
@@ -49,6 +55,10 @@ public class NCPDPSerializer implements IXMLSerializer {
             serializationSegmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
             serializationGroupDelimiter = StringUtil.unescape(serializationProperties.getGroupDelimiter());
             serializationFieldDelimiter = StringUtil.unescape(serializationProperties.getFieldDelimiter());
+            
+            serializationSegmentDelimiterPattern = Pattern.compile(serializationSegmentDelimiter);
+            serializationGroupDelimiterPattern = Pattern.compile(serializationGroupDelimiter);
+            serializationFieldDelimiterPattern = Pattern.compile(serializationFieldDelimiter);
         }
         
         if (deserializationProperties != null) {
@@ -57,17 +67,27 @@ public class NCPDPSerializer implements IXMLSerializer {
             deserializationFieldDelimiter = StringUtil.unescape(deserializationProperties.getFieldDelimiter());
         }
     }
+    
+    public String getDeserializationSegmentDelimiter() {
+        return deserializationSegmentDelimiter;
+    }
+    
+    public String getDeserializationGroupDelimiter() {
+        return deserializationGroupDelimiter;
+    }
+    
+    public String getDeserializationFieldDelimiter() {
+        return deserializationFieldDelimiter;
+    }
 
     @Override
     public boolean isSerializationRequired(boolean toXml) {
         boolean serializationRequired = false;
         
         if (toXml) {
-            if (!serializationProperties.getSegmentDelimiter().equals("0x1E") || !serializationProperties.getGroupDelimiter().equals("0x1D") || !serializationProperties.getFieldDelimiter().equals("0x1C")) {
-                serializationRequired = true;
-            }
+            // No serialization properties require serializing
         } else {
-            if (!deserializationProperties.getSegmentDelimiter().equals("0x1E") || !deserializationProperties.getGroupDelimiter().equals("0x1D") || !deserializationProperties.getFieldDelimiter().equals("0x1C") || deserializationProperties.isUseStrictValidation()) {
+            if (deserializationProperties.isUseStrictValidation()) {
                 serializationRequired = true;
             }
         }
@@ -77,6 +97,37 @@ public class NCPDPSerializer implements IXMLSerializer {
     
     @Override
     public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+        boolean transformed = false;
+        
+        NCPDPSerializer serializer = (NCPDPSerializer) outboundSerializer;
+        
+        String inputSegmentDelimiter = serializationSegmentDelimiter;
+        String outputSegmentDelimiter = serializer.getDeserializationSegmentDelimiter();
+        String inputGroupDelimiter = serializationGroupDelimiter;
+        String outputGroupDelimiter = serializer.getDeserializationGroupDelimiter();
+        String inputFieldDelimiter = serializationFieldDelimiter;
+        String outputFieldDelimiter = serializer.getDeserializationFieldDelimiter();
+        
+        
+        if (!inputSegmentDelimiter.equals(outputSegmentDelimiter)) {
+            message = serializationSegmentDelimiterPattern.matcher(message).replaceAll(outputSegmentDelimiter);
+            transformed = true;
+        }
+        
+        if (!inputGroupDelimiter.equals(outputGroupDelimiter)) {
+            message = serializationGroupDelimiterPattern.matcher(message).replaceAll(outputGroupDelimiter);
+            transformed = true;
+        }
+        
+        if (!inputFieldDelimiter.equals(outputFieldDelimiter)) {
+            message = serializationFieldDelimiterPattern.matcher(message).replaceAll(outputFieldDelimiter);
+            transformed = true;
+        }
+    
+        if (transformed){
+            return message;
+        }
+        
         return null;
     }
 
@@ -115,7 +166,7 @@ public class NCPDPSerializer implements IXMLSerializer {
              * Parse, but first replace all spaces between brackets. This fixes
              * pretty-printed XML we might receive
              */
-            reader.parse(new InputSource(new StringReader(source.replaceAll(">\\s+<", "><"))));
+            reader.parse(new InputSource(new StringReader(prettyPattern.matcher(source).replaceAll("><"))));
             return handler.getOutput().toString();
         } catch (Exception e) {
             throw new SerializerException("Error converting XML to NCPDP message.", e, ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to NCPDP", e));

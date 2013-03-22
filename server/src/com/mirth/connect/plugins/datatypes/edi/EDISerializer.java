@@ -13,6 +13,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -39,6 +40,8 @@ public class EDISerializer implements IXMLSerializer {
 	private String serializationElementDelimiter = null;
 	private String serializationSubelementDelimiter = null;
 	
+	private static Pattern prettyPattern = Pattern.compile("</([^>]*)>\\s+<");
+	
 	public EDISerializer(SerializerProperties properties) {
 	    serializationProperties = (EDISerializationProperties) properties.getSerializationProperties();
 	    
@@ -52,12 +55,6 @@ public class EDISerializer implements IXMLSerializer {
     @Override
     public boolean isSerializationRequired(boolean toXml) {
         boolean serializationRequired = false;
-        
-        if (toXml) {
-            if (!serializationProperties.getSegmentDelimiter().equals("~") || !serializationProperties.getElementDelimiter().equals("*") || !serializationProperties.getSubelementDelimiter().equals(":") || !serializationProperties.isInferX12Delimiters()) {
-                serializationRequired = true;
-            }
-        }
 
         return serializationRequired;
     }
@@ -80,7 +77,7 @@ public class EDISerializer implements IXMLSerializer {
 		xr.setErrorHandler(handler);
 		try {
             //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
-            xr.parse(new InputSource(new StringReader(source.replaceAll("</([^>]*)>\\s+<", "</$1><"))));
+            xr.parse(new InputSource(new StringReader(prettyPattern.matcher(source).replaceAll("</$1><"))));
 		} catch (Exception e) {
 			throw new SerializerException(e.getMessage(), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_500, "Error converting XML to EDI", e));
 		}

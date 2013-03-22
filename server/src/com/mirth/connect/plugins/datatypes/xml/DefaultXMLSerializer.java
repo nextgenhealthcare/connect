@@ -18,6 +18,7 @@ import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.util.StringUtil;
 
 public class DefaultXMLSerializer implements IXMLSerializer {
 
@@ -30,33 +31,30 @@ public class DefaultXMLSerializer implements IXMLSerializer {
 	@Override
     public boolean isSerializationRequired(boolean toXml) {
     	boolean serializationRequired = false;
-
-    	if (toXml) {
-            if (!serializationProperties.isStripNamespaces()) {
-                serializationRequired = true;
-            }
-        }
     	
     	return serializationRequired;
     }
 	
 	@Override
 	public String transformWithoutSerializing(String message, XmlSerializer outboundSerializer) {
+	    if (serializationProperties.isStripNamespaces()) {
+            return StringUtil.stripNamespaces(message);
+        }
+	    
         return null;
     }
 	
 	@Override
 	public String toXML(String source) throws SerializerException {
-		return sanitize(source);
+	    if (serializationProperties.isStripNamespaces()) {
+	        source = StringUtil.stripNamespaces(source);
+        }
+	    
+		return source;
 	}
 
 	@Override
 	public String fromXML(String source) throws SerializerException {
-		return sanitize(source);
-	}
-	
-	// cleans up the XML
-	public String sanitize(String source) {
 		return source;
 	}
 

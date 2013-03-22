@@ -9,9 +9,18 @@
 
 package com.mirth.connect.util;
 
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 
 public class StringUtil {
+    
+    private static final Pattern pattern = Pattern.compile("xmlns:?[^=]*=[\\\"\\\"][^\\\"\\\"]*[\\\"\\\"]");
+    
+    public static String stripNamespaces(String string) {
+        return pattern.matcher(string).replaceAll("");
+    }
+    
     // Four ways to specify character values and string values
     // 1. Literal
     // 2. Quoted literal (turns off escape processing except for standard escape sequences)

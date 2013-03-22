@@ -35,19 +35,6 @@ public class HL7v2DataTypeServerPlugin extends DataTypeServerPlugin {
     }
 
     @Override
-    public boolean isStripNamespaces(SerializerProperties properties) {
-        boolean stripNamespaces = false;
-        
-        HL7v2SerializationProperties hl7Properties = (HL7v2SerializationProperties) properties.getSerializationProperties();
-        
-        if (hl7Properties.isUseStrictParser() && hl7Properties.isStripNamespaces()) {
-            stripNamespaces = true;
-        }
-        
-        return stripNamespaces;
-    }
-
-    @Override
     protected DataTypeDelegate getDataTypeDelegate() {
         return dataTypeDelegate;
     }

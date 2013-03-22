@@ -13,6 +13,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -45,10 +46,16 @@ public class ER7Serializer implements IXMLSerializer {
     private XMLParser serializationXmlParser = null;
     private PipeParser deserializationPipeParser = null;
     private XMLParser deserializationXmlParser = null;
+    
+    private Pattern serializationSegmentDelimiterPattern = null;
     private String serializationSegmentDelimiter = null;
     private String deserializationSegmentDelimiter = null;
     private HL7v2SerializationProperties serializationProperties;
     private HL7v2DeserializationProperties deserializationProperties;
+    
+    private static Pattern ampersandPattern = Pattern.compile("&amp;");
+    private static Pattern prettyPattern1 = Pattern.compile("\\s*<([^/][^>]*)>");
+    private static Pattern prettyPattern2 = Pattern.compile("<(/[^>]*)>\\s*");
 
     public ER7Serializer(SerializerProperties properties) {
         serializationProperties = (HL7v2SerializationProperties) properties.getSerializationProperties();
@@ -56,6 +63,7 @@ public class ER7Serializer implements IXMLSerializer {
 
         if (serializationProperties != null) {
             serializationSegmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
+            serializationSegmentDelimiterPattern = Pattern.compile(serializationSegmentDelimiter);
         }
         if (deserializationProperties != null) {
             deserializationSegmentDelimiter = StringUtil.unescape(deserializationProperties.getSegmentDelimiter());
@@ -76,11 +84,11 @@ public class ER7Serializer implements IXMLSerializer {
         boolean serializationRequired = false;
 
         if (toXml) {
-            if (serializationProperties.isUseStrictParser() || serializationProperties.isUseStrictValidation() || !serializationProperties.isStripNamespaces() || serializationProperties.isHandleRepetitions() || serializationProperties.isHandleSubcomponents() || !serializationProperties.getSegmentDelimiter().equals("\\r\\n|\\r|\\n")) {
+            if (serializationProperties.isUseStrictParser() || serializationProperties.isUseStrictValidation()) {
                 serializationRequired = true;
             }
         } else {
-            if (deserializationProperties.isUseStrictParser() || deserializationProperties.isUseStrictValidation() || !deserializationProperties.getSegmentDelimiter().equals("\\r")) {
+            if (deserializationProperties.isUseStrictParser() || deserializationProperties.isUseStrictValidation()) {
                 serializationRequired = true;
             }
         }
@@ -96,7 +104,7 @@ public class ER7Serializer implements IXMLSerializer {
         String outputSegmentDelimiter = serializer.getDeserializationSegmentDelimiter();
 
         if (!inputSegmentDelimiter.equals(outputSegmentDelimiter)) {
-            return message.replaceAll(inputSegmentDelimiter, outputSegmentDelimiter);
+            return serializationSegmentDelimiterPattern.matcher(message).replaceAll(outputSegmentDelimiter);
         }
 
         return null;
@@ -126,7 +134,7 @@ public class ER7Serializer implements IXMLSerializer {
                     serializationXmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
                 }
 
-                Message message;
+                Message message = null;
                 source = source.trim();
 
                 if (source.length() > 0 && source.charAt(0) == '<') {
@@ -134,19 +142,26 @@ public class ER7Serializer implements IXMLSerializer {
                         // If the message is XML and strict validation is needed, we'll need to create a message to be encoded.
                         message = serializationXmlParser.parse(source);
                     } else {
-                        // If the message is XML and strict validation is not needed, we can just return the source.
-                        return source;
+                        // If the message is XML and strict validation is not needed, we can use the source directly.
                     }
                 } else {
                     //TODO need to update how data type properties work after the beta. This may or may not be wrong.
                     // Right now, if strict parser is used on the source, it will need to be used for the destinations as well.
                     if (!serializationSegmentDelimiter.equals("\r")) {
-                        source = source.replaceAll(serializationSegmentDelimiter, "\r");
+                        source = serializationSegmentDelimiterPattern.matcher(source).replaceAll("\r");
                     }
                     message = serializationPipeParser.parse(source);
                 }
-
-                return serializationXmlParser.encode(message);
+                
+                if (message != null) {
+                    source = serializationXmlParser.encode(message);
+                }
+                
+                if (serializationProperties.isStripNamespaces()) {
+                    source = StringUtil.stripNamespaces(source);
+                }
+                
+                return source;
             } else {
                 ER7Reader er7Reader = new ER7Reader(serializationProperties.isHandleRepetitions(), serializationProperties.isHandleSubcomponents(), serializationSegmentDelimiter);
                 StringWriter stringWriter = new StringWriter();
@@ -208,7 +223,7 @@ public class ER7Serializer implements IXMLSerializer {
                  * Our delimiters usually look like this:
                  * <MSH.2>^~\&amp;</MSH.2> We need to decode XML entities
                  */
-                String separators = getNodeValue(source, "<MSH.2>", "</MSH.2>").replaceAll("&amp;", "&");
+                String separators = ampersandPattern.matcher(getNodeValue(source, "<MSH.2>", "</MSH.2>")).replaceAll("&");
 
                 if (separators.length() == 4) {
                     // usually ^
@@ -230,7 +245,7 @@ public class ER7Serializer implements IXMLSerializer {
                  * Parse, but first replace all spaces between brackets. This
                  * fixes pretty-printed XML we might receive.
                  */
-                reader.parse(new InputSource(new StringReader(source.replaceAll("\\s*<([^/][^>]*)>", "<$1>").replaceAll("<(/[^>]*)>\\s*", "<$1>"))));
+                reader.parse(new InputSource(new StringReader(prettyPattern2.matcher(prettyPattern1.matcher(source).replaceAll("<$1>")).replaceAll("<$1>"))));
                 return handler.getOutput().toString();
             }
         } catch (Exception e) {

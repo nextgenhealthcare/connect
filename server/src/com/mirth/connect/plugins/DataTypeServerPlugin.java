@@ -42,11 +42,6 @@ public abstract class DataTypeServerPlugin implements ServerPlugin {
     public abstract AutoResponder getAutoResponder(SerializationProperties serializationProperties, ResponseGenerationProperties generationProperties);
     
     /**
-     * Returns whether namespaces should be stripped for the given properties
-     */
-    public abstract boolean isStripNamespaces(SerializerProperties properties);
-    
-    /**
      * Get the batch script from a serializer.
      * Returns null if no script exists.
      */

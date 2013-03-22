@@ -36,11 +36,6 @@ public class DelimitedDataTypeServerPlugin extends DataTypeServerPlugin {
     }
 
     @Override
-    public boolean isStripNamespaces(SerializerProperties properties) {
-        return false;
-    }
-
-    @Override
     protected DataTypeDelegate getDataTypeDelegate() {
         return dataTypeDelegate;
     }

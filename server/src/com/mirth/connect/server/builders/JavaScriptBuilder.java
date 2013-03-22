@@ -27,7 +27,6 @@ import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.util.JavaScriptConstants;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.ScriptController;
 
 public class JavaScriptBuilder {
@@ -119,34 +118,12 @@ public class JavaScriptBuilder {
 
         StringBuilder builder = new StringBuilder();
 
-        // Check to see if the property to strip namespaces off of incoming
-        // messages has been set.
-        // For XML, HL7v2, and HL7v3 stripNamespaces can be turned on/off.
-        boolean stripIncomingNamespaces = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getInboundDataType()).isStripNamespaces(transformer.getInboundProperties().getSerializerProperties());
-
-        if (stripIncomingNamespaces) {
-            builder.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
-        } else {
-            builder.append("var newMessage = message;\n");
-        }
-
         // Turn the inbound message into an E4X XML object
-        builder.append("msg = new XML(newMessage);\n");
+        builder.append("msg = new XML(message);\n");
 
         // Turn the outbound template into an E4X XML object, if there is one
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-            // Check to see if the property to strip namespaces off of outbound
-            // templates has been set.
-            // For XML, HL7v2, and HL7v3 stripNamespaces can be turned on/off.
-            boolean stripOutboundNamespaces = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).isStripNamespaces(transformer.getOutboundProperties().getSerializerProperties());
-
-            if (stripOutboundNamespaces) {
-                builder.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
-            } else {
-                builder.append("var newTemplate = template;\n");
-            }
-
-            builder.append("tmp = new XML(newTemplate);\n");
+            builder.append("tmp = new XML(template);\n");
         }
 
         // Set the default namespace if there is one left on the root node, otherwise set it to ''.
@@ -167,34 +144,12 @@ public class JavaScriptBuilder {
 
         StringBuilder builder = new StringBuilder();
 
-        // Check to see if the property to strip namespaces off of incoming
-        // messages has been set.
-        // For XML, HL7v2, and HL7v3 stripNamespaces can be turned on/off.
-        boolean stripIncomingNamespaces = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getInboundDataType()).isStripNamespaces(transformer.getInboundProperties().getSerializerProperties());
-
-        if (stripIncomingNamespaces) {
-            builder.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
-        } else {
-            builder.append("var newMessage = message;\n");
-        }
-
         // Turn the inbound message into an E4X XML object
-        builder.append("msg = new XML(newMessage);\n");
+        builder.append("msg = new XML(message);\n");
 
         // Turn the outbound template into an E4X XML object, if there is one
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-            // Check to see if the property to strip namespaces off of outbound
-            // templates has been set.
-            // For XML, HL7v2, and HL7v3 stripNamespaces can be turned on/off.
-            boolean stripOutboundNamespaces = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).isStripNamespaces(transformer.getOutboundProperties().getSerializerProperties());
-
-            if (stripOutboundNamespaces) {
-                builder.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
-            } else {
-                builder.append("var newTemplate = template;\n");
-            }
-
-            builder.append("tmp = new XML(newTemplate);\n");
+            builder.append("tmp = new XML(template);\n");
         }
 
         // Set the default namespace if there is one left on the root node, otherwise set it to ''.
