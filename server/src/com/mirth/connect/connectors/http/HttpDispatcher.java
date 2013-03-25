@@ -158,11 +158,13 @@ public class HttpDispatcher extends DestinationConnector {
                 int statusCode = client.executeMethod(httpMethod);
                 logger.debug("received status code: " + statusCode);
 
+                String responseBody = new String(httpMethod.getResponseBody(), httpDispatcherProperties.getCharset());
+
                 if (httpDispatcherProperties.isIncludeHeadersInResponse()) {
                     HttpMessageConverter converter = new HttpMessageConverter();
-                    responseData = converter.httpResponseToXml(httpMethod.getStatusLine().toString(), httpMethod.getResponseHeaders(), httpMethod.getResponseBodyAsString());
+                    responseData = converter.httpResponseToXml(httpMethod.getStatusLine().toString(), httpMethod.getResponseHeaders(), responseBody);
                 } else {
-                    responseData = httpMethod.getResponseBodyAsString();
+                    responseData = responseBody;
                 }
 
                 if (statusCode < HttpStatus.SC_BAD_REQUEST) {
