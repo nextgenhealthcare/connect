@@ -44,17 +44,19 @@ public class BasicModeSettingsDialog extends JDialog implements DocumentListener
         super(PlatformUI.MIRTH_FRAME);
         initComponents();
         this.actionListener = actionListener;
-        
+
         startOfMessageBytesField.setDocument(new MirthFieldConstraints(0, true, false, false));
         endOfMessageBytesField.setDocument(new MirthFieldConstraints(0, true, false, false));
-        
+
         startOfMessageBytesField.getDocument().addDocumentListener(this);
         endOfMessageBytesField.getDocument().addDocumentListener(this);
-        
+
         startOfMessageAbbreviation = "";
         endOfMessageAbbreviation = "";
+
+        changeAbbreviation();
     }
-    
+
     @Override
     public void setVisible(boolean b) {
         if (b) {
@@ -67,11 +69,11 @@ public class BasicModeSettingsDialog extends JDialog implements DocumentListener
             } else {
                 setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
             }
-            
+
             saved = false;
             resetInvalidProperties();
         }
-        
+
         super.setVisible(b);
     }
 
@@ -86,10 +88,10 @@ public class BasicModeSettingsDialog extends JDialog implements DocumentListener
 
     public void setProperties(TransmissionModeProperties properties) {
         FrameModeProperties props = (FrameModeProperties) properties;
-        
+
         startOfMessageBytesField.setText(props.getStartOfMessageBytes());
         endOfMessageBytesField.setText(props.getEndOfMessageBytes());
-        
+
         startOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(startOfMessageBytesField.getText());
         endOfMessageAbbreviation = TcpUtil.convertHexToAbbreviation(endOfMessageBytesField.getText());
     }
@@ -118,7 +120,7 @@ public class BasicModeSettingsDialog extends JDialog implements DocumentListener
     public boolean isSaved() {
         return saved;
     }
-    
+
     @Override
     public void changedUpdate(DocumentEvent evt) {
         changeAbbreviation(evt);
