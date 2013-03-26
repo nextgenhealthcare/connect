@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -104,6 +104,9 @@ public class WebServiceConnectorService implements ConnectorService {
         /* add the username:password to the URL if using authentication */
         if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
             String hostWithCredentials = username + ":" + password + "@" + wsdlUrl.getHost();
+            if (wsdlUrl.getPort() > -1) {
+                hostWithCredentials += ":" + wsdlUrl.getPort();
+            }
             wsdlUrl = new URI(wsdlUrl.getScheme(), hostWithCredentials, wsdlUrl.getPath(), wsdlUrl.getQuery(), wsdlUrl.getFragment());
         }
 
