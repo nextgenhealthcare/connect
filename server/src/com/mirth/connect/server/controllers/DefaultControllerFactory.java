@@ -81,10 +81,6 @@ public class DefaultControllerFactory extends ControllerFactory {
         return DefaultEventController.create();
     }
 
-    public TemplateController createTemplateController() {
-        return DefaultTemplateController.create();
-    }
-
     public UserController createUserController() {
         return DefaultUserController.create();
     }

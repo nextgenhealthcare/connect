@@ -20,12 +20,10 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
-import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.ScriptController;
-import com.mirth.connect.server.controllers.TemplateController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.JavaScriptUtil;
+import com.mirth.connect.server.util.UUIDGenerator;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
@@ -34,40 +32,30 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptFilterTransformer implements FilterTransformer {
     private Logger logger = Logger.getLogger(this.getClass());
-    private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-    private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private JavaScriptExecutor<FilterTransformerResult> jsExecutor = new JavaScriptExecutor<FilterTransformerResult>();
 
     private String channelId;
     private String connectorName;
     private String scriptId;
-    private String templateId;
     private String template;
 
-    public JavaScriptFilterTransformer(String channelId, String connectorName, String scriptId, String templateId) throws JavaScriptInitializationException {
+    public JavaScriptFilterTransformer(String channelId, String connectorName, String script, String template) throws JavaScriptInitializationException {
         this.channelId = channelId;
         this.connectorName = connectorName;
-        this.scriptId = scriptId;
-        this.templateId = templateId;
-
-        initialize();
+        this.template = template;
+        initialize(script);
     }
 
-    private void initialize() throws JavaScriptInitializationException {
+    private void initialize(String script) throws JavaScriptInitializationException {
         try {
-            // Load the template (if there is one)
-            if (templateId != null) {
-                template = templateController.getTemplate(channelId, templateId);
-            }
-
-            // Scripts are not compiled if they are blank or do not exist in the
-            // database. Note that in Oracle, a blank script is the same as a
-            // NULL script.
-            String script = scriptController.getScript(channelId, scriptId);
-
+            /*
+             * Scripts are not compiled if they are blank or do not exist in the database. Note that
+             * in Oracle, a blank script is the same as a NULL script.
+             */
             if (StringUtils.isNotBlank(script)) {
                 logger.debug("compiling filter/transformer scripts");
+                this.scriptId = UUIDGenerator.getUUID();
                 JavaScriptUtil.compileAndAddScript(scriptId, script, null, null);
             }
         } catch (Exception e) {
@@ -85,35 +73,35 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
         try {
             FilterTransformerResult result = jsExecutor.execute(new FilterTransformerTask(message));
             String transformedContent = result.getTransformedContent();
-            
+
             if (transformedContent != null) {
                 message.getTransformed().setContent(transformedContent);
             }
-            
+
             return result.isFiltered();
         } catch (JavaScriptExecutorException e) {
             Throwable cause = e.getCause();
-            
+
             if (cause instanceof FilterTransformerException) {
                 throw (FilterTransformerException) cause;
             }
-            
+
             throw new FilterTransformerException(e.getMessage(), e);
         }
     }
-    
+
     @Override
     public void dispose() {
         JavaScriptUtil.removeScriptFromCache(scriptId);
     }
-    
+
     private class FilterTransformerTask extends JavaScriptTask<FilterTransformerResult> {
         private ConnectorMessage message;
-        
+
         public FilterTransformerTask(ConnectorMessage message) {
             this.message = message;
         }
-        
+
         @Override
         public FilterTransformerResult call() throws Exception {
             Logger scriptLogger = Logger.getLogger("filter");
@@ -159,7 +147,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
             }
         }
     }
-    
+
     private class FilterTransformerResult {
         private boolean filtered;
         private String transformedContent;

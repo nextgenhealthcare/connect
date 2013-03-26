@@ -46,7 +46,5 @@ public abstract class ControllerFactory {
 
     public abstract EventController createEventController();
 
-    public abstract TemplateController createTemplateController();
-
     public abstract UserController createUserController();
 }

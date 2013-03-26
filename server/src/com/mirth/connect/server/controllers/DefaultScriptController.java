@@ -19,7 +19,6 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
-import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.SqlConfig;
 
@@ -49,6 +48,7 @@ public class DefaultScriptController extends ScriptController {
      * @param script
      * @throws ControllerException
      */
+    @Override
     public void putScript(String groupId, String id, String script) throws ControllerException {
         logger.debug("adding script: groupId=" + groupId + ", id=" + id);
 
@@ -75,6 +75,7 @@ public class DefaultScriptController extends ScriptController {
      * @return
      * @throws ControllerException
      */
+    @Override
     public String getScript(String groupId, String id) throws ControllerException {
         logger.debug("retrieving script: groupId=" + groupId + ", id=" + id);
 
@@ -88,6 +89,7 @@ public class DefaultScriptController extends ScriptController {
         }
     }
 
+    @Override
     public void removeScripts(String groupId) throws ControllerException {
         logger.debug("deleting scripts: groupId=" + groupId);
 
@@ -101,25 +103,8 @@ public class DefaultScriptController extends ScriptController {
         }
     }
 
-    public void removeAllExceptGlobalScripts() throws ControllerException {
-        logger.debug("clearing scripts table");
-
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-        parameterMap.put("notGroupId", GLOBAL_GROUP_ID);
-
-        try {
-            SqlConfig.getSqlSessionManager().delete("Script.deleteScript", parameterMap);
-
-            if (DatabaseUtil.statementExists("Script.vacuumScriptTable")) {
-                SqlConfig.getSqlSessionManager().update("Script.vacuumScriptTable");
-            }
-        } catch (PersistenceException e) {
-            throw new ControllerException("Error clearing scripts", e);
-        }
-    }
-
     // Non-database actions
-
+    @Override
     public void compileGlobalScripts() {
         Map<String, String> globalScripts = null;
 
@@ -137,14 +122,17 @@ public class DefaultScriptController extends ScriptController {
         }
     }
 
+    @Override
     public void compileChannelScripts(Channel channel) throws ScriptCompileException {
         JavaScriptUtil.compileChannelScripts(channel);
     }
 
+    @Override
     public void removeChannelScriptsFromCache(String channelId) {
         JavaScriptUtil.removeChannelScriptsFromCache(channelId);
     }
 
+    @Override
     public void executeGlobalDeployScript() {
         try {
             JavaScriptUtil.executeGlobalDeployScript(DEPLOY_SCRIPT_KEY);
@@ -153,10 +141,12 @@ public class DefaultScriptController extends ScriptController {
         }
     }
 
+    @Override
     public void executeChannelDeployScript(String channelId) throws Exception {
         JavaScriptUtil.executeChannelDeployScript(getScriptId(DEPLOY_SCRIPT_KEY, channelId), DEPLOY_SCRIPT_KEY, channelId);
     }
 
+    @Override
     public void executeGlobalShutdownScript() {
         try {
             JavaScriptUtil.executeGlobalShutdownScript(SHUTDOWN_SCRIPT_KEY);
@@ -165,10 +155,12 @@ public class DefaultScriptController extends ScriptController {
         }
     }
 
+    @Override
     public void executeChannelShutdownScript(String channelId) throws Exception {
         JavaScriptUtil.executeChannelShutdownScript(getScriptId(SHUTDOWN_SCRIPT_KEY, channelId), SHUTDOWN_SCRIPT_KEY, channelId);
     }
 
+    @Override
     public Map<String, String> getGlobalScripts() throws ControllerException {
         Map<String, String> scripts = new HashMap<String, String>();
 
@@ -201,6 +193,7 @@ public class DefaultScriptController extends ScriptController {
         return scripts;
     }
 
+    @Override
     public void setGlobalScripts(Map<String, String> scripts) throws ControllerException {
         for (Entry<String, String> entry : scripts.entrySet()) {
             putScript(GLOBAL_GROUP_ID, entry.getKey().toString(), scripts.get(entry.getKey()));

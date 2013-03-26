@@ -29,6 +29,7 @@ import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
@@ -98,7 +99,6 @@ public class DonkeyEngineController implements EngineController {
     private Logger logger = Logger.getLogger(this.getClass());
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
-    private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private com.mirth.connect.donkey.server.controllers.ChannelController donkeyChannelController = com.mirth.connect.donkey.server.controllers.ChannelController.getInstance();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
@@ -108,10 +108,6 @@ public class DonkeyEngineController implements EngineController {
     @Override
     public void startEngine() throws StartException, StopException, ControllerException, InterruptedException {
         logger.debug("starting donkey engine");
-
-        // remove all scripts and templates since the channels were never undeployed
-        scriptController.removeAllExceptGlobalScripts();
-        templateController.removeAllTemplates();
 
         donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties()));
 
@@ -136,7 +132,7 @@ public class DonkeyEngineController implements EngineController {
         if (channel == null) {
             throw new DeployException("Unable to deploy channel, channel ID " + channelId + " not found.");
         }
-        
+
         if (!channel.isEnabled()) {
             return;
         }
@@ -618,7 +614,7 @@ public class DonkeyEngineController implements EngineController {
 
     private FilterTransformerExecutor createFilterTransformerExecutor(String channelId, Connector connector) throws Exception {
         boolean runFilterTransformer = false;
-        String templateId = null;
+        String template = null;
         Transformer transformer = connector.getTransformer();
         Filter filter = connector.getFilter();
 
@@ -645,32 +641,28 @@ public class DonkeyEngineController implements EngineController {
             runFilterTransformer = outboundDataType.getSerializer().isSerializationRequired(false);
         }
 
-        // put the outbound template in the templates table
+        // Serialize the outbound template if needed
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-            TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
             XmlSerializer serializer = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).getSerializer(transformer.getOutboundProperties().getSerializerProperties());
-            templateId = UUIDGenerator.getUUID();
 
-            if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-                if (ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).isBinary()) {
-                    templateController.putTemplate(channelId, templateId, transformer.getOutboundTemplate());
-                } else {
-                    templateController.putTemplate(channelId, templateId, serializer.toXML(transformer.getOutboundTemplate()));
+            if (ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).isBinary()) {
+                template = transformer.getOutboundTemplate();
+            } else {
+                try {
+                    template = serializer.toXML(transformer.getOutboundTemplate());
+                } catch (SerializerException e) {
+                    throw new SerializerException("Error serializing transformer outbound template for connector \"" + connector.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
                 }
-
-                runFilterTransformer = true;
             }
-        }
 
-        // put the script in the scripts table
-        String scriptId = UUIDGenerator.getUUID();
-        String script = JavaScriptBuilder.generateFilterTransformerScript(filter, transformer);
-        scriptController.putScript(channelId, scriptId, script);
+            runFilterTransformer = true;
+        }
 
         FilterTransformerExecutor filterTransformerExecutor = new FilterTransformerExecutor(inboundDataType, outboundDataType);
 
         if (runFilterTransformer) {
-            filterTransformerExecutor.setFilterTransformer(new JavaScriptFilterTransformer(channelId, connector.getName(), scriptId, templateId));
+            String script = JavaScriptBuilder.generateFilterTransformerScript(filter, transformer);
+            filterTransformerExecutor.setFilterTransformer(new JavaScriptFilterTransformer(channelId, connector.getName(), script, template));
         }
 
         return filterTransformerExecutor;
@@ -678,7 +670,7 @@ public class DonkeyEngineController implements EngineController {
 
     private ResponseTransformerExecutor createResponseTransformerExecutor(String channelId, Connector connector) throws Exception {
         boolean runResponseTransformer = false;
-        String templateId = null;
+        String template = null;
         Transformer transformer = connector.getResponseTransformer();
 
         DataType inboundDataType = DataTypeFactory.getDataType(transformer.getInboundDataType(), transformer.getInboundProperties());
@@ -704,32 +696,28 @@ public class DonkeyEngineController implements EngineController {
             runResponseTransformer = outboundDataType.getSerializer().isSerializationRequired(false);
         }
 
-        // put the outbound template in the templates table
+        // Serialize the outbound template if needed
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-            TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
             XmlSerializer serializer = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).getSerializer(transformer.getOutboundProperties().getSerializerProperties());
-            templateId = UUIDGenerator.getUUID();
 
-            if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-                if (ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).isBinary()) {
-                    templateController.putTemplate(channelId, templateId, transformer.getOutboundTemplate());
-                } else {
-                    templateController.putTemplate(channelId, templateId, serializer.toXML(transformer.getOutboundTemplate()));
+            if (ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).isBinary()) {
+                template = transformer.getOutboundTemplate();
+            } else {
+                try {
+                    template = serializer.toXML(transformer.getOutboundTemplate());
+                } catch (SerializerException e) {
+                    throw new SerializerException("Error serializing response transformer outbound template for connector \"" + connector.getName() + "\": " + e.getMessage(), e.getCause(), e.getFormattedError());
                 }
-
-                runResponseTransformer = true;
             }
-        }
 
-        // put the script in the scripts table
-        String scriptId = UUIDGenerator.getUUID();
-        String script = JavaScriptBuilder.generateResponseTransformerScript(transformer);
-        scriptController.putScript(channelId, scriptId, script);
+            runResponseTransformer = true;
+        }
 
         ResponseTransformerExecutor responseTransformerExecutor = new ResponseTransformerExecutor(inboundDataType, outboundDataType);
 
         if (runResponseTransformer) {
-            responseTransformerExecutor.setResponseTransformer(new JavaScriptResponseTransformer(channelId, connector.getName(), scriptId, templateId));
+            String script = JavaScriptBuilder.generateResponseTransformerScript(transformer);
+            responseTransformerExecutor.setResponseTransformer(new JavaScriptResponseTransformer(channelId, connector.getName(), script, template));
         }
 
         return responseTransformerExecutor;

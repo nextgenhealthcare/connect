@@ -16,19 +16,15 @@ import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 
-import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
-import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformerException;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
-import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.ScriptController;
-import com.mirth.connect.server.controllers.TemplateController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.JavaScriptUtil;
+import com.mirth.connect.server.util.UUIDGenerator;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutor;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
@@ -37,50 +33,38 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptResponseTransformer implements ResponseTransformer {
     private Logger logger = Logger.getLogger(this.getClass());
-    private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-    private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private JavaScriptExecutor<Void> jsExecutor = new JavaScriptExecutor<Void>();
 
     private String channelId;
     private String connectorName;
     private String scriptId;
-    private String templateId;
     private String template;
 
-    public JavaScriptResponseTransformer(String channelId, String connectorName, String scriptId, String templateId) throws JavaScriptInitializationException {
+    public JavaScriptResponseTransformer(String channelId, String connectorName, String script, String template) throws JavaScriptInitializationException {
         this.channelId = channelId;
         this.connectorName = connectorName;
-        this.scriptId = scriptId;
-        this.templateId = templateId;
-        
-        initialize();
+        this.template = template;
+        initialize(script);
     }
 
-    private void initialize() throws JavaScriptInitializationException {
+    private void initialize(String script) throws JavaScriptInitializationException {
         try {
-        	// Load the template (if there is one)
-            if (templateId != null) {
-                template = templateController.getTemplate(channelId, templateId);
-            }
-            
             /*
-             * Scripts are not compiled if they are blank or do not exist in the
-             * database. Note that in Oracle, a blank script is the same as a
-             * NULL script.
+             * Scripts are not compiled if they are blank or do not exist in the database. Note that
+             * in Oracle, a blank script is the same as a NULL script.
              */
-            String script = scriptController.getScript(channelId, scriptId);
-
             if (StringUtils.isNotBlank(script)) {
                 logger.debug("compiling response transformer script");
+                this.scriptId = UUIDGenerator.getUUID();
                 JavaScriptUtil.compileAndAddScript(scriptId, script, null, null);
             }
         } catch (Exception e) {
             if (e instanceof RhinoException) {
                 e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 0, "response", null);
             }
-            
-            logger.error(ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_300, null, e));					// TODO Add new error code for Response Transformer
+
+            logger.error(ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_300, null, e)); // TODO Add new error code for Response Transformer
             throw new JavaScriptInitializationException("Error initializing JavaScript response transformer", e);
         }
     }
@@ -95,7 +79,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
             if (cause instanceof ResponseTransformerException) {
                 throw (ResponseTransformerException) cause;
             }
-            
+
             throw new ResponseTransformerException(e.getMessage(), e);
         }
     }
@@ -112,7 +96,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
         private String connectorName;
         private String scriptId;
         private String template;
-        
+
         public ResponseTransformerTask(Response response, ConnectorMessage connectorMessage, String channelId, String connectorName, String scriptId, String template) {
             this.response = response;
             this.connectorMessage = connectorMessage;
@@ -121,7 +105,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
             this.scriptId = scriptId;
             this.template = template;
         }
-        
+
         @Override
         public Void call() throws Exception {
             Logger scriptLogger = Logger.getLogger("response");
@@ -138,16 +122,16 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
 
                 // Execute the script
                 executeScript(compiledScript, scope);
-                
+
                 String responseTransformedData = JavaScriptScopeUtil.getTransformedDataFromScope(scope, StringUtils.isNotBlank(template));
-                
+
                 // Set response status and errorMsg
                 JavaScriptScopeUtil.getResponseDataFromScope(scope, response);
 
                 if (StringUtils.isNotBlank(responseTransformedData)) {
-                	connectorMessage.getResponseTransformed().setContent(responseTransformedData);
+                    connectorMessage.getResponseTransformed().setContent(responseTransformedData);
                 }
-                
+
             } catch (Throwable t) {
                 if (t instanceof RhinoException) {
                     try {
@@ -164,7 +148,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
             } finally {
                 Context.exit();
             }
-            
+
             return null;
         }
     }

@@ -30,7 +30,6 @@ public class ControllerTestSuite {
         suite.addTestSuite(UserControllerTest.class);
         suite.addTestSuite(EventControllerTest.class);
         suite.addTestSuite(ConfigurationControllerTest.class);
-        suite.addTestSuite(TemplateControllerTest.class);
         suite.addTestSuite(MessageObjectControllerTest.class);
         suite.addTestSuite(ChannelControllerTest.class);
         suite.addTestSuite(StatisticsControllerTest.class);

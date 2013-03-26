@@ -47,7 +47,6 @@
 		<mapper resource="${database}/${database}-channel.xml" />
 		<mapper resource="${database}/${database}-message.xml" />
 		<mapper resource="${database}/${database}-script.xml" />
-		<mapper resource="${database}/${database}-template.xml" />
 		<mapper resource="${database}/${database}-configuration.xml" />
 		<mapper resource="${database}/${database}-event.xml" />
 		<mapper resource="${database}/${database}-statistic.xml" />
