@@ -12,6 +12,7 @@ package com.mirth.connect.client.ui;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComponent;
@@ -20,17 +21,36 @@ import javax.swing.TransferHandler;
 import org.jdesktop.swingx.JXList;
 
 import com.mirth.connect.client.ui.panels.reference.ReferenceTable;
+import com.mirth.connect.model.Connector;
 
 public class VariableListHandler extends TransferHandler {
 
-    private String prefix, suffix;
-    private Map<String, String> staticJsReferences;
-    private Map<String, String> staticVelocityReferences;
+    public enum TransferMode {
+        RAW("", ""), VELOCITY("${", "}"), JAVASCRIPT("$('", "')");
 
-    public VariableListHandler(String prefix, String suffix) {
-        this.prefix = prefix;
-        this.suffix = suffix;
+        private String prefix;
+        private String suffix;
 
+        private TransferMode(String prefix, String suffix) {
+            this.prefix = prefix;
+            this.suffix = suffix;
+        }
+
+        public String getPrefix() {
+            return prefix;
+        }
+
+        public String getSuffix() {
+            return suffix;
+        }
+    };
+
+    private TransferMode transferMode;
+    private Map<String, Integer> metaDataMap = new HashMap<String, Integer>();
+    private static Map<String, String> staticJsReferences;
+    private static Map<String, String> staticVelocityReferences;
+
+    static {
         staticVelocityReferences = new HashMap<String, String>();
         staticVelocityReferences.put("Raw Data", "${message.rawData}");
         staticVelocityReferences.put("Transformed Data", "${message.transformedData}");
@@ -69,6 +89,27 @@ public class VariableListHandler extends TransferHandler {
         staticJsReferences.put("XML Pretty Printer", "var prettyPrintedMessage = XmlUtil.prettyPrint('message');");
     }
 
+    public VariableListHandler(TransferMode transferMode) {
+        this(transferMode, null);
+    }
+
+    public VariableListHandler(TransferMode transferMode, List<Connector> connectors) {
+        this.transferMode = transferMode;
+        populateConnectors(connectors);
+    }
+
+    public void setTransferMode(TransferMode transferMode) {
+        this.transferMode = transferMode;
+    }
+
+    public void populateConnectors(List<Connector> connectors) {
+        if (connectors != null) {
+            for (Connector connector : connectors) {
+                metaDataMap.put(connector.getName(), connector.getMetaDataId());
+            }
+        }
+    }
+
     protected Transferable createTransferable(JComponent c) {
         try {
             String text = "";
@@ -92,16 +133,13 @@ public class VariableListHandler extends TransferHandler {
             }
 
             if (text != null) {
-                if (prefix.equals("${") && suffix.equals("}")) {
-                    if (staticVelocityReferences.get(text) != null) {
-                        return new VariableTransferable(staticVelocityReferences.get(text), "", "");
-                    }
-                } else {
-                    if (staticJsReferences.get(text) != null) {
-                        return new VariableTransferable(staticJsReferences.get(text), "", "");
-                    }
+                if (transferMode == TransferMode.VELOCITY && staticVelocityReferences.containsKey(text)) {
+                    return new VariableTransferable(staticVelocityReferences.get(text), TransferMode.RAW, metaDataMap);
+                } else if (transferMode == TransferMode.JAVASCRIPT && staticJsReferences.containsKey(text)) {
+                    return new VariableTransferable(staticJsReferences.get(text), TransferMode.RAW, metaDataMap);
                 }
-                return new VariableTransferable(text, prefix, suffix);
+
+                return new VariableTransferable(text, transferMode, metaDataMap);
             }
             return null;
         } catch (ClassCastException cce) {

@@ -23,6 +23,7 @@ import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -60,7 +61,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         jsMappingDoc = new SyntaxDocument();
         jsMappingDoc.setTokenMarker(new JavaScriptTokenMarker());
     }
-    
+
     @Override
     public String getConnectorName() {
         return new DatabaseDispatcherProperties().getName();
@@ -69,7 +70,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
     @Override
     public ConnectorProperties getProperties() {
         DatabaseDispatcherProperties properties = new DatabaseDispatcherProperties();
-        
+
         for (int i = 0; i < drivers.size(); i++) {
             DriverInfo driver = drivers.get(i);
             if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
@@ -101,20 +102,20 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         }
 
         parent.setSaveEnabled(enabled);
-        
+
         databaseURLField.setText(props.getUrl());
         databaseUsernameField.setText(props.getUsername());
         databasePasswordField.setText(props.getPassword());
-        
+
         if (props.isUseScript()) {
             useJavaScriptYes.setSelected(true);
             useJavaScriptYesActionPerformed(null);
-            
+
         } else {
             useJavaScriptNo.setSelected(true);
             useJavaScriptNoActionPerformed(null);
         }
-        
+
         databaseSQLTextPane.setText(props.getQuery());
 
     }
@@ -127,7 +128,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
     @Override
     public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
         DatabaseDispatcherProperties props = (DatabaseDispatcherProperties) properties;
-        
+
         boolean valid = true;
 
         if (!props.isUseScript() && props.getUrl().length() == 0) {
@@ -153,21 +154,8 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
     }
 
     @Override
-    public String getDragAndDropPrefix() {
-        if (((DatabaseDispatcherProperties) getProperties()).isUseScript()) {
-            return "$('";
-        }
-        
-        return super.getDragAndDropPrefix();
-    }
-
-    @Override
-    public String getDragAndDropSuffix() {
-        if (((DatabaseDispatcherProperties) getProperties()).isUseScript()) {
-            return "')";
-        }
-        
-        return super.getDragAndDropSuffix();
+    public TransferMode getTransferMode() {
+        return ((DatabaseDispatcherProperties) getProperties()).isUseScript() ? TransferMode.JAVASCRIPT : TransferMode.VELOCITY;
     }
 
     @Override
@@ -180,12 +168,12 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
     @Override
     public String doValidate(ConnectorProperties properties, boolean highlight) {
         DatabaseDispatcherProperties props = (DatabaseDispatcherProperties) properties;
-        
+
         String error = null;
-        
+
         if (props.isUseScript()) {
             String script = props.getQuery();
-    
+
             if (script.length() != 0) {
                 Context context = Context.enter();
                 try {
@@ -201,20 +189,20 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
                     }
                     error += "Error in connector \"" + getConnectorName() + "\" at Javascript:\nUnknown error occurred during validation.";
                 }
-    
+
                 Context.exit();
             }
         }
 
         return error;
     }
-    
+
     @Override
     public List<String> getScripts(ConnectorProperties properties) {
         DatabaseDispatcherProperties props = (DatabaseDispatcherProperties) properties;
 
         List<String> scripts = new ArrayList<String>();
-        
+
         if (props.isUseScript()) {
             scripts.add(props.getQuery());
         }
@@ -405,48 +393,48 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-private void generateInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateInsertActionPerformed
-    showDatabaseMetaData(STATEMENT_TYPE.INSERT_TYPE);
-}//GEN-LAST:event_generateInsertActionPerformed
+    private void generateInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateInsertActionPerformed
+        showDatabaseMetaData(STATEMENT_TYPE.INSERT_TYPE);
+    }//GEN-LAST:event_generateInsertActionPerformed
 
-private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertURLTemplateButtonActionPerformed
+    private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertURLTemplateButtonActionPerformed
 
-    if (!databaseURLField.getText().equals("")) {
-        if (!parent.alertOption(parent, "Are you sure you would like to replace your current connection URL with the template URL?")) {
-            return;
+        if (!databaseURLField.getText().equals("")) {
+            if (!parent.alertOption(parent, "Are you sure you would like to replace your current connection URL with the template URL?")) {
+                return;
+            }
         }
-    }
 
-    String template = "";
+        String template = "";
 
-    for (int i = 0; i < drivers.size(); i++) {
-        DriverInfo driverInfo = drivers.get(i);
-        if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
-            template = driverInfo.getTemplate();
+        for (int i = 0; i < drivers.size(); i++) {
+            DriverInfo driverInfo = drivers.get(i);
+            if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
+                template = driverInfo.getTemplate();
+            }
         }
-    }
 
-    databaseURLField.setText(template);
-    databaseURLField.grabFocus();
-    parent.setSaveEnabled(true);
+        databaseURLField.setText(template);
+        databaseURLField.grabFocus();
+        parent.setSaveEnabled(true);
 
-}//GEN-LAST:event_insertURLTemplateButtonActionPerformed
+    }//GEN-LAST:event_insertURLTemplateButtonActionPerformed
 
     public void showDatabaseMetaData(STATEMENT_TYPE type) {
         DatabaseDispatcherProperties properties = (DatabaseDispatcherProperties) getProperties();
-        
+
         if (properties.getUrl().length() == 0 || properties.getDriver().equals(DatabaseReceiverProperties.DRIVER_DEFAULT)) {
             parent.alertError(parent, "A valid Driver and URL are required to perform this operation.");
         } else {
             String selectLimit = null;
-                
+
             for (int i = 0; i < drivers.size(); i++) {
                 DriverInfo driver = drivers.get(i);
                 if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
                     selectLimit = driver.getSelectLimit();
                 }
             }
-            
+
             new DatabaseMetadataDialog(this, type, new DatabaseConnectionInfo(properties.getDriver(), properties.getUrl(), properties.getUsername(), properties.getPassword(), "", selectLimit));
         }
     }
@@ -502,7 +490,7 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
         databaseSQLTextPane.setDocument(jsMappingDoc);
         databaseSQLTextPane.setText(generateConnectionString());
         generateConnection.setEnabled(true);
-        parent.channelEditPanel.destinationVariableList.setPrefixAndSuffix("$('", "')");
+        parent.channelEditPanel.destinationVariableList.setTransferMode(TransferMode.JAVASCRIPT);
     }// GEN-LAST:event_useJavaScriptYesActionPerformed
 
     private void useJavaScriptNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useJavaScriptNoActionPerformed
@@ -511,7 +499,7 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
         databaseSQLTextPane.setDocument(sqlMappingDoc);
         databaseSQLTextPane.setText("");
         generateConnection.setEnabled(false);
-        parent.channelEditPanel.destinationVariableList.setPrefixAndSuffix("${", "}");
+        parent.channelEditPanel.destinationVariableList.setTransferMode(TransferMode.VELOCITY);
     }// GEN-LAST:event_useJavaScriptNoActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;

@@ -15,6 +15,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 import javax.swing.JList;
 
+import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.util.TcpUtil;
 
 public class ByteAbbreviationList extends javax.swing.JPanel {
@@ -24,18 +25,18 @@ public class ByteAbbreviationList extends javax.swing.JPanel {
      */
     public ByteAbbreviationList() {
         initComponents();
-        mirthVariableList.setPrefixAndSuffix("", "");
-        
+        mirthVariableList.setTransferMode(TransferMode.RAW);
+
         DefaultListModel model = new DefaultListModel();
         for (int i = 0; i <= 255; i++) {
             model.addElement(TcpUtil.convertHexToAbbreviation(Integer.toHexString(i).toUpperCase()));
         }
         mirthVariableList.setModel(model);
-        
-        mirthVariableList.setTransferHandler(new VariableListHandler("", "") {
+
+        mirthVariableList.setTransferHandler(new VariableListHandler(TransferMode.RAW) {
             @Override
             protected Transferable createTransferable(JComponent c) {
-                return new VariableTransferable(String.format("%02x", ((JList) c).getSelectedIndex()).toUpperCase(), "", "");
+                return new VariableTransferable(String.format("%02x", ((JList) c).getSelectedIndex()).toUpperCase(), TransferMode.RAW);
             }
         });
     }

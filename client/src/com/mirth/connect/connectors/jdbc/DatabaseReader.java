@@ -30,6 +30,7 @@ import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.util.SQLParserUtil;
@@ -80,7 +81,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         selectTextPane.setDocument(sqlMappingDoc);
         updateTextPane.setDocument(sqlUpdateMappingDoc);
-        
+
         sqlMappingDoc.addDocumentListener(new DocumentListener() {
 
             public void changedUpdate(DocumentEvent e) {}
@@ -142,7 +143,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         } else {
             properties.setUpdateMode(DatabaseReceiverProperties.UPDATE_NEVER);
         }
-        
+
         return properties;
     }
 
@@ -164,7 +165,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         databaseURLField.setText(props.getUrl());
         databaseUsernameField.setText(props.getUsername());
         databasePasswordField.setText(props.getPassword());
-        
+
         if (props.isKeepConnectionOpen()) {
             keepConnOpenYes.setSelected(true);
             keepConnOpenNo.setSelected(false);
@@ -180,7 +181,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
             cacheResultsNoButton.setSelected(true);
             cacheResultsNoButtonActionPerformed(null);
         }
-        
+
         fetchSizeField.setText(props.getFetchSize());
         retryCountField.setText(props.getRetryCount());
 
@@ -200,12 +201,12 @@ public class DatabaseReader extends ConnectorSettingsPanel {
                 updateEach.setSelected(true);
                 updateEachActionPerformed(null);
                 break;
-                
+
             case DatabaseReceiverProperties.UPDATE_ONCE:
                 updateOnce.setSelected(true);
                 updateOnceActionPerformed(null);
                 break;
-                
+
             default:
                 updateNever.setSelected(true);
                 updateNeverActionPerformed(null);
@@ -233,7 +234,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         if (props.getSelect().length() == 0) {
             valid = false;
-            
+
             if (highlight) {
                 selectTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
@@ -241,7 +242,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         if (props.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER && (props.getUpdate().length() == 0)) {
             valid = false;
-            
+
             if (highlight) {
                 updateTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
@@ -249,7 +250,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         if (props.getDriver().equals(DatabaseReceiverProperties.DRIVER_DEFAULT)) {
             valid = false;
-            
+
             if (highlight) {
                 databaseDriverCombobox.setBackground(UIConstants.INVALID_COLOR);
             }
@@ -274,10 +275,10 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
         if (props.isUseScript()) {
             String script = props.getSelect();
-            
+
             if (script.length() != 0) {
                 Context context = Context.enter();
-                
+
                 try {
                     context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
                 } catch (EvaluatorException e) {
@@ -294,7 +295,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
                 if (onUpdateScript.length() != 0) {
                     Context context = Context.enter();
-                    
+
                     try {
                         context.compileString("function rhinoWrapper() {" + onUpdateScript + "\n}", UUID.randomUUID().toString(), 1, null);
                     } catch (EvaluatorException e) {
@@ -798,26 +799,26 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         updateTextPane.setDocument(sqlUpdateMappingDoc);
         selectTextPane.setText("");
         updateTextPane.setText("");
-        
+
         keepConnOpenLabel.setEnabled(true);
         keepConnOpenNo.setEnabled(true);
         keepConnOpenYes.setEnabled(true);
-        
+
         cacheResultsLabel.setEnabled(true);
         cacheResultsNoButton.setEnabled(true);
         cacheResultsYesButton.setEnabled(true);
-        
+
         if (cacheResultsYesButton.isSelected()) {
             cacheResultsYesButtonActionPerformed(null);
         } else {
             cacheResultsNoButtonActionPerformed(null);
         }
-        
+
         updateSQL();
 
         generateConnection.setEnabled(false);
         generateUpdateConnection.setEnabled(false);
-        dbVarList.setPrefixAndSuffix("${", "}");
+        dbVarList.setTransferMode(TransferMode.VELOCITY);
     }//GEN-LAST:event_useScriptNoActionPerformed
 
     private void useScriptYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useScriptYesActionPerformed
@@ -832,15 +833,15 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         String update = "// This update script will be executed once for every result returned from the above query.\n" + connString;
         updateTextPane.setText(update);
         generateConnection.setEnabled(true);
-        
+
         keepConnOpenLabel.setEnabled(false);
         keepConnOpenNo.setEnabled(false);
         keepConnOpenYes.setEnabled(false);
-        
+
         cacheResultsLabel.setEnabled(false);
         cacheResultsNoButton.setEnabled(false);
         cacheResultsYesButton.setEnabled(false);
-        
+
         fetchSizeField.setEnabled(false);
         fetchSizeLabel.setEnabled(false);
         updateSQL();
@@ -848,11 +849,10 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         if (!updateNever.isSelected()) {
             generateUpdateConnection.setEnabled(true);
         }
-        dbVarList.setPrefixAndSuffix("$('", "')");
+        dbVarList.setTransferMode(TransferMode.JAVASCRIPT);
     }//GEN-LAST:event_useScriptYesActionPerformed
 
     private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertURLTemplateButtonActionPerformed
-
         if (!databaseURLField.getText().equals("")) {
             if (!parent.alertOption(parent, "Are you sure you would like to replace your current connection URL with the template URL?")) {
                 return;

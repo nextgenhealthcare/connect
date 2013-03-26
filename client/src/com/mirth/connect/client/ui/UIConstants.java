@@ -50,6 +50,7 @@ public class UIConstants {
     public static final int MAX_WIDTH = 200;
     public static final int WIDTH_SHORT_MIN = 20;
     public static final int WIDTH_SHORT_MAX = 50;
+    public static final int METADATA_ID_COLUMN_WIDTH = 30;
     public static final Color HIGHLIGHTER_COLOR = new Color(240, 240, 240);
     // background colors
     public static final Color BACKGROUND_COLOR = new Color(255, 255, 255);
@@ -134,10 +135,10 @@ public class UIConstants {
     // for privacy
     public static final String PRIVACY_URL = "http://www.mirthcorp.com/company/about/privacy#mirthconnect";
     public static final String PRIVACY_TOOLTIP = "Privacy Information";
-    
+
     // FileUtils reading/writing
     public static final String CHARSET = "UTF-8";
-    
+
     // for data types
     public static final String DATATYPE_DEFAULT = "HL7V2";
     public static final String DATATYPE_XML = "XML";

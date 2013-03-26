@@ -9,12 +9,14 @@
 
 package com.mirth.connect.client.ui.panels.connectors;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,7 +56,7 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
 
     private Frame parent;
     private List<String> queueOnRespondFromNames;
-    private List<String> queueOffRespondFromNames;
+    private List<Object> queueOffRespondFromNames;
 
     public ResponseSettingsPanel() {
         parent = PlatformUI.MIRTH_FRAME;
@@ -75,17 +77,32 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
 
     public void updateResponseDropDown(ResponseConnectorProperties properties, boolean channelLoad) {
         boolean enabled = parent.isSaveEnabled();
-
-        String selectedItem;
-        if (channelLoad) {
-            selectedItem = properties.getResponseVariable();
-        } else {
-            selectedItem = (String) responseComboBox.getSelectedItem();
-        }
-
         Channel channel = parent.channelEditPanel.currentChannel;
 
-        Set<String> variables = new LinkedHashSet<String>();
+        Object selectedItem;
+        if (channelLoad) {
+            /*
+             * The response variable is the response map key. To ensure that the
+             * destination name still shows up in the combo box, we use an Entry
+             * object for the selected item, rather than a single String.
+             */
+            selectedItem = properties.getResponseVariable();
+            for (Connector connector : channel.getDestinationConnectors()) {
+                if (selectedItem.equals("d" + String.valueOf(connector.getMetaDataId()))) {
+                    selectedItem = new SimpleEntry<String, String>("d" + String.valueOf(connector.getMetaDataId()), connector.getName()) {
+                        @Override
+                        public String toString() {
+                            return getValue();
+                        }
+                    };
+                    break;
+                }
+            }
+        } else {
+            selectedItem = responseComboBox.getSelectedItem();
+        }
+
+        Set<Object> variables = new LinkedHashSet<Object>();
 
         variables.addAll(Arrays.asList(properties.getDefaultQueueOffResponses()));
 
@@ -98,7 +115,17 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
             ConnectorSettingsPanel tempConnector = LoadedExtensions.getInstance().getDestinationConnectors().get(connector.getTransportName());
             scripts.addAll(tempConnector.getScripts(connector.getProperties()));
 
-            variables.add(connector.getName());
+            /*
+             * We add an Entry object instead of just the connector name, so
+             * that the back-end response variable is the "d#" key, while the
+             * front-end combo box display is the full connector name.
+             */
+            variables.add(new SimpleEntry<String, String>("d" + String.valueOf(connector.getMetaDataId()), connector.getName()) {
+                @Override
+                public String toString() {
+                    return getValue();
+                }
+            });
             stepsToCheck.addAll(connector.getTransformer().getSteps());
             stepsToCheck.addAll(connector.getResponseTransformer().getSteps());
         }
@@ -137,21 +164,21 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
         }
 
         queueOnRespondFromNames = new ArrayList<String>(Arrays.asList(properties.getDefaultQueueOnResponses()));
-        queueOffRespondFromNames = new ArrayList<String>(variables);
+        queueOffRespondFromNames = new ArrayList<Object>(variables);
         responseComboBox.setModel(new DefaultComboBoxModel(variables.toArray()));
 
-        if (variables.contains(selectedItem)) {
-            responseComboBox.setSelectedItem(selectedItem);
-        } else {
-            responseComboBox.setSelectedIndex(0);
-        }
+        setSelectedItem(selectedItem);
 
         sourceQueueComboBoxActionPerformed(null);
         parent.setSaveEnabled(enabled);
     }
 
     public void fillProperties(ResponseConnectorProperties properties) {
-        properties.setResponseVariable((String) responseComboBox.getSelectedItem());
+        if (responseComboBox.getSelectedItem() instanceof Entry) {
+            properties.setResponseVariable(((Entry<String, String>) responseComboBox.getSelectedItem()).getKey());
+        } else {
+            properties.setResponseVariable((String) responseComboBox.getSelectedItem());
+        }
         properties.setRespondAfterProcessing(sourceQueueComboBox.getSelectedIndex() == 0);
     }
 
@@ -174,6 +201,28 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
             key = matcher.group(SHORT_NAME_MATCHER_INDEX);
         }
         return StringEscapeUtils.unescapeJavaScript(key);
+    }
+
+    private void setSelectedItem(Object selectedItem) {
+        DefaultComboBoxModel model = (DefaultComboBoxModel) responseComboBox.getModel();
+
+        if (selectedItem instanceof Entry) {
+            /*
+             * If the selected item is an Entry and the key ("d#") is the same
+             * as an Entry in the model, then they're "the same", and that entry
+             * is selected.
+             */
+            for (int i = 0; i <= model.getSize() - 1; i++) {
+                if (model.getElementAt(i) instanceof Entry && ((Entry<String, String>) selectedItem).getKey().equals(((Entry<String, String>) model.getElementAt(i)).getKey())) {
+                    responseComboBox.setSelectedIndex(i);
+                    return;
+                }
+            }
+        } else if (model.getIndexOf(selectedItem) >= 0) {
+            responseComboBox.setSelectedItem(selectedItem);
+            return;
+        }
+        responseComboBox.setSelectedIndex(0);
     }
 
     public void resetInvalidProperties() {}
@@ -236,11 +285,7 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
             responseComboBox.setModel(new DefaultComboBoxModel(queueOnRespondFromNames.toArray()));
         }
 
-        if (((DefaultComboBoxModel) responseComboBox.getModel()).getIndexOf(selectedItem) >= 0) {
-            responseComboBox.setSelectedItem(selectedItem);
-        } else {
-            responseComboBox.setSelectedIndex(0);
-        }
+        setSelectedItem(selectedItem);
     }//GEN-LAST:event_sourceQueueComboBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import com.mirth.connect.client.ui.ChannelSetup;
+import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
@@ -28,11 +29,11 @@ public class ConnectorPanel extends JPanel {
     public ConnectorPanel() {
         initComponents();
     }
-    
+
     public void setChannelSetup(ChannelSetup channelSetup) {
         queueSettingsPanel.setChannelSetup(channelSetup);
     }
-    
+
     public void setConnectorSettingsPanel(ConnectorSettingsPanel panel) {
         if (currentPanel != null) {
             connectorSettingsContainer.remove(currentPanel);
@@ -63,11 +64,11 @@ public class ConnectorPanel extends JPanel {
 
     public ConnectorProperties getProperties() {
         ConnectorSettingsPanel connectorSettingsPanel = getConnectorSettingsPanel();
-        
+
         if (connectorSettingsPanel == null) {
             return null;
         }
-        
+
         ConnectorProperties connectorProperties = connectorSettingsPanel.getProperties();
 
         if (connectorProperties instanceof PollConnectorPropertiesInterface) {
@@ -117,7 +118,7 @@ public class ConnectorPanel extends JPanel {
     public boolean checkProperties(ConnectorProperties properties, boolean highlight) {
         return checkProperties(getConnectorSettingsPanel(), properties, highlight);
     }
-    
+
     public boolean checkProperties(ConnectorSettingsPanel connectorSettingsPanel, ConnectorProperties properties, boolean highlight) {
         boolean polling = true;
 
@@ -156,7 +157,7 @@ public class ConnectorPanel extends JPanel {
     public String doValidate(ConnectorProperties properties, boolean highlight) {
         return doValidate(getConnectorSettingsPanel(), properties, highlight);
     }
-    
+
     public String doValidate(ConnectorSettingsPanel connectorSettingsPanel, ConnectorProperties properties, boolean highlight) {
         String error = null;
 
@@ -187,14 +188,10 @@ public class ConnectorPanel extends JPanel {
         return getConnectorSettingsPanel().getDefaults();
     }
 
-    public String getDragAndDropPrefix() {
-        return getConnectorSettingsPanel().getDragAndDropPrefix();
+    public TransferMode getTransferMode() {
+        return getConnectorSettingsPanel().getTransferMode();
     }
 
-    public String getDragAndDropSuffix() {
-        return getConnectorSettingsPanel().getDragAndDropSuffix();
-    }
-    
     public boolean requiresXmlDataType() {
         return getConnectorSettingsPanel().requiresXmlDataType();
     }
@@ -202,7 +199,7 @@ public class ConnectorPanel extends JPanel {
     public void updatedField(String field) {
         getConnectorSettingsPanel().updatedField(field);
     }
-    
+
     public void updateQueueWarning(MessageStorageMode messageStorageMode) {
         queueSettingsPanel.updateQueueWarning(messageStorageMode);
     }

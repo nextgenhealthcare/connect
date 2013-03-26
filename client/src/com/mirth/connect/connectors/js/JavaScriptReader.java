@@ -17,6 +17,7 @@ import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
@@ -75,14 +76,8 @@ public class JavaScriptReader extends ConnectorSettingsPanel {
         return valid;
     }
 
-    @Override
-    public String getDragAndDropPrefix() {
-        return "$('";
-    }
-
-    @Override
-    public String getDragAndDropSuffix() {
-        return "')";
+    public TransferMode getTransferMode() {
+        return TransferMode.JAVASCRIPT;
     }
 
     @Override

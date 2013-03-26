@@ -388,7 +388,7 @@
                         </Property>
                       </Properties>
                       <AuxValues>
-                        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthVariableList(&quot;&quot;,&quot;&quot;);"/>
+                        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthVariableList();"/>
                       </AuxValues>
                     </Component>
                   </SubComponents>

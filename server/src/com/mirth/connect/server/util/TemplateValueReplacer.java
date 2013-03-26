@@ -13,6 +13,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -155,7 +156,7 @@ public class TemplateValueReplacer {
             return template;
         }
     }
-    
+
     /**
      * Replaces variables in a map
      */
@@ -266,6 +267,7 @@ public class TemplateValueReplacer {
         context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
         context.put("encoder", Entities.getInstance(false)); // TODO: Remove in 3.0
         context.put("XmlUtil", XmlUtil.class);
+        context.put("maps", new MapTool());
 
         // Load global map
         loadContextFromMap(context, GlobalVariableStore.getInstance().getVariables());
@@ -279,6 +281,7 @@ public class TemplateValueReplacer {
      * @return void
      */
     private void loadContextFromMap(VelocityContext context, Map<String, ?> map) {
+        ((MapTool) context.get("maps")).addMap(map);
         for (Entry<String, ?> entry : map.entrySet()) {
             context.put(entry.getKey(), entry.getValue());
         }
@@ -298,10 +301,27 @@ public class TemplateValueReplacer {
         loadContextFromMap(context, connectorMessage.getChannelMap());
         loadContextFromMap(context, connectorMessage.getConnectorMap());
         loadContextFromMap(context, connectorMessage.getResponseMap());
-        
+
         // Use the current time as the original file name if there is no original file name.
         if (!context.containsKey("originalFilename")) {
-        	context.put("originalFilename", System.currentTimeMillis() + ".dat");
+            context.put("originalFilename", System.currentTimeMillis() + ".dat");
+        }
+    }
+
+    public class MapTool {
+        private List<Map<String, ?>> maps = new ArrayList<Map<String, ?>>();
+
+        void addMap(Map<String, ?> map) {
+            maps.add(map);
+        }
+
+        public Object get(String key) {
+            for (Map<String, ?> map : maps) {
+                if (map.containsKey(key)) {
+                    return map.get(key);
+                }
+            }
+            return null;
         }
     }
 }

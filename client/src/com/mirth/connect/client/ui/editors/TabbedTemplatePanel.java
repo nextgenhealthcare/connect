@@ -9,12 +9,15 @@
 
 package com.mirth.connect.client.ui.editors;
 
+import java.util.List;
 import java.util.Set;
 
 import com.mirth.connect.client.ui.FunctionList;
 import com.mirth.connect.client.ui.VariableListHandler;
+import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.client.ui.panels.reference.VariableReferenceTable;
 import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class TabbedTemplatePanel extends javax.swing.JPanel {
@@ -30,9 +33,9 @@ public class TabbedTemplatePanel extends javax.swing.JPanel {
 
         // ArrayList<ReferenceListItem> functionListItems = new
         // ReferenceListBuilder().getVariableListItems();
-        variableTable = new VariableReferenceTable("Available Variables", new String[]{});
+        variableTable = new VariableReferenceTable("Available Variables", new String[] {});
         variableTable.setDragEnabled(true);
-        variableTable.setTransferHandler(new VariableListHandler("$('", "')"));
+        variableTable.setTransferHandler(new VariableListHandler(TransferMode.JAVASCRIPT));
         variableListScrollPane.setViewportView(variableTable);
     }
 
@@ -51,10 +54,10 @@ public class TabbedTemplatePanel extends javax.swing.JPanel {
         messageTreePanel.getInboundTreePanel().setTransformerView();
         messageTreePanel.getOutboundTreePanel().setTransformerView();
     }
-    
+
     /**
-     * Sets the the inbound and outbound data types and properties to be 
-     * enabled.  The inbound data type may be disabled if XML is required.
+     * Sets the the inbound and outbound data types and properties to be
+     * enabled. The inbound data type may be disabled if XML is required.
      */
     public void setSourceView() {
         boolean inboundEnabled = true;
@@ -63,7 +66,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel {
         }
         messageTemplatePanel.setDataTypeEnabled(inboundEnabled, true, true, true);
     }
-    
+
     /**
      * Sets the inbound data type and properties to be disabled and
      * the outbound data type and proeprties to be enabled.
@@ -84,6 +87,10 @@ public class TabbedTemplatePanel extends javax.swing.JPanel {
             rules.addAll(steps);
         }
         variableTable.updateVariables(rules);
+    }
+
+    public void populateConnectors(List<Connector> connectors) {
+        ((VariableListHandler) variableTable.getTransferHandler()).populateConnectors(connectors);
     }
 
     public String getIncomingMessage() {

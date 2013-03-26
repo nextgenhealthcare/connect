@@ -27,6 +27,7 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthVariableList;
@@ -59,6 +60,7 @@ public class AlertPanel extends javax.swing.JPanel {
         lastAlertRow = -1;
         blankPanel = new JPanel();
         initComponents();
+        errorList.setTransferMode(TransferMode.RAW);
         emailSubjectField.setDocument(new MirthFieldConstraints(998));
         makeAlertTable();
         makeApplyToChannelsTable();
@@ -107,9 +109,7 @@ public class AlertPanel extends javax.swing.JPanel {
                 }
 
                 if (!evt.getValueIsAdjusting()) {
-                    if (lastAlertRow != -1
-                            && lastAlertRow != alertTable.getSelectedModelIndex()
-                            && lastAlertRow < alertTable.getModel().getRowCount()) {
+                    if (lastAlertRow != -1 && lastAlertRow != alertTable.getSelectedModelIndex() && lastAlertRow < alertTable.getModel().getRowCount()) {
                         saveAlert();
                     }
 
@@ -142,11 +142,9 @@ public class AlertPanel extends javax.swing.JPanel {
                 }
             }
 
-            public void keyReleased(KeyEvent e) {
-            }
+            public void keyReleased(KeyEvent e) {}
 
-            public void keyTyped(KeyEvent e) {
-            }
+            public void keyTyped(KeyEvent e) {}
         });
     }
 
@@ -176,9 +174,9 @@ public class AlertPanel extends javax.swing.JPanel {
             updatingAlertTable = false;
         } else {
             alertTable = new MirthTable();
-            alertTable.setModel(new RefreshTableModel(tableData, new String[]{ALERT_STATUS_COLUMN_NAME, ALERT_NAME_COLUMN_NAME}) {
+            alertTable.setModel(new RefreshTableModel(tableData, new String[] { ALERT_STATUS_COLUMN_NAME, ALERT_NAME_COLUMN_NAME }) {
 
-                boolean[] canEdit = new boolean[]{false, true};
+                boolean[] canEdit = new boolean[] { false, true };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -238,7 +236,7 @@ public class AlertPanel extends javax.swing.JPanel {
         applyToChannelsTable.setOpaque(true);
         applyToChannelsTable.getTableHeader().setReorderingAllowed(false);
         applyToChannelsTable.setSortable(true);
-        
+
         // Sort by Channel Name column
         applyToChannelsTable.getRowSorter().toggleSortOrder(applyToChannelsTable.getColumnModelIndex(APPLY_CHANNEL_NAME_COLUMN_NAME));
 
@@ -302,9 +300,9 @@ public class AlertPanel extends javax.swing.JPanel {
             model.refreshDataVector(tableData);
         } else {
             applyToChannelsTable = new MirthTable();
-            applyToChannelsTable.setModel(new RefreshTableModel(tableData, new String[]{APPLY_CHANNEL_NAME_COLUMN_NAME, APPLY_STATUS_COLUMN_NAME, APPLY_CHANNEL_ID_COLUMN_NAME}) {
+            applyToChannelsTable.setModel(new RefreshTableModel(tableData, new String[] { APPLY_CHANNEL_NAME_COLUMN_NAME, APPLY_STATUS_COLUMN_NAME, APPLY_CHANNEL_ID_COLUMN_NAME }) {
 
-                boolean[] canEdit = new boolean[]{false, true, false};
+                boolean[] canEdit = new boolean[] { false, true, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -400,7 +398,7 @@ public class AlertPanel extends javax.swing.JPanel {
         current.setEmails(getEmails());
         current.setSubject(emailSubjectField.getText());
         current.setTemplate(template.getText());
-        
+
         parent.setSaveEnabled(enabled);
 
         return true;
@@ -558,14 +556,14 @@ public class AlertPanel extends javax.swing.JPanel {
             @Override
             public boolean isCellEditable(EventObject evt) {
                 boolean editable = super.isCellEditable(evt);
-                
+
                 if (editable) {
                     removeButton.setEnabled(false);
                 }
 
-                return editable; 
+                return editable;
             }
-            
+
             @Override
             protected boolean valueChanged(String value) {
                 parent.setSaveEnabled(true);
@@ -614,9 +612,9 @@ public class AlertPanel extends javax.swing.JPanel {
             }
         } else {
             emailsTable = new MirthTable();
-            emailsTable.setModel(new RefreshTableModel(tableData, new String[]{EMAIL_COLUMN_NAME}) {
+            emailsTable.setModel(new RefreshTableModel(tableData, new String[] { EMAIL_COLUMN_NAME }) {
 
-                boolean[] canEdit = new boolean[]{true};
+                boolean[] canEdit = new boolean[] { true };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -690,7 +688,7 @@ public class AlertPanel extends javax.swing.JPanel {
         template = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         errorPanel = new javax.swing.JPanel();
         errorScrollPane = new javax.swing.JScrollPane();
-        errorList = new MirthVariableList("","");
+        errorList = new MirthVariableList();
         templateVariablesPanel = new javax.swing.JPanel();
         templateVariablesPane = new javax.swing.JScrollPane();
         templateVariableList = new com.mirth.connect.client.ui.components.MirthVariableList();
@@ -939,7 +937,7 @@ public class AlertPanel extends javax.swing.JPanel {
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_addButtonActionPerformed
     {// GEN-HEADEREND:event_addButtonActionPerformed
         stopEmailEditing();
-        ((DefaultTableModel) emailsTable.getModel()).addRow(new Object[]{""});
+        ((DefaultTableModel) emailsTable.getModel()).addRow(new Object[] { "" });
         emailsTable.setRowSelectionInterval(emailsTable.getRowCount() - 1, emailsTable.getRowCount() - 1);
         parent.setSaveEnabled(true);
     }// GEN-LAST:event_addButtonActionPerformed

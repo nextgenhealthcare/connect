@@ -19,12 +19,14 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import com.mirth.connect.client.ui.VariableTransferable;
+import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 
 public class ReferenceListHandler extends TransferHandler {
 
     private ArrayList<CodeTemplate> listItems;
+
     //private final static String FUNCTION_PATTERN = "(function\\s*\\(.*\\))";
 
     public ReferenceListHandler(ArrayList<CodeTemplate> listItems) {
@@ -68,7 +70,7 @@ public class ReferenceListHandler extends TransferHandler {
                 text = "";
             }
 
-            return new VariableTransferable(text, "", "");
+            return new VariableTransferable(text, TransferMode.RAW);
         } catch (ClassCastException cce) {
             return null;
         }

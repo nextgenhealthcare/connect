@@ -11,6 +11,10 @@ package com.mirth.connect.client.ui;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 
 /**
  * Package Database Variables for movement.
@@ -18,16 +22,24 @@ import java.awt.datatransfer.Transferable;
 public class VariableTransferable implements Transferable {
 
     private static DataFlavor[] flavors = null;
+    private static final Pattern VALID_VELOCITY_VARIABLE_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_-]*");
     private String data = null;
-    private String _prefix = "msg['";
-    private String _suffix = "']";
+    private TransferMode transferMode;
+    private Map<String, Integer> metaDataMap;
+
+    public VariableTransferable(String data, TransferMode transferMode) {
+        this(data, transferMode, null);
+    }
 
     /**
      * @param data
      *            the type of Ant element being transferred, e.g., target, task,
      *            type, etc.
      */
-    public VariableTransferable(String data, String prefix, String suffix) {
+    public VariableTransferable(String data, TransferMode transferMode, Map<String, Integer> metaDataMap) {
+        this.transferMode = transferMode;
+        this.metaDataMap = metaDataMap;
+
         if (data.equals("Any")) {
             this.data = "ERROR";
         } else if (data.equals("Server")) {
@@ -72,13 +84,10 @@ public class VariableTransferable implements Transferable {
             this.data = "ERROR-413";
         } else if (data.equals("CDATA Tag")) {
             this.data = "<![CDATA[]]>";
-            prefix = "";
-            suffix = "";
+            this.transferMode = TransferMode.RAW;
         } else {
             this.data = data;
         }
-        _prefix = prefix;
-        _suffix = suffix;
         init();
     }
 
@@ -109,8 +118,31 @@ public class VariableTransferable implements Transferable {
         }
 
         if (data != null) {
+            String replacedData = data;
+            String prefix = transferMode.getPrefix();
+            String suffix = transferMode.getSuffix();
 
-            return _prefix + data + _suffix;
+            if (transferMode != TransferMode.RAW) {
+                // Replace connector names with metadata IDs
+                if (metaDataMap != null && metaDataMap.containsKey(data)) {
+                    replacedData = "d" + String.valueOf(metaDataMap.get(data));
+                    if (transferMode == TransferMode.VELOCITY) {
+                        suffix = ".message" + suffix;
+                    }
+                }
+
+                if (transferMode == TransferMode.VELOCITY && !VALID_VELOCITY_VARIABLE_PATTERN.matcher(replacedData).matches()) {
+                    prefix += "maps.get('";
+                    suffix = "')" + suffix;
+                }
+
+                if (replacedData.contains("'")) {
+                    prefix = prefix.replaceAll("'", "\"");
+                    suffix = suffix.replaceAll("'", "\"");
+                }
+            }
+
+            return prefix + replacedData + suffix;
         }
         return null;
     }

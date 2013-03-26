@@ -11,7 +11,11 @@ package com.mirth.connect.client.ui;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+
+import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
+import com.mirth.connect.model.Connector;
 
 /**
  * A panel that contains the MirthVariableList.
@@ -23,8 +27,12 @@ public class VariableList extends javax.swing.JPanel {
         initComponents();
     }
 
-    public void setPrefixAndSuffix(String prefix, String suffix) {
-        mirthVariableList.setPrefixAndSuffix(prefix, suffix);
+    public void setTransferMode(TransferMode transferMode) {
+        mirthVariableList.setTransferMode(transferMode);
+    }
+
+    public void populateConnectors(List<Connector> connectors) {
+        mirthVariableList.populateConnectors(connectors);
     }
 
     /**

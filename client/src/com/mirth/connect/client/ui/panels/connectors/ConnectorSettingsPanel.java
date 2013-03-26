@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.CodeTemplate;
 
@@ -66,13 +67,9 @@ public abstract class ConnectorSettingsPanel extends JPanel {
     public String doValidate(ConnectorProperties properties, boolean highlight) {
         return null;
     }
-
-    public String getDragAndDropPrefix() {
-        return "${";
-    }
-
-    public String getDragAndDropSuffix() {
-        return "}";
+    
+    public TransferMode getTransferMode() {
+        return TransferMode.VELOCITY;
     }
 
     public ArrayList<CodeTemplate> getReferenceItems() {

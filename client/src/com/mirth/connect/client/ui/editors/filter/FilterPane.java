@@ -504,7 +504,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
                 } else if (value != null) {
                     value = value.toString();
                 }
-                
+
                 return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             }
         });
@@ -665,6 +665,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             tabTemplatePanel.updateVariables(concatenatedRules, null);
         } else {
             tabTemplatePanel.updateVariables(getRuleVariables(row), getGlobalStepVariables(row));
+            tabTemplatePanel.populateConnectors(channel.getDestinationConnectors());
         }
     }
 

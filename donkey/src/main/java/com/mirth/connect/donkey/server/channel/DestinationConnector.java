@@ -252,7 +252,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
             afterSend(dao, message, response, previousStatus);
         } else {
-            message.getResponseMap().put(destinationName, new Response(Status.QUEUED, QUEUED_RESPONSE));
+            message.getResponseMap().put("d" + String.valueOf(getMetaDataId()), new Response(Status.QUEUED, QUEUED_RESPONSE));
 
             if (storageSettings.isStoreResponseMap()) {
                 dao.updateResponseMap(message);
@@ -476,7 +476,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
             return;
         }
 
-        message.getResponseMap().put(destinationName, response);
+        message.getResponseMap().put("d" + String.valueOf(getMetaDataId()), response);
 
         if (storageSettings.isStoreMaps()) {
             dao.updateMaps(message);
