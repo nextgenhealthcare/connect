@@ -501,20 +501,26 @@ public class TcpReceiver extends SourceConnector {
     }
 
     private void sendResponse(String response, StateAwareSocket responseSocket, StreamHandler streamHandler) throws IOException {
-        if (responseSocket != null && streamHandler != null) {
-            try {
+        try {
+            if (responseSocket != null && streamHandler != null) {
+                // Throw an exception if the client has already closed the socket
+                if (responseSocket.remoteSideHasClosed()) {
+                    throw new IOException("Remote socket has closed.");
+                }
+
                 // Send the response
                 monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.INFO, responseSocket, "Sending response... ");
                 BufferedOutputStream bos = new BufferedOutputStream(responseSocket.getOutputStream(), parseInt(connectorProperties.getBufferSize()));
                 streamHandler.setOutputStream(bos);
                 streamHandler.write(getBytes(response));
                 bos.flush();
-            } catch (IOException e) {
-                // If an error occurred while sending the response then still allow the worker to continue processing messages
-                logger.warn("Error sending response (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-                monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, "Error sending response: " + e.getMessage() + " ");
-                throw e;
+            } else {
+                throw new IOException((responseSocket == null ? "Response socket" : "Stream handler") + " is null.");
             }
+        } catch (IOException e) {
+            logger.error("Error sending response (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
+            monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, "Error sending response: " + e.getMessage() + " ");
+            throw e;
         }
     }
 
