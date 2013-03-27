@@ -95,6 +95,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
+import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.DefaultSerializer;
@@ -1426,12 +1427,14 @@ public class MessageBrowser extends javax.swing.JPanel {
         EncodedMessageTextPane.setText(text != null ? text : "Select a message to view the encoded message.");
         SentMessageTextPane.setDocument(new SyntaxDocument());
         SentMessageTextPane.setText(text != null ? text : "Select a message to view the sent message.");
-        ResponseTextPane.setDocument(new SyntaxDocument());
-        ResponseTextPane.setText(text != null ? text : "Select a message to view the response message.");
+        ResponseTextArea.setDocument(new SyntaxDocument());
+        ResponseTextArea.setText(text != null ? text : "Select a message to view the response message.");
+        responseStatusTextField.setText("");
         ResponseTransformedTextPane.setDocument(new SyntaxDocument());
         ResponseTransformedTextPane.setText(text != null ? text : "Select a message to view the response transformed message.");
-        ProcessedResponseTextPane.setDocument(new SyntaxDocument());
-        ProcessedResponseTextPane.setText(text != null ? text : "Select a message to view the processed response message.");
+        ProcessedResponseTextArea.setDocument(new SyntaxDocument());
+        ProcessedResponseTextArea.setText(text != null ? text : "Select a message to view the processed response message.");
+        processedResponseStatusTextField.setText("");
         ProcessingErrorTextPane.setDocument(new SyntaxDocument());
         ProcessingErrorTextPane.setText(text != null ? text : "Select a message to view any errors.");
         ResponseErrorTextPane.setDocument(new SyntaxDocument());
@@ -1702,14 +1705,30 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
         setCorrectDocument(SentMessageTextPane, content, dataType);
 
+        content = null;
+        if (responseMessage != null) {
+            if (metaDataId > 0) {
+                DefaultSerializer serializer = new DefaultSerializer();
+                Object object = serializer.deserialize(responseMessage.getContent());
+                if (object instanceof Response) {
+                    Response responseObject = (Response) object;
+                    String responseStatusMessage = responseObject.getStatusMessage() == null ? "" : ": " + responseObject.getStatusMessage();
+                    
+                    responseStatusTextField.setText(responseObject.getStatus().toString() + responseStatusMessage);
+                    responseStatusTextField.setCaretPosition(0);
+                    content = responseObject.getMessage();
+                }
+            } else {
+                content = responseMessage.getContent();
+            }
+        }
 
-        content = (responseMessage == null) ? null : responseMessage.getContent();
         dataType = (responseMessage == null) ? null : responseMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(ResponseRadioButton);
         }
-        setCorrectDocument(ResponseTextPane, content, dataType);
-        
+        setCorrectDocument(ResponseTextArea, content, dataType);
+
         content = (responseTransformedMessage == null) ? null : responseTransformedMessage.getContent();
         dataType = (responseTransformedMessage == null) ? null : responseTransformedMessage.getDataType();
         if (content != null) {
@@ -1717,12 +1736,29 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
         setCorrectDocument(ResponseTransformedTextPane, content, dataType);
 
-        content = (processedResponseMessage == null) ? null : processedResponseMessage.getContent();
+        content = null;
+        if (processedResponseMessage != null) {
+            if (metaDataId > 0) {
+                DefaultSerializer serializer = new DefaultSerializer();
+                Object object = serializer.deserialize(processedResponseMessage.getContent());
+                if (object instanceof Response) {
+                    Response responseObject = (Response) object;
+                    String processedResponseStatusMessage = responseObject.getStatusMessage() == null ? "" : ": " + responseObject.getStatusMessage();
+
+                    processedResponseStatusTextField.setText(responseObject.getStatus().toString() + processedResponseStatusMessage);
+                    processedResponseStatusTextField.setCaretPosition(0);
+                    content = responseObject.getMessage();
+                }
+            } else {
+                content = processedResponseMessage.getContent();
+            }
+        }
+
         dataType = (processedResponseMessage == null) ? null : processedResponseMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(ProcessedResponseRadioButton);
         }
-        setCorrectDocument(ProcessedResponseTextPane, content, dataType);
+        setCorrectDocument(ProcessedResponseTextArea, content, dataType);
     }
 
     /**
@@ -1956,9 +1992,17 @@ public class MessageBrowser extends javax.swing.JPanel {
         TransformedMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         EncodedMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         SentMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
-        ResponseTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        ResponseTextPane = new javax.swing.JPanel();
+        responseStatusLabel = new javax.swing.JLabel();
+        responseStatusTextField = new javax.swing.JTextField();
+        responseLabel = new javax.swing.JLabel();
+        ResponseTextArea = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         ResponseTransformedTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
-        ProcessedResponseTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        ProcessedResponseTextPane = new javax.swing.JPanel();
+        ProcessedResponseTextArea = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        processedResponseStatusLabel = new javax.swing.JLabel();
+        processedResponseStatusTextField = new javax.swing.JTextField();
+        processedResponseLabel = new javax.swing.JLabel();
         formatXmlMessageCheckBox = new javax.swing.JCheckBox();
         mappingsPane = new javax.swing.JScrollPane();
         mappingsTable = null;
@@ -2158,16 +2202,98 @@ public class MessageBrowser extends javax.swing.JPanel {
         SentMessageTextPane.setEditable(false);
         MessagesCardPane.add(SentMessageTextPane, "Sent");
 
-        ResponseTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        ResponseTextPane.setEditable(false);
+        ResponseTextPane.setBackground(new java.awt.Color(255, 255, 255));
+
+        responseStatusLabel.setText("Status:");
+
+        responseStatusTextField.setEditable(false);
+        responseStatusTextField.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        responseStatusTextField.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        responseStatusTextField.setOpaque(false);
+        responseStatusTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                responseStatusTextFieldActionPerformed(evt);
+            }
+        });
+
+        responseLabel.setText("Response:");
+
+        ResponseTextArea.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        ResponseTextArea.setEditable(false);
+
+        javax.swing.GroupLayout ResponseTextPaneLayout = new javax.swing.GroupLayout(ResponseTextPane);
+        ResponseTextPane.setLayout(ResponseTextPaneLayout);
+        ResponseTextPaneLayout.setHorizontalGroup(
+            ResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(responseStatusTextField, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(ResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(ResponseTextPaneLayout.createSequentialGroup()
+                .addGroup(ResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(responseStatusLabel)
+                    .addComponent(responseLabel))
+                .addGap(0, 699, Short.MAX_VALUE))
+        );
+        ResponseTextPaneLayout.setVerticalGroup(
+            ResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ResponseTextPaneLayout.createSequentialGroup()
+                .addComponent(responseStatusLabel)
+                .addGap(3, 3, 3)
+                .addComponent(responseStatusTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(responseLabel)
+                .addGap(3, 3, 3)
+                .addComponent(ResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE))
+        );
+
         MessagesCardPane.add(ResponseTextPane, "Response");
 
         ResponseTransformedTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         ResponseTransformedTextPane.setEditable(false);
         MessagesCardPane.add(ResponseTransformedTextPane, "Response Transformed");
 
-        ProcessedResponseTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        ProcessedResponseTextPane.setEditable(false);
+        ProcessedResponseTextPane.setBackground(new java.awt.Color(255, 255, 255));
+
+        ProcessedResponseTextArea.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        ProcessedResponseTextArea.setEditable(false);
+
+        processedResponseStatusLabel.setText("Status:");
+
+        processedResponseStatusTextField.setEditable(false);
+        processedResponseStatusTextField.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        processedResponseStatusTextField.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        processedResponseStatusTextField.setOpaque(false);
+        processedResponseStatusTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                processedResponseStatusTextFieldActionPerformed(evt);
+            }
+        });
+
+        processedResponseLabel.setText("Response:");
+
+        javax.swing.GroupLayout ProcessedResponseTextPaneLayout = new javax.swing.GroupLayout(ProcessedResponseTextPane);
+        ProcessedResponseTextPane.setLayout(ProcessedResponseTextPaneLayout);
+        ProcessedResponseTextPaneLayout.setHorizontalGroup(
+            ProcessedResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(processedResponseStatusTextField, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(ProcessedResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(ProcessedResponseTextPaneLayout.createSequentialGroup()
+                .addGroup(ProcessedResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(processedResponseStatusLabel)
+                    .addComponent(processedResponseLabel))
+                .addGap(0, 699, Short.MAX_VALUE))
+        );
+        ProcessedResponseTextPaneLayout.setVerticalGroup(
+            ProcessedResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ProcessedResponseTextPaneLayout.createSequentialGroup()
+                .addComponent(processedResponseStatusLabel)
+                .addGap(3, 3, 3)
+                .addComponent(processedResponseStatusTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(processedResponseLabel)
+                .addGap(3, 3, 3)
+                .addComponent(ProcessedResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE))
+        );
+
         MessagesCardPane.add(ProcessedResponseTextPane, "Processed Response");
 
         formatXmlMessageCheckBox.setBackground(new java.awt.Color(255, 255, 255));
@@ -2199,7 +2325,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(MessagesRadioPane, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE)
+                .addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(formatXmlMessageCheckBox)
                 .addContainerGap())
@@ -2727,6 +2853,14 @@ public class MessageBrowser extends javax.swing.JPanel {
         messagesRadioButtonActionPerformed(evt);
     }//GEN-LAST:event_ResponseTransformedRadioButtonActionPerformed
 
+    private void responseStatusTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_responseStatusTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_responseStatusTextFieldActionPerformed
+
+    private void processedResponseStatusTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processedResponseStatusTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_processedResponseStatusTextFieldActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton EncodedMessageRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea EncodedMessageTextPane;
@@ -2739,7 +2873,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JRadioButton ProcessedRawMessageRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ProcessedRawMessageTextPane;
     private javax.swing.JRadioButton ProcessedResponseRadioButton;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ProcessedResponseTextPane;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ProcessedResponseTextArea;
+    private javax.swing.JPanel ProcessedResponseTextPane;
     private javax.swing.JRadioButton ProcessingErrorRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ProcessingErrorTextPane;
     private javax.swing.JRadioButton RawMessageRadioButton;
@@ -2747,7 +2882,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JRadioButton ResponseErrorRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ResponseErrorTextPane;
     private javax.swing.JRadioButton ResponseRadioButton;
-    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ResponseTextPane;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ResponseTextArea;
+    private javax.swing.JPanel ResponseTextPane;
     private javax.swing.JRadioButton ResponseTransformedRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ResponseTransformedTextPane;
     private javax.swing.JRadioButton SentMessageRadioButton;
@@ -2788,9 +2924,15 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JLabel pageSizeLabel;
     private javax.swing.JLabel pageTotalLabel;
     private javax.swing.JButton previousPageButton;
+    private javax.swing.JLabel processedResponseLabel;
+    private javax.swing.JLabel processedResponseStatusLabel;
+    private javax.swing.JTextField processedResponseStatusTextField;
     private javax.swing.JTextField quickSearchField;
     private javax.swing.JLabel quickSearchLabel;
     private javax.swing.JButton resetButton;
+    private javax.swing.JLabel responseLabel;
+    private javax.swing.JLabel responseStatusLabel;
+    private javax.swing.JTextField responseStatusTextField;
     private javax.swing.JLabel resultsLabel;
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxError;
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxFiltered;

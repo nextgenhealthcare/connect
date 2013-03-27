@@ -82,12 +82,11 @@ public class VmDispatcher extends DestinationConnector {
 
         String responseData = null;
         String responseError = null;
+        String responseStatusMessage = null;
         Status responseStatus = Status.QUEUED; // Always set the status to QUEUED
 
         try {
-            if (channelId.equals("sink")) {
-                responseData = "Message Successfully Sinked";
-            } else {
+            if (!channelId.equals("none")) {
                 boolean isBinary = ExtensionController.getInstance().getDataTypePlugins().get(this.getOutboundDataType().getType()).isBinary();
                 byte[] data = AttachmentUtil.reAttachMessage(vmDispatcherProperties.getChannelTemplate(), message, Constants.ATTACHMENT_CHARSET, isBinary);
 
@@ -114,13 +113,14 @@ public class VmDispatcher extends DestinationConnector {
             }
 
             responseStatus = Status.SENT;
+            responseStatusMessage = "Message routed successfully to channel id: " + channelId;
         } catch (Throwable e) {
-            responseData = ErrorMessageBuilder.buildErrorResponse("Error routing message", e);
-            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_412, "Error routing message", e);
+            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error routing message to channel id: " + channelId, e);
+            responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_412, "Error routing message to channel id: " + channelId, e);
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
         }
 
-        return new Response(responseStatus, responseData, responseError);
+        return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
 }

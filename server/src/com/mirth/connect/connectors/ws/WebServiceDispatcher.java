@@ -210,6 +210,7 @@ public class WebServiceDispatcher extends DestinationConnector {
         
         String responseData = null;
         String responseError = null;
+        String responseStatusMessage = null;
         Status responseStatus = Status.QUEUED;
 
         try {
@@ -269,11 +270,12 @@ public class WebServiceDispatcher extends DestinationConnector {
                 if (webServiceDispatcherProperties.isOneWay()) {
                     logger.debug("Invoking one way service...");
                     dispatch.invokeOneWay(message);
-                    responseData = "Invoked one way operation successfully.";
+                    responseStatusMessage = "Invoked one way operation successfully.";
                 } else {
                     logger.debug("Invoking web service...");
                     SOAPMessage result = dispatch.invoke(message);
                     responseData = sourceToXmlString(result.getSOAPPart().getContent());
+                    responseStatusMessage = "Invoked two way operation successfully.";
                 }
                 logger.debug("Finished invoking web service, got result.");
 
@@ -282,10 +284,11 @@ public class WebServiceDispatcher extends DestinationConnector {
             } catch (Exception e) {
                 // Leave the response status as QUEUED for ConnectException, otherwise ERROR
                 if ((e.getClass() == ConnectException.class) || ((e.getCause() != null) && (e.getCause().getClass() == ConnectException.class))) {
+                    responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Connection refused.", e);
                     alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_410, "Connection refused.", e);
                 } else {
                     responseStatus = Status.ERROR;
-                    responseData = ErrorMessageBuilder.buildErrorResponse("Error invoking web service", e);
+                    responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error invoking web service", e);
                     responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_410, "Error invoking web service", e);
                     alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_410, "Error invoking web service.", e);
                 }
@@ -294,13 +297,13 @@ public class WebServiceDispatcher extends DestinationConnector {
         } catch (Exception e) {
             // Set the response status to ERROR if it failed to create the dispatch
             responseStatus = Status.ERROR;
-            responseData = ErrorMessageBuilder.buildErrorResponse("Error creating web service dispatch", e);
+            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error creating web service dispatch", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_410, "Error creating web service dispatch", e);
             alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_410, "Error creating web service dispatch.", e);
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
         }
 
-        return new Response(responseStatus, responseData, responseError);
+        return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
 }

@@ -56,6 +56,7 @@ public class JavaScriptTokenMarker extends CTokenMarker
             javaScriptKeywords.add("response", Token.KEYWORD1);
             javaScriptKeywords.add("responseStatus", Token.KEYWORD1);
             javaScriptKeywords.add("responseErrorMessage", Token.KEYWORD1);
+            javaScriptKeywords.add("responseStatusMessage", Token.KEYWORD1);
             javaScriptKeywords.add("version", Token.KEYWORD1);
             javaScriptKeywords.add("connectorMap", Token.KEYWORD1);
             javaScriptKeywords.add("channelMap", Token.KEYWORD1);

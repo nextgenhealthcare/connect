@@ -107,6 +107,7 @@ public class SmtpDispatcher extends DestinationConnector {
         SmtpDispatcherProperties smtpDispatcherProperties = (SmtpDispatcherProperties) connectorProperties;
         String responseData = null;
         String responseError = null;
+        String responseStatusMessage = null;
         Status responseStatus = Status.QUEUED;
 
         String info = "From: " + smtpDispatcherProperties.getFrom() + " To: " + smtpDispatcherProperties.getTo() + " SMTP Info: " + smtpDispatcherProperties.getSmtpHost() + ":" + smtpDispatcherProperties.getSmtpPort();
@@ -223,9 +224,10 @@ public class SmtpDispatcher extends DestinationConnector {
              */
             responseData = email.send();
             responseStatus = Status.SENT;
+            responseStatusMessage = "Email sent successfully.";
         } catch (Exception e) {
             alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_402, "Error sending email message.", e);
-            responseData = ErrorMessageBuilder.buildErrorResponse("Error sending email message", e);
+            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error sending email message", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_402, "Error sending email message", e);
 
             // TODO: Exception handling
@@ -234,6 +236,6 @@ public class SmtpDispatcher extends DestinationConnector {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
         }
 
-        return new Response(responseStatus, responseData, responseError);
+        return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
 }

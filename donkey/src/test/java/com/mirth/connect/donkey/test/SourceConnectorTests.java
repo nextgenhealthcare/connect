@@ -105,7 +105,7 @@ public class SourceConnectorTests {
             // Assert that the response is not null
             assertNotNull(dispatchResult.getSelectedResponse());
             // Assert that the response status is correct
-            assertEquals(Status.TRANSFORMED, dispatchResult.getSelectedResponse().getNewMessageStatus());
+            assertEquals(Status.TRANSFORMED, dispatchResult.getSelectedResponse().getStatus());
             // Assert that the source connector response was created
             TestUtils.assertResponseExists(channel.getChannelId(), dispatchResult.getMessageId());
         }
@@ -255,7 +255,7 @@ public class SourceConnectorTests {
 
         for (int i = 0; i < TEST_SIZE; i++) {
             response = sourceConnector.readTestMessage(testMessage).getSelectedResponse();
-            assertEquals(Status.TRANSFORMED, response.getNewMessageStatus());
+            assertEquals(Status.TRANSFORMED, response.getStatus());
         }
 
         assertEquals(TEST_SIZE, channel.getNumMessages());
@@ -264,7 +264,7 @@ public class SourceConnectorTests {
 
         for (int i = 0; i < TEST_SIZE; i++) {
             response = sourceConnector.readTestMessage(testMessage).getSelectedResponse();
-            assertEquals(Status.SENT, response.getNewMessageStatus());
+            assertEquals(Status.SENT, response.getStatus());
         }
 
         assertEquals(TEST_SIZE * 2, channel.getNumMessages());
@@ -273,7 +273,7 @@ public class SourceConnectorTests {
 
         for (int i = 0; i < TEST_SIZE; i++) {
             response = sourceConnector.readTestMessage(testMessage).getSelectedResponse();
-            assertEquals(Status.SENT, response.getNewMessageStatus());
+            assertEquals(Status.SENT, response.getStatus());
         }
 
         assertEquals(TEST_SIZE * 3, channel.getNumMessages());

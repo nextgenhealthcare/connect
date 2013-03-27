@@ -133,6 +133,7 @@ public class TcpDispatcher extends DestinationConnector {
         TcpDispatcherProperties tcpSenderProperties = (TcpDispatcherProperties) connectorProperties;
         Status responseStatus = Status.QUEUED;
         String responseData = null;
+        String responseStatusMessage = null;
         String responseError = null;
 
         // If keep connection open is true, then interrupt the thread so it won't close the socket
@@ -201,24 +202,25 @@ public class TcpDispatcher extends DestinationConnector {
 
                             if (responseStatus == Status.ERROR) {
                                 responseError = "NACK sent from receiver: " + responseData;
+                                responseStatusMessage = "NACK sent from receiver.";
                             }
                         } else {
                             responseStatus = Status.SENT;
+                            responseStatusMessage = "Message successfully sent.";
                         }
                     } else {
-                        responseData = "Response was not received.";
+                        responseStatusMessage = "Response was not received.";
                         responseError = "Response was not received.";
                         logger.debug("Response was not received (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
                     }
                 } catch (IOException e) {
                     // An exception occurred while retrieving the response
-                    responseData = e.getClass().getSimpleName() + ": " + e.getMessage();
-                    String errorMessage = (e instanceof SocketTimeoutException || e.getCause() != null && e.getCause() instanceof SocketTimeoutException) ? "Timeout waiting for response" : "Error receiving response";
+                    responseStatusMessage = (e instanceof SocketTimeoutException || e.getCause() != null && e.getCause() instanceof SocketTimeoutException) ? "Timeout waiting for response" : "Error receiving response";
 
-                    responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, errorMessage + ": " + e.getMessage(), e);
-                    logger.warn(errorMessage + " (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
-                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_411, errorMessage + ".", e);
-                    monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, errorMessage + ". ");
+                    responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, responseStatusMessage + ": " + e.getMessage(), e);
+                    logger.warn(responseStatusMessage + " (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
+                    alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_411, responseStatusMessage + ".", e);
+                    monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.FAILURE, socket, responseStatusMessage + ". ");
 
                     closeSocketQuietly();
                 }
@@ -240,7 +242,7 @@ public class TcpDispatcher extends DestinationConnector {
 
             // If an exception occurred then close the socket, even if keep connection open is true
             closeSocketQuietly();
-            responseData = e.getClass().getSimpleName() + ": " + e.getMessage();
+            responseStatusMessage = e.getClass().getSimpleName() + ": " + e.getMessage();
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, e.getMessage(), e);
 
             if (e instanceof ConnectException || e.getCause() != null && e.getCause() instanceof ConnectException) {
@@ -252,9 +254,13 @@ public class TcpDispatcher extends DestinationConnector {
             alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_411, "Error sending message via TCP.", e);
         }
 
+        if (responseStatus == Status.SENT) {
+            responseStatusMessage = "Message successfully sent.";
+        }
+
         monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE, socket);
 
-        return new Response(responseStatus, responseData, responseError);
+        return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
 
     private void closeSocketQuietly() {

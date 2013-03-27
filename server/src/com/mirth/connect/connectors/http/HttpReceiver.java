@@ -157,7 +157,7 @@ public class HttpReceiver extends SourceConnector {
                         sentResponse = message;
                     }
                     
-                    Status newMessageStatus = selectedResponse.getNewMessageStatus();
+                    Status newMessageStatus = selectedResponse.getStatus();
                     
                     /*
                      * If the status code is custom, use the

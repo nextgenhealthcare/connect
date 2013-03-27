@@ -22,6 +22,7 @@ import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
@@ -236,8 +237,9 @@ public class JavaScriptScopeUtil {
         scope.put("connector", scope, message.getConnectorName());        
         addStatusValues(scope);
         scope.put("template", scope, template);
-        scope.put("responseStatus", scope, response.getNewMessageStatus());
+        scope.put("responseStatus", scope, response.getStatus());
         scope.put("responseErrorMessage", scope, response.getError());
+        scope.put("responseStatusMessage", scope, response.getStatusMessage());
 
         return scope;
     }
@@ -313,14 +315,23 @@ public class JavaScriptScopeUtil {
         return result;
     }
     
-    public static void getResponseDataFromScope(Scriptable scope, Response response){
-    	Object status = scope.get("responseStatus", scope);
-    	Object errorMsg = scope.get("responseErrorMessage", scope);
-    	 
-		response.setNewMessageStatus((Status) Context.jsToJava(status, Status.class));
-		
-		if (errorMsg != null){
-			response.setError(Context.toString(errorMsg));
-		}
+    public static void getResponseDataFromScope(Scriptable scope, Response response) {
+        Object status = scope.get("responseStatus", scope);
+        Object statusMessage = scope.get("responseStatusMessage", scope);
+        Object errorMessage = scope.get("responseErrorMessage", scope);
+
+        response.setStatus((Status) Context.jsToJava(status, Status.class));
+
+        if (statusMessage != null && !(statusMessage instanceof Undefined)) {
+            response.setStatusMessage(Context.toString(statusMessage));
+        } else {
+            response.setStatusMessage(null);
+        }
+
+        if (errorMessage != null && !(errorMessage instanceof Undefined)) {
+            response.setError(Context.toString(errorMessage));
+        } else {
+            response.setError(null);
+        }
     }
 }

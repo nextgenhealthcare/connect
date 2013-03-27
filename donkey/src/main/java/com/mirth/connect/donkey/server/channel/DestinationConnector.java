@@ -247,7 +247,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 // Each attempt from the queue will be persisted though.
                 message.setSendAttempts(++sendAttempts);
                 response.fixStatus(isQueueEnabled());
-                responseStatus = response.getNewMessageStatus();
+                responseStatus = response.getStatus();
             } while ((responseStatus == Status.ERROR || responseStatus == Status.QUEUED) && (sendAttempts - 1) < retryCount);
 
             afterSend(dao, message, response, previousStatus);
@@ -269,14 +269,16 @@ public abstract class DestinationConnector extends Connector implements Runnable
      * @throws InterruptedException
      */
     public void processPendingConnectorMessage(DonkeyDao dao, ConnectorMessage message) throws InterruptedException {
-        Response response = Response.fromString(message.getResponse().getContent());
+        Serializer serializer = Donkey.getInstance().getSerializer();
+        Response response = (Response) serializer.deserialize(message.getResponse().getContent());
 
+        // ResponseTransformerExecutor could be null if the ResponseTransformer was removed before recovering
         if (responseTransformerExecutor != null) {
             try {
-                responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings);
+                responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings, serializer);
             } catch (DonkeyException e) {
                 logger.error("Error executing response transformer for channel " + message.getChannelId() + " (" + destinationName + ").", e);
-                response.setNewMessageStatus(Status.ERROR);
+                response.setStatus(Status.ERROR);
                 response.setError(e.getFormattedError());
                 message.setErrors(message.getErrors() != null ? message.getErrors() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
                 dao.updateErrors(message);
@@ -425,7 +427,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     private void afterSend(DonkeyDao dao, ConnectorMessage message, Response response, Status previousStatus) throws InterruptedException {
-        String responseString = response.toString();
+        Serializer serializer = Donkey.getInstance().getSerializer();
+        String responseString = serializer.serialize(response);
         MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, responseString, responseTransformerExecutor.getInbound().getType(), encryptor.encrypt(responseString));
 
         if (storageSettings.isStoreResponse()) {
@@ -443,13 +446,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
         ThreadUtils.checkInterruptedStatus();
 
         /*
-         * If the response transformer (and serializer) will run, change the
-         * current status to
-         * PENDING so it can be recovered. Still call runResponseTransformer so
-         * that
+         * If the response transformer (and serializer) will run, change the current status to
+         * PENDING so it can be recovered. Still call runResponseTransformer so that
          * transformWithoutSerializing can still run
          */
-        if (responseTransformerExecutor.getResponseTransformer() != null) {
+        if (responseTransformerExecutor.getResponseTransformer() != null && StringUtils.isNotEmpty(response.getMessage())) {
             message.setStatus(Status.PENDING);
             dao.updateStatus(message, previousStatus);
             dao.commit(storageSettings.isDurable());
@@ -457,8 +458,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
         }
 
         try {
-            // Perform transformation
-            responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings);
+        	// Perform transformation
+            responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings, serializer);  
 
             // Insert errors if necessary
             if (StringUtils.isNotBlank(response.getError())) {
@@ -467,9 +468,9 @@ public abstract class DestinationConnector extends Connector implements Runnable
             }
         } catch (DonkeyException e) {
             logger.error("Error executing response transformer for channel " + message.getChannelId() + " (" + destinationName + ").", e);
-            response.setNewMessageStatus(Status.ERROR);
+            response.setStatus(Status.ERROR);
             response.setError(e.getFormattedError());
-            message.setStatus(response.getNewMessageStatus());
+            message.setStatus(response.getStatus());
             message.setErrors(message.getErrors() != null ? message.getErrors() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
             dao.updateStatus(message, previousStatus);
             dao.updateErrors(message);
@@ -488,7 +489,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     private void afterResponse(DonkeyDao dao, ConnectorMessage connectorMessage, Response response, Status previousStatus) {
         // the response status from the response transformer should be one of: FILTERED, ERROR, SENT, or QUEUED
-        connectorMessage.setStatus(response.getNewMessageStatus());
+        connectorMessage.setStatus(response.getStatus());
         dao.updateStatus(connectorMessage, previousStatus);
         previousStatus = connectorMessage.getStatus();
     }

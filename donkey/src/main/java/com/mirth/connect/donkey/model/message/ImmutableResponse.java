@@ -21,10 +21,14 @@ public class ImmutableResponse {
 	}
 	    
 	public Status getNewMessageStatus() {
-		return response.getNewMessageStatus();
+		return response.getStatus();
 	}
 
 	public String getError() {
 		return response.getError();
+	}
+	
+	public String getStatusMessage(){
+	    return response.getStatusMessage();
 	}
 }

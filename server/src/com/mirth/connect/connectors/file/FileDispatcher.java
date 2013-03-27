@@ -126,6 +126,7 @@ public class FileDispatcher extends DestinationConnector {
 
         String responseData = null;
         String responseError = null;
+        String responseStatusMessage = null;
         Status responseStatus = Status.QUEUED;
 
         FileSystemConnection fileSystemConnection = null;
@@ -162,11 +163,11 @@ public class FileDispatcher extends DestinationConnector {
             }
 
             // update the message status to sent
-            responseData = "File successfully written: " + fileDispatcherProperties.toURIString();
+            responseStatusMessage = "File successfully written: " + fileDispatcherProperties.toURIString();
             responseStatus = Status.SENT;
         } catch (Exception e) {
             alertController.sendAlerts(fileConnector.getChannelId(), ErrorConstants.ERROR_403, "Error writing file", e);
-            responseData = ErrorMessageBuilder.buildErrorResponse("Error writing file", e);
+            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error writing file", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_403, "Error writing file", e);
             // TODO: handleException
 //            fileConnector.handleException(e);
@@ -184,6 +185,6 @@ public class FileDispatcher extends DestinationConnector {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
         }
 
-        return new Response(responseStatus, responseData, responseError);
+        return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
 }

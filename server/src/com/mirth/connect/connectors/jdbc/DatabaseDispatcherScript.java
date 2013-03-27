@@ -81,8 +81,9 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
 
         @Override
         public Object call() {
-            String responseData = "Database write success";
+            String responseData = null;
             String responseError = null;
+            String responseStatusMessage = "Database write success";
             Status responseStatus = Status.SENT;
 
             Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, connector.getChannelId(), connectorMessage);
@@ -116,7 +117,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
                 }
             } catch (Exception e) {
                 ConnectorProperties connectorProperties = connector.getConnectorProperties();
-                responseData = ErrorMessageBuilder.buildErrorResponse("Error evaluating " + connectorProperties.getName(), e);
+                responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error evaluating " + connectorProperties.getName(), e);
                 responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Error evaluating " + connector.getConnectorProperties().getName(), e);
                 responseStatus = Status.QUEUED;
 
@@ -124,7 +125,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
                 alertController.sendAlerts(connector.getChannelId(), ErrorConstants.ERROR_414, "Error evaluating " + connectorProperties.getName(), e);
             }
 
-            return new Response(responseStatus, responseData, responseError);
+            return new Response(responseStatus, responseData, responseStatusMessage, responseError);
         }
     }
 }

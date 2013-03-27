@@ -124,6 +124,7 @@ public class HttpDispatcher extends DestinationConnector {
 
         String responseData = null;
         String responseError = null;
+        String responseStatusMessage = null;
         Status responseStatus = Status.QUEUED;
 
         try {
@@ -171,7 +172,7 @@ public class HttpDispatcher extends DestinationConnector {
                     responseStatus = Status.SENT;
                 } else {
                     alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_404, "Received error response from HTTP server.", null);
-                    responseData = ErrorMessageBuilder.buildErrorResponse(responseData, null);
+                    responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Received error response from HTTP server.", null);
                     responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_404, responseData, null);
                 }
             } catch (Exception e) {
@@ -183,7 +184,7 @@ public class HttpDispatcher extends DestinationConnector {
             }
         } catch (Exception e) {
             alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_404, "Error connecting to HTTP server.", e);
-            responseData = ErrorMessageBuilder.buildErrorResponse("Error connecting to HTTP server", e);
+            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error connecting to HTTP server", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_403, "Error connecting to HTTP server", e);
 
             // TODO: Handle Exception
@@ -192,7 +193,7 @@ public class HttpDispatcher extends DestinationConnector {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
         }
 
-        return new Response(responseStatus, responseData, responseError);
+        return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
 
     private HttpMethod buildHttpRequest(HttpDispatcherProperties httpDispatcherProperties, ConnectorMessage connectorMessage) throws Exception {

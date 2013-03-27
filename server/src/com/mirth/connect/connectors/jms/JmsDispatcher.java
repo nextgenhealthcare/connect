@@ -86,11 +86,11 @@ public class JmsDispatcher extends DestinationConnector {
 
         try {
             producer.send(jmsClient.getDestination(jmsDispatcherProperties.getDestinationName()), session.createTextMessage(jmsDispatcherProperties.getTemplate()));
-            return new Response(Status.SENT, "Message sent successfully");
+            return new Response(Status.SENT, null, "Message sent successfully.");
         } catch (Exception e) {
             logger.error("An error occurred in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage(), ExceptionUtils.getRootCause(e));
             alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_407, e.getMessage(), e);
-            return new Response(Status.QUEUED, ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_407, e.getMessage(), e));
+            return new Response(Status.QUEUED, null, ErrorMessageBuilder.buildErrorResponse("Error occurred when attempting to send JMS message.", e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_407, e.getMessage(), e));
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
         }

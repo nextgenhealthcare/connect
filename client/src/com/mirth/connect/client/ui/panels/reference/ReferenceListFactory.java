@@ -236,8 +236,9 @@ public class ReferenceListFactory {
 
         variablelistItems.add(new CodeTemplate("Set Response Status to SENT", "Indicates message was successfully SENT.", "responseStatus = SENT;", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Set Response Status to QUEUED", "Indicates message should be QUEUED. If queuing is disabled, the message status will be set to ERROR.", "responseStatus = QUEUED;", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Set Response Status to ERROR", "Indicates message should have its status set to ERROR.", "responseStatus = ERROR;", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));        
-        variablelistItems.add(new CodeTemplate("Set Response Error Message", "Sets the error message of the response.", "responseErrorMessage = '';", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));        
+        variablelistItems.add(new CodeTemplate("Set Response Status to ERROR", "Indicates message should have its status set to ERROR.", "responseStatus = ERROR;", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Set Response Status Message", "Sets the status message of the response.", "responseStatusMessage = '';", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Set Response Error Message", "Sets the error message of the response.", "responseErrorMessage = '';", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
 
         return variablelistItems;
     }

@@ -95,6 +95,7 @@ public class DocumentDispatcher extends DestinationConnector {
         DocumentDispatcherProperties documentDispatcherProperties = (DocumentDispatcherProperties) connectorProperties;
         String responseData = null;
         String responseError = null;
+        String responseStatusMessage = null;
         Status responseStatus = Status.QUEUED;
 
         String info = "";
@@ -110,11 +111,11 @@ public class DocumentDispatcher extends DestinationConnector {
             logger.info("Writing document to: " + file.getAbsolutePath());
             writeDocument(documentDispatcherProperties.getTemplate(), file, documentDispatcherProperties, connectorMessage);
 
-            responseData = "Document successfully written: " + documentDispatcherProperties.getOutputPattern();
+            responseStatusMessage = "Document successfully written: " + documentDispatcherProperties.getOutputPattern();
             responseStatus = Status.SENT;
         } catch (Exception e) {
             alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_401, "Error writing document", e);
-            responseData = ErrorMessageBuilder.buildErrorResponse("Error writing document", e);
+            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error writing document", e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_401, "Error writing document", e);
 
             // TODO: Handle exception
@@ -123,7 +124,7 @@ public class DocumentDispatcher extends DestinationConnector {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
         }
 
-        return new Response(responseStatus, responseData, responseError);
+        return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
 
     private void writeDocument(String template, File file, DocumentDispatcherProperties documentDispatcherProperties, ConnectorMessage connectorMessage) throws Exception {

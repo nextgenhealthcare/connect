@@ -57,7 +57,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
         ArrayList<String> channelNameArray = new ArrayList<String>();
         channelList = new HashMap<String, String>();
-        channelList.put("None", "sink");
+        channelList.put("None", "none");
 
         String selectedChannelName = "None";
 

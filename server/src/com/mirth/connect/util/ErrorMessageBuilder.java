@@ -36,12 +36,12 @@ public class ErrorMessageBuilder {
         builder.append(errorType + LINE_SEPARATOR);
 
         if (StringUtils.isNotBlank(errorSourceLine)) {
-            builder.append("ERROR SOURCE:\t");
+            builder.append("ERROR SOURCE: ");
             builder.append(errorSourceLine + LINE_SEPARATOR);
         }
 
         if (StringUtils.isNotBlank(customMessage)) {
-            builder.append("ERROR MESSAGE:\t");
+            builder.append("ERROR MESSAGE: ");
             builder.append(customMessage + LINE_SEPARATOR);
             builder.append(stackTrace + LINE_SEPARATOR);
         } else {
@@ -54,7 +54,7 @@ public class ErrorMessageBuilder {
     public static String buildErrorResponse(String customMessage, Throwable e) {
         String responseException = new String();
         if (e != null) {
-            responseException = "\t" + e.getClass().getSimpleName() + "\t" + e.getMessage();
+            responseException = " [" + e.getClass().getSimpleName() + ": " + e.getMessage() + "]";
         }
         
         return customMessage + responseException;

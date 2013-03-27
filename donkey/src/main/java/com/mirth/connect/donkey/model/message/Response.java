@@ -11,59 +11,33 @@ package com.mirth.connect.donkey.model.message;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang3.StringUtils;
-
 public class Response implements Serializable {
     private static final long serialVersionUID = 99766081218628503L;
-
-    public static Response fromString(String response) {
-        if (response == null) {
-            return null;
-        }
-
-        int index = response.indexOf(":");
-
-        if (index == -1) {
-            return null;
-        }
-
-        String statusString = StringUtils.trim(response.substring(0, index));
-        String message = StringUtils.trim(response.substring(index + 2));
-        Status newMessageStatus = null;
-
-        if (statusString.equals("SENT")) {
-            newMessageStatus = Status.SENT;
-        } else if (statusString.equals("ERROR")) {
-            newMessageStatus = Status.ERROR;
-        } else if (statusString.equals("FILTERED")) {
-            newMessageStatus = Status.FILTERED;
-        } else if (statusString.equals("QUEUED")) {
-            newMessageStatus = Status.QUEUED;
-        } else {
-            return null;
-        }
-
-        return new Response(newMessageStatus, message);
-    }
-
-    private Status newMessageStatus;
+    private Status status;
     private String message = new String();
     private String error = new String();
+    private String statusMessage = new String();
 
-    public Response() {}
+    public Response() {
+        this(new String());
+    }
 
     public Response(String message) {
-        setMessage(message);
+        this(null, message);
     }
 
-    public Response(Status newMessageStatus, String message) {
-        this.newMessageStatus = newMessageStatus;
-        setMessage(message);
+    public Response(Status status, String message) {
+        this(status, message, new String());
     }
 
-    public Response(Status newMessageStatus, String message, String error) {
-        this.newMessageStatus = newMessageStatus;
+    public Response(Status status, String message, String statusMessage){
+        this(status, message, statusMessage, new String());
+    }
+    
+    public Response(Status status, String message, String statusMessage, String error){
+        this.status = status;
         setMessage(message);
+        setStatusMessage(statusMessage);
         setError(error);
     }
 
@@ -80,12 +54,12 @@ public class Response implements Serializable {
         this.message = message == null ? "" : message;
     }
 
-    public Status getNewMessageStatus() {
-        return newMessageStatus;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setNewMessageStatus(Status newMessageStatus) {
-        this.newMessageStatus = newMessageStatus;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public String getError() {
@@ -96,20 +70,19 @@ public class Response implements Serializable {
         this.error = error;
     }
 
-    public String toString() {
-        StringBuilder response = new StringBuilder();
-        response.append(getNewMessageStatus().toString());
-        response.append(": ");
-        response.append(getMessage());
+    public String getStatusMessage() {
+        return statusMessage;
+    }
 
-        return response.toString();
+    public void setStatusMessage(String statusMessage) {
+        this.statusMessage = statusMessage;
     }
 
     @Override
     public boolean equals(Object other) {
         if (other instanceof Response) {
             Response otherResponse = (Response) other;
-            if (newMessageStatus == otherResponse.getNewMessageStatus() && message.equals(otherResponse.getMessage())) {
+            if (status == otherResponse.getStatus() && message.equals(otherResponse.getMessage()) && statusMessage.equals(otherResponse.getStatusMessage()) && error.equals(otherResponse.getError())) {
                 return true;
             }
         }
@@ -118,16 +91,14 @@ public class Response implements Serializable {
     }
 
     public void fixStatus(boolean queueEnabled) {
-        Status status = getNewMessageStatus();
+        Status status = getStatus();
 
         if (status != Status.ERROR && status != Status.SENT && status != Status.QUEUED) {
             // If the response is invalid for a final destination status, change the status to ERROR
-            setNewMessageStatus(Status.ERROR);
-            setError("Invalid response status: " + status + ". Status updated to ERROR.");
+            setStatus(Status.ERROR);
         } else if (!queueEnabled && status == Status.QUEUED) {
             // If the status is QUEUED and queuing is disabled, change the status to ERROR
-            setNewMessageStatus(Status.ERROR);
-            setError("Invalid response status. Cannot set status to QUEUED while queuing is disabled. Status updated to ERROR.");
+            setStatus(Status.ERROR);
         }
     }
 }

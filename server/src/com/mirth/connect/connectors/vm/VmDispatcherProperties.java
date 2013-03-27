@@ -23,7 +23,7 @@ public class VmDispatcherProperties extends ConnectorProperties implements Queue
     public VmDispatcherProperties() {
         queueConnectorProperties = new QueueConnectorProperties();
         
-        this.channelId = "sink";
+        this.channelId = "none";
         this.isWaitForDestinations = false;
         this.channelTemplate = "${message.encodedData}";
     }

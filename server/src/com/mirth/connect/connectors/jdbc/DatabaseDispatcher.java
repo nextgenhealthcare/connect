@@ -103,7 +103,7 @@ public class DatabaseDispatcher extends DestinationConnector {
         } catch (DatabaseDispatcherException e) {
             logger.error("An error occurred in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\": " + e.getMessage(), ExceptionUtils.getRootCause(e));
             alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_406, e.getMessage(), e);
-            return new Response(Status.QUEUED, ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_406, e.getMessage(), e));
+            return new Response(Status.QUEUED, null, ErrorMessageBuilder.buildErrorResponse("Error writing to database.", e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_406, e.getMessage(), e));
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
         }

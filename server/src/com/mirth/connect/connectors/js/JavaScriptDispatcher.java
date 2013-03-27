@@ -20,6 +20,7 @@ import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Undefined;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -98,7 +99,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
         } catch (JavaScriptExecutorException e) {
             logger.error("Error executing script (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").", e);
             alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_414, "Error executing script.", e);
-            return new Response(Status.ERROR, ErrorMessageBuilder.buildErrorResponse("Error executing script", e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Error executing script", e));
+            return new Response(Status.ERROR, null, ErrorMessageBuilder.buildErrorResponse("Error executing script", e), ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Error executing script", e));
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
         }
@@ -115,13 +116,14 @@ public class JavaScriptDispatcher extends DestinationConnector {
         public Response call() throws Exception {
             String responseData = null;
             String responseError = null;
+            String responseStatusMessage = "JavaScript evaluation successful.";
             Status responseStatus = Status.SENT;
 
             Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(scriptLogger, getChannelId(), message);
             Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
 
             if (compiledScript == null) {
-                responseData = ErrorMessageBuilder.buildErrorResponse("Script not found in cache", null);
+                responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Script not found in cache", null);
                 responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Script not found in cache", null);
                 responseStatus = Status.ERROR;
 
@@ -131,7 +133,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
                 try {
                     Object result = executeScript(compiledScript, scope);
 
-                    if (result != null) {
+                    if (result != null && !(result instanceof Undefined)) {
                         /*
                          * If the script return value is a response, return it as-is. If it's a
                          * status, only update the response status. Otherwise, set the response data
@@ -167,7 +169,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
                         }
                     }
 
-                    responseData = ErrorMessageBuilder.buildErrorResponse("Error evaluating " + getConnectorProperties().getName(), t);
+                    responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error evaluating " + getConnectorProperties().getName(), t);
                     responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Error evaluating " + getConnectorProperties().getName(), t);
                     responseStatus = Status.ERROR;
 
@@ -178,7 +180,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
                 }
             }
 
-            return new Response(responseStatus, responseData, responseError);
+            return new Response(responseStatus, responseData, responseStatusMessage, responseError);
         }
     }
 }

@@ -53,6 +53,7 @@ import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Donkey;
@@ -607,7 +608,10 @@ public class TestUtils {
                 if (result.getBoolean("is_encrypted")) {
                     assertTrue(testEquality(result.getString("content"), content.getEncryptedContent()));
                 } else {
-                    assertTrue(testEquality(result.getString("content"), content.getContent()));
+                    Serializer serializer = Donkey.getInstance().getSerializer();
+                    Response queryObject = (Response) serializer.deserialize(result.getString("content"));
+                    Response contentObject = (Response) serializer.deserialize(content.getContent());
+                    assertTrue(testEquality(queryObject, contentObject));
                 }
             } else {
                 throw new AssertionError();

@@ -87,6 +87,7 @@ public class DICOMDispatcher extends DestinationConnector {
         
         String responseData = null;
         String responseError = null;
+        String responseStatusMessage = null;
         Status responseStatus = Status.QUEUED;
         
         try {
@@ -223,17 +224,17 @@ public class DICOMDispatcher extends DestinationConnector {
             dcmSnd.stop();
             tempFile.delete();
             
-            responseData = "DICOM message successfully sent";
+            responseStatusMessage = "DICOM message successfully sent";
             responseStatus = Status.SENT;
         } catch (Exception e) {
-            responseData = ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e);
+            responseStatusMessage = ErrorMessageBuilder.buildErrorResponse(e.getMessage(), e);
             responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_415, e.getMessage(), null);
             alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_415, e.getMessage(), null);
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
         }
         
-        return new Response(responseStatus, responseData, responseError);
+        return new Response(responseStatus, responseData, responseStatusMessage, responseError);
     }
 
 }

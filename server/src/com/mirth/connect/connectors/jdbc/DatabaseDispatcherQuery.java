@@ -65,15 +65,16 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
              */
             statement.execute();
             int numRows = statement.getUpdateCount();
-            String message;
+            String responseData = null;
+            String responseMessageStatus = null;
 
             if (numRows == -1) {
-                message = "Database write success";
+                responseMessageStatus = "Database write success";
             } else {
-                message = "Database write success, " + numRows + " rows updated";
+                responseMessageStatus = "Database write success, " + numRows + " rows updated";
             }
 
-            return new Response(Status.SENT, message);
+            return new Response(Status.SENT, responseData, responseMessageStatus);
         } catch (SQLException e) {
             if (!JdbcUtils.isValidConnection(connection)) {
                 try {
