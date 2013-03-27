@@ -62,6 +62,7 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
         initComponents();
         SyntaxDocument doc = new SyntaxDocument();
         doc.setTokenMarker(new JavaScriptTokenMarker());
+        scriptContent.setSaveEnabled(false);
         scriptContent.setDocument(doc);
         setSavedScript(script);
         scriptContent.setCaretPosition(0);
@@ -119,14 +120,11 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
         }
     }
 
-    public void dragOver(DropTargetDragEvent dtde) {
-    }
+    public void dragOver(DropTargetDragEvent dtde) {}
 
-    public void dropActionChanged(DropTargetDragEvent dtde) {
-    }
+    public void dropActionChanged(DropTargetDragEvent dtde) {}
 
-    public void dragExit(DropTargetEvent dte) {
-    }
+    public void dragExit(DropTargetEvent dte) {}
 
     public void drop(DropTargetDropEvent dtde) {
         try {

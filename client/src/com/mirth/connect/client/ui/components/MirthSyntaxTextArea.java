@@ -58,6 +58,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     private ShowLineEndingsAction showLineEndingsAction;
     private JMenu varlist;
     private JMenu funclist;
+    private boolean saveEnabled;
     protected boolean showSnippets;
 
     public MirthSyntaxTextArea() {
@@ -70,6 +71,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         this.showSnippets = showSnippets;
         this.setCaretVisible(false);
         this.setShowLineEndings(false);
+        this.saveEnabled = true;
         // Setup menu actions
         cutAction = new CutAction(this);
         copyAction = new CopyAction(this);
@@ -145,7 +147,6 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
                 menu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
         };
-
     }
 
     public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets) {
@@ -160,7 +161,6 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
 
     /*
      * Support for undo and redo
-     * 
      */
     public void undo() {
         if (this.undo.canUndo()) {
@@ -182,26 +182,32 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         return this.undo.canUndo();
     }
 
+    public void setSaveEnabled(boolean saveEnabled) {
+        this.saveEnabled = saveEnabled;
+    }
+
     /**
      * Overrides setDocument(Document doc) so that a document listener is added
      * to the current document to listen for changes.
      */
     public void setDocument(SyntaxDocument doc) {
         super.setDocument(doc);
-        this.getDocument().addDocumentListener(new DocumentListener() {
+        if (saveEnabled) {
+            this.getDocument().addDocumentListener(new DocumentListener() {
 
-            public void changedUpdate(DocumentEvent e) {
-                parent.setSaveEnabled(true);
-            }
+                public void changedUpdate(DocumentEvent e) {
+                    parent.setSaveEnabled(true);
+                }
 
-            public void removeUpdate(DocumentEvent e) {
-                parent.setSaveEnabled(true);
-            }
+                public void removeUpdate(DocumentEvent e) {
+                    parent.setSaveEnabled(true);
+                }
 
-            public void insertUpdate(DocumentEvent e) {
-                parent.setSaveEnabled(true);
-            }
-        });
+                public void insertUpdate(DocumentEvent e) {
+                    parent.setSaveEnabled(true);
+                }
+            });
+        }
     }
 
     /**
