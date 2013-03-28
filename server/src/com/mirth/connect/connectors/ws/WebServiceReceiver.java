@@ -171,7 +171,7 @@ public class WebServiceReceiver extends SourceConnector {
         } finally {
             // TODO: response should be returned before it is marked as finished
             // TODO: figure out how to get the error message if an error occurred in sending the response back
-            finishDispatch(dispatchResult, true, response, null);
+            finishDispatch(dispatchResult, true, null, response);
         }
 
         // TODO find a way to call this after the response was sent

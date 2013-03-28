@@ -237,12 +237,9 @@ public class TcpReceiver extends SourceConnector {
     @Override
     public void handleRecoveredResponse(DispatchResult dispatchResult) {
         boolean attemptedResponse = false;
-        String response = null;
         String errorMessage = null;
         try {
             if (dispatchResult.getSelectedResponse() != null) {
-                response = dispatchResult.getSelectedResponse().getMessage();
-
                 // Only if we're responding on a new connection can we handle recovered responses
                 if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION_ON_RECOVERY) {
                     BatchStreamReader batchStreamReader = new DefaultBatchStreamReader(null);
@@ -253,7 +250,7 @@ public class TcpReceiver extends SourceConnector {
                         responseSocket = createResponseSocket();
 
                         attemptedResponse = true;
-                        sendResponse(response, responseSocket, streamHandler);
+                        sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler);
                     } catch (IOException e) {
                         errorMessage = e.getMessage();
                     } finally {
@@ -264,7 +261,7 @@ public class TcpReceiver extends SourceConnector {
                 }
             }
         } finally {
-            finishDispatch(dispatchResult, attemptedResponse, response, errorMessage);
+            finishDispatch(dispatchResult, attemptedResponse, errorMessage);
         }
     }
 
@@ -345,7 +342,6 @@ public class TcpReceiver extends SourceConnector {
                             // Keep attempting while the channel is still started
                             while (dispatchResult == null && getCurrentState() == ChannelState.STARTED) {
                                 boolean attemptedResponse = false;
-                                String response = null;
                                 String errorMessage = null;
 
                                 // Send the message to the source connector
@@ -355,8 +351,6 @@ public class TcpReceiver extends SourceConnector {
 
                                     // Check to see if we have a response to send
                                     if (dispatchResult.getSelectedResponse() != null) {
-                                        response = dispatchResult.getSelectedResponse().getMessage();
-
                                         // If the response socket hasn't been initialized, do that now
                                         if (responseSocket == null) {
                                             if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
@@ -371,7 +365,7 @@ public class TcpReceiver extends SourceConnector {
                                         attemptedResponse = true;
 
                                         try {
-                                            sendResponse(response, responseSocket, streamHandler);
+                                            sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler);
                                         } catch (IOException e) {
                                             errorMessage = e.getMessage();
                                         } finally {
@@ -383,7 +377,7 @@ public class TcpReceiver extends SourceConnector {
                                 } catch (ChannelException e) {
                                     streamHandler.commit(false);
                                 } finally {
-                                    finishDispatch(dispatchResult, attemptedResponse, response, errorMessage);
+                                    finishDispatch(dispatchResult, attemptedResponse, errorMessage);
                                 }
 
                                 // Check to see if the thread has been interrupted before the message was sent

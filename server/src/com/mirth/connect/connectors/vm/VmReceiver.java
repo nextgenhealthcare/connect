@@ -55,8 +55,8 @@ public class VmReceiver extends SourceConnector {
     }
 
     @Override
-    public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String response, String errorMessage) {
-        super.finishDispatch(dispatchResult, attemptedResponse, response, errorMessage);
+    public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String errorMessage, String response) {
+        super.finishDispatch(dispatchResult, attemptedResponse, errorMessage, response);
         monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
     }
 }

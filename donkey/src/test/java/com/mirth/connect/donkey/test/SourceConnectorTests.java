@@ -85,7 +85,7 @@ public class SourceConnectorTests {
             try {
                 dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
             } finally {
-                sourceConnector.finishDispatch(dispatchResult, true, "response", null);
+                sourceConnector.finishDispatch(dispatchResult, true, null, "response");
             }
 
             if (dispatchResult != null) {
@@ -189,7 +189,7 @@ public class SourceConnectorTests {
             try {
                 dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
             } finally {
-                sourceConnector.finishDispatch(dispatchResult, true, "response", null);
+                sourceConnector.finishDispatch(dispatchResult, true, null, "response");
             }
 
             if (dispatchResult != null) {

@@ -58,13 +58,13 @@ public class MessageController {
     public Message createNewMessage(String channelId, String serverId) {
         long messageId = getNextMessageId(channelId);
 
-        Calendar dateCreated = Calendar.getInstance();
+        Calendar receivedDate = Calendar.getInstance();
 
         Message message = new Message();
         message.setMessageId(messageId);
         message.setChannelId(channelId);
         message.setServerId(serverId);
-        message.setDateCreated(dateCreated);
+        message.setReceivedDate(receivedDate);
 
         return message;
     }

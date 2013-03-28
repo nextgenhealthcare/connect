@@ -848,7 +848,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         finalMessage.setMessageId(messageId);
         finalMessage.setServerId(serverId);
         finalMessage.setChannelId(channelId);
-        finalMessage.setDateCreated(sourceMessage.getDateCreated());
+        finalMessage.setReceivedDate(sourceMessage.getReceivedDate());
         finalMessage.getConnectorMessages().put(0, sourceMessage);
 
         // run the raw message through the pre-processor script

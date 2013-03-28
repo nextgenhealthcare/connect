@@ -9,6 +9,7 @@
 
 package com.mirth.connect.donkey.server.data.timed;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -185,11 +186,11 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public void updateSourceResponse(String channelId, long messageId, boolean attemptedResponse, String responseError) {
+    public void updateSourceResponse(String channelId, long messageId, int sendAttempts, String responseError, Calendar responseDate) {
         long startTime = System.currentTimeMillis();
 
         try {
-            dao.updateSourceResponse(channelId, messageId, attemptedResponse, responseError);
+            dao.updateSourceResponse(channelId, messageId, sendAttempts, responseError, responseDate);
         } finally {
             timer.log("updateResponseError", System.currentTimeMillis() - startTime);
         }

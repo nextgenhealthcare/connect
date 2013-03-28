@@ -2,7 +2,7 @@
 
 <queries>
 	<query id="insertMessage">
-		INSERT INTO d_m${localChannelId} (id, server_id, date_created, processed, import_id, import_channel_id)
+		INSERT INTO d_m${localChannelId} (id, server_id, received_date, processed, import_id, import_channel_id)
 		VALUES (?, ?, ?, ?, ?, ?)
 	</query>
 	
@@ -51,18 +51,18 @@
 	</query>
 	
 	<query id="insertConnectorMessage">
-		INSERT INTO d_mm${localChannelId} (id, message_id, date_created, status, connector_name, connector_map, channel_map, response_map, errors, chain_id, order_id)
+		INSERT INTO d_mm${localChannelId} (id, message_id, received_date, status, connector_name, connector_map, channel_map, response_map, errors, chain_id, order_id)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="updateSourceResponse">
-		UPDATE d_m${localChannelId}
-		SET attempted_response = ?, response_error = ?
-		WHERE id = ?
+		UPDATE d_mm${localChannelId}
+		SET send_attempts = ?, response_errors = ?, response_date = ?
+		WHERE id = 0 AND message_id = ?
 	</query>
 	
 	<query id="updateStatus">
-		UPDATE d_mm${localChannelId} SET status = ?, send_attempts = ?
+		UPDATE d_mm${localChannelId} SET status = ?, send_attempts = ?, send_date = ?, response_date = ?
 		WHERE id = ?
 		AND message_id = ?
 	</query>
@@ -91,7 +91,7 @@
 	</query>
 	
 	<query id="resetMessage">
-		UPDATE d_m${localChannelId} SET processed = FALSE, attempted_response = FALSE, response_error = NULL
+		UPDATE d_m${localChannelId} SET processed = FALSE
 		WHERE id = ?
 	</query>
 	

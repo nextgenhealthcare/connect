@@ -33,8 +33,8 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
         
         switch (index) {
             case 0: // Message ID: Needs to be able to grow since it is a long
-            case 5: // Send Attempts: Ditto
-            case 6: // Import ID: Ditto
+            case 4: // Send Attempts: Ditto
+            case 9: // Import ID: Ditto
             	renderer = new NumberCellRenderer();
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
@@ -47,7 +47,9 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
             	renderer = new DefaultTableCellRenderer();
                 break;
                 
-            case 3: // Date Created
+            case 3: // Received Date
+            case 5: // Send Date
+            case 6: // Response Date
                 DateCellRenderer dateCellRenderer = new DateCellRenderer();
                 dateCellRenderer.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS"));
                 renderer = dateCellRenderer;
@@ -55,17 +57,18 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 column.setMinWidth(140);
                 break;
                 
-            case 4: // Server Id
+            case 8: // Server Id
             	column.setMaxWidth(210);
             	column.setMinWidth(210);
             	renderer = new DefaultTableCellRenderer();
                 break;
             	
-            case 7: // Reply Sent
+            case 7: // Response Status
             	column.setMaxWidth(85);
             	column.setMinWidth(85);
             	renderer = new DefaultTableCellRenderer();
                 
+            // Connector
             default: renderer = new DefaultTableCellRenderer();
             	break;
             

@@ -86,7 +86,7 @@ public class JdbcDao implements DonkeyDao {
             PreparedStatement statement = prepareStatement("insertMessage", message.getChannelId());
             statement.setLong(1, message.getMessageId());
             statement.setString(2, message.getServerId());
-            statement.setTimestamp(3, new Timestamp(message.getDateCreated().getTimeInMillis()));
+            statement.setTimestamp(3, new Timestamp(message.getReceivedDate().getTimeInMillis()));
             statement.setBoolean(4, message.isProcessed());
 
             Long importId = message.getImportId();
@@ -112,14 +112,15 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public void updateSourceResponse(String channelId, long messageId, boolean attemptedResponse, String responseError) {
+    public void updateSourceResponse(String channelId, long messageId, int sendAttempts, String responseError, Calendar responseDate) {
         logger.debug(channelId + "/" + messageId + ": updating source response");
 
         try {
             PreparedStatement statement = prepareStatement("updateSourceResponse", channelId);
-            statement.setBoolean(1, attemptedResponse);
+            statement.setInt(1, sendAttempts);
             statement.setString(2, responseError);
-            statement.setLong(3, messageId);
+            statement.setTimestamp(3, new Timestamp(responseDate.getTimeInMillis()));
+            statement.setLong(4, messageId);
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -426,7 +427,7 @@ public class JdbcDao implements DonkeyDao {
             PreparedStatement statement = prepareStatement("insertConnectorMessage", connectorMessage.getChannelId());
             statement.setInt(1, connectorMessage.getMetaDataId());
             statement.setLong(2, connectorMessage.getMessageId());
-            statement.setTimestamp(3, new Timestamp(connectorMessage.getDateCreated().getTimeInMillis()));
+            statement.setTimestamp(3, new Timestamp(connectorMessage.getReceivedDate().getTimeInMillis()));
             statement.setString(4, Character.toString(connectorMessage.getStatus().getStatusCode()));
             statement.setString(5, connectorMessage.getConnectorName());
             // TODO insert send attempts
@@ -568,11 +569,16 @@ public class JdbcDao implements DonkeyDao {
 
             transactionStats.update(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), connectorMessage.getStatus(), previousStatus);
 
+            Calendar sendDate = connectorMessage.getSendDate();
+            Calendar responseDate = connectorMessage.getResponseDate();
+            
             PreparedStatement statement = prepareStatement("updateStatus", connectorMessage.getChannelId());
             statement.setString(1, Character.toString(connectorMessage.getStatus().getStatusCode()));
             statement.setInt(2, connectorMessage.getSendAttempts());
-            statement.setInt(3, connectorMessage.getMetaDataId());
-            statement.setLong(4, connectorMessage.getMessageId());
+            statement.setTimestamp(3, sendDate == null ? null : new Timestamp(sendDate.getTimeInMillis()));
+            statement.setTimestamp(4, responseDate == null ? null : new Timestamp(responseDate.getTimeInMillis()));
+            statement.setInt(5, connectorMessage.getMetaDataId());
+            statement.setLong(6, connectorMessage.getMessageId());
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -1603,18 +1609,16 @@ public class JdbcDao implements DonkeyDao {
         try {
             Message message = new Message();
             long messageId = resultSet.getLong("id");
-            Calendar dateCreated = Calendar.getInstance();
-            dateCreated.setTimeInMillis(resultSet.getTimestamp("date_created").getTime());
+            Calendar receivedDate = Calendar.getInstance();
+            receivedDate.setTimeInMillis(resultSet.getTimestamp("received_date").getTime());
 
             message.setMessageId(messageId);
             message.setChannelId(channelId);
-            message.setDateCreated(dateCreated);
+            message.setReceivedDate(receivedDate);
             message.setProcessed(resultSet.getBoolean("processed"));
             message.setServerId(resultSet.getString("server_id"));
             message.setImportId(resultSet.getLong("import_id"));
             message.setImportChannelId(resultSet.getString("import_channel_id"));
-            message.setAttemptedResponse(resultSet.getBoolean("attempted_response"));
-            message.setResponseError(resultSet.getString("response_error"));
 
             return message;
         } catch (SQLException e) {
@@ -1627,21 +1631,38 @@ public class JdbcDao implements DonkeyDao {
             ConnectorMessage connectorMessage = new ConnectorMessage();
             long messageId = resultSet.getLong("message_id");
             int metaDataId = resultSet.getInt("id");
-            Calendar dateCreated = Calendar.getInstance();
-            dateCreated.setTimeInMillis(resultSet.getTimestamp("date_created").getTime());
+            Calendar receivedDate = Calendar.getInstance();
+            receivedDate.setTimeInMillis(resultSet.getTimestamp("received_date").getTime());
+            
+            Calendar sendDate = null;
+            Timestamp sendDateTimestamp = resultSet.getTimestamp("send_date");
+            if (sendDateTimestamp != null) {
+                sendDate = Calendar.getInstance();
+                sendDate.setTimeInMillis(sendDateTimestamp.getTime());
+            }
+            
+            Calendar responseDate = null;
+            Timestamp responseDateTimestamp = resultSet.getTimestamp("response_date");
+            if (responseDateTimestamp != null) {
+                responseDate = Calendar.getInstance();
+                responseDate.setTimeInMillis(responseDateTimestamp.getTime());
+            }
 
             connectorMessage.setMessageId(messageId);
             connectorMessage.setMetaDataId(metaDataId);
             connectorMessage.setChannelId(channelId);
             connectorMessage.setServerId(resultSet.getString("server_id"));
             connectorMessage.setConnectorName(resultSet.getString("connector_name"));
-            connectorMessage.setDateCreated(dateCreated);
+            connectorMessage.setReceivedDate(receivedDate);
             connectorMessage.setStatus(Status.fromChar(resultSet.getString("status").charAt(0)));
             connectorMessage.setConnectorMap((HashMap<String, Object>) serializer.deserialize(resultSet.getString("connector_map")));
             connectorMessage.setChannelMap((HashMap<String, Object>) serializer.deserialize(resultSet.getString("channel_map")));
             connectorMessage.setResponseMap((HashMap<String, Object>) serializer.deserialize(resultSet.getString("response_map")));
             connectorMessage.setErrors(resultSet.getString("errors"));
+            connectorMessage.setResponseErrors(resultSet.getString("response_errors"));
             connectorMessage.setSendAttempts(resultSet.getInt("send_attempts"));
+            connectorMessage.setSendDate(sendDate);
+            connectorMessage.setResponseDate(responseDate);
             connectorMessage.setChainId(resultSet.getInt("chain_id"));
             connectorMessage.setOrderId(resultSet.getInt("order_id"));
 
@@ -1668,32 +1689,6 @@ public class JdbcDao implements DonkeyDao {
             }
 
             return connectorMessage;
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        }
-    }
-
-    private MessageContent getMessageContentFromResultSet(String channelId, ResultSet resultSet) {
-        try {
-            MessageContent messageContent = new MessageContent();
-            long messageId = resultSet.getLong("message_id");
-            int metaDataId = resultSet.getInt("metadata_id");
-            Calendar dateCreated = Calendar.getInstance();
-            dateCreated.setTimeInMillis(resultSet.getTimestamp("date_created").getTime());
-
-            messageContent.setChannelId(channelId);
-            messageContent.setMessageId(messageId);
-            messageContent.setMetaDataId(metaDataId);
-            messageContent.setContentType(ContentType.fromChar(resultSet.getString("content_type").charAt(0)));
-            messageContent.setDataType(resultSet.getString("data_type"));
-
-            if (resultSet.getBoolean("is_encrypted")) {
-                messageContent.setEncryptedContent(resultSet.getString("content"));
-            } else {
-                messageContent.setContent(resultSet.getString("content"));
-            }
-
-            return messageContent;
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         }

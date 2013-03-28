@@ -168,8 +168,8 @@ public class DefaultMessagePruner implements MessagePruner {
             Long messageId = (Long) result.get("id");
 
             if (!messageArchiver.isArchived(messageId)) {
-                Calendar dateCreated = Calendar.getInstance();
-                dateCreated.setTimeInMillis(((Timestamp) result.get("date_created")).getTime());
+                Calendar receivedDate = Calendar.getInstance();
+                receivedDate.setTimeInMillis(((Timestamp) result.get("received_date")).getTime());
 
                 Map<Integer, ConnectorMessage> connectorMessages = null;
                 DonkeyDao dao = null;
@@ -184,7 +184,7 @@ public class DefaultMessagePruner implements MessagePruner {
                 Message message = new Message();
                 message.setMessageId(messageId);
                 message.setChannelId(channelId);
-                message.setDateCreated(dateCreated);
+                message.setReceivedDate(receivedDate);
                 message.setProcessed((Boolean) result.get("processed"));
                 message.setServerId((String) result.get("server_id"));
                 message.setImportId((Long) result.get("import_id"));

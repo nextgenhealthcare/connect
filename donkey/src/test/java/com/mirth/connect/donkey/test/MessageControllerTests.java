@@ -215,7 +215,7 @@ public class MessageControllerTests {
 
         message.setChannelId(channel.getChannelId());
         message.setMessageId((long) 1);
-        message.setDateCreated(Calendar.getInstance());
+        message.setReceivedDate(Calendar.getInstance());
         message.setProcessed(false);
         message.setServerId(serverId);
 
@@ -276,7 +276,7 @@ public class MessageControllerTests {
         channel.getSourceQueue().updateSize();
 
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
-        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getDateCreated(), Status.RECEIVED);
+        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
         sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, testMessage, null, null));
         message.getConnectorMessages().put(0, sourceMessage);
 

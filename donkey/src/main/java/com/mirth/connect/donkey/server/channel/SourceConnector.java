@@ -143,6 +143,21 @@ public abstract class SourceConnector extends Connector {
      *            The DispatchResult returned by dispatchRawMessage()
      */
     public void finishDispatch(DispatchResult dispatchResult) {
+        finishDispatch(dispatchResult, false, null);
+    }
+    
+    /**
+     * Finish a message dispatch
+     * 
+     * @param dispatchResult
+     *            The DispatchResult returned by dispatchRawMessage()
+     * @param attemptedResponse
+     *            True if an attempt to send a response was made, false if not
+     * @param responseError
+     *            An error message if an error occurred when attempting to send
+     *            a response
+     */
+    public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String responseError) {
         String response = null;
 
         if (dispatchResult != null) {
@@ -153,7 +168,7 @@ public abstract class SourceConnector extends Connector {
             }
         }
 
-        finishDispatch(dispatchResult, false, response, null);
+        finishDispatch(dispatchResult, attemptedResponse, responseError, response);
     }
 
     /**
@@ -163,13 +178,13 @@ public abstract class SourceConnector extends Connector {
      *            The DispatchResult returned by dispatchRawMessage()
      * @param attemptedResponse
      *            True if an attempt to send a response was made, false if not
-     * @param response
-     *            The response string (if a response attempt was made)
      * @param responseError
      *            An error message if an error occurred when attempting to send
      *            a response
+     * @param response
+     *            The response string (if a response attempt was made)
      */
-    public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String response, String responseError) {
+    public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String responseError, String response) {
         try {
             if (dispatchResult == null) {
                 return;
@@ -193,7 +208,8 @@ public abstract class SourceConnector extends Connector {
                         dao = daoFactory.getDao();
                     }
 
-                    dao.updateSourceResponse(getChannelId(), messageId, attemptedResponse, responseError);
+                    // There are no retry attempts for sending the response back, so send attempts is either 0 or 1.
+                    dao.updateSourceResponse(getChannelId(), messageId, attemptedResponse ? 1 : 0, responseError, dispatchResult.getResponseDate());
                 }
 
                 if (dispatchResult.isMarkAsProcessed()) {

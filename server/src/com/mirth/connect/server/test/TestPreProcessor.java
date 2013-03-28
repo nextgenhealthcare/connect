@@ -170,7 +170,7 @@ public class TestPreProcessor {
             public Object runScript() throws Exception {
                 Message message = new Message();
                 message.setChannelId(CHANNEL_ID);
-                message.setDateCreated(Calendar.getInstance());
+                message.setReceivedDate(Calendar.getInstance());
                 message.setMessageId(1l);
                 message.setProcessed(false);
                 message.getConnectorMessages().put(0, createConnectorMessage(CHANNEL_ID, 1l, 0));

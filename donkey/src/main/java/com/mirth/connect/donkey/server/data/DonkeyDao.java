@@ -9,6 +9,7 @@
 
 package com.mirth.connect.donkey.server.data;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +48,7 @@ public interface DonkeyDao {
 
     public void addChannelStatistics(Statistics statistics);
 
-    public void updateSourceResponse(String channelId, long messageId, boolean attemptedResponse, String responseError);
+    public void updateSourceResponse(String channelId, long messageId, int sendAttempts, String responseError, Calendar responseDate);
 
     public void updateStatus(ConnectorMessage connectorMessage, Status previousStatus);
 

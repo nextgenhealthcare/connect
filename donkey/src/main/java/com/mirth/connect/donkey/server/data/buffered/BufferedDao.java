@@ -9,6 +9,7 @@
 
 package com.mirth.connect.donkey.server.data.buffered;
 
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +82,7 @@ public class BufferedDao implements DonkeyDao {
                     case INSERT_EVENT: dao.insertEvent((Event) p[0]); break;
                     case STORE_MESSAGE_CONTENT: dao.storeMessageContent((MessageContent) p[0]); break;
                     case STORE_CHANNEL_STATISTICS: dao.addChannelStatistics((Statistics) p[0]); break;
-                    case UPDATE_RESPONSE_ERROR: dao.updateSourceResponse((String) p[0], (Long) p[1], (Boolean) p[2], (String) p[3]); break;
+                    case UPDATE_RESPONSE_ERROR: dao.updateSourceResponse((String) p[0], (Long) p[1], (Integer) p[2], (String) p[3], (Calendar) p[4]); break;
                     case UPDATE_STATUS: dao.updateStatus((ConnectorMessage) p[0], (Status) p[1]); break;
                     case UPDATE_ERRORS: dao.updateErrors((ConnectorMessage) p[0]); break;
                     case UPDATE_MAPS: dao.updateMaps((ConnectorMessage) p[0]); break;
@@ -183,9 +184,9 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
-    public void updateSourceResponse(String channelId, long messageId, boolean attemptedResponse, String responseError) {
+    public void updateSourceResponse(String channelId, long messageId, int sendAttempts, String responseError, Calendar responseDate) {
         tasks.add(new DaoTask(DaoTaskType.UPDATE_RESPONSE_ERROR, new Object[] { channelId,
-                messageId, attemptedResponse, responseError }));
+                messageId, sendAttempts, responseError, responseDate }));
     }
 
     @Override

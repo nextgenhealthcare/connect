@@ -155,19 +155,17 @@ public class DonkeyMessageController extends MessageController {
         Long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
 
         for (Map<String, Object> row : rows) {
-            Calendar dateCreated = Calendar.getInstance();
-            dateCreated.setTimeInMillis(((Timestamp) row.get("date_created")).getTime());
+            Calendar receivedDate = Calendar.getInstance();
+            receivedDate.setTimeInMillis(((Timestamp) row.get("received_date")).getTime());
 
             Message message = new Message();
             message.setMessageId((Long) row.get("message_id"));
             message.setChannelId(channelId);
-            message.setDateCreated(dateCreated);
+            message.setReceivedDate(receivedDate);
             message.setServerId((String) row.get("server_id"));
             message.setProcessed((Boolean) row.get("processed"));
             message.setImportId((Long) row.get("import_id"));
             message.setImportChannelId((String) row.get("import_channel_id"));
-            message.setAttemptedResponse((Boolean) row.get("attempted_response"));
-            message.setResponseError((String) row.get("response_error"));
 
             Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
 
@@ -214,16 +212,14 @@ public class DonkeyMessageController extends MessageController {
             Map<String, Object> row = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageById", params);
 
             if (row != null) {
-                Calendar dateCreated = Calendar.getInstance();
-                dateCreated.setTimeInMillis(((Timestamp) row.get("date_created")).getTime());
+                Calendar receivedDate = Calendar.getInstance();
+                receivedDate.setTimeInMillis(((Timestamp) row.get("received_date")).getTime());
 
-                message.setDateCreated(dateCreated);
+                message.setReceivedDate(receivedDate);
                 message.setServerId((String) row.get("server_id"));
                 message.setProcessed((Boolean) row.get("processed"));
                 message.setImportId((Long) row.get("import_id"));
                 message.setImportChannelId((String) row.get("import_channel_id"));
-                message.setAttemptedResponse((Boolean) row.get("attempted_response"));
-                message.setResponseError((String) row.get("response_error"));
             }
 
             Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, messageId);

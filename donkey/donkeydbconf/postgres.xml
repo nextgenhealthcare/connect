@@ -5,12 +5,10 @@
 		CREATE TABLE d_m${localChannelId} (
 	        id bigint NOT NULL PRIMARY KEY,
 	        server_id character varying(36),
-	        date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	        received_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        processed boolean NOT NULL DEFAULT FALSE,
 	        import_id bigint,
-	        import_channel_id character varying(36),
-	        attempted_response boolean NOT NULL DEFAULT FALSE,
-	        response_error text
+	        import_channel_id character varying(36)
 	    );
 	</query>
 	
@@ -22,14 +20,17 @@
 		CREATE TABLE d_mm${localChannelId} (
 	        id integer NOT NULL,
 	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE,
-	        date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	        received_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        status character(1) NOT NULL,
 	        connector_name text,
 	        connector_map text,
 	        channel_map text,
 	        response_map text,
 	        errors text,
+	        response_errors text,
 	        send_attempts integer NOT NULL DEFAULT 0,
+	        send_date timestamp,
+	        response_date timestamp,
 	        chain_id integer NOT NULL,
 	        order_id integer NOT NULL,
 	        CONSTRAINT mm${localChannelId}_pkey PRIMARY KEY(message_id, id)

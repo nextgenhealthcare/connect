@@ -9,6 +9,8 @@
 
 package com.mirth.connect.donkey.server.channel;
 
+import java.util.Calendar;
+
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 
@@ -21,6 +23,7 @@ public class DispatchResult {
     private boolean lockAcquired;
     private Response selectedResponse;
     private ChannelException channelException;
+    private Calendar responseDate;
 
     protected DispatchResult(long messageId, Message processedMessage, Response selectedResponse, boolean markAsProcessed, boolean removeContent, boolean removeAttachments, boolean lockAcquired) {
         this(messageId, processedMessage, selectedResponse, markAsProcessed, removeContent, removeAttachments, lockAcquired, null);
@@ -35,6 +38,7 @@ public class DispatchResult {
         this.selectedResponse = selectedResponse;
         this.lockAcquired = lockAcquired;
         this.channelException = channelException;
+        this.responseDate = Calendar.getInstance();
     }
 
     public long getMessageId() {
@@ -67,5 +71,9 @@ public class DispatchResult {
 
     public ChannelException getChannelException() {
         return channelException;
+    }
+    
+    public Calendar getResponseDate() {
+        return responseDate;
     }
 }

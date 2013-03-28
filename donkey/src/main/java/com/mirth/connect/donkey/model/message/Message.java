@@ -21,12 +21,10 @@ public class Message implements Serializable {
     private Long messageId;
     private String serverId;
     private String channelId;
-    private Calendar dateCreated;
+    private Calendar receivedDate;
     private boolean processed;
     private Long importId;
     private String importChannelId;
-    private boolean attemptedResponse;
-    private String responseError;
     private Map<Integer, ConnectorMessage> connectorMessages = new LinkedHashMap<Integer, ConnectorMessage>();
 
     public Long getMessageId() {
@@ -53,12 +51,12 @@ public class Message implements Serializable {
         this.channelId = channelId;
     }
 
-    public Calendar getDateCreated() {
-        return dateCreated;
+    public Calendar getReceivedDate() {
+        return receivedDate;
     }
 
-    public void setDateCreated(Calendar dateCreated) {
-        this.dateCreated = dateCreated;
+    public void setReceivedDate(Calendar receivedDate) {
+        this.receivedDate = receivedDate;
     }
 
     public boolean isProcessed() {
@@ -96,7 +94,7 @@ public class Message implements Serializable {
         connectorMessage.setChannelId(channelId);
         connectorMessage.setMessageId(messageId);
         connectorMessage.setServerId(serverId);
-        connectorMessage.setDateCreated(dateCreated);
+        connectorMessage.setReceivedDate(receivedDate);
         connectorMessage.setRaw(sourceConnectorMessage.getRaw());
         connectorMessage.setProcessedRaw(sourceConnectorMessage.getProcessedRaw());
 
@@ -117,22 +115,6 @@ public class Message implements Serializable {
         connectorMessage.setChannelMap(channelMap);
 
         return connectorMessage;
-    }
-
-    public boolean isAttemptedResponse() {
-        return attemptedResponse;
-    }
-
-    public void setAttemptedResponse(boolean attemptedResponse) {
-        this.attemptedResponse = attemptedResponse;
-    }
-
-    public String getResponseError() {
-        return responseError;
-    }
-
-    public void setResponseError(String responseError) {
-        this.responseError = responseError;
     }
 
     public String toString() {

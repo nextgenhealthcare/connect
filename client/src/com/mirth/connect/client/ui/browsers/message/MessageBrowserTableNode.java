@@ -16,7 +16,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 
 public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
-    private final static int NUM_STATIC_COLUMNS = 8;
+    private final static int NUM_STATIC_COLUMNS = 10;
 
     private Object[] row;
     private Long messageId;
@@ -33,16 +33,19 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
         row[1] = "--";
         row[2] = "--";
         row[3] = null;
-        row[4] = "--";
+        row[4] = null;
         row[5] = null;
-        row[6] = message.getImportId();
+        row[6] = null;
+        row[7] = null;
+        row[8] = "--";
+        row[9] = message.getImportId();
     }
 
     public MessageBrowserTableNode(Message message, int metaDataId, MessageBrowserTableModel model) {
         row = new Object[model.getColumnCount()];
         messageId = message.getMessageId();
         this.metaDataId = metaDataId;
-        
+
         ConnectorMessage connectorMessage = message.getConnectorMessages().get(this.metaDataId);
 
         active = true;
@@ -50,24 +53,26 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
 
         if (connectorMessage.getMetaDataId() == 0) {
             row[0] = message.getMessageId();
-            row[6] = message.getImportId();
-            
-            if (StringUtils.isEmpty(message.getResponseError())) {
-            	row[7] = message.isAttemptedResponse() ? "Yes" : "No";
+            row[9] = message.getImportId();
+
+            if (StringUtils.isEmpty(connectorMessage.getResponseErrors())) {
+                row[7] = connectorMessage.getSendAttempts() > 0 ? "SENT" : "--";
             } else {
-            	row[7] = "Error";
+                row[7] = "ERROR";
             }
         } else {
             row[0] = null;
-            row[6] = null;
-            row[7] = null;
+            row[7] = "--";
+            row[9] = null;
         }
 
         row[1] = connectorMessage.getConnectorName();
         row[2] = connectorMessage.getStatus();
-        row[3] = connectorMessage.getDateCreated();
-        row[4] = message.getServerId();
-        row[5] = connectorMessage.getSendAttempts();
+        row[3] = connectorMessage.getReceivedDate();
+        row[4] = connectorMessage.getSendAttempts();
+        row[5] = connectorMessage.getSendDate();
+        row[6] = connectorMessage.getResponseDate();
+        row[8] = message.getServerId();
 
         for (int i = NUM_STATIC_COLUMNS; i < model.getColumnCount(); i++) {
             row[i] = connectorMessage.getMetaDataMap().get(model.getColumnName(i).toUpperCase());
@@ -95,7 +100,7 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
     public Boolean isNodeActive() {
         return active;
     }
-    
+
     public Boolean isProcessed() {
         return processed;
     }

@@ -23,7 +23,7 @@ public class ConnectorMessage implements Serializable {
     private String channelId;
     private String connectorName;
     private String serverId;
-    private Calendar dateCreated;
+    private Calendar receivedDate;
     private Status status;
     private MessageContent raw;
     private MessageContent processedRaw;
@@ -38,18 +38,21 @@ public class ConnectorMessage implements Serializable {
     private Map<String, Object> responseMap = new HashMap<String, Object>();
     private Map<String, Object> metaDataMap = new HashMap<String, Object>();
     private String errors;
+    private String responseErrors;
     private int sendAttempts = 0;
+    private Calendar sendDate;
+    private Calendar responseDate;
     private int chainId;
     private int orderId;
 
     public ConnectorMessage() {}
 
-    public ConnectorMessage(String channelId, long messageId, int metaDataId, String serverId, Calendar dateCreated, Status status) {
+    public ConnectorMessage(String channelId, long messageId, int metaDataId, String serverId, Calendar receivedDate, Status status) {
         this.channelId = channelId;
         this.messageId = messageId;
         this.metaDataId = metaDataId;
         this.serverId = serverId;
-        this.dateCreated = dateCreated;
+        this.receivedDate = receivedDate;
         this.status = status;
     }
 
@@ -85,12 +88,12 @@ public class ConnectorMessage implements Serializable {
         this.serverId = serverId;
     }
 
-    public Calendar getDateCreated() {
-        return dateCreated;
+    public Calendar getReceivedDate() {
+        return receivedDate;
     }
 
-    public void setDateCreated(Calendar dateCreated) {
-        this.dateCreated = dateCreated;
+    public void setReceivedDate(Calendar receivedDate) {
+        this.receivedDate = receivedDate;
     }
 
     public Status getStatus() {
@@ -273,12 +276,36 @@ public class ConnectorMessage implements Serializable {
         this.errors = errors;
     }
 
+    public String getResponseErrors() {
+        return responseErrors;
+    }
+
+    public void setResponseErrors(String responseErrors) {
+        this.responseErrors = responseErrors;
+    }
+
     public int getSendAttempts() {
         return sendAttempts;
     }
 
     public void setSendAttempts(int sendAttempts) {
         this.sendAttempts = sendAttempts;
+    }
+
+    public Calendar getSendDate() {
+		return sendDate;
+	}
+
+	public void setSendDate(Calendar sendDate) {
+		this.sendDate = sendDate;
+	}
+
+	public Calendar getResponseDate() {
+        return responseDate;
+    }
+
+    public void setResponseDate(Calendar responseDate) {
+        this.responseDate = responseDate;
     }
 
     public int getChainId() {

@@ -5,12 +5,10 @@
 		CREATE TABLE d_m${localChannelId} (
 	        id bigint NOT NULL PRIMARY KEY,
 	        server_id character varying(36),
-	        date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	        received_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        processed boolean NOT NULL DEFAULT FALSE,
 	        import_id bigint,
-	        import_channel_id character varying(36),
-	        attempted_response boolean NOT NULL DEFAULT FALSE,
-	        response_error character varying(1024)
+	        import_channel_id character varying(36)
 	    )
 	</query>
 	
@@ -19,21 +17,24 @@
 	</query>
 	
 	<query id="createMessageTableIndex2">
-		CREATE INDEX d_m${localChannelId}_index2 ON d_m${localChannelId}(id, date_created, processed)
+		CREATE INDEX d_m${localChannelId}_index2 ON d_m${localChannelId}(id, received_date, processed)
 	</query>
 	
 	<query id="createConnectorMessageTable">
 		CREATE TABLE d_mm${localChannelId} (
 	        id integer NOT NULL,
 	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE RESTRICT,
-	        date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	        received_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        status character(1) NOT NULL,
 	        connector_name character varying(256),
 	        connector_map clob,
 	        channel_map clob,
 	        response_map clob,
 	        errors clob,
+	        response_errors clob,
 	        send_attempts integer NOT NULL DEFAULT 0,
+	        send_date timestamp,
+	        response_date timestamp,
 	        chain_id integer NOT NULL,
 	        order_id integer NOT NULL,
 	        constraint mm${localChannelId}_pkey PRIMARY KEY(message_id, id)

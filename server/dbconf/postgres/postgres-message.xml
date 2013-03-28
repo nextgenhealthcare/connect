@@ -6,13 +6,16 @@
 		<id property="metaDataId" column="id" />
 		<result property="connectorName" column="connector_name" />
 		<result property="serverId" column="server_id" />
-		<result property="dateCreated" column="date_created" />
+		<result property="receivedDate" column="received_date" />
 		<result property="status" column="status" />
 		<result property="connectorMap" column="connector_map" typeHandler="MapTypeHandler"/>
 		<result property="channelMap" column="channel_map" typeHandler="MapTypeHandler"/>
 		<result property="responseMap" column="response_map" typeHandler="MapTypeHandler"/>
 		<result property="errors" column="errors" />
+		<result property="responseErrors" column="response_errors" />
 		<result property="sendAttempts" column="send_attempts" />
+		<result property="sendDate" column="send_date" />
+		<result property="responseDate" column="response_date" />
 		<result property="chainId" column="chain_id" />
 		<result property="orderId" column="order_id" />
 		<collection property="metaDataMap" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" ofType="map" select="selectCustomMetaData" />
@@ -28,7 +31,7 @@
 	</resultMap>
 
 	<select id="searchMessages" parameterType="map" resultType="map">
-		SELECT message.id as message_id, message.server_id, message.date_created, message.processed, message.import_id, message.import_channel_id, message.attempted_response, message.response_error, metadata_ids
+		SELECT message.id as message_id, message.server_id, message.received_date, message.processed, message.import_id, message.import_channel_id, metadata_ids
 		FROM (
 			SELECT m.id, string_agg(mm.id::character varying, ',') AS metadata_ids
 			<include refid="searchMessagesBody" />
@@ -119,10 +122,10 @@
 				AND m.id <![CDATA[ <= ]]> #{maxMessageId}
 			</if>
 			<if test="startDate != null">
-				AND m.date_created <![CDATA[ >= ]]> #{startDate}
+				AND m.received_date <![CDATA[ >= ]]> #{startDate}
 			</if>
 			<if test="endDate != null">
-				AND m.date_created <![CDATA[ <= ]]> #{endDate}
+				AND m.received_date <![CDATA[ <= ]]> #{endDate}
 			</if>
 			<if test="serverId != null">
 				AND m.server_id = #{serverId}
@@ -301,7 +304,7 @@
 	</delete>
 	
 	<sql id="prunerDeleteCriteria">
-		WHERE m.date_created <![CDATA[ < ]]> #{dateThreshold}
+		WHERE m.received_date <![CDATA[ < ]]> #{dateThreshold}
 	
 		<if test="skipIncomplete == true">
 			AND m.processed = TRUE
@@ -331,7 +334,7 @@
 			</foreach>
 		</if>
 	
-		WHERE m.date_created <![CDATA[ < ]]> #{dateThreshold}
+		WHERE m.received_date <![CDATA[ < ]]> #{dateThreshold}
 		
 		<if test="skipIncomplete == true">
 			AND m.processed = TRUE

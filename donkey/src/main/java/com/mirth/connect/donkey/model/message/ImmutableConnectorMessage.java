@@ -38,8 +38,8 @@ public class ImmutableConnectorMessage {
         return connectorMessage.getServerId();
     }
 
-    public Calendar getDateCreated() {
-        return (Calendar) connectorMessage.getDateCreated().clone();
+    public Calendar getReceivedDate() {
+        return (Calendar) connectorMessage.getReceivedDate().clone();
     }
 
     public Status getStatus() {

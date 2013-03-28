@@ -198,7 +198,7 @@ public class HttpReceiver extends SourceConnector {
                 sentResponse = responseError;
             } finally {
                 try {
-                    finishDispatch(dispatchResult, attemptedResponse, sentResponse, responseError);
+                    finishDispatch(dispatchResult, attemptedResponse, responseError, sentResponse);
                 } finally {
                     monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
                 }

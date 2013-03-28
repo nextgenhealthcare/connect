@@ -172,12 +172,12 @@ public class MessagePrunerTest {
             connection = TestUtils.getConnection();
             long localChannelId = ChannelController.getInstance().getLocalChannelId(TEST_CHANNEL_ID);
 
-            Calendar dateCreated = Calendar.getInstance();
-            dateCreated.setTime(messageDateThreshold.getTime());
-            dateCreated.set(Calendar.DAY_OF_MONTH, dateCreated.get(Calendar.DAY_OF_MONTH) - 1);
+            Calendar receivedDate = Calendar.getInstance();
+            receivedDate.setTime(messageDateThreshold.getTime());
+            receivedDate.set(Calendar.DAY_OF_MONTH, receivedDate.get(Calendar.DAY_OF_MONTH) - 1);
 
-            statement = connection.prepareStatement("UPDATE d_m" + localChannelId + " SET date_created = ? WHERE id = any(array(SELECT id FROM d_m" + localChannelId + " LIMIT ?))");
-            statement.setTimestamp(1, new Timestamp(dateCreated.getTimeInMillis()));
+            statement = connection.prepareStatement("UPDATE d_m" + localChannelId + " SET received_date = ? WHERE id = any(array(SELECT id FROM d_m" + localChannelId + " LIMIT ?))");
+            statement.setTimestamp(1, new Timestamp(receivedDate.getTimeInMillis()));
             statement.setInt(2, numPrunable);
 
             logger.info("Making " + numPrunable + " messages prunable");
@@ -208,13 +208,13 @@ public class MessagePrunerTest {
         ChannelController.getInstance().initChannelStorage(TEST_CHANNEL_ID);
         
         Message message = MessageController.getInstance().createNewMessage(TEST_CHANNEL_ID, TEST_SERVER_ID);
-        message.setDateCreated(Calendar.getInstance());
+        message.setReceivedDate(Calendar.getInstance());
         message.setProcessed(true);
 
-        ConnectorMessage sourceMessage = new ConnectorMessage(TEST_CHANNEL_ID, message.getMessageId(), 0, TEST_SERVER_ID, message.getDateCreated(), Status.RECEIVED);
+        ConnectorMessage sourceMessage = new ConnectorMessage(TEST_CHANNEL_ID, message.getMessageId(), 0, TEST_SERVER_ID, message.getReceivedDate(), Status.RECEIVED);
         message.getConnectorMessages().put(0, sourceMessage);
 
-        ConnectorMessage destinationMessage = new ConnectorMessage(TEST_CHANNEL_ID, message.getMessageId(), 1, TEST_SERVER_ID, message.getDateCreated(), Status.SENT);
+        ConnectorMessage destinationMessage = new ConnectorMessage(TEST_CHANNEL_ID, message.getMessageId(), 1, TEST_SERVER_ID, message.getReceivedDate(), Status.SENT);
         message.getConnectorMessages().put(1, destinationMessage);
 
         sourceMessage.setRaw(new MessageContent(TEST_CHANNEL_ID, message.getMessageId(), 0, ContentType.RAW, TEST_MESSAGE_CONTENT, null, null));
@@ -286,18 +286,18 @@ public class MessagePrunerTest {
             dateThreshold = Calendar.getInstance();
         }
 
-        Calendar dateCreated = Calendar.getInstance();
-        dateCreated.setTime(dateThreshold.getTime());
-        dateCreated.set(Calendar.DAY_OF_MONTH, dateCreated.get(Calendar.DAY_OF_MONTH) - 1);
+        Calendar receivedDate = Calendar.getInstance();
+        receivedDate.setTime(dateThreshold.getTime());
+        receivedDate.set(Calendar.DAY_OF_MONTH, receivedDate.get(Calendar.DAY_OF_MONTH) - 1);
 
         Message message = MessageController.getInstance().createNewMessage(TEST_CHANNEL_ID, TEST_SERVER_ID);
-        message.setDateCreated(dateCreated);
+        message.setReceivedDate(receivedDate);
         message.setProcessed(processed);
 
-        ConnectorMessage sourceMessage = new ConnectorMessage(TEST_CHANNEL_ID, message.getMessageId(), 0, TEST_SERVER_ID, message.getDateCreated(), Status.RECEIVED);
+        ConnectorMessage sourceMessage = new ConnectorMessage(TEST_CHANNEL_ID, message.getMessageId(), 0, TEST_SERVER_ID, message.getReceivedDate(), Status.RECEIVED);
         message.getConnectorMessages().put(0, sourceMessage);
 
-        ConnectorMessage destinationMessage = new ConnectorMessage(TEST_CHANNEL_ID, message.getMessageId(), 1, TEST_SERVER_ID, message.getDateCreated(), destinationStatus);
+        ConnectorMessage destinationMessage = new ConnectorMessage(TEST_CHANNEL_ID, message.getMessageId(), 1, TEST_SERVER_ID, message.getReceivedDate(), destinationStatus);
         message.getConnectorMessages().put(1, destinationMessage);
 
         if (contentPrunable != null) {

@@ -9,6 +9,7 @@
 
 package com.mirth.connect.donkey.server.channel;
 
+import java.util.Calendar;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -423,7 +424,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     private Response handleSend(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {
-        return send(connectorProperties, message);
+    	message.setSendDate(Calendar.getInstance());
+        Response response = send(connectorProperties, message);
+        message.setResponseDate(Calendar.getInstance());
+        
+        return response;
     }
 
     private void afterSend(DonkeyDao dao, ConnectorMessage message, Response response, Status previousStatus) throws InterruptedException {

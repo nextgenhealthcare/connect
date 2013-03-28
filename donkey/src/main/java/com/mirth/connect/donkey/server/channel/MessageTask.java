@@ -138,13 +138,13 @@ final class MessageTask implements Callable<DispatchResult> {
     private ConnectorMessage createAndStoreSourceMessage(DonkeyDao dao, RawMessage rawMessage) throws InterruptedException {
         ThreadUtils.checkInterruptedStatus();
         Long messageId;
-        Calendar dateCreated;
+        Calendar receivedDate;
         String channelId = channel.getChannelId();
 
         if (rawMessage.getMessageIdToOverwrite() == null) {
             Message message = MessageController.getInstance().createNewMessage(channelId, channel.getServerId());
             messageId = message.getMessageId();
-            dateCreated = message.getDateCreated();
+            receivedDate = message.getReceivedDate();
             dao.insertMessage(message);
         } else {
             messageId = rawMessage.getMessageIdToOverwrite();
@@ -153,10 +153,10 @@ final class MessageTask implements Callable<DispatchResult> {
             metaDataIds.add(0);
             dao.deleteConnectorMessages(channelId, messageId, metaDataIds, true);
             dao.resetMessage(channelId, messageId);
-            dateCreated = Calendar.getInstance();
+            receivedDate = Calendar.getInstance();
         }
 
-        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, messageId, 0, channel.getServerId(), dateCreated, Status.RECEIVED);
+        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, messageId, 0, channel.getServerId(), receivedDate, Status.RECEIVED);
         sourceMessage.setConnectorName(channel.getSourceConnector().getSourceName());
         sourceMessage.setChainId(0);
         sourceMessage.setOrderId(0);

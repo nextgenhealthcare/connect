@@ -138,7 +138,7 @@ public class JmsReceiver extends SourceConnector {
             } catch (ChannelException e) {
                 reportError("Failed to process message", e);
             } finally {
-                finishDispatch(dispatchResult, attemptedResponse, null, responseError);
+                finishDispatch(dispatchResult, attemptedResponse, responseError);
                 monitoringController.updateStatus(getChannelId(), getMetaDataId(), CONNECTOR_TYPE, Event.DONE);
             }
         }

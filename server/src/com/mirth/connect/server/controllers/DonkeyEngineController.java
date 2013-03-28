@@ -80,7 +80,6 @@ import com.mirth.connect.server.transformers.JavaScriptResponseTransformer;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
 import com.mirth.connect.server.util.GlobalVariableStore;
 import com.mirth.connect.server.util.JavaScriptUtil;
-import com.mirth.connect.server.util.UUIDGenerator;
 
 public class DonkeyEngineController implements EngineController {
     private static DonkeyEngineController instance = null;
@@ -381,16 +380,11 @@ public class DonkeyEngineController implements EngineController {
 
         SourceConnector sourceConnector = donkey.getDeployedChannels().get(channelId).getSourceConnector();
         DispatchResult dispatchResult = null;
-        String response = null;
 
         try {
             dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
-
-            if (dispatchResult.getSelectedResponse() != null) {
-                response = dispatchResult.getSelectedResponse().getMessage();
-            }
         } finally {
-            sourceConnector.finishDispatch(dispatchResult, true, response, null);
+            sourceConnector.finishDispatch(dispatchResult, true, null);
         }
 
         return dispatchResult;

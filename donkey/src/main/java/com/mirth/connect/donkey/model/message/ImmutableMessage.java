@@ -32,8 +32,8 @@ public class ImmutableMessage {
         return message.getChannelId();
     }
 
-    public Calendar getDateCreated() {
-        return (Calendar) message.getDateCreated().clone();
+    public Calendar getReceivedDate() {
+        return (Calendar) message.getReceivedDate().clone();
     }
 
     public boolean isProcessed() {

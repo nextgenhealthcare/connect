@@ -6,13 +6,16 @@
 		<id property="metaDataId" column="id" />
 		<result property="connectorName" column="connector_name" />
 		<result property="serverId" column="server_id" />
-		<result property="dateCreated" column="date_created" />
+		<result property="receivedDate" column="received_date" />
 		<result property="status" column="status" />
 		<result property="connectorMap" column="connector_map" typeHandler="MapTypeHandler"/>
 		<result property="channelMap" column="channel_map" typeHandler="MapTypeHandler"/>
 		<result property="responseMap" column="response_map" typeHandler="MapTypeHandler"/>
 		<result property="errors" column="errors" />
+		<result property="responseErrors" column="response_errors" />
 		<result property="sendAttempts" column="send_attempts" />
+		<result property="sendDate" column="send_date" />
+		<result property="responseDate" column="response_date" />
 		<result property="chainId" column="chain_id" />
 		<result property="orderId" column="order_id" />
 		<collection property="metaDataMap" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" ofType="map" select="selectCustomMetaData" />
@@ -31,12 +34,10 @@
 		SELECT 
 			message.id AS "message_id",
 			message.server_id AS "server_id",
-			message.date_created AS "date_created",
+			message.received_date AS "received_date",
 			message.processed AS "processed",
 			message.import_id AS "import_id",
 			message.import_channel_id AS "import_channel_id",
-			message.attempted_response AS "attempted_response",
-			message.response_error AS "response_error",
 			subquery."metadata_ids"
 		FROM (
 			SELECT
@@ -131,10 +132,10 @@
 				AND m.id <![CDATA[ <= ]]> #{maxMessageId}
 			</if>
 			<if test="startDate != null">
-				AND m.date_created <![CDATA[ >= ]]> #{startDate}
+				AND m.received_date <![CDATA[ >= ]]> #{startDate}
 			</if>
 			<if test="endDate != null">
-				AND m.date_created <![CDATA[ <= ]]> #{endDate}
+				AND m.received_date <![CDATA[ <= ]]> #{endDate}
 			</if>
 			<if test="serverId != null">
 				AND m.server_id = #{serverId}
@@ -272,12 +273,10 @@
 		SELECT
 			id AS "id",
 			server_id AS "server_id",
-			date_created AS "date_created",
+			received_date AS "received_date",
 			processed AS "processed",
 			import_id AS "import_id",
-			import_channel_id AS "import_channel_id",
-			attempted_response AS "attempted_response",
-			response_error AS "response_error"
+			import_channel_id AS "import_channel_id"
 
 		FROM d_m${localChannelId}
 		WHERE id = #{messageId}
@@ -287,14 +286,17 @@
 		SELECT 
 			id AS "id",
 			message_id AS "message_id",
-			date_created AS "date_created",
+			received_date AS "received_date",
 			status AS "status",
 			connector_name AS "connector_name",
 			connector_map AS "connector_map",
 			channel_map AS "channel_map",
 			response_map AS "response_map",
 			errors AS "errors",
+			response_errors AS "response_errors",
 			send_attempts AS "send_attempts",
+			send_date AS "send_date",
+			response_date AS "response_date",
 			${localChannelId} AS local_channel_id
 		FROM d_mm${localChannelId}
 		WHERE message_id = #{messageId}
@@ -385,7 +387,7 @@
 	</delete>
 	
 	<sql id="prunerDeleteCriteria">
-		WHERE m.date_created <![CDATA[ < ]]> #{dateThreshold}
+		WHERE m.received_date <![CDATA[ < ]]> #{dateThreshold}
 	
 		<if test="skipIncomplete == true">
 			AND m.processed = TRUE
@@ -408,12 +410,10 @@
 		SELECT
 			m.id AS "id",
 			m.server_id AS "server_id",
-			m.date_created AS "date_created",
+			m.received_date AS "received_date",
 			m.processed AS "processed",
 			m.import_id AS "import_id",
-			m.import_channel_id AS "import_channel_id",
-			m.attempted_response AS "attempted_response",
-			m.response_error AS "response_error"
+			m.import_channel_id AS "import_channel_id"
 
 		FROM d_m${localChannelId} m
 		
@@ -424,7 +424,7 @@
 			</foreach>
 		</if>
 	
-		WHERE m.date_created <![CDATA[ < ]]> #{dateThreshold}
+		WHERE m.received_date <![CDATA[ < ]]> #{dateThreshold}
 		
 		<if test="skipIncomplete == true">
 			AND m.processed = TRUE

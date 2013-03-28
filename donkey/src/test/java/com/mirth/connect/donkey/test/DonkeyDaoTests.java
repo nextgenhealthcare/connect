@@ -94,7 +94,7 @@ public class DonkeyDaoTests {
      * Create and insert messages, assert that:
      * - The row was inserted correctly
      * - The server ID was inserted correctly
-     * - The date_created column was initialized
+     * - The received_date column was initialized
      * - The processed column was initialized to false
      */
     @Test
@@ -108,7 +108,7 @@ public class DonkeyDaoTests {
             Message message = new Message();
             message.setChannelId(channel.getChannelId());
             message.setServerId(channel.getServerId());
-            message.setDateCreated(Calendar.getInstance());
+            message.setReceivedDate(Calendar.getInstance());
             message.setProcessed(false);
 
             for (int i = 1; i <= TEST_SIZE; i++) {
@@ -141,7 +141,7 @@ public class DonkeyDaoTests {
                     assertEquals(message.getServerId(), result.getString("server_id"));
     
                     // Assert that the date_create column was initialized
-                    assertNotNull(result.getTimestamp("date_created"));
+                    assertNotNull(result.getTimestamp("received_date"));
     
                     // Assert that the processed column was initialized to false
                     assertNotNull(result.getBoolean("processed"));
@@ -163,7 +163,7 @@ public class DonkeyDaoTests {
      * Create and insert connector messages
      * For each connector message inserted, assert that:
      * - The metadata row was inserted correctly
-     * - The date created was inserted correctly
+     * - The received dated was inserted correctly
      * - The status was inserted correctly
      * - The connector map was inserted correctly
      * - The channel map was inserted correctly
@@ -226,8 +226,8 @@ public class DonkeyDaoTests {
                 // Assert that the metadata row exists
                 assertTrue(result.next());
 
-                // Assert that the date created is correct
-                assertEquals(result.getTimestamp("date_created").getTime(), connectorMessage.getDateCreated().getTimeInMillis());
+                // Assert that the received date is correct
+                assertEquals(result.getTimestamp("received_date").getTime(), connectorMessage.getReceivedDate().getTimeInMillis());
 
                 // Assert that the status is correct
                 assertEquals(Status.fromChar(result.getString("status").charAt(0)), connectorMessage.getStatus());

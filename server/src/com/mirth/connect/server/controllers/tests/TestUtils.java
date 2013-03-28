@@ -243,7 +243,7 @@ public class TestUtils {
 
     public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDao dao) {
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
-        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getDateCreated(), Status.RECEIVED);
+        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
         sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, null));
 
         if (rawMessage.getChannelMap() != null) {
@@ -371,8 +371,8 @@ public class TestUtils {
 
         try {
             connection = getConnection();
-            messageStatement = connection.prepareStatement("INSERT INTO d_m" + localChannelId + " (id, server_id, date_created, processed) SELECT id + ?, server_id, date_created, processed FROM d_m" + localChannelId);
-            metaDataStatement = connection.prepareStatement("INSERT INTO d_mm" + localChannelId + " (id, message_id, date_created, status, connector_map, channel_map, response_map, errors, send_attempts) SELECT id, message_id + ?, date_created, status, connector_map, channel_map, response_map, errors, send_attempts FROM d_mm" + localChannelId);
+            messageStatement = connection.prepareStatement("INSERT INTO d_m" + localChannelId + " (id, server_id, received_date, processed) SELECT id + ?, server_id, received_date, processed FROM d_m" + localChannelId);
+            metaDataStatement = connection.prepareStatement("INSERT INTO d_mm" + localChannelId + " (id, message_id, received_date, status, connector_map, channel_map, response_map, errors, send_attempts) SELECT id, message_id + ?, received_date, status, connector_map, channel_map, response_map, errors, send_attempts FROM d_mm" + localChannelId);
             contentStatement = connection.prepareStatement("INSERT INTO d_mc" + localChannelId + " (metadata_id, message_id, content_type, content, is_encrypted, data_type) SELECT metadata_id, message_id + ?, content_type, content, is_encrypted, data_type FROM d_mc" + localChannelId);
 
             for (int i = 0; i < power; i++) {

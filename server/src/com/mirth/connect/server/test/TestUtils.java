@@ -92,19 +92,19 @@ public class TestUtils {
     }
     
     public static Message createTestProcessedMessage(String channelId, String serverId, long messageId, String content) {
-        Calendar dateCreated = Calendar.getInstance();
+        Calendar receivedDate = Calendar.getInstance();
 
         Message message = new Message();
         message.setMessageId(messageId);
         message.setChannelId(channelId);
         message.setServerId(serverId);
-        message.setDateCreated(dateCreated);
+        message.setReceivedDate(receivedDate);
         message.setProcessed(true);
 
-        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getDateCreated(), Status.TRANSFORMED);
+        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.TRANSFORMED);
         message.getConnectorMessages().put(0, sourceMessage);
 
-        ConnectorMessage destinationMessage = new ConnectorMessage(channelId, message.getMessageId(), 1, serverId, message.getDateCreated(), Status.SENT);
+        ConnectorMessage destinationMessage = new ConnectorMessage(channelId, message.getMessageId(), 1, serverId, message.getReceivedDate(), Status.SENT);
         message.getConnectorMessages().put(1, destinationMessage);
 
         sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, content, null, null));

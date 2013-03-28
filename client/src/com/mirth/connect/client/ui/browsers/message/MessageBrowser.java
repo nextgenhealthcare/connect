@@ -131,8 +131,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private MessageBrowserAdvancedFilter advancedSearchPopup;
     private MessageBrowserExportResults exportResultsPopup;
     private JPopupMenu attachmentPopupMenu;
-    private final String[] columns = new String[] { "Id", "Connector", "Status", "Date & Time",
-            "Server Id", "Send Attempts", "Import Id", "Response Sent" };
+    private final String[] columns = new String[] { "Id", "Connector", "Status", "Received Date",
+            "Send Attempts", "Send Date", "Response Date", "Response Status", "Server Id", "Import Id" };
     // Worker used for loading a page and counting the total number of messages
     private SwingWorker<Void, Void> worker;
 
@@ -1617,15 +1617,15 @@ public class MessageBrowser extends javax.swing.JPanel {
                     ConnectorMessage connectorMessage = message.getConnectorMessages().get(metaDataId);
 
                     // Update the message tabs
-                    updateDescriptionMessages(connectorMessage, metaDataId);
+                    updateDescriptionMessages(connectorMessage);
                     // Update the mappings tab
-                    updateDescriptionMappings(connectorMessage, metaDataId);
+                    updateDescriptionMappings(connectorMessage);
                     // Update the attachments tab
                     updateAttachmentsTable(messageId);
                     // Update the errors tab
-                    updateDescriptionErrors(connectorMessage.getErrors(), message.getResponseError(), metaDataId);
+                    updateDescriptionErrors(connectorMessage);
                     // Show relevant tabs
-                    updateDescriptionTabs(metaDataId, (connectorMessage.getErrors() != null || (message.getResponseError() != null && metaDataId == 0)), attachments.size() > 0);
+                    updateDescriptionTabs(metaDataId, (connectorMessage.getErrors() != null || (connectorMessage.getResponseErrors() != null && metaDataId == 0)), attachments.size() > 0);
                     updateMessageRadioGroup();
 
                     if (attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1) {
@@ -1644,7 +1644,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     /**
      * Helper function to update the message tabs
      */
-    private void updateDescriptionMessages(ConnectorMessage connectorMessage, Integer metaDataId) {
+    private void updateDescriptionMessages(ConnectorMessage connectorMessage) {
         MessageContent rawMessage = connectorMessage.getRaw();
         MessageContent processedRawMessage = connectorMessage.getProcessedRaw();
         MessageContent transformedMessage = connectorMessage.getTransformed();
@@ -1689,7 +1689,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         content = null;
         if (sentMessage != null) {
-            if (metaDataId > 0) {
+            if (connectorMessage.getMetaDataId() > 0) {
                 DefaultSerializer serializer = new DefaultSerializer();
                 Object sentObject = serializer.deserialize(sentMessage.getContent());
                 if (sentObject instanceof ConnectorProperties) {
@@ -1707,7 +1707,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         content = null;
         if (responseMessage != null) {
-            if (metaDataId > 0) {
+            if (connectorMessage.getMetaDataId() > 0) {
                 DefaultSerializer serializer = new DefaultSerializer();
                 Object object = serializer.deserialize(responseMessage.getContent());
                 if (object instanceof Response) {
@@ -1738,7 +1738,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         content = null;
         if (processedResponseMessage != null) {
-            if (metaDataId > 0) {
+            if (connectorMessage.getMetaDataId() > 0) {
                 DefaultSerializer serializer = new DefaultSerializer();
                 Object object = serializer.deserialize(processedResponseMessage.getContent());
                 if (object instanceof Response) {
@@ -1764,7 +1764,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     /**
      * Helper function to update the mappings
      */
-    private void updateDescriptionMappings(ConnectorMessage connectorMessage, Integer metaDataId) {
+    private void updateDescriptionMappings(ConnectorMessage connectorMessage) {
         Map<String, Object> connectorMap = connectorMessage.getConnectorMap();
         Map<String, Object> channelMap = connectorMessage.getChannelMap();
         Map<String, Object> responseMap = connectorMessage.getResponseMap();
@@ -1819,10 +1819,9 @@ public class MessageBrowser extends javax.swing.JPanel {
     /**
      * Helper function to update the error tab
      */
-    private void updateDescriptionErrors(String processingError, String responseError, Integer metaDataId) {
-        if (metaDataId != 0) {
-        	responseError = null;
-        }
+    private void updateDescriptionErrors(ConnectorMessage connectorMessage) {
+        String processingError = connectorMessage.getErrors();
+        String responseError = connectorMessage.getMetaDataId() == 0 ? connectorMessage.getResponseErrors() : null;
 
         ErrorsRadioPane.removeAll();
         boolean paneSelected = false;
@@ -1951,7 +1950,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
             connectorMessage = message.getConnectorMessages().get(metaDataId);
 
-            updateDescriptionMessages(connectorMessage, metaDataId);
+            updateDescriptionMessages(connectorMessage);
 
             this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }

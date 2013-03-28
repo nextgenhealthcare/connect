@@ -10,6 +10,7 @@
 package com.mirth.connect.donkey.server.data.passthru;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -181,7 +182,7 @@ public class PassthruDao implements DonkeyDao {
     public void addChannelStatistics(Statistics statistics) {}
 
     @Override
-    public void updateSourceResponse(String channelId, long messageId, boolean attemptedResponse, String responseError) {}
+    public void updateSourceResponse(String channelId, long messageId, int sendAttempts, String responseError, Calendar responseDate) {}
 
     @Override
     public void updateErrors(ConnectorMessage connectorMessage) {}
