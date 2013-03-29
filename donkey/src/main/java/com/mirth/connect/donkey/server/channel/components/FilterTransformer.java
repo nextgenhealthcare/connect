@@ -10,9 +10,10 @@
 package com.mirth.connect.donkey.server.channel.components;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
 
 public interface FilterTransformer {
-    public boolean doFilterTransform(ConnectorMessage message) throws FilterTransformerException, InterruptedException;
-
+    public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException, InterruptedException;
+    
     public void dispose();
 }

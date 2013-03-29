@@ -14,7 +14,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 
 public interface ResponseTransformer {
-    public void doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException, InterruptedException;
+    public String doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException, InterruptedException;
 
     public void dispose();
 }

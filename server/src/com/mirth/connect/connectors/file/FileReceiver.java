@@ -275,7 +275,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("Unable to route." + ExceptionUtils.getStackTrace(e));
+                    logger.error("Unable to route: " + ExceptionUtils.getStackTrace(e));
 
                     // routingError is reset to false at the beginning of the
                     // poll method

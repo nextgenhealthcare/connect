@@ -35,6 +35,7 @@
 		<property name="plugins.datatype-hl7v3" value="${extensions}/datatype-hl7v3" />
 		<property name="plugins.datatype-ncpdp" value="${extensions}/datatype-ncpdp" />
 		<property name="plugins.datatype-xml" value="${extensions}/datatype-xml" />
+		<property name="plugins.datatype-raw" value="${extensions}/datatype-raw" />
 		
 		<!-- plugins -->
 		<property name="plugins.dashboardstatus" value="${extensions}/dashboardstatus" />
@@ -499,6 +500,24 @@
 			<include name="com/mirth/connect/plugins/datatypes/xml/XMLDataTypeServerPlugin.class" />
 		</jar>
 		
+		<!-- plugins.datatype-raw -->
+		<mkdir dir="${plugins.datatype-raw}" />
+		<copy todir="${plugins.datatype-raw}">
+			<fileset dir="${src}/com/mirth/connect/plugins/datatypes/raw">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.datatype-raw}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/datatypes/raw" />
+		</copy>
+		<jar destfile="${plugins.datatype-raw}/datatype-raw-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/raw/**" />
+			<exclude name="com/mirth/connect/plugins/datatypes/raw/RawDataTypeServerPlugin.class" />
+		</jar>
+		<jar destfile="${plugins.datatype-raw}/datatype-raw-server.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/raw/RawDataTypeServerPlugin.class" />
+		</jar>
+		
 		<!-- plugins.dashboardstatus -->
 		<mkdir dir="${plugins.dashboardstatus}" />
 		<copy todir="${plugins.dashboardstatus}">
@@ -850,6 +869,7 @@
 		<zip destfile="${dist.extensions}/datatype-hl7v3-${version}.zip" basedir="${extensions}" includes="datatype-hl7v3/**/*" />
 		<zip destfile="${dist.extensions}/datatype-ncpdp-${version}.zip" basedir="${extensions}" includes="datatype-ncpdp/**/*" />
 		<zip destfile="${dist.extensions}/datatype-xml-${version}.zip" basedir="${extensions}" includes="datatype-xml/**/*" />
+		<zip destfile="${dist.extensions}/datatype-raw-${version}.zip" basedir="${extensions}" includes="datatype-raw/**/*" />
 
 		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip" basedir="${extensions}" includes="dashboardstatus/**/*" />
 		<zip destfile="${dist.extensions}/serverlog-${version}.zip" basedir="${extensions}" includes="serverlog/**/*" />

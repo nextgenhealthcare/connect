@@ -17,6 +17,7 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
@@ -69,16 +70,9 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
     }
 
     @Override
-    public boolean doFilterTransform(ConnectorMessage message) throws FilterTransformerException, InterruptedException {
+    public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException, InterruptedException {
         try {
-            FilterTransformerResult result = jsExecutor.execute(new FilterTransformerTask(message));
-            String transformedContent = result.getTransformedContent();
-
-            if (transformedContent != null) {
-                message.getTransformed().setContent(transformedContent);
-            }
-
-            return result.isFiltered();
+            return jsExecutor.execute(new FilterTransformerTask(message));
         } catch (JavaScriptExecutorException e) {
             Throwable cause = e.getCause();
 
@@ -122,11 +116,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
 
                     String transformedData = JavaScriptScopeUtil.getTransformedDataFromScope(scope, StringUtils.isNotBlank(template));
 
-                    if (StringUtils.isBlank(transformedData)) {
-                        transformedData = null;
-                    }
-
-                    return new FilterTransformerResult((Boolean) Context.jsToJava(result, java.lang.Boolean.class), transformedData);
+                    return new FilterTransformerResult(!(Boolean) Context.jsToJava(result, java.lang.Boolean.class), transformedData);
                 }
             } catch (Throwable t) {
                 if (t instanceof RhinoException) {
@@ -145,24 +135,6 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
             } finally {
                 Context.exit();
             }
-        }
-    }
-
-    private class FilterTransformerResult {
-        private boolean filtered;
-        private String transformedContent;
-
-        public FilterTransformerResult(boolean filtered, String transformedContent) {
-            this.filtered = filtered;
-            this.transformedContent = transformedContent;
-        }
-
-        public boolean isFiltered() {
-            return filtered;
-        }
-
-        public String getTransformedContent() {
-            return transformedContent;
         }
     }
 }

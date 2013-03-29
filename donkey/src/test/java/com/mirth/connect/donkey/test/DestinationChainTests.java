@@ -31,6 +31,7 @@ import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
+import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
 import com.mirth.connect.donkey.server.channel.MetaDataReplacer;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
@@ -99,7 +100,7 @@ public class DestinationChainTests {
 
         class TestFilterTransformer2 extends TestFilterTransformer {
             @Override
-            public boolean doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
+            public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
                 // Alter the connector message maps
                 message.getConnectorMap().put("key", "value");
                 message.getChannelMap().put("key", "value");
@@ -207,11 +208,11 @@ public class DestinationChainTests {
 
         channel.getSourceFilterTransformer().setFilterTransformer(new TestFilterTransformer() {
             @Override
-            public boolean doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
+            public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
                 // Alter the channel and response maps
                 message.getChannelMap().put("key", "value");
                 message.getResponseMap().put("key", new Response(Status.SENT, "value"));
-                return true;
+                return new FilterTransformerResult(true, null);
             }
         });
 

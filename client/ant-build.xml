@@ -38,6 +38,7 @@
 		<property name="plugins.datatype-hl7v3" value="${extensions}/datatype-hl7v3" />
 		<property name="plugins.datatype-ncpdp" value="${extensions}/datatype-ncpdp" />
 		<property name="plugins.datatype-xml" value="${extensions}/datatype-xml" />
+		<property name="plugins.datatype-raw" value="${extensions}/datatype-raw" />
 
 		<!-- plugins -->
 		<property name="plugins.dashboardstatus" value="${extensions}/dashboardstatus" />
@@ -180,6 +181,11 @@
 		<mkdir dir="${plugins.datatype-xml}" />
 		<jar destfile="${plugins.datatype-xml}/datatype-xml-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/xml/**" />
+		</jar>
+		
+		<mkdir dir="${plugins.datatype-raw}" />
+		<jar destfile="${plugins.datatype-raw}/datatype-raw-client.jar" basedir="${classes}">
+			<include name="com/mirth/connect/plugins/datatypes/raw/**" />
 		</jar>
 		
 		<mkdir dir="${plugins.dashboardstatus}" />

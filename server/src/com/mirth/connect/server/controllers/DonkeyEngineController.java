@@ -29,6 +29,7 @@ import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.donkey.model.message.SerializerException;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
@@ -69,6 +70,7 @@ import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.attachments.AttachmentHandlerFactory;
 import com.mirth.connect.plugins.ChannelPlugin;
+import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.attachments.JavaScriptAttachmentHandler;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.channel.MirthMetaDataReplacer;
@@ -637,9 +639,10 @@ public class DonkeyEngineController implements EngineController {
 
         // Serialize the outbound template if needed
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-            XmlSerializer serializer = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).getSerializer(transformer.getOutboundProperties().getSerializerProperties());
+            DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
+            XmlSerializer serializer = outboundServerPlugin.getSerializer(transformer.getOutboundProperties().getSerializerProperties());
 
-            if (ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).isBinary()) {
+            if (outboundServerPlugin.isBinary() || outboundServerPlugin.getSerializationType() == SerializationType.RAW) {
                 template = transformer.getOutboundTemplate();
             } else {
                 try {
@@ -692,9 +695,10 @@ public class DonkeyEngineController implements EngineController {
 
         // Serialize the outbound template if needed
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-            XmlSerializer serializer = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).getSerializer(transformer.getOutboundProperties().getSerializerProperties());
-
-            if (ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType()).isBinary()) {
+            DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
+            XmlSerializer serializer = outboundServerPlugin.getSerializer(transformer.getOutboundProperties().getSerializerProperties());
+            
+            if (outboundServerPlugin.isBinary() || outboundServerPlugin.getSerializationType() == SerializationType.RAW) {
                 template = transformer.getOutboundTemplate();
             } else {
                 try {

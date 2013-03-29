@@ -87,10 +87,10 @@ public class TestFilterTransformer {
     public final void testDoFilterTransform() throws Exception {
         ConnectorMessage connectorMessage = createConnectorMessage(CHANNEL_ID, 1, 0);
         long startTime = System.currentTimeMillis();
-        boolean result = filterTransformer.doFilterTransform(connectorMessage);
+        boolean result = filterTransformer.doFilterTransform(connectorMessage).isFiltered();
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-        assertFalse(result);
+        assertTrue(result);
         assertTrue(duration >= SCRIPT_SLEEP_MILLIS);
         System.out.println("\ntestDoFilterTransform: " + duration + "ms");
     }
@@ -120,10 +120,10 @@ public class TestFilterTransformer {
     public final void testPerformance() throws Exception {
         ConnectorMessage connectorMessage = createConnectorMessage(CHANNEL_ID, 1, 0);
         long startTime = System.currentTimeMillis();
-        boolean result = filterTransformerPerformance.doFilterTransform(connectorMessage);
+        boolean result = filterTransformerPerformance.doFilterTransform(connectorMessage).isFiltered();
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-        assertFalse(result);
+        assertTrue(result);
         System.out.println("\nFilter/Transformer Performance: " + duration + "ms\n");
     }
     

@@ -3,6 +3,7 @@ package com.mirth.connect.plugins;
 import org.syntax.jedit.tokenmarker.TokenMarker;
 import org.w3c.dom.Element;
 
+import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.model.attachments.AttachmentHandlerType;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
@@ -28,6 +29,13 @@ public abstract class DataTypeClientPlugin extends ClientPlugin {
      */
     final public boolean isBinary() {
         return getDataTypeDelegate().isBinary();
+    }
+    
+    /**
+     * Get the serialization type
+     */
+    final public SerializationType getSerializationType() {
+        return getDataTypeDelegate().getSerializationType();
     }
     
     /**

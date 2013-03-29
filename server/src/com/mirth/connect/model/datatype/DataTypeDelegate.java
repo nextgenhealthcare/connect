@@ -1,5 +1,6 @@
 package com.mirth.connect.model.datatype;
 
+import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.model.converters.IXMLSerializer;
 
 public interface DataTypeDelegate {
@@ -18,4 +19,9 @@ public interface DataTypeDelegate {
      * Indicates if the data type is in binary format
      */
     public boolean isBinary();
+    
+    /**
+     * Get the serialization type
+     */
+    public SerializationType getSerializationType();
 }

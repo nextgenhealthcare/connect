@@ -410,7 +410,7 @@ public class DestinationConnectorTests {
             public volatile boolean waiting = true;
 
             @Override
-            public void doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException, InterruptedException {
+            public String doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException, InterruptedException {
                 while (waiting) {
                     try {
                         Thread.sleep(100);
@@ -418,7 +418,7 @@ public class DestinationConnectorTests {
                         e.printStackTrace();
                     }
                 }
-                super.doTransform(response, connectorMessage);
+                return super.doTransform(response, connectorMessage);
             }
         }
         final BlockingTestResponseTransformer responseTransformer = new BlockingTestResponseTransformer();
@@ -560,11 +560,11 @@ public class DestinationConnectorTests {
 
         class TestResponseTransformer2 extends TestResponseTransformer {
             @Override
-            public void doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException, InterruptedException {
+            public String doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException, InterruptedException {
                 response.setMessage(testResponse.getMessage());
                 response.setStatus(testResponse.getStatus());
                 connectorMessage.getResponseTransformed().setContent(testResponse.getMessage());
-                super.doTransform(response, connectorMessage);
+                return super.doTransform(response, connectorMessage);
             }
         }
         channel.getDestinationConnector(1).getResponseTransformerExecutor().setResponseTransformer(new TestResponseTransformer2());

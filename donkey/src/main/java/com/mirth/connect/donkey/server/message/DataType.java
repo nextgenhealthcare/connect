@@ -9,6 +9,7 @@
 
 package com.mirth.connect.donkey.server.message;
 
+import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 
 public class DataType {
@@ -17,12 +18,18 @@ public class DataType {
     private XmlSerializer serializer;
     private BatchAdaptor batchAdaptor;
     private AutoResponder autoResponder;
-
+    private SerializationType serializationType;
+    
     public DataType(String type, XmlSerializer serializer, BatchAdaptor batchAdaptor, AutoResponder autoResponder) {
+        this(type, serializer, batchAdaptor, autoResponder, SerializationType.XML);
+    }
+
+    public DataType(String type, XmlSerializer serializer, BatchAdaptor batchAdaptor, AutoResponder autoResponder, SerializationType serializationType) {
         this.type = type;
         this.serializer = serializer;
         this.batchAdaptor = batchAdaptor;
         this.autoResponder = autoResponder;
+        this.serializationType = serializationType;
     }
 
     public String getType() {
@@ -39,5 +46,9 @@ public class DataType {
 
     public AutoResponder getAutoResponder() {
         return autoResponder;
+    }
+    
+    public SerializationType getSerializationType() {
+        return serializationType;
     }
 }

@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.message;
 
+import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.server.message.AutoResponder;
 import com.mirth.connect.donkey.server.message.BatchAdaptor;
@@ -36,7 +37,10 @@ public class DataTypeFactory {
             autoResponder = new DefaultAutoResponder();
         }
         
+        // Get the serialization type
+        SerializationType serializationType = dataTypePlugin.getSerializationType();
+        
         // Return the data type
-        return new DataType(dataType, serializer, batchAdaptor, autoResponder);
+        return new DataType(dataType, serializer, batchAdaptor, autoResponder, serializationType);
     }
 }

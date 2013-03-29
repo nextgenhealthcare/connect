@@ -30,6 +30,7 @@ import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
@@ -128,9 +129,9 @@ public class StatisticsTests {
 
         TestFilterTransformer filterTransformer = new TestFilterTransformer() {
             @Override
-            public boolean doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
+            public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
                 super.doFilterTransform(message);
-                return false;
+                return new FilterTransformerResult(false, null);
             }
         };
         channel.getSourceFilterTransformer().setFilterTransformer(filterTransformer);
@@ -378,7 +379,7 @@ public class StatisticsTests {
             public volatile boolean waiting = true;
 
             @Override
-            public void doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException, InterruptedException {
+            public String doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException, InterruptedException {
                 while (waiting) {
                     try {
                         Thread.sleep(waitTime);
@@ -386,7 +387,7 @@ public class StatisticsTests {
                         e.printStackTrace();
                     }
                 }
-                super.doTransform(response, connectorMessage);
+                return super.doTransform(response, connectorMessage);
             }
         }
 

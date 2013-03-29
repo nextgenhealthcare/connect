@@ -355,57 +355,67 @@ public class TreePanel extends javax.swing.JPanel {
                 return;
             }
 
-            try {
-                serializer = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getSerializer(dataTypeProperties.getSerializerProperties());
-                docBuilder = docFactory.newDocumentBuilder();
-
-                String message;
-                
-                if (LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).isBinary()) {
-                    message = source;
-                } else {
-                    message = serializer.toXML(source);
-                }
-
-                xmlDoc = docBuilder.parse(new InputSource(new StringReader(message)));
-
-                if (xmlDoc != null) {
-                    Map<String, String> metadata = serializer.getMetadataFromDocument(xmlDoc);
-                    
-                    if (metadata.get("version") != null) {
-                        version = metadata.get("version").trim();    
-                    } else {
-                        version = "Unknown version";
-                    }
-                    
-                    if (metadata.get("type") != null) {
-                        type = metadata.get("type").trim();    
-                    } else {
-                        type = "Unknown type";
-                    }
-                    
-                    messageName = type + " (" + version + ")";
-                    Map<String, Class<? extends MessageVocabulary>> vocabs = new HashMap<String, Class<? extends MessageVocabulary>>();
-                    for (DataTypeClientPlugin dataTypePlugin : LoadedExtensions.getInstance().getDataTypePlugins().values()) {
-                        Class<? extends MessageVocabulary> vocabulary = dataTypePlugin.getVocabulary();
+            DataTypeClientPlugin clientPlugin = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType);
+            
+            switch (clientPlugin.getSerializationType()) {
+                case XML:
+                    try {
+                        serializer = clientPlugin.getSerializer(dataTypeProperties.getSerializerProperties());
+                        docBuilder = docFactory.newDocumentBuilder();
+        
+                        String message;
                         
-                        if (vocabulary != null) {
-                            vocabs.put(dataTypePlugin.getPluginPointName(), vocabulary);
+                        if (clientPlugin.isBinary()) {
+                            message = source;
+                        } else {
+                            message = serializer.toXML(source);
                         }
+        
+                        xmlDoc = docBuilder.parse(new InputSource(new StringReader(message)));
+        
+                        if (xmlDoc != null) {
+                            Map<String, String> metadata = serializer.getMetadataFromDocument(xmlDoc);
+                            
+                            if (metadata.get("version") != null) {
+                                version = metadata.get("version").trim();    
+                            } else {
+                                version = "Unknown version";
+                            }
+                            
+                            if (metadata.get("type") != null) {
+                                type = metadata.get("type").trim();    
+                            } else {
+                                type = "Unknown type";
+                            }
+                            
+                            messageName = type + " (" + version + ")";
+                            Map<String, Class<? extends MessageVocabulary>> vocabs = new HashMap<String, Class<? extends MessageVocabulary>>();
+                            for (DataTypeClientPlugin dataTypePlugin : LoadedExtensions.getInstance().getDataTypePlugins().values()) {
+                                Class<? extends MessageVocabulary> vocabulary = dataTypePlugin.getVocabulary();
+                                
+                                if (vocabulary != null) {
+                                    vocabs.put(dataTypePlugin.getPluginPointName(), vocabulary);
+                                }
+                            }
+                            vocabulary = MessageVocabularyFactory.getInstance(PlatformUI.MIRTH_FRAME.mirthClient, vocabs).getVocabulary(dataType, version, type);
+                            messageDescription = vocabulary.getDescription(type.replaceAll("-", ""));
+        
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    vocabulary = MessageVocabularyFactory.getInstance(PlatformUI.MIRTH_FRAME.mirthClient, vocabs).getVocabulary(dataType, version, type);
-                    messageDescription = vocabulary.getDescription(type.replaceAll("-", ""));
-
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            if (xmlDoc != null) {
-                createTree(dataType, xmlDoc, messageName, messageDescription);
-                filter();
-            } else {
-                setInvalidMessage(messageType);
+        
+                    if (xmlDoc != null) {
+                        createTree(dataType, xmlDoc, messageName, messageDescription);
+                        filter();
+                    } else {
+                        setInvalidMessage(messageType);
+                    }
+                    break;
+                    
+                case RAW:
+                    setRawMessage();
+                    break;
             }
         } else {
             clearMessage();
@@ -622,6 +632,13 @@ public class TreePanel extends javax.swing.JPanel {
 
     public void setInvalidMessage(String messageType) {
         MirthTreeNode top = new MirthTreeNode("Template is not valid " + messageType + ".");
+        MirthTree tree = new MirthTree(top, _dropPrefix, _dropSuffix);
+        treePane.setViewportView(tree);
+        revalidate();
+    }
+    
+    public void setRawMessage() {
+        MirthTreeNode top = new MirthTreeNode("Template tree not available for raw data.");
         MirthTree tree = new MirthTree(top, _dropPrefix, _dropSuffix);
         treePane.setViewportView(tree);
         revalidate();

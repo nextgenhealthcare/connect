@@ -25,8 +25,10 @@ import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.util.JavaScriptConstants;
+import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.ScriptController;
 
 public class JavaScriptBuilder {
@@ -118,16 +120,36 @@ public class JavaScriptBuilder {
 
         StringBuilder builder = new StringBuilder();
 
-        // Turn the inbound message into an E4X XML object
-        builder.append("msg = new XML(message);\n");
+        DataTypeServerPlugin inboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getInboundDataType());
+
+        switch (inboundServerPlugin.getSerializationType()) {
+            case XML:
+                // Turn the inbound message into an E4X XML object
+                builder.append("msg = new XML(messageObject.getTransformedData());\n");
+
+                // Set the default namespace if there is one left on the root node, otherwise set it to ''.
+                builder.append("if (msg.namespace('') != undefined) { default xml namespace = msg.namespace(''); } else { default xml namespace = ''; }\n");
+                break;
+
+            case RAW:
+                builder.append("if (messageObject.getProcessedRawData() != null) { msg = new String(messageObject.getProcessedRawData()); } else { msg = new String(messageObject.getRawData()); } \n");
+                break;
+        }
 
         // Turn the outbound template into an E4X XML object, if there is one
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-            builder.append("tmp = new XML(template);\n");
-        }
+            DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
 
-        // Set the default namespace if there is one left on the root node, otherwise set it to ''.
-        builder.append("if (msg.namespace('') != undefined) { default xml namespace = msg.namespace(''); } else { default xml namespace = ''; }\n");
+            switch (outboundServerPlugin.getSerializationType()) {
+                case XML:
+                    builder.append("tmp = new XML(template);\n");
+                    break;
+
+                case RAW:
+                    builder.append("tmp = template;\n");
+                    break;
+            }
+        }
 
         // Append doFilter() function
         appendFilterScript(builder, filter);
@@ -143,17 +165,37 @@ public class JavaScriptBuilder {
         logger.debug("Generating response transformer script...");
 
         StringBuilder builder = new StringBuilder();
+        
+        DataTypeServerPlugin inboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getInboundDataType());
 
-        // Turn the inbound message into an E4X XML object
-        builder.append("msg = new XML(message);\n");
+        switch (inboundServerPlugin.getSerializationType()) {
+            case XML:
+                // Turn the inbound message into an E4X XML object
+                builder.append("msg = new XML(messageObject.getResponseTransformedData());\n");
+                
+                // Set the default namespace if there is one left on the root node, otherwise set it to ''.
+                builder.append("if (msg.namespace('') != undefined) { default xml namespace = msg.namespace(''); } else { default xml namespace = ''; }\n");
+                break;
+            
+            case RAW:
+                builder.append("msg = new String(response.getMessage()) \n");
+                break;
+        }
 
         // Turn the outbound template into an E4X XML object, if there is one
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
-            builder.append("tmp = new XML(template);\n");
-        }
+            DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
 
-        // Set the default namespace if there is one left on the root node, otherwise set it to ''.
-        builder.append("if (msg.namespace('') != undefined) { default xml namespace = msg.namespace(''); } else { default xml namespace = ''; }\n");
+            switch (outboundServerPlugin.getSerializationType()) {
+                case XML:
+                    builder.append("tmp = new XML(template);\n");
+                    break;
+                    
+                case RAW:
+                    builder.append("tmp = template;\n");
+                    break;
+            }
+        }
 
         // Append doTransform() function
         appendTransformerScript(builder, transformer);

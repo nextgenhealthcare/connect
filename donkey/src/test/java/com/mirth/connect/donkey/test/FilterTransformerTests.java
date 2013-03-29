@@ -30,6 +30,7 @@ import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
+import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.test.util.TestAutoResponder;
@@ -151,8 +152,8 @@ public class FilterTransformerTests {
         filterTransformerExecutor = new FilterTransformerExecutor(new TestDataType(), new TestDataType());
         filterTransformerExecutor.setFilterTransformer(new TestFilterTransformer() {
             @Override
-            public boolean doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
-                return false;
+            public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
+                return new FilterTransformerResult(false, null);
             }
         });
         for (int i = 1; i <= TEST_SIZE; i++) {
@@ -177,7 +178,7 @@ public class FilterTransformerTests {
         filterTransformerExecutor = new FilterTransformerExecutor(new TestDataType(), new TestDataType());
         filterTransformerExecutor.setFilterTransformer(new TestFilterTransformer() {
             @Override
-            public boolean doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
+            public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
                 throw new FilterTransformerException("Failed to run filter/transformer.", new Exception());
             }
         });

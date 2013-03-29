@@ -16,6 +16,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.donkey.server.Encryptor;
 import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
@@ -50,77 +51,119 @@ public class ResponseTransformerExecutor {
     public void setOutbound(DataType outbound) {
         this.outbound = outbound;
     }
-    
+
     protected void setEncryptor(Encryptor encryptor) {
         this.encryptor = encryptor;
     }
 
-	public ResponseTransformer getResponseTransformer() {
-		return responseTransformer;
-	}
+    public ResponseTransformer getResponseTransformer() {
+        return responseTransformer;
+    }
 
-	public void setResponseTransformer(ResponseTransformer responseTransformer) {
-		this.responseTransformer = responseTransformer;
-	}
-    
+    public void setResponseTransformer(ResponseTransformer responseTransformer) {
+        this.responseTransformer = responseTransformer;
+    }
+
     public void runResponseTransformer(DonkeyDao dao, ConnectorMessage connectorMessage, Response response, boolean queueEnabled, StorageSettings storageSettings, Serializer serializer) throws InterruptedException, DonkeyException {
-    	ThreadUtils.checkInterruptedStatus();
+        ThreadUtils.checkInterruptedStatus();
         String processedResponseContent;
-        
-        if (responseTransformer != null && StringUtils.isNotEmpty(response.getMessage())){
-	        // Convert the content to xml
-	        String serializedContent = inbound.getSerializer().toXML(response.getMessage());
-	        
-	        boolean isResponseTransformedNull = connectorMessage.getResponseTransformed() == null;
-	        connectorMessage.setResponseTransformed(new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_TRANSFORMED, serializedContent, "XML", encryptor.encrypt(serializedContent)));
-	        	    	
-	        // Perform transformation
-	        try{
-		        responseTransformer.doTransform(response, connectorMessage);
-	        } catch (DonkeyException e){
-	        	throw e;
-	        } finally{
-	        	  if (storageSettings.isStoreResponseTransformed()) {
-	  	            ThreadUtils.checkInterruptedStatus();
 
-	  	            if (!isResponseTransformedNull) {
-	  	                dao.storeMessageContent(connectorMessage.getResponseTransformed());
-	  	            } else {
-	  	                dao.insertMessageContent(connectorMessage.getResponseTransformed());
-	  	            }
-	  	        }
-	        }
-	        
-	        response.fixStatus(queueEnabled);
-	        
-	        // Convert the response transformed data to the outbound data type
-	        processedResponseContent = outbound.getSerializer().fromXML(connectorMessage.getResponseTransformed().getContent());
+        if (responseTransformer != null && StringUtils.isNotEmpty(response.getMessage())) {
+            boolean wasResponseTransformedNull = connectorMessage.getResponseTransformed() == null;
+            String responseTransformedContent = null;
 
-        	setProcessedResponse(dao, response, connectorMessage, processedResponseContent, storageSettings, serializer);
-	        
+            // Pre-transformation setup
+            switch (inbound.getSerializationType()) {
+                case RAW:
+                    // Only the raw/processed raw content is used for the raw serialization type, so nothing needs to be done here
+                    break;
+
+                case XML:
+                default:
+                    responseTransformedContent = inbound.getSerializer().toXML(response.getMessage());
+                    setResponseTransformedContent(connectorMessage, responseTransformedContent, inbound.getSerializationType());
+                    break;
+            }
+
+            // Perform transformation
+            try {
+                responseTransformedContent = responseTransformer.doTransform(response, connectorMessage);
+                setResponseTransformedContent(connectorMessage, responseTransformedContent, outbound.getSerializationType());
+            } catch (DonkeyException e) {
+                throw e;
+            } finally {
+                if (storageSettings.isStoreResponseTransformed()) {
+                    ThreadUtils.checkInterruptedStatus();
+
+                    if (connectorMessage.getResponseTransformed() != null) {
+                        if (!wasResponseTransformedNull) {
+                            dao.storeMessageContent(connectorMessage.getResponseTransformed());
+                        } else {
+                            dao.insertMessageContent(connectorMessage.getResponseTransformed());
+                        }
+                    }
+                }
+            }
+
+            response.fixStatus(queueEnabled);
+
+            // Post transformation: Determine what the encoded content should be set to.
+            switch (outbound.getSerializationType()) {
+                case RAW:
+                    processedResponseContent = responseTransformedContent;
+                    break;
+
+                case XML:
+                default:
+                    // Convert the response transformed data to the outbound data type
+                    processedResponseContent = outbound.getSerializer().fromXML(responseTransformedContent);
+                    break;
+            }
+
+            setProcessedResponse(dao, response, connectorMessage, processedResponseContent, storageSettings, serializer);
+
         } else {
-	        response.fixStatus(queueEnabled);
-	        
-        	if (StringUtils.isNotEmpty(response.getMessage())) {
-	        	// Since this condition can only occur if the inbound and outbound datatypes are the same, it is safe to pass the outbound serializer to the inbound serializer 
-	            // so that it can compare/use the properties from both. The purpose of this method is to allow the optimization of not serializing, but still modifying the message in certain circumstances.
-	            // It should NOT be used anywhere other than here.
-	        	String content = inbound.getSerializer().transformWithoutSerializing(response.getMessage(), outbound.getSerializer());
-	        	if (content != null){
-	            	processedResponseContent = content;
-	            	setProcessedResponse(dao, response, connectorMessage, processedResponseContent, storageSettings, serializer);
-	        	}
-        	}
+            response.fixStatus(queueEnabled);
+
+            if (StringUtils.isNotEmpty(response.getMessage())) {
+                /*
+                 * Since this condition can only occur if the inbound and outbound datatypes are the
+                 * same, it is safe to pass the outbound serializer to the inbound serializer so
+                 * that it can compare/use the properties from both. The purpose of this method is
+                 * to allow the optimization of not serializing, but still modifying the message in
+                 * certain circumstances. It should NOT be used anywhere other than transformers.
+                 */
+                String content = inbound.getSerializer().transformWithoutSerializing(response.getMessage(), outbound.getSerializer());
+                // transformWithoutSerializing should return null if it has no effect.
+                if (content != null) {
+                    processedResponseContent = content;
+                    setProcessedResponse(dao, response, connectorMessage, processedResponseContent, storageSettings, serializer);
+                }
+            }
         }
-	}
-    
-    private void setProcessedResponse(DonkeyDao dao, Response response, ConnectorMessage connectorMessage, String processedResponseContent, StorageSettings storageSettings, Serializer serializer) throws InterruptedException{
+    }
+
+    /**
+     * 
+     * @return Returns whether the response transformed message content object was null
+     */
+    private void setResponseTransformedContent(ConnectorMessage connectorMessage, String transformedContent, SerializationType serializationType) {
+        if (connectorMessage.getResponseTransformed() == null) {
+            connectorMessage.setResponseTransformed(new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_TRANSFORMED, transformedContent, serializationType.toString(), encryptor.encrypt(transformedContent)));
+        } else {
+            connectorMessage.getResponseTransformed().setDataType(serializationType.toString());
+            connectorMessage.getResponseTransformed().setContent(transformedContent);
+            connectorMessage.getResponseTransformed().setEncryptedContent(encryptor.encrypt(transformedContent));
+        }
+    }
+
+    private void setProcessedResponse(DonkeyDao dao, Response response, ConnectorMessage connectorMessage, String processedResponseContent, StorageSettings storageSettings, Serializer serializer) throws InterruptedException {
         response.setMessage(processedResponseContent);
-                
+
         // Store the processed response in the message
         String responseString = serializer.serialize(response);
         MessageContent processedResponse = new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSED_RESPONSE, responseString, outbound.getType(), encryptor.encrypt(responseString));
-        
+
         if (storageSettings.isStoreProcessedResponse()) {
             ThreadUtils.checkInterruptedStatus();
 
@@ -131,5 +174,5 @@ public class ResponseTransformerExecutor {
             }
         }
         connectorMessage.setProcessedResponse(processedResponse);
-    } 
+    }
 }

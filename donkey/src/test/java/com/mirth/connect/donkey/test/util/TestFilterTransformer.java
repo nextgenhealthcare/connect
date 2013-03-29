@@ -10,6 +10,7 @@
 package com.mirth.connect.donkey.test.util;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 
@@ -24,9 +25,9 @@ public class TestFilterTransformer implements FilterTransformer {
     public TestFilterTransformer() {}
 
     @Override
-    public boolean doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
+    public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
         transformed = true;
-        return true;
+        return new FilterTransformerResult(true, null);
     }
 
     @Override

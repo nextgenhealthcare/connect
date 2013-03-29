@@ -1718,12 +1718,13 @@ public class MessageBrowser extends javax.swing.JPanel {
                     responseStatusTextField.setCaretPosition(0);
                     content = responseObject.getMessage();
                 }
+                dataType = (responseMessage == null) ? null : responseMessage.getDataType();
             } else {
                 content = responseMessage.getContent();
+                dataType = (responseMessage == null) ? null : rawMessage.getDataType();
             }
         }
 
-        dataType = (responseMessage == null) ? null : responseMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(ResponseRadioButton);
         }

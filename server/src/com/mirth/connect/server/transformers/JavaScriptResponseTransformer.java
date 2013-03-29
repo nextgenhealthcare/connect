@@ -34,7 +34,7 @@ import com.mirth.connect.util.ErrorMessageBuilder;
 public class JavaScriptResponseTransformer implements ResponseTransformer {
     private Logger logger = Logger.getLogger(this.getClass());
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-    private JavaScriptExecutor<Void> jsExecutor = new JavaScriptExecutor<Void>();
+    private JavaScriptExecutor<String> jsExecutor = new JavaScriptExecutor<String>();
 
     private String channelId;
     private String connectorName;
@@ -70,9 +70,9 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
     }
 
     @Override
-    public void doTransform(Response response, ConnectorMessage connectorMessage) throws ResponseTransformerException, InterruptedException {
+    public String doTransform(Response response, ConnectorMessage connectorMessage) throws ResponseTransformerException, InterruptedException {
         try {
-            jsExecutor.execute(new ResponseTransformerTask(response, connectorMessage, channelId, connectorName, scriptId, template));
+            return jsExecutor.execute(new ResponseTransformerTask(response, connectorMessage, channelId, connectorName, scriptId, template));
         } catch (JavaScriptExecutorException e) {
             Throwable cause = e.getCause();
 
@@ -89,7 +89,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
         JavaScriptUtil.removeScriptFromCache(scriptId);
     }
 
-    private class ResponseTransformerTask extends JavaScriptTask<Void> {
+    private class ResponseTransformerTask extends JavaScriptTask<String> {
         private Response response;
         private ConnectorMessage connectorMessage;
         private String channelId;
@@ -107,7 +107,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
         }
 
         @Override
-        public Void call() throws Exception {
+        public String call() throws Exception {
             Logger scriptLogger = Logger.getLogger("response");
 
             try {
@@ -123,14 +123,11 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 // Execute the script
                 executeScript(compiledScript, scope);
 
-                String responseTransformedData = JavaScriptScopeUtil.getTransformedDataFromScope(scope, StringUtils.isNotBlank(template));
-
                 // Set response status and errorMsg
                 JavaScriptScopeUtil.getResponseDataFromScope(scope, response);
 
-                if (StringUtils.isNotBlank(responseTransformedData)) {
-                    connectorMessage.getResponseTransformed().setContent(responseTransformedData);
-                }
+                // Return the result
+                return JavaScriptScopeUtil.getTransformedDataFromScope(scope, StringUtils.isNotBlank(template));
 
             } catch (Throwable t) {
                 if (t instanceof RhinoException) {
@@ -148,8 +145,6 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
             } finally {
                 Context.exit();
             }
-
-            return null;
         }
     }
 }

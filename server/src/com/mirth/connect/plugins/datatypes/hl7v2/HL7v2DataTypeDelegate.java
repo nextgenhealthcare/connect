@@ -1,5 +1,6 @@
 package com.mirth.connect.plugins.datatypes.hl7v2;
 
+import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
 import com.mirth.connect.model.datatype.SerializerProperties;
@@ -19,5 +20,10 @@ public class HL7v2DataTypeDelegate implements DataTypeDelegate {
     @Override
     public boolean isBinary() {
         return false;
+    }
+    
+    @Override
+    public SerializationType getSerializationType() {
+        return SerializationType.XML;
     }
 }
