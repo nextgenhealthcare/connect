@@ -68,7 +68,7 @@ public class ResponseTransformerExecutor {
         ThreadUtils.checkInterruptedStatus();
         String processedResponseContent;
 
-        if (responseTransformer != null && StringUtils.isNotEmpty(response.getMessage())) {
+        if (responseTransformer != null && (StringUtils.isNotEmpty(response.getMessage()) || inbound.getSerializationType() == SerializationType.RAW)) {
             boolean wasResponseTransformedNull = connectorMessage.getResponseTransformed() == null;
             String responseTransformedContent = null;
 
