@@ -17,6 +17,7 @@ import com.mirth.connect.donkey.model.channel.ResponseConnectorPropertiesInterfa
 import com.mirth.connect.util.CharsetUtils;
 
 public class FileReceiverProperties extends ConnectorProperties implements PollConnectorPropertiesInterface, ResponseConnectorPropertiesInterface {
+
     public static final String NAME = "File Reader";
 
     private PollConnectorProperties pollConnectorProperties;
@@ -34,10 +35,13 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
     private boolean secure;
     private boolean passive;
     private boolean validateConnection;
-    private boolean autoDelete;
+    private FileAction afterProcessingAction;
     private String moveToDirectory;
-    private String moveToPattern;
-    private String moveToErrorDirectory;
+    private String moveToFileName;
+    private FileAction errorReadingAction;
+    private FileAction errorResponseAction;
+    private String errorMoveToDirectory;
+    private String errorMoveToFileName;
     private boolean checkFileAge;
     private String fileAge;
     private String sortBy;
@@ -51,7 +55,7 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
 
     public FileReceiverProperties() {
         pollConnectorProperties = new PollConnectorProperties();
-        responseConnectorProperties = new ResponseConnectorProperties(false);
+        responseConnectorProperties = new ResponseConnectorProperties(true);
 
         scheme = FileScheme.FILE;
         host = "";
@@ -65,10 +69,13 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
         secure = true;
         passive = true;
         validateConnection = true;
-        autoDelete = false;
+        afterProcessingAction = FileAction.NONE;
         moveToDirectory = "";
-        moveToPattern = "";
-        moveToErrorDirectory = "";
+        moveToFileName = "";
+        errorReadingAction = FileAction.NONE;
+        errorResponseAction = FileAction.AFTER_PROCESSING;
+        errorMoveToDirectory = "";
+        errorMoveToFileName = "";
         checkFileAge = true;
         fileAge = "1000";
         sortBy = SORT_BY_DATE;
@@ -173,12 +180,12 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
         this.validateConnection = validateConnection;
     }
 
-    public boolean isAutoDelete() {
-        return autoDelete;
+    public FileAction getAfterProcessingAction() {
+        return afterProcessingAction;
     }
 
-    public void setAutoDelete(boolean autoDelete) {
-        this.autoDelete = autoDelete;
+    public void setAfterProcessingAction(FileAction afterProcessingAction) {
+        this.afterProcessingAction = afterProcessingAction;
     }
 
     public String getMoveToDirectory() {
@@ -189,20 +196,44 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
         this.moveToDirectory = moveToDirectory;
     }
 
-    public String getMoveToPattern() {
-        return moveToPattern;
+    public String getMoveToFileName() {
+        return moveToFileName;
     }
 
-    public void setMoveToPattern(String moveToPattern) {
-        this.moveToPattern = moveToPattern;
+    public void setMoveToFileName(String moveToFileName) {
+        this.moveToFileName = moveToFileName;
     }
 
-    public String getMoveToErrorDirectory() {
-        return moveToErrorDirectory;
+    public FileAction getErrorReadingAction() {
+        return errorReadingAction;
     }
 
-    public void setMoveToErrorDirectory(String moveToErrorDirectory) {
-        this.moveToErrorDirectory = moveToErrorDirectory;
+    public void setErrorReadingAction(FileAction errorReadingAction) {
+        this.errorReadingAction = errorReadingAction;
+    }
+
+    public FileAction getErrorResponseAction() {
+        return errorResponseAction;
+    }
+
+    public void setErrorResponseAction(FileAction errorResponseAction) {
+        this.errorResponseAction = errorResponseAction;
+    }
+
+    public String getErrorMoveToDirectory() {
+        return errorMoveToDirectory;
+    }
+
+    public void setErrorMoveToDirectory(String errorMoveToDirectory) {
+        this.errorMoveToDirectory = errorMoveToDirectory;
+    }
+
+    public String getErrorMoveToFileName() {
+        return errorMoveToFileName;
+    }
+
+    public void setErrorMoveToFileName(String errorMoveToFileName) {
+        this.errorMoveToFileName = errorMoveToFileName;
     }
 
     public boolean isCheckFileAge() {

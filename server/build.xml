@@ -162,6 +162,7 @@
 			<include name="com/mirth/connect/connectors/file/FileReceiverProperties.class" />
 			<include name="com/mirth/connect/connectors/file/FileDispatcherProperties.class" />
 			<include name="com/mirth/connect/connectors/file/FileScheme.class" />
+			<include name="com/mirth/connect/connectors/file/FileAction.class" />
 		</jar>
 		<jar destfile="${connectors.file}/file-server.jar">
 			<fileset dir="${classes}">
@@ -169,6 +170,7 @@
 				<exclude name="com/mirth/connect/connectors/file/FileReceiverProperties.class" />
 				<exclude name="com/mirth/connect/connectors/file/FileDispatcherProperties.class" />
 				<exclude name="com/mirth/connect/connectors/file/FileScheme.class" />
+				<exclude name="com/mirth/connect/connectors/file/FileAction.class" />
 			</fileset>
 		</jar>
 

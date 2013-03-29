@@ -29,6 +29,8 @@ import org.apache.commons.logging.LogFactory;
 import com.mirth.connect.connectors.file.filesystems.FileInfo;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
@@ -55,9 +57,10 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     protected transient Log logger = LogFactory.getLog(getClass());
 
     private String readDir = null;
-    private String moveDir = null;
-    private String errorDir = null;
-    private String moveToPattern = null;
+    private String moveToDirectory = null;
+    private String moveToFileName = null;
+    private String errorMoveToDirectory = null;
+    private String errorMoveToFileName = null;
     private String filenamePattern = null;
     private boolean routingError = false;
 
@@ -94,9 +97,10 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
         }
 
         this.readDir = uri.getPath();
-        this.moveDir = connectorProperties.getMoveToDirectory();
-        this.moveToPattern = connectorProperties.getMoveToPattern();
-        this.errorDir = connectorProperties.getMoveToErrorDirectory();
+        this.moveToDirectory = connectorProperties.getMoveToDirectory();
+        this.moveToFileName = connectorProperties.getMoveToFileName();
+        this.errorMoveToDirectory = connectorProperties.getErrorMoveToDirectory();
+        this.errorMoveToFileName = connectorProperties.getErrorMoveToFileName();
 
         this.filenamePattern = replacer.replaceValues(connectorProperties.getFileFilter(), getChannelId());
 
@@ -211,38 +215,26 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
     }
 
     public synchronized void processFile(FileInfo file) {
-        boolean checkFileAge = connectorProperties.isCheckFileAge();
-        if (checkFileAge) {
-            long fileAge = Long.valueOf(connectorProperties.getFileAge());
-            long lastMod = file.getLastModified();
-            long now = System.currentTimeMillis();
-            if ((now - lastMod) < fileAge)
-                return;
-        }
-
-        String destinationDir = null;
-        String destinationName = null;
-        originalFilename = file.getName();
-
-        Map<String, Object> channelMap = new HashMap<String, Object>();
-        channelMap.put("originalFilename", originalFilename);
-
-        if (StringUtils.isNotBlank(moveDir) || StringUtils.isNotBlank(moveToPattern)) {
-            destinationName = file.getName();
-            destinationDir = file.getParent();
-
-            if (StringUtils.isNotBlank(moveToPattern)) {
-                destinationName = replacer.replaceValues(moveToPattern, getChannelId(), channelMap);
-            }
-
-            if (StringUtils.isNotBlank(moveDir)) {
-                destinationDir = replacer.replaceValues(moveDir, getChannelId(), channelMap);
-            }
-        }
-
-        boolean resultOfFileMoveOperation = false;
-
         try {
+            boolean checkFileAge = connectorProperties.isCheckFileAge();
+            if (checkFileAge) {
+                long fileAge = Long.valueOf(connectorProperties.getFileAge());
+                long lastMod = file.getLastModified();
+                long now = System.currentTimeMillis();
+                if ((now - lastMod) < fileAge)
+                    return;
+            }
+
+            // Add the original filename to the channel map
+            originalFilename = file.getName();
+            Map<String, Object> channelMap = new HashMap<String, Object>();
+            channelMap.put("originalFilename", originalFilename);
+
+            // Set the default file action
+            FileAction action = FileAction.NONE;
+
+            boolean errorResponse = false;
+
             // Perform some quick checks to make sure file can be processed
             if (file.isDirectory()) {
                 // ignore directories
@@ -253,6 +245,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                 Exception fileProcessedException = null;
 
                 try {
+                    Response response = null;
 
                     // ast: use the user-selected encoding
                     if (connectorProperties.isProcessBatch()) {
@@ -273,39 +266,73 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                         } finally {
                             finishDispatch(dispatchResult);
                         }
+
+                        response = dispatchResult.getSelectedResponse();
                     }
+
+                    // True if the response status is ERROR and we're not processing a batch
+                    errorResponse = response != null && response.getStatus() == Status.ERROR;
                 } catch (Exception e) {
                     logger.error("Unable to route: " + ExceptionUtils.getStackTrace(e));
 
-                    // routingError is reset to false at the beginning of the
-                    // poll method
+                    // routingError is reset to false at the beginning of the poll method
                     routingError = true;
-
-                    if (StringUtils.isNotBlank(errorDir)) {
-                        logger.error("Moving file to error directory: " + errorDir);
-
-                        destinationDir = replacer.replaceValues(errorDir, getChannelId(), channelMap);
-                        destinationName = file.getName();
-                    }
                 } catch (Throwable t) {
+                    routingError = true;
                     String errorMessage = "Error reading file " + file.getAbsolutePath() + "\n" + t.getMessage();
                     logger.error(errorMessage);
                     fileProcessedException = new FileConnectorException(errorMessage);
                 }
 
-                // move the file if needed
-                if (StringUtils.isNotBlank(destinationDir)) {
-                    deleteFile(destinationName, destinationDir, true);
+                boolean shouldUseErrorFields = false;
 
-                    resultOfFileMoveOperation = renameFile(file.getName(), readDir, destinationName, destinationDir);
+                // If the message wasn't successfully processed through the channel, set the error file action
+                if (routingError) {
+                    action = connectorProperties.getErrorReadingAction();
+                    shouldUseErrorFields = true;
+                } else if (errorResponse && connectorProperties.getErrorResponseAction() != FileAction.AFTER_PROCESSING) {
+                    action = connectorProperties.getErrorResponseAction();
+                    shouldUseErrorFields = true;
+                } else {
+                    action = connectorProperties.getAfterProcessingAction();
+                }
 
-                    if (!resultOfFileMoveOperation) {
-                        throw new FileConnectorException("Error moving file from [" + pathname(file.getName(), readDir) + "] to [" + pathname(destinationName, destinationDir) + "]");
+                // Move or delete the file based on the selected file action
+                if (action == FileAction.MOVE) {
+                    // Replace and set the directory/filename
+                    String destinationDir = shouldUseErrorFields ? errorMoveToDirectory : moveToDirectory;
+                    String destinationName = shouldUseErrorFields ? errorMoveToFileName : moveToFileName;
+
+                    // If the user-specified directory is blank, use the default (file's current directory)
+                    if (StringUtils.isNotBlank(destinationDir)) {
+                        destinationDir = replacer.replaceValues(destinationDir, getChannelId(), channelMap);
+                    } else {
+                        destinationDir = file.getParent();
                     }
-                } else if (connectorProperties.isAutoDelete()) {
-                    // adapter.getPayloadAsBytes();
 
-                    resultOfFileMoveOperation = deleteFile(file.getName(), readDir, false);
+                    // If the user-specified filename is blank, use the default (original filename)
+                    if (StringUtils.isNotBlank(destinationName)) {
+                        destinationName = replacer.replaceValues(destinationName, getChannelId(), channelMap);
+                    } else {
+                        destinationName = originalFilename;
+                    }
+
+                    if (!file.getParent().equals(destinationDir) || !originalFilename.equals(destinationName)) {
+                        if (shouldUseErrorFields) {
+                            logger.error("Moving file to error directory: " + destinationDir);
+                        }
+
+                        // Delete the destination file if it exists, and then rename the original file
+                        deleteFile(destinationName, destinationDir, true);
+                        boolean resultOfFileMoveOperation = renameFile(file.getName(), readDir, destinationName, destinationDir);
+
+                        if (!resultOfFileMoveOperation) {
+                            throw new FileConnectorException("Error moving file from [" + pathname(file.getName(), readDir) + "] to [" + pathname(destinationName, destinationDir) + "]");
+                        }
+                    }
+                } else if (action == FileAction.DELETE) {
+                    // Delete the original file
+                    boolean resultOfFileMoveOperation = deleteFile(file.getName(), readDir, false);
 
                     if (!resultOfFileMoveOperation) {
                         throw new FileConnectorException("Error deleting file from [" + pathname(file.getName(), readDir) + "]");

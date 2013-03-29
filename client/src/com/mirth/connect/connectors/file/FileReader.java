@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.file;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
@@ -32,6 +33,9 @@ public class FileReader extends ConnectorSettingsPanel {
 
         initComponents();
 
+        afterProcessingActionComboBox.setModel(new DefaultComboBoxModel(new FileAction[] { FileAction.NONE, FileAction.MOVE, FileAction.DELETE }));
+        errorReadingActionComboBox.setModel(new DefaultComboBoxModel(new FileAction[] { FileAction.NONE, FileAction.MOVE, FileAction.DELETE }));
+        errorResponseActionComboBox.setModel(new DefaultComboBoxModel(new FileAction[] { FileAction.AFTER_PROCESSING, FileAction.MOVE, FileAction.DELETE }));
         fileAge.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
@@ -71,11 +75,13 @@ public class FileReader extends ConnectorSettingsPanel {
         properties.setPassive(passiveModeYes.isSelected());
         properties.setValidateConnection(validateConnectionYes.isSelected());
 
-        properties.setMoveToPattern(moveToPattern.getText());
-        properties.setMoveToDirectory(moveToDirectory.getText().replace('\\', '/'));
-        properties.setMoveToErrorDirectory(errorMoveToDirectory.getText().replace('\\', '/'));
-
-        properties.setAutoDelete(deleteAfterReadYes.isSelected());
+        properties.setAfterProcessingAction((FileAction) afterProcessingActionComboBox.getSelectedItem());
+        properties.setMoveToDirectory(moveToDirectoryField.getText().replace('\\', '/'));
+        properties.setMoveToFileName(moveToFileNameField.getText());
+        properties.setErrorReadingAction((FileAction) errorReadingActionComboBox.getSelectedItem());
+        properties.setErrorResponseAction((FileAction) errorResponseActionComboBox.getSelectedItem());
+        properties.setErrorMoveToDirectory(errorMoveToDirectoryField.getText().replace('\\', '/'));
+        properties.setErrorMoveToFileName(errorMoveToFileNameField.getText());
 
         properties.setCheckFileAge(checkFileAgeYes.isSelected());
         properties.setFileAge(fileAge.getText());
@@ -103,12 +109,15 @@ public class FileReader extends ConnectorSettingsPanel {
      * Parses the scheme and URL to determine the values for the directory, host
      * and path fields, optionally storing them to the fields, highlighting
      * field errors, or just testing for valid values.
-     *
-     * @param props The connector properties from which to take the values.
-     * @param store If true, the parsed values are stored to the corresponding
-     * form controls.
-     * @param highlight If true, fields for which the parsed values are invalid
-     * are highlighted.
+     * 
+     * @param props
+     *            The connector properties from which to take the values.
+     * @param store
+     *            If true, the parsed values are stored to the corresponding
+     *            form controls.
+     * @param highlight
+     *            If true, fields for which the parsed values are invalid
+     *            are highlighted.
      */
     private boolean setDirHostPath(FileReceiverProperties props, boolean store, boolean highlight) {
 
@@ -175,10 +184,8 @@ public class FileReader extends ConnectorSettingsPanel {
 
         if (props.isAnonymous()) {
             anonymousYes.setSelected(true);
-            anonymousNo.setSelected(false);
             anonymousYesActionPerformed(null);
         } else {
-            anonymousYes.setSelected(false);
             anonymousNo.setSelected(true);
             anonymousNoActionPerformed(null);
             usernameField.setText(props.getUsername());
@@ -189,12 +196,10 @@ public class FileReader extends ConnectorSettingsPanel {
 
         if (props.isSecure()) {
             secureModeYes.setSelected(true);
-            secureModeNo.setSelected(false);
             if (scheme.equals(FileScheme.WEBDAV)) {
                 hostLabel.setText("https://");
             }
         } else {
-            secureModeYes.setSelected(false);
             secureModeNo.setSelected(true);
             if (scheme.equals(FileScheme.WEBDAV)) {
                 hostLabel.setText("http://");
@@ -203,40 +208,31 @@ public class FileReader extends ConnectorSettingsPanel {
 
         if (props.isPassive()) {
             passiveModeYes.setSelected(true);
-            passiveModeNo.setSelected(false);
         } else {
-            passiveModeYes.setSelected(false);
             passiveModeNo.setSelected(true);
         }
 
         if (props.isValidateConnection()) {
             validateConnectionYes.setSelected(true);
-            validateConnectionNo.setSelected(false);
         } else {
-            validateConnectionYes.setSelected(false);
             validateConnectionNo.setSelected(true);
         }
 
-        moveToPattern.setText(props.getMoveToPattern());
-        moveToDirectory.setText(props.getMoveToDirectory());
-        errorMoveToDirectory.setText(props.getMoveToErrorDirectory());
+        afterProcessingActionComboBox.setSelectedItem(props.getAfterProcessingAction());
+        afterProcessingActionComboBoxActionPerformed(null);
 
-        if (props.isAutoDelete()) {
-            deleteAfterReadYes.setSelected(true);
-            deleteAfterReadNo.setSelected(false);
-            deleteAfterReadYesActionPerformed(null);
-        } else {
-            deleteAfterReadYes.setSelected(false);
-            deleteAfterReadNo.setSelected(true);
-            deleteAfterReadNoActionPerformed(null);
-        }
+        moveToDirectoryField.setText(props.getMoveToDirectory());
+        moveToFileNameField.setText(props.getMoveToFileName());
+        errorReadingActionComboBox.setSelectedItem(props.getErrorReadingAction());
+        errorResponseActionComboBox.setSelectedItem(props.getErrorResponseAction());
+        errorMoveToDirectoryField.setText(props.getErrorMoveToDirectory());
+        errorMoveToFileNameField.setText(props.getErrorMoveToFileName());
+        updateErrorFields();
 
         if (props.isCheckFileAge()) {
             checkFileAgeYes.setSelected(true);
-            checkFileAgeNo.setSelected(false);
             checkFileAgeYesActionPerformed(null);
         } else {
-            checkFileAgeYes.setSelected(false);
             checkFileAgeNo.setSelected(true);
             checkFileAgeNoActionPerformed(null);
         }
@@ -263,20 +259,18 @@ public class FileReader extends ConnectorSettingsPanel {
 
         if (props.isBinary()) {
             fileTypeBinary.setSelected(true);
-            fileTypeASCII.setSelected(false);
             fileTypeBinaryActionPerformed(null);
         } else {
-            fileTypeBinary.setSelected(false);
             fileTypeASCII.setSelected(true);
             fileTypeASCIIActionPerformed(null);
         }
 
         if (props.isProcessBatch()) {
             processBatchFilesYes.setSelected(true);
-            processBatchFilesNo.setSelected(false);
+            processBatchFilesYesActionPerformed(null);
         } else {
-            processBatchFilesYes.setSelected(false);
             processBatchFilesNo.setSelected(true);
+            processBatchFilesNoActionPerformed(null);
         }
     }
 
@@ -361,7 +355,6 @@ public class FileReader extends ConnectorSettingsPanel {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
-        buttonGroup5 = new javax.swing.ButtonGroup();
         buttonGroup6 = new javax.swing.ButtonGroup();
         buttonGroup7 = new javax.swing.ButtonGroup();
         buttonGroup8 = new javax.swing.ButtonGroup();
@@ -378,14 +371,12 @@ public class FileReader extends ConnectorSettingsPanel {
         filenameFilterLabel = new javax.swing.JLabel();
         fileNameFilter = new com.mirth.connect.client.ui.components.MirthTextField();
         moveToDirectoryLabel = new javax.swing.JLabel();
-        moveToPattern = new com.mirth.connect.client.ui.components.MirthTextField();
-        moveToDirectory = new com.mirth.connect.client.ui.components.MirthTextField();
-        moveToFileLabel = new javax.swing.JLabel();
-        deleteAfterReadLabel = new javax.swing.JLabel();
+        moveToFileNameField = new com.mirth.connect.client.ui.components.MirthTextField();
+        moveToDirectoryField = new com.mirth.connect.client.ui.components.MirthTextField();
+        moveToFileNameLabel = new javax.swing.JLabel();
+        afterProcessingActionLabel = new javax.swing.JLabel();
         checkFileAgeLabel = new javax.swing.JLabel();
         fileAgeLabel = new javax.swing.JLabel();
-        deleteAfterReadYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        deleteAfterReadNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         checkFileAgeYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         checkFileAgeNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         fileAge = new com.mirth.connect.client.ui.components.MirthTextField();
@@ -400,7 +391,7 @@ public class FileReader extends ConnectorSettingsPanel {
         fileTypeBinary = new com.mirth.connect.client.ui.components.MirthRadioButton();
         fileTypeLabel = new javax.swing.JLabel();
         errorMoveToDirectoryLabel = new javax.swing.JLabel();
-        errorMoveToDirectory = new com.mirth.connect.client.ui.components.MirthTextField();
+        errorMoveToDirectoryField = new com.mirth.connect.client.ui.components.MirthTextField();
         anonymousLabel = new javax.swing.JLabel();
         anonymousYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         anonymousNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -426,6 +417,13 @@ public class FileReader extends ConnectorSettingsPanel {
         ignoreDotFilesLabel = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         mirthVariableList1 = new com.mirth.connect.client.ui.components.MirthVariableList();
+        afterProcessingActionComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
+        moveToFileLabel1 = new javax.swing.JLabel();
+        errorReadingActionComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
+        errorResponseActionLabel = new javax.swing.JLabel();
+        errorResponseActionComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
+        errorMoveToFileNameLabel = new javax.swing.JLabel();
+        errorMoveToFileNameField = new com.mirth.connect.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -458,42 +456,17 @@ public class FileReader extends ConnectorSettingsPanel {
 
         moveToDirectoryLabel.setText("Move-to Directory:");
 
-        moveToPattern.setToolTipText("<html>If successfully processed files should be renamed, enter the new name here.<br>The filename specified may include template substitutions from the list to the right.<br>If this field is left empty, successfully processed files will not be renamed.</html>");
+        moveToFileNameField.setToolTipText("<html>If successfully processed files should be renamed, enter the new name here.<br>The filename specified may include template substitutions from the list to the right.<br>If this field is left empty, successfully processed files will not be renamed.</html>");
 
-        moveToDirectory.setToolTipText("<html>If successfully processed files should be moved to a different directory (folder), enter that directory here.<br>The directory name specified may include template substitutions from the list to the right.<br>If this field is left empty, successfully processed files will not be moved to a different directory.</html>");
+        moveToDirectoryField.setToolTipText("<html>If successfully processed files should be moved to a different directory (folder), enter that directory here.<br>The directory name specified may include template substitutions from the list to the right.<br>If this field is left empty, successfully processed files will not be moved to a different directory.</html>");
 
-        moveToFileLabel.setText("Move-to File Name:");
+        moveToFileNameLabel.setText("Move-to File Name:");
 
-        deleteAfterReadLabel.setText("Delete File After Read:");
+        afterProcessingActionLabel.setText("After Processing Action:");
 
         checkFileAgeLabel.setText("Check File Age:");
 
         fileAgeLabel.setText("File Age (ms):");
-
-        deleteAfterReadYes.setBackground(new java.awt.Color(255, 255, 255));
-        deleteAfterReadYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup5.add(deleteAfterReadYes);
-        deleteAfterReadYes.setText("Yes");
-        deleteAfterReadYes.setToolTipText("Select Yes to delete files after they are processed.");
-        deleteAfterReadYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        deleteAfterReadYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteAfterReadYesActionPerformed(evt);
-            }
-        });
-
-        deleteAfterReadNo.setBackground(new java.awt.Color(255, 255, 255));
-        deleteAfterReadNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup5.add(deleteAfterReadNo);
-        deleteAfterReadNo.setSelected(true);
-        deleteAfterReadNo.setText("No");
-        deleteAfterReadNo.setToolTipText("Select No to not delete files after they are processed.");
-        deleteAfterReadNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        deleteAfterReadNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteAfterReadNoActionPerformed(evt);
-            }
-        });
 
         checkFileAgeYes.setBackground(new java.awt.Color(255, 255, 255));
         checkFileAgeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -550,6 +523,11 @@ public class FileReader extends ConnectorSettingsPanel {
         processBatchFilesYes.setText("Yes");
         processBatchFilesYes.setToolTipText("Select Yes to process all messages in each file.");
         processBatchFilesYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        processBatchFilesYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                processBatchFilesYesActionPerformed(evt);
+            }
+        });
 
         processBatchFilesNo.setBackground(new java.awt.Color(255, 255, 255));
         processBatchFilesNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -593,7 +571,7 @@ public class FileReader extends ConnectorSettingsPanel {
 
         errorMoveToDirectoryLabel.setText("Error Move-to Directory:");
 
-        errorMoveToDirectory.setToolTipText("<html>If files which cause processing errors should be moved to a different directory (folder), enter that directory here.<br>The directory name specified may include template substitutions from the list to the right.<br>If this field is left empty, files which cause processing errors will not be moved to a different directory.</html>");
+        errorMoveToDirectoryField.setToolTipText("<html>If files which cause processing errors should be moved to a different directory (folder), enter that directory here.<br>The directory name specified may include template substitutions from the list to the right.<br>If this field is left empty, files which cause processing errors will not be moved to a different directory.</html>");
 
         anonymousLabel.setText("Anonymous:");
 
@@ -734,42 +712,112 @@ public class FileReader extends ConnectorSettingsPanel {
         });
         jScrollPane1.setViewportView(mirthVariableList1);
 
+        afterProcessingActionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None", "Move", "Delete" }));
+        afterProcessingActionComboBox.setToolTipText("<html>Select Move to move and/or rename the file after successful processing.<br/>Select Delete to delete the file after successful processing.</html>");
+        afterProcessingActionComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                afterProcessingActionComboBoxActionPerformed(evt);
+            }
+        });
+
+        moveToFileLabel1.setText("Error Reading Action:");
+
+        errorReadingActionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None", "Move", "Delete" }));
+        errorReadingActionComboBox.setToolTipText("<html>Select Move to move and/or rename files that have failed to be read in.<br/>Select Delete to delete files that have failed to be read in.</html>");
+        errorReadingActionComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                errorReadingActionComboBoxActionPerformed(evt);
+            }
+        });
+
+        errorResponseActionLabel.setText("Error in Response Action:");
+
+        errorResponseActionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "After Processing Action", "Move", "Delete" }));
+        errorResponseActionComboBox.setToolTipText("<html>Select Move to move and/or rename the file if an ERROR response is returned.<br/>Select Delete to delete the file if an ERROR response is returned.<br/>If After Processing Action is selected, the After Processing Action will apply.<br/>This action is only available if Process Batch Files is disabled.</html>");
+        errorResponseActionComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                errorResponseActionComboBoxActionPerformed(evt);
+            }
+        });
+
+        errorMoveToFileNameLabel.setText("Error Move-to File Name:");
+
+        errorMoveToFileNameField.setToolTipText("<html>If files which cause processing errors should be renamed, enter the new name here.<br/>The filename specified may include template substitutions from the list to the right.<br/>If this field is left empty, files which cause processing errors will not be renamed.</html>");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(10, 10, 10)
+                .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(secureModeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(validateConnectionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(anonymousLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(fileTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(errorMoveToDirectoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(encodingLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(processBatchFilesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(errorMoveToDirectoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(fileTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(ignoreDotFilesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(moveToFileLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(deleteAfterReadLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(checkFileAgeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(fileAgeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(schemeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(hostLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(errorMoveToFileNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(errorResponseActionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(sortFilesByLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(directoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passiveModeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(fileAgeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(afterProcessingActionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(checkFileAgeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(moveToFileNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(moveToDirectoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(moveToFileLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(ignoreDotFilesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(timeoutLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(anonymousLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(hostLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(schemeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(directoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(filenameFilterLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(validateConnectionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(secureModeLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(passiveModeLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(validateConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(anonymousYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(anonymousNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(processBatchFilesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(processBatchFilesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(fileAge, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(afterProcessingActionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(checkFileAgeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(checkFileAgeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(ignoreDotFilesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(ignoreDotFilesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(fileNameFilter, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(filenameFilterRegexCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(passiveModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(passiveModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(hostField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -777,59 +825,24 @@ public class FileReader extends ConnectorSettingsPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(schemeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(testConnection))
-                    .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(fileNameFilter, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(filenameFilterRegexCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(anonymousYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(anonymousNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(passiveModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(passiveModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(secureModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(secureModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(validateConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(schemeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(processBatchFilesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(processBatchFilesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(deleteAfterReadYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(deleteAfterReadNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(fileAge, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(testConnection))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(checkFileAgeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(checkFileAgeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(errorMoveToDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(moveToPattern, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(moveToDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(errorMoveToDirectoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(errorMoveToFileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(errorResponseActionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(errorReadingActionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(moveToDirectoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(moveToFileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -855,9 +868,9 @@ public class FileReader extends ConnectorSettingsPanel {
                     .addComponent(filenameFilterRegexCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ignoreDotFilesLabel)
                     .addComponent(ignoreDotFilesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ignoreDotFilesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ignoreDotFilesLabel))
+                    .addComponent(ignoreDotFilesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(anonymousLabel)
@@ -865,16 +878,16 @@ public class FileReader extends ConnectorSettingsPanel {
                     .addComponent(anonymousNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(usernameLabel))
+                    .addComponent(usernameLabel)
+                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(passwordLabel)
                     .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(timeoutLabel))
+                    .addComponent(timeoutLabel)
+                    .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(secureModeLabel)
@@ -892,29 +905,40 @@ public class FileReader extends ConnectorSettingsPanel {
                     .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(deleteAfterReadLabel)
-                    .addComponent(deleteAfterReadYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(deleteAfterReadNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(afterProcessingActionLabel)
+                    .addComponent(afterProcessingActionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(moveToDirectoryLabel)
-                            .addComponent(moveToDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(moveToDirectoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(moveToFileLabel)
-                            .addComponent(moveToPattern, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(moveToFileNameLabel)
+                            .addComponent(moveToFileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(moveToFileLabel1)
+                            .addComponent(errorReadingActionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(errorResponseActionLabel)
+                            .addComponent(errorResponseActionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(errorMoveToDirectoryLabel)
-                            .addComponent(errorMoveToDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(errorMoveToDirectoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(checkFileAgeLabel)
-                            .addComponent(checkFileAgeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(checkFileAgeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(errorMoveToFileNameLabel)
+                            .addComponent(errorMoveToFileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(checkFileAgeLabel)
+                    .addComponent(checkFileAgeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(checkFileAgeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(fileAgeLabel)
@@ -937,7 +961,7 @@ public class FileReader extends ConnectorSettingsPanel {
                     .addComponent(processBatchFilesLabel)
                     .addComponent(processBatchFilesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(processBatchFilesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1070,27 +1094,6 @@ public class FileReader extends ConnectorSettingsPanel {
 // TODO add your handling code here:
     }//GEN-LAST:event_sortByActionPerformed
 
-    private void deleteAfterReadYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_deleteAfterReadYesActionPerformed
-    {//GEN-HEADEREND:event_deleteAfterReadYesActionPerformed
-        moveToDirectory.setEnabled(false);
-        moveToPattern.setEnabled(false);
-
-        moveToDirectoryLabel.setEnabled(false);
-        moveToFileLabel.setEnabled(false);
-
-        moveToDirectory.setText("");
-        moveToPattern.setText("");
-    }//GEN-LAST:event_deleteAfterReadYesActionPerformed
-
-    private void deleteAfterReadNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_deleteAfterReadNoActionPerformed
-    {//GEN-HEADEREND:event_deleteAfterReadNoActionPerformed
-        moveToDirectory.setEnabled(true);
-        moveToPattern.setEnabled(true);
-
-        moveToDirectoryLabel.setEnabled(true);
-        moveToFileLabel.setEnabled(true);
-    }//GEN-LAST:event_deleteAfterReadNoActionPerformed
-
     private void fileTypeASCIIActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_fileTypeASCIIActionPerformed
     {//GEN-HEADEREND:event_fileTypeASCIIActionPerformed
         encodingLabel.setEnabled(true);
@@ -1113,58 +1116,91 @@ public class FileReader extends ConnectorSettingsPanel {
         processBatchFilesYes.setEnabled(false);
     }//GEN-LAST:event_fileTypeBinaryActionPerformed
 
-private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
-    final String workingId = parent.startWorking("Testing connection...");
+    private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
+        final String workingId = parent.startWorking("Testing connection...");
 
-    SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker worker = new SwingWorker<Void, Void>() {
 
-        public Void doInBackground() {
+            public Void doInBackground() {
 
-            try {
-                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(getConnectorName(), "testRead", getProperties());
+                try {
+                    ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(getConnectorName(), "testRead", getProperties());
 
-                if (response == null) {
-                    throw new ClientException("Failed to invoke service.");
-                } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
-                    parent.alertInformation(parent, response.getMessage());
-                } else {
-                    parent.alertWarning(parent, response.getMessage());
+                    if (response == null) {
+                        throw new ClientException("Failed to invoke service.");
+                    } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
+                        parent.alertInformation(parent, response.getMessage());
+                    } else {
+                        parent.alertWarning(parent, response.getMessage());
+                    }
+
+                    return null;
+                } catch (ClientException e) {
+                    parent.alertError(parent, e.getMessage());
+                    return null;
                 }
-
-                return null;
-            } catch (ClientException e) {
-                parent.alertError(parent, e.getMessage());
-                return null;
             }
-        }
 
-        public void done() {
-            parent.stopWorking(workingId);
-        }
-    };
+            public void done() {
+                parent.stopWorking(workingId);
+            }
+        };
 
-    worker.execute();
-}//GEN-LAST:event_testConnectionActionPerformed
+        worker.execute();
+    }//GEN-LAST:event_testConnectionActionPerformed
 
-private void secureModeYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeYesActionPerformed
-    // only WebDAV has access to here.
-    // change host label to 'https://'
-    hostLabel.setText("https://");
-}//GEN-LAST:event_secureModeYesActionPerformed
+    private void secureModeYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeYesActionPerformed
+        // only WebDAV has access to here.
+        // change host label to 'https://'
+        hostLabel.setText("https://");
+    }//GEN-LAST:event_secureModeYesActionPerformed
 
-private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeNoActionPerformed
-    // only WebDAV has access to here.
-    // change host label to 'http://'
-    hostLabel.setText("http://");
-}//GEN-LAST:event_secureModeNoActionPerformed
+    private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeNoActionPerformed
+        // only WebDAV has access to here.
+        // change host label to 'http://'
+        hostLabel.setText("http://");
+    }//GEN-LAST:event_secureModeNoActionPerformed
+
+    private void afterProcessingActionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_afterProcessingActionComboBoxActionPerformed
+        boolean enabled = (FileAction) afterProcessingActionComboBox.getSelectedItem() == FileAction.MOVE;
+        moveToDirectoryLabel.setEnabled(enabled);
+        moveToDirectoryField.setEnabled(enabled);
+        moveToFileNameLabel.setEnabled(enabled);
+        moveToFileNameField.setEnabled(enabled);
+    }//GEN-LAST:event_afterProcessingActionComboBoxActionPerformed
+
+    private void errorReadingActionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_errorReadingActionComboBoxActionPerformed
+        updateErrorFields();
+    }//GEN-LAST:event_errorReadingActionComboBoxActionPerformed
+
+    private void errorResponseActionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_errorResponseActionComboBoxActionPerformed
+        updateErrorFields();
+    }//GEN-LAST:event_errorResponseActionComboBoxActionPerformed
+
+    private void processBatchFilesYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processBatchFilesYesActionPerformed
+        errorResponseActionComboBox.setSelectedItem(FileAction.AFTER_PROCESSING);
+        errorResponseActionComboBox.setEnabled(false);
+        errorResponseActionLabel.setEnabled(false);
+        updateErrorFields();
+    }//GEN-LAST:event_processBatchFilesYesActionPerformed
+
+    private void updateErrorFields() {
+        FileAction readAction = (FileAction) errorReadingActionComboBox.getSelectedItem();
+        FileAction responseAction = (FileAction) errorResponseActionComboBox.getSelectedItem();
+        boolean enabled = readAction == FileAction.MOVE || responseAction == FileAction.MOVE;
+        errorMoveToDirectoryLabel.setEnabled(enabled);
+        errorMoveToDirectoryField.setEnabled(enabled);
+        errorMoveToFileNameLabel.setEnabled(enabled);
+        errorMoveToFileNameField.setEnabled(enabled);
+    }
 
     private void processBatchFilesNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_processBatchFilesNoActionPerformed
     {// GEN-HEADEREND:event_processBatchFilesNoActionPerformed
-        // TODO add your handling code here:
+        errorResponseActionComboBox.setEnabled(true);
+        errorResponseActionLabel.setEnabled(true);
     }// GEN-LAST:event_processBatchFilesNoActionPerformed
 
     private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_charsetEncodingComboboxActionPerformed
-        // TODO add your handling code here:
     }// GEN-LAST:event_charsetEncodingComboboxActionPerformed
 
     private void checkFileAgeNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_checkFileAgeNoActionPerformed
@@ -1179,13 +1215,14 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         fileAge.setEnabled(true);
     }// GEN-LAST:event_checkFileAgeYesActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.mirth.connect.client.ui.components.MirthComboBox afterProcessingActionComboBox;
+    private javax.swing.JLabel afterProcessingActionLabel;
     private javax.swing.JLabel anonymousLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton anonymousNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton anonymousYes;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
-    private javax.swing.ButtonGroup buttonGroup5;
     private javax.swing.ButtonGroup buttonGroup6;
     private javax.swing.ButtonGroup buttonGroup7;
     private javax.swing.ButtonGroup buttonGroup8;
@@ -1194,14 +1231,16 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JLabel checkFileAgeLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton checkFileAgeNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton checkFileAgeYes;
-    private javax.swing.JLabel deleteAfterReadLabel;
-    private com.mirth.connect.client.ui.components.MirthRadioButton deleteAfterReadNo;
-    private com.mirth.connect.client.ui.components.MirthRadioButton deleteAfterReadYes;
     private com.mirth.connect.client.ui.components.MirthTextField directoryField;
     private javax.swing.JLabel directoryLabel;
     private javax.swing.JLabel encodingLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField errorMoveToDirectory;
+    private com.mirth.connect.client.ui.components.MirthTextField errorMoveToDirectoryField;
     private javax.swing.JLabel errorMoveToDirectoryLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField errorMoveToFileNameField;
+    private javax.swing.JLabel errorMoveToFileNameLabel;
+    private com.mirth.connect.client.ui.components.MirthComboBox errorReadingActionComboBox;
+    private com.mirth.connect.client.ui.components.MirthComboBox errorResponseActionComboBox;
+    private javax.swing.JLabel errorResponseActionLabel;
     private com.mirth.connect.client.ui.components.MirthTextField fileAge;
     private javax.swing.JLabel fileAgeLabel;
     private com.mirth.connect.client.ui.components.MirthTextField fileNameFilter;
@@ -1218,10 +1257,11 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private com.mirth.connect.client.ui.components.MirthRadioButton ignoreDotFilesYesRadio;
     private javax.swing.JScrollPane jScrollPane1;
     private com.mirth.connect.client.ui.components.MirthVariableList mirthVariableList1;
-    private com.mirth.connect.client.ui.components.MirthTextField moveToDirectory;
+    private com.mirth.connect.client.ui.components.MirthTextField moveToDirectoryField;
     private javax.swing.JLabel moveToDirectoryLabel;
-    private javax.swing.JLabel moveToFileLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField moveToPattern;
+    private javax.swing.JLabel moveToFileLabel1;
+    private com.mirth.connect.client.ui.components.MirthTextField moveToFileNameField;
+    private javax.swing.JLabel moveToFileNameLabel;
     private javax.swing.JLabel passiveModeLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton passiveModeNo;
     private com.mirth.connect.client.ui.components.MirthRadioButton passiveModeYes;
