@@ -1720,6 +1720,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 }
                 dataType = (responseMessage == null) ? null : responseMessage.getDataType();
             } else {
+                responseStatusTextField.setText("");
                 content = responseMessage.getContent();
                 dataType = (responseMessage == null) ? null : rawMessage.getDataType();
             }
@@ -1751,6 +1752,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     content = responseObject.getMessage();
                 }
             } else {
+                responseStatusTextField.setText("");
                 content = processedResponseMessage.getContent();
             }
         }
@@ -1927,7 +1929,20 @@ public class MessageBrowser extends javax.swing.JPanel {
                 }
                 
                 if (content != null && StringUtils.isNotEmpty(content.getContent())) {
-                    String trimmedContent = content.getContent().trim();
+                    String trimmedContent = "";
+                    
+                    if (metaDataId > 0 && (messagePaneName.equals("Response") || messagePaneName.equals("Processed Response"))) {
+                        DefaultSerializer serializer = new DefaultSerializer();
+                        Object object = serializer.deserialize(content.getContent());
+                        if (object instanceof Response) {
+                            Response responseObject = (Response) object;
+                            
+                            trimmedContent = responseObject.getMessage().trim();
+                        }
+                    } else {
+                        trimmedContent = content.getContent().trim();
+                    }
+                    
                     formatXmlMessageCheckBox.setEnabled(trimmedContent.length() > 0 && trimmedContent.charAt(0) == '<');
                 }
             } else {
