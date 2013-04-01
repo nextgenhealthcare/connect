@@ -68,7 +68,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     @SuppressWarnings("unchecked")
     @Override
     public Object poll() throws DatabaseReceiverException, InterruptedException {
-        return poll(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount())));
+        return poll(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId())));
     }
 
     /*

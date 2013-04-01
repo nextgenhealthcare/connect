@@ -80,7 +80,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
 
     @Override
     public Object poll() throws DatabaseReceiverException, InterruptedException {
-        return poll(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount()), 0));
+        return poll(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId()), 0));
     }
 
     /*
@@ -154,7 +154,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     public void runPostProcess(Map<String, Object> resultMap, ConnectorMessage mergedConnectorMessage) throws DatabaseReceiverException, InterruptedException {
         if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_EACH) {
             try {
-                runUpdateStatement(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount())), resultMap, mergedConnectorMessage);
+                runUpdateStatement(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId())), resultMap, mergedConnectorMessage);
             } catch (SQLException e) {
                 throw new DatabaseReceiverException(e);
             }
@@ -166,7 +166,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
         if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_ONCE) {
             try {
                 initUpdateConnection();
-                runUpdateStatement(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount())), null, null);
+                runUpdateStatement(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId())), null, null);
             } catch (SQLException e) {
                 throw new DatabaseReceiverException(e);
             }
@@ -216,9 +216,9 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     private void initSelectConnection() throws SQLException {
         closeSelectConnection();
 
-        String url = replacer.replaceValues(connectorProperties.getUrl());
-        String username = replacer.replaceValues(connectorProperties.getUsername());
-        String password = replacer.replaceValues(connectorProperties.getPassword());
+        String url = replacer.replaceValues(connectorProperties.getUrl(), connector.getChannelId());
+        String username = replacer.replaceValues(connectorProperties.getUsername(), connector.getChannelId());
+        String password = replacer.replaceValues(connectorProperties.getPassword(), connector.getChannelId());
 
         selectConnection = DriverManager.getConnection(url, username, password);
         selectConnection.setAutoCommit(false);
@@ -233,7 +233,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
         selectStatement = selectConnection.prepareStatement(JdbcUtils.extractParameters(connectorProperties.getSelect(), selectParams));
 
         if (!connectorProperties.isCacheResults()) {
-            selectStatement.setFetchSize(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getFetchSize())));
+            selectStatement.setFetchSize(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getFetchSize(), connector.getChannelId())));
         }
     }
 
@@ -252,9 +252,9 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     private void initUpdateConnection() throws SQLException {
         closeUpdateConnection();
 
-        String url = replacer.replaceValues(connectorProperties.getUrl());
-        String username = replacer.replaceValues(connectorProperties.getUsername());
-        String password = replacer.replaceValues(connectorProperties.getPassword());
+        String url = replacer.replaceValues(connectorProperties.getUrl(), connector.getChannelId());
+        String username = replacer.replaceValues(connectorProperties.getUsername(), connector.getChannelId());
+        String password = replacer.replaceValues(connectorProperties.getPassword(), connector.getChannelId());
 
         updateConnection = DriverManager.getConnection(url, username, password);
         updateConnection.setAutoCommit(true);
