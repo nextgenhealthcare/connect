@@ -52,16 +52,27 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
 
         // if the keepConnectionOpen option is enabled, we open the database connection(s) here and they remain open until undeploy()
         if (connectorProperties.isKeepConnectionOpen()) {
-            try {
-                initSelectConnection();
+            initConnection(NumberUtils.toInt(replacer.replaceValues(connectorProperties.getRetryCount(), connector.getChannelId()), 0));
+        }
+    }
 
-                if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
-                    initUpdateConnection();
-                }
-            } catch (SQLException e) {
-                // close all of the connections/statements in case some of them did initialize successfully
-                closeSelectConnection();
-                closeUpdateConnection();
+    private void initConnection(int retryCount) throws DeployException {
+        try {
+            initSelectConnection();
+
+            if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
+                initUpdateConnection();
+            }
+        } catch (SQLException e) {
+            logger.error("An error occurred while initializing the connection, retrying", e);
+
+            // close all of the connections/statements in case some of them did initialize successfully
+            closeSelectConnection();
+            closeUpdateConnection();
+
+            if (retryCount > 0) {
+                initConnection(retryCount - 1);
+            } else {
                 throw new DeployException("Failed to initialize database connection", e);
             }
         }
@@ -134,11 +145,10 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
             DbUtils.closeQuietly(cachedRowSet);
 
             if (retryCount > 0) {
-                if (!JdbcUtils.isValidConnection(selectConnection)) {
+                if (connectorProperties.isKeepConnectionOpen() && !JdbcUtils.isValidConnection(selectConnection)) {
                     try {
                         initSelectConnection();
                     } catch (SQLException e1) {
-                        throw new DatabaseReceiverException(e1);
                     }
                 }
 
