@@ -1,4 +1,4 @@
-package com.thoughtworks.xstream.converters.collections;
+package com.mirth.connect.model.converters.xstream;
 
 import java.util.Collections;
 import java.util.Comparator;

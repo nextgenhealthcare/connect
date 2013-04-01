@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.thoughtworks.xstream.converters.basic;
+package com.mirth.connect.model.converters.xstream;
 
 import java.nio.charset.Charset;
 

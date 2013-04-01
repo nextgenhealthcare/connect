@@ -1,7 +1,8 @@
-package com.thoughtworks.xstream.converters.collections;
+package com.mirth.connect.model.converters.xstream;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.thoughtworks.xstream.converters.collections.MapConverter;
 import com.thoughtworks.xstream.mapper.Mapper;
 
 public class ConcurrentHashMapConverter extends MapConverter {

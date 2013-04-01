@@ -8,7 +8,6 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/client/core/**"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/model/**"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/util/**"/>
-			<accessrule kind="accessible" pattern="com/thoughtworks/**"/>
 			<accessrule kind="accessible" pattern="org/mozilla/**"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/dimse/DICOMDispatcherProperties"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/dimse/DICOMReceiverProperties"/>

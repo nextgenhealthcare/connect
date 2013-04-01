@@ -93,7 +93,6 @@
 			<include name="com/mirth/connect/client/core/**" />
 			<include name="com/mirth/connect/model/**" />
 			<include name="com/mirth/connect/util/**" />
-			<include name="com/thoughtworks/**" />
 			<include name="org/mozilla/**" />
 
 			<include name="version.properties" />
@@ -769,7 +768,6 @@
 
 		<!-- create the server jar -->
 		<jar destfile="${setup}/${server.jar}" basedir="${classes}">
-			<include name="com/thoughtworks/**" />
 			<include name="com/mirth/connect/server/**" />
 			<include name="com/mirth/connect/model/**" />
 			<include name="com/mirth/connect/util/**" />

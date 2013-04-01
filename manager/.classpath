@@ -7,7 +7,6 @@
 			<accessrule kind="accessible" pattern="com/mirth/connect/client/core/**"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/model/**"/>
 			<accessrule kind="accessible" pattern="com/mirth/connect/util/**"/>
-			<accessrule kind="accessible" pattern="com/thoughtworks/**"/>
 			<accessrule kind="accessible" pattern="org/mozilla/**"/>
 			<accessrule kind="nonaccessible" pattern="*/**"/>
 		</accessrules>

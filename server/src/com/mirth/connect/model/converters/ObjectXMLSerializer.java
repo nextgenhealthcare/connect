@@ -47,12 +47,13 @@ import com.mirth.connect.model.UpdateInfo;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.UsageData;
 import com.mirth.connect.model.User;
+import com.mirth.connect.model.converters.xstream.ConcurrentHashMapConverter;
+import com.mirth.connect.model.converters.xstream.PropertiesConverter;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.basic.StringConverter;
-import com.thoughtworks.xstream.converters.collections.ConcurrentHashMapConverter;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 
 public class ObjectXMLSerializer implements Serializer {
@@ -100,6 +101,7 @@ public class ObjectXMLSerializer implements Serializer {
         xstream = new XStream(new Xpp3Driver());
         xstream.registerConverter(new StringConverter(stringCache));
         xstream.registerConverter(new ConcurrentHashMapConverter(xstream.getMapper()));
+        xstream.registerConverter(new PropertiesConverter());
         xstream.setMode(XStream.NO_REFERENCES);
         processAnnotations();
     }
@@ -108,6 +110,7 @@ public class ObjectXMLSerializer implements Serializer {
         xstream = new XStream(new Xpp3Driver());
         xstream.registerConverter(new StringConverter(stringCache));
         xstream.registerConverter(new ConcurrentHashMapConverter(xstream.getMapper()));
+        xstream.registerConverter(new PropertiesConverter());
         processAnnotations();
         xstream.processAnnotations(aliases);
         xstream.setMode(XStream.NO_REFERENCES);
