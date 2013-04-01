@@ -19,7 +19,7 @@ import com.mirth.connect.model.MessageStorageMode;
 
 public class QueueSettingsPanel extends javax.swing.JPanel {
     private ChannelSetup channelSetup;
-    
+
     public QueueSettingsPanel() {
         initComponents();
         retryIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
@@ -31,6 +31,9 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
     }
 
     public void setProperties(QueueConnectorProperties properties) {
+        // Set the retry count first because it may be used by the radio action event
+        retryCountField.setText(Integer.toString(properties.getRetryCount()));
+
         if (properties.isQueueEnabled()) {
             if (properties.isSendFirst()) {
                 queueAttemptFirstRadio.setSelected(true);
@@ -43,12 +46,11 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
             queueNeverRadio.setSelected(true);
             queueNeverRadioActionPerformed(null);
         }
-        
+
         regenerateTemplateCheckbox.setSelected(properties.isRegenerateTemplate());
         rotateCheckbox.setSelected(properties.isRotate());
 
         retryIntervalField.setText(String.valueOf(properties.getRetryIntervalMillis()));
-        retryCountField.setText(Integer.toString(properties.getRetryCount()));
     }
 
     public void fillProperties(QueueConnectorProperties properties) {
@@ -67,9 +69,9 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
         properties.setRegenerateTemplate(regenerateTemplateCheckbox.isSelected());
 
         properties.setRetryIntervalMillis(NumberUtils.toInt(retryIntervalField.getText(), -1));
-        
+
         properties.setRetryCount(NumberUtils.toInt(retryCountField.getText(), -1));
-        
+
         properties.setRotate(rotateCheckbox.isSelected());
     }
 
@@ -85,10 +87,10 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
                 }
             }
         }
-        
+
         if (properties.getRetryCount() < 0) {
             valid = false;
-            
+
             if (highlight) {
                 retryCountField.setBackground(UIConstants.INVALID_COLOR);
             }
@@ -101,17 +103,19 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
         retryIntervalField.setBackground(null);
         retryCountField.setBackground(null);
     }
-    
+
     public void updateQueueWarning(MessageStorageMode messageStorageMode) {
         switch (messageStorageMode) {
-            case RAW: case METADATA: case DISABLED:
+            case RAW:
+            case METADATA:
+            case DISABLED:
                 if (queueAlwaysRadio.isSelected() || queueAttemptFirstRadio.isSelected()) {
                     queueWarningLabel.setText("<html>Queueing is not supported by the current message storage mode</html>");
                 } else {
                     queueWarningLabel.setText("");
                 }
                 break;
-                
+
             default:
                 queueWarningLabel.setText("");
                 break;
@@ -276,7 +280,7 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
         retryCountLabel.setEnabled(false);
         retryCountField.setEnabled(false);
         channelSetup.saveDestinationPanel();
-        
+
         MessageStorageMode messageStorageMode = channelSetup.getMessageStorageMode();
         channelSetup.updateQueueWarning(messageStorageMode);
         updateQueueWarning(messageStorageMode);
@@ -285,15 +289,18 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
     private void queueNeverRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queueNeverRadioActionPerformed
         regenerateTemplateCheckbox.setEnabled(false);
         rotateCheckbox.setEnabled(false);
-        
+
         if (NumberUtils.toInt(retryCountField.getText()) == 0) {
             retryIntervalField.setEnabled(false);
             retryIntervalLabel.setEnabled(false);
+        } else {
+            retryIntervalField.setEnabled(true);
+            retryIntervalLabel.setEnabled(true);
         }
-        
+
         retryCountLabel.setEnabled(true);
         retryCountField.setEnabled(true);
-        
+
         channelSetup.saveDestinationPanel();
 
         MessageStorageMode messageStorageMode = channelSetup.getMessageStorageMode();
@@ -309,7 +316,7 @@ public class QueueSettingsPanel extends javax.swing.JPanel {
         retryCountLabel.setEnabled(true);
         retryCountField.setEnabled(true);
         channelSetup.saveDestinationPanel();
-        
+
         MessageStorageMode messageStorageMode = channelSetup.getMessageStorageMode();
         channelSetup.updateQueueWarning(messageStorageMode);
         updateQueueWarning(messageStorageMode);
