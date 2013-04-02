@@ -51,6 +51,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
@@ -641,6 +642,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             try {
                 data = getPlugin(type).getData(row);
                 filterTableModel.setValueAt(data, row, RULE_DATA_COL);
+                List<Rule> list = buildRuleList(new ArrayList<Rule>(), filterTable.getRowCount());
+                filter.setRules(list);
             } catch (Exception e) {
                 parent.alertException(this, e.getStackTrace(), e.getMessage());
             }
@@ -976,10 +979,11 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             Rule rule = new Rule();
             rule.setSequenceNumber(Integer.parseInt(filterTable.getValueAt(i, RULE_NUMBER_COL).toString()));
 
-            if (i == 0) {
+            String operator = filterTableModel.getValueAt(i, RULE_OP_COL).toString();
+            if (i == 0 || StringUtils.isBlank(operator)) {
                 rule.setOperator(Rule.Operator.NONE);
             } else {
-                rule.setOperator(Rule.Operator.valueOf(filterTableModel.getValueAt(i, RULE_OP_COL).toString()));
+                rule.setOperator(Rule.Operator.valueOf(operator));
             }
 
             rule.setData((Map) filterTableModel.getValueAt(i, RULE_DATA_COL));
@@ -1052,10 +1056,9 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         saveData(filterTable.getSelectedRow());
 
         List<Rule> list = buildRuleList(new ArrayList<Rule>(), filterTable.getRowCount());
-
         filter.setRules(list);
-        transformer.setInboundTemplate(tabTemplatePanel.getIncomingMessage());
 
+        transformer.setInboundTemplate(tabTemplatePanel.getIncomingMessage());
         transformer.setInboundProperties(tabTemplatePanel.getIncomingDataProperties());
 
         // reset the task pane and content to channel edit page
