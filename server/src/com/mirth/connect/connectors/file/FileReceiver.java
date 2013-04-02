@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.file;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -317,7 +319,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                         destinationName = originalFilename;
                     }
 
-                    if (!file.getParent().equals(destinationDir) || !originalFilename.equals(destinationName)) {
+                    if (!filesEqual(file.getParent(), originalFilename, destinationDir, destinationName)) {
                         if (shouldUseErrorFields) {
                             logger.error("Moving file to error directory: " + destinationDir);
                         }
@@ -347,6 +349,18 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_403, "", e);
             // TODO: handleException
 //            handleException(e);
+        }
+    }
+
+    private boolean filesEqual(String dir1, String name1, String dir2, String name2) {
+        String separator = System.getProperty("file.separator");
+        String escapedSeparator = StringEscapeUtils.escapeJava(separator);
+        String file1 = dir1 + (dir1.endsWith(separator) ? "" : separator) + name1.replaceAll("^" + escapedSeparator, "");
+        String file2 = dir2 + (dir2.endsWith(separator) ? "" : separator) + name2.replaceAll("^" + escapedSeparator, "");
+        try {
+            return new File(file1).getCanonicalPath().equals(new File(file2).getCanonicalPath());
+        } catch (IOException e) {
+            return file1.equals(file2);
         }
     }
 
