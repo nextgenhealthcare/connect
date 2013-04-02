@@ -374,7 +374,9 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         destinationTable = new MirthTable();
 
-        destinationTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { STATUS_COLUMN_NAME, DESTINATION_COLUMN_NAME, METADATA_COLUMN_NAME, CONNECTOR_TYPE_COLUMN_NAME, DESTINATION_CHAIN_COLUMN_NAME }) {
+        destinationTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] {
+                STATUS_COLUMN_NAME, DESTINATION_COLUMN_NAME, METADATA_COLUMN_NAME,
+                CONNECTOR_TYPE_COLUMN_NAME, DESTINATION_CHAIN_COLUMN_NAME }) {
 
             boolean[] canEdit = new boolean[] { false, true, false, false, false };
 
@@ -1301,8 +1303,8 @@ public class ChannelSetup extends javax.swing.JPanel {
 
             // Update number of rules and steps on the filter and transformer
             parent.updateFilterTaskName(destination.getFilter().getRules().size());
-            parent.updateTransformerTaskName(destination.getTransformer().getSteps().size());
-            parent.updateResponseTransformerTaskName(destination.getResponseTransformer().getSteps().size());
+            parent.updateTransformerTaskName(destination.getTransformer().getSteps().size(), StringUtils.isNotBlank(destination.getTransformer().getOutboundTemplate()));
+            parent.updateResponseTransformerTaskName(destination.getResponseTransformer().getSteps().size(), StringUtils.isNotBlank(destination.getResponseTransformer().getOutboundTemplate()));
         }
     }
 
@@ -2422,7 +2424,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         // Update number of rules and steps on the filter and transformer
         parent.updateFilterTaskName(currentChannel.getSourceConnector().getFilter().getRules().size());
-        parent.updateTransformerTaskName(currentChannel.getSourceConnector().getTransformer().getSteps().size());
+        parent.updateTransformerTaskName(currentChannel.getSourceConnector().getTransformer().getSteps().size(), StringUtils.isNotBlank(currentChannel.getSourceConnector().getTransformer().getOutboundTemplate()));
 
         int connectorIndex = destinationTable.getSelectedModelIndex();
         Connector destinationConnector = currentChannel.getDestinationConnectors().get(connectorIndex);

@@ -29,6 +29,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.TokenMarker;
@@ -39,6 +40,8 @@ import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.plugins.DataTypeClientPlugin;
 
 public class TemplatePanel extends javax.swing.JPanel implements DropTargetListener {
+    private static final String MESSAGE_TEMPLATES_BOLD = "<html><b>Message Templates</b></html>";
+    private static final String MESSAGE_TEMPLATES = "Message Templates";
     public final String DEFAULT_TEXT = "Paste a sample message here.";
     protected MirthEditorPane parent;
     private SyntaxDocument hl7Document;
@@ -91,14 +94,11 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 }
             }
 
-            public void mouseEntered(MouseEvent e) {
-            }
+            public void mouseEntered(MouseEvent e) {}
 
-            public void mouseExited(MouseEvent e) {
-            }
+            public void mouseExited(MouseEvent e) {}
 
-            public void mousePressed(MouseEvent e) {
-            }
+            public void mousePressed(MouseEvent e) {}
 
             public void mouseReleased(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON2) {
@@ -120,7 +120,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
                 List<File> fileList = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
                 Iterator<File> iterator = fileList.iterator();
-                
+
                 while (iterator.hasNext()) {
                     iterator.next();
                 }
@@ -132,19 +132,16 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         }
     }
 
-    public void dragOver(DropTargetDragEvent dtde) {
-    }
+    public void dragOver(DropTargetDragEvent dtde) {}
 
-    public void dropActionChanged(DropTargetDragEvent dtde) {
-    }
+    public void dropActionChanged(DropTargetDragEvent dtde) {}
 
-    public void dragExit(DropTargetEvent dte) {
-    }
+    public void dragExit(DropTargetEvent dte) {}
 
     public void drop(DropTargetDropEvent dtde) {
         try {
             Transferable tr = dtde.getTransferable();
-            
+
             if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
                 dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
                 File file = ((List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor)).get(0);
@@ -153,7 +150,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 DataTypeClientPlugin dataTypePlugin = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType);
                 if (dataTypePlugin.isBinary()) {
                     byte[] content = FileUtils.readFileToByteArray(file);
-                    
+
                     // The plugin should decide how to convert the byte array to string
                     pasteBox.setText(dataTypePlugin.getTemplateString(content));
                 } else {
@@ -171,7 +168,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         dataTypeComboBox.setEnabled(dataTypeEnabled);
         properties.setEnabled(propertiesEnabled);
     }
-    
+
     public void setInbound(boolean inbound) {
         this.inbound = inbound;
     }
@@ -193,7 +190,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                     lastWorkingId = workingId;
                     String message = pasteBox.getText();
                     currentMessage = message;
-                    
+
                     // Some invalid message templates cause this method to throw a NullPointer.
                     // Catch it so that we can still stop the "Parsing..." working status.
                     // TODO: Fix the possible null pointers inside of the setMessage method.
@@ -206,7 +203,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 }
             }
         }
-        
+
         if (timer == null) {
             timer = new Timer();
             timer.schedule(new UpdateTimer(), 1000);
@@ -215,6 +212,17 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             PlatformUI.MIRTH_FRAME.stopWorking(lastWorkingId);
             timer = new Timer();
             timer.schedule(new UpdateTimer(), 1000);
+        }
+
+        // Change the message tab display when the outbound template is modified
+        if (!inbound) {
+            if (StringUtils.isBlank(pasteBox.getText())) {
+                if (!parent.tabTemplatePanel.tabPanel.getTitleAt(2).equals(MESSAGE_TEMPLATES)) {
+                    parent.tabTemplatePanel.tabPanel.setTitleAt(2, MESSAGE_TEMPLATES);
+                }
+            } else if (!parent.tabTemplatePanel.tabPanel.getTitleAt(2).equals(MESSAGE_TEMPLATES_BOLD)) {
+                parent.tabTemplatePanel.tabPanel.setTitleAt(2, MESSAGE_TEMPLATES_BOLD);
+            }
         }
     }
 
@@ -246,11 +254,11 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
 
     private void setDocType(String dataType) {
         TokenMarker tokenMarker = LoadedExtensions.getInstance().getDataTypePlugins().get(PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataType)).getTokenMarker();
-        
+
         if (tokenMarker != null) {
             hl7Document.setTokenMarker(tokenMarker);
         }
-        
+
         pasteBox.setDocument(hl7Document);
     }
 
@@ -367,14 +375,14 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             DataTypeClientPlugin dataTypePropertiesPlugin = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType);
             if (dataTypePropertiesPlugin.isBinary()) {
                 byte[] content = PlatformUI.MIRTH_FRAME.browseForFileBytes(null);
-                
+
                 if (content != null) {
                     // The plugin should decide how to convert the byte array to string
                     pasteBox.setText(dataTypePropertiesPlugin.getTemplateString(content));
                 }
             } else {
                 String content = PlatformUI.MIRTH_FRAME.browseForFileString(null);
-                
+
                 if (content != null) {
                     pasteBox.setText(content);
                 }
@@ -400,22 +408,22 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     private void propertiesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_propertiesActionPerformed
     {//GEN-HEADEREND:event_propertiesActionPerformed
         currentMessage = "";
-        
+
         String displayName = (String) dataTypeComboBox.getSelectedItem();
-        
+
         if (dataProperties != null) {
-        	DataTypeProperties lastDataTypeProperties = dataProperties.clone();
+            DataTypeProperties lastDataTypeProperties = dataProperties.clone();
             DataTypePropertiesDialog dialog = new DataTypePropertiesDialog(inbound, displayName, dataProperties);
             if (dialog.isRevert()) {
-            	dataProperties = lastDataTypeProperties;
+                dataProperties = lastDataTypeProperties;
             } else {
-            	dataProperties = dialog.getDataTypeProperties();
-            	if (!dataProperties.equals(lastDataTypeProperties)) {
-            		PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
-            	}
+                dataProperties = dialog.getDataTypeProperties();
+                if (!dataProperties.equals(lastDataTypeProperties)) {
+                    PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
+                }
             }
         }
-        
+
         updateText();
     }//GEN-LAST:event_propertiesActionPerformed
 
@@ -423,18 +431,18 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     {//GEN-HEADEREND:event_dataTypeComboBoxActionPerformed
         PlatformUI.MIRTH_FRAME.setSaveEnabled(true);
         currentMessage = "";
-        
+
         // Only set the default properties if the data type is changing
         if (!currentDataType.equals(dataTypeComboBox.getSelectedItem())) {
-        	// Update the current data type display name
-        	currentDataType = (String) dataTypeComboBox.getSelectedItem();
-        	
-        	// Set the default properties for the data type selected
-        	String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(currentDataType);
-        	
-        	dataProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
+            // Update the current data type display name
+            currentDataType = (String) dataTypeComboBox.getSelectedItem();
+
+            // Set the default properties for the data type selected
+            String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(currentDataType);
+
+            dataProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
         }
-        
+
         setDocType(currentDataType);
         updateText();
     }//GEN-LAST:event_dataTypeComboBoxActionPerformed
