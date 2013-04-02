@@ -27,9 +27,9 @@ import org.mozilla.javascript.Undefined;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
 import com.mirth.connect.donkey.model.message.ImmutableMessage;
+import com.mirth.connect.donkey.model.message.ImmutableResponse;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
-import com.mirth.connect.donkey.model.message.ImmutableResponse;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.server.util.javascript.StoppableContextFactory;
@@ -94,9 +94,8 @@ public class JavaScriptScopeUtil {
      * Private Scope Builders
      */
 
-    // RawMessage Builder
+    // Raw Message String Builder
     private static void addRawMessage(Scriptable scope, String message) {
-        // TODO: Change this to RawMessage object?
         scope.put("message", scope, message);
     }
 
@@ -191,15 +190,13 @@ public class JavaScriptScopeUtil {
         return scope;
     }
 
-    // TODO: Add attachments
     public static Scriptable getPreprocessorScope(Object logger, String channelId, String message, ConnectorMessage connectorMessage) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addRawMessage(scope, message);
-        scope.put("messageObject", scope, new ImmutableConnectorMessage(connectorMessage));
+        addConnectorMessage(scope, connectorMessage);
         return scope;
     }
 
-    // TODO: Add attachments
     public static Scriptable getPostprocessorScope(Object logger, String channelId, Message message) {
         Scriptable scope = getBasicScope(getContext(), logger, channelId);
         addStatusValues(scope);
