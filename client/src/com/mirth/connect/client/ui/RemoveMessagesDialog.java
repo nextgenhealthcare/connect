@@ -62,7 +62,6 @@ public class RemoveMessagesDialog extends javax.swing.JDialog {
         messageLabel.setText("Are you sure you want to remove all messages (including QUEUED) for the selected stopped channel(s)?");
 
         clearStatsCheckBox.setText("Clear statistics for affected channel(s)");
-        clearStatsCheckBox.setFocusable(false);
         clearStatsCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 clearStatsCheckBoxActionPerformed(evt);
@@ -70,7 +69,6 @@ public class RemoveMessagesDialog extends javax.swing.JDialog {
         });
 
         includeRunningChannels.setText("Include selected channels that are not stopped (channels will be temporarily stopped while messages are being removed) ");
-        includeRunningChannels.setFocusable(false);
         includeRunningChannels.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 includeRunningChannelsActionPerformed(evt);

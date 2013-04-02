@@ -69,7 +69,6 @@
     <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="clearStatsCheckBox">
       <Properties>
         <Property name="text" type="java.lang.String" value="Clear statistics for affected channel(s)"/>
-        <Property name="focusable" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="clearStatsCheckBoxActionPerformed"/>
@@ -78,7 +77,6 @@
     <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="includeRunningChannels">
       <Properties>
         <Property name="text" type="java.lang.String" value="Include selected channels that are not stopped (channels will be temporarily stopped while messages are being removed) "/>
-        <Property name="focusable" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="includeRunningChannelsActionPerformed"/>
