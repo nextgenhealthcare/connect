@@ -21,6 +21,7 @@ import java.net.SocketTimeoutException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -182,27 +183,33 @@ public class TcpDispatcher extends DestinationConnector {
 
                         // TODO: Handle this differently; maybe add a default validator to the data type itself
                         if (tcpSenderProperties.isProcessHL7ACK()) {
-                            if (responseData.trim().startsWith("<")) {
-                                // XML response received
-                                Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new CharArrayReader(responseData.toCharArray())));
-                                String ackCode = XPathFactory.newInstance().newXPath().compile("//MSA.1/text()").evaluate(doc).trim();
-                                if (ackCode.matches("[AC][RE]")) {
-                                    responseStatus = Status.ERROR;
-                                } else if (ackCode.matches("[AC]A")) {
-                                    responseStatus = Status.SENT;
+                            if (StringUtils.isNotBlank(responseData)) {
+                                if (responseData.trim().startsWith("<")) {
+                                    // XML response received
+                                    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new CharArrayReader(responseData.toCharArray())));
+                                    String ackCode = XPathFactory.newInstance().newXPath().compile("//MSA.1/text()").evaluate(doc).trim();
+                                    if (ackCode.matches("[AC][RE]")) {
+                                        responseStatus = Status.ERROR;
+                                    } else if (ackCode.matches("[AC]A")) {
+                                        responseStatus = Status.SENT;
+                                    }
+                                } else {
+                                    // ER7 response received
+                                    if (responseData.matches("[\\s\\S]*MSA.[AC][RE][\\s\\S]*")) {
+                                        responseStatus = Status.ERROR;
+                                    } else if (responseData.matches("[\\s\\S]*MSA.[AC]A[\\s\\S]*")) {
+                                        responseStatus = Status.SENT;
+                                    }
+                                }
+
+                                if (responseStatus == Status.ERROR) {
+                                    responseError = "NACK sent from receiver: " + responseData;
+                                    responseStatusMessage = "NACK sent from receiver.";
                                 }
                             } else {
-                                // ER7 response received
-                                if (responseData.matches("[\\s\\S]*MSA.[AC][RE][\\s\\S]*")) {
-                                    responseStatus = Status.ERROR;
-                                } else if (responseData.matches("[\\s\\S]*MSA.[AC]A[\\s\\S]*")) {
-                                    responseStatus = Status.SENT;
-                                }
-                            }
-
-                            if (responseStatus == Status.ERROR) {
-                                responseError = "NACK sent from receiver: " + responseData;
-                                responseStatusMessage = "NACK sent from receiver.";
+                                responseStatus = Status.ERROR;
+                                responseStatusMessage = "Empty or blank response received.";
+                                responseError = responseStatusMessage;
                             }
                         } else {
                             responseStatus = Status.SENT;
