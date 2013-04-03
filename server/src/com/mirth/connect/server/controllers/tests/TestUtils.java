@@ -378,7 +378,7 @@ public class TestUtils {
         try {
             connection = getConnection();
             messageStatement = connection.prepareStatement("INSERT INTO d_m" + localChannelId + " (id, server_id, received_date, processed) SELECT id + ?, server_id, received_date, processed FROM d_m" + localChannelId);
-            metaDataStatement = connection.prepareStatement("INSERT INTO d_mm" + localChannelId + " (id, message_id, chain_id, received_date, status, connector_map, channel_map, response_map, errors, send_attempts, order_id) SELECT id, message_id + ?, chain_id, received_date, status, connector_map, channel_map, response_map, errors, send_attempts, order_id FROM d_mm" + localChannelId);
+            metaDataStatement = connection.prepareStatement("INSERT INTO d_mm" + localChannelId + " (id, message_id, chain_id, received_date, status, order_id) SELECT id, message_id + ?, chain_id, received_date, status, order_id FROM d_mm" + localChannelId);
             contentStatement = connection.prepareStatement("INSERT INTO d_mc" + localChannelId + " (metadata_id, message_id, content_type, content, is_encrypted, data_type) SELECT metadata_id, message_id + ?, content_type, content, is_encrypted, data_type FROM d_mc" + localChannelId);
 
             for (int i = 0; i < power; i++) {
