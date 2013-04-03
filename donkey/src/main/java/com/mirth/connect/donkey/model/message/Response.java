@@ -11,6 +11,8 @@ package com.mirth.connect.donkey.model.message;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class Response implements Serializable {
     private static final long serialVersionUID = 99766081218628503L;
     private Status status;
@@ -30,11 +32,11 @@ public class Response implements Serializable {
         this(status, message, new String());
     }
 
-    public Response(Status status, String message, String statusMessage){
+    public Response(Status status, String message, String statusMessage) {
         this(status, message, statusMessage, new String());
     }
-    
-    public Response(Status status, String message, String statusMessage, String error){
+
+    public Response(Status status, String message, String statusMessage, String error) {
         this.status = status;
         setMessage(message);
         setStatusMessage(statusMessage);
@@ -90,15 +92,32 @@ public class Response implements Serializable {
         return false;
     }
 
-    public void fixStatus(boolean queueEnabled) {
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(status);
+        if (StringUtils.isNotEmpty(statusMessage)) {
+            builder.append(": ");
+            builder.append(statusMessage);
+        }
+
+        return builder.toString();
+    }
+
+    public String fixStatus(boolean queueEnabled) {
         Status status = getStatus();
 
         if (status != Status.ERROR && status != Status.SENT && status != Status.QUEUED) {
             // If the response is invalid for a final destination status, change the status to ERROR
             setStatus(Status.ERROR);
+            return "Invalid response status: " + status + ". Status updated to ERROR.";
         } else if (!queueEnabled && status == Status.QUEUED) {
             // If the status is QUEUED and queuing is disabled, change the status to ERROR
             setStatus(Status.ERROR);
+            return "Invalid response status. Cannot set status to QUEUED while queuing is disabled. Status updated to ERROR.";
         }
+        
+        return null;
     }
 }

@@ -19,25 +19,21 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Constants;
-import com.mirth.connect.donkey.server.Encryptor;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public class RecoveryTask implements Callable<List<Message>> {
     private Channel channel;
-    private Encryptor encryptor;
 
-    public RecoveryTask(Channel channel, Encryptor encryptor) {
+    public RecoveryTask(Channel channel) {
         this.channel = channel;
-        this.encryptor = encryptor;
     }
 
     @Override
     public List<Message> call() throws Exception {
         ThreadUtils.checkInterruptedStatus();
         DonkeyDao dao = channel.getDaoFactory().getDao();
-        MessageController messageController = MessageController.getInstance();
         StorageSettings storageSettings = channel.getStorageSettings();
 
         try {
@@ -54,8 +50,6 @@ public class RecoveryTask implements Callable<List<Message>> {
 
                         for (ConnectorMessage recoveredConnectorMessage : recoveredConnectorMessages) {
                             long messageId = recoveredConnectorMessage.getMessageId();
-
-                            messageController.decryptConnectorMessage(recoveredConnectorMessage, encryptor);
 
                             // get the list of destination meta data ids to send to
                             List<Integer> metaDataIds = null;
@@ -102,7 +96,6 @@ public class RecoveryTask implements Callable<List<Message>> {
             dao.close();
 
             for (Message message : unfinishedMessages) {
-                messageController.decryptMessage(message, encryptor);
                 ConnectorMessage sourceMessage = message.getConnectorMessages().get(0);
                 boolean finished = true;
 

@@ -110,7 +110,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
 
                 if (compiledScript == null) {
                     logger.debug("script could not be found in cache");
-                    return new FilterTransformerResult(true, null);
+                    return new FilterTransformerResult(false, null);
                 } else {
                     Object result = executeScript(compiledScript, scope);
 

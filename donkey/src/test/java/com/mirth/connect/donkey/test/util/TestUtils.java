@@ -58,7 +58,6 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConfiguration;
-import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
@@ -241,7 +240,7 @@ public class TestUtils {
         destinationConnector.setMetaDataId(metaDataId);
 
         ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
-        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, false, getDaoFactory(), new PassthruEncryptor()));
+        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, false, getDaoFactory()));
         destinationConnector.setQueue(destinationConnectorQueue);
     }
 
@@ -483,27 +482,19 @@ public class TestUtils {
             Calendar receivedDate = Calendar.getInstance();
             receivedDate.setTimeInMillis(result.getTimestamp("received_date").getTime());
             Status status = Status.fromChar(result.getString("status").charAt(0));
-            Map<String, Object> connectorMap = (Map<String, Object>) serializer.deserialize(result.getString("connector_map"));
-            Map<String, Object> channelMap = (Map<String, Object>) serializer.deserialize(result.getString("channel_map"));
-            Map<String, Object> responseMap = (Map<String, Object>) serializer.deserialize(result.getString("response_map"));
-            String errors = (String) serializer.deserialize(result.getString("errors"));
             
             assertTrue(testEquality(receivedDate, connectorMessage.getReceivedDate()));
             assertTrue(testEquality(status, connectorMessage.getStatus()));
-            assertTrue(testEquality(connectorMap, connectorMessage.getConnectorMap()));
-            assertTrue(testEquality(channelMap, connectorMessage.getChannelMap()));
-            assertTrue(testEquality(responseMap, connectorMessage.getResponseMap()));
-            assertTrue(testEquality(errors, connectorMessage.getErrors()));
         } finally {
             close(result);
             close(statement);
         }
 
         if (deepSearch) {
-            for (ContentType contentType : ContentType.values()) {
+            for (ContentType contentType : ContentType.getMessageTypes()) {
                 // Even though raw content exists on the destination connector message, it won't be stored in the database
                 if (contentType != ContentType.RAW || connectorMessage.getMetaDataId() == 0) {
-                    MessageContent messageContent = connectorMessage.getContent(contentType);
+                    MessageContent messageContent = connectorMessage.getMessageContent(contentType);
 
                     if (messageContent != null) {
                         assertMessageContentExists(messageContent);
@@ -585,7 +576,7 @@ public class TestUtils {
         assertEquals(connectorMessage1.getChannelMap(), connectorMessage2.getChannelMap());
         assertEquals(connectorMessage1.getResponseMap(), connectorMessage2.getResponseMap());
         assertEquals(connectorMessage1.getMetaDataMap(), connectorMessage2.getMetaDataMap());
-        assertEquals(connectorMessage1.getErrors(), connectorMessage2.getErrors());
+        assertEquals(connectorMessage1.getProcessingError(), connectorMessage2.getProcessingError());
         assertEquals(connectorMessage1.getSendAttempts(), connectorMessage2.getSendAttempts());
     }
 
@@ -601,18 +592,11 @@ public class TestUtils {
             statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
             statement.setLong(1, content.getMessageId());
             statement.setLong(2, content.getMetaDataId());
-            statement.setString(3, String.valueOf(content.getContentType().getContentTypeCode()));
+            statement.setInt(3, content.getContentType().getContentTypeCode());
             result = statement.executeQuery();
 
             if (result.next()) {
-                if (result.getBoolean("is_encrypted")) {
-                    assertTrue(testEquality(result.getString("content"), content.getEncryptedContent()));
-                } else {
-                    Serializer serializer = Donkey.getInstance().getSerializer();
-                    Response queryObject = (Response) serializer.deserialize(result.getString("content"));
-                    Response contentObject = (Response) serializer.deserialize(content.getContent());
-                    assertTrue(testEquality(queryObject, contentObject));
-                }
+                assertTrue(testEquality(result.getString("content"), content.getContent()));
             } else {
                 throw new AssertionError();
             }
@@ -676,7 +660,7 @@ public class TestUtils {
             statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
             statement.setLong(1, content.getMessageId());
             statement.setInt(2, content.getMetaDataId());
-            statement.setString(3, String.valueOf(content.getContentType().getContentTypeCode()));
+            statement.setInt(3, content.getContentType().getContentTypeCode());
             result = statement.executeQuery();
             assertFalse(result.next());
         } finally {
@@ -695,7 +679,9 @@ public class TestUtils {
         assertEquals(messageContent1.getMetaDataId(), messageContent2.getMetaDataId());
         assertEquals(messageContent1.getContentType(), messageContent2.getContentType());
         assertEquals(messageContent1.getContent(), messageContent2.getContent());
-        assertEquals(messageContent1.getEncryptedContent(), messageContent2.getEncryptedContent());
+        assertEquals(messageContent1.isEncrypted(), messageContent2.isEncrypted());
+        // There is no more encrypted content
+//        assertEquals(messageContent1.getEncryptedContent(), messageContent2.getEncryptedContent());
     }
 
     public static void assertAttachmentExists(String channelId, long messageId, Attachment attachment) throws SQLException {
@@ -757,7 +743,7 @@ public class TestUtils {
             statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
             statement.setLong(1, messageId);
             statement.setInt(2, 0);
-            statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
+            statement.setInt(3, ContentType.SENT.getContentTypeCode());
             result = statement.executeQuery();
             assertTrue(result.next());
         } finally {
@@ -779,7 +765,7 @@ public class TestUtils {
             statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
             statement.setLong(1, messageId);
             statement.setInt(2, 0);
-            statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
+            statement.setInt(3, ContentType.SENT.getContentTypeCode());
             result = statement.executeQuery();
             assertFalse(result.next());
         } finally {
@@ -959,78 +945,65 @@ public class TestUtils {
     }
 
     public static Map<String, Object> getConnectorMap(String channelId, long messageId, int metaDataId) throws SQLException {
-        long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
-        Serializer serializer = Donkey.getInstance().getSerializer();
-        String connectorMap;
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet result = null;
-
-        try {
-            connection = getConnection();
-            statement = connection.prepareStatement("SELECT connector_map FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ?");
-            statement.setLong(1, messageId);
-            statement.setInt(2, metaDataId);
-            result = statement.executeQuery();
-            result.next();
-            connectorMap = result.getString("connector_map");
-        } finally {
-            close(result);
-            close(statement);
-            close(connection);
-        }
-        
-        return (Map<String, Object>) serializer.deserialize(connectorMap);
+        return getMapFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CONNECTOR_MAP));
     }
 
     public static Map<String, Object> getChannelMap(String channelId, long messageId, int metaDataId) throws SQLException {
-        long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
-        Serializer serializer = Donkey.getInstance().getSerializer();
-        String channelMap;
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet result = null;
-
-        try {
-            connection = getConnection();
-            statement = connection.prepareStatement("SELECT channel_map FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ?");
-            statement.setLong(1, messageId);
-            statement.setInt(2, metaDataId);
-            result = statement.executeQuery();
-            result.next();
-            channelMap = result.getString("channel_map");
-        } finally {
-            close(result);
-            close(statement);
-            close(connection);
-        }
-        
-        return (Map<String, Object>) serializer.deserialize(channelMap);
+        return getMapFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CHANNEL_MAP));
     }
 
     public static Map<String, Object> getResponseMap(String channelId, long messageId, int metaDataId) throws SQLException {
-        long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
+        return getMapFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_MAP));
+    }
+    
+    public static Map<String, Object> getMapFromMessageContent(MessageContent content) {
+        if (content == null || StringUtils.isBlank(content.getContent())) {
+            return new HashMap<String, Object>();
+        }
         Serializer serializer = Donkey.getInstance().getSerializer();
-        String responseMap;
+
+        return (HashMap<String, Object>) serializer.deserialize(content.getContent());
+    }
+    
+    public static String getErrorFromMessageContent(MessageContent content) {
+        if (content == null) {
+            return null;
+        }
+        
+        return content.getContent();
+    }
+    
+    public static MessageContent getMessageContent(String channelId, long messageId, int metaDataId, ContentType contentType) {
+        long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
         Connection connection = null;
-        PreparedStatement statement = null;
         ResultSet result = null;
+        PreparedStatement statement = null;
 
         try {
             connection = getConnection();
-            statement = connection.prepareStatement("SELECT response_map FROM d_mm" + localChannelId + " WHERE message_id = ? AND id = ?");
+            statement = connection.prepareStatement("SELECT content, data_type, is_encrypted FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
             statement.setLong(1, messageId);
             statement.setInt(2, metaDataId);
+            statement.setInt(3, contentType.getContentTypeCode());
+
             result = statement.executeQuery();
-            result.next();
-            responseMap = result.getString("response_map");
+
+            if (result.next()) {
+                String content = result.getString("content");
+                String dataType = result.getString("data_type");
+                boolean encrypted = result.getBoolean("is_encrypted");
+
+                return new MessageContent(channelId, messageId, metaDataId, contentType, content, dataType, encrypted);
+            }
+
+            return null;
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
         } finally {
             close(result);
             close(statement);
             close(connection);
         }
-        
-        return (Map<String, Object>) serializer.deserialize(responseMap);
     }
 
     public static boolean isMessageProcessed(String channelId, long messageId) throws SQLException {
@@ -1159,7 +1132,7 @@ public class TestUtils {
     public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDaoFactory daoFactory) {
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
-        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, null));
+        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, false));
 
         if (rawMessage.getChannelMap() != null) {
             sourceMessage.setChannelMap(rawMessage.getChannelMap());
@@ -1184,7 +1157,7 @@ public class TestUtils {
 
     public static ConnectorMessage createAndStoreDestinationConnectorMessage(DonkeyDaoFactory daoFactory, String channelId, String serverId, long messageId, int metaDataId, String rawContent, Status status) {
         ConnectorMessage connectorMessage = new ConnectorMessage(channelId, messageId, metaDataId, serverId, Calendar.getInstance(), status);
-        connectorMessage.setRaw(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, rawContent, null, null));
+        connectorMessage.setRaw(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, rawContent, null, false));
 
         DonkeyDao dao = null;
         
@@ -1231,7 +1204,7 @@ public class TestUtils {
             InputStream is = ResourceUtil.getResourceStream(Donkey.class, DONKEY_CONFIGURATION_FILE);
             databaseProperties.load(is);
             IOUtils.closeQuietly(is);
-            return new DonkeyConfiguration(new File(".").getAbsolutePath(), databaseProperties);
+            return new DonkeyConfiguration(new File(".").getAbsolutePath(), databaseProperties, null);
         } catch (Exception e) {
             throw new DonkeyDaoException("Failed to read configuration file", e);
         }
@@ -1418,7 +1391,7 @@ public class TestUtils {
 
             while (resultSet.next()) {
                 String content = resultSet.getString("content");
-                ContentType contentType = ContentType.fromChar(resultSet.getString("content_type").charAt(0));
+                ContentType contentType = ContentType.fromCode(resultSet.getInt("content_type"));
                 System.out.printf("%-20s%-5d%s\n", contentType.name(), resultSet.getInt("metadata_id"), content.substring(0, Math.min(10, content.length())));
             }
         } finally {
@@ -1477,8 +1450,8 @@ public class TestUtils {
         ConnectorMessage destinationMessage = new ConnectorMessage(channelId, message.getMessageId(), 1, serverId, message.getReceivedDate(), Status.SENT);
         message.getConnectorMessages().put(1, destinationMessage);
 
-        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, content, null, null));
-        destinationMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 1, ContentType.RAW, content, null, null));
+        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, content, null, false));
+        destinationMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 1, ContentType.RAW, content, null, false));
         
         return message;
     }
@@ -1493,8 +1466,8 @@ public class TestUtils {
         for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
             dao.insertConnectorMessage(connectorMessage, true);
 
-            for (ContentType contentType : ContentType.values()) {
-                MessageContent messageContent = connectorMessage.getContent(contentType);
+            for (ContentType contentType : ContentType.getMessageTypes()) {
+                MessageContent messageContent = connectorMessage.getMessageContent(contentType);
 
                 if (messageContent != null) {
                     dao.insertMessageContent(messageContent);

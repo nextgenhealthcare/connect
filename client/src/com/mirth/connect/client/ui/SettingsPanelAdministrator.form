@@ -80,10 +80,11 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="messageBrowserOrigReceivedDateCheckBox" min="-2" max="-2" attributes="0"/>
                       <Component id="messageBrowserServerIdCheckBox" min="-2" max="-2" attributes="0"/>
                       <Component id="messageBrowserResponseDateCheckBox" min="-2" max="-2" attributes="0"/>
                       <Component id="messageBrowserSendDateCheckBox" min="-2" max="-2" attributes="0"/>
-                      <Component id="messageBrowserResponseStatusCheckBox" min="-2" max="-2" attributes="0"/>
+                      <Component id="messageBrowserErrorsCheckBox" min="-2" max="-2" attributes="0"/>
                       <Component id="messageBrowserImportIdCheckBox" min="-2" max="-2" attributes="0"/>
                       <Component id="messageBrowserReceivedDateCheckBox" min="-2" max="-2" attributes="0"/>
                       <Component id="messageBrowserStatusCheckBox" min="-2" max="-2" attributes="0"/>
@@ -98,7 +99,7 @@
                       <Component id="eventBrowserPageSizeField" min="-2" pref="30" max="-2" attributes="0"/>
                       <Component id="messageBrowserSendAttemptsCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="199" max="32767" attributes="0"/>
+                  <EmptySpace pref="181" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -133,17 +134,19 @@
                           <Component id="messageBrowserStatusCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="messageBrowserReceivedDateCheckBox" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="messageBrowserSendAttemptsCheckBox" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="messageBrowserSendDateCheckBox" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="messageBrowserResponseDateCheckBox" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="messageBrowserResponseStatusCheckBox" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Component id="messageBrowserdefaultColumnsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="messageBrowserOrigReceivedDateCheckBox" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="messageBrowserSendAttemptsCheckBox" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="messageBrowserSendDateCheckBox" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="messageBrowserResponseDateCheckBox" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="messageBrowserErrorsCheckBox" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="messageBrowserServerIdCheckBox" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
@@ -283,12 +286,12 @@
             <Property name="text" type="java.lang.String" value="Server Id"/>
           </Properties>
         </Component>
-        <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="messageBrowserResponseStatusCheckBox">
+        <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="messageBrowserErrorsCheckBox">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Response Status"/>
+            <Property name="text" type="java.lang.String" value="Errors"/>
           </Properties>
         </Component>
         <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="messageBrowserSendDateCheckBox">
@@ -305,6 +308,14 @@
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Response Date"/>
+          </Properties>
+        </Component>
+        <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="messageBrowserOrigReceivedDateCheckBox">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Orig. Received Date"/>
           </Properties>
         </Component>
       </SubComponents>

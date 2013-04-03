@@ -18,15 +18,11 @@ import java.util.UUID;
 
 import javax.activation.UnsupportedDataTypeException;
 
-import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
-import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.Donkey;
-import com.mirth.connect.donkey.server.Encryptor;
-import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.util.StringUtil;
 
@@ -138,35 +134,6 @@ public class MessageController {
             dao.commit();
         } finally {
             dao.close();
-        }
-    }
-
-    public void decryptMessage(Message message, Encryptor encryptor) {
-        for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
-            decryptConnectorMessage(connectorMessage, encryptor);
-        }
-    }
-
-    public void decryptConnectorMessage(ConnectorMessage connectorMessage, Encryptor encryptor) {
-        if (connectorMessage != null) {
-            decryptMessageContent(connectorMessage.getRaw(), encryptor);
-            decryptMessageContent(connectorMessage.getProcessedRaw(), encryptor);
-            decryptMessageContent(connectorMessage.getTransformed(), encryptor);
-            decryptMessageContent(connectorMessage.getEncoded(), encryptor);
-            decryptMessageContent(connectorMessage.getSent(), encryptor);
-            decryptMessageContent(connectorMessage.getResponse(), encryptor);
-            decryptMessageContent(connectorMessage.getResponseTransformed(), encryptor);
-            decryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
-        }
-    }
-
-    public void decryptMessageContent(MessageContent content, Encryptor encryptor) {
-        if (content != null && content.getContent() == null) {
-            String encryptedContent = content.getEncryptedContent();
-
-            if (encryptedContent != null) {
-                content.setContent(encryptor.decrypt(encryptedContent));
-            }
         }
     }
 }

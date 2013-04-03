@@ -146,24 +146,18 @@ public class MessageWriterVfs implements MessageWriter {
             ConnectorMessage connectorMessage = entry.getValue();
 
             if (((destinationContent && metaDataId != 0) || (!destinationContent && metaDataId == 0))) {
-                MessageContent messageContent = connectorMessage.getContent(contentType);
+                MessageContent messageContent = connectorMessage.getMessageContent(contentType);
 
                 if (messageContent != null) {
-                    String unencryptedContent = messageContent.getContent();
-                    String encryptedContent = messageContent.getEncryptedContent();
-                    String content = null;
+                    String content = messageContent.getContent();
 
                     if (encrypted) {
-                        if (encryptedContent != null) {
-                            content = encryptedContent;
-                        } else if (unencryptedContent != null && StringUtils.isNotBlank(unencryptedContent)) {
-                            content = encryptor.encrypt(unencryptedContent);
+                        if (!messageContent.isEncrypted()) {
+                            content = encryptor.encrypt(content);
                         }
                     } else {
-                        if (unencryptedContent != null) {
-                            content = unencryptedContent;
-                        } else if (encryptedContent != null && StringUtils.isNotBlank(encryptedContent)) {
-                            content = encryptor.decrypt(encryptedContent);
+                        if (messageContent.isEncrypted()) {
+                            content = encryptor.decrypt(content);
                         }
                     }
 

@@ -10,7 +10,6 @@
 package com.mirth.connect.donkey.server.data.passthru;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,12 +40,12 @@ public class PassthruDao implements DonkeyDao {
         ChannelController channelController = ChannelController.getInstance();
         currentStats = channelController.getStatistics();
         totalStats = channelController.getTotalStatistics();
-        
+
         // make sure these aren't null, otherwise commit() will break
         if (currentStats == null) {
             currentStats = new Statistics();
         }
-        
+
         if (totalStats == null) {
             totalStats = new Statistics();
         }
@@ -59,6 +58,12 @@ public class PassthruDao implements DonkeyDao {
     public void setStatisticsUpdater(StatisticsUpdater statisticsUpdater) {
         this.statisticsUpdater = statisticsUpdater;
     }
+
+    @Override
+    public void setEncryptData(boolean encryptData) {}
+
+    @Override
+    public void setDecryptData(boolean decryptData) {}
 
     @Override
     public void commit() {
@@ -182,7 +187,7 @@ public class PassthruDao implements DonkeyDao {
     public void addChannelStatistics(Statistics statistics) {}
 
     @Override
-    public void updateSourceResponse(String channelId, long messageId, int sendAttempts, String responseError, Calendar responseDate) {}
+    public void updateSourceResponse(ConnectorMessage connectorMessage) {}
 
     @Override
     public void updateErrors(ConnectorMessage connectorMessage) {}
@@ -305,5 +310,10 @@ public class PassthruDao implements DonkeyDao {
     @Override
     public Statistics getChannelTotalStatistics() {
         return new Statistics();
+    }
+
+    @Override
+    public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent) {
+        return null;
     }
 }

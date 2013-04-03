@@ -9,14 +9,18 @@
 
 package com.mirth.connect.donkey.server.channel;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ChannelState;
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
+import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
-import com.mirth.connect.donkey.server.Encryptor;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
@@ -145,7 +149,7 @@ public abstract class SourceConnector extends Connector {
     public void finishDispatch(DispatchResult dispatchResult) {
         finishDispatch(dispatchResult, false, null);
     }
-    
+
     /**
      * Finish a message dispatch
      * 
@@ -192,7 +196,6 @@ public abstract class SourceConnector extends Connector {
 
             DonkeyDaoFactory daoFactory = channel.getDaoFactory();
             StorageSettings storageSettings = channel.getStorageSettings();
-            Encryptor encryptor = channel.getEncryptor();
             DonkeyDao dao = null;
             long messageId = dispatchResult.getMessageId();
 
@@ -200,7 +203,7 @@ public abstract class SourceConnector extends Connector {
                 if (response != null && storageSettings.isStoreSentResponse()) {
                     dao = daoFactory.getDao();
                     //TODO does this have a data type?
-                    dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.RESPONSE, response, null, encryptor.encrypt(response)));
+                    dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.RESPONSE, response, null, false));
                 }
 
                 if (attemptedResponse || responseError != null) {
@@ -208,8 +211,34 @@ public abstract class SourceConnector extends Connector {
                         dao = daoFactory.getDao();
                     }
 
+                    Message processedMessage = dispatchResult.getProcessedMessage();
+                    ConnectorMessage connectorMessage = null;
+                    if (processedMessage != null) {
+                        connectorMessage = processedMessage.getConnectorMessages().get(0);
+                    } else {
+                        Set<Integer> metaDataIds = new HashSet<Integer>();
+                        metaDataIds.add(0);
+
+                        /*
+                         * If there is no existing connector message, then the channel was either
+                         * halted or a runtime exception occurred. In either case, we may still want
+                         * to update the response date and error. Therefore, we must retrieve the
+                         * existing connector message from the database.
+                         */
+                        connectorMessage = dao.getConnectorMessages(getChannelId(), messageId, metaDataIds, true).get(0);
+                    }
+
                     // There are no retry attempts for sending the response back, so send attempts is either 0 or 1.
-                    dao.updateSourceResponse(getChannelId(), messageId, attemptedResponse ? 1 : 0, responseError, dispatchResult.getResponseDate());
+                    if (attemptedResponse) {
+                        connectorMessage.setSendAttempts(1);
+                        connectorMessage.setResponseDate(dispatchResult.getResponseDate());
+                        dao.updateSourceResponse(connectorMessage);
+                    }
+
+                    if (responseError != null) {
+                        connectorMessage.setResponseError(responseError);
+                        dao.updateErrors(connectorMessage);
+                    }
                 }
 
                 if (dispatchResult.isMarkAsProcessed()) {

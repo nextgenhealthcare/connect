@@ -60,6 +60,7 @@ public class Donkey {
     private ExecutorService donkeyExecutor = Executors.newCachedThreadPool();
     private DonkeyDaoFactory daoFactory;
     private Serializer serializer = new DefaultSerializer();
+    private Encryptor encryptor;
     private Logger logger = Logger.getLogger(getClass());
     private boolean running = false;
 
@@ -78,6 +79,8 @@ public class Donkey {
 
         // load channel statistics into memory
         ChannelController.getInstance().loadStatistics();
+
+        encryptor = donkeyConfiguration.getEncryptor();
 
         running = true;
     }
@@ -326,5 +329,9 @@ public class Donkey {
 
     public Serializer getSerializer() {
         return serializer;
+    }
+
+    public Encryptor getEncryptor() {
+        return encryptor;
     }
 }

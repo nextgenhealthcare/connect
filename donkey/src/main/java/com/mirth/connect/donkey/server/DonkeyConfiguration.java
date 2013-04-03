@@ -14,10 +14,12 @@ import java.util.Properties;
 public class DonkeyConfiguration {
     private String appData;
     private Properties databaseProperties;
+    private Encryptor encryptor;
 
-    public DonkeyConfiguration(String appData, Properties databaseProperties) {
+    public DonkeyConfiguration(String appData, Properties databaseProperties, Encryptor encryptor) {
         this.setAppData(appData);
         this.databaseProperties = databaseProperties;
+        this.setEncryptor(encryptor);
     }
 
     public String getAppData() {
@@ -34,5 +36,13 @@ public class DonkeyConfiguration {
 
     public void setDatabaseProperties(Properties databaseProperties) {
         this.databaseProperties = databaseProperties;
+    }
+
+    public Encryptor getEncryptor() {
+        return encryptor;
+    }
+
+    public void setEncryptor(Encryptor encryptor) {
+        this.encryptor = encryptor;
     }
 }

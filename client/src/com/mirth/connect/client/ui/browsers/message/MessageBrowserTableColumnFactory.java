@@ -26,77 +26,130 @@ import com.mirth.connect.client.ui.NumberCellRenderer;
 import com.mirth.connect.client.ui.components.MirthTreeTable;
 
 public class MessageBrowserTableColumnFactory extends ColumnFactory {
+
     @Override
     public TableColumnExt createAndConfigureTableColumn(TableModel model, int index) {
         TableColumnExt column = super.createAndConfigureTableColumn(model, index);
         TableCellRenderer renderer;
-        
+        DateCellRenderer dateCellRenderer;
+
         switch (index) {
-            case 0: // Message ID: Needs to be able to grow since it is a long
-            case 4: // Send Attempts: Ditto
-            case 9: // Import ID: Ditto
-            	renderer = new NumberCellRenderer();
+            case MessageBrowser.ID_COLUMN: // Message ID: Needs to be able to grow since it is a long
+                renderer = new NumberCellRenderer();
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
+                column.setToolTipText("<html><body>The overall Id of the message.</body></html>");
                 break;
-                
-            case 2: // Status
-            	column.setMaxWidth(85);
-            	column.setMinWidth(85);
-            	renderer = new DefaultTableCellRenderer();
+
+            case MessageBrowser.CONNECTOR_COLUMN: // Connector Name
+                renderer = new DefaultTableCellRenderer();
+                column.setMinWidth(90);
+                column.setToolTipText("<html><body>The historic name of the connector at the time the message was processed.</body></html>");
                 break;
-                
-            case 3: // Received Date
-            case 5: // Send Date
-            case 6: // Response Date
-                DateCellRenderer dateCellRenderer = new DateCellRenderer();
+
+            case MessageBrowser.STATUS_COLUMN: // Status
+                renderer = new DefaultTableCellRenderer();
+                column.setMaxWidth(85);
+                column.setMinWidth(85);
+                column.setToolTipText("<html><body>The message status after being run through the connector.</body></html>");
+                break;
+
+            case MessageBrowser.ORIGINAL_RECEIVED_DATE_COLUMN: // Received Date
+                dateCellRenderer = new DateCellRenderer();
                 dateCellRenderer.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS"));
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
+                column.setToolTipText("<html><body>The date the original message was received.<br>This value is not updated when the message is reprocessed.</body></html>");
                 break;
-                
-            case 8: // Server Id
-            	column.setMaxWidth(210);
-            	column.setMinWidth(210);
-            	renderer = new DefaultTableCellRenderer();
+
+            case MessageBrowser.RECEIVED_DATE_COLUMN: // Received Date
+                dateCellRenderer = new DateCellRenderer();
+                dateCellRenderer.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS"));
+                renderer = dateCellRenderer;
+                column.setMaxWidth(140);
+                column.setMinWidth(140);
+                column.setToolTipText("<html><body>The date the message began processing through the connector</body></html>");
                 break;
-            	
-            case 7: // Response Status
-            	column.setMaxWidth(85);
-            	column.setMinWidth(85);
-            	renderer = new DefaultTableCellRenderer();
-                
-            // Connector
-            default: renderer = new DefaultTableCellRenderer();
-            	break;
-            
+
+            case MessageBrowser.SEND_ATTEMPTS_COLUMN: // Send Attempts:
+                renderer = new NumberCellRenderer();
+                column.setMaxWidth(500);
+                column.setMinWidth(90);
+                column.setPreferredWidth(90);
+                column.setToolTipText("<html><body>On the source connector, this is the number of times the connector attempted to send the response back to the point on origin.<br>On the destination connectors, this is the number of times the connector attempted to send the message to its recipient.</body></html>");
+                break;
+
+            case MessageBrowser.SEND_DATE_COLUMN: // Send Date
+                dateCellRenderer = new DateCellRenderer();
+                dateCellRenderer.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS"));
+                renderer = dateCellRenderer;
+                column.setMaxWidth(140);
+                column.setMinWidth(140);
+                column.setToolTipText("<html><body>On the source connector, this column is not used.<br>On the destination connectors, this the date right before the most recent send attempt.</body></html>");
+                break;
+
+            case MessageBrowser.RESPONSE_DATE_COLUMN: // Response Date
+                dateCellRenderer = new DateCellRenderer();
+                dateCellRenderer.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS"));
+                renderer = dateCellRenderer;
+                column.setMaxWidth(140);
+                column.setMinWidth(140);
+                column.setToolTipText("<html><body>On the source connector, this is the date right before the connector attempted to send the response back to the point of origin.<br>On the destination connectors, this the date immediately after the response was received from its recipient.</body></html>");
+                break;
+
+            case MessageBrowser.ERRORS_COLUMN: // Error
+                renderer = new DefaultTableCellRenderer();
+                column.setMaxWidth(85);
+                column.setMinWidth(85);
+                column.setToolTipText("<html><body>Indicates whether an error exists for this message.<br>It is possible for a message to have errors even if the message status is not ERROR.</body></html>");
+                break;
+
+            case MessageBrowser.SERVER_ID_COLUMN: // Server Id
+                column.setMaxWidth(210);
+                column.setMinWidth(210);
+                renderer = new DefaultTableCellRenderer();
+                column.setToolTipText("<html><body>The Id of the server where the message was processed.</body></html>");
+                break;
+
+            case MessageBrowser.IMPORT_ID_COLUMN: // Import ID: Ditto
+                renderer = new NumberCellRenderer();
+                column.setMaxWidth(500);
+                column.setMinWidth(90);
+                column.setPreferredWidth(90);
+                column.setToolTipText("<html><body>If a message was imported, this column indicates the original Message Id of the imported message</body></html>");
+                break;
+
+            default:
+                renderer = new DefaultTableCellRenderer();
+                break;
+
         }
         column.setCellRenderer(new ItalicCellRenderer(renderer));
         return column;
     }
-    
-    private class ItalicCellRenderer implements TableCellRenderer {
-    	private TableCellRenderer delegateRenderer;
-    	
-    	public ItalicCellRenderer(TableCellRenderer renderer) {
-    		this.delegateRenderer = renderer;
-    	}
 
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			Component component = delegateRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			
-			if (value != null && component instanceof JLabel) {
-				JLabel label = (JLabel) component;
-				MessageBrowserTableNode messageNode = (MessageBrowserTableNode) ((MirthTreeTable)table).getPathForRow(row).getLastPathComponent();
-				if (!messageNode.isProcessed()) {
-					label.setText("<html><i><font color='gray'>" + label.getText() + "</font></i></html>");
-				}
-			}
-			return component;
-		}
-    	
+    private class ItalicCellRenderer implements TableCellRenderer {
+        private TableCellRenderer delegateRenderer;
+
+        public ItalicCellRenderer(TableCellRenderer renderer) {
+            this.delegateRenderer = renderer;
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            Component component = delegateRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            if (value != null && component instanceof JLabel) {
+                JLabel label = (JLabel) component;
+                MessageBrowserTableNode messageNode = (MessageBrowserTableNode) ((MirthTreeTable) table).getPathForRow(row).getLastPathComponent();
+                if (!messageNode.isProcessed()) {
+                    label.setText("<html><i><font color='gray'>" + label.getText() + "</font></i></html>");
+                }
+            }
+            return component;
+        }
+
     }
 }

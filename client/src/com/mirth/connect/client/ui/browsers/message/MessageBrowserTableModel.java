@@ -10,7 +10,6 @@
 package com.mirth.connect.client.ui.browsers.message;
 
 import java.util.Map;
-import java.util.TreeSet;
 
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
@@ -21,8 +20,10 @@ import com.mirth.connect.donkey.model.message.Message;
 
 public class MessageBrowserTableModel extends SortableTreeTableModel {
     private AbstractSortableTreeTableNode root;
+    private int staticColumnCount;
 
-    public MessageBrowserTableModel() {
+    public MessageBrowserTableModel(int staticColumnCount) {
+        this.staticColumnCount = staticColumnCount;
         root = new AbstractSortableTreeTableNode() {
             @Override
             public Object getValueAt(int column) {
@@ -64,16 +65,16 @@ public class MessageBrowserTableModel extends SortableTreeTableModel {
 
         MessageBrowserTableNode sourceNode;
         if (connectorMessages.containsKey(0)) {
-            sourceNode = new MessageBrowserTableNode(message, 0, this);
+            sourceNode = new MessageBrowserTableNode(staticColumnCount, message, 0, this);
         } else {
-            sourceNode = new MessageBrowserTableNode(message);
+            sourceNode = new MessageBrowserTableNode(staticColumnCount, message);
         }
 
         insertNodeInto(sourceNode, root);
 
         for (Integer metaDataId : message.getConnectorMessages().keySet()) {
             if (metaDataId > 0) {
-                insertNodeInto(new MessageBrowserTableNode(message, metaDataId, this), sourceNode);
+                insertNodeInto(new MessageBrowserTableNode(staticColumnCount, message, metaDataId, this), sourceNode);
             }
         }
     }

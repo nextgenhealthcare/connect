@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -38,10 +39,14 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
+import com.mirth.connect.donkey.model.message.ErrorContent;
+import com.mirth.connect.donkey.model.message.MapContent;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
+import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.donkey.server.Encryptor;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
@@ -54,6 +59,9 @@ public class JdbcDao implements DonkeyDao {
     private QuerySource querySource;
     private PreparedStatementSource statementSource;
     private Serializer serializer;
+    private boolean encryptData;
+    private boolean decryptData;
+    private Encryptor encryptor;
     private Statistics currentStats;
     private Statistics totalStats;
     private Statistics transactionStats = new Statistics();
@@ -64,17 +72,31 @@ public class JdbcDao implements DonkeyDao {
     private boolean transactionAlteredChannels = false;
     private Logger logger = Logger.getLogger(this.getClass());
 
-    protected JdbcDao(Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer) {
+    protected JdbcDao(Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer, boolean encryptData, boolean decryptData) {
         this.connection = connection;
         this.querySource = querySource;
         this.statementSource = statementSource;
         this.serializer = serializer;
+        this.encryptData = encryptData;
+        this.decryptData = decryptData;
 
         ChannelController channelController = ChannelController.getInstance();
         currentStats = channelController.getStatistics();
         totalStats = channelController.getTotalStatistics();
 
+        encryptor = Donkey.getInstance().getEncryptor();
+
         logger.debug("Opened connection");
+    }
+
+    @Override
+    public void setEncryptData(boolean encryptData) {
+        this.encryptData = encryptData;
+    }
+
+    @Override
+    public void setDecryptData(boolean decryptData) {
+        this.decryptData = decryptData;
     }
 
     @Override
@@ -111,15 +133,14 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public void updateSourceResponse(String channelId, long messageId, int sendAttempts, String responseError, Calendar responseDate) {
-        logger.debug(channelId + "/" + messageId + ": updating source response");
+    public void updateSourceResponse(ConnectorMessage connectorMessage) {
+        logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + ": updating source response");
 
         try {
-            PreparedStatement statement = prepareStatement("updateSourceResponse", channelId);
-            statement.setInt(1, sendAttempts);
-            statement.setString(2, responseError);
-            statement.setTimestamp(3, new Timestamp(responseDate.getTimeInMillis()));
-            statement.setLong(4, messageId);
+            PreparedStatement statement = prepareStatement("updateSourceResponse", connectorMessage.getChannelId());
+            statement.setInt(1, connectorMessage.getSendAttempts());
+            statement.setTimestamp(2, new Timestamp(connectorMessage.getResponseDate().getTimeInMillis()));
+            statement.setLong(3, connectorMessage.getMessageId());
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -130,29 +151,7 @@ public class JdbcDao implements DonkeyDao {
     public void insertMessageContent(MessageContent messageContent) {
         logger.debug(messageContent.getChannelId() + "/" + messageContent.getMessageId() + "/" + messageContent.getMetaDataId() + ": inserting message content (" + messageContent.getContentType().toString() + ")");
 
-        try {
-            PreparedStatement statement = prepareStatement("insertMessageContent", messageContent.getChannelId());
-            statement.setInt(1, messageContent.getMetaDataId());
-            statement.setLong(2, messageContent.getMessageId());
-            statement.setString(3, Character.toString(messageContent.getContentType().getContentTypeCode()));
-
-            String encryptedContent = messageContent.getEncryptedContent();
-
-            if (encryptedContent != null) {
-                statement.setString(4, encryptedContent);
-                statement.setString(5, messageContent.getDataType());
-                statement.setBoolean(6, true);
-            } else {
-                statement.setString(4, messageContent.getContent());
-                statement.setString(5, messageContent.getDataType());
-                statement.setBoolean(6, false);
-            }
-
-            statement.executeUpdate();
-            statement.clearParameters();
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        }
+        insertContent(messageContent.getChannelId(), messageContent.getMessageId(), messageContent.getMetaDataId(), messageContent.getContentType(), messageContent.getContent(), messageContent.getDataType(), messageContent.isEncrypted());
     }
 
     @Override
@@ -160,22 +159,25 @@ public class JdbcDao implements DonkeyDao {
         logger.debug(messageContent.getChannelId() + "/" + messageContent.getMessageId() + "/" + messageContent.getMetaDataId() + ": batch inserting message content (" + messageContent.getContentType().toString() + ")");
 
         try {
+            String content;
+            boolean encrypted;
+
+            // Only encrypt if the content is not already encrypted
+            if (encryptData && encryptor != null && !messageContent.isEncrypted()) {
+                content = encryptor.encrypt(messageContent.getContent());
+                encrypted = true;
+            } else {
+                content = messageContent.getContent();
+                encrypted = messageContent.isEncrypted();
+            }
+
             PreparedStatement statement = prepareStatement("insertMessageContent", messageContent.getChannelId());
             statement.setInt(1, messageContent.getMetaDataId());
             statement.setLong(2, messageContent.getMessageId());
-            statement.setString(3, Character.toString(messageContent.getContentType().getContentTypeCode()));
-
-            String encryptedContent = messageContent.getEncryptedContent();
-
-            if (encryptedContent != null) {
-                statement.setString(4, encryptedContent);
-                statement.setString(5, messageContent.getDataType());
-                statement.setBoolean(6, true);
-            } else {
-                statement.setString(4, messageContent.getContent());
-                statement.setString(5, messageContent.getDataType());
-                statement.setBoolean(6, false);
-            }
+            statement.setInt(3, messageContent.getContentType().getContentTypeCode());
+            statement.setString(4, content);
+            statement.setString(5, messageContent.getDataType());
+            statement.setBoolean(6, encrypted);
 
             statement.addBatch();
             statement.clearParameters();
@@ -199,34 +201,71 @@ public class JdbcDao implements DonkeyDao {
     public void storeMessageContent(MessageContent messageContent) {
         logger.debug(messageContent.getChannelId() + "/" + messageContent.getMessageId() + "/" + messageContent.getMetaDataId() + ": updating message content (" + messageContent.getContentType().toString() + ")");
 
+        storeContent(messageContent.getChannelId(), messageContent.getMessageId(), messageContent.getMetaDataId(), messageContent.getContentType(), messageContent.getContent(), messageContent.getDataType(), messageContent.isEncrypted());
+    }
+
+    private void insertContent(String channelId, long messageId, int metaDataId, ContentType contentType, String content, String dataType, boolean encrypted) {
         try {
-            PreparedStatement statement = prepareStatement("storeMessageContent", messageContent.getChannelId());
-
-            String encryptedContent = messageContent.getEncryptedContent();
-
-            if (encryptedContent != null) {
-                statement.setString(1, encryptedContent);
-                statement.setString(2, messageContent.getDataType());
-                statement.setBoolean(3, true);
-            } else {
-                String content = messageContent.getContent();
-
-                if (content == null) {
-                    statement.setNull(1, Types.LONGVARCHAR);
-                } else {
-                    statement.setString(1, content);
-                }
-
-                statement.setString(2, messageContent.getDataType());
-                statement.setBoolean(3, false);
+            // Only encrypt if the content is not already encrypted
+            if (encryptData && encryptor != null && !encrypted) {
+                content = encryptor.encrypt(content);
+                encrypted = true;
             }
 
-            statement.setInt(4, messageContent.getMetaDataId());
-            statement.setLong(5, messageContent.getMessageId());
-            statement.setString(6, Character.toString(messageContent.getContentType().getContentTypeCode()));
+            PreparedStatement statement = prepareStatement("insertMessageContent", channelId);
+            statement.setInt(1, metaDataId);
+            statement.setLong(2, messageId);
+            statement.setInt(3, contentType.getContentTypeCode());
+            statement.setString(4, content);
+            statement.setString(5, dataType);
+            statement.setBoolean(6, encrypted);
 
-            if (statement.executeUpdate() == 0) {
-                insertMessageContent(messageContent);
+            statement.executeUpdate();
+            statement.clearParameters();
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        }
+    }
+
+    public void storeContent(String channelId, long messageId, int metaDataId, ContentType contentType, String content, String dataType, boolean encrypted) {
+        try {
+            // Only encrypt if the content is not already encrypted
+            if (encryptData && encryptor != null && !encrypted) {
+                content = encryptor.encrypt(content);
+                encrypted = true;
+            }
+
+            PreparedStatement statement = prepareStatement("storeMessageContent", channelId);
+
+            if (content == null) {
+                statement.setNull(1, Types.LONGVARCHAR);
+            } else {
+                statement.setString(1, content);
+            }
+
+            statement.setString(2, dataType);
+            statement.setBoolean(3, encrypted);
+            statement.setInt(4, metaDataId);
+            statement.setLong(5, messageId);
+            statement.setInt(6, contentType.getContentTypeCode());
+
+            int rowCount = statement.executeUpdate();
+            statement.clearParameters();
+
+            if (rowCount == 0) {
+                // This is the same code as insertContent, without going through the encryption process again
+                logger.debug(channelId + "/" + messageId + "/" + metaDataId + ": updating message content (" + contentType.toString() + ")");
+
+                statement = prepareStatement("insertMessageContent", channelId);
+                statement.setInt(1, metaDataId);
+                statement.setLong(2, messageId);
+                statement.setInt(3, contentType.getContentTypeCode());
+                statement.setString(4, content);
+                statement.setString(5, dataType);
+                statement.setBoolean(6, encrypted);
+
+                statement.executeUpdate();
+                statement.clearParameters();
             }
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -431,50 +470,16 @@ public class JdbcDao implements DonkeyDao {
             statement.setString(5, connectorMessage.getConnectorName());
             // TODO insert send attempts
 
-            Map<String, Object> connectorMap;
-            Map<String, Object> channelMap;
-            Map<String, Object> responseMap;
-
-            if (storeMaps) {
-                connectorMap = connectorMessage.getConnectorMap();
-                channelMap = connectorMessage.getChannelMap();
-                responseMap = connectorMessage.getResponseMap();
-            } else {
-                connectorMap = null;
-                channelMap = null;
-                responseMap = null;
-            }
-
-            if (connectorMap == null) {
-                statement.setNull(6, Types.LONGVARCHAR);
-            } else {
-                statement.setString(6, serializer.serialize((HashMap<String, Object>) connectorMap));
-            }
-
-            if (channelMap == null) {
-                statement.setNull(7, Types.LONGVARCHAR);
-            } else {
-                statement.setString(7, serializer.serialize((HashMap<String, Object>) channelMap));
-            }
-
-            if (responseMap == null) {
-                statement.setNull(8, Types.LONGVARCHAR);
-            } else {
-                statement.setString(8, serializer.serialize((HashMap<String, Object>) responseMap));
-            }
-
-            String errors = connectorMessage.getErrors();
-
-            if (errors == null) {
-                statement.setNull(9, Types.LONGVARCHAR);
-            } else {
-                statement.setString(9, serializer.serialize(errors));
-            }
-
-            statement.setInt(10, connectorMessage.getChainId());
-            statement.setInt(11, connectorMessage.getOrderId());
+            statement.setInt(6, connectorMessage.getChainId());
+            statement.setInt(7, connectorMessage.getOrderId());
 
             statement.executeUpdate();
+
+            if (storeMaps) {
+                updateMaps(connectorMessage);
+            }
+
+            updateErrors(connectorMessage);
 
             transactionStats.update(connectorMessage.getChannelId(), connectorMessage.getMetaDataId(), connectorMessage.getStatus(), null);
         } catch (SQLException e) {
@@ -570,7 +575,7 @@ public class JdbcDao implements DonkeyDao {
 
             Calendar sendDate = connectorMessage.getSendDate();
             Calendar responseDate = connectorMessage.getResponseDate();
-            
+
             PreparedStatement statement = prepareStatement("updateStatus", connectorMessage.getChannelId());
             statement.setString(1, Character.toString(connectorMessage.getStatus().getStatusCode()));
             statement.setInt(2, connectorMessage.getSendAttempts());
@@ -588,9 +593,46 @@ public class JdbcDao implements DonkeyDao {
     public void updateErrors(ConnectorMessage connectorMessage) {
         logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating errors");
 
+        boolean errorsUpdated = false;
+
+        if (updateError(connectorMessage.getProcessingErrorContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSING_ERROR)) {
+            errorsUpdated = true;
+        }
+
+        if (updateError(connectorMessage.getResponseErrorContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_ERROR)) {
+            errorsUpdated = true;
+        }
+
+        if (errorsUpdated) {
+            updateErrorCode(connectorMessage);
+        }
+    }
+
+    private boolean updateError(ErrorContent errorContent, String channelId, long messageId, int metaDataId, ContentType contentType) {
+        String error = errorContent.getError();
+        boolean persisted = errorContent.isPersisted();
+
+        if (StringUtils.isNotEmpty(error)) {
+            if (persisted) {
+                storeContent(channelId, messageId, metaDataId, contentType, error, null, false);
+            } else {
+                insertContent(channelId, messageId, metaDataId, contentType, error, null, false);
+                errorContent.setPersisted(true);
+            }
+        } else if (persisted) {
+            deleteMessageContentByMetaDataIdAndContentType(channelId, messageId, metaDataId, contentType);
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void updateErrorCode(ConnectorMessage connectorMessage) {
         try {
-            PreparedStatement statement = prepareStatement("updateErrors", connectorMessage.getChannelId());
-            statement.setString(1, connectorMessage.getErrors());
+            PreparedStatement statement = prepareStatement("updateErrorCode", connectorMessage.getChannelId());
+
+            statement.setInt(1, connectorMessage.getErrorCode());
             statement.setInt(2, connectorMessage.getMetaDataId());
             statement.setLong(3, connectorMessage.getMessageId());
             statement.executeUpdate();
@@ -603,35 +645,26 @@ public class JdbcDao implements DonkeyDao {
     public void updateMaps(ConnectorMessage connectorMessage) {
         logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating maps");
 
-        try {
-            PreparedStatement statement = prepareStatement("updateMaps", connectorMessage.getChannelId());
-            Map<String, Object> connectorMap = connectorMessage.getConnectorMap();
-            Map<String, Object> channelMap = connectorMessage.getChannelMap();
-            Map<String, Object> responseMap = connectorMessage.getResponseMap();
+        updateMap(connectorMessage.getConnectorMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CONNECTOR_MAP);
+        updateMap(connectorMessage.getChannelMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CHANNEL_MAP);
+        updateMap(connectorMessage.getResponseMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_MAP);
+    }
 
-            if (connectorMap == null) {
-                statement.setNull(1, Types.LONGVARCHAR);
+    private void updateMap(MapContent mapContent, String channelId, long messageId, int metaDataId, ContentType contentType) {
+        boolean persisted = mapContent.isPersisted();
+        Map<String, Object> map = mapContent.getMap();
+
+        if (MapUtils.isNotEmpty(map)) {
+            String serializedMap = serializer.serialize((HashMap<String, Object>) map);
+
+            if (persisted) {
+                storeContent(channelId, messageId, metaDataId, contentType, serializedMap, null, false);
             } else {
-                statement.setString(1, serializer.serialize((HashMap<String, Object>) connectorMap));
+                insertContent(channelId, messageId, metaDataId, contentType, serializedMap, null, false);
+                mapContent.setPersisted(true);
             }
-
-            if (channelMap == null) {
-                statement.setNull(2, Types.LONGVARCHAR);
-            } else {
-                statement.setString(2, serializer.serialize((HashMap<String, Object>) channelMap));
-            }
-
-            if (responseMap == null) {
-                statement.setNull(3, Types.LONGVARCHAR);
-            } else {
-                statement.setString(3, serializer.serialize((HashMap<String, Object>) responseMap));
-            }
-
-            statement.setInt(4, connectorMessage.getMetaDataId());
-            statement.setLong(5, connectorMessage.getMessageId());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
+        } else if (persisted) {
+            deleteMessageContentByMetaDataIdAndContentType(channelId, messageId, metaDataId, contentType);
         }
     }
 
@@ -639,22 +672,7 @@ public class JdbcDao implements DonkeyDao {
     public void updateResponseMap(ConnectorMessage connectorMessage) {
         logger.debug(connectorMessage.getChannelId() + "/" + connectorMessage.getMessageId() + "/" + connectorMessage.getMetaDataId() + ": updating response map");
 
-        try {
-            PreparedStatement statement = prepareStatement("updateResponseMap", connectorMessage.getChannelId());
-            Map<String, Object> responseMap = connectorMessage.getResponseMap();
-
-            if (responseMap == null) {
-                statement.setNull(1, Types.LONGVARCHAR);
-            } else {
-                statement.setString(1, serializer.serialize((HashMap<String, Object>) responseMap));
-            }
-
-            statement.setInt(2, connectorMessage.getMetaDataId());
-            statement.setLong(3, connectorMessage.getMessageId());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        }
+        updateMap(connectorMessage.getResponseMapContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_MAP);
     }
 
     @Override
@@ -775,6 +793,20 @@ public class JdbcDao implements DonkeyDao {
         try {
             PreparedStatement statement = prepareStatement("deleteMessageContent", channelId);
             statement.setLong(1, messageId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        }
+    }
+
+    private void deleteMessageContentByMetaDataIdAndContentType(String channelId, long messageId, int metaDataId, ContentType contentType) {
+        logger.debug(channelId + "/" + messageId + ": deleting content");
+
+        try {
+            PreparedStatement statement = prepareStatement("deleteMessageContentByMetaDataIdAndContentType", channelId);
+            statement.setLong(1, messageId);
+            statement.setInt(2, metaDataId);
+            statement.setInt(3, contentType.getContentTypeCode());
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
@@ -1116,6 +1148,33 @@ public class JdbcDao implements DonkeyDao {
 
             while (resultSet.next()) {
                 connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, true, true));
+            }
+
+            return connectorMessages;
+        } catch (SQLException e) {
+            throw new DonkeyDaoException(e);
+        } finally {
+            close(resultSet);
+        }
+    }
+
+    @Override
+    public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent) {
+        ResultSet resultSet = null;
+
+        try {
+            Map<String, Object> values = new HashMap<String, Object>();
+            values.put("localChannelId", getLocalChannelId(channelId));
+            values.put("metaDataIds", StringUtils.join(metaDataIds, ','));
+
+            PreparedStatement statement = connection.prepareStatement(querySource.getQuery("getConnectorMessagesByMessageIdAndMetaDataIds", values));
+            statement.setLong(1, messageId);
+            resultSet = statement.executeQuery();
+
+            List<ConnectorMessage> connectorMessages = new ArrayList<ConnectorMessage>();
+
+            while (resultSet.next()) {
+                connectorMessages.add(getConnectorMessageFromResultSet(channelId, resultSet, includeContent, true));
             }
 
             return connectorMessages;
@@ -1631,14 +1690,14 @@ public class JdbcDao implements DonkeyDao {
             int metaDataId = resultSet.getInt("id");
             Calendar receivedDate = Calendar.getInstance();
             receivedDate.setTimeInMillis(resultSet.getTimestamp("received_date").getTime());
-            
+
             Calendar sendDate = null;
             Timestamp sendDateTimestamp = resultSet.getTimestamp("send_date");
             if (sendDateTimestamp != null) {
                 sendDate = Calendar.getInstance();
                 sendDate.setTimeInMillis(sendDateTimestamp.getTime());
             }
-            
+
             Calendar responseDate = null;
             Timestamp responseDateTimestamp = resultSet.getTimestamp("response_date");
             if (responseDateTimestamp != null) {
@@ -1653,19 +1712,22 @@ public class JdbcDao implements DonkeyDao {
             connectorMessage.setConnectorName(resultSet.getString("connector_name"));
             connectorMessage.setReceivedDate(receivedDate);
             connectorMessage.setStatus(Status.fromChar(resultSet.getString("status").charAt(0)));
-            connectorMessage.setConnectorMap((HashMap<String, Object>) serializer.deserialize(resultSet.getString("connector_map")));
-            connectorMessage.setChannelMap((HashMap<String, Object>) serializer.deserialize(resultSet.getString("channel_map")));
-            connectorMessage.setResponseMap((HashMap<String, Object>) serializer.deserialize(resultSet.getString("response_map")));
-            connectorMessage.setErrors(resultSet.getString("errors"));
-            connectorMessage.setResponseErrors(resultSet.getString("response_errors"));
             connectorMessage.setSendAttempts(resultSet.getInt("send_attempts"));
             connectorMessage.setSendDate(sendDate);
             connectorMessage.setResponseDate(responseDate);
+            connectorMessage.setErrorCode(resultSet.getInt("error_code"));
             connectorMessage.setChainId(resultSet.getInt("chain_id"));
             connectorMessage.setOrderId(resultSet.getInt("order_id"));
 
             if (includeContent) {
-                MessageContent rawContent = getMessageContent(channelId, messageId, 0, (metaDataId == 0) ? ContentType.RAW : ContentType.ENCODED);
+                connectorMessage.setConnectorMap(getMapFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CONNECTOR_MAP, true)));
+                connectorMessage.setChannelMap(getMapFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CHANNEL_MAP, true)));
+                connectorMessage.setResponseMap(getMapFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_MAP, true)));
+
+                connectorMessage.setProcessingError(getErrorFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.PROCESSING_ERROR, true)));
+                connectorMessage.setResponseError(getErrorFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_ERROR, true)));
+
+                MessageContent rawContent = getMessageContent(channelId, messageId, 0, (metaDataId == 0) ? ContentType.RAW : ContentType.ENCODED, decryptData);
 
                 if (rawContent != null && metaDataId > 0) {
                     rawContent.setMetaDataId(metaDataId);
@@ -1673,13 +1735,13 @@ public class JdbcDao implements DonkeyDao {
                 }
 
                 connectorMessage.setRaw(rawContent);
-                connectorMessage.setProcessedRaw(getMessageContent(channelId, messageId, metaDataId, ContentType.PROCESSED_RAW));
-                connectorMessage.setTransformed(getMessageContent(channelId, messageId, metaDataId, ContentType.TRANSFORMED));
-                connectorMessage.setEncoded(getMessageContent(channelId, messageId, metaDataId, ContentType.ENCODED));
-                connectorMessage.setSent(getMessageContent(channelId, messageId, metaDataId, ContentType.SENT));
-                connectorMessage.setResponse(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE));
-                connectorMessage.setResponseTransformed(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_TRANSFORMED));
-                connectorMessage.setProcessedResponse(getMessageContent(channelId, messageId, metaDataId, ContentType.PROCESSED_RESPONSE));
+                connectorMessage.setProcessedRaw(getMessageContent(channelId, messageId, metaDataId, ContentType.PROCESSED_RAW, decryptData));
+                connectorMessage.setTransformed(getMessageContent(channelId, messageId, metaDataId, ContentType.TRANSFORMED, decryptData));
+                connectorMessage.setEncoded(getMessageContent(channelId, messageId, metaDataId, ContentType.ENCODED, decryptData));
+                connectorMessage.setSent(getMessageContent(channelId, messageId, metaDataId, ContentType.SENT, decryptData));
+                connectorMessage.setResponse(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE, decryptData));
+                connectorMessage.setResponseTransformed(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_TRANSFORMED, decryptData));
+                connectorMessage.setProcessedResponse(getMessageContent(channelId, messageId, metaDataId, ContentType.PROCESSED_RESPONSE, decryptData));
             }
 
             if (includeMetaDataMap) {
@@ -1692,29 +1754,28 @@ public class JdbcDao implements DonkeyDao {
         }
     }
 
-    private MessageContent getMessageContent(String channelId, long messageId, int metaDataId, ContentType contentType) {
+    private MessageContent getMessageContent(String channelId, long messageId, int metaDataId, ContentType contentType, boolean decrypt) {
         ResultSet resultSet = null;
 
         try {
             PreparedStatement statement = prepareStatement("getMessageContent", channelId);
             statement.setLong(1, messageId);
             statement.setInt(2, metaDataId);
-            statement.setString(3, Character.toString(contentType.getContentTypeCode()));
+            statement.setInt(3, contentType.getContentTypeCode());
 
             resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                String content = null;
+                String content = resultSet.getString("content");
                 String dataType = resultSet.getString("data_type");
-                String encryptedContent = null;
+                boolean encrypted = resultSet.getBoolean("is_encrypted");
 
-                if (resultSet.getBoolean("is_encrypted")) {
-                    encryptedContent = resultSet.getString("content");
-                } else {
-                    content = resultSet.getString("content");
+                if (decrypt && encrypted && encryptor != null) {
+                    content = encryptor.decrypt(content);
+                    encrypted = false;
                 }
 
-                return new MessageContent(channelId, messageId, metaDataId, contentType, content, dataType, encryptedContent);
+                return new MessageContent(channelId, messageId, metaDataId, contentType, content, dataType, encrypted);
             }
 
             return null;
@@ -1723,6 +1784,22 @@ public class JdbcDao implements DonkeyDao {
         } finally {
             close(resultSet);
         }
+    }
+
+    private Map<String, Object> getMapFromMessageContent(MessageContent content) {
+        if (content == null || StringUtils.isBlank(content.getContent())) {
+            return new HashMap<String, Object>();
+        }
+
+        return (HashMap<String, Object>) serializer.deserialize(content.getContent());
+    }
+
+    private String getErrorFromMessageContent(MessageContent content) {
+        if (content == null) {
+            return null;
+        }
+
+        return content.getContent();
     }
 
     private Map<String, Object> getMetaDataMap(String channelId, long messageId, int metaDataId) {

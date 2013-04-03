@@ -61,7 +61,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private static Map<String, MetaDataColumn> cachedMetaDataColumns;
 
     private MessageBrowser messageBrowser;
-    
+
     /** Creates new form MessageBrowserAdvancedFilter */
     public MessageBrowserAdvancedFilter(com.mirth.connect.client.ui.Frame parent, MessageBrowser messageBrowser, String title, boolean modal, boolean allowSearch) {
         super(parent, title, modal);
@@ -75,7 +75,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         cachedMetaDataColumns = new HashMap<String, MetaDataColumn>();
         jScrollPane6.setViewportView(connectorTable);
     }
-    
+
     private void initComponentsManual() {
         // restrict the message ID and import ID fields to integer input only
         messageIdLowerField.setDocument(new MirthFieldConstraints(19, false, false, true));
@@ -85,17 +85,18 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     }
 
     private void initContentSearchTable() {
-        contentSearchTable.setModel(new DefaultTableModel(new Object [][] {}, new String[] { "Content Type", "Contains" }) {
+        contentSearchTable.setModel(new DefaultTableModel(new Object[][] {}, new String[] {
+                "Content Type", "Contains" }) {
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return true;
             }
         });
-        
+
         contentSearchTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         contentSearchTable.setDragEnabled(false);
         contentSearchTable.setSortable(false);
         contentSearchTable.getTableHeader().setReorderingAllowed(false);
-        
+
         contentSearchTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent evt) {
                 deleteContentSearchButton.setEnabled(getSelectedRow(contentSearchTable) != -1);
@@ -105,35 +106,36 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             contentSearchTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
         }
-        
+
         TableColumn column = contentSearchTable.getColumnModel().getColumn(0);
-        column.setCellRenderer(new MirthComboBoxTableCellRenderer(ContentType.values()));
-        column.setCellEditor(new MirthComboBoxTableCellEditor(contentSearchTable, ContentType.values(), 1, false, null));
+        column.setCellRenderer(new MirthComboBoxTableCellRenderer(ContentType.getMessageTypes()));
+        column.setCellEditor(new MirthComboBoxTableCellEditor(contentSearchTable, ContentType.getMessageTypes(), 1, false, null));
         column.setMinWidth(CONTENT_TYPE_COLUMN_WIDTH);
         column.setMaxWidth(CONTENT_TYPE_COLUMN_WIDTH);
-        
+
         deleteContentSearchButton.setEnabled(false);
     }
-    
+
     private void initMetaDataSearchTable() {
-        metaDataSearchTable.setModel(new DefaultTableModel(new Object [][] {}, new String[] { "Metadata", "Operator", "Value", "Ignore Case" }) {
+        metaDataSearchTable.setModel(new DefaultTableModel(new Object[][] {}, new String[] {
+                "Metadata", "Operator", "Value", "Ignore Case" }) {
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 if (columnIndex == 3 && cachedMetaDataColumns.get(getValueAt(rowIndex, 0)).getType() != MetaDataColumnType.STRING) {
                     return false;
                 }
-                
+
                 return true;
             }
-            
+
             @Override
             public void setValueAt(Object value, int row, int column) {
                 int metaDataColumnIndex = findColumn("Metadata");
                 int operatorColumnIndex = findColumn("Operator");
                 int valueColumnIndex = findColumn("Value");
-                
+
                 if (column == valueColumnIndex) {
                     MetaDataColumn metaDataColumn = cachedMetaDataColumns.get(getValueAt(row, metaDataColumnIndex));
-                    
+
                     if (StringUtils.isNotEmpty((String) value)) {
                         try {
                             metaDataColumn.getType().castMetaDataFromString((String) value);
@@ -145,23 +147,23 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                     if (!value.equals(getValueAt(row, metaDataColumnIndex))) {
                         MetaDataColumn metaDataColumn = cachedMetaDataColumns.get(value);
                         MetaDataSearchOperator operator = MetaDataSearchOperator.getDefaultForColumnType(metaDataColumn.getType());
-                        
+
                         super.setValueAt(operator, row, operatorColumnIndex);
                     }
-                    
+
                     super.setValueAt("", row, valueColumnIndex);
                 }
                 super.setValueAt(value, row, column);
             }
         });
-        
+
         metaDataSearchTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         metaDataSearchTable.setDragEnabled(false);
         metaDataSearchTable.setSortable(false);
         metaDataSearchTable.getTableHeader().setReorderingAllowed(false);
-        
+
         addMetaDataSearchButton.setEnabled(!messageBrowser.getMetaDataColumns().isEmpty());
-        
+
         metaDataSearchTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent evt) {
                 deleteMetaDataSearchButton.setEnabled(getSelectedRow(metaDataSearchTable) != -1);
@@ -171,32 +173,32 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             metaDataSearchTable.setHighlighters(HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR));
         }
-        
+
         List<MetaDataColumn> metaDataColumns = messageBrowser.getMetaDataColumns();
         cachedMetaDataColumns.clear();
-        
+
         String[] metaDataNames = new String[metaDataColumns.size()];
         for (int i = 0; i < metaDataColumns.size(); i++) {
             String columnName = metaDataColumns.get(i).getName();
             metaDataNames[i] = columnName;
             cachedMetaDataColumns.put(columnName, metaDataColumns.get(i));
         }
-        
+
         TableColumn metaDataColumn = metaDataSearchTable.getColumnModel().getColumn(0);
         metaDataColumn.setCellRenderer(new MirthComboBoxTableCellRenderer(metaDataNames));
         metaDataColumn.setCellEditor(new MirthComboBoxTableCellEditor(metaDataSearchTable, metaDataNames, 1, false, null));
         metaDataColumn.setMinWidth(METADATA_NAME_COLUMN_WIDTH);
         metaDataColumn.setMaxWidth(METADATA_NAME_COLUMN_WIDTH * 2);
         metaDataColumn.setPreferredWidth(METADATA_NAME_COLUMN_WIDTH);
-        
+
         // Need to create this custom editor since the combo box values are dynamic based on metadata column type. 
         DefaultCellEditor operatorEditor = new DefaultCellEditor(new JComboBox()) {
             private JComboBox comboBox;
-            
+
             public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                
+
                 MetaDataColumn metaDataColumn = cachedMetaDataColumns.get(table.getValueAt(row, 0));
-                
+
                 comboBox = new JComboBox(MetaDataSearchOperator.valuesForColumnType(metaDataColumn.getType()));
                 comboBox.addActionListener(new ActionListener() {
 
@@ -204,78 +206,78 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                     public void actionPerformed(ActionEvent arg0) {
                         stopCellEditing();
                     }
-                    
+
                 });
-                
+
                 comboBox.setSelectedItem(value);
                 // Return the configured component
                 return comboBox;
             }
-            
+
             public Object getCellEditorValue() {
                 return comboBox.getSelectedItem();
             }
         };
-        
+
         TableColumn operatorColumn = metaDataSearchTable.getColumnModel().getColumn(1);
         operatorColumn.setCellRenderer(new MirthComboBoxTableCellRenderer(MetaDataSearchOperator.values()));
         operatorColumn.setCellEditor(new MirthComboBoxTableCellEditor(metaDataSearchTable, MetaDataSearchOperator.values(), 1, false, null));
         operatorColumn.setMinWidth(METADATA_OPERATOR_COLUMN_WIDTH);
         operatorColumn.setMaxWidth(METADATA_OPERATOR_COLUMN_WIDTH);
-        
+
         TableColumn caseColumn = metaDataSearchTable.getColumnModel().getColumn(3);
         caseColumn.setMinWidth(METADATA_CASE_COLUMN_WIDTH);
         caseColumn.setMaxWidth(METADATA_CASE_COLUMN_WIDTH);
-        
+
         deleteMetaDataSearchButton.setEnabled(false);
     }
 
     public void loadChannel() {
         connectorTable.setModel(new ItemSelectionTableModel<Integer, String>(messageBrowser.getConnectors(), null, "Current Connector Name", "Included", "Id"));
-        
+
         initMetaDataSearchTable();
     }
 
     protected void applySelectionsToFilter(MessageFilter messageFilter) {
-    	List<Integer> selectedMetaDataIds = getMetaDataIds(true);
-    	
-    	// Included and Excluded metadata Ids will both be null if everything is selected.
-    	if (selectedMetaDataIds != null) {
-	    	if (selectedMetaDataIds.contains(null)) {
-	    		messageFilter.setExcludedMetaDataIds(getMetaDataIds(false));
-	    	} else {
-	    		messageFilter.setIncludedMetaDataIds(selectedMetaDataIds);
-	    	}
-    	}
+        List<Integer> selectedMetaDataIds = getMetaDataIds(true);
+
+        // Included and Excluded metadata Ids will both be null if everything is selected.
+        if (selectedMetaDataIds != null) {
+            if (selectedMetaDataIds.contains(null)) {
+                messageFilter.setExcludedMetaDataIds(getMetaDataIds(false));
+            } else {
+                messageFilter.setIncludedMetaDataIds(selectedMetaDataIds);
+            }
+        }
 
         String id = messageIdLowerField.getText();
         if (!StringUtils.isEmpty(id)) {
             messageFilter.setMessageIdLower(Long.parseLong(id));
         }
-        
+
         id = messageIdUpperField.getText();
         if (!StringUtils.isEmpty(id)) {
             messageFilter.setMessageIdUpper(Long.parseLong(id));
         }
-        
+
         id = importIdLowerField.getText();
         if (!StringUtils.isEmpty(id)) {
             messageFilter.setImportIdLower(Long.parseLong(id));
         }
-        
+
         id = importIdUpperField.getText();
         if (!StringUtils.isEmpty(id)) {
             messageFilter.setImportIdUpper(Long.parseLong(id));
         }
 
         messageFilter.setServerId(getServerId());
-        
+
         Integer sendAttemptsLower = (Integer) this.sendAttemptsLower.getValue();
         Integer sendAttemptsUpper = this.sendAttemptsUpper.getIntegerValue();
-        
+
         // There is no need to test this criteria if it is zero or less, because this should be the lowest value allowed.
         if (sendAttemptsLower <= 0) {
-        	sendAttemptsLower = null;
+            sendAttemptsLower = null;
         }
 
         if (sendAttemptsLower != null && sendAttemptsUpper != null && sendAttemptsLower > sendAttemptsUpper) {
@@ -287,7 +289,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         messageFilter.setSendAttemptsLower(sendAttemptsLower);
         messageFilter.setSendAttemptsUpper(sendAttemptsUpper);
         messageFilter.setContentSearch(getContentSearch());
-        
+
         try {
             messageFilter.setMetaDataSearch(getMetaDataSearch());
         } catch (MetaDataColumnException e) {
@@ -296,10 +298,10 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     }
 
     private List<Integer> getMetaDataIds(boolean selected) {
-    	List<Integer> selectedMetaDataIds = ((ItemSelectionTableModel<Integer, String>) connectorTable.getModel()).getKeys(selected);
-    	if (selectedMetaDataIds.size() == connectorTable.getRowCount()) {
-    		return null;
-    	}
+        List<Integer> selectedMetaDataIds = ((ItemSelectionTableModel<Integer, String>) connectorTable.getModel()).getKeys(selected);
+        if (selectedMetaDataIds.size() == connectorTable.getRowCount()) {
+            return null;
+        }
         return selectedMetaDataIds;
     }
 
@@ -316,7 +318,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         for (int i = 0; i < rowCount; i++) {
             ContentType contentType = (ContentType) model.getValueAt(i, 0);
             String searchText = (String) model.getValueAt(i, 1);
-            
+
             if (searchText.length() > 0) {
                 contentSearch.put(contentType, searchText);
             }
@@ -324,13 +326,13 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
 
         return contentSearch;
     }
-    
+
     private List<MetaDataSearchElement> getMetaDataSearch() throws MetaDataColumnException {
         List<MetaDataSearchElement> metaDataSearch = new ArrayList<MetaDataSearchElement>();
 
         DefaultTableModel model = ((DefaultTableModel) metaDataSearchTable.getModel());
         int rowCount = model.getRowCount();
-        
+
         if (rowCount == 0) {
             return null;
         } else {
@@ -339,32 +341,32 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                 String operator = ((MetaDataSearchOperator) model.getValueAt(i, 1)).toFullString();
                 String searchText = (String) model.getValueAt(i, 2);
                 Boolean ignoreCase = (Boolean) model.getValueAt(i, 3);
-                
+
                 if (StringUtils.isNotEmpty(searchText)) {
                     MetaDataColumn column = cachedMetaDataColumns.get(metaDataName);
                     metaDataSearch.add(new MetaDataSearchElement(metaDataName, operator, column.getType().castMetaDataFromString(searchText), ignoreCase));
                 }
             }
-    
+
             return metaDataSearch;
         }
     }
-    
+
     public void setVisible(boolean visible) {
         if (visible) {
             saveSelections();
         }
-        
+
         super.setVisible(visible);
     }
-    
+
     public void saveSelections() {
         DefaultTableModel contentSearchModel = ((DefaultTableModel) contentSearchTable.getModel());
         DefaultTableModel metaDataSearchModel = ((DefaultTableModel) metaDataSearchTable.getModel());
         ItemSelectionTableModel<Integer, String> connectorModel = ((ItemSelectionTableModel<Integer, String>) connectorTable.getModel());
-        
+
         cachedSettings.clear();
-        
+
         cachedSettings.put("messageIdLowerField", messageIdLowerField.getText());
         cachedSettings.put("messageIdUpperField", messageIdUpperField.getText());
         cachedSettings.put("importIdLowerField", importIdLowerField.getText());
@@ -373,7 +375,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         cachedSettings.put("sendAttemptsLower", sendAttemptsLower.getValue());
         cachedSettings.put("sendAttemptsUpper", sendAttemptsUpper.getValue());
         cachedSettings.put("attachment", attachmentCheckBox.isSelected());
-        
+
         Object[][] contentSearchData = new Object[contentSearchModel.getRowCount()][contentSearchModel.getColumnCount()];
         for (int row = 0; row < contentSearchModel.getRowCount(); row++) {
             for (int column = 0; column < contentSearchModel.getColumnCount(); column++) {
@@ -381,7 +383,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             }
         }
         cachedSettings.put("contentSearchTable", contentSearchData);
-        
+
         Object[][] metaDataSearchData = new Object[metaDataSearchModel.getRowCount()][metaDataSearchModel.getColumnCount()];
         for (int row = 0; row < metaDataSearchModel.getRowCount(); row++) {
             for (int column = 0; column < metaDataSearchModel.getColumnCount(); column++) {
@@ -389,15 +391,15 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             }
         }
         cachedSettings.put("metaDataSearchTable", metaDataSearchData);
-        
+
         Boolean[] connectorData = new Boolean[connectorModel.getRowCount()];
         for (int row = 0; row < connectorModel.getRowCount(); row++) {
             connectorData[row] = (Boolean) connectorModel.getValueAt(row, ItemSelectionTableModel.CHECKBOX_COLUMN);
         }
-        
+
         cachedSettings.put("connectorTable", connectorData);
     }
-    
+
     public void loadSelections() {
         DefaultTableModel contentSearchModel = ((DefaultTableModel) contentSearchTable.getModel());
         DefaultTableModel metaDataSearchModel = ((DefaultTableModel) metaDataSearchTable.getModel());
@@ -410,27 +412,27 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         sendAttemptsLower.setValue(cachedSettings.get("sendAttemptsLower"));
         sendAttemptsUpper.setValue(cachedSettings.get("sendAttemptsUpper"));
         attachmentCheckBox.setSelected((Boolean) cachedSettings.get("attachment"));
-        
+
         contentSearchModel.setNumRows(0);
         Object[][] contentSearchData = (Object[][]) cachedSettings.get("contentSearchTable");
         for (int row = 0; row < contentSearchData.length; row++) {
             contentSearchModel.addRow(contentSearchData[row]);
         }
-        
+
         metaDataSearchModel.setNumRows(0);
         Object[][] metaDataSearchData = (Object[][]) cachedSettings.get("metaDataSearchTable");
         for (int row = 0; row < metaDataSearchData.length; row++) {
             metaDataSearchModel.addRow(metaDataSearchData[row]);
         }
-        
+
         Boolean[] connectorData = (Boolean[]) cachedSettings.get("connectorTable");
         for (int row = 0; row < connectorModel.getRowCount(); row++) {
             connectorModel.setValueAt(connectorData[row], row, ItemSelectionTableModel.CHECKBOX_COLUMN);
         }
-        
+
         cachedSettings.clear();
     }
-    
+
     public void resetSelections() {
         messageIdLowerField.setText("");
         messageIdUpperField.setText("");
@@ -444,39 +446,29 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         ((DefaultTableModel) metaDataSearchTable.getModel()).setNumRows(0);
         ((ItemSelectionTableModel<Integer, String>) connectorTable.getModel()).selectAllKeys();
     }
-    
+
     public Boolean hasAdvancedCriteria() {
         Boolean hasAdvancedCriteria = false;
-        
+
         ItemSelectionTableModel<Integer, String> model = ((ItemSelectionTableModel<Integer, String>) connectorTable.getModel());
-        
-        if (StringUtils.isNotEmpty(messageIdLowerField.getText()) ||
-            StringUtils.isNotEmpty(messageIdUpperField.getText()) ||
-            StringUtils.isNotEmpty(importIdLowerField.getText()) ||
-            StringUtils.isNotEmpty(importIdUpperField.getText()) ||
-            StringUtils.isNotEmpty(serverIdField.getText()) ||
-            !sendAttemptsLower.getValue().equals(0) || 
-            StringUtils.isNotEmpty(sendAttemptsUpper.getValue().toString()) ||
-            attachmentCheckBox.isSelected() ||
-            ((DefaultTableModel) contentSearchTable.getModel()).getRowCount() != 0 ||
-            ((DefaultTableModel) metaDataSearchTable.getModel()).getRowCount() != 0 ||
-            model.getKeys(true).size() != model.getRowCount()) {
-             hasAdvancedCriteria = true;       
+
+        if (StringUtils.isNotEmpty(messageIdLowerField.getText()) || StringUtils.isNotEmpty(messageIdUpperField.getText()) || StringUtils.isNotEmpty(importIdLowerField.getText()) || StringUtils.isNotEmpty(importIdUpperField.getText()) || StringUtils.isNotEmpty(serverIdField.getText()) || !sendAttemptsLower.getValue().equals(0) || StringUtils.isNotEmpty(sendAttemptsUpper.getValue().toString()) || attachmentCheckBox.isSelected() || ((DefaultTableModel) contentSearchTable.getModel()).getRowCount() != 0 || ((DefaultTableModel) metaDataSearchTable.getModel()).getRowCount() != 0 || model.getKeys(true).size() != model.getRowCount()) {
+            hasAdvancedCriteria = true;
         }
-        
+
         return hasAdvancedCriteria;
     }
-    
+
     private void stopEditing() {
-    	// if the user had typed in a value in the content search table, close the cell editor so that any value that was entered will be included in the search
+        // if the user had typed in a value in the content search table, close the cell editor so that any value that was entered will be included in the search
         TableCellEditor cellEditor = contentSearchTable.getCellEditor();
         if (cellEditor != null) {
             cellEditor.stopCellEditing();
         }
-        
+
         cellEditor = metaDataSearchTable.getCellEditor();
         if (cellEditor != null) {
-        	cellEditor.stopCellEditing();
+            cellEditor.stopCellEditing();
         }
     }
 

@@ -40,7 +40,6 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
-import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelLock;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
@@ -120,7 +119,7 @@ public class TestUtils {
         destinationConnector.setResponseTransformerExecutor(responseTransformerExecutor);
 
         ConnectorMessageQueue queue = new ConnectorMessageQueue();
-        queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 1, Status.QUEUED, false, Donkey.getInstance().getDaoFactory(), new PassthruEncryptor()));
+        queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 1, Status.QUEUED, false, Donkey.getInstance().getDaoFactory()));
         destinationConnector.setQueue(queue);
 
         return channel;
@@ -163,7 +162,7 @@ public class TestUtils {
 
             for (int j = 0; j < destinationsPerChain; j++) {
                 ConnectorMessageQueue queue = new ConnectorMessageQueue();
-                queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, false, Donkey.getInstance().getDaoFactory(), new PassthruEncryptor()));
+                queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, false, Donkey.getInstance().getDaoFactory()));
 
                 TestDestinationConnector testDestinationConnector = new TestDestinationConnector();
                 testDestinationConnector.setChannelId(channelId);
@@ -246,7 +245,7 @@ public class TestUtils {
     public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDao dao) {
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
-        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, null));
+        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, false));
 
         if (rawMessage.getChannelMap() != null) {
             sourceMessage.setChannelMap(rawMessage.getChannelMap());
@@ -449,8 +448,8 @@ public class TestUtils {
         for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
             dao.insertConnectorMessage(connectorMessage, true);
 
-            for (ContentType contentType : ContentType.values()) {
-                MessageContent messageContent = connectorMessage.getContent(contentType);
+            for (ContentType contentType : ContentType.getMessageTypes()) {
+                MessageContent messageContent = connectorMessage.getMessageContent(contentType);
 
                 if (messageContent != null) {
                     dao.insertMessageContent(messageContent);

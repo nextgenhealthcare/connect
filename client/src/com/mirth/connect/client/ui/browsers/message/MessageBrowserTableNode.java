@@ -9,39 +9,37 @@
 
 package com.mirth.connect.client.ui.browsers.message;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.mirth.connect.client.ui.AbstractSortableTreeTableNode;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 
 public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
-    private final static int NUM_STATIC_COLUMNS = 10;
-
     private Object[] row;
     private Long messageId;
     private Integer metaDataId;
     private Boolean active;
     private Boolean processed;
 
-    public MessageBrowserTableNode(Message message) {
-        row = new Object[NUM_STATIC_COLUMNS];
+    public MessageBrowserTableNode(int staticColumnCount, Message message) {
+        row = new Object[staticColumnCount];
 
         active = false;
         processed = message.isProcessed();
-        row[0] = message.getMessageId();
-        row[1] = "--";
-        row[2] = "--";
-        row[3] = null;
-        row[4] = null;
-        row[5] = null;
-        row[6] = null;
-        row[7] = null;
-        row[8] = "--";
-        row[9] = message.getImportId();
+        row[MessageBrowser.ID_COLUMN] = message.getMessageId();
+        row[MessageBrowser.CONNECTOR_COLUMN] = "--";
+        row[MessageBrowser.STATUS_COLUMN] = "--";
+        row[MessageBrowser.ORIGINAL_RECEIVED_DATE_COLUMN] = null;
+        row[MessageBrowser.RECEIVED_DATE_COLUMN] = null;
+        row[MessageBrowser.SEND_ATTEMPTS_COLUMN] = null;
+        row[MessageBrowser.SEND_DATE_COLUMN] = null;
+        row[MessageBrowser.RESPONSE_DATE_COLUMN] = null;
+        row[MessageBrowser.ERRORS_COLUMN] = "--";
+        row[MessageBrowser.SERVER_ID_COLUMN] = "--";
+        row[MessageBrowser.IMPORT_ID_COLUMN] = message.getImportId();
     }
 
-    public MessageBrowserTableNode(Message message, int metaDataId, MessageBrowserTableModel model) {
+    public MessageBrowserTableNode(int staticColumnCount, Message message, int metaDataId, MessageBrowserTableModel model) {
         row = new Object[model.getColumnCount()];
         messageId = message.getMessageId();
         this.metaDataId = metaDataId;
@@ -51,32 +49,51 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
         active = true;
         processed = message.isProcessed();
 
-        if (connectorMessage.getMetaDataId() == 0) {
-            row[0] = message.getMessageId();
-            row[9] = message.getImportId();
+        row[MessageBrowser.ID_COLUMN] = connectorMessage.getMetaDataId() == 0 ? message.getMessageId() : null;
+        row[MessageBrowser.CONNECTOR_COLUMN] = connectorMessage.getConnectorName();
+        row[MessageBrowser.STATUS_COLUMN] = connectorMessage.getStatus();
+        row[MessageBrowser.ORIGINAL_RECEIVED_DATE_COLUMN] = message.getReceivedDate();
+        row[MessageBrowser.RECEIVED_DATE_COLUMN] = connectorMessage.getReceivedDate();
+        row[MessageBrowser.SEND_ATTEMPTS_COLUMN] = connectorMessage.getSendAttempts();
+        row[MessageBrowser.SEND_DATE_COLUMN] = connectorMessage.getSendDate();
+        row[MessageBrowser.RESPONSE_DATE_COLUMN] = connectorMessage.getResponseDate();
+        row[MessageBrowser.ERRORS_COLUMN] = getErrorString(connectorMessage);
+        row[MessageBrowser.SERVER_ID_COLUMN] = message.getServerId();
+        row[MessageBrowser.IMPORT_ID_COLUMN] = connectorMessage.getMetaDataId() == 0 ? message.getImportId() : null;
 
-            if (StringUtils.isEmpty(connectorMessage.getResponseErrors())) {
-                row[7] = connectorMessage.getSendAttempts() > 0 ? "SENT" : "--";
-            } else {
-                row[7] = "ERROR";
-            }
-        } else {
-            row[0] = null;
-            row[7] = "--";
-            row[9] = null;
-        }
-
-        row[1] = connectorMessage.getConnectorName();
-        row[2] = connectorMessage.getStatus();
-        row[3] = connectorMessage.getReceivedDate();
-        row[4] = connectorMessage.getSendAttempts();
-        row[5] = connectorMessage.getSendDate();
-        row[6] = connectorMessage.getResponseDate();
-        row[8] = message.getServerId();
-
-        for (int i = NUM_STATIC_COLUMNS; i < model.getColumnCount(); i++) {
+        for (int i = staticColumnCount; i < model.getColumnCount(); i++) {
             row[i] = connectorMessage.getMetaDataMap().get(model.getColumnName(i).toUpperCase());
         }
+    }
+
+    private String getErrorString(ConnectorMessage connectorMessage) {
+        String error = null;
+
+        if (connectorMessage.containsError(ContentType.PROCESSING_ERROR)) {
+            error = "Processing";
+        }
+
+        if (connectorMessage.containsError(ContentType.RESPONSE_ERROR)) {
+            if (error != null) {
+                return "Multiple";
+            }
+
+            error = "Response";
+        }
+
+        if (connectorMessage.containsError(ContentType.POSTPROCESSOR_ERROR)) {
+            if (error != null) {
+                return "Multiple";
+            }
+
+            error = "Postprocessor";
+        }
+
+        if (error == null) {
+            error = "--";
+        }
+
+        return error;
     }
 
     @Override

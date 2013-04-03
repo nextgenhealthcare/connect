@@ -59,7 +59,7 @@ public class MessagePrunerTest {
         configurationController.initializeDatabaseSettings();
 
         Donkey donkey = Donkey.getInstance();
-        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties()));
+        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), null));
 
         ChannelController.getInstance().initChannelStorage(TEST_CHANNEL_ID);
 
@@ -283,8 +283,8 @@ public class MessagePrunerTest {
         message.getConnectorMessages().put(1, destinationMessage);
 
         if (contentPrunable != null) {
-            sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, TEST_MESSAGE_CONTENT, null, null));
-            destinationMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 1, ContentType.RAW, TEST_MESSAGE_CONTENT, null, null));
+            sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, TEST_MESSAGE_CONTENT, null, false));
+            destinationMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 1, ContentType.RAW, TEST_MESSAGE_CONTENT, null, false));
         }
 
         TestUtils.createTestMessagesFast(channelId, message, power);

@@ -27,7 +27,7 @@ public class TestFilterTransformer implements FilterTransformer {
     @Override
     public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
         transformed = true;
-        return new FilterTransformerResult(true, null);
+        return new FilterTransformerResult(false, null);
     }
 
     @Override

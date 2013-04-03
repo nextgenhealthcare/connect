@@ -8,14 +8,10 @@
 		<result property="serverId" column="server_id" />
 		<result property="receivedDate" column="received_date" />
 		<result property="status" column="status" />
-		<result property="connectorMap" column="connector_map" typeHandler="MapTypeHandler"/>
-		<result property="channelMap" column="channel_map" typeHandler="MapTypeHandler"/>
-		<result property="responseMap" column="response_map" typeHandler="MapTypeHandler"/>
-		<result property="errors" column="errors" />
-		<result property="responseErrors" column="response_errors" />
 		<result property="sendAttempts" column="send_attempts" />
 		<result property="sendDate" column="send_date" />
 		<result property="responseDate" column="response_date" />
+		<result property="errorCode" column="error_code" />
 		<result property="chainId" column="chain_id" />
 		<result property="orderId" column="order_id" />
 		<collection property="metaDataMap" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" ofType="map" select="selectCustomMetaData" />
@@ -27,7 +23,7 @@
 		<result property="contentType" column="content_type" typeHandler="com.mirth.connect.server.sqlmap.extensions.ContentTypeHandler" />
 		<result property="content" column="content" />
 		<result property="dataType" column="data_type" />
-		<result property="encryptedContent" column="encrypted_content" />
+		<result property="encrypted" column="isEncrypted" />
 	</resultMap>
 
 	<select id="searchMessages" parameterType="map" resultType="map">
@@ -68,7 +64,7 @@
 		FROM d_mc${localChannelId}
 		WHERE message_id = #{messageId}
 		AND metadata_id = 0
-		AND content_type = 'R'
+		AND content_type = 1
 	</select>
 	
 	<sql id="searchMessagesBody">
@@ -80,35 +76,35 @@
 		</if>
 		
 		<if test="quickSearch != null || rawSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_raw ON mc_raw.message_id = m.id AND mc_raw.metadata_id = 0 AND mc_raw.content_type = 'R' AND mc_raw.is_encrypted = FALSE
+			LEFT JOIN d_mc${localChannelId} mc_raw ON mc_raw.message_id = m.id AND mc_raw.metadata_id = 0 AND mc_raw.content_type = 1 AND mc_raw.is_encrypted = FALSE
 		</if>
 		
 		<if test="quickSearch != null || processedRawSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_processed_raw ON mc_processed_raw.message_id = m.id AND mc_processed_raw.metadata_id = mm.id AND mc_processed_raw.content_type = 'P' AND mc_processed_raw.is_encrypted = FALSE
+			LEFT JOIN d_mc${localChannelId} mc_processed_raw ON mc_processed_raw.message_id = m.id AND mc_processed_raw.metadata_id = mm.id AND mc_processed_raw.content_type = 2 AND mc_processed_raw.is_encrypted = FALSE
 		</if>
 		
 		<if test="quickSearch != null || transformedSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_transformed ON mc_transformed.message_id = m.id AND mc_transformed.metadata_id = mm.id AND mc_transformed.content_type = 'T' AND mc_transformed.is_encrypted = FALSE
+			LEFT JOIN d_mc${localChannelId} mc_transformed ON mc_transformed.message_id = m.id AND mc_transformed.metadata_id = mm.id AND mc_transformed.content_type = 3 AND mc_transformed.is_encrypted = FALSE
 		</if>
 		
 		<if test="quickSearch != null || encodedSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_encoded ON mc_encoded.message_id = m.id AND mc_encoded.metadata_id = mm.id AND mc_encoded.content_type = 'E' AND mc_encoded.is_encrypted = FALSE
+			LEFT JOIN d_mc${localChannelId} mc_encoded ON mc_encoded.message_id = m.id AND mc_encoded.metadata_id = mm.id AND mc_encoded.content_type = 4 AND mc_encoded.is_encrypted = FALSE
 		</if>
 		
 		<if test="quickSearch != null || sentSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_sent ON mc_sent.message_id = m.id AND mc_sent.metadata_id = mm.id AND mc_sent.content_type = 'S' AND mc_sent.is_encrypted = FALSE
+			LEFT JOIN d_mc${localChannelId} mc_sent ON mc_sent.message_id = m.id AND mc_sent.metadata_id = mm.id AND mc_sent.content_type = 5 AND mc_sent.is_encrypted = FALSE
 		</if>
 		
 		<if test="quickSearch != null || responseSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_response ON mc_response.message_id = m.id AND mc_response.metadata_id = mm.id AND mc_response.content_type = 'O' AND mc_response.is_encrypted = FALSE
+			LEFT JOIN d_mc${localChannelId} mc_response ON mc_response.message_id = m.id AND mc_response.metadata_id = mm.id AND mc_response.content_type = 6 AND mc_response.is_encrypted = FALSE
 		</if>
 		
 		<if test="quickSearch != null || responseTransformedSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_response_transformed ON mc_response_transformed.message_id = m.id AND mc_response_transformed.metadata_id = mm.id AND mc_response_transformed.content_type = 'Q' AND mc_response_transformed.is_encrypted = FALSE
+			LEFT JOIN d_mc${localChannelId} mc_response_transformed ON mc_response_transformed.message_id = m.id AND mc_response_transformed.metadata_id = mm.id AND mc_response_transformed.content_type = 7 AND mc_response_transformed.is_encrypted = FALSE
 		</if>
 		
 		<if test="quickSearch != null || processedResponseSearch != null">
-			LEFT JOIN d_mc${localChannelId} mc_processed_response ON mc_processed_response.message_id = m.id AND mc_processed_response.metadata_id = mm.id AND mc_processed_response.content_type = 'N' AND mc_processed_response.is_encrypted = FALSE
+			LEFT JOIN d_mc${localChannelId} mc_processed_response ON mc_processed_response.message_id = m.id AND mc_processed_response.metadata_id = mm.id AND mc_processed_response.content_type = 8 AND mc_processed_response.is_encrypted = FALSE
 		</if>
 		
 		<where>
@@ -250,17 +246,6 @@
 		SELECT *
 		FROM d_m${localChannelId}
 		WHERE id = #{messageId}
-	</select>
-	
-	<select id="selectConnectorMessagesByIds" resultMap="connectorMessage">
-		SELECT *, ${localChannelId} AS local_channel_id
-		FROM d_mm${localChannelId}
-		WHERE message_id = #{messageId}
-		AND id IN
-		<foreach item="metaDataId" collection="metaDataIds" open="(" separator="," close=")">
-			#{metaDataId}
-		</foreach>
-		ORDER BY chain_id ASC, order_id ASC
 	</select>
 	
 	<select id="selectMessageContent" resultMap="messageContent">

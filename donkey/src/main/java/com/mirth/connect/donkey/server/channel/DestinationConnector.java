@@ -26,7 +26,6 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
-import com.mirth.connect.donkey.server.Encryptor;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.controllers.MessageController;
@@ -48,7 +47,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private ResponseTransformerExecutor responseTransformerExecutor;
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
-    private Encryptor encryptor;
     private Logger logger = Logger.getLogger(getClass());
 
     public abstract ConnectorProperties getReplacedConnectorProperties(ConnectorMessage message);
@@ -115,10 +113,6 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     protected void setDaoFactory(DonkeyDaoFactory daoFactory) {
         this.daoFactory = daoFactory;
-    }
-
-    protected void setEncryptor(Encryptor encryptor) {
-        this.encryptor = encryptor;
     }
 
     /**
@@ -194,7 +188,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private MessageContent getSentContent(ConnectorMessage message, ConnectorProperties connectorProperties) {
         // TODO: store the serializer as a class variable?
         String content = Donkey.getInstance().getSerializer().serialize(connectorProperties);
-        return new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.SENT, content, null, encryptor.encrypt(content));
+        return new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.SENT, content, null, false);
     }
 
     /**
@@ -281,7 +275,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                 logger.error("Error executing response transformer for channel " + message.getChannelId() + " (" + destinationName + ").", e);
                 response.setStatus(Status.ERROR);
                 response.setError(e.getFormattedError());
-                message.setErrors(message.getErrors() != null ? message.getErrors() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
+                message.setProcessingError(message.getProcessingError() != null ? message.getProcessingError() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
                 dao.updateErrors(message);
                 return;
             }
@@ -424,17 +418,17 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     private Response handleSend(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {
-    	message.setSendDate(Calendar.getInstance());
+        message.setSendDate(Calendar.getInstance());
         Response response = send(connectorProperties, message);
         message.setResponseDate(Calendar.getInstance());
-        
+
         return response;
     }
 
     private void afterSend(DonkeyDao dao, ConnectorMessage message, Response response, Status previousStatus) throws InterruptedException {
         Serializer serializer = Donkey.getInstance().getSerializer();
         String responseString = serializer.serialize(response);
-        MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, responseString, responseTransformerExecutor.getInbound().getType(), encryptor.encrypt(responseString));
+        MessageContent responseContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RESPONSE, responseString, responseTransformerExecutor.getInbound().getType(), false);
 
         if (storageSettings.isStoreResponse()) {
             ThreadUtils.checkInterruptedStatus();
@@ -463,12 +457,17 @@ public abstract class DestinationConnector extends Connector implements Runnable
         }
 
         try {
-        	// Perform transformation
-            responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings, serializer);  
+            // Perform transformation
+            responseTransformerExecutor.runResponseTransformer(dao, message, response, isQueueEnabled(), storageSettings, serializer);
 
-            // Insert errors if necessary
+            String error = null;
             if (StringUtils.isNotBlank(response.getError())) {
-                message.setErrors(response.getError());
+                error = response.getError();
+            }
+            
+            message.setProcessingError(error);
+            // Insert errors if necessary
+            if (message.getErrorCode() > 0) {
                 dao.updateErrors(message);
             }
         } catch (DonkeyException e) {
@@ -476,7 +475,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
             response.setStatus(Status.ERROR);
             response.setError(e.getFormattedError());
             message.setStatus(response.getStatus());
-            message.setErrors(message.getErrors() != null ? message.getErrors() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
+            message.setProcessingError(message.getProcessingError() != null ? message.getProcessingError() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
             dao.updateStatus(message, previousStatus);
             dao.updateErrors(message);
             return;

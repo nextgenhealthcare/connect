@@ -110,7 +110,21 @@ public class DonkeyEngineController implements EngineController {
     public void startEngine() throws StartException, StopException, ControllerException, InterruptedException {
         logger.debug("starting donkey engine");
 
-        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties()));
+        final Encryptor encryptor = configurationController.getEncryptor();
+
+        com.mirth.connect.donkey.server.Encryptor donkeyEncryptor = new com.mirth.connect.donkey.server.Encryptor() {
+            @Override
+            public String encrypt(String text) {
+                return encryptor.encrypt(text);
+            }
+
+            @Override
+            public String decrypt(String text) {
+                return encryptor.decrypt(text);
+            }
+        };
+
+        donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties(), donkeyEncryptor));
     }
 
     @Override
@@ -419,23 +433,10 @@ public class DonkeyEngineController implements EngineController {
         }
 
         if (storageSettings.isEnabled()) {
-            if (channelProperties.isEncryptData()) {
-                final Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
+            BufferedDaoFactory bufferedDaoFactory = new BufferedDaoFactory(Donkey.getInstance().getDaoFactory());
+            bufferedDaoFactory.setEncryptData(channelProperties.isEncryptData());
 
-                channel.setEncryptor(new com.mirth.connect.donkey.server.Encryptor() {
-                    @Override
-                    public String encrypt(String text) {
-                        return encryptor.encrypt(text);
-                    }
-
-                    @Override
-                    public String decrypt(String text) {
-                        return encryptor.decrypt(text);
-                    }
-                });
-            }
-
-            channel.setDaoFactory(new BufferedDaoFactory(Donkey.getInstance().getDaoFactory()));
+            channel.setDaoFactory(bufferedDaoFactory);
         } else {
             channel.setDaoFactory(new PassthruDaoFactory(new DelayedStatisticsUpdater(Donkey.getInstance().getDaoFactory())));
         }
@@ -695,7 +696,7 @@ public class DonkeyEngineController implements EngineController {
         if (StringUtils.isNotBlank(transformer.getOutboundTemplate())) {
             DataTypeServerPlugin outboundServerPlugin = ExtensionController.getInstance().getDataTypePlugins().get(transformer.getOutboundDataType());
             XmlSerializer serializer = outboundServerPlugin.getSerializer(transformer.getOutboundProperties().getSerializerProperties());
-            
+
             if (outboundServerPlugin.isBinary() || outboundServerPlugin.getSerializationType() == SerializationType.RAW) {
                 template = transformer.getOutboundTemplate();
             } else {

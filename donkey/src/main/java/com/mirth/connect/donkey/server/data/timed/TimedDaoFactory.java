@@ -16,6 +16,8 @@ import com.mirth.connect.donkey.util.ActionTimer;
 public class TimedDaoFactory implements DonkeyDaoFactory {
     private DonkeyDaoFactory delegateFactory;
     private ActionTimer timer;
+    private boolean encryptData = false;
+    private boolean decryptData = true;
 
     public TimedDaoFactory(DonkeyDaoFactory delegateFactory, ActionTimer timer) {
         this.delegateFactory = delegateFactory;
@@ -39,7 +41,20 @@ public class TimedDaoFactory implements DonkeyDaoFactory {
     }
 
     @Override
+    public void setEncryptData(boolean encryptData) {
+        this.encryptData = encryptData;
+    }
+
+    @Override
+    public void setDecryptData(boolean decryptData) {
+        this.decryptData = decryptData;
+    }
+
+    @Override
     public DonkeyDao getDao() {
-        return new TimedDao(delegateFactory.getDao(), timer);
+        DonkeyDao dao = new TimedDao(delegateFactory.getDao(), timer);
+        dao.setEncryptData(encryptData);
+        dao.setDecryptData(decryptData);
+        return dao;
     }
 }

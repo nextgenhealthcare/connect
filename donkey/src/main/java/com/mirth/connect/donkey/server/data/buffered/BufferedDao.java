@@ -9,7 +9,6 @@
 
 package com.mirth.connect.donkey.server.data.buffered;
 
-import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +30,26 @@ import com.mirth.connect.donkey.server.event.Event;
 
 public class BufferedDao implements DonkeyDao {
     private DonkeyDaoFactory daoFactory;
+    private boolean encryptData;
+    private boolean decryptData;
     private Queue<DaoTask> tasks = new LinkedList<DaoTask>();
     private boolean closed = false;
     private Logger logger = Logger.getLogger(this.getClass());
 
-    protected BufferedDao(DonkeyDaoFactory daoFactory) {
+    protected BufferedDao(DonkeyDaoFactory daoFactory, boolean encryptData, boolean decryptData) {
         this.daoFactory = daoFactory;
+        this.encryptData = encryptData;
+        this.decryptData = decryptData;
+    }
+
+    @Override
+    public void setEncryptData(boolean encryptData) {
+        this.encryptData = encryptData;
+    }
+
+    @Override
+    public void setDecryptData(boolean decryptData) {
+        this.decryptData = decryptData;
     }
 
     @Override
@@ -62,8 +75,17 @@ public class BufferedDao implements DonkeyDao {
         executeTasks(durable);
     }
 
-    private void executeTasks(Boolean durable) {
+    private DonkeyDao getDelegateDao() {
         DonkeyDao dao = daoFactory.getDao();
+
+        dao.setEncryptData(encryptData);
+        dao.setDecryptData(decryptData);
+
+        return dao;
+    }
+
+    private void executeTasks(Boolean durable) {
+        DonkeyDao dao = getDelegateDao();
 
         try {
             while (!tasks.isEmpty()) {
@@ -82,7 +104,7 @@ public class BufferedDao implements DonkeyDao {
                     case INSERT_EVENT: dao.insertEvent((Event) p[0]); break;
                     case STORE_MESSAGE_CONTENT: dao.storeMessageContent((MessageContent) p[0]); break;
                     case STORE_CHANNEL_STATISTICS: dao.addChannelStatistics((Statistics) p[0]); break;
-                    case UPDATE_RESPONSE_ERROR: dao.updateSourceResponse((String) p[0], (Long) p[1], (Integer) p[2], (String) p[3], (Calendar) p[4]); break;
+                    case UPDATE_RESPONSE_ERROR: dao.updateSourceResponse((ConnectorMessage) p[0]); break;
                     case UPDATE_STATUS: dao.updateStatus((ConnectorMessage) p[0], (Status) p[1]); break;
                     case UPDATE_ERRORS: dao.updateErrors((ConnectorMessage) p[0]); break;
                     case UPDATE_MAPS: dao.updateMaps((ConnectorMessage) p[0]); break;
@@ -184,9 +206,8 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
-    public void updateSourceResponse(String channelId, long messageId, int sendAttempts, String responseError, Calendar responseDate) {
-        tasks.add(new DaoTask(DaoTaskType.UPDATE_RESPONSE_ERROR, new Object[] { channelId,
-                messageId, sendAttempts, responseError, responseDate }));
+    public void updateSourceResponse(ConnectorMessage connectorMessage) {
+        tasks.add(new DaoTask(DaoTaskType.UPDATE_RESPONSE_ERROR, new Object[] { connectorMessage }));
     }
 
     @Override
@@ -279,7 +300,7 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public Map<String, Long> getLocalChannelIds() {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getLocalChannelIds();
@@ -290,7 +311,7 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public Long selectMaxLocalChannelId() {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.selectMaxLocalChannelId();
@@ -301,7 +322,7 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public long getMaxMessageId(String channelId) {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getMaxMessageId(channelId);
@@ -312,7 +333,7 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public long getNextMessageId(String channelId) {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getNextMessageId(channelId);
@@ -323,7 +344,7 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public List<Attachment> getMessageAttachment(String channelId, long messageId) {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getMessageAttachment(channelId, messageId);
@@ -334,7 +355,7 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public Attachment getMessageAttachment(String channelId, String attachmentId) {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getMessageAttachment(channelId, attachmentId);
@@ -345,7 +366,7 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status) {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getConnectorMessages(channelId, metaDataId, status);
@@ -356,7 +377,7 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId) {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getConnectorMessages(channelId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
@@ -366,8 +387,19 @@ public class BufferedDao implements DonkeyDao {
     }
 
     @Override
+    public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent) {
+        DonkeyDao dao = getDelegateDao();
+
+        try {
+            return dao.getConnectorMessages(channelId, messageId, metaDataIds, includeContent);
+        } finally {
+            dao.close();
+        }
+    }
+
+    @Override
     public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId) {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getConnectorMessages(channelId, messageId);
@@ -378,7 +410,7 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public int getConnectorMessageCount(String channelId, int metaDataId, Status status) {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getConnectorMessageCount(channelId, metaDataId, status);
@@ -388,7 +420,7 @@ public class BufferedDao implements DonkeyDao {
     }
 
     public long getConnectorMessageMaxMessageId(String channelId, int metaDataId, Status status) {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getConnectorMessageMaxMessageId(channelId, metaDataId, status);
@@ -399,7 +431,7 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public List<Message> getUnfinishedMessages(String channelId, String serverId) {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getUnfinishedMessages(channelId, serverId);
@@ -410,7 +442,7 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public List<MetaDataColumn> getMetaDataColumns(String channelId) {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getMetaDataColumns(channelId);
@@ -421,7 +453,7 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public Statistics getChannelStatistics() {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getChannelStatistics();
@@ -432,7 +464,7 @@ public class BufferedDao implements DonkeyDao {
 
     @Override
     public Statistics getChannelTotalStatistics() {
-        DonkeyDao dao = daoFactory.getDao();
+        DonkeyDao dao = getDelegateDao();
 
         try {
             return dao.getChannelTotalStatistics();

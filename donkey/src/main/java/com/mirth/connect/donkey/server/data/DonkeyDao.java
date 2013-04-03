@@ -9,7 +9,6 @@
 
 package com.mirth.connect.donkey.server.data;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +23,10 @@ import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.event.Event;
 
 public interface DonkeyDao {
+    public void setEncryptData(boolean encryptData);
+
+    public void setDecryptData(boolean decryptData);
+
     public void insertMessage(Message message);
 
     public void insertConnectorMessage(ConnectorMessage connectorMessage, boolean storeMaps);
@@ -48,7 +51,7 @@ public interface DonkeyDao {
 
     public void addChannelStatistics(Statistics statistics);
 
-    public void updateSourceResponse(String channelId, long messageId, int sendAttempts, String responseError, Calendar responseDate);
+    public void updateSourceResponse(ConnectorMessage connectorMessage);
 
     public void updateStatus(ConnectorMessage connectorMessage, Status previousStatus);
 
@@ -93,6 +96,8 @@ public interface DonkeyDao {
     public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status);
 
     public List<ConnectorMessage> getConnectorMessages(String channelId, int metaDataId, Status status, int offset, int limit, Long minMessageId, Long maxMessageId);
+
+    public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent);
 
     public Map<Integer, ConnectorMessage> getConnectorMessages(String channelId, long messageId);
 

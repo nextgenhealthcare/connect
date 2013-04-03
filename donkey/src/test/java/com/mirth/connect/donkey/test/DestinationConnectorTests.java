@@ -339,7 +339,7 @@ public class DestinationConnectorTests {
                         statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
                         statement.setLong(1, dispatchResult.getMessageId());
                         statement.setInt(2, 1);
-                        statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
+                        statement.setInt(3, ContentType.SENT.getContentTypeCode());
                         result = statement.executeQuery();
                         assertTrue(result.next());
                         result.close();
@@ -475,7 +475,7 @@ public class DestinationConnectorTests {
                 statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
                 statement.setLong(1, tempClass.messageId);
                 statement.setInt(2, 1);
-                statement.setString(3, String.valueOf(ContentType.SENT.getContentTypeCode()));
+                statement.setInt(3, ContentType.SENT.getContentTypeCode());
                 result = statement.executeQuery();
                 assertTrue(result.next());
                 result.close();
@@ -579,7 +579,7 @@ public class DestinationConnectorTests {
             String responseString = serializer.serialize(finalResponse);
             
             // Assert that the processed response was stored
-            MessageContent messageContent = new MessageContent(channel.getChannelId(), messageResponse.getMessageId(), 1, ContentType.PROCESSED_RESPONSE, responseString, null, null);
+            MessageContent messageContent = new MessageContent(channel.getChannelId(), messageResponse.getMessageId(), 1, ContentType.PROCESSED_RESPONSE, responseString, null, false);
             TestUtils.assertMessageContentExists(messageContent);
 
             // Assert that the entry in the response map was overwritten

@@ -196,7 +196,7 @@ public class DonkeyDaoTests {
             connectorMessage.setConnectorMap(connectorMap);
             connectorMessage.setChannelMap(channelMap);
             connectorMessage.setResponseMap(responseMap);
-            connectorMessage.setErrors("errors");
+            connectorMessage.setProcessingError("errors");
 
             double averageTime = 0;
 
@@ -233,16 +233,16 @@ public class DonkeyDaoTests {
                 assertEquals(Status.fromChar(result.getString("status").charAt(0)), connectorMessage.getStatus());
 
                 // Assert that the connector map is correct
-                assertTrue(connectorMessage.getConnectorMap().equals((HashMap<String, Object>) serializer.deserialize(result.getString("connector_map"))));
+                assertTrue(connectorMessage.getConnectorMap().equals(TestUtils.getMapFromMessageContent(TestUtils.getMessageContent(channelId, connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CONNECTOR_MAP))));
 
                 // Assert that the channel map is correct
-                assertTrue(connectorMessage.getChannelMap().equals((HashMap<String, Object>) serializer.deserialize(result.getString("channel_map"))));
+                assertTrue(connectorMessage.getChannelMap().equals(TestUtils.getMapFromMessageContent(TestUtils.getMessageContent(channelId, connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CHANNEL_MAP))));
 
                 // Assert that the response map is correct
-                assertTrue(connectorMessage.getResponseMap().equals((HashMap<String, Object>) serializer.deserialize(result.getString("response_map"))));
+                assertTrue(connectorMessage.getResponseMap().equals(TestUtils.getMapFromMessageContent(TestUtils.getMessageContent(channelId, connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_MAP))));
 
                 // Assert that the errors column is correct
-                assertTrue(connectorMessage.getErrors().equals(serializer.deserialize(result.getString("errors"))));
+                assertTrue(connectorMessage.getProcessingError().equals(TestUtils.getErrorFromMessageContent(TestUtils.getMessageContent(channelId, connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSING_ERROR))));
 
                 // Assert that the send attempts column is correct
                 assertEquals(result.getInt("send_attempts"), 0);
@@ -282,9 +282,9 @@ public class DonkeyDaoTests {
                 ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
                 TestUtils.assertMessageContentExists(sourceMessage.getRaw());
                 
-                for (ContentType contentType : ContentType.values()) {
-                    MessageContent messageContent = new MessageContent(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId(), contentType, testMessage, null, null);
-                    sourceMessage.setContent(messageContent);
+                for (ContentType contentType : ContentType.getMessageTypes()) {
+                    MessageContent messageContent = new MessageContent(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId(), contentType, testMessage, null, false);
+                    sourceMessage.setMessageContent(messageContent);
 
                     if (contentType != ContentType.RAW) {
                         dao.insertMessageContent(messageContent);
@@ -441,9 +441,9 @@ public class DonkeyDaoTests {
             for (int i = 1; i <= TEST_SIZE; i++) {
                 ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
 
-                for (ContentType contentType : ContentType.values()) {
-                    MessageContent messageContent = new MessageContent(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId(), contentType, testMessage, null, null);
-                    sourceMessage.setContent(messageContent);
+                for (ContentType contentType : ContentType.getMessageTypes()) {
+                    MessageContent messageContent = new MessageContent(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId(), contentType, testMessage, null, false);
+                    sourceMessage.setMessageContent(messageContent);
                     dao.storeMessageContent(messageContent);
                     dao.commit();
                     // Assert that the content was inserted
@@ -813,10 +813,10 @@ public class DonkeyDaoTests {
 
             // Assert that each message was successfully deleted
             for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
-                for (ContentType contentType : ContentType.values()) {
-                    if (connectorMessage.getContent(contentType) != null) {
+                for (ContentType contentType : ContentType.getMessageTypes()) {
+                    if (connectorMessage.getMessageContent(contentType) != null) {
                         // Assert that each content row was deleted
-                        TestUtils.assertMessageContentDoesNotExist(connectorMessage.getContent(contentType));
+                        TestUtils.assertMessageContentDoesNotExist(connectorMessage.getMessageContent(contentType));
                     }
                 }
 
@@ -886,8 +886,8 @@ public class DonkeyDaoTests {
                 }
 
                 for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
-                    for (ContentType contentType : ContentType.values()) {
-                        MessageContent messageContent = connectorMessage.getContent(contentType);
+                    for (ContentType contentType : ContentType.getMessageTypes()) {
+                        MessageContent messageContent = connectorMessage.getMessageContent(contentType);
                         if (messageContent != null) {
                             TestUtils.assertMessageContentDoesNotExist(messageContent);
                         }

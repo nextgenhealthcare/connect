@@ -25,7 +25,6 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
-import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
@@ -176,11 +175,11 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                                 filterTransformerExecutors.get(metaDataId).processConnectorMessage(message);
                             } catch (DonkeyException e) {
                                 message.setStatus(Status.ERROR);
-                                message.setErrors(e.getFormattedError());
+                                message.setProcessingError(e.getFormattedError());
                             }
 
                             // Insert errors if necessary
-                            if (StringUtils.isNotBlank(message.getErrors())) {
+                            if (StringUtils.isNotBlank(message.getProcessingError())) {
                                 dao.updateErrors(message);
                             }
 
@@ -223,7 +222,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                         case PENDING:
                             destinationConnectors.get(metaDataId).processPendingConnectorMessage(dao, message);
                             // Insert errors if necessary
-                            if (StringUtils.isNotBlank(message.getErrors())) {
+                            if (StringUtils.isNotBlank(message.getProcessingError())) {
                                 dao.updateErrors(message);
                             }
                             break;
@@ -241,10 +240,10 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
                     logger.error("Error processing destination " + destinationConnectors.get(metaDataId).getDestinationName() + ".", e);
                     dao.rollback();
                     message.setStatus(Status.ERROR);
-                    message.setErrors(e.toString());
+                    message.setProcessingError(e.toString());
                     dao.updateStatus(message, previousStatus);
                     // Insert errors if necessary
-                    if (StringUtils.isNotBlank(message.getErrors())) {
+                    if (StringUtils.isNotBlank(message.getProcessingError())) {
                         dao.updateErrors(message);
                     }
                 }
@@ -260,7 +259,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
 
                     nextMessage.setChannelMap((Map<String, Object>) cloner.clone(message.getChannelMap()));
                     nextMessage.setResponseMap((Map<String, Object>) cloner.clone(message.getResponseMap()));
-                    nextMessage.setRaw(new MessageContent(message.getChannelId(), message.getMessageId(), nextMetaDataId, ContentType.RAW, message.getRaw().getContent(), nextDestinationConnector.getInboundDataType().getType(), message.getRaw().getEncryptedContent()));
+                    nextMessage.setRaw(new MessageContent(message.getChannelId(), message.getMessageId(), nextMetaDataId, ContentType.RAW, message.getRaw().getContent(), nextDestinationConnector.getInboundDataType().getType(), message.getRaw().isEncrypted()));
 
                     ThreadUtils.checkInterruptedStatus();
                     dao.insertConnectorMessage(nextMessage, storageSettings.isStoreMaps());

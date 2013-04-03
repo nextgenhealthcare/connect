@@ -152,14 +152,14 @@ public class DestinationChainTests {
                         // Assert that the transformed data was stored
                         statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
                         statement.setLong(1, messageResponse.getMessageId());
-                        statement.setLong(2, metaDataId);
-                        statement.setString(3, String.valueOf(ContentType.TRANSFORMED.getContentTypeCode()));
+                        statement.setInt(2, metaDataId);
+                        statement.setInt(3, ContentType.TRANSFORMED.getContentTypeCode());
                         result = statement.executeQuery();
                         assertTrue(result.next());
                         TestUtils.close(result);
     
                         // Assert that the encoded data was stored
-                        statement.setString(3, String.valueOf(ContentType.ENCODED.getContentTypeCode()));
+                        statement.setInt(3, ContentType.ENCODED.getContentTypeCode());
                         result = statement.executeQuery();
                         assertTrue(result.next());
                     } finally {
@@ -212,7 +212,7 @@ public class DestinationChainTests {
                 // Alter the channel and response maps
                 message.getChannelMap().put("key", "value");
                 message.getResponseMap().put("key", new Response(Status.SENT, "value"));
-                return new FilterTransformerResult(true, null);
+                return new FilterTransformerResult(false, null);
             }
         });
 
@@ -248,7 +248,7 @@ public class DestinationChainTests {
                         // Assert that the raw data was stored
                         statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = 0 AND content_type = ?");
                         statement.setLong(1, messageResponse.getMessageId());
-                        statement.setString(2, String.valueOf(ContentType.ENCODED.getContentTypeCode()));
+                        statement.setInt(2, ContentType.ENCODED.getContentTypeCode());
                         result = statement.executeQuery();
                         assertTrue(result.next());
                         result.close();

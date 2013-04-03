@@ -17,8 +17,6 @@ import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.SerializationType;
-import com.mirth.connect.donkey.server.Encryptor;
-import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.message.DataType;
@@ -29,7 +27,6 @@ public class ResponseTransformerExecutor {
     private DataType inbound;
     private DataType outbound;
     private ResponseTransformer responseTransformer;
-    private Encryptor encryptor = new PassthruEncryptor();
 
     public ResponseTransformerExecutor(DataType inbound, DataType outbound) {
         this.inbound = inbound;
@@ -50,10 +47,6 @@ public class ResponseTransformerExecutor {
 
     public void setOutbound(DataType outbound) {
         this.outbound = outbound;
-    }
-
-    protected void setEncryptor(Encryptor encryptor) {
-        this.encryptor = encryptor;
     }
 
     public ResponseTransformer getResponseTransformer() {
@@ -105,7 +98,7 @@ public class ResponseTransformerExecutor {
                 }
             }
 
-            response.fixStatus(queueEnabled);
+            connectorMessage.setResponseError(response.fixStatus(queueEnabled));
 
             // Post transformation: Determine what the encoded content should be set to.
             switch (outbound.getSerializationType()) {
@@ -123,8 +116,6 @@ public class ResponseTransformerExecutor {
             setProcessedResponse(dao, response, connectorMessage, processedResponseContent, storageSettings, serializer);
 
         } else {
-            response.fixStatus(queueEnabled);
-
             if (StringUtils.isNotEmpty(response.getMessage())) {
                 /*
                  * Since this condition can only occur if the inbound and outbound datatypes are the
@@ -149,11 +140,10 @@ public class ResponseTransformerExecutor {
      */
     private void setResponseTransformedContent(ConnectorMessage connectorMessage, String transformedContent, SerializationType serializationType) {
         if (connectorMessage.getResponseTransformed() == null) {
-            connectorMessage.setResponseTransformed(new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_TRANSFORMED, transformedContent, serializationType.toString(), encryptor.encrypt(transformedContent)));
+            connectorMessage.setResponseTransformed(new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_TRANSFORMED, transformedContent, serializationType.toString(), false));
         } else {
             connectorMessage.getResponseTransformed().setDataType(serializationType.toString());
             connectorMessage.getResponseTransformed().setContent(transformedContent);
-            connectorMessage.getResponseTransformed().setEncryptedContent(encryptor.encrypt(transformedContent));
         }
     }
 
@@ -162,7 +152,7 @@ public class ResponseTransformerExecutor {
 
         // Store the processed response in the message
         String responseString = serializer.serialize(response);
-        MessageContent processedResponse = new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSED_RESPONSE, responseString, outbound.getType(), encryptor.encrypt(responseString));
+        MessageContent processedResponse = new MessageContent(connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSED_RESPONSE, responseString, outbound.getType(), false);
 
         if (storageSettings.isStoreProcessedResponse()) {
             ThreadUtils.checkInterruptedStatus();

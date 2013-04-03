@@ -14,4 +14,8 @@ public interface DonkeyDaoFactory {
      * Get a DonkeyDao instance.
      */
     public DonkeyDao getDao();
+
+    public void setEncryptData(boolean encryptData);
+
+    public void setDecryptData(boolean decryptData);
 }

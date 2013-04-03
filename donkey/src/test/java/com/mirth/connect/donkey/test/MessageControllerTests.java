@@ -32,10 +32,8 @@ import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
-import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
@@ -200,12 +198,12 @@ public class MessageControllerTests {
     public void testDeleteMessage() throws Exception {
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId);
         channel.getSourceConnector().setRespondAfterProcessing(false);
-        channel.getSourceQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, TestUtils.getDaoFactory(), new PassthruEncryptor()));
+        channel.getSourceQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, TestUtils.getDaoFactory()));
         channel.getSourceQueue().updateSize();
 
         Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
-        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, testMessage, null, null));
+        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, testMessage, null, false));
         message.getConnectorMessages().put(0, sourceMessage);
 
         DonkeyDao dao = null;

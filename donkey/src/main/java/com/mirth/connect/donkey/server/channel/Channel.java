@@ -46,8 +46,6 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.Encryptor;
-import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.PauseException;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.Startable;
@@ -81,7 +79,6 @@ public class Channel implements Startable, Stoppable, Runnable {
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
     private DonkeyCloner cloner = DonkeyClonerFactory.getInstance().getCloner();
-    private Encryptor encryptor = new PassthruEncryptor();
 
     private AttachmentHandler attachmentHandler;
     private List<MetaDataColumn> metaDataColumns = new ArrayList<MetaDataColumn>();
@@ -201,14 +198,6 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void setCloner(DonkeyCloner cloner) {
         this.cloner = cloner;
-    }
-
-    public Encryptor getEncryptor() {
-        return encryptor;
-    }
-
-    public void setEncryptor(Encryptor encryptor) {
-        this.encryptor = encryptor;
     }
 
     public AttachmentHandler getAttachmentHandler() {
@@ -780,10 +769,10 @@ public class Channel implements Startable, Stoppable, Runnable {
             if (cause instanceof InterruptedException) {
                 channelException = new ChannelException(true, cause);
             } else if (cause instanceof ChannelException) {
-                logger.error(cause);
+                logger.error("Runtime error in channel.", cause);
                 channelException = (ChannelException) cause;
             } else {
-                logger.error(e);
+                logger.error("Error processing message.", e);
                 channelException = new ChannelException(false, e);
             }
 
@@ -860,7 +849,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             processedRawContent = preProcessor.doPreProcess(sourceMessage);
         } catch (DonkeyException e) {
             sourceMessage.setStatus(Status.ERROR);
-            sourceMessage.setErrors(e.getFormattedError());
+            sourceMessage.setProcessingError(e.getFormattedError());
         }
 
         /*
@@ -880,7 +869,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             if (sourceMessage.getStatus() == Status.ERROR) {
                 dao.updateStatus(sourceMessage, Status.RECEIVED);
 
-                if (StringUtils.isNotBlank(sourceMessage.getErrors())) {
+                if (StringUtils.isNotBlank(sourceMessage.getProcessingError())) {
                     dao.updateErrors(sourceMessage);
                 }
 
@@ -893,7 +882,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             if (processedRawContent != null) {
                 // store the processed raw content
-                sourceMessage.setProcessedRaw(new MessageContent(channelId, messageId, 0, ContentType.PROCESSED_RAW, processedRawContent, sourceConnector.getInboundDataType().getType(), encryptor.encrypt(processedRawContent)));
+                sourceMessage.setProcessedRaw(new MessageContent(channelId, messageId, 0, ContentType.PROCESSED_RAW, processedRawContent, sourceConnector.getInboundDataType().getType(), false));
             }
 
             // send the message to the source filter/transformer and then update it's status
@@ -901,7 +890,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                 sourceFilterTransformerExecutor.processConnectorMessage(sourceMessage);
             } catch (DonkeyException e) {
                 sourceMessage.setStatus(Status.ERROR);
-                sourceMessage.setErrors(e.getFormattedError());
+                sourceMessage.setProcessingError(e.getFormattedError());
             }
 
             dao.updateStatus(sourceMessage, Status.RECEIVED);
@@ -926,7 +915,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     dao.insertMessageContent(sourceMessage.getTransformed());
                 }
 
-                if (StringUtils.isNotBlank(sourceMessage.getErrors())) {
+                if (StringUtils.isNotBlank(sourceMessage.getProcessingError())) {
                     dao.updateErrors(sourceMessage);
                 }
 
@@ -1000,7 +989,7 @@ public class Channel implements Startable, Stoppable, Runnable {
                     DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
 
                     // create the raw content from the source's encoded content
-                    MessageContent raw = new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, sourceEncoded.getContent(), destinationConnector.getInboundDataType().getType(), sourceEncoded.getEncryptedContent());
+                    MessageContent raw = new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, sourceEncoded.getContent(), destinationConnector.getInboundDataType().getType(), sourceEncoded.isEncrypted());
 
                     // create the message and set the raw content
                     ConnectorMessage message = new ConnectorMessage(channelId, messageId, metaDataId, sourceMessage.getServerId(), Calendar.getInstance(), Status.RECEIVED);
@@ -1101,7 +1090,7 @@ public class Channel implements Startable, Stoppable, Runnable {
         recoveryExecutor = Executors.newSingleThreadExecutor();
 
         try {
-            return recoveryExecutor.submit(new RecoveryTask(this, encryptor)).get();
+            return recoveryExecutor.submit(new RecoveryTask(this)).get();
         } finally {
             recoveryExecutor.shutdown();
         }
@@ -1178,7 +1167,7 @@ public class Channel implements Startable, Stoppable, Runnable {
 
     public void importMessage(Message message) throws DonkeyException {
         DonkeyDao dao = null;
-        
+
         try {
             dao = daoFactory.getDao();
             importMessage(message, dao);
@@ -1187,7 +1176,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             dao.close();
         }
     }
-    
+
     public void importMessage(Message message, DonkeyDao dao) throws DonkeyException {
         if (message.getImportId() == null) {
             message.setImportId(message.getMessageId());
@@ -1215,15 +1204,12 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             // TODO insert custom metadata
 
-            for (ContentType contentType : ContentType.values()) {
-                MessageContent messageContent = connectorMessage.getContent(contentType);
+            for (ContentType contentType : ContentType.getMessageTypes()) {
+                MessageContent messageContent = connectorMessage.getMessageContent(contentType);
 
                 if (messageContent != null) {
                     messageContent.setMessageId(messageId);
                     messageContent.setChannelId(channelId);
-                    
-                    // re-encrypt content using the current encryptor (we assume that the message being imported has already been decrypted)
-                    messageContent.setEncryptedContent(encryptor.encrypt(messageContent.getContent()));
                 }
             }
 
@@ -1254,7 +1240,7 @@ public class Channel implements Startable, Stoppable, Runnable {
             if (storageSettings.isStoreResponse() && connectorMessage.getResponse() != null) {
                 dao.insertMessageContent(connectorMessage.getResponse());
             }
-            
+
             if (storageSettings.isStoreResponseTransformed() && connectorMessage.getResponseTransformed() != null) {
                 dao.insertMessageContent(connectorMessage.getResponseTransformed());
             }
@@ -1283,14 +1269,12 @@ public class Channel implements Startable, Stoppable, Runnable {
 
             // Call the connector onDeploy() methods so they can run their onDeploy logic
             try {
-                sourceFilterTransformerExecutor.setEncryptor(encryptor);
-
                 if (responseSelector == null) {
                     responseSelector = new ResponseSelector(sourceConnector.getInboundDataType());
                 }
 
                 // set the source queue data source
-                sourceQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, daoFactory, encryptor));
+                sourceQueue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, daoFactory));
 
                 // manually refresh the source queue size from it's data source
                 sourceQueue.updateSize();
@@ -1303,16 +1287,12 @@ public class Channel implements Startable, Stoppable, Runnable {
                     chain.setStorageSettings(storageSettings);
 
                     for (Integer metaDataId : chain.getMetaDataIds()) {
-                        chain.getFilterTransformerExecutors().get(metaDataId).setEncryptor(encryptor);
-
                         DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
                         destinationConnector.setDaoFactory(daoFactory);
                         destinationConnector.setStorageSettings(storageSettings);
-                        destinationConnector.setEncryptor(encryptor);
-                        destinationConnector.getResponseTransformerExecutor().setEncryptor(encryptor);
 
                         // set the queue data source
-                        destinationConnector.getQueue().setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), destinationConnector.getMetaDataId(), Status.QUEUED, destinationConnector.isQueueRotate(), daoFactory, encryptor));
+                        destinationConnector.getQueue().setDataSource(new ConnectorMessageQueueDataSource(getChannelId(), destinationConnector.getMetaDataId(), Status.QUEUED, destinationConnector.isQueueRotate(), daoFactory));
 
                         // refresh the queue size from it's data source
                         destinationConnector.getQueue().updateSize();

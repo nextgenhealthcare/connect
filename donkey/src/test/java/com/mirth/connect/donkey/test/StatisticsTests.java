@@ -26,7 +26,6 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
-import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
@@ -131,7 +130,7 @@ public class StatisticsTests {
             @Override
             public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
                 super.doFilterTransform(message);
-                return new FilterTransformerResult(false, null);
+                return new FilterTransformerResult(true, null);
             }
         };
         channel.getSourceFilterTransformer().setFilterTransformer(filterTransformer);
@@ -220,7 +219,7 @@ public class StatisticsTests {
             destinationConnector.setResponseTransformerExecutor(TestUtils.createDefaultResponseTransformerExecutor());
 
             ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
-            destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), i, Status.QUEUED, false, daoFactory, new PassthruEncryptor()));
+            destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), i, Status.QUEUED, false, daoFactory));
             destinationConnectorQueue.updateSize();
             destinationConnector.setQueue(destinationConnectorQueue);
 
@@ -370,7 +369,7 @@ public class StatisticsTests {
         params.put("status", Status.QUEUED);
 
         ConnectorMessageQueue destinationConnectorQueue = new ConnectorMessageQueue();
-        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), 1, Status.QUEUED, false, daoFactory, new PassthruEncryptor()));
+        destinationConnectorQueue.setDataSource(new ConnectorMessageQueueDataSource(channel.getChannelId(), 1, Status.QUEUED, false, daoFactory));
         destinationConnector.setQueue(destinationConnectorQueue);
 
         ((TestDispatcher) destinationConnector).setReturnStatus(returnStatus);

@@ -193,7 +193,7 @@ public class ExceptionTests {
             channel.process(sourceMessage, true);
 
             assertEquals(Status.ERROR, sourceMessage.getStatus());
-            assertNotNull(sourceMessage.getErrors());
+            assertNotNull(sourceMessage.getProcessingError());
         } finally {
             channel.stop();
             channel.undeploy();

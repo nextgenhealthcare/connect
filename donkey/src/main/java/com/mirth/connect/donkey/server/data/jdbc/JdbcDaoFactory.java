@@ -40,6 +40,8 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
     private ConnectionPool connectionPool;
     private QuerySource querySource;
     private Serializer serializer;
+    private boolean encryptData = false;
+    private boolean decryptData = true;
     private Map<Connection, PreparedStatementSource> statementSources = new ConcurrentHashMap<Connection, PreparedStatementSource>();
     private Logger logger = Logger.getLogger(getClass());
 
@@ -71,6 +73,16 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
 
     public Map<Connection, PreparedStatementSource> getStatementSources() {
         return statementSources;
+    }
+
+    @Override
+    public void setEncryptData(boolean encryptData) {
+        this.encryptData = encryptData;
+    }
+
+    @Override
+    public void setDecryptData(boolean decryptData) {
+        this.decryptData = decryptData;
     }
 
     @Override
@@ -110,6 +122,6 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
             }
         }
 
-        return new JdbcDao(connection, querySource, statementSource, serializer);
+        return new JdbcDao(connection, querySource, statementSource, serializer, encryptData, decryptData);
     }
 }

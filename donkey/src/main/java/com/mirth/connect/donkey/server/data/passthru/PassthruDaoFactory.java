@@ -29,6 +29,12 @@ public class PassthruDaoFactory implements DonkeyDaoFactory {
     }
 
     @Override
+    public void setEncryptData(boolean encryptData) {}
+
+    @Override
+    public void setDecryptData(boolean decryptData) {}
+
+    @Override
     public PassthruDao getDao() {
         PassthruDao dao = new PassthruDao();
 

@@ -718,67 +718,6 @@ public class Client {
 
         return false;
     }
-    
-    public void encryptMessage(Message message) {
-        Encryptor encryptor = getEncryptor();
-        
-        for (ConnectorMessage destinationMessage : message.getConnectorMessages().values()) {
-            encryptConnectorMessage(destinationMessage, encryptor);
-        }
-    }
-
-    private void encryptConnectorMessage(ConnectorMessage connectorMessage, Encryptor encryptor) {
-        encryptMessageContent(connectorMessage.getRaw(), encryptor);
-        encryptMessageContent(connectorMessage.getProcessedRaw(), encryptor);
-        encryptMessageContent(connectorMessage.getTransformed(), encryptor);
-        encryptMessageContent(connectorMessage.getEncoded(), encryptor);
-        encryptMessageContent(connectorMessage.getSent(), encryptor);
-        encryptMessageContent(connectorMessage.getResponse(), encryptor);
-        encryptMessageContent(connectorMessage.getResponseTransformed(), encryptor);
-        encryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
-    }
-
-    private void encryptMessageContent(MessageContent content, Encryptor encryptor) {
-        if (content != null) {
-            String unencryptedContent = content.getContent();
-            
-            if (unencryptedContent != null) {
-                content.setEncryptedContent(encryptor.encrypt(unencryptedContent));
-                content.setContent(null);
-            }
-        }
-    }
-    
-    public void decryptMessage(Message message) {
-        Encryptor encryptor = getEncryptor();
-        
-        for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
-            decryptConnectorMessage(connectorMessage, encryptor);
-        }
-    }
-
-    private void decryptConnectorMessage(ConnectorMessage connectorMessage, Encryptor encryptor) {
-        if (connectorMessage != null) {
-            decryptMessageContent(connectorMessage.getRaw(), encryptor);
-            decryptMessageContent(connectorMessage.getProcessedRaw(), encryptor);
-            decryptMessageContent(connectorMessage.getTransformed(), encryptor);
-            decryptMessageContent(connectorMessage.getEncoded(), encryptor);
-            decryptMessageContent(connectorMessage.getSent(), encryptor);
-            decryptMessageContent(connectorMessage.getResponse(), encryptor);
-            decryptMessageContent(connectorMessage.getResponseTransformed(), encryptor);
-            decryptMessageContent(connectorMessage.getProcessedResponse(), encryptor);
-        }
-    }
-
-    private void decryptMessageContent(MessageContent content, Encryptor encryptor) {
-        if (content != null) {
-            String encryptedContent = content.getEncryptedContent();
-            
-            if (encryptedContent != null) {
-                content.setContent(encryptor.decrypt(encryptedContent));
-            }
-        }
-    }
 
     public void importMessage(String channelId, Message message) throws ClientException {
         logger.debug("importing message");

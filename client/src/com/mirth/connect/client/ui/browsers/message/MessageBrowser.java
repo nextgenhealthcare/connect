@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
@@ -109,6 +110,18 @@ import com.mirth.connect.util.XmlUtil;
  * The message browser panel.
  */
 public class MessageBrowser extends javax.swing.JPanel {
+    public static final int ID_COLUMN = 0;
+    public static final int CONNECTOR_COLUMN = 1;
+    public static final int STATUS_COLUMN = 2;
+    public static final int ORIGINAL_RECEIVED_DATE_COLUMN = 3;
+    public static final int RECEIVED_DATE_COLUMN = 4;
+    public static final int SEND_ATTEMPTS_COLUMN = 5;
+    public static final int SEND_DATE_COLUMN = 6;
+    public static final int RESPONSE_DATE_COLUMN = 7;
+    public static final int ERRORS_COLUMN = 8;
+    public static final int SERVER_ID_COLUMN = 9;
+    public static final int IMPORT_ID_COLUMN = 10;
+
     private final String SCOPE_COLUMN_NAME = "Scope";
     private final String KEY_COLUMN_NAME = "Variable";
     private final String VALUE_COLUMN_NAME = "Value";
@@ -131,8 +144,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private MessageBrowserAdvancedFilter advancedSearchPopup;
     private MessageExportDialog exportDialog;
     private JPopupMenu attachmentPopupMenu;
-    private final String[] columns = new String[] { "Id", "Connector", "Status", "Received Date",
-            "Send Attempts", "Send Date", "Response Date", "Response Status", "Server Id", "Import Id" };
+    private TreeMap<Integer, String> columnMap;
     // Worker used for loading a page and counting the total number of messages
     private SwingWorker<Void, Void> worker;
 
@@ -266,7 +278,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         List<String> columnList = new ArrayList<String>();
         // Add standard columns
-        columnList.addAll(Arrays.asList(columns));
+        columnList.addAll(columnMap.values());
         // Add custom columns
         columnList.addAll(getMetaDataColumnNames());
         tableModel.setColumnIdentifiers(columnList);
@@ -278,14 +290,14 @@ public class MessageBrowser extends javax.swing.JPanel {
             String columnName = column.getTitle();
 
             boolean defaultVisible = false;
-            if (columnName.equals("Id") || columnName.equals("Connector") || columnName.equals("Status") || columnName.equals("Date & Time")) {
+            if (columnName.equals(columnMap.get(ID_COLUMN)) || columnName.equals(columnMap.get(CONNECTOR_COLUMN)) || columnName.equals(columnMap.get(STATUS_COLUMN)) || columnName.equals(columnMap.get(RECEIVED_DATE_COLUMN))) {
                 defaultVisible = true;
             }
 
             // For system columns, check the preferences to see if they should be visible.
             // Custom metadata columns will always be visible for now.
             //TODO add option in channel setup to determine whether custom metadata columns should be visible by default.
-            if (modelIndex < columns.length) {
+            if (modelIndex < columnMap.size()) {
                 column.setVisible(Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserVisibleColumn" + columnName, defaultVisible));
             }
 
@@ -360,7 +372,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     public MessageFilter getMessageFilter() {
         return messageFilter;
     }
-    
+
     public int getPageSize() {
         return NumberUtils.toInt(pageSizeField.getText());
     }
@@ -684,15 +696,9 @@ public class MessageBrowser extends javax.swing.JPanel {
             private int retrievedPageNumber = 1;
 
             public Void doInBackground() {
-                int loadPageNumber = pageNumber;
-                
+
                 try {
-                    foundItems = messages.loadPageNumber(loadPageNumber);
-                    
-                    // if no items were found, move to the last page that contains items
-                    while (!foundItems && loadPageNumber > 1) {
-                        foundItems = messages.loadPageNumber(--loadPageNumber);
-                    };
+                    foundItems = messages.loadPageNumber(pageNumber);
                 } catch (Throwable t) { // catch Throwable in case the client runs out of memory
 
                     if (t.getMessage().contains("Java heap space")) {
@@ -813,7 +819,7 @@ public class MessageBrowser extends javax.swing.JPanel {
      * Shows or hides message tabs depending on what part of the message is
      * selected
      */
-    public void updateDescriptionTabs(Integer metaDataId, boolean errors, boolean attachment) {
+    public void updateDescriptionTabs(boolean hasErrors, boolean attachment) {
         //Save the current open tab
         String title = descriptionTabbedPane.getTitleAt(descriptionTabbedPane.getSelectedIndex());
         //Remove all tabs
@@ -821,7 +827,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         descriptionTabbedPane.addTab("Messages", MessagesPanel);
         descriptionTabbedPane.addTab("Mappings", mappingsPane);
 
-        if (errors) {
+        if (hasErrors) {
             descriptionTabbedPane.addTab("Errors", ErrorsPanel);
         }
 
@@ -914,6 +920,19 @@ public class MessageBrowser extends javax.swing.JPanel {
      * is loaded at this point.
      */
     private void makeMessageTable() {
+        columnMap = new TreeMap<Integer, String>();
+        columnMap.put(ID_COLUMN, "Id");
+        columnMap.put(CONNECTOR_COLUMN, "Connector");
+        columnMap.put(STATUS_COLUMN, "Status");
+        columnMap.put(ORIGINAL_RECEIVED_DATE_COLUMN, "Orig. Received Date");
+        columnMap.put(RECEIVED_DATE_COLUMN, "Received Date");
+        columnMap.put(SEND_ATTEMPTS_COLUMN, "Send Attempts");
+        columnMap.put(SEND_DATE_COLUMN, "Send Date");
+        columnMap.put(RESPONSE_DATE_COLUMN, "Response Date");
+        columnMap.put(ERRORS_COLUMN, "Errors");
+        columnMap.put(SERVER_ID_COLUMN, "Server Id");
+        columnMap.put(IMPORT_ID_COLUMN, "Import Id");
+
         messageTreeTable.setDragEnabled(false);
         //messageTreeTable.setFocusable(false);
         messageTreeTable.setSortable(false);
@@ -926,7 +945,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageTreeTable.setColumnControlVisible(true);
         messageTreeTable.setShowGrid(true, true);
 
-        tableModel = new MessageBrowserTableModel();
+        tableModel = new MessageBrowserTableModel(columnMap.size());
         // Add a blank column to the column initially, otherwise it return an exception on load
         // Columns will be re-generated when the message browser is viewed
         tableModel.setColumnIdentifiers(Arrays.asList(new String[] { "" }));
@@ -1462,7 +1481,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         return null;
     }
-    
+
     public ConnectorMessage getSelectedConnectorMessage() {
         Message message = getSelectedMessage();
         Integer metaDataId = getSelectedMetaDataId();
@@ -1495,7 +1514,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         return null;
     }
-    
+
     // if we enable multiple row selection in the message browser at some point, then we may want to use this method
 //    public List<Integer> getSelectedMetaDataIds() {
 //        List<Integer> metaDataIds = new ArrayList<Integer>();
@@ -1613,8 +1632,8 @@ public class MessageBrowser extends javax.swing.JPanel {
                     updateAttachmentsTable(messageId);
                     // Update the errors tab
                     updateDescriptionErrors(connectorMessage);
-                    // Show relevant tabs
-                    updateDescriptionTabs(metaDataId, (connectorMessage.getErrors() != null || (connectorMessage.getResponseErrors() != null && metaDataId == 0)), attachments.size() > 0);
+                    // Show relevant tabs. Not using errorCode here just in case for some reason there are errors even though errorCode is 0
+                    updateDescriptionTabs(connectorMessage.getProcessingError() != null || connectorMessage.getResponseError() != null, attachments.size() > 0);
                     updateMessageRadioGroup();
 
                     if (attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1) {
@@ -1702,7 +1721,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 if (object instanceof Response) {
                     Response responseObject = (Response) object;
                     String responseStatusMessage = responseObject.getStatusMessage() == null ? "" : ": " + responseObject.getStatusMessage();
-                    
+
                     responseStatusTextField.setText(responseObject.getStatus().toString() + responseStatusMessage);
                     responseStatusTextField.setCaretPosition(0);
                     content = responseObject.getMessage();
@@ -1760,17 +1779,17 @@ public class MessageBrowser extends javax.swing.JPanel {
         Map<String, Object> connectorMap = connectorMessage.getConnectorMap();
         Map<String, Object> channelMap = connectorMessage.getChannelMap();
         Map<String, Object> responseMap = connectorMessage.getResponseMap();
-        
+
         int rowCount = 0;
-        
+
         if (connectorMap != null) {
             rowCount += connectorMap.size();
         }
-        
+
         if (channelMap != null) {
             rowCount += channelMap.size();
         }
-        
+
         if (responseMap != null) {
             rowCount += responseMap.size();
         }
@@ -1807,13 +1826,13 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         updateMappingsTable(tableData, false);
     }
-    
+
     /**
      * Helper function to update the error tab
      */
     private void updateDescriptionErrors(ConnectorMessage connectorMessage) {
-        String processingError = connectorMessage.getErrors();
-        String responseError = connectorMessage.getMetaDataId() == 0 ? connectorMessage.getResponseErrors() : null;
+        String processingError = connectorMessage.getProcessingError();
+        String responseError = connectorMessage.getResponseError();
 
         ErrorsRadioPane.removeAll();
         boolean paneSelected = false;
@@ -1823,7 +1842,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             ErrorsRadioPane.add(ProcessingErrorRadioButton);
             paneSelected = lastUserSelectedErrorType.equals(ProcessingErrorRadioButton.getText());
             if (firstVisiblePane == null) {
-            	firstVisiblePane = ProcessingErrorRadioButton.getText();
+                firstVisiblePane = ProcessingErrorRadioButton.getText();
             }
         }
         setCorrectDocument(ProcessingErrorTextPane, processingError, null);
@@ -1832,23 +1851,23 @@ public class MessageBrowser extends javax.swing.JPanel {
             ErrorsRadioPane.add(ResponseErrorRadioButton);
             paneSelected = lastUserSelectedErrorType.equals(ResponseErrorRadioButton.getText());
             if (firstVisiblePane == null) {
-            	firstVisiblePane = ResponseErrorRadioButton.getText();
+                firstVisiblePane = ResponseErrorRadioButton.getText();
             }
         }
         setCorrectDocument(ResponseErrorTextPane, responseError, null);
-        
+
         String paneToSelect;
         // Set the default pane if the last user selected one is not added.
         if (!paneSelected) {
-        	if (firstVisiblePane != null) {
-        		paneToSelect = firstVisiblePane;
-        	} else {
-        		paneToSelect = ProcessingErrorRadioButton.getText();
-        	}
+            if (firstVisiblePane != null) {
+                paneToSelect = firstVisiblePane;
+            } else {
+                paneToSelect = ProcessingErrorRadioButton.getText();
+            }
         } else {
-        	paneToSelect = lastUserSelectedErrorType;
+            paneToSelect = lastUserSelectedErrorType;
         }
-        
+
         JRadioButton button = getRadioButtonForErrorPane(paneToSelect);
 
         button.setSelected(true);
@@ -1869,7 +1888,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         cardLayout.show(MessagesCardPane, messagePaneName);
     }
-    
+
     private void errorsRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {
         JRadioButton errorsRadioButton = (JRadioButton) evt.getSource();
 
@@ -1877,7 +1896,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         lastUserSelectedErrorType = errorsRadioButton.getText();
     }
-    
+
     private void showErrorPane(String errorPaneName) {
         CardLayout cardLayout = (CardLayout) ErrorsCardPane.getLayout();
 
@@ -1893,10 +1912,10 @@ public class MessageBrowser extends javax.swing.JPanel {
             if (messageNode.isNodeActive()) {
                 Long messageId = messageNode.getMessageId();
                 Integer metaDataId = messageNode.getMetaDataId();
-                
+
                 Message message = messageCache.get(messageId);
                 ConnectorMessage connectorMessage = message.getConnectorMessages().get(metaDataId);
-                
+
                 MessageContent content = null;
 
                 if (messagePaneName.equals("Raw")) {
@@ -1916,22 +1935,22 @@ public class MessageBrowser extends javax.swing.JPanel {
                 } else if (messagePaneName.equals("Processed Response")) {
                     content = connectorMessage.getProcessedResponse();
                 }
-                
+
                 if (content != null && StringUtils.isNotEmpty(content.getContent())) {
                     String trimmedContent = "";
-                    
+
                     if (metaDataId > 0 && (messagePaneName.equals("Response") || messagePaneName.equals("Processed Response"))) {
                         DefaultSerializer serializer = new DefaultSerializer();
                         Object object = serializer.deserialize(content.getContent());
                         if (object instanceof Response) {
                             Response responseObject = (Response) object;
-                            
+
                             trimmedContent = responseObject.getMessage().trim();
                         }
                     } else {
                         trimmedContent = content.getContent().trim();
                     }
-                    
+
                     formatXmlMessageCheckBox.setEnabled(trimmedContent.length() > 0 && trimmedContent.charAt(0) == '<');
                 }
             } else {

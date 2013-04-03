@@ -155,45 +155,41 @@ public class DonkeyMessageController extends MessageController {
         Map<String, Object> params = getParameters(filter, channelId, offset, limit);
         List<Map<String, Object>> rows = session.selectList("Message.searchMessages", params);
 
-        Long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
+        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
 
-        for (Map<String, Object> row : rows) {
-            Calendar receivedDate = Calendar.getInstance();
-            receivedDate.setTimeInMillis(((Timestamp) row.get("received_date")).getTime());
+        /*
+         * If the content is included, we don't want to decrypt because we may want to use the
+         * encrypted content directly. If the content is not included, the setting shouldn't matter,
+         * but we will set it to decrypt anyways just to be safe.
+         */
+        dao.setDecryptData(!includeContent);
 
-            Message message = new Message();
-            message.setMessageId((Long) row.get("message_id"));
-            message.setChannelId(channelId);
-            message.setReceivedDate(receivedDate);
-            message.setServerId((String) row.get("server_id"));
-            message.setProcessed((Boolean) row.get("processed"));
-            message.setImportId((Long) row.get("import_id"));
-            message.setImportChannelId((String) row.get("import_channel_id"));
+        try {
+            for (Map<String, Object> row : rows) {
+                Calendar receivedDate = Calendar.getInstance();
+                receivedDate.setTimeInMillis(((Timestamp) row.get("received_date")).getTime());
 
-            Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
+                Message message = new Message();
+                message.setMessageId((Long) row.get("message_id"));
+                message.setChannelId(channelId);
+                message.setReceivedDate(receivedDate);
+                message.setServerId((String) row.get("server_id"));
+                message.setProcessed((Boolean) row.get("processed"));
+                message.setImportId((Long) row.get("import_id"));
+                message.setImportChannelId((String) row.get("import_channel_id"));
 
-            params = new HashMap<String, Object>();
-            params.put("localChannelId", localChannelId);
-            params.put("messageId", message.getMessageId());
-            params.put("metaDataIds", metaDataIds);
-            List<ConnectorMessage> connectorMessages = session.selectList("Message.selectConnectorMessagesByIds", params);
+                Set<Integer> metaDataIds = getMetaDataIdsFromString((String) row.get("metadata_ids"));
 
-            for (ConnectorMessage connectorMessage : connectorMessages) {
-                connectorMessage.setChannelId(channelId);
+                List<ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, message.getMessageId(), metaDataIds, includeContent);
 
-                message.getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
-            }
-
-            if (includeContent) {
-                List<MessageContent> contentList = session.selectList("Message.selectMessageContent", params);
-
-                for (MessageContent messageContent : contentList) {
-                    messageContent.setChannelId(channel.getChannelId());
-                    message.getConnectorMessages().get(messageContent.getMetaDataId()).setContent(messageContent);
+                for (ConnectorMessage connectorMessage : connectorMessages) {
+                    message.getConnectorMessages().put(connectorMessage.getMetaDataId(), connectorMessage);
                 }
-            }
 
-            messages.add(message);
+                messages.add(message);
+            }
+        } finally {
+            dao.close();
         }
 
         return messages;
@@ -226,13 +222,11 @@ public class DonkeyMessageController extends MessageController {
             }
 
             Map<Integer, ConnectorMessage> connectorMessages = dao.getConnectorMessages(channelId, messageId);
-            Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
 
             for (Entry<Integer, ConnectorMessage> connectorMessageEntry : connectorMessages.entrySet()) {
                 Integer metaDataId = connectorMessageEntry.getKey();
                 ConnectorMessage connectorMessage = connectorMessageEntry.getValue();
 
-                MessageEncryptionUtil.decryptConnectorMessage(connectorMessage, encryptor);
                 message.getConnectorMessages().put(metaDataId, connectorMessage);
             }
 
@@ -416,20 +410,18 @@ public class DonkeyMessageController extends MessageController {
             Map<String, Object> messageResult = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageForReprocessing", params);
 
             String rawContent = (String) messageResult.get("content");
-            String encryptedRawContent = null;
-            RawMessage rawMessage = null;
 
             if ((Boolean) messageResult.get("is_encrypted")) {
-                encryptedRawContent = rawContent;
-                rawContent = encryptor.decrypt(encryptedRawContent);
+                rawContent = encryptor.decrypt(rawContent);
             }
 
             ConnectorMessage connectorMessage = new ConnectorMessage();
             connectorMessage.setChannelId(channelId);
             connectorMessage.setMessageId(messageId);
             connectorMessage.setMetaDataId(0);
-            connectorMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, rawContent, dataType.getType(), encryptedRawContent));
+            connectorMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, rawContent, dataType.getType(), false));
 
+            RawMessage rawMessage = null;
             if (ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).isBinary()) {
                 rawMessage = new RawMessage(DICOMUtil.getDICOMRawBytes(connectorMessage));
             } else {

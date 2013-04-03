@@ -51,36 +51,24 @@
 	</query>
 	
 	<query id="insertConnectorMessage">
-		INSERT INTO d_mm${localChannelId} (id, message_id, received_date, status, connector_name, connector_map, channel_map, response_map, errors, chain_id, order_id)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO d_mm${localChannelId} (id, message_id, received_date, status, connector_name, chain_id, order_id)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
 	</query>
 	
 	<query id="updateSourceResponse">
 		UPDATE d_mm${localChannelId}
-		SET send_attempts = ?, response_errors = ?, response_date = ?
+		SET send_attempts = ?, response_date = ?
 		WHERE id = 0 AND message_id = ?
+	</query>
+	
+	<query id="updateErrorCode">
+		UPDATE d_mm${localChannelId}
+		SET error_code = ?
+		WHERE id = ? AND message_id = ?
 	</query>
 	
 	<query id="updateStatus">
 		UPDATE d_mm${localChannelId} SET status = ?, send_attempts = ?, send_date = ?, response_date = ?
-		WHERE id = ?
-		AND message_id = ?
-	</query>
-	
-	<query id="updateErrors">
-		UPDATE d_mm${localChannelId} SET errors = ?
-		WHERE id = ?
-		AND message_id = ?
-	</query>
-	
-	<query id="updateMaps">
-		UPDATE d_mm${localChannelId} SET connector_map = ?, channel_map = ?, response_map = ?
-		WHERE id = ?
-		AND message_id = ?
-	</query>
-	
-	<query id="updateResponseMap">
-		UPDATE d_mm${localChannelId} SET response_map = ?
 		WHERE id = ?
 		AND message_id = ?
 	</query>
@@ -269,6 +257,15 @@
 		ORDER BY m.id
 	</query>
 	
+	<query id="getConnectorMessagesByMessageIdAndMetaDataIds">
+		SELECT mm.*, m.server_id
+		FROM d_mm${localChannelId} mm
+		JOIN d_m${localChannelId} m ON m.id = mm.message_id
+		WHERE mm.message_id = ?
+		AND mm.id IN (${metaDataIds})
+		ORDER BY mm.chain_id ASC, mm.order_id ASC
+	</query>
+	
 	<query id="getConnectorMessageCountByMetaDataIdAndStatus">
 		SELECT COUNT(*)
 		FROM d_mm${localChannelId} mm
@@ -306,6 +303,13 @@
 	<query id="deleteMessageContent">
 		DELETE FROM d_mc${localChannelId}
 		WHERE message_id = ?
+	</query>
+	
+	<query id="deleteMessageContentByMetaDataIdAndContentType">
+		DELETE FROM d_mc${localChannelId}
+		WHERE message_id = ?
+		AND metadata_id = ?
+		AND content_type = ?
 	</query>
 	
 	<query id="deleteMessageAttachments">

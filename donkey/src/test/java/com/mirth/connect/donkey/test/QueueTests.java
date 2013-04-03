@@ -27,7 +27,6 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
-import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
@@ -86,7 +85,7 @@ public class QueueTests {
 
         ConnectorMessageQueue queue = new ConnectorMessageQueue();
         queue.setBufferCapacity(bufferCapacity);
-        queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, daoFactory, new PassthruEncryptor()));
+        queue.setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, daoFactory));
         queue.updateSize();
         queue.fillBuffer();
 

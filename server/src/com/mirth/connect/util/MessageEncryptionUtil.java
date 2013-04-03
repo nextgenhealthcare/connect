@@ -15,7 +15,7 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 
 public class MessageEncryptionUtil {
-    
+
     public static void decryptMessage(Message message, Encryptor encryptor) {
         for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
             decryptConnectorMessage(connectorMessage, encryptor);
@@ -37,18 +37,13 @@ public class MessageEncryptionUtil {
 
     public static void decryptMessageContent(MessageContent content, Encryptor encryptor) {
         if (content != null) {
-            if (content.getContent() == null) {
-                String encryptedContent = content.getEncryptedContent();
-                
-                if (encryptedContent != null) {
-                    content.setContent(encryptor.decrypt(encryptedContent));
-                }
+            if (content.getContent() != null && content.isEncrypted()) {
+                content.setContent(encryptor.decrypt(content.getContent()));
+                content.setEncrypted(false);
             }
-            
-            content.setEncryptedContent(null);
         }
     }
-    
+
     public static void encryptMessage(Message message, Encryptor encryptor) {
         for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
             encryptConnectorMessage(connectorMessage, encryptor);
@@ -70,15 +65,10 @@ public class MessageEncryptionUtil {
 
     public static void encryptMessageContent(MessageContent content, Encryptor encryptor) {
         if (content != null) {
-            if (content.getEncryptedContent() == null) {
-                String unencryptedContent = content.getContent();
-                
-                if (unencryptedContent != null) {
-                    content.setEncryptedContent(encryptor.encrypt(unencryptedContent));
-                }
+            if (content.getContent() != null && !content.isEncrypted()) {
+                content.setContent(encryptor.encrypt(content.getContent()));
+                content.setEncrypted(true);
             }
-            
-            content.setContent(null);
         }
     }
 }

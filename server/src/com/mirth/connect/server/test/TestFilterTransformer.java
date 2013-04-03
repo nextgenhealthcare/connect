@@ -132,12 +132,12 @@ public class TestFilterTransformer {
         connectorMessage.setChannelId(channelId);
         connectorMessage.setMessageId(messageId);
         connectorMessage.setMetaDataId(metaDataId);
-        connectorMessage.setContent(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, TEST_HL7_MESSAGE, "HL7V2", null));
+        connectorMessage.setMessageContent(new MessageContent(channelId, messageId, metaDataId, ContentType.RAW, TEST_HL7_MESSAGE, "HL7V2", false));
         
         XmlSerializer xmlSerializer = new DefaultXMLSerializer(null);
         String serializedMessage = xmlSerializer.toXML(connectorMessage.getRaw().getContent());
         
-        connectorMessage.setTransformed(new MessageContent(channelId, messageId, metaDataId, ContentType.TRANSFORMED, serializedMessage, "XML", null));
+        connectorMessage.setTransformed(new MessageContent(channelId, messageId, metaDataId, ContentType.TRANSFORMED, serializedMessage, "XML", false));
         return connectorMessage;
     }
 }

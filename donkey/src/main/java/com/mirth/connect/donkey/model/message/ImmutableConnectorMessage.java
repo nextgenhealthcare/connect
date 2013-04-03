@@ -47,8 +47,8 @@ public class ImmutableConnectorMessage {
     }
 
     public ImmutableMessageContent getContent(ContentType contentType) {
-        if (connectorMessage.getContent(contentType) != null) {
-            return new ImmutableMessageContent(connectorMessage.getContent(contentType));
+        if (connectorMessage.getMessageContent(contentType) != null) {
+            return new ImmutableMessageContent(connectorMessage.getMessageContent(contentType));
         }
 
         return null;
@@ -150,7 +150,7 @@ public class ImmutableConnectorMessage {
             return null;
         }
     }
-    
+
     public ImmutableMessageContent getResponseTransformed() {
         if (connectorMessage.getResponseTransformed() != null) {
             return new ImmutableMessageContent(connectorMessage.getResponseTransformed());
@@ -158,15 +158,15 @@ public class ImmutableConnectorMessage {
 
         return null;
     }
-    
+
     public String getResponseTransformedData() {
         if (connectorMessage.getResponseTransformed() != null) {
             return connectorMessage.getResponseTransformed().getContent();
         } else {
             return null;
         }
-    } 
-    
+    }
+
     public ImmutableMessageContent getProcessedResponse() {
         if (connectorMessage.getProcessedResponse() != null) {
             return new ImmutableMessageContent(connectorMessage.getProcessedResponse());
@@ -183,7 +183,7 @@ public class ImmutableConnectorMessage {
             return null;
         }
     }
-    
+
     public long getMessageId() {
         return connectorMessage.getMessageId();
     }
@@ -200,8 +200,12 @@ public class ImmutableConnectorMessage {
         return Collections.unmodifiableMap(connectorMessage.getResponseMap());
     }
 
-    public String getErrors() {
-        return connectorMessage.getErrors();
+    public String getProcessingError() {
+        return connectorMessage.getProcessingError();
+    }
+
+    public String getResponseError() {
+        return connectorMessage.getResponseError();
     }
 
     public String toString() {

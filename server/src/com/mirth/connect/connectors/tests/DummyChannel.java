@@ -110,8 +110,8 @@ public class DummyChannel extends Channel {
     public Message process(ConnectorMessage sourceMessage, boolean waitForDestinations) throws InterruptedException {
         processedMessageIds.add(sourceMessage.getMessageId());
 
-        sourceMessage.setTransformed(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), 0, ContentType.TRANSFORMED, sourceMessage.getRaw().getContent(), "XML", sourceMessage.getRaw().getEncryptedContent()));
-        sourceMessage.setEncoded(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), 0, ContentType.ENCODED, sourceMessage.getRaw().getContent(), getSourceConnector().getOutboundDataType().getType(), sourceMessage.getRaw().getEncryptedContent()));
+        sourceMessage.setTransformed(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), 0, ContentType.TRANSFORMED, sourceMessage.getRaw().getContent(), "XML", sourceMessage.getRaw().isEncrypted()));
+        sourceMessage.setEncoded(new MessageContent(sourceMessage.getChannelId(), sourceMessage.getMessageId(), 0, ContentType.ENCODED, sourceMessage.getRaw().getContent(), getSourceConnector().getOutboundDataType().getType(), sourceMessage.getRaw().isEncrypted()));
 
         ConnectorMessage destinationMessage = new ConnectorMessage();
         destinationMessage.setMessageId(sourceMessage.getMessageId());
@@ -119,8 +119,8 @@ public class DummyChannel extends Channel {
         destinationMessage.setStatus(Status.TRANSFORMED);
         destinationMessage.setMetaDataId(1);
         destinationMessage.setRaw(sourceMessage.getRaw());
-        destinationMessage.setTransformed(new MessageContent(destinationMessage.getChannelId(), destinationMessage.getMessageId(), destinationMessage.getMetaDataId(), ContentType.TRANSFORMED, destinationMessage.getRaw().getContent(), "XML", destinationMessage.getRaw().getEncryptedContent()));
-        destinationMessage.setEncoded(new MessageContent(destinationMessage.getChannelId(), destinationMessage.getMessageId(), destinationMessage.getMetaDataId(), ContentType.ENCODED, destinationMessage.getRaw().getContent(), "XML",  destinationMessage.getRaw().getEncryptedContent()));
+        destinationMessage.setTransformed(new MessageContent(destinationMessage.getChannelId(), destinationMessage.getMessageId(), destinationMessage.getMetaDataId(), ContentType.TRANSFORMED, destinationMessage.getRaw().getContent(), "XML", destinationMessage.getRaw().isEncrypted()));
+        destinationMessage.setEncoded(new MessageContent(destinationMessage.getChannelId(), destinationMessage.getMessageId(), destinationMessage.getMetaDataId(), ContentType.ENCODED, destinationMessage.getRaw().getContent(), "XML",  destinationMessage.getRaw().isEncrypted()));
 
         Message message = new Message();
         message.setMessageId(sourceMessage.getMessageId());

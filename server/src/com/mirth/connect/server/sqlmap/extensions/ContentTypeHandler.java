@@ -23,21 +23,21 @@ public class ContentTypeHandler implements TypeHandler {
 
     @Override
     public Object getResult(ResultSet resultSet, String columnName) throws SQLException {
-        return ContentType.fromChar(resultSet.getString(columnName).charAt(0));
+        return ContentType.fromCode(resultSet.getInt(columnName));
     }
 
     @Override
     public Object getResult(ResultSet resultSet, int columnIndex) throws SQLException {
-        return ContentType.fromChar(resultSet.getString(columnIndex).charAt(0));
+        return ContentType.fromCode(resultSet.getInt(columnIndex));
     }
 
     @Override
     public Object getResult(CallableStatement callableStatement, int columnIndex) throws SQLException {
-        return ContentType.fromChar(callableStatement.getString(columnIndex).charAt(0));
+        return ContentType.fromCode(callableStatement.getInt(columnIndex));
     }
 
     @Override
     public void setParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType) throws SQLException {
-        ps.setString(i, Character.toString(((ContentType) parameter).getContentTypeCode()));
+        ps.setInt(i, ((ContentType) parameter).getContentTypeCode());
     }
 }

@@ -14,6 +14,8 @@ import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 
 public class BufferedDaoFactory implements DonkeyDaoFactory {
     private DonkeyDaoFactory delegateFactory;
+    private boolean encryptData = false;
+    private boolean decryptData = true;
 
     public BufferedDaoFactory(DonkeyDaoFactory delegateFactory) {
         this.delegateFactory = delegateFactory;
@@ -28,7 +30,18 @@ public class BufferedDaoFactory implements DonkeyDaoFactory {
     }
 
     @Override
-    public DonkeyDao getDao() {
-        return new BufferedDao(delegateFactory);
+    public void setEncryptData(boolean encryptData) {
+        this.encryptData = encryptData;
     }
+
+    @Override
+    public void setDecryptData(boolean decryptData) {
+        this.decryptData = decryptData;
+    }
+
+    @Override
+    public DonkeyDao getDao() {
+        return new BufferedDao(delegateFactory, encryptData, decryptData);
+    }
+
 }

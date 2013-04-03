@@ -9,7 +9,6 @@
 
 package com.mirth.connect.donkey.server.data.timed;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,6 +47,16 @@ public class TimedDao implements DonkeyDao {
 
     public void setTimer(ActionTimer timer) {
         this.timer = timer;
+    }
+
+    @Override
+    public void setEncryptData(boolean encryptData) {
+        dao.setEncryptData(encryptData);
+    }
+
+    @Override
+    public void setDecryptData(boolean decryptData) {
+        dao.setDecryptData(decryptData);
     }
 
     @Override
@@ -186,11 +195,11 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public void updateSourceResponse(String channelId, long messageId, int sendAttempts, String responseError, Calendar responseDate) {
+    public void updateSourceResponse(ConnectorMessage connectorMessage) {
         long startTime = System.currentTimeMillis();
 
         try {
-            dao.updateSourceResponse(channelId, messageId, sendAttempts, responseError, responseDate);
+            dao.updateSourceResponse(connectorMessage);
         } finally {
             timer.log("updateResponseError", System.currentTimeMillis() - startTime);
         }
@@ -455,6 +464,17 @@ public class TimedDao implements DonkeyDao {
 
         try {
             return dao.getConnectorMessages(channelId, metaDataId, status, offset, limit, minMessageId, maxMessageId);
+        } finally {
+            timer.log("getConnectorMessages", System.currentTimeMillis() - startTime);
+        }
+    }
+
+    @Override
+    public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent) {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            return dao.getConnectorMessages(channelId, messageId, metaDataIds, includeContent);
         } finally {
             timer.log("getConnectorMessages", System.currentTimeMillis() - startTime);
         }

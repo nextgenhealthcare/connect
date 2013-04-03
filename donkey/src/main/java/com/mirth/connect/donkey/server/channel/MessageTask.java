@@ -27,7 +27,6 @@ import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
-import com.mirth.connect.donkey.server.Encryptor;
 import com.mirth.connect.donkey.server.controllers.MessageController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
@@ -39,7 +38,6 @@ final class MessageTask implements Callable<DispatchResult> {
     private Channel channel;
     private StorageSettings storageSettings;
     private DonkeyDaoFactory daoFactory;
-    private Encryptor encryptor;
     private ResponseSelector responseSelector;
     private boolean respondAfterProcessing;
     private Logger logger = Logger.getLogger(getClass());
@@ -52,7 +50,6 @@ final class MessageTask implements Callable<DispatchResult> {
         this.channel = channel;
         this.storageSettings = channel.getStorageSettings();
         this.daoFactory = channel.getDaoFactory();
-        this.encryptor = channel.getEncryptor();
         this.respondAfterProcessing = channel.getSourceConnector().isRespondAfterProcessing();
         this.responseSelector = channel.getResponseSelector();
         this.lockAcquired = false;
@@ -161,7 +158,7 @@ final class MessageTask implements Callable<DispatchResult> {
         sourceMessage.setChainId(0);
         sourceMessage.setOrderId(0);
 
-        sourceMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, null, channel.getSourceConnector().getInboundDataType().getType(), null));
+        sourceMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, null, channel.getSourceConnector().getInboundDataType().getType(), false));
 
         if (rawMessage.getChannelMap() != null) {
             sourceMessage.setChannelMap(rawMessage.getChannelMap());
@@ -215,15 +212,12 @@ final class MessageTask implements Callable<DispatchResult> {
             }
         }
 
-        MessageContent raw = sourceMessage.getRaw();
-        raw.setEncryptedContent(encryptor.encrypt(raw.getContent()));
-
         ThreadUtils.checkInterruptedStatus();
         dao.insertConnectorMessage(sourceMessage, storageSettings.isStoreMaps());
 
         if (storageSettings.isStoreRaw()) {
             ThreadUtils.checkInterruptedStatus();
-            dao.insertMessageContent(raw);
+            dao.insertMessageContent(sourceMessage.getRaw());
         }
 
         return sourceMessage;

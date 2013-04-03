@@ -33,12 +33,13 @@ public class ConnectorMessage implements Serializable {
     private MessageContent response;
     private MessageContent responseTransformed;
     private MessageContent processedResponse;
-    private Map<String, Object> connectorMap = new HashMap<String, Object>();
-    private Map<String, Object> channelMap = new HashMap<String, Object>();
-    private Map<String, Object> responseMap = new HashMap<String, Object>();
+    private MapContent connectorMapContent = new MapContent();
+    private MapContent channelMapContent = new MapContent();
+    private MapContent responseMapContent = new MapContent();
     private Map<String, Object> metaDataMap = new HashMap<String, Object>();
-    private String errors;
-    private String responseErrors;
+    private ErrorContent processingErrorContent = new ErrorContent();
+    private ErrorContent responseErrorContent = new ErrorContent();
+    private int errorCode = 0;
     private int sendAttempts = 0;
     private Calendar sendDate;
     private Calendar responseDate;
@@ -104,7 +105,7 @@ public class ConnectorMessage implements Serializable {
         this.status = status;
     }
 
-    public MessageContent getContent(ContentType contentType) {
+    public MessageContent getMessageContent(ContentType contentType) {
         switch (contentType) {
             case RAW:
                 return raw;
@@ -122,12 +123,12 @@ public class ConnectorMessage implements Serializable {
                 return responseTransformed;
             case PROCESSED_RESPONSE:
                 return processedResponse;
+            default:
+                return null;
         }
-
-        return null;
     }
 
-    public void setContent(MessageContent messageContent) {
+    public void setMessageContent(MessageContent messageContent) {
         switch (messageContent.getContentType()) {
             case RAW:
                 setRaw(messageContent);
@@ -211,14 +212,14 @@ public class ConnectorMessage implements Serializable {
     public void setResponse(MessageContent messageContentResponse) {
         this.response = messageContentResponse;
     }
-    
-	public MessageContent getResponseTransformed() {
-		return responseTransformed;
-	}
 
-	public void setResponseTransformed(MessageContent responseTransformed) {
-		this.responseTransformed = responseTransformed;
-	}
+    public MessageContent getResponseTransformed() {
+        return responseTransformed;
+    }
+
+    public void setResponseTransformed(MessageContent responseTransformed) {
+        this.responseTransformed = responseTransformed;
+    }
 
     public MessageContent getProcessedResponse() {
         return processedResponse;
@@ -236,28 +237,52 @@ public class ConnectorMessage implements Serializable {
         this.messageId = messageId;
     }
 
+    public MapContent getConnectorMapContent() {
+        return connectorMapContent;
+    }
+
+    public void setConnectorMapContent(MapContent connectorMapContent) {
+        this.connectorMapContent = connectorMapContent;
+    }
+
+    public MapContent getChannelMapContent() {
+        return channelMapContent;
+    }
+
+    public void setChannelMapContent(MapContent channelMapContent) {
+        this.channelMapContent = channelMapContent;
+    }
+
+    public MapContent getResponseMapContent() {
+        return responseMapContent;
+    }
+
+    public void setResponseMapContent(MapContent responseMapContent) {
+        this.responseMapContent = responseMapContent;
+    }
+
     public Map<String, Object> getConnectorMap() {
-        return connectorMap;
+        return connectorMapContent.getMap();
     }
 
     public void setConnectorMap(Map<String, Object> connectorMap) {
-        this.connectorMap = connectorMap;
+        connectorMapContent.setMap(connectorMap);
     }
 
     public Map<String, Object> getChannelMap() {
-        return channelMap;
+        return channelMapContent.getMap();
     }
 
     public void setChannelMap(Map<String, Object> channelMap) {
-        this.channelMap = channelMap;
+        channelMapContent.setMap(channelMap);
     }
 
     public Map<String, Object> getResponseMap() {
-        return responseMap;
+        return responseMapContent.getMap();
     }
 
     public void setResponseMap(Map<String, Object> responseMap) {
-        this.responseMap = responseMap;
+        responseMapContent.setMap(responseMap);
     }
 
     public Map<String, Object> getMetaDataMap() {
@@ -268,20 +293,71 @@ public class ConnectorMessage implements Serializable {
         this.metaDataMap = metaDataMap;
     }
 
-    public String getErrors() {
-        return errors;
+    public ErrorContent getProcessingErrorContent() {
+        return processingErrorContent;
     }
 
-    public void setErrors(String errors) {
-        this.errors = errors;
+    public ErrorContent getResponseErrorContent() {
+        return responseErrorContent;
     }
 
-    public String getResponseErrors() {
-        return responseErrors;
+    public String getProcessingError() {
+        return processingErrorContent.getError();
     }
 
-    public void setResponseErrors(String responseErrors) {
-        this.responseErrors = responseErrors;
+    public void setProcessingError(String processingError) {
+        processingErrorContent.setError(processingError);
+
+        updateErrorCode();
+    }
+
+    public String getResponseError() {
+        return responseErrorContent.getError();
+    }
+
+    public void setResponseError(String responseError) {
+        responseErrorContent.setError(responseError);
+
+        updateErrorCode();
+    }
+
+    /**
+     * Returns whether the connectorMessage contains an error of the content type that is provided.
+     * The connector error code is the sum of all individual error codes of all the errors that
+     * exist. Since individual error codes are all powers of 2, we can use bitwise operators to
+     * determine the existence of an individual error.
+     */
+    public boolean containsError(ContentType contentType) {
+        int errorCode = contentType.getErrorCode();
+
+        if (errorCode > 0) {
+            return (this.errorCode & errorCode) == errorCode;
+        }
+
+        return false;
+    }
+
+    /**
+     * Update the errorCode of the connector message.
+     */
+    private void updateErrorCode() {
+        // The errorCode is the sum of all the individual error codes for which an error exists.
+        errorCode = 0;
+
+        if (getProcessingError() != null) {
+            errorCode += ContentType.PROCESSING_ERROR.getErrorCode();
+        }
+        if (getResponseError() != null) {
+            errorCode += ContentType.RESPONSE_ERROR.getErrorCode();
+        }
+    }
+
+    public int getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(int errorCode) {
+        this.errorCode = errorCode;
     }
 
     public int getSendAttempts() {
@@ -293,14 +369,14 @@ public class ConnectorMessage implements Serializable {
     }
 
     public Calendar getSendDate() {
-		return sendDate;
-	}
+        return sendDate;
+    }
 
-	public void setSendDate(Calendar sendDate) {
-		this.sendDate = sendDate;
-	}
+    public void setSendDate(Calendar sendDate) {
+        this.sendDate = sendDate;
+    }
 
-	public Calendar getResponseDate() {
+    public Calendar getResponseDate() {
         return responseDate;
     }
 

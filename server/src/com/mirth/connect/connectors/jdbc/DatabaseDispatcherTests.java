@@ -22,7 +22,6 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.PassthruEncryptor;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
@@ -215,7 +214,7 @@ public class DatabaseDispatcherTests {
             message.setChainId(1);
             message.setServerId(TEST_SERVER_ID);
 
-            MessageContent rawContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RAW, TEST_HL7_MESSAGE, "HL7", null);
+            MessageContent rawContent = new MessageContent(message.getChannelId(), message.getMessageId(), message.getMetaDataId(), ContentType.RAW, TEST_HL7_MESSAGE, "HL7", false);
             MessageContent encodedContent = SerializationUtils.clone(rawContent);
             encodedContent.setContentType(ContentType.ENCODED);
 
@@ -256,13 +255,12 @@ public class DatabaseDispatcherTests {
     private class TestDatabaseDispatcher extends DatabaseDispatcher {
         public TestDatabaseDispatcher(String channelId, Integer metaDataId, DatabaseDispatcherProperties properties) {
             super();
-            setEncryptor(new PassthruEncryptor());
             setChannelId(channelId);
             setMetaDataId(metaDataId);
             setConnectorProperties(properties);
 
             if (properties.getQueueConnectorProperties().isQueueEnabled()) {
-                getQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, isQueueRotate(), new PassthruDaoFactory(), new PassthruEncryptor()));
+                getQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, metaDataId, Status.QUEUED, isQueueRotate(), new PassthruDaoFactory()));
                 getQueue().updateSize();
             }
         }
