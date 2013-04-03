@@ -40,7 +40,6 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
-import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Statistics;
@@ -936,7 +935,6 @@ public class JdbcDao implements DonkeyDao {
             }
 
             close(resultSet);
-            close(statement); //TODO when does this need to be closed?
 
             // Get the attachment data
             statement = prepareStatement("selectMessageAttachmentByMessageId", channelId);
