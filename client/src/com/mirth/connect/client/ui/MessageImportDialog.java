@@ -30,7 +30,6 @@ import com.mirth.connect.util.MessageUtils;
 import com.mirth.connect.util.VfsUtils;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterException;
-import com.mirth.connect.util.messagewriter.MessageWriterVfs;
 
 public class MessageImportDialog extends JDialog {
     private String channelId;
@@ -59,7 +58,6 @@ public class MessageImportDialog extends JDialog {
         setResizable(false);
         initComponents();
         initLayout();
-        DialogUtils.registerEscapeKey(this);
     }
 
     public void setChannelId(String channelId) {
@@ -92,27 +90,46 @@ public class MessageImportDialog extends JDialog {
         subfoldersCheckbox.setSelected(true);
         browseButton.setEnabled(false);
 
-        // @formatter:off
-        browseButton.addActionListener(new ActionListener() {
-            @Override public void actionPerformed(ActionEvent e) { browseSelected(); }
-        });
+        ActionListener browseSelected = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                browseSelected();
+            }
+        };
 
-        importServerRadio.addActionListener(new ActionListener() {
-            @Override public void actionPerformed(ActionEvent e) { importDestinationChanged(); }
-        });
+        ActionListener importDestinationChanged = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (importServerRadio.isSelected()) {
+                    fileTextField.setText(null);
+                    browseButton.setEnabled(false);
+                } else {
+                    fileTextField.setText(null);
+                    browseButton.setEnabled(true);
+                }
+            }
+        };
 
-        importLocalRadio.addActionListener(new ActionListener() {
-            @Override public void actionPerformed(ActionEvent e) { importDestinationChanged(); }
-        });
+        ActionListener importMessages = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                importMessages();
+            }
+        };
 
-        importButton.addActionListener(new ActionListener() {
-            @Override public void actionPerformed(ActionEvent e) { importMessages(); }
-        });
+        ActionListener cancel = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setVisible(false);
+            }
+        };
 
-        cancelButton.addActionListener(new ActionListener() {
-            @Override public void actionPerformed(ActionEvent e) { setVisible(false); }
-        });
-        // @formatter:on
+        browseButton.addActionListener(browseSelected);
+        importServerRadio.addActionListener(importDestinationChanged);
+        importLocalRadio.addActionListener(importDestinationChanged);
+        importButton.addActionListener(importMessages);
+        cancelButton.addActionListener(cancel);
+        DialogUtils.registerEscapeKey(this, cancel);
     }
 
     private void browseSelected() {
@@ -133,16 +150,6 @@ public class MessageImportDialog extends JDialog {
             }
 
             fileTextField.setText(chooser.getSelectedFile().getAbsolutePath());
-        }
-    }
-
-    private void importDestinationChanged() {
-        if (importServerRadio.isSelected()) {
-            fileTextField.setText(null);
-            browseButton.setEnabled(false);
-        } else {
-            fileTextField.setText(null);
-            browseButton.setEnabled(true);
         }
     }
 

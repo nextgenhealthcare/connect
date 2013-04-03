@@ -44,7 +44,6 @@ public class MessageExportDialog extends JDialog {
         setSize(800, 230);
         setBackground(new Color(255, 255, 255));
         setLocationRelativeTo(null);
-        DialogUtils.registerEscapeKey(this);
 
         initComponents();
         initLayout();
@@ -74,19 +73,23 @@ public class MessageExportDialog extends JDialog {
     }
 
     private void initComponents() {
-        exportButton.addActionListener(new ActionListener() {
+        ActionListener exportAction = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 export();
             }
-        });
+        };
 
-        cancelButton.addActionListener(new ActionListener() {
+        ActionListener cancelAction = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
             }
-        });
+        };
+
+        exportButton.addActionListener(exportAction);
+        cancelButton.addActionListener(cancelAction);
+        DialogUtils.registerEscapeKey(this, cancelAction);
     }
 
     private void initLayout() {
