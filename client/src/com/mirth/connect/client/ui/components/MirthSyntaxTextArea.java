@@ -71,6 +71,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         this.showSnippets = showSnippets;
         this.setCaretVisible(false);
         this.setShowLineEndings(false);
+        // This needs to be saveDisabled instead of saveEnabled because JEditTextArea actually calls setDocument before this gets initialized
         this.saveDisabled = false;
         // Setup menu actions
         cutAction = new CutAction(this);
