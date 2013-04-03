@@ -135,9 +135,10 @@ public class JavaScriptDispatcher extends DestinationConnector {
 
                     if (result != null && !(result instanceof Undefined)) {
                         /*
-                         * If the script return value is a response, return it as-is. If it's a
-                         * status, only update the response status. Otherwise, set the response data
-                         * to the string representation of the object.
+                         * If the script return value is a response, return it
+                         * as-is. If it's a status, only update the response
+                         * status. Otherwise, set the response data to the
+                         * string representation of the object.
                          */
                         if (result instanceof NativeJavaObject) {
                             Object object = ((NativeJavaObject) result).unwrap();
@@ -158,6 +159,9 @@ public class JavaScriptDispatcher extends DestinationConnector {
                         }
                     }
                 } catch (Throwable t) {
+                    // Set the status message before we overwrite the exception
+                    responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error evaluating " + getConnectorProperties().getName(), t);
+
                     if (t instanceof RhinoException) {
                         try {
                             String script = CompiledScriptCache.getInstance().getSourceScript(scriptId);
@@ -169,7 +173,6 @@ public class JavaScriptDispatcher extends DestinationConnector {
                         }
                     }
 
-                    responseStatusMessage = ErrorMessageBuilder.buildErrorResponse("Error evaluating " + getConnectorProperties().getName(), t);
                     responseError = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_414, "Error evaluating " + getConnectorProperties().getName(), t);
                     responseStatus = Status.ERROR;
 
