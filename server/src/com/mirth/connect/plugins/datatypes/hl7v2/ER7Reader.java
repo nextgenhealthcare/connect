@@ -58,7 +58,7 @@ public class ER7Reader extends SAXParser {
         contentHandler.startDocument();
 
         // first tokenize the segments
-        if ((message == null) || (message.length() < 3)) {
+        if ((message == null) || (message.length() < 6)) {
             throw new SAXException("Unable to parse message. It is NULL or too short. " + message);
         }
 
@@ -73,31 +73,35 @@ public class ER7Reader extends SAXParser {
         if (message.substring(0, 3).equalsIgnoreCase("MSH")) {
             fieldSeparator = new String(new char[] { message.charAt(3) });
 
-            int nextDelimeter = message.indexOf(message.charAt(3), 4);
+            int nextDelimiter = message.indexOf(message.charAt(3), 4);
+            if (nextDelimiter == -1) {
+                // If the message is just MSH|^~\&, we still want to extract the encoding characters
+                nextDelimiter = message.length();
+            }
 
-            if (nextDelimeter > 4) {
+            if (nextDelimiter > 4) {
                 // usually ^
                 componentSeparator = new String(new char[] { message.charAt(4) });
             }
 
-            if (nextDelimeter > 5) {
+            if (nextDelimiter > 5) {
                 // usually ~
                 repetitionSeparator = new String(new char[] { message.charAt(5) });
             }
 
-            if (nextDelimeter > 6) {
+            if (nextDelimiter > 6) {
                 // usually \
                 escapeCharacter = new String(new char[] { message.charAt(6) });
             }
 
-            if (nextDelimeter > 7) {
+            if (nextDelimiter > 7) {
                 // usually &
                 subcomponentSeparator = new String(new char[] { message.charAt(7) });
             }
         }
 
         // replace the special case of ^~& with ^~\& (MIRTH-1544)
-        if ("^~&|".equals(message.substring(4, 8))) {
+        if (message.length() >= 8 && "^~&|".equals(message.substring(4, 8))) {
             escapeCharacter = "\\";
             subcomponentSeparator = "&";
             repetitionSeparator = "~";
