@@ -147,7 +147,8 @@ public class JavaScriptScopeUtil {
     // Status enum builder
     private static void addStatusValues(Scriptable scope) {
         for (Status status : Status.values()) {
-            scope.put(status.toString(), scope, status);
+            // Convert java to JS so we can use the == comparator in javascript
+            scope.put(status.toString(), scope, Context.javaToJS(status, scope));
         }
     }
 
@@ -234,7 +235,8 @@ public class JavaScriptScopeUtil {
         scope.put("connector", scope, message.getConnectorName());        
         addStatusValues(scope);
         scope.put("template", scope, template);
-        scope.put("responseStatus", scope, response.getStatus());
+        // Convert java to JS so we can use the == comparator in javascript
+        scope.put("responseStatus", scope, Context.javaToJS(response.getStatus(), scope));
         scope.put("responseErrorMessage", scope, response.getError());
         scope.put("responseStatusMessage", scope, response.getStatusMessage());
 
