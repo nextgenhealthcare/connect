@@ -21,10 +21,12 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
+import com.mirth.connect.donkey.util.Serializer;
 
 /**
  * The base class for all source connectors.
@@ -162,37 +164,12 @@ public abstract class SourceConnector extends Connector {
      *            a response
      */
     public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String responseError) {
-        String response = null;
-
-        if (dispatchResult != null) {
-            Response selectedResponse = dispatchResult.getSelectedResponse();
-
-            if (selectedResponse != null) {
-                response = selectedResponse.getMessage();
-            }
+        if (dispatchResult == null) {
+            return;
         }
 
-        finishDispatch(dispatchResult, attemptedResponse, responseError, response);
-    }
-
-    /**
-     * Finish a message dispatch
-     * 
-     * @param dispatchResult
-     *            The DispatchResult returned by dispatchRawMessage()
-     * @param attemptedResponse
-     *            True if an attempt to send a response was made, false if not
-     * @param responseError
-     *            An error message if an error occurred when attempting to send
-     *            a response
-     * @param response
-     *            The response string (if a response attempt was made)
-     */
-    public void finishDispatch(DispatchResult dispatchResult, boolean attemptedResponse, String responseError, String response) {
         try {
-            if (dispatchResult == null) {
-                return;
-            }
+            Response selectedResponse = dispatchResult.getSelectedResponse();
 
             DonkeyDaoFactory daoFactory = channel.getDaoFactory();
             StorageSettings storageSettings = channel.getStorageSettings();
@@ -200,10 +177,13 @@ public abstract class SourceConnector extends Connector {
             long messageId = dispatchResult.getMessageId();
 
             try {
-                if (response != null && storageSettings.isStoreSentResponse()) {
+                if (selectedResponse != null && storageSettings.isStoreSentResponse()) {
                     dao = daoFactory.getDao();
                     //TODO does this have a data type?
-                    dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.RESPONSE, response, null, false));
+                    Serializer serializer = Donkey.getInstance().getSerializer();
+                    String responseContent = serializer.serialize(selectedResponse);
+
+                    dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.RESPONSE, responseContent, null, false));
                 }
 
                 if (attemptedResponse || responseError != null) {

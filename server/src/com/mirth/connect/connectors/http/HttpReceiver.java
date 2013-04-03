@@ -195,10 +195,10 @@ public class HttpReceiver extends SourceConnector {
                 servletResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                 
                 // TODO get full HTTP payload with error message
-                sentResponse = responseError;
+                dispatchResult.getSelectedResponse().setMessage(responseError);
             } finally {
                 try {
-                    finishDispatch(dispatchResult, attemptedResponse, responseError, sentResponse);
+                    finishDispatch(dispatchResult, attemptedResponse, responseError);
                 } finally {
                     monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
                 }

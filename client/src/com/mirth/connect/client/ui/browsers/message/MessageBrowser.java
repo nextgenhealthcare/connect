@@ -1715,23 +1715,17 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         content = null;
         if (responseMessage != null) {
-            if (connectorMessage.getMetaDataId() > 0) {
-                DefaultSerializer serializer = new DefaultSerializer();
-                Object object = serializer.deserialize(responseMessage.getContent());
-                if (object instanceof Response) {
-                    Response responseObject = (Response) object;
-                    String responseStatusMessage = responseObject.getStatusMessage() == null ? "" : ": " + responseObject.getStatusMessage();
+            DefaultSerializer serializer = new DefaultSerializer();
+            Object object = serializer.deserialize(responseMessage.getContent());
+            if (object instanceof Response) {
+                Response responseObject = (Response) object;
+                String responseStatusMessage = StringUtils.isEmpty(responseObject.getStatusMessage()) ? "" : ": " + responseObject.getStatusMessage();
 
-                    responseStatusTextField.setText(responseObject.getStatus().toString() + responseStatusMessage);
-                    responseStatusTextField.setCaretPosition(0);
-                    content = responseObject.getMessage();
-                }
-                dataType = (responseMessage == null) ? null : responseMessage.getDataType();
-            } else {
-                responseStatusTextField.setText("");
-                content = responseMessage.getContent();
-                dataType = (responseMessage == null) ? null : rawMessage.getDataType();
+                responseStatusTextField.setText(responseObject.getStatus().toString() + responseStatusMessage);
+                responseStatusTextField.setCaretPosition(0);
+                content = responseObject.getMessage();
             }
+            dataType = (responseMessage == null) ? null : responseMessage.getDataType();
         }
 
         if (content != null) {
@@ -1939,7 +1933,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 if (content != null && StringUtils.isNotEmpty(content.getContent())) {
                     String trimmedContent = "";
 
-                    if (metaDataId > 0 && (messagePaneName.equals("Response") || messagePaneName.equals("Processed Response"))) {
+                    if (messagePaneName.equals("Response") || messagePaneName.equals("Processed Response")) {
                         DefaultSerializer serializer = new DefaultSerializer();
                         Object object = serializer.deserialize(content.getContent());
                         if (object instanceof Response) {

@@ -63,7 +63,7 @@ public class ResponseSelector {
     public Response getResponse(ConnectorMessage sourceMessage, Message message) {
         if (respondFromName.equals(ResponseConnectorProperties.RESPONSE_AUTO_BEFORE)) {
             // Assume a successful status since we're responding before the message has been processed
-            return dataType.getAutoResponder().getResponse(Status.SENT, sourceMessage.getRaw().getContent(), sourceMessage);
+            return dataType.getAutoResponder().getResponse(Status.RECEIVED, sourceMessage.getRaw().getContent(), sourceMessage);
         } else if (respondFromName.equals(ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED)) {
             // Use the status and content from the source connector message
             return dataType.getAutoResponder().getResponse(sourceMessage.getStatus(), sourceMessage.getRaw().getContent(), sourceMessage);

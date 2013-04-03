@@ -84,8 +84,9 @@ public class SourceConnectorTests {
 
             try {
                 dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
+                dispatchResult.getSelectedResponse().setMessage("response");
             } finally {
-                sourceConnector.finishDispatch(dispatchResult, true, null, "response");
+                sourceConnector.finishDispatch(dispatchResult, true, null);
             }
 
             if (dispatchResult != null) {
@@ -188,8 +189,9 @@ public class SourceConnectorTests {
 
             try {
                 dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
+                dispatchResult.getSelectedResponse().setMessage("response");
             } finally {
-                sourceConnector.finishDispatch(dispatchResult, true, null, "response");
+                sourceConnector.finishDispatch(dispatchResult, true, null);
             }
 
             if (dispatchResult != null) {

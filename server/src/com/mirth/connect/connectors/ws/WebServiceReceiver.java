@@ -167,11 +167,10 @@ public class WebServiceReceiver extends SourceConnector {
             }
         } catch (ChannelException e) {
             // TODO auto-generate an error response?
-            response = null;
         } finally {
             // TODO: response should be returned before it is marked as finished
             // TODO: figure out how to get the error message if an error occurred in sending the response back
-            finishDispatch(dispatchResult, true, null, response);
+            finishDispatch(dispatchResult, true, null);
         }
 
         // TODO find a way to call this after the response was sent
