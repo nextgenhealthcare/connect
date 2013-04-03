@@ -171,9 +171,15 @@ public class MessagePrunerWithArchiver extends MessagePruner {
                     params.put("dateThreshold", messageDateThreshold);
                 }
 
-                runDelete(session, "Message.prunerDeleteCustomMetadata", params, limit);
-                runDelete(session, "Message.prunerDeleteAttachments", params, limit);
-                runDelete(session, "Message.prunerDeleteConnectorMessages", params, limit);
+                /*
+                 * These manual "cascade" delete queries are only needed for databases that don't
+                 * support cascade deletion with the Message.prunerDeleteMessages query.
+                 */
+                numContentPruned += runDelete(session, "Message.prunerCascadeDeleteMessageContent", params, limit);
+                runDelete(session, "Message.prunerCascadeDeleteCustomMetadata", params, limit);
+                runDelete(session, "Message.prunerCascadeDeleteAttachments", params, limit);
+                runDelete(session, "Message.prunerCascadeDeleteConnectorMessages", params, limit);
+
                 numMessagesPruned += runDelete(session, "Message.prunerDeleteMessages", params, limit);
             }
 

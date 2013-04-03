@@ -332,8 +332,8 @@
 				</where>
 			</when>
 			<otherwise>
-				WHERE (message_id, metadata_id, content_type) IN (
-					SELECT mc.message_id, mc.metadata_id, mc.content_type
+				WHERE message_id IN (
+					SELECT mc.message_id
 					FROM d_mc${localChannelId} mc
 					JOIN d_m${localChannelId} m ON m.id = mc.message_id
 					<if test="dateThreshold != null">
@@ -399,7 +399,7 @@
 	</sql>
 	
 	<select id="prunerSelectMessagesToArchive" parameterType="map" resultType="map">
-		SELECT m.*
+		SELECT m.id, mm.received_date, m.processed, m.server_id, m.import_id
 		FROM d_m${localChannelId} m
 		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0
 		

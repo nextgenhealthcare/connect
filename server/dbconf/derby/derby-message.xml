@@ -308,54 +308,75 @@
 		GROUP BY id, type
 	</select>
 	
+	
+	
 	<!-- Message Pruner/Archiver -->
 	
 	<delete id="prunerDeleteMessages" parameterType="map">
-		DELETE FROM d_m${localChannelId} m
-		<include refid="prunerDeleteCriteria" />
+		DELETE FROM d_m${localChannelId}
+		WHERE id IN (
+			<include refid="prunerSelectMessageIdsToDelete" />
+		)
 	</delete>
-	
+
 	<delete id="prunerDeleteMessageContent" parameterType="map">
 		DELETE FROM d_mc${localChannelId}
 		WHERE message_id IN (
-			SELECT DISTINCT m.id
-			FROM d_m${localChannelId} m
-			<include refid="prunerDeleteCriteria" />
+			<include refid="prunerSelectMessageIdsToDelete" />
 		)
 	</delete>
 	
-	<delete id="prunerDeleteConnectorMessages" parameterType="map">
+	<delete id="prunerCascadeDeleteMessageContent" parameterType="map">
+		DELETE FROM d_mc${localChannelId}
+		WHERE message_id IN (
+			<include refid="prunerSelectMessageIdsToDelete" />
+		)
+	</delete>
+	
+	<delete id="prunerCascadeDeleteConnectorMessages" parameterType="map">
 		DELETE FROM d_mm${localChannelId}
 		WHERE message_id IN (
-			SELECT DISTINCT m.id
-			FROM d_m${localChannelId} m
-			<include refid="prunerDeleteCriteria" />
+			<include refid="prunerSelectMessageIdsToDelete" />
 		)
 	</delete>
 	
-	<delete id="prunerDeleteCustomMetadata" parameterType="map">
+	<delete id="prunerCascadeDeleteCustomMetadata" parameterType="map">
 		DELETE FROM d_mcm${localChannelId}
 		WHERE message_id IN (
-			SELECT DISTINCT m.id
-			FROM d_m${localChannelId} m
-			<include refid="prunerDeleteCriteria" />
+			<include refid="prunerSelectMessageIdsToDelete" />
 		)
 	</delete>
 	
-	<delete id="prunerDeleteAttachments" parameterType="map">
+	<delete id="prunerCascadeDeleteAttachments" parameterType="map">
 		DELETE FROM d_ma${localChannelId}
 		WHERE message_id IN (
-			SELECT DISTINCT m.id
-			FROM d_m${localChannelId} m
-			<include refid="prunerDeleteCriteria" />
+			<include refid="prunerSelectMessageIdsToDelete" />
 		)
 	</delete>
 	
-	<sql id="prunerDeleteCriteria">
-		WHERE m.received_date <![CDATA[ < ]]> #{dateThreshold}
+	<sql id="prunerSelectMessageIdsToDelete">
+		SELECT m.id
+		FROM d_m${localChannelId} m
+		
+		<where>
+			<include refid="prunerDeleteWhere" />
+			
+			<if test="dateThreshold != null">
+				AND m.received_date <![CDATA[ < ]]> #{dateThreshold}
+			</if>
+		</where>
+		
+		<if test="limit != null">
+			FETCH FIRST ${limit} ROWS ONLY
+		</if>
+	</sql>
 	
+	<sql id="prunerDeleteWhere">
+	
+		<!-- The following criteria are intended to be used only by the archiver, or the pruner if there is no archiver. -->
+		
 		<if test="skipIncomplete == true">
-			AND m.processed = TRUE
+			m.processed = TRUE
 		</if>
 		
 		<if test="skipStatuses != null">
@@ -369,34 +390,68 @@
 				</foreach>
 			)
 		</if>
+		
+				
+		<!-- The following criteria are intended to be used only by the pruner to constrain pruning to messages that were archived. -->
+		
+		<if test="includeMessageList != null">
+			AND m.id IN (${includeMessageList})
+		</if>
+		
+		<if test="excludeMessageList != null">
+			AND m.id NOT IN (${excludeMessageList})
+		</if>
+		
+		<if test="includeMessageRanges != null">
+			AND
+			<foreach item="range" collection="includeMessageRanges" open="(" separator="OR" close=")">
+				m.id BETWEEN #{range[0]} AND #{range[1]}
+			</foreach>
+		</if>
+		
+		<if test="excludeMessageRanges != null">
+			AND
+			<foreach item="range" collection="excludeMessageRanges" open="(" separator="AND" close=")">
+				m.id NOT BETWEEN #{range[0]} AND #{range[1]}
+			</foreach>
+		</if>
+
+		<if test="minMessageId != null and maxMessageId != null">
+			AND m.id BETWEEN #{minMessageId} AND #{maxMessageId}
+		</if>
 	</sql>
 	
 	<select id="prunerSelectMessagesToArchive" parameterType="map" resultType="map">
 		SELECT
 			m.id AS "id",
-			m.server_id AS "server_id",
-			m.received_date AS "received_date",
+			mm.received_date AS "received_date",
 			m.processed AS "processed",
-			m.import_id AS "import_id",
-			m.import_channel_id AS "import_channel_id"
-
+			m.server_id AS "server_id",
+			m.import_id AS "import_id"
+			
 		FROM d_m${localChannelId} m
+		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0
 		
 		<if test="skipStatuses != null">
-			LEFT JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.status IN
+			LEFT JOIN d_mm${localChannelId} mm_skip ON mm_skip.message_id = m.id AND mm_skip.status IN
 			<foreach item="status" collection="skipStatuses" open="(" separator="," close=")">
 				#{status}
 			</foreach>
 		</if>
 	
-		WHERE m.received_date <![CDATA[ < ]]> #{dateThreshold}
+		WHERE mm.received_date <![CDATA[ < ]]> #{dateThreshold}
 		
 		<if test="skipIncomplete == true">
 			AND m.processed = TRUE
 		</if>
 		
 		<if test="skipStatuses != null">
-			AND mm.id IS NULL
+			AND mm_skip.id IS NULL
 		</if>
+		
+		ORDER BY m.id
+		
+		OFFSET ${offset} ROWS
+		FETCH FIRST ${limit} ROWS ONLY
 	</select>
 </mapper>
