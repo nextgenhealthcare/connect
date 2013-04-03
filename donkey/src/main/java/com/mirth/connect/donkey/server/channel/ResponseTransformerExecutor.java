@@ -61,7 +61,7 @@ public class ResponseTransformerExecutor {
         ThreadUtils.checkInterruptedStatus();
         String processedResponseContent;
 
-        if (responseTransformer != null && (StringUtils.isNotEmpty(response.getMessage()) || inbound.getSerializationType() == SerializationType.RAW)) {
+        if (isActive(response)) {
             boolean wasResponseTransformedNull = connectorMessage.getResponseTransformed() == null;
             String responseTransformedContent = null;
 
@@ -118,11 +118,13 @@ public class ResponseTransformerExecutor {
         } else {
             if (StringUtils.isNotEmpty(response.getMessage())) {
                 /*
-                 * Since this condition can only occur if the inbound and outbound datatypes are the
-                 * same, it is safe to pass the outbound serializer to the inbound serializer so
-                 * that it can compare/use the properties from both. The purpose of this method is
-                 * to allow the optimization of not serializing, but still modifying the message in
-                 * certain circumstances. It should NOT be used anywhere other than transformers.
+                 * Since this condition can only occur if the inbound and
+                 * outbound datatypes are the same, it is safe to pass the
+                 * outbound serializer to the inbound serializer so that it can
+                 * compare/use the properties from both. The purpose of this
+                 * method is to allow the optimization of not serializing, but
+                 * still modifying the message in certain circumstances. It
+                 * should NOT be used anywhere other than transformers.
                  */
                 String content = inbound.getSerializer().transformWithoutSerializing(response.getMessage(), outbound.getSerializer());
                 // transformWithoutSerializing should return null if it has no effect.
@@ -134,9 +136,14 @@ public class ResponseTransformerExecutor {
         }
     }
 
+    public boolean isActive(Response response) {
+        return responseTransformer != null && (StringUtils.isNotEmpty(response.getMessage()) || inbound.getSerializationType() == SerializationType.RAW);
+    }
+
     /**
      * 
-     * @return Returns whether the response transformed message content object was null
+     * @return Returns whether the response transformed message content object
+     *         was null
      */
     private void setResponseTransformedContent(ConnectorMessage connectorMessage, String transformedContent, SerializationType serializationType) {
         if (connectorMessage.getResponseTransformed() == null) {

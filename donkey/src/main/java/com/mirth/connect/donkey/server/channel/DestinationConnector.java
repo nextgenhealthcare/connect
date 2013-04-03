@@ -445,11 +445,12 @@ public abstract class DestinationConnector extends Connector implements Runnable
         ThreadUtils.checkInterruptedStatus();
 
         /*
-         * If the response transformer (and serializer) will run, change the current status to
-         * PENDING so it can be recovered. Still call runResponseTransformer so that
-         * transformWithoutSerializing can still run
+         * If the response transformer (and serializer) will run, change the
+         * current status to PENDING so it can be recovered. Still call
+         * runResponseTransformer so that transformWithoutSerializing can still
+         * run
          */
-        if (responseTransformerExecutor.getResponseTransformer() != null && StringUtils.isNotEmpty(response.getMessage())) {
+        if (responseTransformerExecutor.isActive(response)) {
             message.setStatus(Status.PENDING);
             dao.updateStatus(message, previousStatus);
             dao.commit(storageSettings.isDurable());
@@ -464,7 +465,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
             if (StringUtils.isNotBlank(response.getError())) {
                 error = response.getError();
             }
-            
+
             message.setProcessingError(error);
             // Insert errors if necessary
             if (message.getErrorCode() > 0) {
