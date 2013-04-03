@@ -38,7 +38,7 @@ public class HL7v2AutoResponder implements AutoResponder {
     private HL7v2SerializationProperties serializationProperties;
     private HL7v2ResponseGenerationProperties generationProperties;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
-    
+
     private String serializationSegmentDelimiter = null;
     private String deserializationSegmentDelimiter = null;
 
@@ -49,7 +49,7 @@ public class HL7v2AutoResponder implements AutoResponder {
     public HL7v2AutoResponder(SerializationProperties serializationProperties, ResponseGenerationProperties generationProperties) {
         this.serializationProperties = (HL7v2SerializationProperties) serializationProperties;
         this.generationProperties = (HL7v2ResponseGenerationProperties) generationProperties;
-        
+
         if (this.serializationProperties != null) {
             serializationSegmentDelimiter = StringUtil.unescape(this.serializationProperties.getSegmentDelimiter());
         }
@@ -57,7 +57,7 @@ public class HL7v2AutoResponder implements AutoResponder {
             deserializationSegmentDelimiter = StringUtil.unescape(this.generationProperties.getSegmentDelimiter());
         }
     }
-    
+
     @Override
     public Response getResponse(Status status, String message, ConnectorMessage connectorMessage) {
         HL7v2ResponseGenerationProperties hl7Properties = getReplacedHL7Properties(connectorMessage);
@@ -88,6 +88,8 @@ public class HL7v2AutoResponder implements AutoResponder {
         boolean isXML = hl7Message.charAt(0) == '<';
 
         String ACK = null;
+        String statusMessage = null;
+        String error = null;
 
         try {
             // Check if we have to look at MSH15
@@ -140,6 +142,7 @@ public class HL7v2AutoResponder implements AutoResponder {
 
             String ackCode = "AA";
             String ackMessage = "";
+            boolean nack = false;
 
             if (status == Status.ERROR) {
                 if (successOnly) {
@@ -148,12 +151,14 @@ public class HL7v2AutoResponder implements AutoResponder {
                 }
                 ackCode = hl7v2Properties.getErrorACKCode();
                 ackMessage = hl7v2Properties.getErrorACKMessage();
+                nack = true;
             } else if (status == Status.FILTERED) {
                 if (successOnly) {
                     return null;
                 }
                 ackCode = hl7v2Properties.getRejectedACKCode();
                 ackMessage = hl7v2Properties.getRejectedACKMessage();
+                nack = true;
             } else {
                 if (errorOnly) {
                     return null;
@@ -163,11 +168,14 @@ public class HL7v2AutoResponder implements AutoResponder {
             }
 
             ACK = new ACKGenerator().generateAckResponse(hl7Message, isXML, ackCode, ackMessage, "yyyyMMddHHmmss", new String(), deserializationSegmentDelimiter);
-            logger.debug("ACK Generated: " + ACK);
+            statusMessage = "HL7v2 " + (nack ? "N" : "") + "ACK successfully generated.";
+            logger.debug("HL7v2 " + (nack ? "N" : "") + "ACK successfully generated: " + ACK);
         } catch (Exception e) {
-            logger.warn("Error generating ACK.", e);
+            logger.warn("Error generating HL7v2 ACK.", e);
+            statusMessage = "Error generating HL7v2 ACK.";
+            error = e.getMessage();
         }
 
-        return new Response(status, ACK);
+        return new Response(status, ACK, statusMessage, error);
     }
 }
