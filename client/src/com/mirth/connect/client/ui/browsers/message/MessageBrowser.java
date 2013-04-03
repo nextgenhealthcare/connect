@@ -1747,7 +1747,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 Object object = serializer.deserialize(processedResponseMessage.getContent());
                 if (object instanceof Response) {
                     Response responseObject = (Response) object;
-                    String processedResponseStatusMessage = responseObject.getStatusMessage() == null ? "" : ": " + responseObject.getStatusMessage();
+                    String processedResponseStatusMessage = StringUtils.isEmpty(responseObject.getStatusMessage()) ? "" : ": " + responseObject.getStatusMessage();
 
                     processedResponseStatusTextField.setText(responseObject.getStatus().toString() + processedResponseStatusMessage);
                     processedResponseStatusTextField.setCaretPosition(0);
