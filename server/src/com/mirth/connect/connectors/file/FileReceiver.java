@@ -176,7 +176,6 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                     return;
                 }
 
-                //
                 if (!routingError && !files[i].isDirectory()) {
                     monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.BUSY);
                     processFile(files[i]);
@@ -185,8 +184,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             }
         } catch (Throwable t) {
             alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_403, null, t);
-            // TODO: handleException
-//            handleException(new Exception(t));
+            logger.error("Error polling in channel: " + getChannelId(), t);
         } finally {
             monitoringController.updateStatus(getChannelId(), getMetaDataId(), connectorType, Event.DONE);
         }
@@ -318,7 +316,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
                     } else {
                         destinationName = originalFilename;
                     }
-
+                    
                     if (!filesEqual(file.getParent(), originalFilename, destinationDir, destinationName)) {
                         if (shouldUseErrorFields) {
                             logger.error("Moving file to error directory: " + destinationDir);
@@ -347,8 +345,7 @@ public class FileReceiver extends PollConnector implements BatchMessageProcessor
             }
         } catch (Exception e) {
             alertController.sendAlerts(getChannelId(), ErrorConstants.ERROR_403, "", e);
-            // TODO: handleException
-//            handleException(e);
+            logger.error("Error processing file in channel: " + getChannelId(), e);
         }
     }
 
