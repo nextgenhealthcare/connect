@@ -78,7 +78,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
-                column.setToolTipText("<html><body>On the source connector, this is the number of times the connector attempted to send the response back to the point on origin.<br>On the destination connectors, this is the number of times the connector attempted to send the message to its recipient.</body></html>");
+                column.setToolTipText("<html><body>On the source connector, this is the number of times the connector attempted to send the response back to the point of origin.<br>On the destination connectors, this is the number of times the connector attempted to send the message to its recipient.</body></html>");
                 break;
 
             case MessageBrowser.SEND_DATE_COLUMN: // Send Date
@@ -87,7 +87,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
-                column.setToolTipText("<html><body>On the source connector, this column is not used.<br>On the destination connectors, this the date right before the most recent send attempt.</body></html>");
+                column.setToolTipText("<html><body>On the source connector, this column is not used.<br>On the destination connectors, this is the date right before the most recent send attempt.</body></html>");
                 break;
 
             case MessageBrowser.RESPONSE_DATE_COLUMN: // Response Date
@@ -96,7 +96,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
-                column.setToolTipText("<html><body>On the source connector, this is the date right before the connector attempted to send the response back to the point of origin.<br>On the destination connectors, this the date immediately after the response was received from its recipient.</body></html>");
+                column.setToolTipText("<html><body>On the source connector, this is the date right before the connector attempted to send the response back to the point of origin.<br>On the destination connectors, this is the date immediately after the response was received from its recipient.</body></html>");
                 break;
 
             case MessageBrowser.ERRORS_COLUMN: // Error
