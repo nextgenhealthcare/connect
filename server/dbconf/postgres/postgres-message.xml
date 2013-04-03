@@ -291,23 +291,84 @@
 	<!-- Message Pruner/Archiver -->
 	
 	<delete id="prunerDeleteMessages" parameterType="map">
-		DELETE FROM d_m${localChannelId} m
-		<include refid="prunerDeleteCriteria" />
+		<choose>
+			<when test="limit == null">
+				DELETE FROM d_m${localChannelId} m
+			
+				<if test="dateThreshold != null">
+					USING d_mm${localChannelId} mm
+				</if>
+				
+				<where>
+					<include refid="prunerDeleteWhere" />
+					
+					<if test="dateThreshold != null">
+						AND mm.message_id = m.id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+					</if>
+				</where>
+			</when>
+			<otherwise>
+				DELETE FROM d_m${localChannelId}
+				WHERE id IN (
+					SELECT m.id
+					FROM d_m${localChannelId} m
+					<if test="dateThreshold != null">
+						JOIN d_mm${localChannelId} mm0 ON mm0.message_id = m.id AND mm0.id = 0 AND mm0.received_date <![CDATA[ < ]]> #{dateThreshold}
+					</if>
+					
+					<where>
+						<include refid="prunerDeleteWhere" />
+					</where>
+					
+					LIMIT #{limit}
+				)
+			</otherwise>
+		</choose>
 	</delete>
 	
 	<delete id="prunerDeleteMessageContent" parameterType="map">
 		DELETE FROM d_mc${localChannelId} mc
-		USING d_m${localChannelId} m
 		
-		<include refid="prunerDeleteCriteria" />
-		AND m.id = mc.message_id
+		<choose>
+			<when test="limit == null">
+				USING d_m${localChannelId} m
+				
+				<if test="dateThreshold != null">
+					, d_mm${localChannelId} mm
+				</if>
+				
+				<where>
+					<include refid="prunerDeleteWhere" />
+					AND mc.message_id = m.id
+					
+					<if test="dateThreshold != null">
+						AND mm.message_id = mc.message_id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+					</if>
+				</where>
+			</when>
+			<otherwise>
+				WHERE (message_id, metadata_id, content_type) IN (
+					SELECT mc.message_id, mc.metadata_id, mc.content_type
+					FROM d_mc${localChannelId} mc
+					JOIN d_m${localChannelId} m ON m.id = mc.message_id
+					<if test="dateThreshold != null">
+						JOIN d_mm${localChannelId} mm0 ON mm0.message_id = m.id AND mm0.id = 0 AND mm0.received_date <![CDATA[ < ]]> #{dateThreshold}
+					</if>
+					<where>
+						<include refid="prunerDeleteWhere" />
+					</where>
+					LIMIT #{limit}
+				)
+			</otherwise>
+		</choose>
 	</delete>
 	
-	<sql id="prunerDeleteCriteria">
-		WHERE m.received_date <![CDATA[ < ]]> #{dateThreshold}
+	<sql id="prunerDeleteWhere">
 	
+		<!-- The following criteria are intended to be used only by the archiver, or the pruner if there is no archiver. -->
+		
 		<if test="skipIncomplete == true">
-			AND m.processed = TRUE
+			m.processed = TRUE
 		</if>
 		
 		<if test="skipStatuses != null">
@@ -321,27 +382,62 @@
 				</foreach>
 			)
 		</if>
+		
+				
+		<!-- The following criteria are intended to be used only by the pruner to constrain pruning to messages that were archived. -->
+		
+		<if test="includeMessageList != null">
+			AND m.id IN (${includeMessageList})
+		</if>
+		
+		<if test="excludeMessageList != null">
+			AND m.id NOT IN (${excludeMessageList})
+		</if>
+		
+		<if test="includeMessageRanges != null">
+			AND
+			<foreach item="range" collection="includeMessageRanges" open="(" separator="OR" close=")">
+				m.id BETWEEN #{range[0]} AND #{range[1]}
+			</foreach>
+		</if>
+		
+		<if test="excludeMessageRanges != null">
+			AND
+			<foreach item="range" collection="excludeMessageRanges" open="(" separator="AND" close=")">
+				m.id NOT BETWEEN #{range[0]} AND #{range[1]}
+			</foreach>
+		</if>
+
+		<if test="minMessageId != null and maxMessageId != null">
+			AND m.id BETWEEN #{minMessageId} AND #{maxMessageId}
+		</if>
 	</sql>
 	
 	<select id="prunerSelectMessagesToArchive" parameterType="map" resultType="map">
 		SELECT m.*
 		FROM d_m${localChannelId} m
+		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0
 		
 		<if test="skipStatuses != null">
-			LEFT JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.status IN
+			LEFT JOIN d_mm${localChannelId} mm_skip ON mm_skip.message_id = m.id AND mm_skip.status IN
 			<foreach item="status" collection="skipStatuses" open="(" separator="," close=")">
 				#{status}
 			</foreach>
 		</if>
 	
-		WHERE m.received_date <![CDATA[ < ]]> #{dateThreshold}
+		WHERE mm.received_date <![CDATA[ < ]]> #{dateThreshold}::date
 		
 		<if test="skipIncomplete == true">
 			AND m.processed = TRUE
 		</if>
 		
 		<if test="skipStatuses != null">
-			AND mm.id IS NULL
+			AND mm_skip.id IS NULL
 		</if>
+		
+		ORDER BY m.id
+		
+		OFFSET #{offset}
+		LIMIT #{limit}
 	</select>
 </mapper>

@@ -82,7 +82,6 @@ import org.syntax.jedit.JEditTextArea;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.core.MessageImportResult;
 import com.mirth.connect.client.core.RequestAbortedException;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.core.UnauthorizedException;
@@ -199,7 +198,9 @@ public class Frame extends JXFrame {
     private boolean acceleratorKeyPressed = false;
     private Set<String> allChannelTags;
     private RemoveMessagesDialog removeMessagesDialog;
-
+    private MessageExportDialog messageExportDialog;
+    private MessageImportDialog messageImportDialog;
+    
     public Frame() {
         rightContainer = new JXTitledPanel();
         channels = new HashMap<String, Channel>();
@@ -3399,79 +3400,28 @@ public class Frame extends JXFrame {
         new EditMessageDialog("", channel.getSourceConnector().getTransformer().getInboundDataType(), channel.getId(), dashboardPanel.getDestinationConnectorNames(channelId), selectedMetaDataIds);
     }
 
-    public void doImportMessages() {
-        final String workingId = startWorking("Importing messages...");
+    public void doExportMessages() {
+        if (messageExportDialog == null) {
+            messageExportDialog = new MessageExportDialog();
+        }
 
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-            private MessageImportResult result;
-
-            public Void doInBackground() {
-                result = messageBrowser.importMessages();
-                return null;
-            }
-
-            public void done() {
-                if (result != null) {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    List<Long> erroredMessageIds = result.getErroredMessageIds();
-                    int errorCount = erroredMessageIds.size();
-                    int successCount = result.getTotal() - errorCount;
-
-                    if (successCount > 0) {
-                        stringBuilder.append(successCount + " message" + (successCount == 1 ? " was" : "s were") + " imported successfully.\n");
-                    }
-
-                    if (errorCount > 0) {
-                        stringBuilder.append(errorCount + " message" + (errorCount == 1 ? "" : "s") + " failed to import due to an error.");
-
-                        // show a list of the message IDs that failed to import, unless it is too big
-                        if (errorCount < 100) {
-                            stringBuilder.append(" Message IDs that failed:\n\n");
-                            int offset = stringBuilder.length();
-                            Long lastMessageId = erroredMessageIds.get(errorCount - 1);
-
-                            for (Long messageId : erroredMessageIds) {
-                                stringBuilder.append(messageId);
-
-                                if (!messageId.equals(lastMessageId)) {
-                                    stringBuilder.append(", ");
-                                }
-
-                                // wrap to a new line after 75 characters are printed
-                                if ((stringBuilder.length() - offset) > 75) {
-                                    stringBuilder.append("\n");
-                                    offset = stringBuilder.length();
-                                }
-                            }
-                        }
-                    }
-
-                    alertInformation(PlatformUI.MIRTH_FRAME, stringBuilder.toString());
-                    messageBrowser.updateFilterButtonFont(Font.BOLD);
-                }
-                stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
+        messageExportDialog.setEncryptor(mirthClient.getEncryptor());
+        messageExportDialog.setMessageFilter(messageBrowser.getMessageFilter());
+        messageExportDialog.setPageSize(messageBrowser.getPageSize());
+        messageExportDialog.setChannelId(messageBrowser.getChannelId());
+        messageExportDialog.setLocationRelativeTo(this);
+        messageExportDialog.setVisible(true);
     }
 
-    public void doExportMessages() {
-        final String workingId = startWorking("Exporting messages...");
+    public void doImportMessages() {
+        if (messageImportDialog == null) {
+            messageImportDialog = new MessageImportDialog();
+        }
 
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            public Void doInBackground() {
-                messageBrowser.exportMessages();
-                return null;
-            }
-
-            public void done() {
-                stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
+        messageImportDialog.setChannelId(messageBrowser.getChannelId());
+        messageImportDialog.setMessageBrowser(messageBrowser);
+        messageImportDialog.setLocationRelativeTo(this);
+        messageImportDialog.setVisible(true);
     }
 
     public void doRemoveAllMessages() {

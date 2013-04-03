@@ -37,7 +37,7 @@ import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MessageController;
 import com.mirth.connect.server.util.DICOMUtil;
-import com.mirth.connect.util.export.MessageExportOptions;
+import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class MessageObjectServlet extends MirthServlet {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -220,14 +220,36 @@ public class MessageObjectServlet extends MirthServlet {
                     } else {
                         messageController.importMessage(channelId, message);
                     }
-                } else if (operation.equals(Operations.MESSAGE_EXPORT)) {
-                    MessageExportOptions options = (MessageExportOptions) serializer.fromXML(request.getParameter("options"));
-                    parameterMap.put("options", options);
+                } else if (operation.equals(Operations.MESSAGE_IMPORT_SERVER)) {
+                    String channelId = request.getParameter("channelId");
+                    String uri = request.getParameter("uri");
+                    Boolean includeSubfolders = (Boolean) serializer.fromXML(request.getParameter("includeSubfolders"));
                     
-                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(options.getChannelId()))) {
+                    parameterMap.put("channelId", channelId);
+                    parameterMap.put("uri", uri);
+                    parameterMap.put("includeSubfolders", includeSubfolders);
+                    
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        out.print(messageController.exportMessages(options));
+                        serializer.toXML(messageController.importMessagesServer(channelId, uri, includeSubfolders), out);
+                    }
+                } else if (operation.equals(Operations.MESSAGE_EXPORT)) {
+                    String channelId = request.getParameter("channelId");
+                    MessageFilter messageFilter = (MessageFilter) serializer.fromXML(request.getParameter("filter"));
+                    Integer pageSize = (Integer) serializer.fromXML(request.getParameter("pageSize"));
+                    Boolean includeAttachments = (Boolean) serializer.fromXML(request.getParameter("includeAttachments"));
+                    MessageWriterOptions writerOptions = (MessageWriterOptions) serializer.fromXML(request.getParameter("writerOptions"));
+                    
+                    parameterMap.put("channelId", channelId);
+                    parameterMap.put("messageFilter", messageFilter);
+                    parameterMap.put("pageSize", pageSize);
+                    parameterMap.put("writerOptions", writerOptions);
+                    
+                    if (!isUserAuthorized(request, parameterMap) || (doesUserHaveChannelRestrictions(request) && !authorizedChannelIds.contains(channelId))) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        out.print(messageController.exportMessages(channelId, messageFilter, pageSize, includeAttachments, writerOptions));
                     }
                 } else if (operation.equals(Operations.MESSAGE_DICOM_MESSAGE_GET)) {
                     ConnectorMessage message = (ConnectorMessage) serializer.fromXML(request.getParameter("message"));

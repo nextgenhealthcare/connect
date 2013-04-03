@@ -55,9 +55,7 @@ import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
-import com.mirth.connect.util.export.MessageExportOptions;
-import com.mirth.connect.util.export.MessageExporter;
-import com.mirth.connect.util.export.MessageRetriever;
+import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class Client {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -781,63 +779,6 @@ public class Client {
             }
         }
     }
-    
-    public MessageImportResult importMessages(String channelId, File file, String charset) throws ClientException {
-        final String openElement = "<message>";
-        final String closeElement = "</message>";
-        BufferedReader reader = null;
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        MessageImportResult result = new MessageImportResult();
-        
-        try {
-            String fileNameLower = file.getName().toLowerCase();
-            ZipInputStream zipInputStream = null;
-            
-            if (fileNameLower.substring(fileNameLower.length() - 4).equals(".zip")) {
-                zipInputStream = new ZipInputStream(new FileInputStream(file));
-                reader = new BufferedReader(new InputStreamReader(zipInputStream, charset));
-            } else {
-                reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
-            }
-            
-            String line;
-            StringBuilder serializedMessage = new StringBuilder();
-            boolean enteredMessage = false;
-
-            do {
-                while ((line = reader.readLine()) != null) {
-                    if (line.equals(openElement)) {
-                        enteredMessage = true;
-                    }
-                    
-                    if (enteredMessage) {
-                        serializedMessage.append(line);
-                        
-                        if (line.equals(closeElement)) {
-                            Message message = (Message) serializer.fromXML(serializedMessage.toString());
-                            result.incrementTotal();
-                            
-                            try {
-                                decryptMessage(message);
-                                importMessage(channelId, message);
-                            } catch (Exception e) {
-                                result.getErroredMessageIds().add(message.getMessageId());
-                            }
-                            
-                            serializedMessage.delete(0, serializedMessage.length());
-                            enteredMessage = false;
-                        }
-                    }
-                }
-            } while (zipInputStream != null && zipInputStream.getNextEntry() != null);
-        } catch (Exception e) {
-            throw new ClientException("Invalid message file. Stopping message import.", e);
-        } finally {
-            IOUtils.closeQuietly(reader);
-        }
-
-        return result;
-     }
 
     public void importMessage(String channelId, Message message) throws ClientException {
         logger.debug("importing message");
@@ -845,32 +786,16 @@ public class Client {
         serverConnection.executePostMethodAsync(MESSAGE_SERVLET, params);
     }
     
-    public int exportMessagesLocal(MessageExportOptions options) throws ClientException {
-        final Client client = this;
-        
-        MessageExporter messageExporter = new MessageExporter();
-        messageExporter.setOptions(options);
-        messageExporter.setSerializer(serializer);
-        messageExporter.setEncryptor(getEncryptor());
-        messageExporter.setMessageRetriever(new MessageRetriever() {
-            @Override
-            public List<Message> getMessages(String channelId, MessageFilter filter, boolean includeContent, Integer offset, Integer limit) throws Exception {
-                return client.getMessages(channelId, filter, includeContent, offset, limit);
-            }
-        });
-        
-        try {
-            return messageExporter.export();
-        } catch (Exception e) {
-            throw new ClientException(e);
-        }
+    public int[] importMessagesServer(String channelId, String uri, boolean includeSubfolders) throws ClientException {
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_IMPORT_SERVER.getName()), new NameValuePair("channelId", channelId), new NameValuePair("uri", uri), new NameValuePair("includeSubfolders", serializer.toXML(includeSubfolders)) };
+        return (int[]) serializer.deserialize(serverConnection.executePostMethodAsync(Client.MESSAGE_SERVLET, params));
     }
-    
-    public int exportMessagesServer(MessageExportOptions options) throws ClientException {
-        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_EXPORT.getName()), new NameValuePair("options", serializer.toXML(options)) };
+
+    public int exportMessagesServer(final String channelId, final MessageFilter filter, final int pageSize, final boolean includeAttachments, final MessageWriterOptions writerOptions) throws ClientException {
+        NameValuePair[] params = { new NameValuePair("op", Operations.MESSAGE_EXPORT.getName()), new NameValuePair("channelId", channelId), new NameValuePair("filter", serializer.toXML(filter)), new NameValuePair("pageSize", serializer.toXML(pageSize)), new NameValuePair("includeAttachments", serializer.toXML(includeAttachments)), new NameValuePair("writerOptions", serializer.toXML(writerOptions)) };
         
         try {
-            return Integer.parseInt(serverConnection.executePostMethod(Client.MESSAGE_SERVLET, params));
+            return Integer.parseInt(serverConnection.executePostMethodAsync(Client.MESSAGE_SERVLET, params));
         } catch (NumberFormatException e) {
             logger.error(e);
             return 0;

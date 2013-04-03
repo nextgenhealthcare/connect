@@ -22,6 +22,15 @@ public class MirthButton extends javax.swing.JButton {
 
     public MirthButton() {
         super();
+        init();
+    }
+    
+    public MirthButton(String text) {
+        super(text);
+        init();
+    }
+    
+    private void init() {
         this.parent = PlatformUI.MIRTH_FRAME;
         this.setFocusable(true);
         this.addActionListener(new java.awt.event.ActionListener() {
@@ -31,7 +40,7 @@ public class MirthButton extends javax.swing.JButton {
             }
         });
     }
-
+    
     public void buttonPressed(java.awt.event.ActionEvent evt) {
         parent.setSaveEnabled(true);
     }

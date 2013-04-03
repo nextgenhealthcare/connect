@@ -16,8 +16,9 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.model.filters.MessageFilter;
-import com.mirth.connect.util.export.MessageExportOptions;
-import com.mirth.connect.util.export.MessageExporter.MessageExporterException;
+import com.mirth.connect.util.MessageImportException;
+import com.mirth.connect.util.MessageUtils.MessageExportException;
+import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public abstract class MessageController {
     public static MessageController getInstance() {
@@ -46,7 +47,7 @@ public abstract class MessageController {
 
     public abstract void importMessage(String channelId, Message message) throws MessageImportException;
     
-    public abstract int exportMessages(MessageExportOptions options) throws MessageExporterException;
-
-    public abstract int pruneMessages(List<String> channelIds, int limit) throws MessagePrunerException;
+    public abstract int[] importMessagesServer(String channelId, String folder, boolean includeSubfolders) throws MessageImportException, InterruptedException;
+    
+    public abstract int exportMessages(final String channelId, final MessageFilter messageFilter, int pageSize, boolean includeAttachments, MessageWriterOptions options) throws MessageExportException, InterruptedException;
 }

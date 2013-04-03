@@ -69,16 +69,6 @@ public class MessageController {
         return message;
     }
 
-    public void importMessage(String channelId, Message message) throws DonkeyException {
-        Channel channel = Donkey.getInstance().getDeployedChannels().get(channelId);
-
-        if (channel == null) {
-            throw new DonkeyException("Failed to import message, channel ID " + channelId + " is not currently deployed");
-        } else {
-            channel.importMessage(message);
-        }
-    }
-
     public Attachment createAttachment(Object data, String type) throws UnsupportedDataTypeException {
         byte[] byteData;
 

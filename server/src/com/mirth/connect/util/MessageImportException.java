@@ -7,10 +7,18 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.controllers;
+package com.mirth.connect.util;
 
 public class MessageImportException extends Exception {
+    public MessageImportException(String message) {
+        super(message);
+    }
+    
     public MessageImportException(Throwable cause) {
         super(cause);
+    }
+    
+    public MessageImportException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

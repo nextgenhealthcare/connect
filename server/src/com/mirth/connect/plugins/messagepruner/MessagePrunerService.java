@@ -17,7 +17,9 @@ import java.util.Properties;
 
 import javax.swing.text.DateFormatter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerFactory;
@@ -28,15 +30,19 @@ import org.quartz.impl.StdSchedulerFactory;
 import com.mirth.connect.client.core.Operations;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.model.ExtensionPermission;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.ServicePlugin;
 import com.mirth.connect.util.PropertyLoader;
+import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class MessagePrunerService implements ServicePlugin {
     public static final String PLUGINPOINT = "Message Pruner";
+    private static final int DEFAULT_PRUNING_BLOCK_SIZE = 0;
 
     private Scheduler sched;
     private SchedulerFactory schedFact;
     private JobDetail jobDetail;
+    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
     private Logger logger = Logger.getLogger(this.getClass());
 
     @Override
@@ -69,7 +75,12 @@ public class MessagePrunerService implements ServicePlugin {
         try {
             schedFact = new StdSchedulerFactory();
             sched = schedFact.getScheduler();
-            sched.scheduleJob(jobDetail, createTrigger(properties));
+
+            Trigger trigger = createTrigger(properties);
+
+            if (trigger != null) {
+                sched.scheduleJob(jobDetail, trigger);
+            }
         } catch (Exception e) {
             logger.error("error encountered in database pruner initialization", e);
         }
@@ -79,7 +90,12 @@ public class MessagePrunerService implements ServicePlugin {
     public void update(Properties properties) {
         try {
             sched.deleteJob("prunerJob", Scheduler.DEFAULT_GROUP);
-            sched.scheduleJob(jobDetail, createTrigger(properties));
+
+            Trigger trigger = createTrigger(properties);
+
+            if (trigger != null) {
+                sched.scheduleJob(jobDetail, trigger);
+            }
 
             // for some reason, this does not work
             // sched.rescheduleJob("prunerJob", Scheduler.DEFAULT_GROUP,
@@ -97,8 +113,12 @@ public class MessagePrunerService implements ServicePlugin {
     @Override
     public Properties getDefaultProperties() {
         Properties properties = new Properties();
-        properties.put("interval", "daily");
+        properties.put("interval", "disabled");
         properties.put("time", "12:00 AM");
+        properties.put("pruningBlockSize", String.valueOf(DEFAULT_PRUNING_BLOCK_SIZE));
+        properties.put("archiveEnabled", serializer.serialize(false));
+        properties.put("includeAttachments", serializer.serialize(false));
+        properties.put("archiverOptions", serializer.serialize(new MessageWriterOptions()));
         return properties;
     }
 
@@ -113,6 +133,11 @@ public class MessagePrunerService implements ServicePlugin {
     private Trigger createTrigger(Properties properties) throws ParseException {
         Trigger trigger = null;
         String interval = PropertyLoader.getProperty(properties, "interval");
+
+        if (interval.equals("disabled")) {
+            logger.debug("Message pruner is disabled");
+            return null;
+        }
 
         if (interval.equals("hourly"))
             trigger = TriggerUtils.makeHourlyTrigger();
@@ -150,9 +175,33 @@ public class MessagePrunerService implements ServicePlugin {
             }
         }
 
+        int pruningBlockSize;
+
+        if (StringUtils.isNotEmpty(properties.getProperty("pruningBlockSize"))) {
+            pruningBlockSize = Integer.parseInt(properties.getProperty("pruningBlockSize"));
+        } else {
+            pruningBlockSize = DEFAULT_PRUNING_BLOCK_SIZE;
+        }
+
+        MessageWriterOptions messageWriterOptions = null;
+
+        boolean archiveEnabled = Boolean.parseBoolean(properties.getProperty("archiveEnabled", Boolean.FALSE.toString()));
+        boolean includeAttachments = Boolean.parseBoolean(properties.getProperty("includeAttachments", Boolean.FALSE.toString()));
+
+        if (archiveEnabled) {
+            messageWriterOptions = (MessageWriterOptions) serializer.fromXML(properties.getProperty("archiverOptions"));
+        }
+
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("pruningBlockSize", pruningBlockSize);
+        jobDataMap.put("archiveEnabled", archiveEnabled);
+        jobDataMap.put("archiverOptions", messageWriterOptions);
+        jobDataMap.put("includeAttachments", includeAttachments);
+
         trigger.setStartTime(new Date());
         trigger.setName("prunerTrigger");
         trigger.setJobName("prunerJob");
+        trigger.setJobDataMap(jobDataMap);
         return trigger;
     }
 }

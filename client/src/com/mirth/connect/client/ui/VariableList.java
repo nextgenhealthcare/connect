@@ -9,22 +9,33 @@
 
 package com.mirth.connect.client.ui;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
+import javax.swing.border.TitledBorder;
+
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
+import com.mirth.connect.client.ui.components.MirthVariableList;
 import com.mirth.connect.model.Connector;
 
 /**
  * A panel that contains the MirthVariableList.
  */
 public class VariableList extends javax.swing.JPanel {
+    private String borderTitle;
 
     /** Creates new form VariableList */
     public VariableList() {
         initComponents();
+    }
+    
+    public MirthVariableList getMirthVariableList() {
+        return mirthVariableList;
     }
 
     public void setTransferMode(TransferMode transferMode) {
@@ -75,12 +86,23 @@ public class VariableList extends javax.swing.JPanel {
         jScrollPane1.setViewportView(mirthVariableList);
     }
 
-    public void setSourceMappingsLabel() {
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Source Mappings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+    public void setBorder(String title, Color color) {
+        borderTitle = title;
+        setBorder(BorderFactory.createTitledBorder(null, title, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 0, 11), color));
     }
 
-    public void setDestinationMappingsLabel() {
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Destination Mappings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+
+        if (enabled) {
+            setBorder(borderTitle, new Color(0, 0, 0));
+        } else {
+            setBorder(borderTitle, new Color(160, 160, 160));
+        }
+
+        jScrollPane1.setEnabled(enabled);
+        mirthVariableList.setEnabled(enabled);
     }
 
     /**
@@ -96,7 +118,7 @@ public class VariableList extends javax.swing.JPanel {
         mirthVariableList = new com.mirth.connect.client.ui.components.MirthVariableList();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder("Variable List"));
+        setBorder(javax.swing.BorderFactory.createTitledBorder("Variables"));
 
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
 

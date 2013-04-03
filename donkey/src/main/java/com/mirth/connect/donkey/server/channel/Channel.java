@@ -1177,88 +1177,93 @@ public class Channel implements Startable, Stoppable, Runnable {
     }
 
     public void importMessage(Message message) throws DonkeyException {
-        DonkeyDao dao = daoFactory.getDao();
-
+        DonkeyDao dao = null;
+        
         try {
-            if (message.getImportId() == null) {
-                message.setImportId(message.getMessageId());
-            }
-
-            if (message.getImportChannelId() == null && !message.getChannelId().equals(channelId)) {
-                message.setImportChannelId(message.getChannelId());
-            }
-
-            long messageId = MessageController.getInstance().getNextMessageId(message.getChannelId());
-            message.setMessageId(messageId);
-            message.setChannelId(channelId);
-            message.setServerId(serverId);
-
-            dao.insertMessage(message);
-
-            for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
-                connectorMessage.setMessageId(messageId);
-                connectorMessage.setChannelId(channelId);
-                connectorMessage.setServerId(serverId);
-
-                int metaDataId = connectorMessage.getMetaDataId();
-
-                dao.insertConnectorMessage(connectorMessage, true);
-
-                // TODO insert custom metadata
-
-                // re-encrypt content using the current encryptor (we assume that the message being imported has already been decrypted)
-                for (ContentType contentType : ContentType.values()) {
-                    MessageContent messageContent = connectorMessage.getContent(contentType);
-
-                    if (messageContent != null) {
-                        messageContent.setMessageId(messageId);
-                        messageContent.setChannelId(channelId);
-                        messageContent.setEncryptedContent(encryptor.encrypt(messageContent.getContent()));
-                    }
-                }
-
-                if (storageSettings.isStoreRaw() && connectorMessage.getRaw() != null) {
-                    dao.insertMessageContent(connectorMessage.getRaw());
-                }
-
-                if (storageSettings.isStoreProcessedRaw() && connectorMessage.getProcessedRaw() != null) {
-                    dao.insertMessageContent(connectorMessage.getProcessedRaw());
-                }
-
-                if (storageSettings.isStoreTransformed() && connectorMessage.getTransformed() != null) {
-                    dao.insertMessageContent(connectorMessage.getTransformed());
-                }
-
-                if (storageSettings.isStoreSourceEncoded() && metaDataId == 0 && connectorMessage.getEncoded() != null) {
-                    dao.insertMessageContent(connectorMessage.getEncoded());
-                }
-
-                if (storageSettings.isStoreDestinationEncoded() && metaDataId > 0 && connectorMessage.getEncoded() != null) {
-                    dao.insertMessageContent(connectorMessage.getEncoded());
-                }
-
-                if (storageSettings.isStoreSent() && connectorMessage.getSent() != null) {
-                    dao.insertMessageContent(connectorMessage.getSent());
-                }
-
-                if (storageSettings.isStoreResponse() && connectorMessage.getResponse() != null) {
-                    dao.insertMessageContent(connectorMessage.getResponse());
-                }
-                
-                if (storageSettings.isStoreResponseTransformed() && connectorMessage.getResponseTransformed() != null) {
-                    dao.insertMessageContent(connectorMessage.getResponseTransformed());
-                }
-
-                if (storageSettings.isStoreProcessedResponse() && connectorMessage.getProcessedResponse() != null) {
-                    dao.insertMessageContent(connectorMessage.getProcessedResponse());
-                }
-
-                // TODO insert attachments?
-            }
-
+            dao = daoFactory.getDao();
+            importMessage(message, dao);
             dao.commit();
         } finally {
             dao.close();
+        }
+    }
+    
+    public void importMessage(Message message, DonkeyDao dao) throws DonkeyException {
+        if (message.getImportId() == null) {
+            message.setImportId(message.getMessageId());
+        }
+
+        if (message.getImportChannelId() == null && !message.getChannelId().equals(channelId)) {
+            message.setImportChannelId(message.getChannelId());
+        }
+
+        long messageId = MessageController.getInstance().getNextMessageId(message.getChannelId());
+        message.setMessageId(messageId);
+        message.setChannelId(channelId);
+        message.setServerId(serverId);
+
+        dao.insertMessage(message);
+
+        for (ConnectorMessage connectorMessage : message.getConnectorMessages().values()) {
+            connectorMessage.setMessageId(messageId);
+            connectorMessage.setChannelId(channelId);
+            connectorMessage.setServerId(serverId);
+
+            int metaDataId = connectorMessage.getMetaDataId();
+
+            dao.insertConnectorMessage(connectorMessage, true);
+
+            // TODO insert custom metadata
+
+            for (ContentType contentType : ContentType.values()) {
+                MessageContent messageContent = connectorMessage.getContent(contentType);
+
+                if (messageContent != null) {
+                    messageContent.setMessageId(messageId);
+                    messageContent.setChannelId(channelId);
+                    
+                    // re-encrypt content using the current encryptor (we assume that the message being imported has already been decrypted)
+                    messageContent.setEncryptedContent(encryptor.encrypt(messageContent.getContent()));
+                }
+            }
+
+            if (storageSettings.isStoreRaw() && connectorMessage.getRaw() != null) {
+                dao.insertMessageContent(connectorMessage.getRaw());
+            }
+
+            if (storageSettings.isStoreProcessedRaw() && connectorMessage.getProcessedRaw() != null) {
+                dao.insertMessageContent(connectorMessage.getProcessedRaw());
+            }
+
+            if (storageSettings.isStoreTransformed() && connectorMessage.getTransformed() != null) {
+                dao.insertMessageContent(connectorMessage.getTransformed());
+            }
+
+            if (storageSettings.isStoreSourceEncoded() && metaDataId == 0 && connectorMessage.getEncoded() != null) {
+                dao.insertMessageContent(connectorMessage.getEncoded());
+            }
+
+            if (storageSettings.isStoreDestinationEncoded() && metaDataId > 0 && connectorMessage.getEncoded() != null) {
+                dao.insertMessageContent(connectorMessage.getEncoded());
+            }
+
+            if (storageSettings.isStoreSent() && connectorMessage.getSent() != null) {
+                dao.insertMessageContent(connectorMessage.getSent());
+            }
+
+            if (storageSettings.isStoreResponse() && connectorMessage.getResponse() != null) {
+                dao.insertMessageContent(connectorMessage.getResponse());
+            }
+            
+            if (storageSettings.isStoreResponseTransformed() && connectorMessage.getResponseTransformed() != null) {
+                dao.insertMessageContent(connectorMessage.getResponseTransformed());
+            }
+
+            if (storageSettings.isStoreProcessedResponse() && connectorMessage.getProcessedResponse() != null) {
+                dao.insertMessageContent(connectorMessage.getProcessedResponse());
+            }
+
+            // TODO insert attachments?
         }
     }
 

@@ -91,6 +91,10 @@ public class TestUtils {
         return channelStatus;
     }
     
+    public static Message createTestProcessedMessage() {
+        return createTestProcessedMessage("testchannelid", "testserverid", 1, com.mirth.connect.server.controllers.tests.TestUtils.TEST_HL7_MESSAGE);
+    }
+    
     public static Message createTestProcessedMessage(String channelId, String serverId, long messageId, String content) {
         Calendar receivedDate = Calendar.getInstance();
 

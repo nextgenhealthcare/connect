@@ -30,6 +30,7 @@ public class ChannelProperties implements Serializable {
     private AttachmentHandlerProperties attachmentProperties;
     private Integer pruneMetaDataDays;
     private Integer pruneContentDays;
+    private boolean archiveEnabled;
 
     public ChannelProperties() {
         clearGlobalChannelMap = true;
@@ -38,6 +39,7 @@ public class ChannelProperties implements Serializable {
         initialStateStarted = true;
         metaDataColumns = new ArrayList<MetaDataColumn>();
         attachmentProperties = AttachmentHandlerFactory.getDefaults(AttachmentHandlerType.NONE);
+        archiveEnabled = true;
     }
 
     public boolean isClearGlobalChannelMap() {
@@ -126,5 +128,13 @@ public class ChannelProperties implements Serializable {
 
     public void setPruneContentDays(Integer pruneContentDays) {
         this.pruneContentDays = pruneContentDays;
+    }
+
+    public boolean isArchiveEnabled() {
+        return archiveEnabled;
+    }
+
+    public void setArchiveEnabled(boolean archiveEnabled) {
+        this.archiveEnabled = archiveEnabled;
     }
 }

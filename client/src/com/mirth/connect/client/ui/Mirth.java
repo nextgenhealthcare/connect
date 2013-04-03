@@ -131,6 +131,96 @@ public class Mirth {
     private static void keyMapBindings(JTextComponent comp, KeyBinding[] bindings) {
         JTextComponent.loadKeymap(comp.getKeymap(), bindings, comp.getActions());
     }
+    
+    public static void initUIManager() {
+        try {
+            PlasticLookAndFeel.setPlasticTheme(new MirthTheme());
+            PlasticXPLookAndFeel look = new PlasticXPLookAndFeel();
+            UIManager.setLookAndFeel(look);
+            UIManager.put("win.xpstyle.name", "metallic");
+            LookAndFeelAddons.setAddon(WindowsLookAndFeelAddons.class);
+            
+            /*
+             * MIRTH-1225 and MIRTH-2019: Create alternate key bindings
+             * if CTRL is not the same as the menu shortcut key (i.e.
+             * COMMAND on OSX)
+             */
+            if (InputEvent.CTRL_MASK != Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) {
+                createAlternateKeyBindings();
+            }
+            
+            if (System.getProperty("os.name").toLowerCase().lastIndexOf("mac") != -1) {
+                OSXAdapter.setAboutHandler(Mirth.class, Mirth.class.getDeclaredMethod("aboutMac", (Class[]) null));
+                OSXAdapter.setQuitHandler(Mirth.class, Mirth.class.getDeclaredMethod("quitMac", (Class[]) null));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+     // keep the tooltips from disappearing
+        ToolTipManager.sharedInstance().setDismissDelay(3600000);
+        
+        // TabbedPane defaults
+        // UIManager.put("TabbedPane.selected", new Color(0xffffff));
+        // UIManager.put("TabbedPane.background",new Color(225,225,225));
+        // UIManager.put("TabbedPane.tabAreaBackground",new Color(225,225,225));
+        UIManager.put("TabbedPane.highlight", new Color(225, 225, 225));
+        UIManager.put("TabbedPane.selectHighlight", new Color(0xc3c3c3));
+        UIManager.put("TabbedPane.contentBorderInsets", new InsetsUIResource(0, 0, 0, 0));
+
+        // TaskPane defaults
+        UIManager.put("TaskPane.titleBackgroundGradientStart", new Color(0xffffff));
+        UIManager.put("TaskPane.titleBackgroundGradientEnd", new Color(0xffffff));
+
+        // Set fonts
+        UIManager.put("TextPane.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("ToggleButton.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("Panel.font", UIConstants.DIALOG_FONT);
+        UIManager.put("PopupMenu.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("OptionPane.font", UIConstants.DIALOG_FONT);
+        UIManager.put("Label.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("Tree.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("ScrollPane.font", UIConstants.DIALOG_FONT);
+        UIManager.put("TextField.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("Viewport.font", UIConstants.DIALOG_FONT);
+        UIManager.put("MenuBar.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("FormattedTextField.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("DesktopIcon.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("TableHeader.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("ToolTip.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("PasswordField.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("TaskPane.font", UIConstants.TEXTFIELD_BOLD_FONT);
+        UIManager.put("Table.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("TabbedPane.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("ProgressBar.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("CheckBoxMenuItem.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("ColorChooser.font", UIConstants.DIALOG_FONT);
+        UIManager.put("Button.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("TextArea.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("Spinner.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("RadioButton.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("TitledBorder.font", UIConstants.TEXTFIELD_BOLD_FONT);
+        UIManager.put("EditorPane.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("RadioButtonMenuItem.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("ToolBar.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("MenuItem.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("CheckBox.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("JXTitledPanel.title.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("Menu.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("ComboBox.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        UIManager.put("JXLoginPanel.banner.font", UIConstants.BANNER_FONT);
+        UIManager.put("List.font", UIConstants.TEXTFIELD_PLAIN_FONT);
+        
+        InputMap im = (InputMap) UIManager.get("Button.focusInputMap");
+        im.put(KeyStroke.getKeyStroke("pressed ENTER"), "pressed");
+        im.put(KeyStroke.getKeyStroke("released ENTER"), "released");
+
+        try {
+            UIManager.put("wizard.sidebar.image", ImageIO.read(com.mirth.connect.client.ui.Frame.class.getResource("images/wizardsidebar.png")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Application entry point. Sets up the login panel and its layout as well.
@@ -167,95 +257,8 @@ public class Mirth {
         }
         
         SwingUtilities.invokeLater(new Runnable() {
-
             public void run() {
-                try {
-                    PlasticLookAndFeel.setPlasticTheme(new MirthTheme());
-                    PlasticXPLookAndFeel look = new PlasticXPLookAndFeel();
-                    UIManager.setLookAndFeel(look);
-                    UIManager.put("win.xpstyle.name", "metallic");
-                    LookAndFeelAddons.setAddon(WindowsLookAndFeelAddons.class);
-                    
-                    /*
-                     * MIRTH-1225 and MIRTH-2019: Create alternate key bindings
-                     * if CTRL is not the same as the menu shortcut key (i.e.
-                     * COMMAND on OSX)
-                     */
-                    if (InputEvent.CTRL_MASK != Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) {
-                        createAlternateKeyBindings();
-                    }
-                    
-                    if (System.getProperty("os.name").toLowerCase().lastIndexOf("mac") != -1) {
-                        OSXAdapter.setAboutHandler(Mirth.class, Mirth.class.getDeclaredMethod("aboutMac", (Class[]) null));
-                        OSXAdapter.setQuitHandler(Mirth.class, Mirth.class.getDeclaredMethod("quitMac", (Class[]) null));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                // keep the tooltips from disappearing
-                ToolTipManager.sharedInstance().setDismissDelay(3600000);
-                
-                // TabbedPane defaults
-                // UIManager.put("TabbedPane.selected", new Color(0xffffff));
-                // UIManager.put("TabbedPane.background",new Color(225,225,225));
-                // UIManager.put("TabbedPane.tabAreaBackground",new Color(225,225,225));
-                UIManager.put("TabbedPane.highlight", new Color(225, 225, 225));
-                UIManager.put("TabbedPane.selectHighlight", new Color(0xc3c3c3));
-                UIManager.put("TabbedPane.contentBorderInsets", new InsetsUIResource(0, 0, 0, 0));
-
-                // TaskPane defaults
-                UIManager.put("TaskPane.titleBackgroundGradientStart", new Color(0xffffff));
-                UIManager.put("TaskPane.titleBackgroundGradientEnd", new Color(0xffffff));
-
-                // Set fonts
-                UIManager.put("TextPane.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("ToggleButton.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("Panel.font", UIConstants.DIALOG_FONT);
-                UIManager.put("PopupMenu.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("OptionPane.font", UIConstants.DIALOG_FONT);
-                UIManager.put("Label.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("Tree.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("ScrollPane.font", UIConstants.DIALOG_FONT);
-                UIManager.put("TextField.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("Viewport.font", UIConstants.DIALOG_FONT);
-                UIManager.put("MenuBar.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("FormattedTextField.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("DesktopIcon.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("TableHeader.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("ToolTip.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("PasswordField.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("TaskPane.font", UIConstants.TEXTFIELD_BOLD_FONT);
-                UIManager.put("Table.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("TabbedPane.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("ProgressBar.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("CheckBoxMenuItem.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("ColorChooser.font", UIConstants.DIALOG_FONT);
-                UIManager.put("Button.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("TextArea.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("Spinner.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("RadioButton.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("TitledBorder.font", UIConstants.TEXTFIELD_BOLD_FONT);
-                UIManager.put("EditorPane.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("RadioButtonMenuItem.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("ToolBar.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("MenuItem.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("CheckBox.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("JXTitledPanel.title.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("Menu.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("ComboBox.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-                UIManager.put("JXLoginPanel.banner.font", UIConstants.BANNER_FONT);
-                UIManager.put("List.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-
-                InputMap im = (InputMap) UIManager.get("Button.focusInputMap");
-                im.put(KeyStroke.getKeyStroke("pressed ENTER"), "pressed");
-                im.put(KeyStroke.getKeyStroke("released ENTER"), "released");
-
-                try {
-                    UIManager.put("wizard.sidebar.image", ImageIO.read(com.mirth.connect.client.ui.Frame.class.getResource("images/wizardsidebar.png")));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                initUIManager();
                 PlatformUI.BACKGROUND_IMAGE = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/header_nologo.png"));
                 LoginPanel.getInstance().initialize(server, version, username, password);
             }

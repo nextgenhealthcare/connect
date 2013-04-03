@@ -15,22 +15,42 @@ import java.util.Properties;
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 
-import com.mirth.connect.client.core.ClientException;
+import net.miginfocom.swing.MigLayout;
+
 import com.mirth.connect.client.ui.AbstractSettingsPanel;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTimePicker;
+import com.mirth.connect.client.ui.panels.export.MessageExportPanel;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.SettingsPanelPlugin;
+import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class MessagePrunerPanel extends AbstractSettingsPanel {
-
     private SettingsPanelPlugin plugin = null;
+    private MessageExportPanel archiverPanel;
+    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    private Frame parent;
 
     public MessagePrunerPanel(String tabName, SettingsPanelPlugin plugin) {
         super(tabName);
         this.plugin = plugin;
-        
+        this.parent = PlatformUI.MIRTH_FRAME;
+
         addTask("doViewEvents", "View Events", "View the Message Pruner events.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/table.png")));
 
         initComponents();
+        blockSizeTextField.setDocument(new MirthFieldConstraints(0, false, false, true));
+
+        /*
+         * The archiver panel uses MigLayout, so we attach it to a container panel that is part of
+         * the netbeans-generated layout.
+         */
+        archiverPanel = new MessageExportPanel(Frame.userPreferences, true, false);
+        archiverPanel.setBackground(archiverContainerPanel.getBackground());
+        archiverContainerPanel.setLayout(new MigLayout("fillx, insets 0 0 0 0", "[grow,fill]", "[grow,fill]"));
+        archiverContainerPanel.add(archiverPanel, "height 150!, aligny top");
     }
 
     @Override
@@ -52,7 +72,7 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
                     if (propertiesFromServer != null) {
                         serverProperties.putAll(propertiesFromServer);
                     }
-                } catch (ClientException e) {
+                } catch (Exception e) {
                     getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
                 }
                 return null;
@@ -70,6 +90,13 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
 
     @Override
     public void doSave() {
+        archiverPanel.resetInvalidProperties();
+        
+        if (!archiverPanel.validate(true)) {
+            parent.alertError(this, "Please fill in required fields.");
+            return;
+        }
+        
         final String workingId = getFrame().startWorking("Saving " + getTabName() + " properties...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -77,7 +104,7 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
             public Void doInBackground() {
                 try {
                     plugin.setPropertiesToServer(getProperties());
-                } catch (ClientException e) {
+                } catch (Exception e) {
                     getFrame().alertException(getFrame(), e.getStackTrace(), e.getMessage());
                 }
                 return null;
@@ -92,13 +119,16 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
 
         worker.execute();
     }
-    
+
     public void doViewEvents() {
         getFrame().doShowEvents("Message Pruner");
     }
 
     public void setProperties(Properties properties) {
-        if (properties.getProperty("interval").equals("hourly")) {
+        if (properties.getProperty("interval").equals("disabled")) {
+            disabledRadio.setSelected(true);
+            disabledRadioActionPerformed(null);
+        } else if (properties.getProperty("interval").equals("hourly")) {
             hourlyRadio.setSelected(true);
             hourlyRadioActionPerformed(null);
         } else if (properties.getProperty("interval").equals("daily")) {
@@ -117,13 +147,29 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
             timeOfDayMonthly.setDate(properties.getProperty("time"));
         }
 
+        archiverPanel.resetInvalidProperties();
+//        archiverPanel.setIncludeAttachments(Boolean.parseBoolean(properties.getProperty("includeAttachments", Boolean.FALSE.toString())));
+        archiverPanel.setMessageWriterOptions((MessageWriterOptions) serializer.fromXML(properties.getProperty("archiverOptions")));
+
+        if (archiverPanel.isEnabled()) {
+            archiverPanel.setArchiveEnabled(Boolean.parseBoolean(properties.getProperty("archiveEnabled", Boolean.FALSE.toString())));
+        }
+        
+        if (properties.getProperty("pruningBlockSize") != null && !properties.getProperty("pruningBlockSize").equals("")) {
+            blockSizeTextField.setText(properties.getProperty("pruningBlockSize"));
+        } else {
+            blockSizeTextField.setText("1000");
+        }
+
         repaint();
     }
 
     public Properties getProperties() {
         Properties properties = new Properties();
 
-        if (hourlyRadio.isSelected()) {
+        if (disabledRadio.isSelected()) {
+            properties.put("interval", "disabled");
+        } else if (hourlyRadio.isSelected()) {
             properties.put("interval", "hourly");
         } else if (dailyRadio.isSelected()) {
             properties.put("interval", "daily");
@@ -137,10 +183,20 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
             properties.put("time", timeOfDayMonthly.getDate());
             properties.put("dayOfMonth", dayOfMonth.getDate());
         }
+        
+        if (blockSizeTextField.getText().equals("")) {
+            blockSizeTextField.setText("1000");
+        }
+        
+        properties.setProperty("pruningBlockSize", blockSizeTextField.getText());
+        properties.setProperty("archiveEnabled", Boolean.toString(archiverPanel.isArchiveEnabled()));
+//        properties.put("includeAttachments", Boolean.toString(archiverPanel.isIncludeAttachments()));
+        properties.setProperty("archiverOptions", serializer.serialize(archiverPanel.getMessageWriterOptions()));
 
         return properties;
     }
 
+    // @formatter:off
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -150,7 +206,6 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
     private void initComponents() {
 
         scheduleButtonGroup = new javax.swing.ButtonGroup();
-        batchPruningButtonGroup = new javax.swing.ButtonGroup();
         pruningSchedulePanel = new javax.swing.JPanel();
         hourlyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         dailyRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -163,6 +218,10 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
         dayOfMonth = new MirthTimePicker("dd", Calendar.MONTH);
         monthlyAtLabel = new javax.swing.JLabel();
         timeOfDayMonthly = new MirthTimePicker("hh:mm aa", Calendar.MINUTE);
+        disabledRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        blockSizeLabel = new javax.swing.JLabel();
+        blockSizeTextField = new com.mirth.connect.client.ui.components.MirthTextField();
+        archiverContainerPanel = new javax.swing.JPanel();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -217,6 +276,21 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
 
         monthlyAtLabel.setText("at");
 
+        disabledRadio.setBackground(new java.awt.Color(255, 255, 255));
+        disabledRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        scheduleButtonGroup.add(disabledRadio);
+        disabledRadio.setText("Disabled");
+        disabledRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        disabledRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                disabledRadioActionPerformed(evt);
+            }
+        });
+
+        blockSizeLabel.setText("Block Size:");
+
+        blockSizeTextField.setToolTipText("<html>If this number is 0, all messages are pruned in a single query. If the single query is slowing down<br>the system for too long, messages can be pruned in blocks of the specified size. Block pruning can<br>be a much longer process, but it will not slow down the system as much as a single query.</html>");
+
         javax.swing.GroupLayout pruningSchedulePanelLayout = new javax.swing.GroupLayout(pruningSchedulePanel);
         pruningSchedulePanel.setLayout(pruningSchedulePanelLayout);
         pruningSchedulePanelLayout.setHorizontalGroup(
@@ -224,30 +298,37 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
             .addGroup(pruningSchedulePanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(hourlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dailyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(weeklyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(monthlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(dayOfWeek, javax.swing.GroupLayout.PREFERRED_SIZE, 75, Short.MAX_VALUE)
-                    .addComponent(dayOfMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 75, Short.MAX_VALUE)
-                    .addComponent(timeOfDay, javax.swing.GroupLayout.PREFERRED_SIZE, 75, Short.MAX_VALUE))
-                .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(disabledRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(pruningSchedulePanelLayout.createSequentialGroup()
+                        .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(hourlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(dailyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(weeklyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(monthlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(blockSizeLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(monthlyAtLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(timeOfDayMonthly, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pruningSchedulePanelLayout.createSequentialGroup()
-                        .addComponent(weeklyAtLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(timeOfDayWeekly, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(21, Short.MAX_VALUE))
+                        .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(dayOfWeek, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                            .addComponent(dayOfMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                            .addComponent(timeOfDay, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(blockSizeTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(pruningSchedulePanelLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(monthlyAtLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(timeOfDayMonthly, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pruningSchedulePanelLayout.createSequentialGroup()
+                                .addComponent(weeklyAtLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(timeOfDayWeekly, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(544, Short.MAX_VALUE))
         );
         pruningSchedulePanelLayout.setVerticalGroup(
             pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pruningSchedulePanelLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pruningSchedulePanelLayout.createSequentialGroup()
+                .addComponent(disabledRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(7, 7, 7)
                 .addComponent(hourlyRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -265,8 +346,16 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
                     .addComponent(monthlyAtLabel)
                     .addComponent(timeOfDayMonthly, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dayOfMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pruningSchedulePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(blockSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(blockSizeLabel))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
+
+        archiverContainerPanel.setBackground(new java.awt.Color(255, 255, 255));
+        archiverContainerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Archiving", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        archiverContainerPanel.setLayout(null);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -274,17 +363,21 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(pruningSchedulePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pruningSchedulePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(archiverContainerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(pruningSchedulePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(pruningSchedulePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(archiverContainerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+    // @formatter:on
 
     private void hourlyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hourlyRadioActionPerformed
         monthlyAtLabel.setEnabled(false);
@@ -295,6 +388,11 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
         timeOfDay.setEnabled(false);
         timeOfDayWeekly.setEnabled(false);
         timeOfDayMonthly.setEnabled(false);
+        
+        blockSizeLabel.setEnabled(true);
+        blockSizeTextField.setEnabled(true);
+        
+        archiverPanel.setEnabled(true);
     }//GEN-LAST:event_hourlyRadioActionPerformed
 
     private void dailyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dailyRadioActionPerformed
@@ -306,6 +404,11 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
         timeOfDay.setEnabled(true);
         timeOfDayWeekly.setEnabled(false);
         timeOfDayMonthly.setEnabled(false);
+        
+        blockSizeLabel.setEnabled(true);
+        blockSizeTextField.setEnabled(true);
+        
+        archiverPanel.setEnabled(true);
     }//GEN-LAST:event_dailyRadioActionPerformed
 
     private void weeklyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_weeklyRadioActionPerformed
@@ -317,6 +420,11 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
         timeOfDay.setEnabled(false);
         timeOfDayWeekly.setEnabled(true);
         timeOfDayMonthly.setEnabled(false);
+        
+        blockSizeLabel.setEnabled(true);
+        blockSizeTextField.setEnabled(true);
+        
+        archiverPanel.setEnabled(true);
     }//GEN-LAST:event_weeklyRadioActionPerformed
 
     private void monthlyRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_monthlyRadioActionPerformed
@@ -328,12 +436,34 @@ public class MessagePrunerPanel extends AbstractSettingsPanel {
         timeOfDay.setEnabled(false);
         timeOfDayWeekly.setEnabled(false);
         timeOfDayMonthly.setEnabled(true);
+        
+        blockSizeLabel.setEnabled(true);
+        blockSizeTextField.setEnabled(true);
+        
+        archiverPanel.setEnabled(true);
     }//GEN-LAST:event_monthlyRadioActionPerformed
+
+    private void disabledRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disabledRadioActionPerformed
+        monthlyAtLabel.setEnabled(false);
+        weeklyAtLabel.setEnabled(false);
+        dayOfMonth.setEnabled(false);
+        dayOfWeek.setEnabled(false);
+        timeOfDay.setEnabled(false);
+        timeOfDayWeekly.setEnabled(false);
+        timeOfDayMonthly.setEnabled(false);
+        archiverPanel.setEnabled(false);
+        blockSizeLabel.setEnabled(false);
+        blockSizeTextField.setEnabled(false);
+    }//GEN-LAST:event_disabledRadioActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup batchPruningButtonGroup;
+    private javax.swing.JPanel archiverContainerPanel;
+    private javax.swing.JLabel blockSizeLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField blockSizeTextField;
     private com.mirth.connect.client.ui.components.MirthRadioButton dailyRadio;
     private com.mirth.connect.client.ui.components.MirthTimePicker dayOfMonth;
     private com.mirth.connect.client.ui.components.MirthTimePicker dayOfWeek;
+    private com.mirth.connect.client.ui.components.MirthRadioButton disabledRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton hourlyRadio;
     private javax.swing.JLabel monthlyAtLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton monthlyRadio;

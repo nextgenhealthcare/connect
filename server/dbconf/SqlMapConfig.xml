@@ -15,6 +15,7 @@
 	</typeAliases>
 
 	<typeHandlers>
+		<typeHandler javaType="byte[]" handler="org.apache.ibatis.type.ByteArrayTypeHandler" />
 		<typeHandler javaType="java.sql.Clob" handler="org.apache.ibatis.type.ClobTypeHandler" />
 		<typeHandler javaType="java.util.Calendar" handler="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />
 		<typeHandler javaType="java.util.GregorianCalendar" handler="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />

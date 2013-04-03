@@ -7,14 +7,18 @@
  * the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.controllers;
+package com.mirth.connect.plugins.messagepruner;
 
 public class MessagePrunerException extends Exception {
     public MessagePrunerException(String message) {
         super(message);
     }
-    
+
     public MessagePrunerException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    public MessagePrunerException(Throwable cause) {
+        super(cause);
     }
 }

@@ -46,9 +46,10 @@ import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.EventListHandler;
 import com.mirth.connect.client.core.ListHandlerException;
-import com.mirth.connect.client.core.MessageImportResult;
+import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.message.ContentType;
+import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatistics;
@@ -62,7 +63,13 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.util.ImportConverter;
-import com.mirth.connect.util.export.MessageExportOptions;
+import com.mirth.connect.util.MessageImportException;
+import com.mirth.connect.util.MessageUtils;
+import com.mirth.connect.util.VfsUtils;
+import com.mirth.connect.util.messagewriter.MessageWriter;
+import com.mirth.connect.util.messagewriter.MessageWriterException;
+import com.mirth.connect.util.messagewriter.MessageWriterFactory;
+import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class CommandLineInterface {
     private String DEFAULT_CHARSET = "UTF-8";
@@ -206,11 +213,11 @@ public class CommandLineInterface {
         }
     }
 
-    private void error(String message, Exception e) {
+    private void error(String message, Throwable t) {
         err.println("Error: " + message);
 
-        if ((e != null) && debug) {
-            err.println(ExceptionUtils.getStackTrace(e));
+        if ((t != null) && debug) {
+            err.println(ExceptionUtils.getStackTrace(t));
         }
     }
 
@@ -434,7 +441,7 @@ public class CommandLineInterface {
         out.println("importcodetemplates \"path\"\n\tImports code templates specified by <path>\n");
         out.println("exportcodetemplates \"path\"\n\tExports code templates to <path>\n");
         out.println("importmessages \"path\" id\n\tImports messages specified by <path> into the channel specified by <id>\n");
-        out.println("exportmessages \"path\" id [xml|raw|transformed|encoded] [pageSize]\n\tExports all messages for channel specified by <id> to <path>\n");
+        out.println("exportmessages \"path/file-pattern\" id [xml|raw|transformed|encoded] [pageSize]\n\tExports all messages for channel specified by <id> to <path>\n");
         out.println("channel undeploy|deploy|start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
         out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
         out.println("channel list\n\tLists all Channels\n");
@@ -770,39 +777,44 @@ public class CommandLineInterface {
 
         out.println("Code Templates Import Complete");
     }
-
+    
     private void commandImportMessages(Token[] arguments) {
         if (hasInvalidNumberOfArguments(arguments, 2)) {
             return;
         }
 
         String path = arguments[1].getText();
-        File fXml = new File(path);
-        String channelId = arguments[2].getText();
+        final String channelId = arguments[2].getText();
 
-        MessageImportResult messageImportResult = new MessageImportResult();
-
-        try {
-            messageImportResult = client.importMessages(channelId, fXml, DEFAULT_CHARSET);
-        } catch (Exception e) {
-            error("cannot read " + path, e);
+        if (!new File(path).canRead()) {
+            error("cannot read " + path, null);
             return;
         }
 
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Messages import complete.");
-        int errorCount = messageImportResult.getErroredMessageIds().size();
-        int successCount = messageImportResult.getTotal() - errorCount;
+        MessageWriter importer = new MessageWriter() {
+            @Override
+            public boolean write(Message message) throws MessageWriterException {
+                try {
+                    client.importMessage(channelId, message);
+                } catch (ClientException e) {
+                    throw new MessageWriterException(e);
+                }
 
-        if (successCount > 0) {
-            stringBuilder.append(" " + successCount + " message" + ((successCount != 1) ? "s" : "") + " imported successfully.");
+                return true;
+            }
+
+            @Override
+            public void close() throws MessageWriterException {}
+        };
+
+        try {
+            int[] result = MessageUtils.importMessages(VfsUtils.pathToUri(path), true, importer);
+            out.println(result[1] + " out of " + result[0] + " messages imported successfully.");
+        } catch (InterruptedException e) {
+            error("Message import was interrupted.", null);
+        } catch (MessageImportException e) {
+            error("An error occurred while attempting to import messages", e);
         }
-
-        if (errorCount > 0) {
-            stringBuilder.append(" " + errorCount + " message" + ((errorCount != 1) ? "s" : "") + " failed to import due to an error. Message IDs that failed: " + StringUtils.join(messageImportResult.getErroredMessageIds(), ", "));
-        }
-
-        out.println(stringBuilder.toString());
     }
 
     private void commandExportMessages(Token[] arguments) {
@@ -821,7 +833,7 @@ public class CommandLineInterface {
         // export mode
         ContentType contentType = null;
 
-        if (arguments.length == 4) {
+        if (arguments.length >= 4) {
             String modeArg = arguments[3].getText();
 
             if (StringUtils.equals(modeArg, "raw")) {
@@ -855,20 +867,28 @@ public class CommandLineInterface {
         try {
             out.println("Exporting messages to file: " + fXml.getPath());
 
-            MessageExportOptions options = new MessageExportOptions();
-            options.setChannelId(channelId);
-            options.setMessageFilter(filter);
-            options.setContentType(contentType);
-            options.setBufferSize(pageSize);
-            options.setFolder(fXml.getAbsolutePath());
-            options.setSingleFile(true);
-            options.setCompress(false);
-            options.setEncrypt(false);
-            options.setCharset(DEFAULT_CHARSET);
+            PaginatedMessageList messageList = new PaginatedMessageList();
+            messageList.setChannelId(channelId);
+            messageList.setClient(client);
+            messageList.setIncludeContent(true);
+            messageList.setMessageFilter(filter);
+            messageList.setPageSize(pageSize);
 
-            messageCount = client.exportMessagesLocal(options);
+            MessageWriterOptions writerOptions = new MessageWriterOptions();
+            writerOptions.setContentType(contentType);
+            writerOptions.setDestinationContent(false);
+            writerOptions.setEncrypt(false);
+            writerOptions.setRootFolder("/");
+            writerOptions.setFilePattern(fXml.getAbsolutePath());
+            writerOptions.setArchiver(null);
+            writerOptions.setCompressor(null);
+            
+            MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, client.getEncryptor(), channelId);
+
+            messageCount = MessageUtils.exportMessages(messageList, messageWriter).size();
         } catch (Exception e) {
-            error("unable to write file " + path + ": " + e, e);
+            Throwable cause = ExceptionUtils.getRootCause(e);
+            error("unable to write file " + path + ": " + cause, cause);
         }
 
         out.println("Messages Export Complete. " + messageCount + " Messages Exported.");

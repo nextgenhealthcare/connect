@@ -227,7 +227,6 @@ public class Mirth extends Thread {
         channelController.loadCache();
         migrationController.migrateChannels();
         userController.resetUserStatus();
-        extensionController.startPlugins();
         scriptController.compileGlobalScripts();
 
         // disable the velocity logging
@@ -239,6 +238,15 @@ public class Mirth extends Thread {
         // problem starting the engine that causes it to hang
         startWebServer();
         startEngine();
+        
+        extensionController.startPlugins();
+        
+        try {
+            engineController.redeployAllChannels();
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        
         printSplashScreen();
     }
 

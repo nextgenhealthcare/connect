@@ -84,5 +84,9 @@
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-crypto.jar"/>
+	<classpathentry kind="lib" path="lib/commons-compress-1.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/miglayout-swing-4.2.jar"/>
+	<classpathentry kind="lib" path="lib/miglayout-core-4.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-vfs2-2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

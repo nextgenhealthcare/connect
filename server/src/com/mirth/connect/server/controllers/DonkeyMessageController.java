@@ -41,16 +41,19 @@ import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.message.DataType;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.util.AttachmentUtil;
 import com.mirth.connect.server.util.DICOMUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.MessageEncryptionUtil;
-import com.mirth.connect.util.export.MessageExportOptions;
-import com.mirth.connect.util.export.MessageExporter;
-import com.mirth.connect.util.export.MessageExporter.MessageExporterException;
-import com.mirth.connect.util.export.MessageRetriever;
+import com.mirth.connect.util.MessageImportException;
+import com.mirth.connect.util.MessageUtils;
+import com.mirth.connect.util.MessageUtils.MessageExportException;
+import com.mirth.connect.util.PaginatedList;
+import com.mirth.connect.util.messagewriter.MessageWriter;
+import com.mirth.connect.util.messagewriter.MessageWriterException;
+import com.mirth.connect.util.messagewriter.MessageWriterFactory;
+import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DonkeyMessageController extends MessageController {
     private static DonkeyMessageController instance = null;
@@ -448,37 +451,90 @@ public class DonkeyMessageController extends MessageController {
     }
 
     @Override
-    public int exportMessages(MessageExportOptions options) throws MessageExporterException {
+    public int exportMessages(final String channelId, final MessageFilter messageFilter, int pageSize, boolean includeAttachments, MessageWriterOptions options) throws MessageExportException, InterruptedException {
         final MessageController messageController = this;
         final EngineController engineController = ControllerFactory.getFactory().createEngineController();
 
-        MessageExporter messageExporter = new MessageExporter();
-        messageExporter.setOptions(options);
-        messageExporter.setSerializer(new ObjectXMLSerializer());
-        messageExporter.setEncryptor(ConfigurationController.getInstance().getEncryptor());
-        messageExporter.setMessageRetriever(new MessageRetriever() {
+        PaginatedList<Message> messageList = new PaginatedList<Message>() {
             @Override
-            public List<Message> getMessages(String channelId, MessageFilter filter, boolean includeContent, Integer offset, Integer limit) {
-                return messageController.getMessages(filter, engineController.getDeployedChannel(channelId), includeContent, offset, limit);
+            public Long getItemCount() {
+                return messageController.getMessageCount(messageFilter, engineController.getDeployedChannel(channelId));
             }
-        });
 
-        return messageExporter.export();
+            @Override
+            protected List<Message> getItems(int offset, int limit) throws Exception {
+                return messageController.getMessages(messageFilter, engineController.getDeployedChannel(channelId), true, offset, limit);
+            }
+        };
+
+        messageList.setPageSize(pageSize);
+
+        try {
+            MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(options, ConfigurationController.getInstance().getEncryptor(), channelId);
+            return MessageUtils.exportMessages(messageList, messageWriter).size();
+        } catch (MessageWriterException e) {
+            throw new MessageExportException(e);
+        }
     }
 
     @Override
     public void importMessage(String channelId, Message message) throws MessageImportException {
         try {
             MessageEncryptionUtil.decryptMessage(message, ConfigurationController.getInstance().getEncryptor());
-            com.mirth.connect.donkey.server.controllers.MessageController.getInstance().importMessage(channelId, message);
+            Channel channel = Donkey.getInstance().getDeployedChannels().get(channelId);
+
+            if (channel == null) {
+                throw new MessageImportException("Failed to import message, channel ID " + channelId + " is not currently deployed");
+            } else {
+                channel.importMessage(message);
+            }
         } catch (DonkeyException e) {
             throw new MessageImportException(e);
         }
     }
 
     @Override
-    public int pruneMessages(List<String> channelIds, int limit) throws MessagePrunerException {
-        // TODO Auto-generated method stub
-        return 0;
+    public int[] importMessagesServer(final String channelId, final String uri, boolean includeSubfolders) throws MessageImportException, InterruptedException {
+        Channel channel = Donkey.getInstance().getDeployedChannels().get(channelId);
+
+        if (channel == null) {
+            throw new MessageImportException("Failed to import message, channel ID " + channelId + " is not currently deployed");
+        }
+
+        MessageWriter messageWriter = new MessageWriterChannel(channel);
+        return MessageUtils.importMessages(uri, includeSubfolders, messageWriter);
+    }
+
+    private class MessageWriterChannel implements MessageWriter {
+        private Channel channel;
+        private DonkeyDao dao;
+        private Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
+
+        public MessageWriterChannel(Channel channel) {
+            this.channel = channel;
+            this.dao = channel.getDaoFactory().getDao();
+        }
+
+        @Override
+        public boolean write(Message message) throws MessageWriterException {
+            MessageEncryptionUtil.decryptMessage(message, encryptor);
+
+            try {
+                channel.importMessage(message, dao);
+            } catch (DonkeyException e) {
+                throw new MessageWriterException(e);
+            }
+
+            return true;
+        }
+
+        @Override
+        public void close() throws MessageWriterException {
+            try {
+                dao.commit();
+            } finally {
+                dao.close();
+            }
+        }
     }
 }

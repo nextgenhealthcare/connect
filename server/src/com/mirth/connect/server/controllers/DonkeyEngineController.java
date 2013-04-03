@@ -111,8 +111,6 @@ public class DonkeyEngineController implements EngineController {
         logger.debug("starting donkey engine");
 
         donkey.startEngine(new DonkeyConfiguration(configurationController.getApplicationDataDir(), configurationController.getDatabaseSettings().getProperties()));
-
-        redeployAllChannels();
     }
 
     @Override

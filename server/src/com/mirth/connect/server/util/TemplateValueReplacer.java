@@ -29,6 +29,8 @@ import org.apache.velocity.tools.generic.DateTool;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ImmutableConnectorMessage;
+import com.mirth.connect.donkey.model.message.ImmutableMessage;
+import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.util.Entities;
 import com.mirth.connect.util.XmlUtil;
 
@@ -135,6 +137,16 @@ public class TemplateValueReplacer {
         if (hasReplaceableValues(template)) {
             VelocityContext context = getDefaultContext();
             loadContextFromConnectorMessage(context, connectorMessage);
+            return evaluate(context, template);
+        } else {
+            return template;
+        }
+    }
+    
+    public String replaceValues(String template, Message message) {
+        if (hasReplaceableValues(template)) {
+            VelocityContext context = getDefaultContext();
+            loadContextFromMessage(context, message);
             return evaluate(context, template);
         } else {
             return template;
@@ -288,8 +300,8 @@ public class TemplateValueReplacer {
     }
 
     /**
-     * Loads the connector message, global channel map, channel map, and
-     * connector map into the passed context.
+     * Loads the connector message, global channel map, channel map, connector map and response map
+     * into the passed context.
      * 
      * @return void
      */
@@ -301,6 +313,28 @@ public class TemplateValueReplacer {
         loadContextFromMap(context, connectorMessage.getChannelMap());
         loadContextFromMap(context, connectorMessage.getConnectorMap());
         loadContextFromMap(context, connectorMessage.getResponseMap());
+
+        // Use the current time as the original file name if there is no original file name.
+        if (!context.containsKey("originalFilename")) {
+            context.put("originalFilename", System.currentTimeMillis() + ".dat");
+        }
+    }
+
+    /**
+     * Loads the message, global channel map, merged channel map, merged connector map and merged
+     * response map into the passed context.
+     * 
+     * @return void
+     */
+    private void loadContextFromMessage(VelocityContext context, Message message) {
+        context.put("message", new ImmutableMessage(message));
+        ConnectorMessage mergedConnectorMessage = message.getMergedConnectorMessage();
+
+        // Load maps
+        loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(message.getChannelId()).getVariables());
+        loadContextFromMap(context, mergedConnectorMessage.getChannelMap());
+        loadContextFromMap(context, mergedConnectorMessage.getConnectorMap());
+        loadContextFromMap(context, mergedConnectorMessage.getResponseMap());
 
         // Use the current time as the original file name if there is no original file name.
         if (!context.containsKey("originalFilename")) {

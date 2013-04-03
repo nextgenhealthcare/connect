@@ -16,6 +16,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -257,6 +259,11 @@ public class TestUtils {
         dao.insertMessageContent(sourceMessage.getRaw());
         return message;
     }
+    
+    @SuppressWarnings("unchecked")
+    public static List<Long> getMessageIds(String channelId) throws Exception {
+        return (List<Long>) selectColumn("SELECT id FROM d_m" + ChannelController.getInstance().getLocalChannelId(channelId));
+    }
 
     public static int getNumMessages(String channelId) throws Exception {
         return getNumMessages(channelId, false);
@@ -372,7 +379,7 @@ public class TestUtils {
         try {
             connection = getConnection();
             messageStatement = connection.prepareStatement("INSERT INTO d_m" + localChannelId + " (id, server_id, received_date, processed) SELECT id + ?, server_id, received_date, processed FROM d_m" + localChannelId);
-            metaDataStatement = connection.prepareStatement("INSERT INTO d_mm" + localChannelId + " (id, message_id, received_date, status, connector_map, channel_map, response_map, errors, send_attempts) SELECT id, message_id + ?, received_date, status, connector_map, channel_map, response_map, errors, send_attempts FROM d_mm" + localChannelId);
+            metaDataStatement = connection.prepareStatement("INSERT INTO d_mm" + localChannelId + " (id, message_id, chain_id, received_date, status, connector_map, channel_map, response_map, errors, send_attempts, order_id) SELECT id, message_id + ?, chain_id, received_date, status, connector_map, channel_map, response_map, errors, send_attempts, order_id FROM d_mm" + localChannelId);
             contentStatement = connection.prepareStatement("INSERT INTO d_mc" + localChannelId + " (metadata_id, message_id, content_type, content, is_encrypted, data_type) SELECT metadata_id, message_id + ?, content_type, content, is_encrypted, data_type FROM d_mc" + localChannelId);
 
             for (int i = 0; i < power; i++) {
@@ -399,7 +406,7 @@ public class TestUtils {
         fixMessageIdSequence(channelId);
         logger.debug("Finished replicating messages in channel \"" + channelId + "\"");
     }
-    
+
     public static void fixMessageIdSequence(String channelId) throws Exception {
         Connection connection = null;
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channelId);
@@ -460,5 +467,30 @@ public class TestUtils {
         }
 
         return rate;
+    }
+    
+    public static List<?> selectColumn(String query) {
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = getConnection();
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(query);
+            List<Object> col = new ArrayList<Object>();
+
+            while (resultSet.next()) {
+                col.add(resultSet.getObject(1));
+            }
+
+            return col;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            DbUtils.closeQuietly(resultSet);
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(connection);
+        }
     }
 }

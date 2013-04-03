@@ -1,18 +1,7 @@
-/*
- * Copyright (c) Mirth Corporation. All rights reserved.
- * http://www.mirthcorp.com
- * 
- * The software in this package is published under the terms of the MPL
- * license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
- */
-
-package com.mirth.connect.client.ui.util;
+package com.mirth.connect.util;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.mirth.connect.client.core.ClientException;
 
 public abstract class PaginatedList<T> extends ArrayList<T> {
     private int pageSize = 0;
@@ -66,7 +55,7 @@ public abstract class PaginatedList<T> extends ArrayList<T> {
      * @param pageNumber
      * @return TRUE if the page was loaded successfully and contains items, FALSE otherwise
      */
-    public boolean loadPageNumber(int pageNumber) throws ClientException {
+    public boolean loadPageNumber(int pageNumber) throws Exception {
         clear();
         hasNextPage = false;
         
@@ -78,6 +67,7 @@ public abstract class PaginatedList<T> extends ArrayList<T> {
                 if (items.size() > pageSize) {
                     hasNextPage = true;
                 }
+                
                 // Add only items retrieved up to the pageSize
                 for (int i = 0; i < Math.min(items.size(), pageSize); i++) {
                     add(items.get(i));
@@ -85,18 +75,13 @@ public abstract class PaginatedList<T> extends ArrayList<T> {
 
                 this.pageNumber = pageNumber;
                 return true;
-            } else if (pageNumber > 1) {
-                //Check the previous page if no items were found
-                this.pageNumber = pageNumber - 1;
-                return loadPageNumber(this.pageNumber);
             }
         }
         
         return false;
     }
     
-    public boolean hasNextPage()
-    {
+    public boolean hasNextPage() {
         return hasNextPage;
     }
     
@@ -109,5 +94,5 @@ public abstract class PaginatedList<T> extends ArrayList<T> {
     /**
      * Get a list of items of type T using the given offset and limit
      */
-    protected abstract List<T> getItems(int offset, int limit) throws ClientException;
+    protected abstract List<T> getItems(int offset, int limit) throws Exception;
 }

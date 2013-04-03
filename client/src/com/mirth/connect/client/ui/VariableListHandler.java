@@ -69,6 +69,12 @@ public class VariableListHandler extends TransferHandler {
         staticVelocityReferences.put("XML Entity Encoder", "${XmlUtil.encode()}");
         staticVelocityReferences.put("XML Pretty Printer", "${XmlUtil.prettyPrint()}");
 
+        // these are used in MessagePrunerPanel
+        staticVelocityReferences.put("Server ID", "${message.serverId}");
+        staticVelocityReferences.put("Channel ID", "${message.channelId}");
+        staticVelocityReferences.put("Formatted Message Date", "${date.format('yyyy-MM-dd',$message.receivedDate)}");
+        staticVelocityReferences.put("Formatted Current Date", "${date.get('yyyy-MM-dd')}");
+
         staticJsReferences = new HashMap<String, String>();
         staticJsReferences.put("Raw Data", "messageObject.getRawData()");
         staticJsReferences.put("Transformed Data", "messageObject.getTransformedData()");

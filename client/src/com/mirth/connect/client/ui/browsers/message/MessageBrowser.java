@@ -22,7 +22,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -60,6 +59,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.DateFormatter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.table.ColumnFactory;
@@ -68,15 +68,15 @@ import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.core.MessageImportResult;
 import com.mirth.connect.client.core.Operation;
 import com.mirth.connect.client.core.Operations;
+import com.mirth.connect.client.core.PaginatedMessageList;
 import com.mirth.connect.client.core.RequestAbortedException;
 import com.mirth.connect.client.ui.EditMessageDialog;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
+import com.mirth.connect.client.ui.MessageExportDialog;
 import com.mirth.connect.client.ui.Mirth;
-import com.mirth.connect.client.ui.PaginatedMessageList;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.SortableHeaderCellRenderer;
@@ -129,7 +129,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private Map<Long, List<Attachment>> attachmentCache;
     private MessageFilter messageFilter;
     private MessageBrowserAdvancedFilter advancedSearchPopup;
-    private MessageBrowserExportResults exportResultsPopup;
+    private MessageExportDialog exportDialog;
     private JPopupMenu attachmentPopupMenu;
     private final String[] columns = new String[] { "Id", "Connector", "Status", "Received Date",
             "Send Attempts", "Send Date", "Response Date", "Response Status", "Server Id", "Import Id" };
@@ -187,8 +187,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         advancedSearchPopup = new MessageBrowserAdvancedFilter(parent, this, "Advanced Search Filter", true, true);
         advancedSearchPopup.setVisible(false);
 
-        exportResultsPopup = new MessageBrowserExportResults(parent, false);
-        exportResultsPopup.setVisible(false);
+        exportDialog = new MessageExportDialog();
+        exportDialog.setEncryptor(parent.mirthClient.getEncryptor());
+        exportDialog.setVisible(false);
 
         LineBorder lineBorder = new LineBorder(new Color(0, 0, 0));
         TitledBorder titledBorder = new TitledBorder("Current Search");
@@ -254,7 +255,6 @@ public class MessageBrowser extends javax.swing.JPanel {
         this.metaDataColumns = metaDataColumns;
         tableModel.clear();
         advancedSearchPopup.loadChannel();
-        exportResultsPopup.loadChannel(this.channelId);
         resetSearchCriteria();
         lastUserSelectedMessageType = "Raw";
         updateMessageRadioGroup();
@@ -360,6 +360,10 @@ public class MessageBrowser extends javax.swing.JPanel {
     public MessageFilter getMessageFilter() {
         return messageFilter;
     }
+    
+    public int getPageSize() {
+        return NumberUtils.toInt(pageSizeField.getText());
+    }
 
     private Calendar getCalendar(MirthDatePicker datePicker, MirthTimePicker timePicker) throws ParseException {
         DateFormatter timeFormatter = new DateFormatter(new SimpleDateFormat("hh:mm aa"));
@@ -460,7 +464,6 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
 
         advancedSearchPopup.applySelectionsToFilter(messageFilter);
-        exportResultsPopup.setMessageFilter(messageFilter);
 
         try {
             Long maxMessageId = parent.mirthClient.getMaxMessageId(channelId);
@@ -489,7 +492,6 @@ public class MessageBrowser extends javax.swing.JPanel {
         countButton.setVisible(true);
         clearCache();
         loadPageNumber(1);
-        exportResultsPopup.setPageSize(messages.getPageSize());
 
         updateSearchCriteriaPane();
     }
@@ -682,9 +684,15 @@ public class MessageBrowser extends javax.swing.JPanel {
             private int retrievedPageNumber = 1;
 
             public Void doInBackground() {
-
+                int loadPageNumber = pageNumber;
+                
                 try {
-                    foundItems = messages.loadPageNumber(pageNumber);
+                    foundItems = messages.loadPageNumber(loadPageNumber);
+                    
+                    // if no items were found, move to the last page that contains items
+                    while (!foundItems && loadPageNumber > 1) {
+                        foundItems = messages.loadPageNumber(--loadPageNumber);
+                    };
                 } catch (Throwable t) { // catch Throwable in case the client runs out of memory
 
                     if (t.getMessage().contains("Java heap space")) {
@@ -1533,25 +1541,6 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         } catch (Exception e) {
         }
-    }
-
-    public MessageImportResult importMessages() {
-        File file = parent.browseForFile(null);
-        MessageImportResult result = null;
-        
-        if (file != null) {
-            try {
-                result = parent.mirthClient.importMessages(channelId, file, UIConstants.CHARSET);
-            } catch (ClientException e) {
-                parent.alertException(this, e.getStackTrace(), "Error importing messages. " + e.getMessage());
-            }
-        }
-        
-        return result;
-    }
-
-    public void exportMessages() {
-        exportResultsPopup.setVisible(true);
     }
 
     private int getSelectedMessageIndex() {

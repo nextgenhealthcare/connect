@@ -18,9 +18,11 @@ import java.util.Map;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.quartz.Job;
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelProperties;
@@ -28,35 +30,32 @@ import com.mirth.connect.model.Event;
 import com.mirth.connect.model.Event.Level;
 import com.mirth.connect.model.Event.Outcome;
 import com.mirth.connect.server.controllers.ChannelController;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.controllers.MessagePrunerException;
+import com.mirth.connect.util.messagewriter.MessageWriterFactory;
+import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class MessagePrunerJob implements Job {
 
     private ChannelController channelController = ChannelController.getInstance();
     private EventController eventController = EventController.getInstance();
     private Logger logger = Logger.getLogger(getClass());
-    private MessagePruner messagePruner;
 
     public MessagePrunerJob() {
-        // TODO: initialize archiver
-        // messagePruner.setMessageArchiver(archiver);
-
         List<Status> skipStatuses = new ArrayList<Status>();
         skipStatuses.add(Status.ERROR);
         skipStatuses.add(Status.QUEUED);
-
-        DefaultMessagePruner messagePruner = new DefaultMessagePruner();
-        messagePruner.setRetryCount(3);
-        messagePruner.setSkipIncomplete(true);
-        messagePruner.setSkipStatuses(skipStatuses);
-        this.messagePruner = messagePruner;
     }
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         logger.debug("pruning messages");
+        JobDataMap jobDataMap = context.getTrigger().getJobDataMap();
+        int pruningBlockSize = jobDataMap.getIntValue("pruningBlockSize");
+        Boolean archiveEnabled = (Boolean) jobDataMap.get("archiveEnabled");
+        MessageWriterOptions archiverOptions = (MessageWriterOptions) jobDataMap.get("archiverOptions");
+        Encryptor encryptor = ConfigurationController.getInstance().getEncryptor();
         List<Channel> channels = null;
 
         try {
@@ -91,6 +90,16 @@ public class MessagePrunerJob implements Job {
                         }
 
                         if (messageDateThreshold != null || contentDateThreshold != null) {
+                            MessagePruner messagePruner;
+
+                            if (archiveEnabled != null && archiveEnabled && properties.isArchiveEnabled()) {
+                                messagePruner = new MessagePrunerWithArchiver(MessageWriterFactory.getInstance().getMessageWriter(archiverOptions, encryptor, channel.getId()));
+                            } else {
+                                messagePruner = new MessagePrunerWithoutArchiver();
+                            }
+
+                            messagePruner.setBlockSize(pruningBlockSize);
+
                             numPruned = messagePruner.executePruner(channel.getId(), messageDateThreshold, contentDateThreshold);
                         }
                         break;
@@ -126,7 +135,7 @@ public class MessagePrunerJob implements Job {
                 event.setAttributes(attributes);
                 eventController.addEvent(event);
 
-                logger.warn("could not prune messages for channel: " + channel.getName(), e);
+                logger.error("Could not prune messages for channel: " + channel.getName(), e);
             }
         }
     }

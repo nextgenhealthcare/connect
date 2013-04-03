@@ -22,6 +22,15 @@ public class MirthCheckBox extends javax.swing.JCheckBox {
 
     public MirthCheckBox() {
         super();
+        init();
+    }
+    
+    public MirthCheckBox(String text) {
+        super(text);
+        init();
+    }
+    
+    private void init() {
         this.setFocusable(true);
         this.parent = PlatformUI.MIRTH_FRAME;
         this.addActionListener(new java.awt.event.ActionListener() {
