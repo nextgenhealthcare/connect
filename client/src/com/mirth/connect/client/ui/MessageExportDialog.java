@@ -8,9 +8,9 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 
-import org.apache.commons.lang3.StringUtils;
-
 import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.client.core.PaginatedMessageList;
@@ -23,7 +23,8 @@ import com.mirth.connect.util.messagewriter.MessageWriterFactory;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 /**
- * Dialog containing MessageExportPanel that is used in the message browser to export messages
+ * Dialog containing MessageExportPanel that is used in the message browser to
+ * export messages
  */
 public class MessageExportDialog extends JDialog {
     private Frame parent;
@@ -44,7 +45,7 @@ public class MessageExportDialog extends JDialog {
         setSize(800, 230);
         setBackground(new Color(255, 255, 255));
         setLocationRelativeTo(null);
-
+        setModal(true);
         initComponents();
         initLayout();
     }

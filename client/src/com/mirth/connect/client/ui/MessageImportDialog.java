@@ -55,6 +55,7 @@ public class MessageImportDialog extends JDialog {
         setSize(700, 138);
         setBackground(new Color(255, 255, 255));
         setLocationRelativeTo(null);
+        setModal(true);
         setResizable(false);
         initComponents();
         initLayout();
