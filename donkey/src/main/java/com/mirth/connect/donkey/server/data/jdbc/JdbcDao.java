@@ -53,6 +53,7 @@ import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.event.Event;
 import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 
 public class JdbcDao implements DonkeyDao {
     private Connection connection;
@@ -655,7 +656,7 @@ public class JdbcDao implements DonkeyDao {
         Map<String, Object> map = mapContent.getMap();
 
         if (MapUtils.isNotEmpty(map)) {
-            String serializedMap = serializer.serialize((HashMap<String, Object>) map);
+            String serializedMap = serializeMap(map);
 
             if (persisted) {
                 storeContent(channelId, messageId, metaDataId, contentType, serializedMap, null, false);
@@ -1793,7 +1794,28 @@ public class JdbcDao implements DonkeyDao {
             return new MapContent(new HashMap<String, Object>(), true);
         }
 
-        return new MapContent((HashMap<String, Object>) serializer.deserialize(content.getContent()), true);
+        return new MapContent(deserializeMap(content.getContent()), true);
+    }
+
+    private String serializeMap(Map<String, Object> map) {
+        Map<String, Object> newMap = new HashMap<String, Object>();
+
+        for (Entry<String, Object> entry : map.entrySet()) {
+            Object value = entry.getValue();
+
+            if (value == null) {
+                newMap.put(entry.getKey(), "");
+            } else {
+                newMap.put(entry.getKey(), value.toString());
+            }
+        }
+
+        return serializer.serialize(newMap);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> deserializeMap(String serializedMap) {
+        return (Map<String, Object>) serializer.deserialize(serializedMap);
     }
 
     private ErrorContent getErrorContentFromMessageContent(MessageContent content) {

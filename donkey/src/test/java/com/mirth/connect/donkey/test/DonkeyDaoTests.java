@@ -14,7 +14,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -590,46 +588,33 @@ public class DonkeyDaoTests {
                 Map<String, Object> insertedConnectorMap = TestUtils.getConnectorMap(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId());
                 Map<String, Object> insertedChannelMap = TestUtils.getChannelMap(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId());
                 Map<String, Object> insertedResponseMap = TestUtils.getResponseMap(channel.getChannelId(), sourceMessage.getMessageId(), sourceMessage.getMetaDataId());
-
+                
                 // Assert that both connector maps have all the same keys
                 assertTrue(connectorMap.keySet().equals(insertedConnectorMap.keySet()));
+                
                 for (String key : connectorMap.keySet()) {
-                    try {
-                        // Test that the object is serializable
-                        SerializationUtils.serialize((Serializable) connectorMap.get(key));
-                        // Assert that the objects are equal
-                        assertTrue(connectorMap.get(key).equals(insertedConnectorMap.get(key)));
-                    } catch (Exception e) {
-                        // If the object is not serializable, assert that the inserted value is the String representation
-                        assertTrue(connectorMap.get(key).toString().equals(insertedConnectorMap.get(key)));
-                    }
+                    // assert that the inserted value is the String representation
+                    Object value = connectorMap.get(key);
+                    assertEquals(key, (value == null) ? "" : value.toString(), insertedConnectorMap.get(key));
                 }
 
                 // Assert that both channel maps have all the same keys
                 assertTrue(channelMap.keySet().equals(insertedChannelMap.keySet()));
+                
                 for (String key : channelMap.keySet()) {
-                    try {
-                        // Test that the object is serializable
-                        SerializationUtils.serialize((Serializable) channelMap.get(key));
-                        // Assert that the objects are equal
-                        assertEquals(channelMap.get(key), insertedChannelMap.get(key));
-                    } catch (Exception e) {
-                        // If the object is not serializable, assert that the inserted value is the String representation
-                        assertEquals(channelMap.get(key).toString(), insertedChannelMap.get(key));
-                    }
+                    // assert that the inserted value is the String representation
+                    Object value = channelMap.get(key);
+                    assertEquals(key, (value == null) ? "" : value.toString(), insertedChannelMap.get(key));
                 }
-
-                // Assert that both response maps are equal
-                assertTrue(responseMap.equals(insertedResponseMap));
-
-                // Assert that both response maps are equal
-                assertTrue(responseMap.equals(insertedResponseMap));
-
-                // Assert that both response maps are equal
-                assertTrue(responseMap.equals(insertedResponseMap));
-
-                // Assert that both response maps are equal
-                assertTrue(responseMap.equals(insertedResponseMap));
+                
+                // Assert that both response maps have all the same keys
+                assertTrue(responseMap.keySet().equals(insertedResponseMap.keySet()));
+                
+                for (String key : responseMap.keySet()) {
+                    // assert that the inserted value is the String representation
+                    Object value = responseMap.get(key);
+                    assertEquals(key, (value == null) ? "" : value.toString(), insertedResponseMap.get(key));
+                }
             }
 
             System.out.println(daoTimer.getLog());
