@@ -409,35 +409,37 @@ public class DonkeyMessageController extends MessageController {
             params.put("messageId", messageId);
             Map<String, Object> messageResult = SqlConfig.getSqlSessionManager().selectOne("Message.selectMessageForReprocessing", params);
 
-            String rawContent = (String) messageResult.get("content");
-
-            if ((Boolean) messageResult.get("is_encrypted")) {
-                rawContent = encryptor.decrypt(rawContent);
-            }
-
-            ConnectorMessage connectorMessage = new ConnectorMessage();
-            connectorMessage.setChannelId(channelId);
-            connectorMessage.setMessageId(messageId);
-            connectorMessage.setMetaDataId(0);
-            connectorMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, rawContent, dataType.getType(), false));
-
-            RawMessage rawMessage = null;
-            if (ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).isBinary()) {
-                rawMessage = new RawMessage(DICOMUtil.getDICOMRawBytes(connectorMessage));
-            } else {
-                rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(AttachmentUtil.reAttachMessage(rawContent, connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
-            }
-
-            if (replace) {
-                rawMessage.setMessageIdToOverwrite(messageId);
-            }
-
-            rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);
-
-            try {
-                engineController.dispatchRawMessage(channelId, rawMessage);
-            } catch (Throwable e) {
-                // Do nothing. An error should have been logged.
+            if (messageResult != null) {
+                String rawContent = (String) messageResult.get("content");
+    
+                if ((Boolean) messageResult.get("is_encrypted")) {
+                    rawContent = encryptor.decrypt(rawContent);
+                }
+    
+                ConnectorMessage connectorMessage = new ConnectorMessage();
+                connectorMessage.setChannelId(channelId);
+                connectorMessage.setMessageId(messageId);
+                connectorMessage.setMetaDataId(0);
+                connectorMessage.setRaw(new MessageContent(channelId, messageId, 0, ContentType.RAW, rawContent, dataType.getType(), false));
+    
+                RawMessage rawMessage = null;
+                if (ExtensionController.getInstance().getDataTypePlugins().get(dataType.getType()).isBinary()) {
+                    rawMessage = new RawMessage(DICOMUtil.getDICOMRawBytes(connectorMessage));
+                } else {
+                    rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(AttachmentUtil.reAttachMessage(rawContent, connectorMessage, Constants.ATTACHMENT_CHARSET, false), Constants.ATTACHMENT_CHARSET));
+                }
+    
+                if (replace) {
+                    rawMessage.setMessageIdToOverwrite(messageId);
+                }
+    
+                rawMessage.setDestinationMetaDataIds(reprocessMetaDataIds);
+    
+                try {
+                    engineController.dispatchRawMessage(channelId, rawMessage);
+                } catch (Throwable e) {
+                    // Do nothing. An error should have been logged.
+                }
             }
         }
     }
