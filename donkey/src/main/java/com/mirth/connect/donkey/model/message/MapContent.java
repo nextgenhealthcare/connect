@@ -10,6 +10,11 @@ public class MapContent {
     public MapContent() {
 
     }
+    
+    public MapContent(Map<String, Object> map, boolean persisted) {
+        this.map = map;
+        this.persisted = persisted;
+    }
 
     public Map<String, Object> getMap() {
         return map;

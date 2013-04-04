@@ -297,8 +297,16 @@ public class ConnectorMessage implements Serializable {
         return processingErrorContent;
     }
 
+    public void setProcessingErrorContent(ErrorContent processingErrorContent) {
+        this.processingErrorContent = processingErrorContent;
+    }
+
     public ErrorContent getResponseErrorContent() {
         return responseErrorContent;
+    }
+
+    public void setResponseErrorContent(ErrorContent responseErrorContent) {
+        this.responseErrorContent = responseErrorContent;
     }
 
     public String getProcessingError() {

@@ -1720,12 +1720,12 @@ public class JdbcDao implements DonkeyDao {
             connectorMessage.setOrderId(resultSet.getInt("order_id"));
 
             if (includeContent) {
-                connectorMessage.setConnectorMap(getMapFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CONNECTOR_MAP, true)));
-                connectorMessage.setChannelMap(getMapFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CHANNEL_MAP, true)));
-                connectorMessage.setResponseMap(getMapFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_MAP, true)));
+                connectorMessage.setConnectorMapContent(getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CONNECTOR_MAP, true)));
+                connectorMessage.setChannelMapContent(getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CHANNEL_MAP, true)));
+                connectorMessage.setResponseMapContent(getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_MAP, true)));
 
-                connectorMessage.setProcessingError(getErrorFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.PROCESSING_ERROR, true)));
-                connectorMessage.setResponseError(getErrorFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_ERROR, true)));
+                connectorMessage.setProcessingErrorContent(getErrorContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.PROCESSING_ERROR, true)));
+                connectorMessage.setResponseErrorContent(getErrorContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_ERROR, true)));
 
                 MessageContent rawContent = getMessageContent(channelId, messageId, 0, (metaDataId == 0) ? ContentType.RAW : ContentType.ENCODED, decryptData);
 
@@ -1786,20 +1786,22 @@ public class JdbcDao implements DonkeyDao {
         }
     }
 
-    private Map<String, Object> getMapFromMessageContent(MessageContent content) {
-        if (content == null || StringUtils.isBlank(content.getContent())) {
-            return new HashMap<String, Object>();
+    private MapContent getMapContentFromMessageContent(MessageContent content) {
+        if (content == null) {
+            return new MapContent(new HashMap<String, Object>(), false);
+        } else if (StringUtils.isBlank(content.getContent())) {
+            return new MapContent(new HashMap<String, Object>(), true);
         }
 
-        return (HashMap<String, Object>) serializer.deserialize(content.getContent());
+        return new MapContent((HashMap<String, Object>) serializer.deserialize(content.getContent()), true);
     }
 
-    private String getErrorFromMessageContent(MessageContent content) {
+    private ErrorContent getErrorContentFromMessageContent(MessageContent content) {
         if (content == null) {
-            return null;
+            return new ErrorContent(null, false);
         }
 
-        return content.getContent();
+        return new ErrorContent(content.getContent(), true);
     }
 
     private Map<String, Object> getMetaDataMap(String channelId, long messageId, int metaDataId) {

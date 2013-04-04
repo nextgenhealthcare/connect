@@ -7,6 +7,11 @@ public class ErrorContent {
     public ErrorContent() {
 
     }
+    
+    public ErrorContent(String error, boolean persisted) {
+        this.error = error;
+        this.persisted = persisted;
+    }
 
     public String getError() {
         return error;
