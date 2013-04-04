@@ -50,7 +50,7 @@ public class ChannelServlet extends MirthServlet {
         } else {
             try {
                 ChannelController channelController = ControllerFactory.getFactory().createChannelController();
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 PrintWriter out = response.getWriter();
                 Operation operation = Operations.getOperation(request.getParameter("op"));
                 Map<String, Object> parameterMap = new HashMap<String, Object>();

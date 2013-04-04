@@ -617,7 +617,7 @@ public class CommandLineInterface {
 
     private void commandExportConfig(Token[] arguments) throws ClientException {
         String path = arguments[1].getText();
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
         try {
             ServerConfiguration configuration = client.getServerConfiguration();
@@ -638,7 +638,7 @@ public class CommandLineInterface {
     private void commandImportConfig(Token[] arguments) throws ClientException {
         String path = arguments[1].getText();
         File fXml = new File(path);
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
         try {
             client.setServerConfiguration((ServerConfiguration) serializer.fromXML(FileUtils.readFileToString(fXml)));
@@ -665,7 +665,7 @@ public class CommandLineInterface {
     private void commandImportAlerts(Token[] arguments) throws ClientException {
         String path = arguments[1].getText();
         File fXml = new File(path);
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
         try {
             String alertsXml = FileUtils.readFileToString(fXml);
@@ -685,7 +685,7 @@ public class CommandLineInterface {
     }
 
     private void commandExportAlerts(Token[] arguments) throws ClientException {
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String path = arguments[1].getText();
 
         try {
@@ -706,7 +706,7 @@ public class CommandLineInterface {
             return;
         }
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String path = arguments[1].getText();
         File fXml = new File(path);
 
@@ -737,7 +737,7 @@ public class CommandLineInterface {
             return;
         }
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String path = arguments[1].getText();
 
         try {
@@ -761,7 +761,7 @@ public class CommandLineInterface {
         String path = arguments[1].getText();
         File fXml = new File(path);
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         try {
             String codeTemplatesXml = FileUtils.readFileToString(fXml);
             try {
@@ -912,7 +912,7 @@ public class CommandLineInterface {
 
         Token key = arguments[1];
         String path = arguments[2].getText();
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         List<Channel> channels = client.getChannel(null);
         if (key == Token.WILDCARD) {
             for (Channel channel : channels) {
@@ -1283,7 +1283,7 @@ public class CommandLineInterface {
     }
 
     private void doImportScript(File scriptFile) throws ClientException {
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String scriptsXml = new String();
 
         try {
@@ -1307,7 +1307,7 @@ public class CommandLineInterface {
             return;
         }
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         Channel importChannel;
 
         try {

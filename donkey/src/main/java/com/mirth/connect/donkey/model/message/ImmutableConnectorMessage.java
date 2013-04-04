@@ -13,7 +13,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Map;
 
-import com.mirth.connect.donkey.util.DefaultSerializer;
+import com.mirth.connect.donkey.server.Donkey;
 
 public class ImmutableConnectorMessage {
     private ConnectorMessage connectorMessage;
@@ -144,8 +144,7 @@ public class ImmutableConnectorMessage {
 
     public Response getResponseData() {
         if (connectorMessage.getResponse() != null) {
-            DefaultSerializer serializer = new DefaultSerializer();
-            return (Response) serializer.deserialize(connectorMessage.getResponse().getContent());
+            return (Response) Donkey.getInstance().getSerializer().deserialize(connectorMessage.getResponse().getContent());
         } else {
             return null;
         }
@@ -177,8 +176,7 @@ public class ImmutableConnectorMessage {
 
     public Response getProcessedResponseData() {
         if (connectorMessage.getProcessedResponse() != null) {
-            DefaultSerializer serializer = new DefaultSerializer();
-            return (Response) serializer.deserialize(connectorMessage.getProcessedResponse().getContent());
+            return (Response) Donkey.getInstance().getSerializer().deserialize(connectorMessage.getProcessedResponse().getContent());
         } else {
             return null;
         }

@@ -103,6 +103,6 @@ public class TestServer {
         }
 
         String channelXml = ImportConverter.convertChannelString(IOUtils.toString(stream));
-        return (Channel) new ObjectXMLSerializer().fromXML(channelXml);
+        return (Channel) ObjectXMLSerializer.getInstance().fromXML(channelXml);
     }
 }

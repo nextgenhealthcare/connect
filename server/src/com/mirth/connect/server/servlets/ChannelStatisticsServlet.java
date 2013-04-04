@@ -44,7 +44,7 @@ public class ChannelStatisticsServlet extends MirthServlet {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
             try {
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 PrintWriter out = response.getWriter();
                 Operation operation = Operations.getOperation(request.getParameter("op"));
                 Map<String, Object> parameterMap = new HashMap<String, Object>();

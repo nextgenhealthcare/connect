@@ -2030,7 +2030,7 @@ public class Frame extends JXFrame {
 
         if (content != null) {
             try {
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 Map<String, String> importScripts = (Map<String, String>) serializer.fromXML(ImportConverter.convertGlobalScripts(content));
                 globalScriptsPanel.importAllScripts(importScripts);
             } catch (Exception e) {
@@ -2049,7 +2049,7 @@ public class Frame extends JXFrame {
             }
         }
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String globalScriptsXML = serializer.toXML(globalScriptsPanel.exportAllScripts());
 
         exportFile(globalScriptsXML, null, "XML", "Global Scripts export");
@@ -2944,7 +2944,7 @@ public class Frame extends JXFrame {
             return;
         }
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         Channel importChannel;
 
         try {
@@ -3087,7 +3087,7 @@ public class Frame extends JXFrame {
             channel = selectedChannels.get(0);
         }
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String channelXML = serializer.toXML(channel);
 
         return exportFile(channelXML, channel.getName(), "XML", "Channel");
@@ -3116,7 +3116,7 @@ public class Frame extends JXFrame {
 
                 for (Channel channel : channels.values()) {
                     if (!tagFilteredEnabled || CollectionUtils.containsAny(visibleTags, channel.getTags())) {
-                        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                         String channelXML = serializer.toXML(channel);
 
                         exportFile = new File(exportDirectory.getAbsolutePath() + "/" + channel.getName() + ".xml");
@@ -3273,7 +3273,7 @@ public class Frame extends JXFrame {
 
         if (content != null) {
             try {
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 Connector connector = (Connector) serializer.fromXML(ImportConverter.convertConnector(content));
 //                PropertyVerifier.checkConnectorProperties(connector, getConnectorMetaData());
                 channelEditPanel.importConnector(connector);
@@ -3298,7 +3298,7 @@ public class Frame extends JXFrame {
 
         Connector connector = channelEditPanel.exportSelectedConnector();
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String connectorXML = serializer.toXML(connector);
 
         String fileName = channelEditPanel.currentChannel.getName();
@@ -3824,7 +3824,7 @@ public class Frame extends JXFrame {
             }
         }
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String alertXML = serializer.toXML(alerts);
 
         exportFile(alertXML, null, "XML", "Alerts export");
@@ -3835,7 +3835,7 @@ public class Frame extends JXFrame {
 
         if (content != null) {
             try {
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 boolean append = false;
 
                 List<Alert> newAlerts = (List<Alert>) serializer.fromXML(ImportConverter.convertAlerts(content));
@@ -3994,7 +3994,7 @@ public class Frame extends JXFrame {
             }
         }
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String codeTemplateXML = serializer.toXML(codeTemplates);
 
         exportFile(codeTemplateXML, null, "XML", "Code templates export");
@@ -4005,7 +4005,7 @@ public class Frame extends JXFrame {
 
         if (content != null) {
             try {
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 boolean append = false;
 
                 List<CodeTemplate> newCodeTemplates = (List<CodeTemplate>) serializer.fromXML(ImportConverter.convertCodeTemplates(content));

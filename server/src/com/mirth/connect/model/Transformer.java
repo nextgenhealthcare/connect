@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
 
-import com.mirth.connect.model.converters.xstream.Base64StringConverter;
+import com.mirth.connect.donkey.util.xstream.Base64StringConverter;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;

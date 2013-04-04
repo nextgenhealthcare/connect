@@ -21,7 +21,7 @@ import com.mirth.connect.model.filters.EventFilter;
 public class EventListHandler implements ListHandler {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ServerConnection connection;
-	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+	private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 	private EventFilter filter;
 	private int pageSize;
 	private int currentPage;

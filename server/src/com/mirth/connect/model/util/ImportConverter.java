@@ -58,7 +58,7 @@ import com.mirth.connect.util.CharsetUtils;
 public class ImportConverter {
     private static final String HL7V2 = "HL7V2";
     private static final String XML = "XML";
-    private static ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    private static ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
     private static Pattern matchVersion = Pattern.compile("<version>([\\.0-9]+?)<\\/version>");
 
@@ -655,7 +655,7 @@ public class ImportConverter {
             propertyDefaults.put("receiverClassName", "com.mirth.connect.connectors.ws.DefaultAcceptMessage");
             propertyDefaults.put("receiverServiceName", "Mirth");
             propertyDefaults.put("receiverResponseValue", "None");
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+            ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
             propertyDefaults.put("receiverUsernames", serializer.toXML(new ArrayList<String>()));
             propertyDefaults.put("receiverPasswords", serializer.toXML(new ArrayList<String>()));
 
@@ -708,7 +708,7 @@ public class ImportConverter {
             propertyDefaults.put("dispatcherUseMtom", "0");
             propertyDefaults.put("dispatcherReplyChannelId", "sink");
 
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+            ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
             ArrayList<String> defaultOperations = new ArrayList<String>();
             defaultOperations.add("Press Get Operations");
@@ -825,7 +825,7 @@ public class ImportConverter {
             // document.getElementsByTagName("enabled").item(0).setTextContent("false");
 
             // set defaults
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+            ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
             propertyDefaults.put("DataType", "HTTP Sender");
             propertyDefaults.put("host", "");
@@ -950,7 +950,7 @@ public class ImportConverter {
             NodeList properties = connectorRoot.getElementsByTagName("property");
 
             // set defaults
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+            ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
             propertyDefaults.put("DataType", "SMTP Sender");
             propertyDefaults.put("smtpHost", "");

@@ -21,7 +21,7 @@ import com.mirth.connect.model.filters.MessageFilter;
 public class MessageListHandler implements ListHandler {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ServerConnection connection;
-	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+	private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 	private String channelId;
 	private MessageFilter filter;
 	private int pageSize;

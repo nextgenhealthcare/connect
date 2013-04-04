@@ -42,7 +42,7 @@ public class CodeTemplateServlet extends MirthServlet {
         } else {
             try {
                 CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 PrintWriter out = response.getWriter();
                 Operation operation = Operations.getOperation(request.getParameter("op"));
                 Map<String, Object> parameterMap = new HashMap<String, Object>();

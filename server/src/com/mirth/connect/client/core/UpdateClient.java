@@ -40,7 +40,7 @@ import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class UpdateClient {
-    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private final static String URL_REGISTRATION = "/RegistrationServlet";
     private final static String URL_UPDATES = "/UpdateServlet";
     private final static String URL_USAGE_STATISTICS = "/UsageStatisticsServlet";

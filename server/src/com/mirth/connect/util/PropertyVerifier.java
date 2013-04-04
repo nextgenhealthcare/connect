@@ -17,7 +17,7 @@ public class PropertyVerifier
 {
     /** A method to compare two properties file to check if they are the same. */
     public static boolean compareProps(ConnectorProperties p1, ConnectorProperties p2) {
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         return serializer.toXML(p1).equals(serializer.toXML(p2));
     }
     

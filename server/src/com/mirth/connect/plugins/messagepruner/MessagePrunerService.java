@@ -42,7 +42,7 @@ public class MessagePrunerService implements ServicePlugin {
     private Scheduler sched;
     private SchedulerFactory schedFact;
     private JobDetail jobDetail;
-    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private Logger logger = Logger.getLogger(this.getClass());
 
     @Override

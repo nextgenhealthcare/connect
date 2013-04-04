@@ -52,7 +52,7 @@ public class UserServlet extends MirthServlet {
         EventController eventController = ControllerFactory.getFactory().createEventController();
         PrintWriter out = response.getWriter();
         Operation operation = Operations.getOperation(request.getParameter("op"));
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
         if (operation.equals(Operations.USER_LOGIN)) {
             String username = request.getParameter("username");

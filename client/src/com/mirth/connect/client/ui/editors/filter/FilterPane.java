@@ -905,7 +905,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             }
         }
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         try {
             Filter importFilter = (Filter) serializer.fromXML(ImportConverter.convertFilter(content));
             prevSelRow = -1;
@@ -931,7 +931,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     public void doExport() {
         accept(false);
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String filterXML = serializer.toXML(filter);
 
         parent.exportFile(filterXML, null, "XML", "Filter");

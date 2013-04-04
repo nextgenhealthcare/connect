@@ -33,8 +33,8 @@ import com.mirth.connect.donkey.server.data.jdbc.JdbcDao;
 import com.mirth.connect.donkey.server.data.jdbc.JdbcDaoFactory;
 import com.mirth.connect.donkey.server.data.jdbc.XmlQuerySource;
 import com.mirth.connect.donkey.server.data.jdbc.XmlQuerySource.XmlQuerySourceException;
-import com.mirth.connect.donkey.util.DefaultSerializer;
 import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 
 public class Donkey {
     private static Donkey instance;
@@ -59,7 +59,7 @@ public class Donkey {
     private String attachmentsDir;
     private ExecutorService donkeyExecutor = Executors.newCachedThreadPool();
     private DonkeyDaoFactory daoFactory;
-    private Serializer serializer = new DefaultSerializer();
+    private Serializer serializer = new XStreamSerializer();
     private Encryptor encryptor;
     private Logger logger = Logger.getLogger(getClass());
     private boolean running = false;
@@ -329,6 +329,10 @@ public class Donkey {
 
     public Serializer getSerializer() {
         return serializer;
+    }
+
+    public void setSerializer(Serializer serializer) {
+        this.serializer = serializer;
     }
 
     public Encryptor getEncryptor() {

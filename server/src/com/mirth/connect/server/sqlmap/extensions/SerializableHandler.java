@@ -18,22 +18,22 @@ import java.sql.SQLException;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
-import com.mirth.connect.donkey.server.Donkey;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class SerializableHandler implements TypeHandler {
     @Override
     public Object getResult(ResultSet resultSet, String columnName) throws SQLException {
-        return Donkey.getInstance().getSerializer().deserialize(resultSet.getString(columnName));
+        return ObjectXMLSerializer.getInstance().deserialize(resultSet.getString(columnName));
     }
 
     @Override
     public Object getResult(ResultSet resultSet, int columnIndex) throws SQLException {
-        return Donkey.getInstance().getSerializer().deserialize(resultSet.getString(columnIndex));
+        return ObjectXMLSerializer.getInstance().deserialize(resultSet.getString(columnIndex));
     }
 
     @Override
     public Object getResult(CallableStatement callableStatement, int columnIndex) throws SQLException {
-        return Donkey.getInstance().getSerializer().deserialize(callableStatement.getString(columnIndex));
+        return ObjectXMLSerializer.getInstance().deserialize(callableStatement.getString(columnIndex));
     }
 
     @Override
@@ -41,7 +41,7 @@ public class SerializableHandler implements TypeHandler {
         if (parameter == null) {
             ps.setNull(i, java.sql.Types.LONGVARCHAR);
         } else {
-            ps.setString(i, Donkey.getInstance().getSerializer().serialize((Serializable) parameter));
+            ps.setString(i, ObjectXMLSerializer.getInstance().serialize((Serializable) parameter));
         }
     }
 }

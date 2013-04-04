@@ -51,7 +51,7 @@ public class WebServiceSender extends ConnectorSettingsPanel {
     private final String ID_COLUMN_NAME = "ID";
     private final String CONTENT_COLUMN_NAME = "Content";
     private final String MIME_TYPE_COLUMN_NAME = "MIME Type";
-    ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private Frame parent;
 
     public WebServiceSender() {

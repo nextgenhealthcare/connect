@@ -44,7 +44,7 @@ public class ChannelStatusServlet extends MirthServlet {
         }
 
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         PrintWriter out = response.getWriter();
         Operation operation = Operations.getOperation(request.getParameter("op"));
         String channelId = request.getParameter("id");

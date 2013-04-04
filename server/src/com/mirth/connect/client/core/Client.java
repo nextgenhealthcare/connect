@@ -59,7 +59,7 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class Client {
     private Logger logger = Logger.getLogger(this.getClass());
-    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private ServerConnection serverConnection;
     private String address;
     private int timeout;

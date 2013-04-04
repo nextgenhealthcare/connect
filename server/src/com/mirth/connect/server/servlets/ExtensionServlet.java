@@ -47,7 +47,7 @@ public class ExtensionServlet extends MirthServlet {
         } else {
             try {
                 ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 PrintWriter out = response.getWriter();
                 FileItem multiPartFileItem = null;
                 Operation operation = null;

@@ -27,7 +27,7 @@ public class MessageUtils {
     private final static String CHARSET = "UTF-8";
     private final static int XML_SCAN_BUFFER_SIZE = 20;
 
-    private static ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    private static ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private static Logger logger = Logger.getLogger(MessageUtils.class);
 
     /**

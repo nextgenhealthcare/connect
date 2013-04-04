@@ -719,7 +719,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 keyStore.load(null, keyStorePassword);
 
                 // deserialize the XML secret key to an Object
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 SecretKey secretKey = (SecretKey) serializer.fromXML(getProperty(PROPERTIES_CORE, "encryption.key"));
 
                 // add the secret key entry to the new keystore

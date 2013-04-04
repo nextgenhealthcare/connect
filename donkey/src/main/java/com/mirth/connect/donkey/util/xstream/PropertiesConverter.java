@@ -1,4 +1,4 @@
-package com.mirth.connect.model.converters.xstream;
+package com.mirth.connect.donkey.util.xstream;
 
 import java.util.Collections;
 import java.util.Comparator;

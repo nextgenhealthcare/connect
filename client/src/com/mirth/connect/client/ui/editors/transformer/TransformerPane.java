@@ -883,7 +883,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             }
         }
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         try {
             // TODO MIRTH-2371 Test import again after importConvert updates
             Transformer importTransformer = (Transformer) serializer.fromXML(ImportConverter.convertTransformer(content, incomingDataType, outgoingDataType));
@@ -925,7 +925,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             return;
         }
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         String transformerXML = serializer.toXML(transformer);
 
         parent.exportFile(transformerXML, null, "XML", "Transformer");

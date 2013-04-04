@@ -99,7 +99,8 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.donkey.util.DefaultSerializer;
+import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchOperator;
@@ -1698,7 +1699,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         content = null;
         if (sentMessage != null) {
             if (connectorMessage.getMetaDataId() > 0) {
-                DefaultSerializer serializer = new DefaultSerializer();
+                Serializer serializer = ObjectXMLSerializer.getInstance();
                 Object sentObject = serializer.deserialize(sentMessage.getContent());
                 if (sentObject instanceof ConnectorProperties) {
                     content = ((ConnectorProperties) sentObject).toFormattedString();
@@ -1715,7 +1716,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         content = null;
         if (responseMessage != null) {
-            DefaultSerializer serializer = new DefaultSerializer();
+            Serializer serializer = ObjectXMLSerializer.getInstance();
             Object object = serializer.deserialize(responseMessage.getContent());
             if (object instanceof Response) {
                 Response responseObject = (Response) object;
@@ -1743,7 +1744,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         content = null;
         if (processedResponseMessage != null) {
             if (connectorMessage.getMetaDataId() > 0) {
-                DefaultSerializer serializer = new DefaultSerializer();
+                Serializer serializer = ObjectXMLSerializer.getInstance();
                 Object object = serializer.deserialize(processedResponseMessage.getContent());
                 if (object instanceof Response) {
                     Response responseObject = (Response) object;
@@ -1934,7 +1935,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     String trimmedContent = "";
 
                     if (messagePaneName.equals("Response") || messagePaneName.equals("Processed Response")) {
-                        DefaultSerializer serializer = new DefaultSerializer();
+                        Serializer serializer = ObjectXMLSerializer.getInstance();
                         Object object = serializer.deserialize(content.getContent());
                         if (object instanceof Response) {
                             Response responseObject = (Response) object;

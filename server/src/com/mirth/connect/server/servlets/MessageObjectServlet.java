@@ -51,7 +51,7 @@ public class MessageObjectServlet extends MirthServlet {
         } else {
             try {
                 final MessageController messageController = ControllerFactory.getFactory().createMessageController();
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 PrintWriter out = response.getWriter();
                 Operation operation = Operations.getOperation(request.getParameter("op"));
                 // TODO: remove?

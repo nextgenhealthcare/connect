@@ -51,7 +51,7 @@ public class ConfigurationServlet extends MirthServlet {
             } else {
                 ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
                 ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
 
                 if (operation.equals(Operations.CONFIGURATION_CHARSET_ENCODINGS_GET)) {

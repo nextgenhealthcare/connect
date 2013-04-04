@@ -16,7 +16,7 @@ public class JmsConnectorService implements ConnectorService {
     private final static String TEMPLATES_PROPERTY = "templates";
 
     private Properties properties;
-    private Serializer serializer = new ObjectXMLSerializer();
+    private Serializer serializer = ObjectXMLSerializer.getInstance();
     private LinkedHashMap<String, JmsConnectorProperties> templates;
     private Logger logger = Logger.getLogger(getClass());
 

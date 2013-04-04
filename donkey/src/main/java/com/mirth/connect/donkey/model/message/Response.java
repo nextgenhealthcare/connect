@@ -13,6 +13,9 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("response")
 public class Response implements Serializable {
     private static final long serialVersionUID = 99766081218628503L;
     private Status status;

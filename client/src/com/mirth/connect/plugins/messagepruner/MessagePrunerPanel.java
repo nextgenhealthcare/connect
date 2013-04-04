@@ -30,7 +30,7 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 public class MessagePrunerPanel extends AbstractSettingsPanel {
     private SettingsPanelPlugin plugin = null;
     private MessageExportPanel archiverPanel;
-    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private Frame parent;
 
     public MessagePrunerPanel(String tabName, SettingsPanelPlugin plugin) {

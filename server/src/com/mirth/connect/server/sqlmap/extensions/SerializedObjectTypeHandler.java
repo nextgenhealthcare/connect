@@ -20,7 +20,7 @@ import org.apache.ibatis.type.TypeHandler;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class SerializedObjectTypeHandler implements TypeHandler {
-    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
     @Override
     public void setParameter(PreparedStatement statement, int i, Object parameter, JdbcType jdbc) throws SQLException {

@@ -41,7 +41,7 @@ public class EngineServlet extends MirthServlet {
         } else {
             try {
                 EngineController engineController = ControllerFactory.getFactory().createEngineController();
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
                 Operation operation = Operations.getOperation(request.getParameter("op"));
                 Map<String, Object> parameterMap = new HashMap<String, Object>();
                 ServerEventContext context = new ServerEventContext();

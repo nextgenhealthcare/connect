@@ -30,7 +30,7 @@ public class MessageWriterVfs implements MessageWriter {
     private FileObject currentFileObject;
     private Writer writer;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
-    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
     public MessageWriterVfs(String uri, String exportFilePattern, ContentType contentType, boolean destinationContent, boolean encrypted, Encryptor encryptor) {
         this.uri = uri;

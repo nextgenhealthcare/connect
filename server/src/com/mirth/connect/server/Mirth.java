@@ -44,7 +44,9 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 
+import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.model.Event;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -194,6 +196,8 @@ public class Mirth extends Thread {
      * 
      */
     public void startup() {
+        Donkey.getInstance().setSerializer(ObjectXMLSerializer.getInstance());
+        
         configurationController.initializeSecuritySettings();
         configurationController.initializeDatabaseSettings();
 

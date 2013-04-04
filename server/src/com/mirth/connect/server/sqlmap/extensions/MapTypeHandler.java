@@ -25,7 +25,7 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MapTypeHandler implements TypeHandler {
     //TODO use this typehandler for inserting maps into DB. However, this and ObjectXMLSerializer are on the server, not donkey.
-    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
     @Override
     public void setParameter(PreparedStatement ps, int i, Object parameter, JdbcType arg3) throws SQLException {

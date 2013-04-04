@@ -9,10 +9,15 @@
 
 package com.mirth.connect.donkey.util;
 
-import java.io.Serializable;
+import java.io.Reader;
+import java.io.Writer;
 
 public interface Serializer {
-    public String serialize(Serializable serializableObject);
+    public String serialize(Object serializableObject);
+    
+    public void serialize(Object serializableObject, Writer writer);
 
     public Object deserialize(String serializedObject);
+    
+    public Object deserialize(Reader reader);
 }

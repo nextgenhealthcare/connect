@@ -10,16 +10,9 @@
 package com.mirth.connect.model.converters;
 
 import java.io.Reader;
-import java.io.Serializable;
 import java.io.Writer;
-import java.lang.ref.WeakReference;
-import java.util.Map;
-import java.util.WeakHashMap;
 
-import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.Message;
-import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.ArchiveMetaData;
 import com.mirth.connect.model.Channel;
@@ -47,31 +40,18 @@ import com.mirth.connect.model.UpdateInfo;
 import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.UsageData;
 import com.mirth.connect.model.User;
-import com.mirth.connect.model.converters.xstream.ConcurrentHashMapConverter;
-import com.mirth.connect.model.converters.xstream.PropertiesConverter;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.basic.StringConverter;
-import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 
-public class ObjectXMLSerializer implements Serializer {
-    private XStream xstream;
-    
-    // http://jira.codehaus.org/browse/XSTR-395
-    private static final Map<String, WeakReference<String>> stringCache = new WeakHashMap<String, WeakReference<String>>();
-    
-    private static final Class<?>[] annotatedClasses = new Class<?>[] {
+public class ObjectXMLSerializer extends XStreamSerializer {
+    private static final Class<?>[] annotatedClasses = new Class<?>[] {//@formatter:off
         Alert.class,
         ArchiveMetaData.class,
-        Attachment.class,
         Channel.class,
         ChannelStatistics.class,
         ChannelSummary.class,
         CodeTemplate.class,
         Connector.class,
-        ConnectorMessage.class,
         ConnectorMetaData.class,
         DashboardStatus.class,
         DeployedChannelInfo.class,
@@ -80,7 +60,6 @@ public class ObjectXMLSerializer implements Serializer {
         EventFilter.class,
         ExtensionLibrary.class,
         Filter.class,
-        Message.class,
         MessageFilter.class,
         MetaData.class,
         PasswordRequirements.class,
@@ -95,65 +74,35 @@ public class ObjectXMLSerializer implements Serializer {
         UpdateSettings.class,
         UsageData.class,
         User.class
-    };
+    }; // @formatter:on
 
-    public ObjectXMLSerializer() {
-        xstream = new XStream(new Xpp3Driver());
-        xstream.registerConverter(new StringConverter(stringCache));
-        xstream.registerConverter(new ConcurrentHashMapConverter(xstream.getMapper()));
-        xstream.registerConverter(new PropertiesConverter());
-        xstream.setMode(XStream.NO_REFERENCES);
-        processAnnotations();
+    private static final ObjectXMLSerializer instance = new ObjectXMLSerializer();
+
+    public static ObjectXMLSerializer getInstance() {
+        return instance;
     }
 
-    public ObjectXMLSerializer(Class<?>[] aliases) {
-        xstream = new XStream(new Xpp3Driver());
-        xstream.registerConverter(new StringConverter(stringCache));
-        xstream.registerConverter(new ConcurrentHashMapConverter(xstream.getMapper()));
-        xstream.registerConverter(new PropertiesConverter());
-        processAnnotations();
-        xstream.processAnnotations(aliases);
-        xstream.setMode(XStream.NO_REFERENCES);
-    }
-
-    public ObjectXMLSerializer(Class<?>[] aliases, Converter[] converters) {
-        xstream = new XStream(new Xpp3Driver());
-        processAnnotations();
-        xstream.processAnnotations(aliases);
-        xstream.setMode(XStream.NO_REFERENCES);
-
-        for (int i = 0; i < converters.length; i++) {
-            xstream.registerConverter(converters[i]);
-        }
+    private ObjectXMLSerializer() {
+        processAnnotations(annotatedClasses);
     }
 
     public String toXML(Object source) {
-        return xstream.toXML(source);
+        return serialize(source);
     }
 
     public void toXML(Object source, Writer writer) {
-        xstream.toXML(source, writer);
+        serialize(source, writer);
     }
 
     public Object fromXML(String source) {
-        return xstream.fromXML(source);
+        return deserialize(source);
     }
 
     public Object fromXML(Reader reader) {
-        return xstream.fromXML(reader);
-    }
-    
-    @Override
-    public String serialize(Serializable serializableObject) {
-        return toXML(serializableObject);
+        return deserialize(reader);
     }
 
-    @Override
-    public Object deserialize(String serializedObject) {
-        return fromXML(serializedObject);
-    }
-
-    private void processAnnotations() {
-        xstream.processAnnotations(annotatedClasses);
+    public void processAnnotations(Class<?>[] classes) {
+        getXStream().processAnnotations(classes);
     }
 }

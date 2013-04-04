@@ -70,7 +70,7 @@ import com.mirth.connect.server.util.UUIDGenerator;
 
 public class DefaultExtensionController extends ExtensionController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
     // these maps store the metadata for all extensions

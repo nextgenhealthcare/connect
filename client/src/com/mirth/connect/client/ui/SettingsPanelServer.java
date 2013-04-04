@@ -280,7 +280,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         String backupDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
         ServerConfiguration configuration = null;
         try {
             configuration = getFrame().mirthClient.getServerConfiguration();
