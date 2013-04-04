@@ -15,16 +15,14 @@ import com.mirth.connect.donkey.model.channel.QueueConnectorPropertiesInterface;
 
 public class VmDispatcherProperties extends ConnectorProperties implements QueueConnectorPropertiesInterface {
     private QueueConnectorProperties queueConnectorProperties;
-    
+
     private String channelId;
-    private boolean isWaitForDestinations;
     private String channelTemplate;
 
     public VmDispatcherProperties() {
         queueConnectorProperties = new QueueConnectorProperties();
-        
+
         this.channelId = "none";
-        this.isWaitForDestinations = false;
         this.channelTemplate = "${message.encodedData}";
     }
 
@@ -34,14 +32,6 @@ public class VmDispatcherProperties extends ConnectorProperties implements Queue
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
-    }
-
-    public boolean isWaitForDestinations() {
-        return isWaitForDestinations;
-    }
-
-    public void setWaitForDestinations(boolean isWaitForDestinations) {
-        this.isWaitForDestinations = isWaitForDestinations;
     }
 
     public String getChannelTemplate() {
@@ -69,7 +59,7 @@ public class VmDispatcherProperties extends ConnectorProperties implements Queue
         builder.append("CHANNEL ID: ");
         builder.append(channelId);
         builder.append(newLine);
-        
+
         builder.append(newLine);
         builder.append("[CONTENT]");
         builder.append(newLine);
