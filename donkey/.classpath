@@ -48,7 +48,6 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/math/apidocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/xstream-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/cloning/cloning-1.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/cloning/objenesis-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-dbcp-1.4.jar"/>
@@ -59,5 +58,7 @@
 			<attribute name="javadoc_location" value="http://jdbc.postgresql.org/documentation/publicapi/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/xstream/xstream-1.4.3.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/xpp3_min-1.1.4c.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
