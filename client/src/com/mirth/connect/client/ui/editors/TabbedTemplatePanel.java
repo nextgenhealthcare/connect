@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.mirth.connect.client.ui.FunctionList;
+import com.mirth.connect.client.ui.TransformerType;
 import com.mirth.connect.client.ui.VariableListHandler;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
 import com.mirth.connect.client.ui.panels.reference.VariableReferenceTable;
@@ -64,7 +65,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel {
         if (parent.parent.channelEditPanel.requiresXmlDataType()) {
             inboundEnabled = false;
         }
-        messageTemplatePanel.setDataTypeEnabled(inboundEnabled, true, true, true);
+        messageTemplatePanel.setDataTypeEnabled(inboundEnabled, true, true, true, TransformerType.SOURCE);
     }
 
     /**
@@ -72,7 +73,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel {
      * the outbound data type and proeprties to be enabled.
      */
     public void setDestinationView(boolean isResponse) {
-        messageTemplatePanel.setDataTypeEnabled(isResponse, true, true, true);
+        messageTemplatePanel.setDataTypeEnabled(isResponse, true, true, true, isResponse ? TransformerType.RESPONSE : TransformerType.DESTINATION);
     }
 
     public void resizePanes() {

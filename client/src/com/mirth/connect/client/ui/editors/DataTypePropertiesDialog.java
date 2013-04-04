@@ -7,30 +7,34 @@ package com.mirth.connect.client.ui.editors;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import com.mirth.connect.client.ui.DataTypePropertiesContainer;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.TransformerType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
 public class DataTypePropertiesDialog extends javax.swing.JDialog {
 	
 	private boolean revert = true;
 	private DataTypeProperties dataTypeProperties;
+	private TransformerType transformerType;
 
     /**
      * Creates new form DataTypePropertiesDialog
      */
-    public DataTypePropertiesDialog(boolean inbound, final String displayName, DataTypeProperties dataTypeProperties) {
+    public DataTypePropertiesDialog(boolean inbound, final String displayName, DataTypeProperties dataTypeProperties, TransformerType transformerType) {
         super(PlatformUI.MIRTH_FRAME, true);
         initComponents();
         
 		setTitle((inbound ? "Inbound" : "Outbound") + " Properties");
 
 		this.dataTypeProperties = dataTypeProperties;
+		this.setTransformerType(transformerType);
 		
         dataTypePropertiesPanel.setInbound(inbound);
         dataTypePropertiesPanel.setUseTitleBorder(false);
         dataTypePropertiesPanel.getDataTypeComboBox().setVisible(false);
-        dataTypePropertiesPanel.setDataTypeProperties(displayName, dataTypeProperties);
+        dataTypePropertiesPanel.setDataTypeProperties(displayName, new DataTypePropertiesContainer(dataTypeProperties, transformerType));
         dataTypePropertiesPanel.getDefaultButton().addActionListener(new ActionListener() {
 
 			@Override
@@ -40,7 +44,7 @@ public class DataTypePropertiesDialog extends javax.swing.JDialog {
 				DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
 				
 				setDataTypeProperties(defaultProperties);
-				dataTypePropertiesPanel.setDataTypeProperties(displayName, defaultProperties);
+				dataTypePropertiesPanel.setDataTypeProperties(displayName, new DataTypePropertiesContainer(defaultProperties, getTransformerType()));
 			}
     	});
         
@@ -59,6 +63,14 @@ public class DataTypePropertiesDialog extends javax.swing.JDialog {
     
     public DataTypeProperties getDataTypeProperties() {
     	return dataTypeProperties;
+    }
+
+    public TransformerType getTransformerType() {
+        return transformerType;
+    }
+
+    public void setTransformerType(TransformerType transformerType) {
+        this.transformerType = transformerType;
     }
 
     /**

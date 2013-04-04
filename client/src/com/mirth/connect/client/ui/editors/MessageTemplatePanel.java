@@ -15,6 +15,7 @@ import java.awt.event.HierarchyListener;
 import javax.swing.border.TitledBorder;
 
 import com.mirth.connect.client.ui.TemplatePanel;
+import com.mirth.connect.client.ui.TransformerType;
 import com.mirth.connect.client.ui.TreePanel;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 
@@ -52,9 +53,9 @@ public class MessageTemplatePanel extends javax.swing.JPanel {
         ((TitledBorder) templatePanelOutbound.getBorder()).setTitle("Outbound Message Template");
     }
     
-    public void setDataTypeEnabled(boolean inboundDataType, boolean inboundProperties, boolean outboundDataType, boolean outboundProperties) {
-        templatePanelInbound.setDataTypeEnabled(inboundDataType, inboundProperties);
-        templatePanelOutbound.setDataTypeEnabled(outboundDataType, outboundProperties);
+    public void setDataTypeEnabled(boolean inboundDataType, boolean inboundProperties, boolean outboundDataType, boolean outboundProperties, TransformerType transformerType) {
+        templatePanelInbound.setDataTypeEnabled(inboundDataType, inboundProperties, transformerType);
+        templatePanelOutbound.setDataTypeEnabled(outboundDataType, outboundProperties, transformerType);
     }
 
     public void hideOutbound() {

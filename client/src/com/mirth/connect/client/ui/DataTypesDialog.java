@@ -63,7 +63,6 @@ public class DataTypesDialog extends javax.swing.JDialog {
 	private static int SELECTION_COLUMN_WIDTH = 20;
     private Frame parent;
     private final String[] columnNames = {"", "Connector", "Inbound", "Outbound"};
-    private enum TransformerType {SOURCE, DESTINATION, RESPONSE};
     private enum EditMode {SINGLE, BULK};
     private EditMode editMode;
     private Map<Integer, TransformerContainer> transformerContainer;
@@ -250,7 +249,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
 					DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
 					
 					transformer.setInboundProperties(defaultProperties);
-					inboundPropertiesPanel.setDataTypeProperties(dataTypeDisplayName, defaultProperties);
+					inboundPropertiesPanel.setDataTypeProperties(dataTypeDisplayName, new DataTypePropertiesContainer(defaultProperties, container.getType()));
 				} else if (editMode == EditMode.BULK) {
 					TreeTableNode root = (TreeTableNode) connectorTreeTable.getTreeTableModel().getRoot();
 					resetToDefault(root, dataType, true);
@@ -310,7 +309,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
 					DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
 					
 					transformer.setOutboundProperties(defaultProperties);
-					outboundPropertiesPanel.setDataTypeProperties(dataTypeDisplayName, defaultProperties);
+					outboundPropertiesPanel.setDataTypeProperties(dataTypeDisplayName, new DataTypePropertiesContainer(defaultProperties, container.getType()));
 				} else if (editMode == EditMode.BULK) {
 					TreeTableNode root = (TreeTableNode) connectorTreeTable.getTreeTableModel().getRoot();
 					resetToDefault(root, dataType, false);
@@ -444,16 +443,17 @@ public class DataTypesDialog extends javax.swing.JDialog {
                     String inboundDataType = (String) tableNode.getValueAt(INBOUND_COLUMN);
                     String outboundDataType = (String) tableNode.getValueAt(OUTBOUND_COLUMN);
                     
-                    inboundPropertiesPanel.setDataTypeProperties(inboundDataType, transformer.getInboundProperties());
+                    inboundPropertiesPanel.setDataTypeProperties(inboundDataType, new DataTypePropertiesContainer(transformer.getInboundProperties(), type));
                     inboundPropertiesPanel.getDataTypeComboBox().getModel().setSelectedItem(inboundDataType);
                     inboundPropertiesPanel.getDataTypeComboBox().setEnabled(!(type == TransformerType.DESTINATION || (type == TransformerType.SOURCE && PlatformUI.MIRTH_FRAME.channelEditPanel.requiresXmlDataType())));
                     
-                    outboundPropertiesPanel.setDataTypeProperties(outboundDataType, transformer.getOutboundProperties());
+                    outboundPropertiesPanel.setDataTypeProperties(outboundDataType, new DataTypePropertiesContainer(transformer.getOutboundProperties(), type));
                     outboundPropertiesPanel.getDataTypeComboBox().getModel().setSelectedItem(outboundDataType);
                 	} else {
-                		DataTypeProperties properties = null;
-                		inboundPropertiesPanel.setDataTypeProperties(null, properties);
-                		outboundPropertiesPanel.setDataTypeProperties(null, properties);
+                	    // Need to set a type for the null value because of overloaded method
+                		DataTypePropertiesContainer propertiesContainer = null;
+                		inboundPropertiesPanel.setDataTypeProperties(null, propertiesContainer);
+                		outboundPropertiesPanel.setDataTypeProperties(null, propertiesContainer);
                 	}
                 }
             }
@@ -620,7 +620,8 @@ public class DataTypesDialog extends javax.swing.JDialog {
     public void updateSingleDataType(DataTypeConnectorTableNode tableNode, String dataTypeDisplayName, boolean inbound) {
     	String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataTypeDisplayName);
         DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
-        Transformer transformer = transformerContainer.get(tableNode.getContainerIndex()).getTransformer();
+        TransformerContainer container = transformerContainer.get(tableNode.getContainerIndex());
+        Transformer transformer = container.getTransformer();
 
         if (inbound) {
             if (!transformer.getInboundDataType().equals(dataType)) {
@@ -628,7 +629,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
                 transformer.setInboundProperties(defaultProperties);
                 tableNode.setValueAt(dataTypeDisplayName, INBOUND_COLUMN);
                 inboundPropertiesPanel.getDataTypeComboBox().setSelectedItem(dataTypeDisplayName);
-                inboundPropertiesPanel.setDataTypeProperties(dataTypeDisplayName, transformer.getInboundProperties());
+                inboundPropertiesPanel.setDataTypeProperties(dataTypeDisplayName, new DataTypePropertiesContainer(transformer.getInboundProperties(), container.getType()));
             }
         } else {
             if (!transformer.getOutboundDataType().equals(dataType)) {
@@ -636,10 +637,8 @@ public class DataTypesDialog extends javax.swing.JDialog {
                 transformer.setOutboundProperties(defaultProperties);
                 tableNode.setValueAt(dataTypeDisplayName, OUTBOUND_COLUMN);
                 outboundPropertiesPanel.getDataTypeComboBox().setSelectedItem(dataTypeDisplayName);
-                outboundPropertiesPanel.setDataTypeProperties(dataTypeDisplayName, transformer.getOutboundProperties());
+                outboundPropertiesPanel.setDataTypeProperties(dataTypeDisplayName, new DataTypePropertiesContainer(transformer.getOutboundProperties(), container.getType()));
             }
-            
-            TransformerContainer container = transformerContainer.get(tableNode.getContainerIndex());
             
             if (container.getType() == TransformerType.SOURCE) {
             	// If the source outbound data type is changed, also update all destination inbound data types.
@@ -830,8 +829,8 @@ public class DataTypesDialog extends javax.swing.JDialog {
     		entry.getKey().setState(entry.getValue());
     	}
     
-    	List<DataTypeProperties> inboundPropertiesList = null;
-    	List<DataTypeProperties> outboundPropertiesList = null;
+    	List<DataTypePropertiesContainer> inboundPropertiesList = null;
+    	List<DataTypePropertiesContainer> outboundPropertiesList = null;
     	
     	String inboundDataType = null;
     	String inboundDataTypeDisplayName = null;
@@ -848,15 +847,15 @@ public class DataTypesDialog extends javax.swing.JDialog {
     		inboundPropertiesPanel.getDataTypeComboBox().setEnabled(true);
     		outboundPropertiesPanel.getDataTypeComboBox().setEnabled(true);
     		
-    		inboundPropertiesList = new ArrayList<DataTypeProperties>();
-    		outboundPropertiesList = new ArrayList<DataTypeProperties>();
+    		inboundPropertiesList = new ArrayList<DataTypePropertiesContainer>();
+    		outboundPropertiesList = new ArrayList<DataTypePropertiesContainer>();
     		
 	    	// For each selected row
 	    	for (int containerId : containerIds) {
 	    		TransformerContainer container = transformerContainer.get(containerId);
 	    		
 	    		if (inboundPropertiesList != null) {
-	    			inboundPropertiesList.add(container.getTransformer().getInboundProperties());
+	    			inboundPropertiesList.add(new DataTypePropertiesContainer(container.getTransformer().getInboundProperties(), container.getType()));
 	    			
 		    		if (inboundDataType == null) {
 		    			// If the combined inbound data type has not been set yet, set it to the currently selected inbound data type.
@@ -871,7 +870,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
 	    		}
 	    		
 	    		if (outboundPropertiesList != null) {
-	    			outboundPropertiesList.add(container.getTransformer().getOutboundProperties());
+	    			outboundPropertiesList.add(new DataTypePropertiesContainer(container.getTransformer().getOutboundProperties(), container.getType()));
 	    			
 		    		if (outboundDataType == null) {
 		    			// If the combined inbound data type has not been set yet, set it to the currently selected inbound data type.

@@ -52,6 +52,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     private Timer timer;
     private String lastWorkingId = null;
     private boolean inbound = false;
+    private TransformerType transformerType;
 
     public TemplatePanel() {
         initComponents();
@@ -164,9 +165,10 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         }
     }
 
-    public void setDataTypeEnabled(boolean dataTypeEnabled, boolean propertiesEnabled) {
+    public void setDataTypeEnabled(boolean dataTypeEnabled, boolean propertiesEnabled, TransformerType transformerType) {
         dataTypeComboBox.setEnabled(dataTypeEnabled);
         properties.setEnabled(propertiesEnabled);
+        this.transformerType = transformerType;
     }
 
     public void setInbound(boolean inbound) {
@@ -413,7 +415,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
 
         if (dataProperties != null) {
             DataTypeProperties lastDataTypeProperties = dataProperties.clone();
-            DataTypePropertiesDialog dialog = new DataTypePropertiesDialog(inbound, displayName, dataProperties);
+            DataTypePropertiesDialog dialog = new DataTypePropertiesDialog(inbound, displayName, dataProperties, transformerType);
             if (dialog.isRevert()) {
                 dataProperties = lastDataTypeProperties;
             } else {

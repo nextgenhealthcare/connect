@@ -220,20 +220,21 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
     /**
      * Wraps a single DataTypeProperties in a list and forwards the method call
      */
-    public void setDataTypeProperties(String dataType, DataTypeProperties properties) {
+    public void setDataTypeProperties(String dataType, DataTypePropertiesContainer propertiesContainer) {
     	// If a single DataTypeProperties object is provided, wrap it in an list
-    	List<DataTypeProperties> propertiesList = null;
-    	if (properties != null) {
-    		propertiesList = new ArrayList<DataTypeProperties>();
-			propertiesList.add(properties);
+    	List<DataTypePropertiesContainer> propertiesContainerList = null;
+    	if (propertiesContainer != null) {
+    		propertiesContainerList = new ArrayList<DataTypePropertiesContainer>();
+			propertiesContainerList.add(propertiesContainer);
     	}
-    	setDataTypeProperties(dataType, propertiesList);
+    	
+    	setDataTypeProperties(dataType, propertiesContainerList);
     }
     
     /**
      *  Load a new property set. Multiple DataTypeProperties objects can be loaded and they will all be updated when the user makes a change
      */
-    public void setDataTypeProperties(String displayName, List<DataTypeProperties> properties) {
+    public void setDataTypeProperties(String displayName, List<DataTypePropertiesContainer> propertiesContainers) {
         // Gets the default properties for a data type 
         DataTypeProperties defaultProperties = null;
         if (displayName != null) {
@@ -244,7 +245,7 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
         tableModel.clear();
         
         // Adds the properties to the tree table
-        tableModel.addProperties(inbound, properties, defaultProperties);
+        tableModel.addProperties(inbound, propertiesContainers, defaultProperties);
         
         // Enable or disable the default button depending on whether the properties already equal the defaults
         updateDefaultButton();
@@ -270,6 +271,8 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
         dataTypeComboBox = new javax.swing.JComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
+
+        jScrollPane3.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
         propertiesTreeTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         jScrollPane3.setViewportView(propertiesTreeTable);

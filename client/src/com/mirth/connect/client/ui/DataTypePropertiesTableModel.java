@@ -51,8 +51,8 @@ public class DataTypePropertiesTableModel extends SortableTreeTableModel {
     /**
      * Adds the property set to the tree table. All DataTypeProperties in the properties list and the default properties must be for the same data type
      */
-    public void addProperties(boolean inbound, List<DataTypeProperties> properties, DataTypeProperties defaultProperties) {
-        if (properties != null) {
+    public void addProperties(boolean inbound, List<DataTypePropertiesContainer> propertiesContainers, DataTypeProperties defaultProperties) {
+        if (propertiesContainers != null) {
         	
         	// Create a list for each DataTypePropertiesGroup
         	List<DataTypePropertiesGroup> serializationProperties = new ArrayList<DataTypePropertiesGroup>();
@@ -62,7 +62,9 @@ public class DataTypePropertiesTableModel extends SortableTreeTableModel {
         	List<DataTypePropertiesGroup> responseValidationProperties = new ArrayList<DataTypePropertiesGroup>();
         	
         	// Load the lists with the properties from each DataTypeProperties objects
-        	for (DataTypeProperties dataTypeProperties : properties) {
+        	for (DataTypePropertiesContainer dataTypePropertiesContainer : propertiesContainers) {
+        	    DataTypeProperties dataTypeProperties = dataTypePropertiesContainer.getProperties();
+        	    
         		if (dataTypeProperties.getSerializationProperties() != null) {
         			serializationProperties.add(dataTypeProperties.getSerializationProperties());
         		}
@@ -71,15 +73,15 @@ public class DataTypePropertiesTableModel extends SortableTreeTableModel {
         			deserializationProperties.add(dataTypeProperties.getDeserializationProperties());
         		}
         		
-        		if (dataTypeProperties.getBatchProperties() != null) {
+        		if (dataTypeProperties.getBatchProperties() != null && dataTypePropertiesContainer.getType() == TransformerType.SOURCE) {
         			batchProperties.add(dataTypeProperties.getBatchProperties());
         		}
         		
-        		if (dataTypeProperties.getResponseGenerationProperties() != null) {
+        		if (dataTypeProperties.getResponseGenerationProperties() != null && dataTypePropertiesContainer.getType() == TransformerType.SOURCE) {
         			responseGenerationProperties.add(dataTypeProperties.getResponseGenerationProperties());
         		}
         		
-        		if (dataTypeProperties.getResponseValidationProperties() != null) {
+        		if (dataTypeProperties.getResponseValidationProperties() != null && dataTypePropertiesContainer.getType() == TransformerType.RESPONSE) {
         			responseValidationProperties.add(dataTypeProperties.getResponseValidationProperties());
         		}
         	}
@@ -113,7 +115,7 @@ public class DataTypePropertiesTableModel extends SortableTreeTableModel {
             }
             
             // Show response validation if outbound
-            if (!responseValidationProperties.isEmpty() && !inbound) {
+            if (!responseValidationProperties.isEmpty() && inbound) {
                 createAndInsertNode("Response Validation", "These properties are used to validate the response received by a destination connector. They are not used by the source connector.", responseValidationProperties, defaultProperties.getResponseValidationProperties());
             }
             
