@@ -10,7 +10,6 @@
 package com.mirth.connect.plugins.datatypes.hl7v2.test;
 
 import java.io.File;
-import java.util.Properties;
 
 import junit.framework.Assert;
 

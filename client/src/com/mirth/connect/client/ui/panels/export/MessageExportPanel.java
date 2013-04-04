@@ -25,9 +25,9 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
-import org.apache.commons.lang3.StringUtils;
-
 import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;

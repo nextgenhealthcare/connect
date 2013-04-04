@@ -18,8 +18,8 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
-import com.mirth.connect.client.ui.panels.reference.ReferenceListPanel;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory.ListType;
+import com.mirth.connect.client.ui.panels.reference.ReferenceListPanel;
 import com.mirth.connect.model.CodeTemplate;
 
 public class FunctionList extends javax.swing.JPanel {

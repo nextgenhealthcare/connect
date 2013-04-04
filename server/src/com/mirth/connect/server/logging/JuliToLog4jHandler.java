@@ -9,13 +9,13 @@
 
 package com.mirth.connect.server.logging;
 
-import org.apache.log4j.Priority;
-import org.apache.log4j.Logger;
-
 import java.text.MessageFormat;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
 
 /**
  * See: http://shrubbery.mynetgear.net/c/display/W/Routing+java.util.logging+messages+to+Log4J

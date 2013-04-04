@@ -18,6 +18,7 @@ import java.util.prefs.Preferences;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;

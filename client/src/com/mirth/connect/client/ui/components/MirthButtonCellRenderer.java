@@ -10,6 +10,7 @@
 package com.mirth.connect.client.ui.components;
 
 import java.awt.Component;
+
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;

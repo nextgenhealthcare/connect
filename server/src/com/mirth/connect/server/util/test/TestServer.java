@@ -28,7 +28,6 @@ import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.server.controllers.tests.TestUtils;
-import com.mirth.connect.server.message.DataTypeFactory;
 
 public class TestServer {
     private final static String CLIENT_ADDRESS = "https://localhost:8443";

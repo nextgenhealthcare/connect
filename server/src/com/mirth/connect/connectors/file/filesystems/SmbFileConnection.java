@@ -9,15 +9,11 @@
 
 package com.mirth.connect.connectors.file.filesystems;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import org.apache.commons.codec.binary.Base64InputStream;
-import org.apache.commons.io.IOUtils;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
@@ -25,6 +21,8 @@ import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileInputStream;
 import jcifs.smb.SmbFileOutputStream;
 import jcifs.smb.SmbFilenameFilter;
+
+import org.apache.commons.io.IOUtils;
 
 import com.mirth.connect.connectors.file.FileConnectorException;
 import com.mirth.connect.connectors.file.filters.SmbFilenameWildcardFilter;

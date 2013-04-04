@@ -9,13 +9,13 @@
 
 package com.mirth.connect.client.ui.browsers.event;
 
-import com.mirth.connect.client.ui.UIConstants;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.model.Event;
 
 public class EventBrowserAdvancedFilter extends javax.swing.JDialog {

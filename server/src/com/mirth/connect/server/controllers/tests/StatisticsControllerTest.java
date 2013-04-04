@@ -10,7 +10,6 @@
 package com.mirth.connect.server.controllers.tests;
 
 import java.io.File;
-import java.util.Properties;
 
 import junit.framework.TestCase;
 

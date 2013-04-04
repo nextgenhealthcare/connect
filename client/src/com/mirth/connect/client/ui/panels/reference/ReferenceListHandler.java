@@ -18,8 +18,8 @@ import java.util.regex.Pattern;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
-import com.mirth.connect.client.ui.VariableTransferable;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
+import com.mirth.connect.client.ui.VariableTransferable;
 import com.mirth.connect.model.CodeTemplate;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 

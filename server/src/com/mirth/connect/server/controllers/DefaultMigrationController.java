@@ -41,7 +41,6 @@ import com.mirth.connect.model.UpdateSettings;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.PropertyVerifier;
 
 /**
  * The MigrationController migrates the database to the current version.

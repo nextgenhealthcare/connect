@@ -9,11 +9,6 @@
 
 package com.mirth.connect.model.converters;
 
-import java.util.Properties;
-
-import com.mirth.connect.plugins.datatypes.edi.EDISerializer;
-import com.mirth.connect.plugins.datatypes.hl7v2.ER7Serializer;
-import com.mirth.connect.plugins.datatypes.ncpdp.NCPDPSerializer;
 
 
 public class SerializerFactory {

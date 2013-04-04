@@ -24,7 +24,6 @@ import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.tools.ScriptRunner;
 import com.mirth.connect.server.util.UUIDGenerator;
-import com.mirth.connect.util.PropertyLoader;
 
 public class AlertControllerTest extends TestCase {
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();

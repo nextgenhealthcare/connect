@@ -9,11 +9,12 @@
 
 package com.mirth.connect.client.ui.editors;
 
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class ExternalScriptPanel extends BasePanel {
 

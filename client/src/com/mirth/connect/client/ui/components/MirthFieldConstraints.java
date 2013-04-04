@@ -11,6 +11,7 @@ package com.mirth.connect.client.ui.components;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;

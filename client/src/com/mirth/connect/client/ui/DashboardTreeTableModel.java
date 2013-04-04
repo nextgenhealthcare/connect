@@ -19,6 +19,7 @@ import java.util.Map;
 import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
+
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.plugins.DashboardColumnPlugin;
 

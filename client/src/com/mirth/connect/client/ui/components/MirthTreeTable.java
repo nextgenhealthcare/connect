@@ -21,6 +21,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
+
 import com.mirth.connect.client.ui.DashboardTableNode;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.SortableTreeTable;

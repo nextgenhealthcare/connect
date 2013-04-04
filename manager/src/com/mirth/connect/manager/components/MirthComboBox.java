@@ -9,10 +9,11 @@
 
 package com.mirth.connect.manager.components;
 
-import com.mirth.connect.manager.ManagerController;
-import com.mirth.connect.manager.PlatformUI;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+
+import com.mirth.connect.manager.ManagerController;
+import com.mirth.connect.manager.PlatformUI;
 
 /**
  * Mirth's implementation of the JComboBox. Adds enabling of the apply button in

@@ -12,8 +12,8 @@ package com.mirth.connect.plugins;
 import java.util.Calendar;
 
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.connectors.vm.VmReceiverProperties;
 import com.mirth.connect.connectors.vm.VmDispatcherProperties;
+import com.mirth.connect.connectors.vm.VmReceiverProperties;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;

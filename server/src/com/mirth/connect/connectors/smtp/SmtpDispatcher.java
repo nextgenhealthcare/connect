@@ -11,7 +11,6 @@ package com.mirth.connect.connectors.smtp;
 
 import java.util.Map.Entry;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.ByteArrayDataSource;

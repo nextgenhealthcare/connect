@@ -9,23 +9,18 @@
 
 package com.mirth.connect.client.core;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.security.Provider;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
-import java.util.zip.ZipInputStream;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.log4j.Logger;
 
@@ -34,7 +29,6 @@ import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
-import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;

@@ -10,7 +10,6 @@
 package com.mirth.connect.plugins.datatypes.ncpdp.test;
 
 import java.io.File;
-import java.util.Properties;
 
 import junit.framework.Assert;
 

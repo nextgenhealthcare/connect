@@ -9,7 +9,6 @@
 
 package com.mirth.connect.connectors.file.filesystems;
 
-import java.io.ByteArrayInputStream;
 import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.net.URLDecoder;
@@ -19,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

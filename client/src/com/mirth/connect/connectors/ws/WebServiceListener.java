@@ -9,13 +9,13 @@
 
 package com.mirth.connect.connectors.ws;
 
-import com.mirth.connect.client.ui.Frame;
 import java.awt.Point;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 import java.util.prefs.Preferences;
+
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -23,6 +23,7 @@ import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TextFieldCellEditor;

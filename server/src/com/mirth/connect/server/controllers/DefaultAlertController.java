@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.EmailException;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 import org.apache.velocity.tools.generic.DateTool;
 
@@ -26,7 +26,6 @@ import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SMTPConnectionFactory;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.TemplateValueReplacer;
-import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class DefaultAlertController extends AlertController {
     private Logger logger = Logger.getLogger(this.getClass());

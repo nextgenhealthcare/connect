@@ -9,14 +9,15 @@
 
 package com.mirth.connect.manager.components;
 
-import com.mirth.connect.manager.ManagerController;
-import com.mirth.connect.manager.PlatformUI;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
+
+import com.mirth.connect.manager.ManagerController;
+import com.mirth.connect.manager.PlatformUI;
 
 /**
  * Mirth's implementation of the JPasswordField. Adds enabling of the apply

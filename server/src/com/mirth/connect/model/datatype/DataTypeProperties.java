@@ -1,9 +1,6 @@
 package com.mirth.connect.model.datatype;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang3.SerializationUtils;
 

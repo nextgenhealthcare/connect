@@ -13,12 +13,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JComponent;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.UnauthorizedException;

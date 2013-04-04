@@ -13,8 +13,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -25,7 +23,6 @@ import org.junit.rules.ExpectedException;
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.ChannelState;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
-import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
@@ -42,7 +39,6 @@ import com.mirth.connect.donkey.test.util.TestDataType;
 import com.mirth.connect.donkey.test.util.TestDestinationConnector;
 import com.mirth.connect.donkey.test.util.TestPostProcessor;
 import com.mirth.connect.donkey.test.util.TestPreProcessor;
-import com.mirth.connect.donkey.test.util.TestResponseTransformer;
 import com.mirth.connect.donkey.test.util.TestSourceConnector;
 import com.mirth.connect.donkey.test.util.TestUtils;
 

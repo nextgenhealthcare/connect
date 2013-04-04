@@ -9,10 +9,10 @@
 
 package com.mirth.connect.server.controllers.tests;
 
-import com.mirth.connect.util.PropertyLoader;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import com.mirth.connect.util.PropertyLoader;
 
 public class ControllerTestSuite {
 

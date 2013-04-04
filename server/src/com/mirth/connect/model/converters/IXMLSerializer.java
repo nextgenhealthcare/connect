@@ -13,8 +13,8 @@ import java.util.Map;
 
 import org.w3c.dom.Document;
 
-import com.mirth.connect.donkey.model.message.XmlSerializer;
 import com.mirth.connect.donkey.model.message.SerializerException;
+import com.mirth.connect.donkey.model.message.XmlSerializer;
 
 public interface IXMLSerializer extends XmlSerializer {
 	public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException;

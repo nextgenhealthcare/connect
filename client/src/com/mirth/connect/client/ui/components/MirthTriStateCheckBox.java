@@ -12,7 +12,6 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 
 import com.jgoodies.looks.LookUtils;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-import com.mirth.connect.client.ui.PlatformUI;
 
 /**
  * This is a checkbox component that has a third "PARTIAL" state.

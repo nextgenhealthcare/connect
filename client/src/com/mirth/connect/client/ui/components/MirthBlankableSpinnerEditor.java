@@ -13,8 +13,8 @@ import java.beans.PropertyChangeEvent;
 
 import javax.swing.JFormattedTextField;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
 import javax.swing.JSpinner.DefaultEditor;
+import javax.swing.JTextField;
 
 public class MirthBlankableSpinnerEditor extends DefaultEditor {
     public MirthBlankableSpinnerEditor(JSpinner spinner) {

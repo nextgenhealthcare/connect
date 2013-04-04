@@ -14,10 +14,12 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
-import com.mirth.connect.webadmin.utils.Constants;
+
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
+
+import com.mirth.connect.webadmin.utils.Constants;
 
 public class IndexActionBean extends BaseActionBean {
     private boolean secureHttps;

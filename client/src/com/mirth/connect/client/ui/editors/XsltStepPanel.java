@@ -9,15 +9,15 @@
 
 package com.mirth.connect.client.ui.editors;
 
-import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.XMLTokenMarker;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
+import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 public class XsltStepPanel extends BasePanel {
 
