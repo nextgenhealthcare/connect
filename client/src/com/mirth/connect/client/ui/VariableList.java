@@ -27,7 +27,7 @@ import com.mirth.connect.model.Connector;
  * A panel that contains the MirthVariableList.
  */
 public class VariableList extends javax.swing.JPanel {
-    private String borderTitle;
+    private String borderTitle = "Variables";
 
     /** Creates new form VariableList */
     public VariableList() {
