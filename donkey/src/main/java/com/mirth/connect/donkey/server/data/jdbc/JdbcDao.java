@@ -53,7 +53,6 @@ import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.event.Event;
 import com.mirth.connect.donkey.util.Serializer;
-import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 
 public class JdbcDao implements DonkeyDao {
     private Connection connection;
