@@ -27,25 +27,30 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
+import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
+import com.mirth.connect.donkey.server.channel.ResponseSelector;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.data.buffered.BufferedDaoFactory;
 import com.mirth.connect.donkey.server.data.timed.TimedDaoFactory;
 import com.mirth.connect.donkey.test.util.TestChannel;
+import com.mirth.connect.donkey.test.util.TestDataType;
 import com.mirth.connect.donkey.test.util.TestDestinationConnector;
 import com.mirth.connect.donkey.test.util.TestSourceConnector;
 import com.mirth.connect.donkey.test.util.TestUtils;
 import com.mirth.connect.donkey.util.ActionTimer;
+import com.mirth.connect.donkey.util.xstream.XStreamSerializer;
 
 public class RecoveryTests {
     private static int TEST_SIZE = 10;
@@ -90,7 +95,7 @@ public class RecoveryTests {
 
         channel.deploy();
         channel.start();
-        channel.processUnfinishedMessages();
+        channel.getUnfinishedMessages();
         channel.stop();
         channel.undeploy();
 
@@ -144,7 +149,7 @@ public class RecoveryTests {
 
         channel.deploy();
         channel.start();
-        List<Message> recoveredMessages = channel.processUnfinishedMessages();
+        List<Message> recoveredMessages = channel.getUnfinishedMessages();
         channel.stop();
         channel.undeploy();
 
@@ -170,6 +175,10 @@ public class RecoveryTests {
 
         // channel should have two chains with metaDataIds 1, 2 and 3, 4
         TestChannel channel = TestUtils.createDefaultChannel(channelId, serverId, true, 2, 2);
+        ResponseSelector responseSelector = new ResponseSelector(new TestDataType());
+        responseSelector.setRespondFromName(ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
+        channel.setResponseSelector(responseSelector);
+        
         long localChannelId = ChannelController.getInstance().getLocalChannelId(channel.getChannelId());
         
         for (int i = 0; i < testSize; i++) {
@@ -210,7 +219,7 @@ public class RecoveryTests {
 
         channel.deploy();
         channel.start();
-        List<Message> recoveredMessages = channel.processUnfinishedMessages();
+        List<Message> recoveredMessages = channel.getUnfinishedMessages();
         channel.stop();
         channel.undeploy();
 
@@ -270,7 +279,7 @@ public class RecoveryTests {
 
             channel.deploy();
             channel.start();
-            channel.processUnfinishedMessages();
+            channel.getUnfinishedMessages();
             
             for (DispatchResult dispatchResult : ((TestSourceConnector) channel.getSourceConnector()).getRecoveredDispatchResults()) {
                 channel.getSourceConnector().finishDispatch(dispatchResult);
@@ -289,7 +298,7 @@ public class RecoveryTests {
     }
 
     private void createDestinationMessage(DonkeyDao dao, ConnectorMessage sourceMessage, int metaDataId, Status status) {
-        final String responseContent = "SENT:test response";
+        final String responseContent = (new XStreamSerializer()).serialize(new Response(Status.SENT, "test response"));
 
         ConnectorMessage destinationMessage = new ConnectorMessage(sourceMessage.getChannelId(), sourceMessage.getMessageId(), metaDataId, sourceMessage.getServerId(), Calendar.getInstance(), status);
         destinationMessage.setChannelMap(sourceMessage.getChannelMap());

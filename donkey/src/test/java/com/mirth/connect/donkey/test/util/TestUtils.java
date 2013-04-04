@@ -50,10 +50,10 @@ import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
+import com.mirth.connect.donkey.model.message.MapContent;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.RawMessage;
-import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Donkey;
@@ -743,7 +743,7 @@ public class TestUtils {
             statement = connection.prepareStatement("SELECT * FROM d_mc" + localChannelId + " WHERE message_id = ? AND metadata_id = ? AND content_type = ?");
             statement.setLong(1, messageId);
             statement.setInt(2, 0);
-            statement.setInt(3, ContentType.SENT.getContentTypeCode());
+            statement.setInt(3, ContentType.RESPONSE.getContentTypeCode());
             result = statement.executeQuery();
             assertTrue(result.next());
         } finally {
@@ -945,24 +945,30 @@ public class TestUtils {
     }
 
     public static Map<String, Object> getConnectorMap(String channelId, long messageId, int metaDataId) throws SQLException {
-        return getMapFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CONNECTOR_MAP));
+        return getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CONNECTOR_MAP)).getMap();
     }
 
     public static Map<String, Object> getChannelMap(String channelId, long messageId, int metaDataId) throws SQLException {
-        return getMapFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CHANNEL_MAP));
+        return getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.CHANNEL_MAP)).getMap();
     }
 
     public static Map<String, Object> getResponseMap(String channelId, long messageId, int metaDataId) throws SQLException {
-        return getMapFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_MAP));
+        return getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_MAP)).getMap();
     }
     
-    public static Map<String, Object> getMapFromMessageContent(MessageContent content) {
-        if (content == null || StringUtils.isBlank(content.getContent())) {
-            return new HashMap<String, Object>();
+    private static MapContent getMapContentFromMessageContent(MessageContent content) {
+        if (content == null) {
+            return new MapContent(new HashMap<String, Object>(), false);
+        } else if (StringUtils.isBlank(content.getContent())) {
+            return new MapContent(new HashMap<String, Object>(), true);
         }
-        Serializer serializer = Donkey.getInstance().getSerializer();
 
-        return (HashMap<String, Object>) serializer.deserialize(content.getContent());
+        return new MapContent(deserializeMap(content.getContent()), true);
+    }
+    
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> deserializeMap(String serializedMap) {
+        return (Map<String, Object>) Donkey.getInstance().getSerializer().deserialize(serializedMap);
     }
     
     public static String getErrorFromMessageContent(MessageContent content) {

@@ -17,9 +17,14 @@ import com.mirth.connect.donkey.server.channel.components.FilterTransformerExcep
 public class TestFilterTransformer implements FilterTransformer {
 
     private boolean transformed = false;
+    private boolean filtered = false;
 
     public boolean isTransformed() {
         return transformed;
+    }
+    
+    public void setFiltered(boolean filtered) {
+        this.filtered = filtered;
     }
 
     public TestFilterTransformer() {}
@@ -27,7 +32,7 @@ public class TestFilterTransformer implements FilterTransformer {
     @Override
     public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException {
         transformed = true;
-        return new FilterTransformerResult(false, null);
+        return new FilterTransformerResult(filtered, message.getTransformed().getContent());
     }
 
     @Override

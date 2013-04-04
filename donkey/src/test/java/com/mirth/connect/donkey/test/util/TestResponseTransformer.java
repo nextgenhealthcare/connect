@@ -27,6 +27,6 @@ public class TestResponseTransformer implements ResponseTransformer {
 	@Override
 	public String doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException, InterruptedException {
 		transformed = true;
-		return null;
+		return response.getMessage();
 	} 
 }

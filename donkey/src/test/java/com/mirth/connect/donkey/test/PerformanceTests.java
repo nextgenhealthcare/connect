@@ -31,6 +31,7 @@ import com.mirth.connect.donkey.server.data.timed.TimedDaoFactory;
 import com.mirth.connect.donkey.test.util.TestChannel;
 import com.mirth.connect.donkey.test.util.TestChannelWriter;
 import com.mirth.connect.donkey.test.util.TestConnectorProperties;
+import com.mirth.connect.donkey.test.util.TestDataType;
 import com.mirth.connect.donkey.test.util.TestUtils;
 import com.mirth.connect.donkey.test.util.TestUtils.MessageStorageMode;
 import com.mirth.connect.donkey.util.ActionTimer;
@@ -126,6 +127,8 @@ public class PerformanceTests {
             channelWriter.setChannelId(channelId);
             channelWriter.setConnectorProperties(new TestConnectorProperties());
             channelWriter.setDestinationName("destination");
+            channelWriter.setInboundDataType(new TestDataType());
+            channelWriter.setOutboundDataType(new TestDataType());
             chain.addDestination(1, TestUtils.createDefaultFilterTransformerExecutor(), channelWriter);
 
             sourceChannels[i].deploy();

@@ -62,7 +62,7 @@ public class SourceConnectorTests {
      * Send messages that should immediately queue, assert that:
      * - The message was stored in the database
      * - The MessageResponse returned is not null
-     * - The response is null
+     * - The response is not null
      * - The source connector response was not stored
      */
     @Test
@@ -70,6 +70,7 @@ public class SourceConnectorTests {
         TestChannel channel = (TestChannel) TestUtils.createDefaultChannel(channelId, serverId);
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
         sourceConnector.setRespondAfterProcessing(true);
+        channel.getResponseSelector().setRespondFromName(ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
 
         channel.deploy();
         channel.start();
@@ -84,7 +85,10 @@ public class SourceConnectorTests {
 
             try {
                 dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
-                dispatchResult.getSelectedResponse().setMessage("response");
+                
+                if (dispatchResult.getSelectedResponse() != null) {
+                    dispatchResult.getSelectedResponse().setMessage("response");
+                }
             } finally {
                 sourceConnector.finishDispatch(dispatchResult, true, null);
             }
@@ -113,6 +117,7 @@ public class SourceConnectorTests {
 
         // Send messages that queue
         sourceConnector.setRespondAfterProcessing(false);
+        channel.getResponseSelector().setRespondFromName(null);
 
         for (int i = 1; i <= TEST_SIZE; i++) {
             RawMessage rawMessage = new RawMessage(testMessage);
@@ -179,6 +184,7 @@ public class SourceConnectorTests {
 
         TestSourceConnector sourceConnector = (TestSourceConnector) channel.getSourceConnector();
         sourceConnector.setRespondAfterProcessing(true);
+        channel.getResponseSelector().setRespondFromName(ResponseConnectorProperties.RESPONSE_SOURCE_TRANSFORMED);
 
         channel.deploy();
         channel.start();
@@ -189,7 +195,10 @@ public class SourceConnectorTests {
 
             try {
                 dispatchResult = sourceConnector.dispatchRawMessage(rawMessage);
-                dispatchResult.getSelectedResponse().setMessage("response");
+                
+                if (dispatchResult.getSelectedResponse() != null) {
+                    dispatchResult.getSelectedResponse().setMessage("response");
+                }
             } finally {
                 sourceConnector.finishDispatch(dispatchResult, true, null);
             }
@@ -271,7 +280,7 @@ public class SourceConnectorTests {
 
         assertEquals(TEST_SIZE * 2, channel.getNumMessages());
 
-        channel.getResponseSelector().setRespondFromName(destinationName);
+        channel.getResponseSelector().setRespondFromName("d1");
 
         for (int i = 0; i < TEST_SIZE; i++) {
             response = sourceConnector.readTestMessage(testMessage).getSelectedResponse();

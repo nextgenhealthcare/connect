@@ -231,13 +231,13 @@ public class DonkeyDaoTests {
                 assertEquals(Status.fromChar(result.getString("status").charAt(0)), connectorMessage.getStatus());
 
                 // Assert that the connector map is correct
-                assertTrue(connectorMessage.getConnectorMap().equals(TestUtils.getMapFromMessageContent(TestUtils.getMessageContent(channelId, connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CONNECTOR_MAP))));
+                assertTrue(connectorMessage.getConnectorMap().equals(TestUtils.getConnectorMap(channelId, connectorMessage.getMessageId(), connectorMessage.getMetaDataId())));
 
                 // Assert that the channel map is correct
-                assertTrue(connectorMessage.getChannelMap().equals(TestUtils.getMapFromMessageContent(TestUtils.getMessageContent(channelId, connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.CHANNEL_MAP))));
+                assertTrue(connectorMessage.getChannelMap().equals(TestUtils.getChannelMap(channelId, connectorMessage.getMessageId(), connectorMessage.getMetaDataId())));
 
                 // Assert that the response map is correct
-                assertTrue(connectorMessage.getResponseMap().equals(TestUtils.getMapFromMessageContent(TestUtils.getMessageContent(channelId, connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_MAP))));
+                assertTrue(connectorMessage.getResponseMap().equals(TestUtils.getResponseMap(channelId, connectorMessage.getMessageId(), connectorMessage.getMetaDataId())));
 
                 // Assert that the errors column is correct
                 assertTrue(connectorMessage.getProcessingError().equals(TestUtils.getErrorFromMessageContent(TestUtils.getMessageContent(channelId, connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSING_ERROR))));
@@ -595,7 +595,8 @@ public class DonkeyDaoTests {
                 for (String key : connectorMap.keySet()) {
                     // assert that the inserted value is the String representation
                     Object value = connectorMap.get(key);
-                    assertEquals(key, (value == null) ? "" : value.toString(), insertedConnectorMap.get(key));
+                    Object value2 = insertedConnectorMap.get(key).toString();
+                    assertEquals(key, (value == null) ? "" : value.toString(), (value2 == null) ? "" : value2.toString());
                 }
 
                 // Assert that both channel maps have all the same keys
@@ -604,7 +605,8 @@ public class DonkeyDaoTests {
                 for (String key : channelMap.keySet()) {
                     // assert that the inserted value is the String representation
                     Object value = channelMap.get(key);
-                    assertEquals(key, (value == null) ? "" : value.toString(), insertedChannelMap.get(key));
+                    Object value2 = insertedChannelMap.get(key);
+                    assertEquals(key, (value == null) ? "" : value.toString(), (value2 == null) ? "" : value2.toString());
                 }
                 
                 // Assert that both response maps have all the same keys
@@ -613,7 +615,8 @@ public class DonkeyDaoTests {
                 for (String key : responseMap.keySet()) {
                     // assert that the inserted value is the String representation
                     Object value = responseMap.get(key);
-                    assertEquals(key, (value == null) ? "" : value.toString(), insertedResponseMap.get(key));
+                    Object value2 = insertedResponseMap.get(key);
+                    assertEquals(key, (value == null) ? "" : value.toString(), (value2 == null) ? "" : value2.toString());
                 }
             }
 
@@ -1669,6 +1672,10 @@ public class DonkeyDaoTests {
             for (int i = 1; i <= TEST_SIZE; i++) {
                 ConnectorMessage sourceMessage = TestUtils.createAndStoreNewMessage(new RawMessage(testMessage), channel.getChannelId(), channel.getServerId(), daoFactory).getConnectorMessages().get(0);
                 Message processedMessage = channel.process(sourceMessage, false);
+                
+                // Since the message is never marked as finished, the response map is never updated in the DB.
+                processedMessage.getConnectorMessages().get(0).getResponseMap().clear();
+                
                 messages.add(processedMessage);
             }
 

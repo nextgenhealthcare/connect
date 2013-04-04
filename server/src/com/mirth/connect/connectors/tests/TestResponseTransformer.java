@@ -17,7 +17,7 @@ import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 public class TestResponseTransformer implements ResponseTransformer {
 
     @Override
-    public String doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException { return null; }
+    public String doTransform(Response response, ConnectorMessage connectorMessage) throws DonkeyException { return response.getMessage(); }
 
     @Override
     public void dispose() {}

@@ -18,6 +18,6 @@ public class TestAutoResponder implements AutoResponder {
 
     @Override
     public Response getResponse(Status status, String message, ConnectorMessage connectorMessage) {
-        return null;
+        return new Response(status, null);
     }
 }

@@ -25,6 +25,7 @@ public class TestChannel extends Channel {
     private List<Long> messageIds = new ArrayList<Long>();
     private boolean isDeployed = false;
     private volatile boolean queueThreadRunning = false;
+    private List<Message> unfinishedMessages = null;
 
     public TestChannel() {
         super();
@@ -46,6 +47,10 @@ public class TestChannel extends Channel {
 
     public boolean isQueueThreadRunning() {
         return queueThreadRunning;
+    }
+    
+    public List<Message> getUnfinishedMessages() {
+        return unfinishedMessages;
     }
 
     @Override
@@ -74,7 +79,11 @@ public class TestChannel extends Channel {
 
     @Override
     public List<Message> processUnfinishedMessages() throws Exception {
-        return super.processUnfinishedMessages();
+        // We only run it once and store it because the tests usually call channel.start() before calling this method directly. 
+        // Channel.start() also calls this method so there is nothing left to process by the time we actual want the return value.
+        unfinishedMessages = super.processUnfinishedMessages();
+        
+        return unfinishedMessages;
     }
 
     @Override

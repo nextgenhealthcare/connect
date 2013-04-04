@@ -29,6 +29,7 @@ import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.channel.DestinationChain;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
+import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 import com.mirth.connect.donkey.server.controllers.ChannelController;
@@ -223,9 +224,11 @@ public class StatisticsTests {
             destinationConnectorQueue.updateSize();
             destinationConnector.setQueue(destinationConnectorQueue);
 
+            FilterTransformerExecutor filterTransformerExecutor = TestUtils.createDefaultFilterTransformerExecutor();
+            
             switch (i) {
                 case 1:
-                    ((TestDispatcher) destinationConnector).setReturnStatus(Status.FILTERED);
+                    ((TestFilterTransformer) filterTransformerExecutor.getFilterTransformer()).setFiltered(true);
                     break;
                 case 2:
                     ((TestDispatcher) destinationConnector).setReturnStatus(Status.SENT);
@@ -238,7 +241,7 @@ public class StatisticsTests {
                     break;
             }
 
-            chain.addDestination(i, TestUtils.createDefaultFilterTransformerExecutor(), destinationConnector);
+            chain.addDestination(i, filterTransformerExecutor, destinationConnector);
         }
 
         channel.addDestinationChain(chain);
