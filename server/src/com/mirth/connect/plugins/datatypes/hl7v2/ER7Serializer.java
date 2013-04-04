@@ -46,13 +46,13 @@ public class ER7Serializer implements IXMLSerializer {
     private XMLParser serializationXmlParser = null;
     private PipeParser deserializationPipeParser = null;
     private XMLParser deserializationXmlParser = null;
-    
+
     private Pattern serializationSegmentDelimiterPattern = null;
     private String serializationSegmentDelimiter = null;
     private String deserializationSegmentDelimiter = null;
     private HL7v2SerializationProperties serializationProperties;
     private HL7v2DeserializationProperties deserializationProperties;
-    
+
     private static Pattern ampersandPattern = Pattern.compile("&amp;");
     private static Pattern prettyPattern1 = Pattern.compile("\\s*<([^/][^>]*)>");
     private static Pattern prettyPattern2 = Pattern.compile("<(/[^>]*)>\\s*");
@@ -84,11 +84,11 @@ public class ER7Serializer implements IXMLSerializer {
         boolean serializationRequired = false;
 
         if (toXml) {
-            if (serializationProperties.isUseStrictParser() || serializationProperties.isUseStrictValidation()) {
+            if (serializationProperties.isUseStrictParser()) {
                 serializationRequired = true;
             }
         } else {
-            if (deserializationProperties.isUseStrictParser() || deserializationProperties.isUseStrictValidation()) {
+            if (deserializationProperties.isUseStrictParser()) {
                 serializationRequired = true;
             }
         }
@@ -152,15 +152,15 @@ public class ER7Serializer implements IXMLSerializer {
                     }
                     message = serializationPipeParser.parse(source);
                 }
-                
+
                 if (message != null) {
                     source = serializationXmlParser.encode(message);
                 }
-                
+
                 if (serializationProperties.isStripNamespaces()) {
                     source = StringUtil.stripNamespaces(source);
                 }
-                
+
                 return source;
             } else {
                 ER7Reader er7Reader = new ER7Reader(serializationProperties.isHandleRepetitions(), serializationProperties.isHandleSubcomponents(), serializationSegmentDelimiter);
