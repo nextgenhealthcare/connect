@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
  * http://www.mirthcorp.com
- *
+ * 
  * The software in this package is published under the terms of the MPL
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
@@ -36,7 +36,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
     private XMLParser xmlParser = null;
     private boolean useStrictParser = false;
     private boolean useStrictValidation = false;
-    private boolean stripNamespaces = true;  // Used in JST for strict parser
+    private boolean stripNamespaces = true; // Used in JST for strict parser
     private boolean handleRepetitions = false;
     private boolean handleSubcomponents = false;
     private boolean convertLFtoCR = true;
@@ -258,11 +258,11 @@ public class ER7Serializer implements IXMLSerializer<String> {
 
                 if (mshFields.length > 8) {
                     // MSH.9
-                    String[] msh9 = elementPattern.split(mshFields[8]);
+                    String[] msh9 = elementPattern.split(mshFields[8], -1);
                     // MSH.9.1
                     String type = msh9[0];
 
-                    if (msh9.length > 1) {
+                    if (msh9.length > 1 && !msh9[1].isEmpty()) {
                         // MSH.9.2
                         type += "-" + msh9[1];
                     }
@@ -274,17 +274,17 @@ public class ER7Serializer implements IXMLSerializer<String> {
 
                 if (mshFields.length > 3) {
                     // MSH.4.1
-                    metadata.put("source", elementPattern.split(mshFields[3])[0]);
+                    metadata.put("source", elementPattern.split(mshFields[3], -1)[0]);
                 } else {
                     metadata.put("source", "");
                 }
 
                 if (mshFields.length > 11) {
                     // MSH.12.1
-                    metadata.put("version", elementPattern.split(mshFields[11])[0]);
+                    metadata.put("version", elementPattern.split(mshFields[11], -1)[0]);
                 } else {
                     metadata.put("version", "");
-                }                
+                }
             } else {
                 metadata.put("type", "Unknown");
                 metadata.put("source", "Unknown");
