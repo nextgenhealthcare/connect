@@ -1797,19 +1797,30 @@ public class JdbcDao implements DonkeyDao {
     }
 
     private String serializeMap(Map<String, Object> map) {
-        Map<String, Object> newMap = new HashMap<String, Object>();
+        /*
+         * Try to serialize the entire map and if it fails, then find the map values that failed to
+         * serialize and convert them into their string representation before attempting to
+         * serialize again.
+         */
+        try {
+            return serializer.serialize(map);
+        } catch (Exception e) {
+            Map<String, Object> newMap = new HashMap<String, Object>();
 
-        for (Entry<String, Object> entry : map.entrySet()) {
-            Object value = entry.getValue();
+            for (Entry<String, Object> entry : map.entrySet()) {
+                Object value = entry.getValue();
 
-            if (value == null) {
-                newMap.put(entry.getKey(), "");
-            } else {
-                newMap.put(entry.getKey(), value.toString());
+                try {
+                    serializer.serialize(value);
+                    newMap.put(entry.getKey(), value);
+                } catch (Exception e2) {
+                    logger.error("Non-serializable value found in map, converting value to string with key: " + entry.getKey());
+                    newMap.put(entry.getKey(), (value == null) ? "" : value.toString());
+                }
             }
-        }
 
-        return serializer.serialize(newMap);
+            return serializer.serialize(newMap);
+        }
     }
 
     @SuppressWarnings("unchecked")
