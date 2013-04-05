@@ -154,21 +154,16 @@ public class ManagerController {
     private String startMirth() {
         String httpPort = getServerProperties().getString(ManagerConstants.SERVER_WEBSTART_PORT);
         String httpsPort = getServerProperties().getString(ManagerConstants.SERVER_ADMINISTRATOR_PORT);
-        String jmxPort = getServerProperties().getString(ManagerConstants.SERVER_JMX_PORT);
         String httpPortResult = testPort(httpPort, "WebStart");
         String httpsPortResult = testPort(httpsPort, "Administrator");
-        String jmxPortResult = testPort(jmxPort, "JMX");
 
-        if (httpPortResult != null || httpsPortResult != null || jmxPortResult != null) {
+        if (httpPortResult != null || httpsPortResult != null) {
             String errorMessage = "";
             if (httpPortResult != null) {
                 errorMessage += httpPortResult + "\n";
             }
             if (httpsPortResult != null) {
                 errorMessage += httpsPortResult + "\n";
-            }
-            if (jmxPortResult != null) {
-                errorMessage += jmxPortResult + "\n"; // Remove the last \n
             }
             errorMessage.substring(0, errorMessage.length() - 1);
             return errorMessage;

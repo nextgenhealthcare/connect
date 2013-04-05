@@ -127,9 +127,8 @@ public class Mirth extends Thread {
             // check the ports to see if they are already in use
             boolean httpPort = testPort(mirthProperties.getString("http.port"), "http.port");
             boolean httpsPort = testPort(mirthProperties.getString("https.port"), "https.port");
-            boolean jmxPort = testPort(mirthProperties.getString("jmx.port"), "jmx.port");
 
-            if (!httpPort || !httpsPort || !jmxPort) {
+            if (!httpPort || !httpsPort) {
                 return;
             }
 
