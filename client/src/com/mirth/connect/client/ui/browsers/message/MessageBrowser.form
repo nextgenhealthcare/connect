@@ -272,7 +272,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="MessagesCardPane" max="32767" attributes="0"/>
+                              <Component id="MessagesCardPane" pref="0" max="32767" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="formatXmlMessageCheckBox" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -546,7 +546,7 @@
                                       <Component id="responseStatusLabel" min="-2" max="-2" attributes="0"/>
                                       <Component id="responseLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                                  <EmptySpace min="0" pref="699" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="650" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -559,7 +559,7 @@
                                   <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                                   <Component id="responseLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                                  <Component id="ResponseTextArea" pref="89" max="32767" attributes="0"/>
+                                  <Component id="ResponseTextArea" pref="84" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -641,7 +641,7 @@
                                       <Component id="processedResponseStatusLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Component id="processedResponseLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                                  <EmptySpace min="0" pref="699" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="650" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -654,7 +654,7 @@
                                   <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                                   <Component id="processedResponseLabel" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                                  <Component id="ProcessedResponseTextArea" pref="89" max="32767" attributes="0"/>
+                                  <Component id="ProcessedResponseTextArea" pref="84" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -758,7 +758,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
                               <Component id="ErrorsCardPane" max="32767" attributes="0"/>
-                              <Component id="ErrorsRadioPane" pref="646" max="32767" attributes="0"/>
+                              <Component id="ErrorsRadioPane" pref="633" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -770,7 +770,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="ErrorsRadioPane" min="-2" pref="17" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="ErrorsCardPane" pref="176" max="32767" attributes="0"/>
+                          <Component id="ErrorsCardPane" pref="175" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -809,6 +809,22 @@
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ProcessingErrorRadioButtonActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JRadioButton" name="PostprocessorErrorRadioButton">
+                      <Properties>
+                        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                        </Property>
+                        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+                          <ComponentRef name="errorsGroup"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="Postprocessor Error"/>
+                        <Property name="focusable" type="boolean" value="false"/>
+                        <Property name="requestFocusEnabled" type="boolean" value="false"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="PostprocessorErrorRadioButtonActionPerformed"/>
                       </Events>
                     </Component>
                     <Component class="javax.swing.JRadioButton" name="ResponseErrorRadioButton">
@@ -850,6 +866,21 @@
                       <Constraints>
                         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
                           <CardConstraints cardName="Processing Error"/>
+                        </Constraint>
+                      </Constraints>
+                    </Component>
+                    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="PostprocessorErrorTextPane">
+                      <Properties>
+                        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+                            <EtchetBorder/>
+                          </Border>
+                        </Property>
+                        <Property name="editable" type="boolean" value="false"/>
+                      </Properties>
+                      <Constraints>
+                        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
+                          <CardConstraints cardName="Postprocessor Error"/>
                         </Constraint>
                       </Constraints>
                     </Component>

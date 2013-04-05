@@ -598,6 +598,10 @@ public class JdbcDao implements DonkeyDao {
         if (updateError(connectorMessage.getProcessingErrorContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.PROCESSING_ERROR)) {
             errorsUpdated = true;
         }
+        
+        if (updateError(connectorMessage.getPostProcessorErrorContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.POSTPROCESSOR_ERROR)) {
+            errorsUpdated = true;
+        }
 
         if (updateError(connectorMessage.getResponseErrorContent(), connectorMessage.getChannelId(), connectorMessage.getMessageId(), connectorMessage.getMetaDataId(), ContentType.RESPONSE_ERROR)) {
             errorsUpdated = true;
@@ -1725,6 +1729,7 @@ public class JdbcDao implements DonkeyDao {
                 connectorMessage.setResponseMapContent(getMapContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_MAP, true)));
 
                 connectorMessage.setProcessingErrorContent(getErrorContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.PROCESSING_ERROR, true)));
+                connectorMessage.setPostProcessorErrorContent(getErrorContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.POSTPROCESSOR_ERROR, true)));
                 connectorMessage.setResponseErrorContent(getErrorContentFromMessageContent(getMessageContent(channelId, messageId, metaDataId, ContentType.RESPONSE_ERROR, true)));
 
                 MessageContent rawContent = getMessageContent(channelId, messageId, 0, (metaDataId == 0) ? ContentType.RAW : ContentType.ENCODED, decryptData);

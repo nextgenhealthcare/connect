@@ -179,11 +179,22 @@ public abstract class SourceConnector extends Connector {
             try {
                 if (selectedResponse != null && storageSettings.isStoreSentResponse()) {
                     dao = daoFactory.getDao();
-                    //TODO does this have a data type?
                     Serializer serializer = Donkey.getInstance().getSerializer();
                     String responseContent = serializer.serialize(selectedResponse);
 
+                    // The source response content cannot know the data type of the response it is using.
                     dao.insertMessageContent(new MessageContent(getChannelId(), messageId, 0, ContentType.RESPONSE, responseContent, null, false));
+                }
+
+                Message processedMessage = dispatchResult.getProcessedMessage();
+
+                if (storageSettings.isStoreMergedResponseMap() && processedMessage != null) {
+                    if (dao == null) {
+                        dao = daoFactory.getDao();
+                    }
+
+                    // Store the merged response map
+                    dao.updateResponseMap(processedMessage.getConnectorMessages().get(0));
                 }
 
                 if (attemptedResponse || responseError != null) {
@@ -191,7 +202,6 @@ public abstract class SourceConnector extends Connector {
                         dao = daoFactory.getDao();
                     }
 
-                    Message processedMessage = dispatchResult.getProcessedMessage();
                     ConnectorMessage connectorMessage = null;
                     if (processedMessage != null) {
                         connectorMessage = processedMessage.getConnectorMessages().get(0);

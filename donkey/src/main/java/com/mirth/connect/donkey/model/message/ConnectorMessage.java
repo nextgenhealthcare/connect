@@ -38,6 +38,7 @@ public class ConnectorMessage implements Serializable {
     private MapContent responseMapContent = new MapContent();
     private Map<String, Object> metaDataMap = new HashMap<String, Object>();
     private ErrorContent processingErrorContent = new ErrorContent();
+    private ErrorContent postProcessorErrorContent = new ErrorContent();
     private ErrorContent responseErrorContent = new ErrorContent();
     private int errorCode = 0;
     private int sendAttempts = 0;
@@ -301,6 +302,14 @@ public class ConnectorMessage implements Serializable {
         this.processingErrorContent = processingErrorContent;
     }
 
+    public ErrorContent getPostProcessorErrorContent() {
+        return postProcessorErrorContent;
+    }
+
+    public void setPostProcessorErrorContent(ErrorContent postProcessorErrorContent) {
+        this.postProcessorErrorContent = postProcessorErrorContent;
+    }
+
     public ErrorContent getResponseErrorContent() {
         return responseErrorContent;
     }
@@ -315,6 +324,16 @@ public class ConnectorMessage implements Serializable {
 
     public void setProcessingError(String processingError) {
         processingErrorContent.setError(processingError);
+
+        updateErrorCode();
+    }
+    
+    public String getPostProcessorError() {
+        return postProcessorErrorContent.getError();
+    }
+
+    public void setPostProcessorError(String postProcessorError) {
+        postProcessorErrorContent.setError(postProcessorError);
 
         updateErrorCode();
     }
@@ -354,6 +373,9 @@ public class ConnectorMessage implements Serializable {
 
         if (getProcessingError() != null) {
             errorCode += ContentType.PROCESSING_ERROR.getErrorCode();
+        }
+        if (getPostProcessorError() != null) {
+            errorCode += ContentType.POSTPROCESSOR_ERROR.getErrorCode();
         }
         if (getResponseError() != null) {
             errorCode += ContentType.RESPONSE_ERROR.getErrorCode();

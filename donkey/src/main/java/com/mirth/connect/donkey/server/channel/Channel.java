@@ -1120,11 +1120,14 @@ public class Channel implements Startable, Stoppable, Runnable {
     public void finishMessage(Message finalMessage, boolean markAsProcessed) throws InterruptedException {
         ThreadUtils.checkInterruptedStatus();
         Response response = null;
+        boolean storePostProcessorError = false;
 
         try {
             response = postProcessor.doPostProcess(finalMessage);
         } catch (Exception e) {
             logger.error("Error executing postprocessor for channel " + finalMessage.getChannelId() + ".", e);
+            finalMessage.getConnectorMessages().get(0).setPostProcessorError(e.getMessage());
+            storePostProcessorError = true;
         }
 
         if (response != null) {
@@ -1139,6 +1142,10 @@ public class Channel implements Startable, Stoppable, Runnable {
          */
         ThreadUtils.checkInterruptedStatus();
         DonkeyDao dao = daoFactory.getDao();
+        
+        if (storePostProcessorError) {
+            dao.updateErrors(finalMessage.getConnectorMessages().get(0));
+        }
 
         if (markAsProcessed) {
             if (storageSettings.isStoreMergedResponseMap()) {

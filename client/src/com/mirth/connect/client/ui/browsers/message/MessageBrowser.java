@@ -878,6 +878,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private JRadioButton getRadioButtonForErrorPane(String errorPaneName) {
         if (errorPaneName.equals("Processing Error")) {
             return ProcessingErrorRadioButton;
+        } else if (errorPaneName.equals("Postprocessor Error")) {
+            return PostprocessorErrorRadioButton;
         } else if (errorPaneName.equals("Response Error")) {
             return ResponseErrorRadioButton;
         } else {
@@ -1634,7 +1636,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     // Update the errors tab
                     updateDescriptionErrors(connectorMessage);
                     // Show relevant tabs. Not using errorCode here just in case for some reason there are errors even though errorCode is 0
-                    updateDescriptionTabs(connectorMessage.getProcessingError() != null || connectorMessage.getResponseError() != null, attachments.size() > 0);
+                    updateDescriptionTabs(connectorMessage.getProcessingError() != null || connectorMessage.getPostProcessorError() != null || connectorMessage.getResponseError() != null, attachments.size() > 0);
                     updateMessageRadioGroup();
 
                     if (attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1) {
@@ -1726,7 +1728,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 responseStatusTextField.setCaretPosition(0);
                 content = responseObject.getMessage();
             }
-            dataType = (responseMessage == null) ? null : responseMessage.getDataType();
+            dataType = (responseMessage == null) ? null : (connectorMessage.getMetaDataId() == 0 ? rawMessage.getDataType() : responseMessage.getDataType());
         }
 
         if (content != null) {
@@ -1827,6 +1829,7 @@ public class MessageBrowser extends javax.swing.JPanel {
      */
     private void updateDescriptionErrors(ConnectorMessage connectorMessage) {
         String processingError = connectorMessage.getProcessingError();
+        String postProcessorError = connectorMessage.getPostProcessorError();
         String responseError = connectorMessage.getResponseError();
 
         ErrorsRadioPane.removeAll();
@@ -1841,7 +1844,16 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         }
         setCorrectDocument(ProcessingErrorTextPane, processingError, null);
-
+        
+        if (postProcessorError != null) {
+            ErrorsRadioPane.add(PostprocessorErrorRadioButton);
+            paneSelected = lastUserSelectedErrorType.equals(PostprocessorErrorRadioButton.getText());
+            if (firstVisiblePane == null) {
+                firstVisiblePane = PostprocessorErrorRadioButton.getText();
+            }
+        }
+        setCorrectDocument(PostprocessorErrorTextPane, postProcessorError, null);
+        
         if (responseError != null) {
             ErrorsRadioPane.add(ResponseErrorRadioButton);
             paneSelected = lastUserSelectedErrorType.equals(ResponseErrorRadioButton.getText());
@@ -2027,9 +2039,11 @@ public class MessageBrowser extends javax.swing.JPanel {
         ErrorsPanel = new javax.swing.JPanel();
         ErrorsRadioPane = new javax.swing.JPanel();
         ProcessingErrorRadioButton = new javax.swing.JRadioButton();
+        PostprocessorErrorRadioButton = new javax.swing.JRadioButton();
         ResponseErrorRadioButton = new javax.swing.JRadioButton();
         ErrorsCardPane = new javax.swing.JPanel();
         ProcessingErrorTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        PostprocessorErrorTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         ResponseErrorTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         attachmentsPane = new javax.swing.JScrollPane();
         attachmentTable = null;
@@ -2249,7 +2263,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addGroup(ResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(responseStatusLabel)
                     .addComponent(responseLabel))
-                .addGap(0, 699, Short.MAX_VALUE))
+                .addGap(0, 650, Short.MAX_VALUE))
         );
         ResponseTextPaneLayout.setVerticalGroup(
             ResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2260,7 +2274,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addGap(12, 12, 12)
                 .addComponent(responseLabel)
                 .addGap(3, 3, 3)
-                .addComponent(ResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE))
+                .addComponent(ResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
         );
 
         MessagesCardPane.add(ResponseTextPane, "Response");
@@ -2298,7 +2312,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addGroup(ProcessedResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(processedResponseStatusLabel)
                     .addComponent(processedResponseLabel))
-                .addGap(0, 699, Short.MAX_VALUE))
+                .addGap(0, 650, Short.MAX_VALUE))
         );
         ProcessedResponseTextPaneLayout.setVerticalGroup(
             ProcessedResponseTextPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2309,7 +2323,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addGap(12, 12, 12)
                 .addComponent(processedResponseLabel)
                 .addGap(3, 3, 3)
-                .addComponent(ProcessedResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE))
+                .addComponent(ProcessedResponseTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
         );
 
         MessagesCardPane.add(ProcessedResponseTextPane, "Processed Response");
@@ -2330,7 +2344,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             .addGroup(MessagesPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(MessagesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(MessagesCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(MessagesCardPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(MessagesPanelLayout.createSequentialGroup()
                         .addComponent(formatXmlMessageCheckBox)
                         .addGap(0, 0, Short.MAX_VALUE))
@@ -2375,6 +2389,18 @@ public class MessageBrowser extends javax.swing.JPanel {
         });
         ErrorsRadioPane.add(ProcessingErrorRadioButton);
 
+        PostprocessorErrorRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        errorsGroup.add(PostprocessorErrorRadioButton);
+        PostprocessorErrorRadioButton.setText("Postprocessor Error");
+        PostprocessorErrorRadioButton.setFocusable(false);
+        PostprocessorErrorRadioButton.setRequestFocusEnabled(false);
+        PostprocessorErrorRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PostprocessorErrorRadioButtonActionPerformed(evt);
+            }
+        });
+        ErrorsRadioPane.add(PostprocessorErrorRadioButton);
+
         ResponseErrorRadioButton.setBackground(new java.awt.Color(255, 255, 255));
         errorsGroup.add(ResponseErrorRadioButton);
         ResponseErrorRadioButton.setText("Response Error");
@@ -2394,6 +2420,10 @@ public class MessageBrowser extends javax.swing.JPanel {
         ProcessingErrorTextPane.setEditable(false);
         ErrorsCardPane.add(ProcessingErrorTextPane, "Processing Error");
 
+        PostprocessorErrorTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        PostprocessorErrorTextPane.setEditable(false);
+        ErrorsCardPane.add(PostprocessorErrorTextPane, "Postprocessor Error");
+
         ResponseErrorTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         ResponseErrorTextPane.setEditable(false);
         ErrorsCardPane.add(ResponseErrorTextPane, "Response Error");
@@ -2406,7 +2436,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(ErrorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(ErrorsCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(ErrorsRadioPane, javax.swing.GroupLayout.DEFAULT_SIZE, 646, Short.MAX_VALUE))
+                    .addComponent(ErrorsRadioPane, javax.swing.GroupLayout.DEFAULT_SIZE, 633, Short.MAX_VALUE))
                 .addContainerGap())
         );
         ErrorsPanelLayout.setVerticalGroup(
@@ -2415,7 +2445,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(ErrorsRadioPane, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ErrorsCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
+                .addComponent(ErrorsCardPane, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -2879,6 +2909,10 @@ public class MessageBrowser extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_processedResponseStatusTextFieldActionPerformed
 
+    private void PostprocessorErrorRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PostprocessorErrorRadioButtonActionPerformed
+        errorsRadioButtonActionPerformed(evt);
+    }//GEN-LAST:event_PostprocessorErrorRadioButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton EncodedMessageRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea EncodedMessageTextPane;
@@ -2888,6 +2922,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JPanel MessagesCardPane;
     private javax.swing.JPanel MessagesPanel;
     private javax.swing.JPanel MessagesRadioPane;
+    private javax.swing.JRadioButton PostprocessorErrorRadioButton;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea PostprocessorErrorTextPane;
     private javax.swing.JRadioButton ProcessedRawMessageRadioButton;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ProcessedRawMessageTextPane;
     private javax.swing.JRadioButton ProcessedResponseRadioButton;

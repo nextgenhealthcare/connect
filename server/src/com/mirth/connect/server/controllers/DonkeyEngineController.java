@@ -480,6 +480,7 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setStoreCustomMetaData(false);
                 storageSettings.setStoreMaps(false);
                 storageSettings.setStoreResponseMap(false);
+                storageSettings.setStoreMergedResponseMap(false);
                 storageSettings.setStoreProcessedRaw(false);
                 storageSettings.setStoreTransformed(false);
                 storageSettings.setStoreSourceEncoded(false);
@@ -497,6 +498,7 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setRawDurable(false);
                 storageSettings.setStoreMaps(false);
                 storageSettings.setStoreResponseMap(false);
+                storageSettings.setStoreMergedResponseMap(false);
                 storageSettings.setStoreRaw(false);
                 storageSettings.setStoreProcessedRaw(false);
                 storageSettings.setStoreTransformed(false);
@@ -517,6 +519,7 @@ public class DonkeyEngineController implements EngineController {
                 storageSettings.setStoreCustomMetaData(false);
                 storageSettings.setStoreMaps(false);
                 storageSettings.setStoreResponseMap(false);
+                storageSettings.setStoreMergedResponseMap(false);
                 storageSettings.setStoreRaw(false);
                 storageSettings.setStoreProcessedRaw(false);
                 storageSettings.setStoreTransformed(false);
