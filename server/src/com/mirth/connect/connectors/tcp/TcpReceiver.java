@@ -62,6 +62,7 @@ import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorConstants;
+import com.mirth.connect.util.ErrorMessageBuilder;
 import com.mirth.connect.util.TcpUtil;
 
 public class TcpReceiver extends SourceConnector {
@@ -247,12 +248,11 @@ public class TcpReceiver extends SourceConnector {
                     StateAwareSocket responseSocket = null;
 
                     try {
-                        responseSocket = createResponseSocket();
-
                         attemptedResponse = true;
+                        responseSocket = createResponseSocket();
                         sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler);
                     } catch (IOException e) {
-                        errorMessage = e.getMessage();
+                        errorMessage = ErrorMessageBuilder.buildErrorResponse("Error sending response.", e);
                     } finally {
                         closeSocketQuietly(responseSocket);
                     }
@@ -351,23 +351,23 @@ public class TcpReceiver extends SourceConnector {
 
                                     // Check to see if we have a response to send
                                     if (dispatchResult.getSelectedResponse() != null) {
-                                        // If the response socket hasn't been initialized, do that now
-                                        if (responseSocket == null) {
-                                            if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
-                                                responseSocket = createResponseSocket();
-                                            } else {
-                                                // If we're not responding on a new connection, then write to the output stream of the same socket
-                                                responseSocket = socket;
-                                            }
-                                        }
-
                                         // Send the response
                                         attemptedResponse = true;
 
                                         try {
+                                            // If the response socket hasn't been initialized, do that now
+                                            if (responseSocket == null) {
+                                                if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION) {
+                                                    responseSocket = createResponseSocket();
+                                                } else {
+                                                    // If we're not responding on a new connection, then write to the output stream of the same socket
+                                                    responseSocket = socket;
+                                                }
+                                            }
+
                                             sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler);
                                         } catch (IOException e) {
-                                            errorMessage = e.getMessage();
+                                            errorMessage = ErrorMessageBuilder.buildErrorResponse("Error sending response.", e);
                                         } finally {
                                             if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
                                                 closeSocketQuietly(responseSocket);
@@ -482,15 +482,10 @@ public class TcpReceiver extends SourceConnector {
         }
     }
 
-    private StateAwareSocket createResponseSocket() {
+    private StateAwareSocket createResponseSocket() throws IOException {
         logger.debug("Creating response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
-        StateAwareSocket responseSocket = null;
-        try {
-            responseSocket = SocketUtil.createSocket(replacer.replaceValues(connectorProperties.getResponseAddress(), getChannelId()), replacer.replaceValues(connectorProperties.getResponsePort(), getChannelId()), getHost());
-            initSocket(responseSocket);
-        } catch (Exception e) {
-            logger.warn("Error creating response socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);
-        }
+        StateAwareSocket responseSocket = SocketUtil.createSocket(replacer.replaceValues(connectorProperties.getResponseAddress(), getChannelId()), replacer.replaceValues(connectorProperties.getResponsePort(), getChannelId()), getHost());
+        initSocket(responseSocket);
         return responseSocket;
     }
 
