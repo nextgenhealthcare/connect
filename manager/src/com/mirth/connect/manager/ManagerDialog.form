@@ -43,11 +43,11 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="heading" alignment="0" pref="409" max="32767" attributes="0"/>
+              <Component id="heading" alignment="0" pref="398" max="32767" attributes="0"/>
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="tabPanel" alignment="0" pref="389" max="32767" attributes="0"/>
+                      <Component id="tabPanel" alignment="0" max="32767" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="launchButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
@@ -158,7 +158,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="serviceButtonContainer" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="69" max="32767" attributes="0"/>
+                          <EmptySpace pref="58" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -346,7 +346,7 @@
                                       </Group>
                                       <Component id="serverMemoryField" alignment="1" min="-2" pref="60" max="-2" attributes="1"/>
                                   </Group>
-                                  <EmptySpace pref="10" max="32767" attributes="0"/>
+                                  <EmptySpace type="unrelated" max="32767" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Component id="jLabel19" alignment="1" min="-2" max="-2" attributes="0"/>
                                       <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -356,12 +356,12 @@
                               <Component id="jScrollPane1" pref="0" max="32767" attributes="1"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="channelLogLevel" linkSize="3" alignment="0" min="-2" pref="77" max="-2" attributes="1"/>
-                              <Component id="databaseLogLevel" linkSize="3" alignment="0" min="-2" pref="77" max="-2" attributes="1"/>
-                              <Component id="mirthLogLevel" linkSize="3" alignment="0" min="-2" pref="77" max="-2" attributes="1"/>
-                              <Component id="viewFileButton" linkSize="3" pref="77" max="32767" attributes="1"/>
-                              <Component id="refreshButton" linkSize="3" pref="77" max="32767" attributes="1"/>
+                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                              <Component id="databaseLogLevel" alignment="0" max="32767" attributes="1"/>
+                              <Component id="channelLogLevel" alignment="0" max="32767" attributes="1"/>
+                              <Component id="viewFileButton" alignment="0" max="32767" attributes="1"/>
+                              <Component id="refreshButton" alignment="0" max="32767" attributes="1"/>
+                              <Component id="mirthLogLevel" max="32767" attributes="1"/>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
@@ -556,10 +556,15 @@
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="databaseType" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
-                              <Component id="databaseUrl" alignment="0" pref="295" max="32767" attributes="1"/>
-                              <Component id="databaseUsername" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
-                              <Component id="databasePassword" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                              <Component id="databaseUrl" alignment="0" max="32767" attributes="1"/>
+                              <Group type="102" attributes="0">
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="databaseType" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
+                                      <Component id="databaseUsername" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                                      <Component id="databasePassword" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace min="0" pref="134" max="32767" attributes="0"/>
+                              </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -685,7 +690,7 @@
                                   </Group>
                               </Group>
                           </Group>
-                          <EmptySpace pref="61" max="32767" attributes="0"/>
+                          <EmptySpace pref="50" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
