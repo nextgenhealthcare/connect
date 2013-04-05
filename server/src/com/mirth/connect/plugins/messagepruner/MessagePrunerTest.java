@@ -47,7 +47,6 @@ public class MessagePrunerTest {
     private static Calendar messageDateThreshold;
     private static Calendar contentDateThreshold;
     private static int testSize;
-    private static MessageWriter[] archivers = new MessageWriter[] { new TestArchiver(), new FailingArchiver() };
     private static int[] blockSizes = new int[] { 0, 1000 };
     private static Logger logger = Logger.getLogger(MessagePrunerTest.class);
     // @formatter:on
@@ -83,26 +82,20 @@ public class MessagePrunerTest {
     }
 
     private void runPrunerTests(boolean messagesPrunable, boolean contentPrunable) throws Exception {
-        MessagePruner pruner = new MessagePrunerWithoutArchiver();
-        runPrunerTest(pruner, messagesPrunable, contentPrunable);
+        runPrunerTest(new MessagePrunerWithoutArchiver(), messagesPrunable, contentPrunable);
+        TestArchiver archiver = new TestArchiver();
 
-        for (MessageWriter archiver : archivers) {
-            for (Strategy strategy : Strategy.values()) {
-                for (int blockSize : blockSizes) {
-                    if (archiver instanceof FailingArchiver) {
-                        ((FailingArchiver) archiver).getArchivedMessageIds().clear();
-                        ((FailingArchiver) archiver).getFailedMessageIds().clear();
-                    } else if (archiver instanceof TestArchiver) {
-                        ((TestArchiver) archiver).getArchivedMessageIds().clear();
-                    }
+        for (Strategy strategy : Strategy.values()) {
+            for (int blockSize : blockSizes) {
+                archiver.getArchivedMessageIds().clear();
+                archiver.getFailedMessageIds().clear();
 
-                    pruner = new MessagePrunerWithArchiver(archiver, ARCHIVER_PAGE_SIZE, strategy);
-                    pruner.setRetryCount(0);
-                    pruner.setBlockSize(blockSize);
+                MessagePruner pruner = new MessagePrunerWithArchiver(archiver, ARCHIVER_PAGE_SIZE, strategy);
+                pruner.setRetryCount(0);
+                pruner.setBlockSize(blockSize);
 
-                    logger.info("Running pruner test, archiver: " + archiver.getClass().getSimpleName() + ", strategy: " + strategy + ", block size: " + blockSize + ", prune messages: " + messagesPrunable + ", prune content: " + contentPrunable);
-                    runPrunerTest(pruner, messagesPrunable, contentPrunable);
-                }
+                logger.info("Running pruner test, archiver: " + archiver.getClass().getSimpleName() + ", strategy: " + strategy + ", block size: " + blockSize + ", prune messages: " + messagesPrunable + ", prune content: " + contentPrunable);
+                runPrunerTest(pruner, messagesPrunable, contentPrunable);
             }
         }
     }
@@ -110,17 +103,8 @@ public class MessagePrunerTest {
     private void runPrunerTest(MessagePruner pruner, boolean messagesPrunable, boolean contentPrunable) throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, messagesPrunable, contentPrunable, true, Status.SENT, TEST_POWER);
         pruner.executePruner(TEST_CHANNEL_ID, messageDateThreshold, contentDateThreshold);
-        int prunedCount;
-
-        if (pruner instanceof MessagePrunerWithArchiver && ((MessagePrunerWithArchiver) pruner).getArchiver() instanceof FailingArchiver) {
-            FailingArchiver archiver = (FailingArchiver) ((MessagePrunerWithArchiver) pruner).getArchiver();
-            prunedCount = archiver.getFailedMessageIds().size();
-        } else {
-            prunedCount = 0;
-        }
-
-        assertEquals(messagesPrunable ? prunedCount : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
-        assertEquals(contentPrunable ? prunedCount : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
+        assertEquals(messagesPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID));
+        assertEquals(contentPrunable ? 0 : testSize, TestUtils.getNumMessages(TEST_CHANNEL_ID, true));
     }
 
     @Test
@@ -174,7 +158,7 @@ public class MessagePrunerTest {
     public final void testPerformance() throws Exception {
         prepareTestMessages(TEST_CHANNEL_ID, true, true, true, Status.SENT, PERFORMANCE_TEST_POWER);
 
-        FailingArchiver archiver = new FailingArchiver();
+        TestArchiver archiver = new TestArchiver();
         MessagePruner pruner = new MessagePrunerWithArchiver(archiver, 1000, Strategy.INCLUDE_LIST);
 
         long startTime = System.currentTimeMillis();
@@ -302,23 +286,6 @@ public class MessagePrunerTest {
     }
 
     private static class TestArchiver implements MessageWriter {
-        private List<Long> archivedMessageIds = new ArrayList<Long>();
-
-        public List<Long> getArchivedMessageIds() {
-            return archivedMessageIds;
-        }
-
-        @Override
-        public boolean write(Message message) throws MessageWriterException {
-            archivedMessageIds.add(message.getMessageId().longValue());
-            return true;
-        }
-
-        @Override
-        public void close() throws MessageWriterException {}
-    }
-
-    private static class FailingArchiver implements MessageWriter {
         private List<Long> archivedMessageIds = new ArrayList<Long>();
         private List<Long> failedMessageIds = new ArrayList<Long>();
 

@@ -91,7 +91,7 @@ public class MessagePrunerWithArchiver extends MessagePruner {
 
         try {
             logger.debug("Running archiver for channel: " + channelId);
-            return MessageUtils.exportMessages(new ArchiverMessageList(channelId, archiverPageSize, params), archiver);
+            return MessageUtils.exportMessages(new ArchiverMessageList(channelId, archiverPageSize, params), archiver).getProcessedIds();
         } catch (MessageExportException e) {
             throw new MessagePrunerException("An error occurred when attempting to archive messages", e);
         }

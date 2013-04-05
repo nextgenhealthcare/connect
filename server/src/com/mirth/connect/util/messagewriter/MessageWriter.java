@@ -13,7 +13,11 @@ import com.mirth.connect.donkey.model.message.Message;
 
 public interface MessageWriter {
     /**
-     * @return True if the message was written successfully, false otherwise.
+     * @return True if the message was written, false if the message was not written, because it had
+     *         no information relevant to this writer. (false does not mean that an error occurred,
+     *         if an error occurs, an exception will be thrown)
+     * @throws MessageWriterException
+     *             If an error occurred while attempting to write the message.
      */
     public boolean write(Message message) throws MessageWriterException;
 

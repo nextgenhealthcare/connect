@@ -101,30 +101,30 @@ public class MessageWriterVfs implements MessageWriter {
     @Override
     public boolean write(Message message) throws MessageWriterException {
         try {
-            String file = uri + IOUtils.DIR_SEPARATOR + replacer.replaceValues(filePattern, message);
-
-            if (!file.equals(currentFile)) {
-                if (writer != null) {
-                    writer.close();
-                }
-
-                if (currentFileObject != null) {
-                    currentFileObject.close();
-                }
-
-                currentFile = file;
-                currentFileObject = VFS.getManager().resolveFile(file);
-
-                if (currentFileObject.getType() == FileType.FOLDER) {
-                    throw new MessageWriterException("Cannot save message to file \"" + file + "\", it is a directory");
-                }
-
-                writer = new OutputStreamWriter(currentFileObject.getContent().getOutputStream(true));
-            }
-
             String content = (contentType == null) ? toXml(message) : extractContent(message);
 
             if (StringUtils.isNotBlank(content)) {
+                String file = uri + IOUtils.DIR_SEPARATOR + replacer.replaceValues(filePattern, message);
+
+                if (!file.equals(currentFile)) {
+                    if (writer != null) {
+                        writer.close();
+                    }
+
+                    if (currentFileObject != null) {
+                        currentFileObject.close();
+                    }
+
+                    currentFile = file;
+                    currentFileObject = VFS.getManager().resolveFile(file);
+
+                    if (currentFileObject.getType() == FileType.FOLDER) {
+                        throw new MessageWriterException("Cannot save message to file \"" + file + "\", it is a directory");
+                    }
+
+                    writer = new OutputStreamWriter(currentFileObject.getContent().getOutputStream(true));
+                }
+
                 writer.write(content);
                 writer.append(IOUtils.LINE_SEPARATOR_WINDOWS); // the VFS output stream requires windows newlines
                 writer.flush();

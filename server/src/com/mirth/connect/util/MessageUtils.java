@@ -48,9 +48,10 @@ public class MessageUtils {
      *            The message writer to write messages to
      * @return A list of the message ids that were exported.
      */
-    public static List<Long> exportMessages(PaginatedList<Message> messageList, MessageWriter messageWriter) throws InterruptedException, MessageExportException {
+    public static MessageExportResult exportMessages(PaginatedList<Message> messageList, MessageWriter messageWriter) throws InterruptedException, MessageExportException {
         ThreadUtils.checkInterruptedStatus();
-        List<Long> exportedMessageIds = new ArrayList<Long>();
+        List<Long> processedMessageIds = new ArrayList<Long>();
+        int numExported = 0;
         int pageNumber = 0;
 
         do {
@@ -65,8 +66,10 @@ public class MessageUtils {
             for (Message message : messageList) {
                 try {
                     if (messageWriter.write(message)) {
-                        exportedMessageIds.add(message.getMessageId());
+                        numExported++;
                     }
+
+                    processedMessageIds.add(message.getMessageId());
                 } catch (Exception e) {
                     throw new MessageExportException("Failed to export message", e);
                 }
@@ -81,7 +84,7 @@ public class MessageUtils {
             logger.error("Failed to close message writer", e);
         }
 
-        return exportedMessageIds;
+        return new MessageExportResult(processedMessageIds, numExported);
     }
 
     /**
@@ -226,6 +229,31 @@ public class MessageUtils {
 
         public MessageExportException(String message, Throwable cause) {
             super(message, cause);
+        }
+    }
+
+    public static class MessageExportResult {
+        private List<Long> processedIds;
+        private int numExported;
+
+        private MessageExportResult(List<Long> processedIds, int numExported) {
+            this.processedIds = processedIds;
+            this.numExported = numExported;
+        }
+
+        /**
+         * @return A list of the message ids that were processed, regardless of whether or not
+         *         exported content was produced
+         */
+        public List<Long> getProcessedIds() {
+            return processedIds;
+        }
+
+        /**
+         * @return The number of messages that actually produced exported content
+         */
+        public int getNumExported() {
+            return numExported;
         }
     }
 }

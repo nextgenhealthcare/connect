@@ -885,7 +885,7 @@ public class CommandLineInterface {
             
             MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(writerOptions, client.getEncryptor(), channelId);
 
-            messageCount = MessageUtils.exportMessages(messageList, messageWriter).size();
+            messageCount = MessageUtils.exportMessages(messageList, messageWriter).getNumExported();
         } catch (Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);
             error("unable to write file " + path + ": " + cause, cause);

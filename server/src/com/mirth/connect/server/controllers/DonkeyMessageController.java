@@ -465,7 +465,7 @@ public class DonkeyMessageController extends MessageController {
 
         try {
             MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(options, ConfigurationController.getInstance().getEncryptor(), channelId);
-            return MessageUtils.exportMessages(messageList, messageWriter).size();
+            return MessageUtils.exportMessages(messageList, messageWriter).getNumExported();
         } catch (MessageWriterException e) {
             throw new MessageExportException(e);
         }
