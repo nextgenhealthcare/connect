@@ -252,7 +252,7 @@ public class TcpReceiver extends SourceConnector {
                         responseSocket = createResponseSocket();
                         sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler);
                     } catch (IOException e) {
-                        errorMessage = ErrorMessageBuilder.buildErrorResponse("Error sending response.", e);
+                        errorMessage = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, "Error sending response.", e);
                     } finally {
                         closeSocketQuietly(responseSocket);
                     }
@@ -367,7 +367,7 @@ public class TcpReceiver extends SourceConnector {
 
                                             sendResponse(dispatchResult.getSelectedResponse().getMessage(), responseSocket, streamHandler);
                                         } catch (IOException e) {
-                                            errorMessage = ErrorMessageBuilder.buildErrorResponse("Error sending response.", e);
+                                            errorMessage = ErrorMessageBuilder.buildErrorMessage(ErrorConstants.ERROR_411, "Error sending response.", e);
                                         } finally {
                                             if (connectorProperties.getRespondOnNewConnection() == TcpReceiverProperties.NEW_CONNECTION || !connectorProperties.isKeepConnectionOpen()) {
                                                 closeSocketQuietly(responseSocket);
