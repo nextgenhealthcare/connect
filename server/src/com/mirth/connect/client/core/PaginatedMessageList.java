@@ -63,14 +63,6 @@ public class PaginatedMessageList extends PaginatedList<Message> {
 
     @Override
     public Long getItemCount() {
-        if (itemCount == null) {
-            try {
-                itemCount = client.getMessageCount(channelId, messageFilter);
-            } catch (ClientException e) {
-                logger.error("Failed to determine the total number of messages in the message list", e);
-            }
-        }
-
         return itemCount;
     }
 
