@@ -61,7 +61,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
-                column.setToolTipText("<html><body>The date the original message was received.<br>This value is not updated when the message is reprocessed.</body></html>");
+                column.setToolTipText("<html><body>The date the original message was received. This value is<br>not updated when the message is reprocessed.</body></html>");
                 break;
 
             case MessageBrowser.RECEIVED_DATE_COLUMN: // Received Date
@@ -70,7 +70,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
-                column.setToolTipText("<html><body>The date the message began processing through the connector</body></html>");
+                column.setToolTipText("<html><body>The date the message began processing through the connector.</body></html>");
                 break;
 
             case MessageBrowser.SEND_ATTEMPTS_COLUMN: // Send Attempts:
@@ -78,7 +78,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
-                column.setToolTipText("<html><body>On the source connector, this is the number of times the connector attempted to send the response back to the point of origin.<br>On the destination connectors, this is the number of times the connector attempted to send the message to its recipient.</body></html>");
+                column.setToolTipText("<html><body>Source Connector: this is the number of times the connector<br>attempted to send the response back to the point of origin.<br>Destination Connector: this is the number of times the connector<br>attempted to send the message to its recipient.</body></html>");
                 break;
 
             case MessageBrowser.SEND_DATE_COLUMN: // Send Date
@@ -87,7 +87,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
-                column.setToolTipText("<html><body>On the source connector, this column is not used.<br>On the destination connectors, this is the date right before the most recent send attempt.</body></html>");
+                column.setToolTipText("<html><body>Source Connector: this column is not used.<br>Destination Connector: this is the date right before the most recent send attempt.</body></html>");
                 break;
 
             case MessageBrowser.RESPONSE_DATE_COLUMN: // Response Date
@@ -96,14 +96,14 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 renderer = dateCellRenderer;
                 column.setMaxWidth(140);
                 column.setMinWidth(140);
-                column.setToolTipText("<html><body>On the source connector, this is the date right before the connector attempted to send the response back to the point of origin.<br>On the destination connectors, this is the date immediately after the response was received from its recipient.</body></html>");
+                column.setToolTipText("<html><body>Source Connector: this is the date right before the connector<br>attempted to send the response back to the point of origin.<br>Destination Connector: this is the date immediately after the server<br>receives a response from the connector, which may be empty.</body></html>");
                 break;
 
             case MessageBrowser.ERRORS_COLUMN: // Error
                 renderer = new DefaultTableCellRenderer();
                 column.setMaxWidth(85);
                 column.setMinWidth(85);
-                column.setToolTipText("<html><body>Indicates whether an error exists for this message.<br>It is possible for a message to have errors even if the message status is not ERROR.</body></html>");
+                column.setToolTipText("<html><body>Indicates whether an error exists for this message. It is possible for<br>a message to have errors even if the message status is not ERROR.</body></html>");
                 break;
 
             case MessageBrowser.SERVER_ID_COLUMN: // Server Id
@@ -118,7 +118,7 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
                 column.setPreferredWidth(90);
-                column.setToolTipText("<html><body>If a message was imported, this column indicates the original Message Id of the imported message</body></html>");
+                column.setToolTipText("<html><body>If a message was imported, this column indicates the original<br>Message Id of the imported message.</body></html>");
                 break;
 
             default:

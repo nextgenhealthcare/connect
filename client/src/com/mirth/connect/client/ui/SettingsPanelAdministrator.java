@@ -48,13 +48,13 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             messageBrowserConnectorCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnConnector", true));
             messageBrowserStatusCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnStatus", true));
             messageBrowserReceivedDateCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnReceived Date", true));
-            messageBrowserOrigReceivedDateCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnOrig. Received Date", true));
+            messageBrowserOrigReceivedDateCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnOrig. Received Date", false));
             messageBrowserServerIdCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnServer Id", false));
             messageBrowserSendAttemptsCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnSend Attempts", false));
             messageBrowserSendDateCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnSend Date", false));
-            messageBrowserResponseDateCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnResponse Date", false));
+            messageBrowserResponseDateCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnResponse Date", true));
             messageBrowserImportIdCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnImport Id", false));
-            messageBrowserErrorsCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnErrors", false));
+            messageBrowserErrorsCheckBox.setSelected(userPreferences.getBoolean("messageBrowserVisibleColumnErrors", true));
         }
     }
 

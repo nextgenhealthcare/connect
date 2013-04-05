@@ -291,7 +291,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             String columnName = column.getTitle();
 
             boolean defaultVisible = false;
-            if (columnName.equals(columnMap.get(ID_COLUMN)) || columnName.equals(columnMap.get(CONNECTOR_COLUMN)) || columnName.equals(columnMap.get(STATUS_COLUMN)) || columnName.equals(columnMap.get(RECEIVED_DATE_COLUMN))) {
+            if (columnName.equals(columnMap.get(ID_COLUMN)) || columnName.equals(columnMap.get(CONNECTOR_COLUMN)) || columnName.equals(columnMap.get(STATUS_COLUMN)) || columnName.equals(columnMap.get(RECEIVED_DATE_COLUMN)) || columnName.equals(columnMap.get(RESPONSE_DATE_COLUMN)) || columnName.equals(columnMap.get(ERRORS_COLUMN))) {
                 defaultVisible = true;
             }
 
