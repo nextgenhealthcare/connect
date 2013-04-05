@@ -57,24 +57,53 @@ public class Mirth {
         LoginPanel.getInstance().setStatus("Loading components...");
         PlatformUI.MIRTH_FRAME.setupFrame(mirthClient);
 
-        int width = UIConstants.MIRTH_WIDTH;
-        int height = UIConstants.MIRTH_HEIGHT;
+        boolean maximized;
+        int width;
+        int height;
 
-        if (userPreferences.getInt("maximizedState", Frame.MAXIMIZED_BOTH) != Frame.MAXIMIZED_BOTH) {
+        if (isMac()) {
+            /*
+             * Only maximize the window when there is no width or height preference saved. Just set
+             * the width and height on mac. Don't bother with the maximized state because the user
+             * can maximize the window, then manually resize it, leaving the maximum state as true.
+             */
+            maximized = (userPreferences.get("width", null) == null || userPreferences.get("height", null) == null);
+
             width = userPreferences.getInt("width", UIConstants.MIRTH_WIDTH);
-            height = userPreferences.getInt("height", UIConstants.MIRTH_HEIGHT);
+            height = userPreferences.getInt("height", UIConstants.MIRTH_WIDTH);
+        } else {
+            /*
+             * Maximize it if it's supposed to be maximized or if there is no maximized preference
+             * saved. Unmaximizing will bring the window back to default size.
+             */
+            maximized = (userPreferences.getInt("maximizedState", Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH);
+
+            if (maximized) {
+                // If it is maximized, use the default width and height for unmaximizing
+                width = UIConstants.MIRTH_WIDTH;
+                height = UIConstants.MIRTH_HEIGHT;
+            } else {
+                // If it's not maximized, get the saved width and height
+                width = userPreferences.getInt("width", UIConstants.MIRTH_WIDTH);
+                height = userPreferences.getInt("height", UIConstants.MIRTH_HEIGHT);
+            }
         }
 
+        // Now set the width and height (saved or default)
         PlatformUI.MIRTH_FRAME.setSize(width, height);
         PlatformUI.MIRTH_FRAME.setLocationRelativeTo(null);
 
-        if (userPreferences.getInt("maximizedState", Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH) {
+        if (maximized) {
             PlatformUI.MIRTH_FRAME.setExtendedState(Frame.MAXIMIZED_BOTH);
         }
 
         PlatformUI.MIRTH_FRAME.setVisible(true);
     }
-    
+
+    private static boolean isMac() {
+        return (System.getProperty("os.name").toLowerCase().lastIndexOf("mac") != -1);
+    }
+
     /**
      * About menu item on Mac OS X
      */
@@ -149,7 +178,7 @@ public class Mirth {
                 createAlternateKeyBindings();
             }
             
-            if (System.getProperty("os.name").toLowerCase().lastIndexOf("mac") != -1) {
+            if (isMac()) {
                 OSXAdapter.setAboutHandler(Mirth.class, Mirth.class.getDeclaredMethod("aboutMac", (Class[]) null));
                 OSXAdapter.setQuitHandler(Mirth.class, Mirth.class.getDeclaredMethod("quitMac", (Class[]) null));
             }
