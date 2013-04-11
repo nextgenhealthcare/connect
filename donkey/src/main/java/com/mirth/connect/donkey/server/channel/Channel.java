@@ -1266,6 +1266,24 @@ public class Channel implements Startable, Stoppable, Runnable {
         public Void call() throws Exception {
             ChannelController.getInstance().initChannelStorage(channelId);
 
+            /*
+             * Before deploying, make sure the connector is deployable. Verify that if queueing is
+             * enabled, the current storage settings support it.
+             */
+            if (!sourceConnector.isRespondAfterProcessing() && (!storageSettings.isEnabled() || !storageSettings.isStoreRaw() || !storageSettings.isStoreMaps())) {
+                throw new DeployException("Failed to deploy channel " + name + " (" + channelId + "): the source connector has queueing enabled, but the current storage settings do not support queueing on the source connector.");
+            }
+
+            for (DestinationChain chain : destinationChains) {
+                for (Integer metaDataId : chain.getMetaDataIds()) {
+                    DestinationConnector destinationConnector = chain.getDestinationConnectors().get(metaDataId);
+
+                    if (destinationConnector.isQueueEnabled() && (!storageSettings.isEnabled() || !storageSettings.isStoreSourceEncoded() || !storageSettings.isStoreSent() || !storageSettings.isStoreMaps())) {
+                        throw new DeployException("Failed to deploy channel " + name + " (" + channelId + "): one or more destination connectors have queueing enabled, but the current storage settings do not support queueing on destination connectors.");
+                    }
+                }
+            }
+
             try {
                 updateMetaDataColumns();
             } catch (SQLException e) {

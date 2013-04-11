@@ -155,7 +155,13 @@ public class Donkey {
 
             channel.setDeployDate(Calendar.getInstance());
             deployedChannels.put(channel.getChannelId(), channel);
-            channel.deploy();
+            
+            try {
+                channel.deploy();
+            } catch (DeployException e) {
+                deployedChannels.remove(channel.getChannelId());
+                throw e;
+            }
 
             if (channel.getInitialState() == ChannelState.STARTED) {
                 channel.start();

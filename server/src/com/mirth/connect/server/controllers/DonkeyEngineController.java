@@ -596,12 +596,6 @@ public class DonkeyEngineController implements EngineController {
 
         if (connectorProperties instanceof ResponseConnectorPropertiesInterface) {
             ResponseConnectorProperties responseConnectorProperties = ((ResponseConnectorPropertiesInterface) connectorProperties).getResponseConnectorProperties();
-
-            // queueing on the source connector is not possible if we are not storing raw content
-            if (!storageSettings.isEnabled() || !storageSettings.isStoreRaw()) {
-                responseConnectorProperties.setRespondAfterProcessing(true);
-            }
-
             sourceConnector.setRespondAfterProcessing(responseConnectorProperties.isRespondAfterProcessing());
         } else {
             sourceConnector.setRespondAfterProcessing(true);
@@ -743,16 +737,6 @@ public class DonkeyEngineController implements EngineController {
 
         destinationConnector.setDestinationName(model.getName());
         destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(channelId, model));
-
-        if (connectorProperties instanceof QueueConnectorPropertiesInterface) {
-            QueueConnectorProperties queueConnectorProperties = ((QueueConnectorPropertiesInterface) connectorProperties).getQueueConnectorProperties();
-
-            // queueing on the destination connector will be disabled if we are not storing encoded, sent or map data
-            if (queueConnectorProperties.isQueueEnabled() && (!storageSettings.isEnabled() || !storageSettings.isStoreSourceEncoded() || !storageSettings.isStoreSent() || !storageSettings.isStoreMaps())) {
-                logger.debug("Disabling queue for destination '" + connectorProperties.getName() + "', channel '" + channelId + "' since one or more required storage options are currently disabled");
-                queueConnectorProperties.setQueueEnabled(false);
-            }
-        }
 
         return destinationConnector;
     }

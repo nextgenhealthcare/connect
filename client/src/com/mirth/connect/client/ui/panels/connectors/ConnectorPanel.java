@@ -32,6 +32,7 @@ public class ConnectorPanel extends JPanel {
 
     public void setChannelSetup(ChannelSetup channelSetup) {
         queueSettingsPanel.setChannelSetup(channelSetup);
+        responseSettingsPanel.setChannelSetup(channelSetup);
     }
 
     public void setConnectorSettingsPanel(ConnectorSettingsPanel panel) {
@@ -202,6 +203,7 @@ public class ConnectorPanel extends JPanel {
 
     public void updateQueueWarning(MessageStorageMode messageStorageMode) {
         queueSettingsPanel.updateQueueWarning(messageStorageMode);
+        responseSettingsPanel.updateQueueWarning(messageStorageMode);
     }
 
     /**

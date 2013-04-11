@@ -25,6 +25,7 @@ import javax.swing.DefaultComboBoxModel;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import com.mirth.connect.client.ui.ChannelSetup;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -33,6 +34,7 @@ import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 import com.mirth.connect.donkey.model.channel.ResponseConnectorProperties;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.model.Step;
 
 public class ResponseSettingsPanel extends javax.swing.JPanel {
@@ -55,12 +57,18 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
     private final static int SHORT_NAME_MATCHER_INDEX = 5;
 
     private Frame parent;
+    private ChannelSetup channelSetup;
     private List<String> queueOnRespondFromNames;
     private List<Object> queueOffRespondFromNames;
 
     public ResponseSettingsPanel() {
         parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        queueWarningLabel.setVisible(false);
+    }
+    
+    public void setChannelSetup(ChannelSetup channelSetup) {
+        this.channelSetup = channelSetup;
     }
 
     public void setProperties(ResponseConnectorProperties properties) {
@@ -226,6 +234,19 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
     }
 
     public void resetInvalidProperties() {}
+    
+    public void updateQueueWarning(MessageStorageMode messageStorageMode) {
+        switch (messageStorageMode) {
+            case METADATA:
+            case DISABLED:
+                queueWarningLabel.setVisible(sourceQueueComboBox.getSelectedIndex() == 1);
+                break;
+
+            default:
+                queueWarningLabel.setVisible(false);
+                break;
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -242,6 +263,7 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
         responseComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
         sourceQueueLabel = new javax.swing.JLabel();
         sourceQueueComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
+        queueWarningLabel = new javax.swing.JLabel();
 
         jLabel1.setText("jLabel1");
 
@@ -270,10 +292,40 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
             }
         });
 
+        queueWarningLabel.setForeground(new java.awt.Color(255, 0, 0));
+        queueWarningLabel.setText("Queueing is not supported by the current message storage mode.");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(responseLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(sourceQueueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(sourceQueueComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(responseComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)).addGap(0, 8, Short.MAX_VALUE)));
-        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(sourceQueueLabel).addComponent(sourceQueueComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(responseLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(responseComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))));
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(responseLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sourceQueueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(sourceQueueComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(queueWarningLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(responseComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(0, 12, 12))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sourceQueueLabel)
+                    .addComponent(sourceQueueComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(queueWarningLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(responseLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(responseComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
     }// </editor-fold>//GEN-END:initComponents
 
     private void sourceQueueComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sourceQueueComboBoxActionPerformed
@@ -286,11 +338,17 @@ public class ResponseSettingsPanel extends javax.swing.JPanel {
         }
 
         setSelectedItem(selectedItem);
+        
+        channelSetup.saveSourcePanel();
+        MessageStorageMode messageStorageMode = channelSetup.getMessageStorageMode();
+        channelSetup.updateQueueWarning(messageStorageMode);
+        updateQueueWarning(messageStorageMode);
     }//GEN-LAST:event_sourceQueueComboBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.ButtonGroup listenerButtonGroup;
+    private javax.swing.JLabel queueWarningLabel;
     private com.mirth.connect.client.ui.components.MirthComboBox responseComboBox;
     private javax.swing.JLabel responseLabel;
     private com.mirth.connect.client.ui.components.MirthComboBox sourceQueueComboBox;
