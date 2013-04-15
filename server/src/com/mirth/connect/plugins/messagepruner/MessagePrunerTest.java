@@ -255,8 +255,10 @@ public class MessagePrunerTest {
         receivedDate.setTime(dateThreshold.getTime());
         receivedDate.set(Calendar.DAY_OF_MONTH, receivedDate.get(Calendar.DAY_OF_MONTH) - 1);
 
-        Message message = MessageController.getInstance().createNewMessage(channelId, TEST_SERVER_ID);
+        Message message = new Message();
         message.setMessageId(1L);
+        message.setChannelId(channelId);
+        message.setServerId(TEST_SERVER_ID);
         message.setReceivedDate(receivedDate);
         message.setProcessed(processed);
 

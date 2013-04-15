@@ -9,13 +9,12 @@
 
 package com.mirth.connect.donkey.test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +40,6 @@ import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.timed.TimedDaoFactory;
 import com.mirth.connect.donkey.server.queue.ConnectorMessageQueueDataSource;
 import com.mirth.connect.donkey.test.util.TestChannel;
-import com.mirth.connect.donkey.test.util.TestSourceConnector;
 import com.mirth.connect.donkey.test.util.TestUtils;
 import com.mirth.connect.donkey.util.ActionTimer;
 
@@ -68,69 +66,6 @@ public class MessageControllerTests {
     @Before
     final public void before() {
         daoTimer.reset();
-    }
-
-    /*
-     * Deploy two new channels
-     * Send messages, alternating between channel1 and channel2
-     * After each dispatch, assert that:
-     * - The maximum message ID from both channel message tables (plus one) is
-     * equal to the ID returned by getNextMessageId
-     */
-    @Test
-    public final void testGetNextMessageId() throws Exception {
-        Channel channel1 = TestUtils.createDefaultChannel(channelId + "1", serverId);
-        Channel channel2 = TestUtils.createDefaultChannel(channelId + "2", serverId);
-
-        try {
-            logger.info("Testing MessageController.getNextMessageId...");
-
-            channel1.deploy();
-            channel1.start();
-            channel2.deploy();
-            channel2.start();
-
-            // Send messages
-            for (int i = 1; i <= TEST_SIZE; i++) {
-                ((TestSourceConnector) channel1.getSourceConnector()).readTestMessage(testMessage);
-
-                // Assert that the next message ID matches the one returned from the message controller
-                assertNextMessageIdCorrect(channel1.getChannelId());
-
-                ((TestSourceConnector) channel2.getSourceConnector()).readTestMessage(testMessage);
-
-                // Assert that the next message ID matches the one returned from the message controller
-                assertNextMessageIdCorrect(channel2.getChannelId());
-            }
-
-            System.out.println(daoTimer.getLog());
-        } finally {
-            channel1.stop();
-            channel1.undeploy();
-            channel2.stop();
-            channel2.undeploy();
-            ChannelController.getInstance().removeChannel(channel1.getChannelId());
-            ChannelController.getInstance().removeChannel(channel2.getChannelId());
-        }
-    }
-
-    private void assertNextMessageIdCorrect(String channelId) throws SQLException {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        
-        try {
-            connection = TestUtils.getConnection();
-            statement = connection.prepareStatement("SELECT MAX(id) FROM d_m" + ChannelController.getInstance().getLocalChannelId(channelId));
-            result = statement.executeQuery();
-            result.next();
-            Long maxId = result.getLong(1);
-            assertEquals(new Long(maxId + 1), Long.valueOf(MessageController.getInstance().getNextMessageId(channelId)));
-        } finally {
-            TestUtils.close(result);
-            TestUtils.close(statement);
-            TestUtils.close(connection);
-        }
     }
 
     /*
@@ -200,15 +135,23 @@ public class MessageControllerTests {
         channel.getSourceQueue().setDataSource(new ConnectorMessageQueueDataSource(channelId, 0, Status.RECEIVED, false, TestUtils.getDaoFactory()));
         channel.getSourceQueue().updateSize();
 
-        Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
-        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
-        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, testMessage, null, false));
-        message.getConnectorMessages().put(0, sourceMessage);
-
+        Message message = null;
+        ConnectorMessage sourceMessage = null;
         DonkeyDao dao = null;
         
         try {
             dao = TestUtils.getDaoFactory().getDao();
+            
+            message = new Message();
+            message.setMessageId(dao.getNextMessageId(channelId));
+            message.setChannelId(channelId);
+            message.setServerId(serverId);
+            message.setReceivedDate(Calendar.getInstance());
+            
+            sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
+            sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, testMessage, null, false));
+            message.getConnectorMessages().put(0, sourceMessage);
+            
             dao.insertMessage(message);
             dao.insertConnectorMessage(sourceMessage, true);
             dao.insertMessageContent(sourceMessage.getRaw());

@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 
@@ -243,7 +244,12 @@ public class TestUtils {
     }
 
     public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDao dao) {
-        Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
+        Message message = new Message();
+        message.setMessageId(dao.getNextMessageId(channelId));
+        message.setChannelId(channelId);
+        message.setServerId(serverId);
+        message.setReceivedDate(Calendar.getInstance());
+        
         ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
         sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, false));
 

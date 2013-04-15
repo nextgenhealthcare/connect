@@ -465,7 +465,6 @@ public class TestUtils {
 
     public static void assertConnectorMessageExists(ConnectorMessage connectorMessage, boolean deepSearch, Connection connection) throws SQLException {
         long localChannelId = ChannelController.getInstance().getLocalChannelId(connectorMessage.getChannelId());
-        Serializer serializer = Donkey.getInstance().getSerializer();
         PreparedStatement statement = null;
         ResultSet result = null;
 
@@ -804,9 +803,9 @@ public class TestUtils {
             }
 
             do {
-                String name = columns.getString("COLUMN_NAME").toUpperCase();
+                String name = columns.getString("COLUMN_NAME");
                 
-                if (!name.equals("METADATA_ID") && !name.equals("MESSAGE_ID")) {
+                if (!name.toUpperCase().equals("METADATA_ID") && !name.toUpperCase().equals("MESSAGE_ID")) {
                     int type = columns.getInt("DATA_TYPE");
                     
                     if (type == Types.VARCHAR || type == Types.NVARCHAR || type == Types.LONGVARCHAR || type == Types.LONGNVARCHAR) {
@@ -895,8 +894,10 @@ public class TestUtils {
 
             if (map1.containsKey(name) && map2.containsKey(name)) {
                 compareMetaData(column.getType(), map1.get(name), map2.get(name));
-            } else if (map1.containsKey(name) || map2.containsKey(name)) {
-                throw new AssertionError();
+            } else if (map1.containsKey(name)) {
+                throw new AssertionError("1st map contains \"" + name + "\", but 2nd map does not");
+            } else if (map2.containsKey(name)) {
+                throw new AssertionError("2nd map contains \"" + name + "\", but 1st map does not");
             }
         }
     }
@@ -1136,20 +1137,27 @@ public class TestUtils {
     }
     
     public static Message createAndStoreNewMessage(RawMessage rawMessage, String channelId, String serverId, DonkeyDaoFactory daoFactory) {
-        Message message = MessageController.getInstance().createNewMessage(channelId, serverId);
-        ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
-        sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, false));
-
-        if (rawMessage.getChannelMap() != null) {
-            sourceMessage.setChannelMap(rawMessage.getChannelMap());
-        }
-
-        message.getConnectorMessages().put(0, sourceMessage);
-
         DonkeyDao dao = null;
-        
+        Message message = null;
+
         try {
             dao = daoFactory.getDao();
+
+            message = new Message();
+            message.setMessageId(dao.getNextMessageId(channelId));
+            message.setChannelId(channelId);
+            message.setServerId(serverId);
+            message.setReceivedDate(Calendar.getInstance());
+
+            ConnectorMessage sourceMessage = new ConnectorMessage(channelId, message.getMessageId(), 0, serverId, message.getReceivedDate(), Status.RECEIVED);
+            sourceMessage.setRaw(new MessageContent(channelId, message.getMessageId(), 0, ContentType.RAW, rawMessage.getRawData(), null, false));
+
+            if (rawMessage.getChannelMap() != null) {
+                sourceMessage.setChannelMap(rawMessage.getChannelMap());
+            }
+
+            message.getConnectorMessages().put(0, sourceMessage);
+
             dao.insertMessage(message);
             dao.insertConnectorMessage(sourceMessage, true);
             dao.insertMessageContent(sourceMessage.getRaw());
@@ -1157,7 +1165,7 @@ public class TestUtils {
         } finally {
             close(dao);
         }
-        
+
         return message;
     }
 

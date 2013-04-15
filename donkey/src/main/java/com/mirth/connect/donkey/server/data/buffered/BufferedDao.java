@@ -336,7 +336,9 @@ public class BufferedDao implements DonkeyDao {
         DonkeyDao dao = getDelegateDao();
 
         try {
-            return dao.getNextMessageId(channelId);
+            long id = dao.getNextMessageId(channelId);
+            dao.commit();
+            return id;
         } finally {
             dao.close();
         }

@@ -70,6 +70,7 @@ public class JdbcDao implements DonkeyDao {
     private String asyncCommitCommand;
     private Map<String, Long> localChannelIds;
     private boolean transactionAlteredChannels = false;
+    private char quoteChar = '"';
     private Logger logger = Logger.getLogger(this.getClass());
 
     protected JdbcDao(Connection connection, QuerySource querySource, PreparedStatementSource statementSource, Serializer serializer, boolean encryptData, boolean decryptData) {
@@ -97,6 +98,14 @@ public class JdbcDao implements DonkeyDao {
     @Override
     public void setDecryptData(boolean decryptData) {
         this.decryptData = decryptData;
+    }
+
+    public char getQuoteChar() {
+        return quoteChar;
+    }
+
+    public void setQuoteChar(char quoteChar) {
+        this.quoteChar = quoteChar;
     }
 
     @Override
@@ -400,7 +409,7 @@ public class JdbcDao implements DonkeyDao {
 
             Map<String, Object> values = new HashMap<String, Object>();
             values.put("localChannelId", getLocalChannelId(connectorMessage.getChannelId()));
-            values.put("metaDataColumnNames", "\"" + StringUtils.join(metaDataColumnNames, "\",\"") + "\"");
+            values.put("metaDataColumnNames", quoteChar + StringUtils.join(metaDataColumnNames, quoteChar + "," + quoteChar) + quoteChar);
             values.put("metaDataColumnPlaceholders", "?" + StringUtils.repeat(", ?", metaDataColumnNames.size() - 1));
 
             statement = connection.prepareStatement(querySource.getQuery("insertMetaData", values));
@@ -450,7 +459,6 @@ public class JdbcDao implements DonkeyDao {
 
             statement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
             throw new DonkeyDaoException("Failed to insert connector message meta data", e);
         } finally {
             close(statement);
@@ -942,15 +950,29 @@ public class JdbcDao implements DonkeyDao {
 
     @Override
     public long getNextMessageId(String channelId) {
+        Statement statement = null;
         ResultSet resultSet = null;
 
         try {
-            resultSet = prepareStatement("getNextMessageId", channelId).executeQuery();
-            return (resultSet.next()) ? resultSet.getLong(1) : null;
+            Map<String, Object> values = new HashMap<String, Object>();
+            values.put("localChannelId", getLocalChannelId(channelId));
+
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(querySource.getQuery("getNextMessageId", values));
+            resultSet.next();
+            long id = resultSet.getLong(1);
+            close(resultSet);
+
+            if (querySource.queryExists("incrementMessageIdSequence")) {
+                statement.executeUpdate(querySource.getQuery("incrementMessageIdSequence", values));
+            }
+
+            return id;
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
             close(resultSet);
+            close(statement);
         }
     }
 
@@ -1136,18 +1158,19 @@ public class JdbcDao implements DonkeyDao {
                 statement = prepareStatement("getConnectorMessagesByMetaDataIdAndStatusWithLimit", channelId);
                 statement.setInt(1, metaDataId);
                 statement.setString(2, Character.toString(status.getStatusCode()));
-                statement.setInt(3, offset);
-                statement.setInt(4, limit);
+                statement.setInt(3, limit);
+                statement.setInt(4, offset);
             } else {
                 statement = prepareStatement("getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange", channelId);
                 statement.setInt(1, metaDataId);
                 statement.setString(2, Character.toString(status.getStatusCode()));
                 statement.setLong(3, minMessageId);
                 statement.setLong(4, maxMessageId);
-                statement.setInt(5, offset);
-                statement.setInt(6, limit);
+                statement.setInt(5, limit);
+                statement.setInt(6, offset);
             }
 
+            logger.debug(statement);
             resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
@@ -1335,8 +1358,14 @@ public class JdbcDao implements DonkeyDao {
             values.put("localChannelId", getLocalChannelId(channelId));
             values.put("columnName", metaDataColumn.getName());
 
+            String queryName = "addMetaDataColumn" + StringUtils.capitalize(StringUtils.lowerCase(metaDataColumn.getType().toString()));
+
             statement = connection.createStatement();
-            statement.executeUpdate(querySource.getQuery("addMetaDataColumn" + StringUtils.capitalize(StringUtils.lowerCase(metaDataColumn.getType().toString())), values));
+            statement.executeUpdate(querySource.getQuery(queryName, values));
+
+            if (querySource.queryExists(queryName + "Index")) {
+                statement.executeUpdate(querySource.getQuery(queryName + "Index", values));
+            }
         } catch (SQLException e) {
             throw new DonkeyDaoException("Failed to add meta-data column", e);
         } finally {
@@ -1355,14 +1384,17 @@ public class JdbcDao implements DonkeyDao {
             statement.setString(1, channelId);
             statement.setLong(2, localChannelId);
             statement.executeUpdate();
+            
+            Map<String, Object> values = new HashMap<String, Object>();
+            values.put("localChannelId", localChannelId);
 
-            createChannelTable(localChannelId, "createMessageTable");
-            createChannelTable(localChannelId, "createConnectorMessageTable");
-            createChannelTable(localChannelId, "createMessageContentTable");
-            createChannelTable(localChannelId, "createMessageCustomMetaDataTable");
-            createChannelTable(localChannelId, "createMessageAttachmentTable");
-            createChannelTable(localChannelId, "createMessageStatisticsTable");
-            createChannelTable(localChannelId, "createMessageSequence");
+            createTable("createMessageTable", values);
+            createTable("createConnectorMessageTable", values);
+            createTable("createMessageContentTable", values);
+            createTable("createMessageCustomMetaDataTable", values);
+            createTable("createMessageAttachmentTable", values);
+            createTable("createMessageStatisticsTable", values);
+            createTable("createMessageSequence", values);
         } catch (SQLException e) {
             throw new DonkeyDaoException(e);
         } finally {
@@ -1370,27 +1402,26 @@ public class JdbcDao implements DonkeyDao {
         }
     }
 
-    private void createChannelTable(long localChannelId, String query) {
-        Statement statement = null;
-        int n = 1;
-
-        Map<String, Object> values = new HashMap<String, Object>();
-        values.put("localChannelId", localChannelId);
-
-        try {
-            statement = connection.createStatement();
-            statement.executeUpdate(querySource.getQuery(query, values));
-
-            String indexQuery = querySource.getQuery(query + "Index" + n, values);
-
-            while (indexQuery != null) {
-                statement.executeUpdate(indexQuery);
-                indexQuery = querySource.getQuery(query + "Index" + (++n), values);
+    private void createTable(String query, Map<String, Object> values) {
+        if (querySource.queryExists(query)) {
+            Statement statement = null;
+            int n = 1;
+    
+            try {
+                statement = connection.createStatement();
+                statement.executeUpdate(querySource.getQuery(query, values));
+    
+                String indexQuery = querySource.getQuery(query + "Index" + n, values);
+    
+                while (indexQuery != null) {
+                    statement.executeUpdate(indexQuery);
+                    indexQuery = querySource.getQuery(query + "Index" + (++n), values);
+                }
+            } catch (SQLException e) {
+                throw new DonkeyDaoException(e);
+            } finally {
+                close(statement);
             }
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(statement);
         }
     }
 
@@ -1608,30 +1639,26 @@ public class JdbcDao implements DonkeyDao {
     }
 
     public boolean initTableStructure() {
-        boolean channelsTableExists = tableExists("d_channels");
-        boolean eventsTableExists = tableExists("d_events");
-        Statement statement = null;
+        boolean createChannelsTable = !tableExists("d_channels");
+        boolean createEventsTable = !tableExists("d_events");
+        boolean createSequencesTable = (querySource.queryExists("createSequencesTable") && !tableExists("d_message_sequences"));
 
-        try {
-            if (!channelsTableExists) {
-                logger.debug("Creating channels table");
-                statement = connection.createStatement();
-                statement.executeUpdate(querySource.getQuery("createChannelsTable"));
-                close(statement);
-            }
-
-            if (!eventsTableExists) {
-                logger.debug("Creating events table");
-                statement = connection.createStatement();
-                statement.executeUpdate(querySource.getQuery("createEventsTable"));
-            }
-
-            return (!channelsTableExists || !eventsTableExists);
-        } catch (SQLException e) {
-            throw new DonkeyDaoException(e);
-        } finally {
-            close(statement);
+        if (createChannelsTable) {
+            logger.debug("Creating channels table");
+            createTable("createChannelsTable", null);
         }
+
+        if (createEventsTable) {
+            logger.debug("Creating events table");
+            createTable("createEventsTable", null);
+        }
+
+        if (createSequencesTable) {
+            logger.debug("Creating sequences table");
+            createTable("createSequencesTable", null);
+        }
+
+        return (createChannelsTable || createEventsTable || createSequencesTable);
     }
 
     private boolean tableExists(String tableName) {

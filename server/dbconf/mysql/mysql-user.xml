@@ -1,128 +1,122 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
 
-<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
-
-<sqlMap namespace="User">
-	<resultMap class="com.mirth.connect.model.User" id="get-user-result">
-		<result property="id" column="ID" jdbcType="INTEGER" />
-		<result property="username" column="USERNAME" />
-		<result property="firstName" column="FIRSTNAME" />
-		<result property="lastName" column="LASTNAME" />
-		<result property="organization" column="ORGANIZATION" />
-		<result property="email" column="EMAIL" />
-		<result property="phoneNumber" column="PHONENUMBER" />
-		<result property="lastLogin" column="LAST_LOGIN" />
-		<result property="gracePeriodStart" column="GRACE_PERIOD_START" />
-		<result property="description" column="DESCRIPTION" />
+<mapper namespace='User'>
+	<resultMap id='get-user-result' type='com.mirth.connect.model.User'>
+		<result property='id' column='ID' jdbcType='INTEGER' />
+		<result property='username' column='USERNAME' />
+		<result property='firstName' column='FIRSTNAME' />
+		<result property='lastName' column='LASTNAME' />
+		<result property='organization' column='ORGANIZATION' />
+		<result property='email' column='EMAIL' />
+		<result property='phoneNumber' column='PHONENUMBER' />
+		<result property='lastLogin' column='LAST_LOGIN' />
+		<result property='gracePeriodStart' column='GRACE_PERIOD_START' />
+		<result property='description' column='DESCRIPTION' />
 	</resultMap>
 	
-	<resultMap class="com.mirth.connect.model.Credentials" id="get-user-credentials">
-		<result property="password" column="PASSWORD" />
-		<result property="passwordDate" column="PASSWORD_DATE" />
+	<resultMap id='get-user-credentials' type='com.mirth.connect.model.Credentials'>
+		<result property='password' column='PASSWORD' />
+		<result property='passwordDate' column='PASSWORD_DATE' />
 	</resultMap>
-
-	<select id="getUser" parameterClass="com.mirth.connect.model.User" resultMap="get-user-result">
-		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, DESCRIPTION
+	
+	<select id='getUser' parameterType='com.mirth.connect.model.User' resultMap='get-user-result'>
+		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL,
+		PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, DESCRIPTION
 		FROM PERSON
-		<dynamic prepend="WHERE">
-			<isNotNull prepend="AND" property="id">
-				ID = #id#
-			</isNotNull>
-			<isNotNull prepend="AND" property="username">
-				USERNAME = #username#
-			</isNotNull>
-		</dynamic>
+		<where>
+			<if test='id != null'>AND ID = #{id}</if>
+			<if test='username != null'>AND USERNAME = #{username}</if>
+		</where>
 	</select>
-
-	<select id="getUserCredentials" parameterClass="java.lang.Integer" resultMap="get-user-credentials">
+	
+	<select id='getUserCredentials' parameterType='java.lang.Integer' resultMap='get-user-credentials'>
 		SELECT PASSWORD, PASSWORD_DATE
 		FROM PERSON_PASSWORD
-		WHERE PERSON_ID = #id#
+		WHERE PERSON_ID = #{value}
 		ORDER BY PASSWORD_DATE DESC
 	</select>
 	
-	<select id="getLatestUserCredentials" parameterClass="java.lang.Integer" resultMap="get-user-credentials">
+	<select id='getLatestUserCredentials' parameterType='java.lang.Integer' resultMap='get-user-credentials'>
 		SELECT PASSWORD, PASSWORD_DATE
 		FROM PERSON_PASSWORD
-		WHERE PERSON_ID = #id#
+		WHERE PERSON_ID = #{value}
 		ORDER BY PASSWORD_DATE DESC
 		LIMIT 1
 	</select>
 	
-	<delete id="prunePasswords" parameterClass="java.util.Map">
-		DELETE FROM PERSON_PASSWORD
-		WHERE PERSON_ID = #id#
-		AND PASSWORD_DATE <![CDATA[ <= ]]> '$pruneDate$'
+	<delete id='prunePasswords' parameterType='java.util.Map'>
+		DELETE FROM
+		PERSON_PASSWORD
+		WHERE PERSON_ID = #{id}
+		AND PASSWORD_DATE <![CDATA[ <= ]]> '${pruneDate}'
 	</delete>
 	
-	<insert id="insertUser" parameterClass="java.util.Map">
-		INSERT INTO
-		PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
-		VALUES (#username#, #firstName:VARCHAR#, #lastName:VARCHAR#, #organization:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#, 0)
+	<insert id='insertUser' parameterType='java.util.Map'>
+		INSERT INTO PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
+		VALUES (#{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, FALSE)
 	</insert>
 	
-	<update id="updateUser" parameterClass="java.util.Map">
+	<update id='updateUser' parameterType='java.util.Map'>
 		UPDATE PERSON
-		SET USERNAME = #username#,
-			FIRSTNAME = #firstName:VARCHAR#,
-			LASTNAME = #lastName:VARCHAR#,
-			ORGANIZATION = #organization:VARCHAR#,
-			EMAIL = #email:VARCHAR#,
-			PHONENUMBER = #phoneNumber:VARCHAR#,
-			DESCRIPTION = #description:VARCHAR#
-		WHERE ID = #id#
+		SET
+			USERNAME = #{username},
+			FIRSTNAME = #{firstName,jdbcType=VARCHAR},
+			LASTNAME = #{lastName,jdbcType=VARCHAR},
+			ORGANIZATION = #{organization,jdbcType=VARCHAR},
+			EMAIL = #{email,jdbcType=VARCHAR},
+			PHONENUMBER = #{phoneNumber,jdbcType=VARCHAR},
+			DESCRIPTION = #{description,jdbcType=VARCHAR}
+
+		WHERE ID = #{id}
 	</update>
 	
-	<insert id="updateUserPassword" parameterClass="java.util.Map">
+	<insert id='updateUserPassword' parameterType='java.util.Map'>
 		INSERT INTO
 		PERSON_PASSWORD (PERSON_ID, PASSWORD)
-		VALUES (#id#, #password#)
+		VALUES (#{id}, #{password})
 	</insert>
 	
-	<delete id="deleteUser" parameterClass="com.mirth.connect.model.User">
+	<delete id='deleteUser' parameterType='com.mirth.connect.model.User'>
 		DELETE FROM PERSON
-		<dynamic prepend="WHERE">
-			<isNotNull prepend="AND" property="id">
-				ID=#id#
-			</isNotNull>
-		</dynamic>
+		<where>
+			<if test='id != null'>AND ID=#{id}</if>
+		</where>
 	</delete>
 	
-	<update id="startGracePeriod" parameterClass="java.lang.Integer">
+	<update id='startGracePeriod' parameterType='java.lang.Integer'>
 		UPDATE PERSON
 		SET GRACE_PERIOD_START = CURRENT_TIMESTAMP
-		WHERE ID = #id#
+		WHERE ID = #{value}
 	</update>
 	
-	<update id="clearGracePeriod" parameterClass="java.lang.Integer">
+	<update id='clearGracePeriod' parameterType='java.lang.Integer'>
 		UPDATE PERSON
 		SET GRACE_PERIOD_START = NULL
-		WHERE ID = #id#
+		WHERE ID = #{value}
 	</update>
 	
 	<!-- Login/Logout Procedures -->
-
-	<update id="loginUser" parameterClass="java.lang.Integer">
+	<update id='loginUser' parameterType='java.lang.Integer'>
 		UPDATE PERSON
-		SET LOGGED_IN = 1,
-		LAST_LOGIN = CURRENT_TIMESTAMP
-		WHERE ID = #id#
+		SET LOGGED_IN = TRUE, LAST_LOGIN = CURRENT_TIMESTAMP
+		WHERE ID = #{value}
 	</update>
-
-	<update id="logoutUser" parameterClass="java.lang.Integer">
+	
+	<update id='logoutUser' parameterType='java.lang.Integer'>
 		UPDATE PERSON
-		SET LOGGED_IN = 0
-		WHERE ID = #id#
+		SET LOGGED_IN = FALSE
+		WHERE ID = #{value}
 	</update>
-
-	<select id="isUserLoggedIn" parameterClass="java.lang.Integer" resultClass="java.lang.Boolean">
+	
+	<select id='isUserLoggedIn' parameterType='java.lang.Integer' resultType='java.lang.Boolean'>
 		SELECT LOGGED_IN
 		FROM PERSON
-		WHERE ID = #id#
+		WHERE ID = #{value}
 	</select>
 	
-	<update id="resetUserStatus">
+	<update id='resetUserStatus'>
 		UPDATE PERSON
-		SET LOGGED_IN = 0
+		SET LOGGED_IN = FALSE
 	</update>
-</sqlMap>
+</mapper>

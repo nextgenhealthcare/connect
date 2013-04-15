@@ -51,7 +51,6 @@
 	<classpathentry kind="lib" path="lib/xstream-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/file/webdavclient4j-core-0.92.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
-	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.0.8-bin.jar"/>
 	<classpathentry kind="lib" path="lib/xom-1.2.6.jar"/>
 	<classpathentry kind="lib" path="lib/database/ojdbc6.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.44.jar"/>
@@ -95,6 +94,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons/commons-compress-1.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.1.24-bin.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>

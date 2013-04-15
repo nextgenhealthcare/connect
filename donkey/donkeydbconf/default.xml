@@ -234,8 +234,8 @@
 		JOIN d_m${localChannelId} m ON m.id = mm.message_id
 		WHERE mm.id = ? AND mm.status = ?
 		ORDER BY m.id
-		OFFSET ?
 		LIMIT ?
+		OFFSET ?
 	</query>
 	
 	<query id="getConnectorMessagesByMetaDataIdAndStatusWithLimitAndRange">
@@ -245,8 +245,8 @@
 		WHERE mm.id = ? AND mm.status = ?
 		AND m.id <![CDATA[ >= ]]> ? AND m.id <![CDATA[ <= ]]> ?
 		ORDER BY m.id
-		OFFSET ?
 		LIMIT ?
+		OFFSET ?
 	</query>
 	
 	<query id="getConnectorMessagesByMessageId">

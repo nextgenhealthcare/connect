@@ -41,30 +41,6 @@ public class MessageController {
 
     private MessageController() {}
 
-    public synchronized long getNextMessageId(String channelId) {
-        DonkeyDao dao = Donkey.getInstance().getDaoFactory().getDao();
-
-        try {
-            return dao.getNextMessageId(channelId);
-        } finally {
-            dao.close();
-        }
-    }
-
-    public Message createNewMessage(String channelId, String serverId) {
-        long messageId = getNextMessageId(channelId);
-
-        Calendar receivedDate = Calendar.getInstance();
-
-        Message message = new Message();
-        message.setMessageId(messageId);
-        message.setChannelId(channelId);
-        message.setServerId(serverId);
-        message.setReceivedDate(receivedDate);
-
-        return message;
-    }
-
     public Attachment createAttachment(Object data, String type) throws UnsupportedDataTypeException {
         byte[] byteData;
 

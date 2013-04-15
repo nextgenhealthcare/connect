@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<queries>
+	<query id="createMessageTable">
+		CREATE TABLE d_m${localChannelId} (
+	        id bigint NOT NULL PRIMARY KEY,
+	        server_id character varying(36),
+	        received_date timestamp NOT NULL,
+	        processed boolean NOT NULL DEFAULT FALSE,
+	        import_id bigint,
+	        import_channel_id character varying(36)
+	    ) ENGINE=InnoDB;
+	</query>
+	
+	<query id="createMessageTableIndex1">
+		CREATE INDEX d_m${localChannelId}_index1 ON d_m${localChannelId}(id)
+	</query>
+	
+	<query id="createConnectorMessageTable">
+		CREATE TABLE d_mm${localChannelId} (
+	        id integer NOT NULL,
+	        message_id bigint NOT NULL,
+	        received_date timestamp NOT NULL,
+	        status character(1) NOT NULL,
+	        connector_name text,
+	        send_attempts integer NOT NULL DEFAULT 0,
+	        send_date timestamp,
+	        response_date timestamp,
+	        error_code integer NOT NULL DEFAULT 0,
+	        chain_id integer NOT NULL,
+	        order_id integer NOT NULL,
+	        CONSTRAINT mm${localChannelId}_pkey PRIMARY KEY(message_id, id),
+	        CONSTRAINT mm${localChannelId}_fkey FOREIGN KEY(message_id) REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB;
+	</query>
+	
+	<query id="createConnectorMessageTableIndex1">
+		CREATE INDEX d_mm${localChannelId}_index1 ON d_mm${localChannelId}(message_id)
+	</query>
+	
+	<query id="createConnectorMessageTableIndex2">
+		CREATE INDEX d_mm${localChannelId}_index2 ON d_mm${localChannelId}(message_id, id)
+	</query>
+	
+	<query id="createConnectorMessageTableIndex3">
+		CREATE INDEX d_mm${localChannelId}_index3 ON d_mm${localChannelId}(message_id, id, status)
+	</query>
+	
+	<query id="createMessageContentTable">
+		CREATE TABLE d_mc${localChannelId} (
+	        metadata_id integer NOT NULL,
+	        message_id bigint NOT NULL,
+	        content_type integer NOT NULL,
+	        content text,
+	        is_encrypted boolean NOT NULL,
+	        data_type character varying(255),
+	        CONSTRAINT mc${localChannelId}_pkey PRIMARY KEY(message_id, metadata_id, content_type),
+	        CONSTRAINT mc${localChannelId}_fkey FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE CASCADE
+        ) ENGINE=InnoDB;
+	</query>
+	
+	<query id="createMessageContentTableIndex1">
+		CREATE INDEX d_mc${localChannelId}_index1 ON d_mc${localChannelId}(message_id)
+	</query>
+	
+	<query id="createMessageContentTableIndex2">
+		CREATE INDEX d_mc${localChannelId}_index2 ON d_mc${localChannelId}(message_id, metadata_id)
+	</query>
+	
+	<query id="createMessageContentTableIndex3">
+		CREATE INDEX d_mc${localChannelId}_index3 ON d_mc${localChannelId}(message_id, metadata_id, content_type)
+	</query>
+	
+	<query id="createMessageCustomMetaDataTable">
+		CREATE TABLE d_mcm${localChannelId} (
+	        METADATA_ID integer NOT NULL,
+	        MESSAGE_ID bigint NOT NULL,
+	        CONSTRAINT mcm${localChannelId}_pkey PRIMARY KEY(message_id, metadata_id),
+	        CONSTRAINT mcm${localChannelId}_fkey FOREIGN KEY(message_id, metadata_id) REFERENCES d_mm${localChannelId}(message_id, id) ON DELETE CASCADE
+        ) ENGINE=InnoDB;
+	</query>
+	
+	<query id="createMessageCustomMetaDataTableIndex1">
+		CREATE INDEX d_mcm${localChannelId}_index1 ON d_mcm${localChannelId}(message_id)
+	</query>
+	
+	<query id="createMessageCustomMetaDataTableIndex2">
+		CREATE INDEX d_mcm${localChannelId}_index2 ON d_mcm${localChannelId}(message_id, metadata_id)
+	</query>
+	
+	<query id="createMessageAttachmentTable">
+		CREATE TABLE d_ma${localChannelId} (
+	        id character varying(255) NOT NULL,
+	        message_id bigint NOT NULL,
+	        type character varying(40),
+	        segment_id integer NOT NULL,
+	        size integer NOT NULL,
+	        content longblob,
+	        CONSTRAINT ma${localChannelId}_fkey FOREIGN KEY(message_id) REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB;
+	</query>
+	
+	<query id="createMessageAttachmentTableIndex1">
+		CREATE INDEX d_ma${localChannelId}_index1 ON d_ma${localChannelId}(id)
+	</query>
+	
+	<query id="createMessageAttachmentTableIndex2">
+		CREATE INDEX d_ma${localChannelId}_index2 ON d_ma${localChannelId}(message_id)
+	</query>
+	
+	<query id="createMessageStatisticsTable">
+		CREATE TABLE d_ms${localChannelId} (
+	        metadata_id integer,
+	        received bigint NOT NULL DEFAULT 0,
+	        received_lifetime bigint NOT NULL DEFAULT 0,
+	        filtered bigint NOT NULL DEFAULT 0,
+	        filtered_lifetime bigint NOT NULL DEFAULT 0,
+	        transformed bigint NOT NULL DEFAULT 0,
+	        transformed_lifetime bigint NOT NULL DEFAULT 0,
+	        pending bigint NOT NULL DEFAULT 0,
+	        pending_lifetime bigint NOT NULL DEFAULT 0,
+	        sent bigint NOT NULL DEFAULT 0,
+	        sent_lifetime bigint NOT NULL DEFAULT 0,
+	        error bigint NOT NULL DEFAULT 0,
+	        error_lifetime bigint NOT NULL DEFAULT 0
+        ) ENGINE=InnoDB;
+	</query>
+	
+	<query id="createMessageStatisticsTableIndex1">
+		CREATE INDEX d_ms${localChannelId}_index1 ON d_ms${localChannelId}(metadata_id)
+	</query>
+	
+	<query id="createMessageSequence">
+		INSERT INTO d_message_sequences (local_channel_id) VALUES (${localChannelId})
+	</query>
+	
+	<query id="createChannelsTable">
+		CREATE TABLE d_channels (
+	        local_channel_id bigint NOT NULL PRIMARY KEY,
+	        channel_id character varying(36) NOT NULL,
+	        CONSTRAINT unique_channel_id UNIQUE (channel_id)
+        ) ENGINE=InnoDB
+	</query>
+	
+	<query id="createChannelsTableIndex1">
+		CREATE INDEX d_channels_index1 ON d_channels(local_channel_id)
+	</query>
+	
+	<query id="createEventsTable">
+		CREATE TABLE d_events (
+	        event_id bigint NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	        event_type integer NOT NULL,
+	        channel_id character varying(36) NOT NULL,
+	        metadata_id integer,
+	        message_id bigint,
+	        message_status character(1),
+	        event_date timestamp NOT NULL
+        ) ENGINE=InnoDB
+	</query>
+	
+	<query id="createSequencesTable">
+		CREATE TABLE d_message_sequences (
+			local_channel_id bigint NOT NULL PRIMARY KEY,
+			id bigint NOT NULL DEFAULT 1
+		) ENGINE=InnoDB;
+	</query>
+	
+	<query id="createSequencesTableIndex1">
+		CREATE INDEX d_message_sequences_index ON d_channels(local_channel_id)
+	</query>
+	
+	<query id="dropMessageTable">
+		DROP TABLE d_m${localChannelId}
+	</query>
+	
+	<query id="dropMessageMetadataTable">
+		DROP TABLE d_mm${localChannelId}
+	</query>
+	
+	<query id="dropMessageContentTable">
+		DROP TABLE d_mc${localChannelId}
+	</query>
+	
+	<query id="dropCustomMetadataTable">
+		DROP TABLE d_mcm${localChannelId}
+	</query>
+	
+	<query id="dropAttachmentsTable">
+		DROP TABLE d_ma${localChannelId}
+	</query>
+	
+	<query id="dropStatisticsTable">
+		DROP TABLE d_ms${localChannelId}
+	</query>
+	
+	<query id="dropMessageSequence">
+		DELETE FROM d_message_sequences WHERE local_channel_id = ${localChannelId}
+	</query>
+	
+	<query id="deleteChannel">
+        DELETE FROM d_channels WHERE local_channel_id = ${localChannelId}
+	</query>
+	
+	<query id="getNextMessageId">
+		SELECT id
+		FROM d_message_sequences
+		WHERE local_channel_id = ${localChannelId}
+	</query>
+	
+	<query id="incrementMessageIdSequence">
+		UPDATE d_message_sequences
+		SET id = id + 1
+		WHERE local_channel_id = ${localChannelId}
+	</query>
+	
+	<query id="addMetaDataColumnString">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` varchar(255);
+	</query>
+	
+	<query id="addMetaDataColumnStringIndex">
+		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
+	</query>
+	
+	<query id="addMetaDataColumnBoolean">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` boolean;
+	</query>
+	
+	<query id="addMetaDataColumnBooleanIndex">
+		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
+	</query>
+	
+	<query id="addMetaDataColumnDate">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` date;
+	</query>
+	
+	<query id="addMetaDataColumnDateIndex">
+		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
+	</query>
+	
+	<query id="addMetaDataColumnDouble">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` double precision;
+	</query>
+	
+	<query id="addMetaDataColumnDoubleIndex">
+		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
+	</query>
+	
+	<query id="addMetaDataColumnLong">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` bigint;
+	</query>
+	
+	<query id="addMetaDataColumnLongIndex">
+		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
+	</query>
+	
+	<query id="addMetaDataColumnTime">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` time;
+	</query>
+	
+	<query id="addMetaDataColumnTimeIndex">
+		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
+	</query>
+	
+	<query id="addMetaDataColumnTimestamp">
+		ALTER TABLE d_mcm${localChannelId} ADD COLUMN `${columnName}` timestamp;
+	</query>
+	
+	<query id="addMetaDataColumnTimestampIndex">
+		CREATE INDEX `d_mcm${localChannelId}_${columnName}` ON d_mcm${localChannelId}(`${columnName}`);
+	</query>
+	
+	<query id="removeMetaDataColumn">
+		ALTER TABLE d_mcm${localChannelId} DROP COLUMN `${columnName}`
+	</query>
+</queries>

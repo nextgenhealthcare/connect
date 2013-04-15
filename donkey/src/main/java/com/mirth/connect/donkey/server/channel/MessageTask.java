@@ -139,9 +139,15 @@ final class MessageTask implements Callable<DispatchResult> {
         String channelId = channel.getChannelId();
 
         if (rawMessage.getMessageIdToOverwrite() == null) {
-            Message message = MessageController.getInstance().createNewMessage(channelId, channel.getServerId());
-            messageId = message.getMessageId();
-            receivedDate = message.getReceivedDate();
+            messageId = dao.getNextMessageId(channelId);
+            receivedDate = Calendar.getInstance();
+
+            Message message = new Message();
+            message.setMessageId(messageId);
+            message.setChannelId(channelId);
+            message.setServerId(channel.getServerId());
+            message.setReceivedDate(receivedDate);
+
             dao.insertMessage(message);
         } else {
             messageId = rawMessage.getMessageIdToOverwrite();

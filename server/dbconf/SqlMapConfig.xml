@@ -50,7 +50,6 @@
 		<mapper resource="${database}/${database}-script.xml" />
 		<mapper resource="${database}/${database}-configuration.xml" />
 		<mapper resource="${database}/${database}-event.xml" />
-		<mapper resource="${database}/${database}-statistic.xml" />
 		<mapper resource="${database}/${database}-alert.xml" />
 		<mapper resource="${database}/${database}-codeTemplate.xml" />
 	</mappers>

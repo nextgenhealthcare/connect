@@ -1,0 +1,423 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
+
+<mapper namespace="Message">
+	<resultMap id="connectorMessage" type="ConnectorMessage">		
+		<id property="messageId" column="message_id" />
+		<id property="metaDataId" column="id" />
+		<result property="connectorName" column="connector_name" />
+		<result property="serverId" column="server_id" />
+		<result property="receivedDate" column="received_date" />
+		<result property="status" column="status" />
+		<result property="sendAttempts" column="send_attempts" />
+		<result property="sendDate" column="send_date" />
+		<result property="responseDate" column="response_date" />
+		<result property="errorCode" column="error_code" />
+		<result property="chainId" column="chain_id" />
+		<result property="orderId" column="order_id" />
+		<collection property="metaDataMap" column="{localChannelId=local_channel_id,messageId=message_id,metaDataId=id}" ofType="map" select="selectCustomMetaData" />
+	</resultMap>
+	
+	<resultMap id="messageContent" type="com.mirth.connect.donkey.model.message.MessageContent">
+		<id property="messageId" column="message_id" />
+		<id property="metaDataId" column="metadata_id" />
+		<result property="contentType" column="content_type" typeHandler="com.mirth.connect.server.sqlmap.extensions.ContentTypeHandler" />
+		<result property="content" column="content" />
+		<result property="dataType" column="data_type" />
+		<result property="encrypted" column="isEncrypted" />
+	</resultMap>
+
+	<select id="searchMessages" parameterType="map" resultType="map">
+		SELECT
+			message.id AS "message_id",
+			message.server_id AS "server_id",
+			message.received_date AS "received_date",
+			message.processed AS "processed",
+			message.import_id AS "import_id",
+			message.import_channel_id AS "import_channel_id",
+			subquery.metadata_ids AS "metadata_ids"
+
+		FROM (
+			SELECT m.id, CAST(GROUP_CONCAT(mm.id) AS CHAR) AS "metadata_ids"
+			<include refid="searchMessagesBody" />
+			GROUP BY m.id
+	
+			ORDER BY m.id DESC
+			
+			<if test="limit != null">
+				LIMIT ${limit}
+			</if>
+			<if test="offset != null">
+				OFFSET ${offset}
+			</if>
+			) AS subquery
+		INNER JOIN d_m${localChannelId} message ON subquery.id = message.id
+		ORDER BY message.id DESC
+	</select>
+	
+	<select id="searchMessagesCount" parameterType="map" resultType="long">
+		SELECT COUNT(*) FROM (
+			SELECT m.id
+			<include refid="searchMessagesBody" />
+			GROUP BY m.id
+		) AS subquery
+	</select>
+	
+	<select id="selectMessageIdsForReprocessing" parameterType="map" resultType="long">
+		SELECT DISTINCT m.id
+		<include refid="searchMessagesBody" />
+	</select>
+	
+	<select id="selectMessageForReprocessing" parameterType="map" resultType="map">
+		SELECT content AS "content", data_type AS "data_type", is_encrypted AS "is_encrypted"
+		FROM d_mc${localChannelId}
+		WHERE message_id = #{messageId}
+		AND metadata_id = 0
+		AND content_type = 1
+	</select>
+	
+	<sql id="searchMessagesBody">
+		FROM d_m${localChannelId} m
+		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id
+		
+		<if test="metaDataSearch != null">
+			LEFT JOIN d_mcm${localChannelId} mcm ON mcm.message_id = mm.message_id AND mcm.metadata_id = mm.id
+		</if>
+		
+		<if test="quickSearch != null || rawSearch != null">
+			LEFT JOIN d_mc${localChannelId} mc_raw ON mc_raw.message_id = m.id AND mc_raw.metadata_id = 0 AND mc_raw.content_type = 1 AND mc_raw.is_encrypted = FALSE
+		</if>
+		
+		<if test="quickSearch != null || processedRawSearch != null">
+			LEFT JOIN d_mc${localChannelId} mc_processed_raw ON mc_processed_raw.message_id = m.id AND mc_processed_raw.metadata_id = mm.id AND mc_processed_raw.content_type = 2 AND mc_processed_raw.is_encrypted = FALSE
+		</if>
+		
+		<if test="quickSearch != null || transformedSearch != null">
+			LEFT JOIN d_mc${localChannelId} mc_transformed ON mc_transformed.message_id = m.id AND mc_transformed.metadata_id = mm.id AND mc_transformed.content_type = 3 AND mc_transformed.is_encrypted = FALSE
+		</if>
+		
+		<if test="quickSearch != null || encodedSearch != null">
+			LEFT JOIN d_mc${localChannelId} mc_encoded ON mc_encoded.message_id = m.id AND mc_encoded.metadata_id = mm.id AND mc_encoded.content_type = 4 AND mc_encoded.is_encrypted = FALSE
+		</if>
+		
+		<if test="quickSearch != null || sentSearch != null">
+			LEFT JOIN d_mc${localChannelId} mc_sent ON mc_sent.message_id = m.id AND mc_sent.metadata_id = mm.id AND mc_sent.content_type = 5 AND mc_sent.is_encrypted = FALSE
+		</if>
+		
+		<if test="quickSearch != null || responseSearch != null">
+			LEFT JOIN d_mc${localChannelId} mc_response ON mc_response.message_id = m.id AND mc_response.metadata_id = mm.id AND mc_response.content_type = 6 AND mc_response.is_encrypted = FALSE
+		</if>
+		
+		<if test="quickSearch != null || responseTransformedSearch != null">
+			LEFT JOIN d_mc${localChannelId} mc_response_transformed ON mc_response_transformed.message_id = m.id AND mc_response_transformed.metadata_id = mm.id AND mc_response_transformed.content_type = 7 AND mc_response_transformed.is_encrypted = FALSE
+		</if>
+		
+		<if test="quickSearch != null || processedResponseSearch != null">
+			LEFT JOIN d_mc${localChannelId} mc_processed_response ON mc_processed_response.message_id = m.id AND mc_processed_response.metadata_id = mm.id AND mc_processed_response.content_type = 8 AND mc_processed_response.is_encrypted = FALSE
+		</if>
+		
+		<where>
+			<if test="messageIdLower != null">
+				m.id <![CDATA[ >= ]]> #{messageIdLower}
+			</if>
+			<if test="messageIdUpper != null">
+				AND m.id <![CDATA[ <= ]]> #{messageIdUpper}
+			</if>
+			<if test="maxMessageId != null">
+				AND m.id <![CDATA[ <= ]]> #{maxMessageId}
+			</if>
+			<if test="startDate != null">
+				AND m.received_date <![CDATA[ >= ]]> #{startDate}
+			</if>
+			<if test="endDate != null">
+				AND m.received_date <![CDATA[ <= ]]> #{endDate}
+			</if>
+			<if test="serverId != null">
+				AND m.server_id LIKE CONCAT('%', #{serverId}, '%')
+			</if>
+			<if test="importIdLower != null">
+				AND m.import_id <![CDATA[ >= ]]> #{importIdLower}
+			</if>
+			<if test="importIdUpper != null">
+				AND m.import_id <![CDATA[ <= ]]> #{importIdUpper}
+			</if>
+			<if test="quickSearch != null">
+				AND (mc_raw.content LIKE CONCAT('%', #{quickSearch}, '%')
+				OR mc_processed_raw.content LIKE CONCAT('%', #{quickSearch}, '%')
+				OR mc_transformed.content LIKE CONCAT('%', #{quickSearch}, '%')
+				OR mc_encoded.content LIKE CONCAT('%', #{quickSearch}, '%')
+				OR mc_sent.content LIKE CONCAT('%', #{quickSearch}, '%')
+				OR mc_response.content LIKE CONCAT('%', #{quickSearch}, '%')
+				OR mc_response_transformed.content LIKE CONCAT('%', #{quickSearch}, '%')
+				OR mc_processed_response.content LIKE CONCAT('%', #{quickSearch}, '%')
+			</if>
+			<if test="statuses != null">
+				AND mm.status IN
+				<foreach item="status" collection="statuses" open="(" separator="," close=")">
+					#{status}
+				</foreach>
+			</if>
+			<if test="includedMetaDataIds != null">
+				AND mm.id IN
+				<foreach item="metaDataId" collection="includedMetaDataIds" open="(" separator="," close=")">
+					#{metaDataId}
+				</foreach>
+			</if>
+			<if test="excludedMetaDataIds != null">
+				AND mm.id NOT IN
+				<foreach item="metaDataId" collection="excludedMetaDataIds" open="(" separator="," close=")">
+					#{metaDataId}
+				</foreach>
+			</if>
+			<if test="rawSearch != null">
+				AND mc_raw.content LIKE CONCAT('%', #{rawSearch}, '%')
+			</if>
+			<if test="processedRawSearch != null">
+				AND mc_processed_raw.content LIKE CONCAT('%', #{processedRawSearch}, '%')
+			</if>
+			<if test="transformedSearch != null">
+				AND mc_transformed.content LIKE CONCAT('%', #{transformedSearch}, '%')
+			</if>
+			<if test="encodedSearch != null">
+				AND mc_encoded.content LIKE CONCAT('%', #{encodedSearch}, '%')
+			</if>
+			<if test="sentSearch != null">
+				AND mc_sent.content LIKE CONCAT('%', #{sentSearch}, '%')
+			</if>
+			<if test="responseSearch != null">
+				AND mc_response.content LIKE CONCAT('%', #{responseSearch}, '%')
+			</if>
+			<if test="responseTransformedSearch != null">
+				AND mc_response_transformed.content LIKE CONCAT('%', #{responseTransformedSearch}, '%')
+			</if>
+			<if test="processedResponseSearch != null">
+				AND mc_processed_response.content LIKE CONCAT('%', #{processedResponseSearch}, '%')
+			</if>
+			<if test="sendAttemptsLower != null">
+				AND mm.send_attempts <![CDATA[ >= ]]> #{sendAttemptsLower}
+			</if>
+			<if test="sendAttemptsUpper != null">
+				AND mm.send_attempts <![CDATA[ <= ]]> #{sendAttemptsUpper}
+			</if>
+			<if test="attachment != null and attachment == true">
+				AND EXISTS (
+					SELECT 1
+					FROM d_ma${localChannelId} ma
+					WHERE ma.message_id = m.id
+				)
+			</if>
+			<if test="metaDataSearch != null">
+				<foreach item="element" collection="metaDataSearch">
+					AND mcm.${element.columnName}
+
+					<choose>
+						<when test="element.operator == 'EQUAL'">
+							<![CDATA[ = ]]> #{element.value}
+						</when>
+						<when test="element.operator == 'TEXT_EQUAL'">
+							<![CDATA[ = ]]> #{element.value}
+						</when>
+						<when test="element.operator == 'NOT_EQUAL'">
+							<![CDATA[ != ]]> #{element.value}
+						</when>
+						<when test="element.operator == 'LESS_THAN'">
+							<![CDATA[ < ]]> #{element.value}
+						</when>
+						<when test="element.operator == 'LESS_THAN_OR_EQUAL'">
+							<![CDATA[ <= ]]> #{element.value}
+						</when>
+						<when test="element.operator == 'GREATER_THAN'">
+							<![CDATA[ > ]]> #{element.value}
+						</when>
+						<when test="element.operator == 'GREATER_THAN_OR_EQUAL'">
+							<![CDATA[ >= ]]> #{element.value}
+						</when>
+						<when test="element.operator == 'CONTAINS'">
+							LIKE CONCAT('%', #{element.value}, '%')
+						</when>
+						<when test="element.operator == 'STARTS_WITH'">
+							LIKE CONCAT(#{element.value}, '%')
+						</when>
+						<when test="element.operator == 'ENDS_WITH'">
+							LIKE CONCAT('%', #{element.value})
+						</when>
+					</choose>
+				</foreach>
+			</if>
+		</where>
+	</sql>
+	
+	<select id="selectMessageById" resultType="map">
+		SELECT
+			id AS "id",
+			server_id AS "server_id",
+			received_date AS "received_date",
+			processed AS "processed",
+			import_id AS "import_id",
+			import_channel_id AS "import_channel_id"
+			
+		FROM d_m${localChannelId}
+		WHERE id = #{messageId}
+	</select>
+	
+	<select id="selectMessageContent" resultMap="messageContent">
+		SELECT
+			metadata_id AS "metadata_id",
+			message_id AS "message_id",
+			content_type AS "content_type",
+			content AS "content",
+			data_type AS data_type,
+			encrypted AS "is_encrypted"
+			
+		FROM d_mc${localChannelId}
+		WHERE message_id = #{messageId}
+		AND metadata_id IN
+		<foreach item="metaDataId" collection="metaDataIds" open="(" separator="," close=")">
+			#{metaDataId}
+		</foreach>
+	</select>
+	
+	<select id="selectCustomMetaData" parameterType="map" resultType="map">
+		SELECT *
+		FROM d_mcm${localChannelId}
+		WHERE metadata_id = #{metaDataId}
+		AND message_id = #{messageId}
+	</select>
+	
+	<select id="selectMessageAttachmentIds" parameterType="map" resultType="Attachment">
+		SELECT id, type from d_ma${localChannelId}
+		WHERE message_id = #{messageId}
+		GROUP BY id, type
+	</select>
+	
+	
+	
+	<!-- Message Pruner/Archiver -->
+	
+	<delete id="prunerDeleteMessages" parameterType="map">
+		DELETE FROM d_m${localChannelId} m
+			
+		<if test="dateThreshold != null">
+			USING d_mm${localChannelId} mm
+		</if>
+		
+		<where>
+			<include refid="prunerDeleteWhere" />
+			
+			<if test="dateThreshold != null">
+				AND mm.message_id = m.id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+			</if>
+		</where>
+
+		<if test="limit != null">
+			LIMIT #{limit}
+		</if>
+	</delete>
+	
+	<delete id="prunerDeleteMessageContent" parameterType="map">
+		DELETE FROM d_mc${localChannelId} mc
+		
+		USING d_m${localChannelId} m
+		
+		<if test="dateThreshold != null">
+			, d_mm${localChannelId} mm
+		</if>
+		
+		<where>
+			<include refid="prunerDeleteWhere" />
+			AND mc.message_id = m.id
+			
+			<if test="dateThreshold != null">
+				AND mm.message_id = mc.message_id AND mm.id = 0 AND mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+			</if>
+		</where>
+		
+		<if test="limit != null">
+			LIMIT #{limit}
+		</if>
+	</delete>
+	
+	<sql id="prunerDeleteWhere">
+	
+		<!-- The following criteria are intended to be used only by the archiver, or the pruner if there is no archiver. -->
+		
+		<if test="skipIncomplete == true">
+			m.processed = TRUE
+		</if>
+		
+		<if test="skipStatuses != null">
+			AND NOT EXISTS (
+				SELECT 1
+				FROM d_mm${localChannelId} mm
+				WHERE mm.message_id = m.id
+				AND mm.status IN
+				<foreach item="status" collection="skipStatuses" open="(" separator="," close=")">
+					#{status}
+				</foreach>
+			)
+		</if>
+		
+				
+		<!-- The following criteria are intended to be used only by the pruner to constrain pruning to messages that were archived. -->
+		
+		<if test="includeMessageList != null">
+			AND m.id IN (${includeMessageList})
+		</if>
+		
+		<if test="excludeMessageList != null">
+			AND m.id NOT IN (${excludeMessageList})
+		</if>
+		
+		<if test="includeMessageRanges != null">
+			AND
+			<foreach item="range" collection="includeMessageRanges" open="(" separator="OR" close=")">
+				m.id BETWEEN #{range[0]} AND #{range[1]}
+			</foreach>
+		</if>
+		
+		<if test="excludeMessageRanges != null">
+			AND
+			<foreach item="range" collection="excludeMessageRanges" open="(" separator="AND" close=")">
+				m.id NOT BETWEEN #{range[0]} AND #{range[1]}
+			</foreach>
+		</if>
+
+		<if test="minMessageId != null and maxMessageId != null">
+			AND m.id BETWEEN #{minMessageId} AND #{maxMessageId}
+		</if>
+	</sql>
+	
+	<select id="prunerSelectMessagesToArchive" parameterType="map" resultType="map">
+		SELECT
+			m.id AS "id",
+			mm.received_date AS "received_date",
+			m.processed AS "processed",
+			m.server_id AS "server_id",
+			m.import_id AS "import_id"
+		
+		FROM d_m${localChannelId} m
+		JOIN d_mm${localChannelId} mm ON mm.message_id = m.id AND mm.id = 0
+		
+		<if test="skipStatuses != null">
+			LEFT JOIN d_mm${localChannelId} mm_skip ON mm_skip.message_id = m.id AND mm_skip.status IN
+			<foreach item="status" collection="skipStatuses" open="(" separator="," close=")">
+				#{status}
+			</foreach>
+		</if>
+	
+		WHERE mm.received_date <![CDATA[ < ]]> #{dateThreshold}
+		
+		<if test="skipIncomplete == true">
+			AND m.processed = TRUE
+		</if>
+		
+		<if test="skipStatuses != null">
+			AND mm_skip.id IS NULL
+		</if>
+		
+		ORDER BY m.id
+		
+		LIMIT #{limit}
+		OFFSET #{offset}
+	</select>
+</mapper>

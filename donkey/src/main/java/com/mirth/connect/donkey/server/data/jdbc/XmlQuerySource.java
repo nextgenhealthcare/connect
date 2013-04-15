@@ -83,6 +83,11 @@ public class XmlQuerySource implements QuerySource {
 
         return query;
     }
+    
+    @Override
+    public boolean queryExists(String queryName) {
+        return queries.containsKey(queryName);
+    }
 
     public class XmlQuerySourceException extends Exception {
         public XmlQuerySourceException(String message, Throwable cause) {

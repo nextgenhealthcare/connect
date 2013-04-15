@@ -1,121 +1,92 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'>
 
-<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
-
-<sqlMap namespace="Event">
-	<parameterMap class="com.mirth.connect.model.Event" id="insert-event-param">
-		<parameter property="name" jdbcType="CLOB" />
-		<parameter property="level" jdbcType="VARCHAR" />
-		<parameter property="outcome" jdbcType="VARCHAR" />
-		<parameter property="attributes" jdbcType="CLOB" />
-		<parameter property="userId" jdbcType="INTEGER" />
-		<parameter property="ipAddress" jdbcType="VARCHAR" />
-	</parameterMap>
-
-	<resultMap class="com.mirth.connect.model.Event" id="get-event-result">
-		<result property="id" column="ID" />
-		<result property="dateTime" column="DATE_CREATED" />
-		<result property="level" column="EVENT_LEVEL"/>
-		<result property="outcome" column="OUTCOME" />
-		<result property="name" column="NAME" />
-		<result property="attributes" column="ATTRIBUTES" />
-		<result property="userId" column="USER_ID" />
-		<result property="ipAddress" column="IP_ADDRESS" />
+<mapper namespace='Event'>
+	<resultMap id='get-event-result' type='com.mirth.connect.model.Event'>
+		<result property='id' column='ID' />
+		<result property='dateTime' column='DATE_CREATED' />
+		<result property='level' column='EVENT_LEVEL' />
+		<result property='outcome' column='OUTCOME' />
+		<result property='name' column='NAME' />
+		<result property='attributes' column='ATTRIBUTES' typeHandler='MapTypeHandler' />
+		<result property='userId' column='USER_ID' />
+		<result property='ipAddress' column='IP_ADDRESS' />
 	</resultMap>
-
-	<sql id="eventFilterCriteria">
-		<dynamic prepend="WHERE">
-			<isNotNull prepend="AND" property="id">
-				ID = $id$
-			</isNotNull>
-			<isNotNull prepend="AND" property="name">
-				LOWER(NAME) LIKE LOWER('%$name$%')
-			</isNotNull>
-			<isNotNull prepend="AND" property="level">
-				EVENT_LEVEL = '$level$'
-			</isNotNull>
-			<isNotNull prepend="AND" property="startDate">
-				DATE_CREATED <![CDATA[ >= ]]> '$startDate$'
-			</isNotNull>
-			<isNotNull prepend="AND" property="endDate">
-				DATE_CREATED <![CDATA[ <= ]]> '$endDate$'
-			</isNotNull>
-			<isNotNull prepend="AND" property="outcome">
-				OUTCOME = '$outcome$'
-			</isNotNull>
-			<isNotNull prepend="AND" property="userId">
-				USER_ID = $userId$
-			</isNotNull>
-			<isNotNull prepend="AND" property="ipAddress">
-				IP_ADDRESS = '$ipAddress$'
-			</isNotNull>
-		</dynamic>
+	
+	<sql id='eventFilterCriteria'>
+		<where>
+			<if test='id != null'>AND ID = ${id}</if>
+			<if test='name != null'>AND LOWER(NAME) LIKE LOWER('%${name}%')</if>
+			<if test='level != null'>AND EVENT_LEVEL = '${level}'</if>
+			<if test='startDate != null'>AND DATE_CREATED <![CDATA[ >= ]]> '${startDate}'</if>
+			<if test='endDate != null'>AND DATE_CREATED <![CDATA[ <= ]]> '${endDate}'</if>
+			<if test='outcome != null'>AND OUTCOME = '${outcome}'</if>
+			<if test='userId != null'>AND USER_ID = ${userId}</if>
+			<if test='ipAddress != null'>AND IP_ADDRESS = '${ipAddress}'</if>
+		</where>
 	</sql>
-    
-	<select id="getEventsByPage" parameterClass="java.util.Map" resultMap="get-event-result">
-		SELECT
-			EVENT.*
-		FROM
-			EVT_TMP_$uid$ AS TEMP_TABLE,
-			EVENT
-		WHERE
-			TEMP_TABLE.ID = EVENT.ID
-			<dynamic prepend="AND">
-				<isNotNull property="first">
-					<isNotNull property="last">
-						TEMP_TABLE.SEQUENCE_ORDER BETWEEN #first# AND #last#
-					</isNotNull>
-				</isNotNull>
-			</dynamic>
+	
+	<select id='getEventsByPage' parameterType='java.util.Map' resultMap='get-event-result'>
+		SELECT EVENT.*
+		FROM EVT_TMP_${uid} AS TEMP_TABLE, EVENT
+		WHERE TEMP_TABLE.ID = EVENT.ID
+
+		<if test='first != null'>
+			<if test='last != null'>
+				AND TEMP_TABLE.SEQUENCE_ORDER BETWEEN #{first} AND #{last}
+			</if>
+		</if>
+
 		ORDER BY TEMP_TABLE.DATE_CREATED DESC
 	</select>
 	
-	<select id="getEventsByPageLimit" parameterClass="java.util.Map" resultMap="get-event-result">
-		SELECT
-			EVENT.*
-		FROM
-			EVENT
-		<include refid="eventFilterCriteria" />
+	<select id='getEventsByPageLimit' parameterType='java.util.Map' resultMap='get-event-result'>
+		SELECT EVENT.*
+		FROM EVENT
+		<include refid='eventFilterCriteria' />
 		ORDER BY DATE_CREATED DESC
-		LIMIT $limit$
-		OFFSET $offset$
+		LIMIT ${limit}
+		OFFSET ${offset}
 	</select>
-
-	<statement id="dropTempEventTable" parameterClass="java.lang.String">
-		DROP TABLE EVT_TMP_$uid$
-	</statement>
-
-	<statement id="createTempEventTable" parameterClass="java.lang.String">
-		CREATE TABLE EVT_TMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY, DATE_CREATED TIMESTAMP)
-	</statement>
-
-	<statement id="createTempEventTableIndex" parameterClass="java.lang.String">
-		CREATE INDEX IDX_EVT_TMP_$uid$ ON EVT_TMP_$uid$ (SEQUENCE_ORDER, ID)
-	</statement>
-
+	
+	<update id='dropTempEventTable' parameterType='java.lang.String'>
+		DROP TABLE EVT_TMP_${value}
+	</update>
+	
+	<update id='createTempEventTable' parameterType='java.lang.String'>
+		CREATE TABLE EVT_TMP_${value} (
+			SEQUENCE_ORDER INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			ID INTEGER,
+			DATE_CREATED TIMESTAMP
+		) ENGINE=InnoDB
+	</update>
+	
+	<update id='createTempEventTableIndex' parameterType='java.lang.String'>
+		CREATE INDEX IDX_EVT_TMP_${value} ON EVT_TMP_${value} (SEQUENCE_ORDER, ID)
+	</update>
+	
 	<!-- NOTE: The nested SELECT needs an ORDER BY DATE_CREATED, which Derby does not support -->
-	<insert id="populateTempEventTable" parameterClass="java.util.Map">
-		INSERT INTO EVT_TMP_$uid$ (ID, DATE_CREATED)
-			(SELECT ID, DATE_CREATED
-			FROM EVENT
-			<include refid="eventFilterCriteria" />)
+	<insert id='populateTempEventTable' parameterType='java.util.Map'>
+		INSERT INTO EVT_TMP_${uid} (ID, DATE_CREATED)
+		(SELECT ID, DATE_CREATED
+		FROM EVENT
+		<include refid='eventFilterCriteria' />)
 	</insert>
 	
-	<delete id="deleteTempEventTable" parameterClass="java.lang.String">
-		DROP TABLE EVT_TMP_$uid$
+	<delete id='deleteTempEventTable' parameterType='java.lang.String'>
+		DROP TABLE EVT_TMP_${value}
 	</delete>
-
-	<delete id="deleteTempEventTableIndex" parameterClass="java.lang.String">
-		DROP INDEX IDX_EVT_TMP_$uid$
+	
+	<delete id='deleteTempEventTableIndex' parameterType='java.lang.String'>
+		DROP INDEX IDX_EVT_TMP_${value}
 	</delete>
-
-	<insert id="insertEvent" parameterMap="insert-event-param">
-		INSERT INTO
-		EVENT (NAME, EVENT_LEVEL, OUTCOME, ATTRIBUTES, USER_ID, IP_ADDRESS)
-		VALUES (?, ?, ?, ?, ?, ?)
+	
+	<insert id='insertEvent' parameterType='com.mirth.connect.model.Event'>
+		INSERT INTO EVENT (NAME, EVENT_LEVEL, OUTCOME, ATTRIBUTES, USER_ID, IP_ADDRESS)
+		VALUES (#{name}, #{level}, #{outcome}, #{attributes,typeHandler=MapTypeHandler}, #{userId}, #{ipAddress})
 	</insert>
-
-	<delete id="deleteEvent">
+	
+	<delete id='deleteEvent'>
 		TRUNCATE TABLE EVENT
 	</delete>
-</sqlMap>
+</mapper>
