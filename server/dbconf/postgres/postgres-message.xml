@@ -124,7 +124,7 @@
 				AND m.received_date <![CDATA[ <= ]]> #{endDate}
 			</if>
 			<if test="serverId != null">
-				AND m.server_id = #{serverId}
+				AND m.server_id ILIKE '%' || #{serverId} || '%'
 			</if>
 			<if test="importIdLower != null">
 				AND m.import_id <![CDATA[ >= ]]> #{importIdLower}
@@ -198,9 +198,6 @@
 				AND mcm."${element.columnName}"
 				
 				<choose>
-					<when test="element.ignoreCase">
-						<![CDATA[ ILIKE ]]> 
-					</when>
 					<when test="element.operator == 'EQUAL'">
 						<![CDATA[ = ]]> 
 					</when>
@@ -223,7 +220,14 @@
 						<![CDATA[ >= ]]> 
 					</when>
 					<when test="element.operator == 'CONTAINS' || element.operator == 'STARTS_WITH' || element.operator == 'ENDS_WITH'">
-						<![CDATA[ LIKE ]]> 
+						<choose>
+							<when test="element.ignoreCase">
+								ILIKE
+							</when>
+							<otherwise>
+								LIKE
+							</otherwise>
+						</choose>
 					</when>
 				</choose>
 				

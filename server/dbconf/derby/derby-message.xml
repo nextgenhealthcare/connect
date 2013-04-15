@@ -134,7 +134,7 @@
 				AND m.received_date <![CDATA[ <= ]]> #{endDate}
 			</if>
 			<if test="serverId != null">
-				AND m.server_id = #{serverId}
+				AND UPPER(m.server_id) LIKE '%' || UPPER(#{serverId}) || '%'
 			</if>
 			<if test="importIdLower != null">
 				AND m.import_id <![CDATA[ >= ]]> #{importIdLower}
@@ -205,19 +205,9 @@
 			</if>
 			<if test="metaDataSearch != null">
 				<foreach item="element" collection="metaDataSearch">
-					<choose>
-						<when test="element.ignoreCase">
-							AND UPPER(mcm.${element.columnName})
-						</when>
-						<otherwise>
-							AND mcm.${element.columnName}
-						</otherwise>
-					</choose>
+					AND mcm.${element.columnName}
 					
 					<choose>
-						<when test="element.ignoreCase">
-							<![CDATA[ LIKE ]]> 
-						</when>
 						<when test="element.operator == 'EQUAL'">
 							<![CDATA[ = ]]> 
 						</when>
@@ -240,7 +230,7 @@
 							<![CDATA[ >= ]]> 
 						</when>
 						<when test="element.operator == 'CONTAINS' || element.operator == 'STARTS_WITH' || element.operator == 'ENDS_WITH'">
-							<![CDATA[ LIKE ]]> 
+							LIKE
 						</when>
 					</choose>
 					
@@ -248,14 +238,7 @@
 						'%' ||
 					</if>
 					
-					<choose>
-						<when test="element.ignoreCase">
-							UPPER(#{element.value})
-						</when>
-						<otherwise>
-							#{element.value}
-						</otherwise>
-					</choose>
+					#{element.value}
 						
 					<if test="element.operator == 'CONTAINS' || element.operator == 'STARTS_WITH'">
 						|| '%'
