@@ -19,7 +19,7 @@
 	<query id="createConnectorMessageTable">
 		CREATE TABLE d_mm${localChannelId} (
 	        id integer NOT NULL,
-	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE,
+	        message_id bigint NOT NULL,
 	        received_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        status character(1) NOT NULL,
 	        connector_name text,
@@ -29,7 +29,8 @@
 	        error_code integer NOT NULL DEFAULT 0,
 	        chain_id integer NOT NULL,
 	        order_id integer NOT NULL,
-	        CONSTRAINT mm${localChannelId}_pkey PRIMARY KEY(message_id, id)
+	        CONSTRAINT mm${localChannelId}_pkey PRIMARY KEY(message_id, id),
+	        CONSTRAINT mm${localChannelId}_fkey FOREIGN KEY(message_id) REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE
         );
 	</query>
 	
@@ -90,11 +91,12 @@
 	<query id="createMessageAttachmentTable">
 		CREATE TABLE d_ma${localChannelId} (
 	        id character varying(255) NOT NULL,
-	        message_id bigint NOT NULL REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE,
+	        message_id bigint NOT NULL,
 	        type character varying(40),
 	        segment_id integer NOT NULL,
 	        size integer NOT NULL,
-	        content bytea
+	        content bytea,
+	        CONSTRAINT ma${localChannelId}_fkey FOREIGN KEY(message_id) REFERENCES d_m${localChannelId}(id) ON DELETE CASCADE
         );
 	</query>
 	
@@ -159,19 +161,6 @@
 	        message_status character(1),
 	        event_date timestamp NOT NULL
         )
-	</query>
-	
-	<query id="removeChannel">
-		DROP TABLE d_ms${localChannelId};
-        DROP TABLE d_ma${localChannelId};
-        DROP TABLE d_mcm${localChannelId};
-        DROP TABLE d_mc${localChannelId};
-        DROP TABLE d_mm${localChannelId};
-        DROP TABLE d_m${localChannelId};
-        DROP SEQUENCE d_msq${localChannelId};
-
-        DELETE FROM d_channels
-        WHERE local_channel_id = ${localChannelId};
 	</query>
 	
 	<query id="dropMessageTable">
