@@ -26,32 +26,32 @@ import javax.swing.table.TableCellEditor;
 
 public class MirthComboBoxTableCellEditor extends AbstractCellEditor implements TableCellEditor {
 
-    private JComboBox comboBox;
+    protected JComboBox comboBox;
     private int clickCount;
-    
+
     public MirthComboBoxTableCellEditor(JTable table, Object[] items, int clickCount, boolean focusable, final ActionListener actionListener) {
         this.clickCount = clickCount;
-        
+
         comboBox = new JComboBox(items);
         comboBox.setFocusable(focusable);
         comboBox.setMaximumRowCount(20);
         comboBox.setForeground(table.getForeground());
         comboBox.setBackground(table.getBackground());
         comboBox.setRenderer(new DataTypeListCellRenderer());
-        
-        // Allow an action listener to be passed in. However, we need to fireEditingStopped after the action has finished so we wrap it in another listener
-        if (actionListener != null) {
-            comboBox.addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(ActionEvent e) {
+        // Allow an action listener to be passed in. However, we need to fireEditingStopped after the action has finished so we wrap it in another listener
+        comboBox.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (actionListener != null) {
                     actionListener.actionPerformed(e);
-                    fireEditingStopped();
                 }
-                
-            });
-        }
-        
+                fireEditingStopped();
+            }
+
+        });
+
         // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4515838
         // Workaround to remove the border around the comboBox
         for (int i = 0; i < comboBox.getComponentCount(); i++) {
@@ -60,13 +60,13 @@ public class MirthComboBoxTableCellEditor extends AbstractCellEditor implements 
             }
         }
     }
-    
+
     @Override
     public boolean isCellEditable(EventObject anEvent) {
         if (anEvent instanceof MouseEvent) {
             return ((MouseEvent) anEvent).getClickCount() >= clickCount;
         }
-        
+
         return false;
     }
 
@@ -80,35 +80,34 @@ public class MirthComboBoxTableCellEditor extends AbstractCellEditor implements 
         // Only the selected component will be edited, so always set the colors to the table's selection colors.
         comboBox.setForeground(table.getSelectionForeground());
         comboBox.setBackground(table.getSelectionBackground());
-            
+
         for (int i = 0; i < comboBox.getComponentCount(); i++) {
             if (comboBox.getComponent(i) instanceof AbstractButton) {
                 comboBox.getComponent(i).setBackground(comboBox.getBackground());
             }
         }
-        
+
         comboBox.setSelectedItem(value);
         return comboBox;
     }
-    
+
     @SuppressWarnings("serial")
     private class DataTypeListCellRenderer extends DefaultListCellRenderer {
-        
-        public DataTypeListCellRenderer() {
-        }
-        
+
+        public DataTypeListCellRenderer() {}
+
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            
+
             if (index >= 0) {
                 if (!isSelected) {
                     component.setBackground(Color.white);
                 }
             }
-            
+
             return component;
         }
     }
-    
+
 }

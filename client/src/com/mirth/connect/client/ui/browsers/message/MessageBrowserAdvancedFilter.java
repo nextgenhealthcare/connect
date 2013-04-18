@@ -10,17 +10,14 @@
 package com.mirth.connect.client.ui.browsers.message;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
-import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
-import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -141,6 +138,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                             metaDataColumn.getType().castMetaDataFromString((String) value);
                         } catch (MetaDataColumnException e) {
                             parent.alertError(parent, "Invalid value for column type " + metaDataColumn.getType().toString());
+                            return;
                         }
                     }
                 } else if (column == metaDataColumnIndex) {
@@ -192,36 +190,22 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         metaDataColumn.setPreferredWidth(METADATA_NAME_COLUMN_WIDTH);
 
         // Need to create this custom editor since the combo box values are dynamic based on metadata column type. 
-        DefaultCellEditor operatorEditor = new DefaultCellEditor(new JComboBox()) {
-            private JComboBox comboBox;
+        MirthComboBoxTableCellEditor operatorEditor = new MirthComboBoxTableCellEditor(metaDataSearchTable, MetaDataSearchOperator.values(), 1, false, null) {
 
             public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 
                 MetaDataColumn metaDataColumn = cachedMetaDataColumns.get(table.getValueAt(row, 0));
 
-                comboBox = new JComboBox(MetaDataSearchOperator.valuesForColumnType(metaDataColumn.getType()));
-                comboBox.addActionListener(new ActionListener() {
-
-                    @Override
-                    public void actionPerformed(ActionEvent arg0) {
-                        stopCellEditing();
-                    }
-
-                });
-
-                comboBox.setSelectedItem(value);
-                // Return the configured component
-                return comboBox;
+                comboBox.setModel(new DefaultComboBoxModel(MetaDataSearchOperator.valuesForColumnType(metaDataColumn.getType())));
+                
+                return super.getTableCellEditorComponent(table, value, isSelected, row, column);
             }
-
-            public Object getCellEditorValue() {
-                return comboBox.getSelectedItem();
-            }
+            
         };
 
         TableColumn operatorColumn = metaDataSearchTable.getColumnModel().getColumn(1);
         operatorColumn.setCellRenderer(new MirthComboBoxTableCellRenderer(MetaDataSearchOperator.values()));
-        operatorColumn.setCellEditor(new MirthComboBoxTableCellEditor(metaDataSearchTable, MetaDataSearchOperator.values(), 1, false, null));
+        operatorColumn.setCellEditor(operatorEditor);
         operatorColumn.setMinWidth(METADATA_OPERATOR_COLUMN_WIDTH);
         operatorColumn.setMaxWidth(METADATA_OPERATOR_COLUMN_WIDTH);
 

@@ -490,7 +490,7 @@ public class DataTypesDialog extends javax.swing.JDialog {
 			}
         	
         });
-        table.getColumnExt(SELECTION_COLUMN).setCellEditor(new ComboBoxCellEditor());
+        table.getColumnExt(SELECTION_COLUMN).setCellEditor(new CheckBoxCellEditor());
         
         table.setRowHeight(UIConstants.ROW_HEIGHT);
         table.setSortable(false);
@@ -526,11 +526,11 @@ public class DataTypesDialog extends javax.swing.JDialog {
         scrollPane.setViewportView(table);
     }
     
-    private class ComboBoxCellEditor extends AbstractCellEditor implements TableCellEditor {
+    private class CheckBoxCellEditor extends AbstractCellEditor implements TableCellEditor {
 
     	private JCheckBox checkBox;
     	
-    	public ComboBoxCellEditor() {
+    	public CheckBoxCellEditor() {
     		checkBox = new JCheckBox();
     		checkBox.setVerticalAlignment(SwingConstants.CENTER);
 			checkBox.setHorizontalAlignment(SwingConstants.CENTER);
